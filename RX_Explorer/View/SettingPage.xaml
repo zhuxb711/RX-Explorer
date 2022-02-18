@@ -94,78 +94,6 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-            <VisualStateGroup>
-                <VisualState x:Name="ModeNormalState" />
-                <VisualState x:Name="ModeAcrylicState">
-                    <VisualState.StateTriggers>
-                        <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
-                                                      To="CustomAcrylic" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="GetBingPhotoState.Visibility"
-                                Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="ModePictureState">
-                    <VisualState.StateTriggers>
-                        <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
-                                                      To="Picture" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="GetBingPhotoState.Visibility"
-                                Value="Collapsed" />
-                        <Setter Target="OtherEffectArea.Visibility"
-                                Value="Visible" />
-                        <Setter Target="PictureGirdView.IsEnabled"
-                                Value="True" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="ModeBingPictureState">
-                    <VisualState.StateTriggers>
-                        <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
-                                                      To="BingPicture" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="OtherEffectArea.Visibility"
-                                Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="ModeMicaState">
-                    <VisualState.StateTriggers>
-                        <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
-                                                      To="Mica" />
-                    </VisualState.StateTriggers>
-                </VisualState>
-            </VisualStateGroup>
-            <VisualStateGroup>
-                <VisualState x:Name="ModeAcrylicNormalState" />
-                <VisualState x:Name="ModeAcrylicDisabledState">
-                    <VisualState.StateTriggers>
-                        <Triggers:IsNotEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
-                                                         To="CustomAcrylic" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="PreventFallBack.IsEnabled"
-                                Value="False" />
-                        <Setter Target="TintOpacitySliderLabel.Foreground"
-                                Value="Gray" />
-                        <Setter Target="TintOpacitySliderValueText.Foreground"
-                                Value="Gray" />
-                        <Setter Target="TintOpacitySlider.IsEnabled"
-                                Value="False" />
-                        <Setter Target="AccentColorLabel.Foreground"
-                                Value="Gray" />
-                        <Setter Target="TintLuminositySliderLabel.Foreground"
-                                Value="Gray" />
-                        <Setter Target="TintLuminositySliderValueText.Foreground"
-                                Value="Gray" />
-                        <Setter Target="AcrylicColor.IsEnabled"
-                                Value="False" />
-                        <Setter Target="TintLuminositySlider.IsEnabled"
-                                Value="False" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <Grid HorizontalAlignment="Stretch"
@@ -1657,6 +1585,7 @@
                                                                        VerticalContentAlignment="Top"
                                                                        Padding="0"
                                                                        MinHeight="45"
+                                                                       Name="AcrylicModeExpander"
                                                                        Background="Transparent"
                                                                        CornerRadius="0">
                                                             <muxc:Expander.Header>
@@ -1825,8 +1754,10 @@
                                                                        VerticalContentAlignment="Top"
                                                                        Padding="0"
                                                                        MinHeight="45"
+                                                                       Name="PictureModeExpander"
                                                                        Background="Transparent"
-                                                                       CornerRadius="0">
+                                                                       CornerRadius="0"
+                                                                       Expanding="PictureModeExpander_Expanding">
                                                             <muxc:Expander.Header>
                                                                 <StackPanel Padding="24,10,0,10">
                                                                     <RadioButton Content="自定义图片背景"
@@ -1847,7 +1778,6 @@
                                                                         <StackPanel Orientation="Horizontal">
                                                                             <GridView Name="PictureGirdView"
                                                                                       MaxWidth="400"
-                                                                                      IsEnabled="False"
                                                                                       IsRightTapEnabled="True"
                                                                                       VerticalAlignment="Top"
                                                                                       SelectionMode="Single"
@@ -1908,8 +1838,7 @@
                                                                                        Height="15"
                                                                                        Width="15"
                                                                                        VerticalAlignment="Center"
-                                                                                       Name="GetBingPhotoState"
-                                                                                       Visibility="Collapsed" />
+                                                                                       Name="GetBingPhotoState" />
                                                                 </StackPanel>
                                                             </RadioButton>
                                                         </Border>
@@ -1927,8 +1856,7 @@
                                                                          Content="{x:Bind Cls:Globalization.GetString('Setting_UIMode_Mica')}" />
                                                         </Border>
 
-                                                        <StackPanel x:Name="OtherEffectArea"
-                                                                    Visibility="Collapsed">
+                                                        <StackPanel x:Name="OtherEffectArea">
                                                             <Border Padding="40,10,10,10"
                                                                     MinHeight="45"
                                                                     CornerRadius="0"

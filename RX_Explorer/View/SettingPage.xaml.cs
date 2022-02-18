@@ -34,6 +34,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using AnimationController = RX_Explorer.Class.AnimationController;
 using AnimationDirection = Windows.UI.Composition.AnimationDirection;
@@ -459,6 +460,32 @@ namespace RX_Explorer
             set => ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] = value;
         }
 
+        public static BackgroundBrushType CustomModeSubType
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["CustomModeSubType"] is string SubType)
+                {
+                    return Enum.Parse<BackgroundBrushType>(SubType);
+                }
+                else
+                {
+                    return BackgroundBrushType.CustomAcrylic;
+                }
+            }
+            set
+            {
+                if (value is BackgroundBrushType.CustomAcrylic or BackgroundBrushType.Mica or BackgroundBrushType.Picture or BackgroundBrushType.BingPicture)
+                {
+                    ApplicationData.Current.LocalSettings.Values["CustomModeSubType"] = Enum.GetName(typeof(BackgroundBrushType), value);
+                }
+                else
+                {
+                    throw new ArgumentException("CustomModeSubType is not a valid value");
+                }
+            }
+        }
+
         public static bool IsOpened { get; private set; }
 
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
@@ -476,6 +503,7 @@ namespace RX_Explorer
 
             Loading += SettingDialog_Loading;
             AnimationController.Current.AnimationStateChanged += Current_AnimationStateChanged;
+            BackgroundController.Current.BackgroundTypeChanged += Current_BackgroundTypeChanged;
 
             if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
             {
@@ -483,6 +511,54 @@ namespace RX_Explorer
                 {
                     Btn.Visibility = Visibility.Visible;
                 }
+            }
+        }
+
+        private void Current_BackgroundTypeChanged(object sender, BackgroundBrushType Type)
+        {
+            PreventFallBack.IsEnabled = false;
+            TintOpacitySlider.IsEnabled = false;
+            AcrylicColor.IsEnabled = false;
+            TintLuminositySlider.IsEnabled = false;
+            PictureGirdView.IsEnabled = false;
+            TintOpacitySliderLabel.Foreground = new SolidColorBrush(Colors.Gray);
+            TintOpacitySliderValueText.Foreground = new SolidColorBrush(Colors.Gray);
+            AccentColorLabel.Foreground = new SolidColorBrush(Colors.Gray);
+            TintLuminositySliderLabel.Foreground = new SolidColorBrush(Colors.Gray);
+            TintLuminositySliderValueText.Foreground = new SolidColorBrush(Colors.Gray);
+            OtherEffectArea.Visibility = Visibility.Collapsed;
+            GetBingPhotoState.Visibility = Visibility.Collapsed;
+
+            switch (Type)
+            {
+                case BackgroundBrushType.DefaultAcrylic:
+                    {
+                        break;
+                    }
+                case BackgroundBrushType.CustomAcrylic:
+                    {
+                        PreventFallBack.IsEnabled = true;
+                        TintOpacitySlider.IsEnabled = true;
+                        AcrylicColor.IsEnabled = true;
+                        TintLuminositySlider.IsEnabled = true;
+                        TintOpacitySliderLabel.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
+                        TintOpacitySliderValueText.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
+                        AccentColorLabel.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
+                        TintLuminositySliderLabel.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
+                        TintLuminositySliderValueText.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
+                        break;
+                    }
+                case BackgroundBrushType.BingPicture:
+                    {
+                        OtherEffectArea.Visibility = Visibility.Visible;
+                        break;
+                    }
+                case BackgroundBrushType.Picture:
+                    {
+                        PictureGirdView.IsEnabled = true;
+                        OtherEffectArea.Visibility = Visibility.Visible;
+                        break;
+                    }
             }
         }
 
@@ -1403,7 +1479,7 @@ namespace RX_Explorer
                             SolidColor_Black.IsChecked = false;
                             SolidColor_FollowSystem.IsChecked = false;
 
-                            switch (BackgroundController.Current.CurrentType)
+                            switch (CustomModeSubType)
                             {
                                 case BackgroundBrushType.BingPicture:
                                     {
@@ -1420,7 +1496,7 @@ namespace RX_Explorer
                                         MicaMode.IsChecked = true;
                                         break;
                                     }
-                                default:
+                                case BackgroundBrushType.CustomAcrylic:
                                     {
                                         AcrylicMode.IsChecked = true;
                                         break;
@@ -1466,6 +1542,7 @@ namespace RX_Explorer
         {
             try
             {
+                AcrylicModeExpander.IsExpanded = true;
                 PreventFallBack.IsChecked = PreventAcrylicFallbackEnabled;
                 BackgroundController.Current.SwitchTo(BackgroundBrushType.CustomAcrylic);
             }
@@ -1483,6 +1560,7 @@ namespace RX_Explorer
         {
             try
             {
+                PictureModeExpander.IsExpanded = true;
                 PreventFallBack.IsChecked = null;
 
                 if (PictureList.Count == 0)
@@ -1650,7 +1728,7 @@ namespace RX_Explorer
 
                         if (PictureGirdView.IsLoaded)
                         {
-                            await PictureGirdView.SmoothScrollIntoViewWithItemAsync(PictureItem, ScrollItemPlacement.Center);
+                            await PictureGirdView.SmoothScrollIntoViewWithIndexAsync(PictureGirdView.SelectedIndex, ScrollItemPlacement.Center);
                         }
                         else
                         {
@@ -3194,9 +3272,9 @@ namespace RX_Explorer
 
         private async void PictureGirdView_Loaded(object sender, RoutedEventArgs e)
         {
-            if (PictureGirdView.SelectedItem is BackgroundPicture Picture)
+            if (PictureGirdView.SelectedIndex >= 0)
             {
-                await PictureGirdView.SmoothScrollIntoViewWithItemAsync(Picture, ScrollItemPlacement.Center);
+                await PictureGirdView.SmoothScrollIntoViewWithIndexAsync(PictureGirdView.SelectedIndex, ScrollItemPlacement.Center);
             }
         }
 
@@ -3371,6 +3449,21 @@ namespace RX_Explorer
             BackgroundController.Current.SwitchTo(BackgroundBrushType.Mica);
 
             ApplicationData.Current.SignalDataChanged();
+        }
+
+        private async void PictureModeExpander_Expanding(Microsoft.UI.Xaml.Controls.Expander sender, ExpanderExpandingEventArgs args)
+        {
+            if (PictureGirdView.SelectedIndex >= 0)
+            {
+                if (PictureGirdView.IsLoaded)
+                {
+                    await PictureGirdView.SmoothScrollIntoViewWithIndexAsync(PictureGirdView.SelectedIndex, ScrollItemPlacement.Center);
+                }
+                else
+                {
+                    PictureGirdView.ScrollIntoView(PictureGirdView.SelectedItem, ScrollIntoViewAlignment.Leading);
+                }
+            }
         }
     }
 }

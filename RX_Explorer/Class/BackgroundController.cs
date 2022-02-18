@@ -43,6 +43,8 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public event EventHandler<BackgroundBrushType> BackgroundTypeChanged;
+
         private readonly UISettings UIS;
 
         private bool isMicaEffectEnabled;
@@ -425,38 +427,6 @@ namespace RX_Explorer.Class
                     FallbackColor = Colors.DimGray
                 };
             }
-
-            switch (CurrentType)
-            {
-                case BackgroundBrushType.SolidColor:
-                    {
-                        if (SolidColorBackgroundBrush.Color == SolidColor_WhiteTheme && AppThemeController.Current.Theme == ElementTheme.Dark)
-                        {
-                            AppThemeController.Current.Theme = ElementTheme.Light;
-                        }
-                        else if (SolidColorBackgroundBrush.Color == SolidColor_BlackTheme && AppThemeController.Current.Theme == ElementTheme.Light)
-                        {
-                            AppThemeController.Current.Theme = ElementTheme.Dark;
-                        }
-
-                        break;
-                    }
-                case BackgroundBrushType.CustomAcrylic:
-                    {
-                        IsCompositionAcrylicBackgroundEnabled = SettingPage.PreventAcrylicFallbackEnabled;
-                        break;
-                    }
-                case BackgroundBrushType.Mica:
-                    {
-                        IsMicaEffectEnabled = true;
-                        AppThemeController.Current.SyncAndSetSystemTheme();
-                        break;
-                    }
-                default:
-                    {
-                        break;
-                    }
-            }
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)
@@ -584,11 +554,35 @@ namespace RX_Explorer.Class
 
                             break;
                         }
+                    case BackgroundBrushType.SolidColor:
+                        {
+                            if (SolidColorBackgroundBrush.Color == SolidColor_WhiteTheme && AppThemeController.Current.Theme == ElementTheme.Dark)
+                            {
+                                AppThemeController.Current.Theme = ElementTheme.Light;
+                            }
+                            else if (SolidColorBackgroundBrush.Color == SolidColor_BlackTheme && AppThemeController.Current.Theme == ElementTheme.Light)
+                            {
+                                AppThemeController.Current.Theme = ElementTheme.Dark;
+                            }
+
+                            break;
+                        }
+                    case BackgroundBrushType.CustomAcrylic:
+                        {
+                            IsCompositionAcrylicBackgroundEnabled = SettingPage.PreventAcrylicFallbackEnabled;
+                            break;
+                        }
+                    case BackgroundBrushType.Mica:
+                        {
+                            IsMicaEffectEnabled = true;
+                            AppThemeController.Current.SyncAndSetSystemTheme();
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Exception happend when loading image for background");
+                LogTracer.Log(ex, "An exception was threw when loading initialize the background controller");
             }
         }
 
@@ -657,84 +651,92 @@ namespace RX_Explorer.Class
         /// <param name="ImageUri">图片背景的Uri</param>
         public void SwitchTo(BackgroundBrushType Type, BitmapImage Background = null, Uri ImageUri = null, Color? Color = null)
         {
-            CurrentType = Type;
-
-            switch (Type)
+            try
             {
-                case BackgroundBrushType.DefaultAcrylic:
-                    {
-                        IsMicaEffectEnabled = false;
-                        IsCompositionAcrylicBackgroundEnabled = false;
+                CurrentType = Type;
 
-                        AppThemeController.Current.Theme = ElementTheme.Dark;
-
-                        break;
-                    }
-                case BackgroundBrushType.CustomAcrylic:
-                    {
-                        IsMicaEffectEnabled = false;
-
-                        AppThemeController.Current.Theme = ElementTheme.Dark;
-
-                        break;
-                    }
-                case BackgroundBrushType.Picture:
-                    {
-                        IsMicaEffectEnabled = false;
-                        IsCompositionAcrylicBackgroundEnabled = false;
-
-                        PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: '{nameof(Type)}' is '{nameof(BackgroundBrushType.Picture)}', parameter: '{nameof(Background)}' could not be null");
-
-                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = Convert.ToString(ImageUri);
-
-                        break;
-                    }
-                case BackgroundBrushType.BingPicture:
-                    {
-                        IsMicaEffectEnabled = false;
-                        IsCompositionAcrylicBackgroundEnabled = false;
-
-                        BingPictureBursh.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: '{nameof(Type)}' is '{nameof(BackgroundBrushType.BingPicture)}', parameter: '{nameof(Background)}' could not be null");
-
-                        break;
-                    }
-                case BackgroundBrushType.SolidColor:
-                    {
-                        IsMicaEffectEnabled = false;
-                        IsCompositionAcrylicBackgroundEnabled = false;
-
-                        if (Color == null)
+                switch (Type)
+                {
+                    case BackgroundBrushType.DefaultAcrylic:
                         {
-                            if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
+                            IsMicaEffectEnabled = false;
+                            IsCompositionAcrylicBackgroundEnabled = false;
+                            
+                            AppThemeController.Current.Theme = ElementTheme.Dark;
+                            break;
+                        }
+                    case BackgroundBrushType.CustomAcrylic:
+                        {
+                            IsMicaEffectEnabled = false;
+                            
+                            SettingPage.CustomModeSubType = BackgroundBrushType.CustomAcrylic;
+                            AppThemeController.Current.Theme = ElementTheme.Dark;
+                            break;
+                        }
+                    case BackgroundBrushType.Picture:
+                        {
+                            IsMicaEffectEnabled = false;
+                            IsCompositionAcrylicBackgroundEnabled = false;
+                            PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: '{nameof(Type)}' is '{nameof(BackgroundBrushType.Picture)}', parameter: '{nameof(Background)}' could not be null");
+                            
+                            SettingPage.CustomModeSubType = BackgroundBrushType.Picture;
+                            ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = Convert.ToString(ImageUri);
+                            break;
+                        }
+                    case BackgroundBrushType.BingPicture:
+                        {
+                            IsMicaEffectEnabled = false;
+                            IsCompositionAcrylicBackgroundEnabled = false;
+
+                            BingPictureBursh.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: '{nameof(Type)}' is '{nameof(BackgroundBrushType.BingPicture)}', parameter: '{nameof(Background)}' could not be null");
+
+                            SettingPage.CustomModeSubType = BackgroundBrushType.BingPicture;
+                            break;
+                        }
+                    case BackgroundBrushType.SolidColor:
+                        {
+                            IsMicaEffectEnabled = false;
+                            IsCompositionAcrylicBackgroundEnabled = false;
+
+                            if (Color == null)
                             {
-                                SolidColorBackgroundBrush.Color = SolidColor_WhiteTheme;
+                                if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
+                                {
+                                    SolidColorBackgroundBrush.Color = SolidColor_WhiteTheme;
+                                }
+                                else
+                                {
+                                    SolidColorBackgroundBrush.Color = SolidColor_BlackTheme;
+                                }
+
+                                ApplicationData.Current.LocalSettings.Values.Remove("SolidColorType");
+                                AppThemeController.Current.SyncAndSetSystemTheme();
                             }
                             else
                             {
-                                SolidColorBackgroundBrush.Color = SolidColor_BlackTheme;
+                                SolidColorBackgroundBrush.Color = Color.GetValueOrDefault();
+                                AppThemeController.Current.Theme = Color == SolidColor_WhiteTheme ? ElementTheme.Light : ElementTheme.Dark;
+                                ApplicationData.Current.LocalSettings.Values["SolidColorType"] = Color.GetValueOrDefault().ToString();
                             }
 
-                            ApplicationData.Current.LocalSettings.Values.Remove("SolidColorType");
-                            AppThemeController.Current.SyncAndSetSystemTheme();
+                            break;
                         }
-                        else
+                    case BackgroundBrushType.Mica:
                         {
-                            SolidColorBackgroundBrush.Color = Color.GetValueOrDefault();
-                            AppThemeController.Current.Theme = Color == SolidColor_WhiteTheme ? ElementTheme.Light : ElementTheme.Dark;
-                            ApplicationData.Current.LocalSettings.Values["SolidColorType"] = Color.GetValueOrDefault().ToString();
+                            IsMicaEffectEnabled = true;
+                            IsCompositionAcrylicBackgroundEnabled = false;
+
+                            SettingPage.CustomModeSubType = BackgroundBrushType.Mica;
+                            AppThemeController.Current.SyncAndSetSystemTheme();
+                            break;
                         }
+                }
 
-                        break;
-                    }
-                case BackgroundBrushType.Mica:
-                    {
-                        IsMicaEffectEnabled = true;
-                        IsCompositionAcrylicBackgroundEnabled = false;
-
-                        AppThemeController.Current.SyncAndSetSystemTheme();
-
-                        break;
-                    }
+                BackgroundTypeChanged?.Invoke(this, Type);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not switch the background type");
             }
         }
 
