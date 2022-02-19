@@ -27,7 +27,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class CompressionViewer : Page, INotifyPropertyChanged
     {

@@ -45,7 +45,7 @@ using TreeViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewItemInvo
 using TreeViewList = Microsoft.UI.Xaml.Controls.TreeViewList;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class FileControl : Page, IDisposable
     {
@@ -108,7 +108,7 @@ namespace RX_Explorer
                         GoBackRecord.IsEnabled = !value.BackNavigationStack.IsEmpty;
                         GoForwardRecord.IsEnabled = !value.ForwardNavigationStack.IsEmpty;
 
-                        CurrentTabItem.Header = string.IsNullOrEmpty(Folder.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : Folder.DisplayName;
+                        Renderer.TabItem.Header = string.IsNullOrEmpty(Folder.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : Folder.DisplayName;
                     }
 
                     TaskBarController.SetText(value?.CurrentFolder?.DisplayName);
@@ -126,32 +126,7 @@ namespace RX_Explorer
 
         private CommandBarFlyout RightTapFlyout;
 
-        private WeakReference<TabViewItem> WeakToTabViewItem;
-        public TabViewItem CurrentTabItem
-        {
-            get
-            {
-                if (WeakToTabViewItem != null)
-                {
-                    if (WeakToTabViewItem.TryGetTarget(out TabViewItem Tab))
-                    {
-                        return Tab;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            private set
-            {
-                WeakToTabViewItem = new WeakReference<TabViewItem>(value);
-            }
-        }
+        public TabItemContentRenderer Renderer { get; private set; }
 
         public bool ShouldNotAcceptShortcutKeyInput { get; set; }
 
@@ -742,7 +717,7 @@ namespace RX_Explorer
         {
             try
             {
-                if (e.NavigationMode == NavigationMode.New && e.Parameter is Tuple<TabViewItem, string[]> Parameters)
+                if (e.NavigationMode == NavigationMode.New && e.Parameter is TabItemContentRenderer Renderer)
                 {
                     Frame.Navigated += Frame_Navigated;
                     AddressBox.AddHandler(RightTappedEvent, AddressBoxRightTapEventHandler, true);
@@ -751,10 +726,9 @@ namespace RX_Explorer
                     GoForwardRecord.AddHandler(PointerPressedEvent, GoForwardButtonPressedHandler, true);
                     GoForwardRecord.AddHandler(PointerReleasedEvent, GoForwardButtonReleasedHandler, true);
 
-                    CurrentTabItem = Parameters.Item1;
-                    CurrentTabItem.Tag = this;
+                    this.Renderer = Renderer;
 
-                    await Initialize(Parameters.Item2);
+                    await Initialize(Renderer.InitializePathArray);
                 }
             }
             catch (Exception ex)
@@ -889,24 +863,24 @@ namespace RX_Explorer
 
                     if (TabIconImage != null)
                     {
-                        CurrentTabItem.IconSource = new ImageIconSource { ImageSource = TabIconImage };
+                        Renderer.TabItem.IconSource = new ImageIconSource { ImageSource = TabIconImage };
                     }
                     else
                     {
-                        CurrentTabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
+                        Renderer.TabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
                     }
                 }
                 else
                 {
-                    CurrentTabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
+                    Renderer.TabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
                 }
             }
             else
             {
-                CurrentTabItem.IconSource = new FontIconSource { FontFamily = new FontFamily("Segoe MDL2 Assets"), Glyph = "\uE8A1" };
+                Renderer.TabItem.IconSource = new FontIconSource { FontFamily = new FontFamily("Segoe MDL2 Assets"), Glyph = "\uE8A1" };
             }
 
-            CurrentTabItem.Header = e.Content switch
+            Renderer.TabItem.Header = e.Content switch
             {
                 PhotoViewer => Globalization.GetString("BuildIn_PhotoViewer_Description"),
                 PdfReader => Globalization.GetString("BuildIn_PdfReader_Description"),
@@ -923,7 +897,7 @@ namespace RX_Explorer
         /// <summary>
         /// 执行文件目录的初始化
         /// </summary>
-        private async Task Initialize(string[] InitPathArray)
+        private async Task Initialize(IEnumerable<string> InitPathArray)
         {
             try
             {

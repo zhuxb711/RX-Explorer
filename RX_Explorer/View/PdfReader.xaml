@@ -1,11 +1,10 @@
-﻿<Page x:Class="RX_Explorer.PdfReader"
+﻿<Page x:Class="RX_Explorer.View.PdfReader"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:local="using:RX_Explorer"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-      xmlns:controls1="using:Microsoft.UI.Xaml.Controls"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       xmlns:Cls="using:RX_Explorer.Class"
       mc:Ignorable="d"
@@ -20,10 +19,10 @@
             <VirtualizingStackPanel Orientation="Horizontal" />
         </ItemsPanelTemplate>
     </Page.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <CommandBar DefaultLabelPosition="Right"
@@ -83,13 +82,13 @@
             <CommandBar.Content>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition MinWidth="100"/>
+                        <ColumnDefinition MinWidth="100" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal"
                                 Padding="10,0">
                         <TextBox x:Name="TextBoxControl"
-                                 MinWidth="30" 
+                                 MinWidth="30"
                                  MinHeight="25"
                                  Height="26"
                                  Padding="5,2"
@@ -97,7 +96,7 @@
                                  IsSpellCheckEnabled="False"
                                  KeyDown="TextBoxControl_KeyDown"
                                  LostFocus="TextBoxControl_LostFocus"
-                                 TextAlignment="Center"/>
+                                 TextAlignment="Center" />
                         <TextBlock Text="/"
                                    Margin="5,0"
                                    Padding="0,0,0,3"
@@ -108,7 +107,7 @@
                     <TextBlock Grid.Column="1"
                                Name="FileNameDisplay"
                                TextTrimming="CharacterEllipsis"
-                               VerticalAlignment="Center"/>
+                               VerticalAlignment="Center" />
                 </Grid>
             </CommandBar.Content>
         </CommandBar>
@@ -152,11 +151,11 @@
                 <TextBlock FontSize="16"
                            VerticalAlignment="Center"
                            TextAlignment="Center"
-                           Text="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}"/>
-                <controls1:ProgressBar IsIndeterminate="True"
-                                       Width="180"
-                                       Name="ProBar"
-                                       Margin="0,10,0,0" />
+                           Text="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}" />
+                <muxc:ProgressBar IsIndeterminate="True"
+                                  Width="180"
+                                  Name="ProBar"
+                                  Margin="0,10,0,0" />
             </StackPanel>
         </controls:Loading>
     </Grid>

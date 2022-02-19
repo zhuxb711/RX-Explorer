@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Deferred;
+using RX_Explorer.View;
 using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
@@ -38,56 +39,6 @@ namespace RX_Explorer.Class
 
         public static bool IsAnyTaskRunningInController => RunningTaskCount > 0;
 
-        public static bool AllowParalledExecution
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["TaskListParalledExecution"] is bool IsParalled)
-                {
-                    return IsParalled;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["TaskListParalledExecution"] = true;
-                    return true;
-                }
-            }
-            set => ApplicationData.Current.LocalSettings.Values["TaskListParalledExecution"] = value;
-        }
-
-        public static bool OpenPanelWhenTaskIsCreated
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["TaskListOpenPanelWhenNewTaskCreated"] is bool IsPanelOpened)
-                {
-                    return IsPanelOpened;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["TaskListOpenPanelWhenNewTaskCreated"] = true;
-                    return true;
-                }
-            }
-            set => ApplicationData.Current.LocalSettings.Values["TaskListOpenPanelWhenNewTaskCreated"] = value;
-        }
-
-        public static bool PinTaskList
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] is bool ShouldPin)
-                {
-                    return ShouldPin;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            set => ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] = value;
-        }
-
         public static void RegisterPostProcessing(string OriginPath, EventHandler<PostProcessingDeferredEventArgs> Act)
         {
             PostProcessingMap.AddOrUpdate(OriginPath, Act, (_, _) => Act);
@@ -95,17 +46,7 @@ namespace RX_Explorer.Class
 
         public static void EnqueueRemoteCopyOpeartion(string ToPath, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null)
         {
-            OperationListRemoteModel RemoteCopyModel = new OperationListRemoteModel(ToPath, OnCompleted, OnErrorThrow, OnCancelled);
-
-            ListItemSource.Insert(0, RemoteCopyModel);
-            OpeartionQueue.Enqueue(RemoteCopyModel);
-
-            if (OpenPanelWhenTaskIsCreated)
-            {
-                TabViewContainer.Current.TaskListPanel.IsPaneOpen = true;
-            }
-
-            ProcessSleepLocker.Set();
+            EnqueueModelCore(new OperationListRemoteModel(ToPath, OnCompleted, OnErrorThrow, OnCancelled));
         }
 
         public static void EnqueueCopyOpeartion(string FromPath, string ToPath, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null)
@@ -217,9 +158,9 @@ namespace RX_Explorer.Class
             ListItemSource.Insert(0, Model);
             OpeartionQueue.Enqueue(Model);
 
-            if (OpenPanelWhenTaskIsCreated)
+            if (SettingPage.OpenPanelWhenTaskIsCreated)
             {
-                TabViewContainer.Current.TaskListPanel.IsPaneOpen = true;
+                TabViewContainer.CurrentTabRenderer.SetPanelOpenStatus(true);
             }
 
             ProcessSleepLocker.Set();
@@ -254,7 +195,7 @@ namespace RX_Explorer.Class
                                 }
                             }
 
-                            if (AllowParalledExecution)
+                            if (SettingPage.AllowTaskParalledExecution)
                             {
                                 RunningTask.Add(Task.Factory.StartNew(() => ExecuteSubTaskCore(Model), TaskCreationOptions.LongRunning));
                             }

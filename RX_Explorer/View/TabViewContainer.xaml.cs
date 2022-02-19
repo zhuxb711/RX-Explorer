@@ -1,5 +1,4 @@
 ﻿using Microsoft.Toolkit.Deferred;
-using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.SeparateWindow.PropertyWindow;
@@ -29,18 +28,17 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
-using AnimationController = RX_Explorer.Class.AnimationController;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TabView = Microsoft.UI.Xaml.Controls.TabView;
 using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabCloseRequestedEventArgs;
 using Timer = System.Timers.Timer;
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class TabViewContainer : Page
     {
-        public static Frame CurrentNavigationControl { get; private set; }
+        public static TabItemContentRenderer CurrentTabRenderer { get; private set; }
 
         public static TabViewContainer Current { get; private set; }
 
@@ -71,33 +69,6 @@ namespace RX_Explorer
             CommonAccessCollection.LibraryNotFound += CommonAccessCollection_LibraryNotFound;
             QueueTaskController.ListItemSource.CollectionChanged += ListItemSource_CollectionChanged;
             QueueTaskController.ProgressChanged += QueueTaskController_ProgressChanged;
-
-            if (QueueTaskController.PinTaskList)
-            {
-                TaskListPanel.DisplayMode = SplitViewDisplayMode.Inline;
-                TaskListPanel.IsPaneOpen = true;
-
-                PinTaskListPanel.Content = new Viewbox
-                {
-                    Child = new FontIcon
-                    {
-                        Glyph = "\uE77A"
-                    }
-                };
-            }
-            else
-            {
-                TaskListPanel.DisplayMode = SplitViewDisplayMode.Overlay;
-                TaskListPanel.IsPaneOpen = false;
-
-                PinTaskListPanel.Content = new Viewbox
-                {
-                    Child = new FontIcon
-                    {
-                        Glyph = "\uE840"
-                    }
-                };
-            }
         }
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
@@ -112,26 +83,13 @@ namespace RX_Explorer
         {
             List<string[]> PathList = new List<string[]>();
 
-            foreach (TabViewItem Item in TabCollection)
+            foreach (TabItemContentRenderer Renderer in TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>())
             {
-                if (Item.Tag is FileControl Control)
+                if (Renderer.Presenters.Any())
                 {
-                    if (Control.BladeViewer.Items.Count == 0)
-                    {
-                        if (Item.Content is Frame frame && frame.Tag is string[] InitPathArray)
-                        {
-                            PathList.Add(InitPathArray);
-                        }
-                    }
-                    else
-                    {
-                        PathList.Add(Control.BladeViewer.Items.Cast<BladeItem>()
-                                                              .Select((Blade) => Blade.Content)
-                                                              .OfType<FilePresenter>()
-                                                              .Select((Presenter) => Presenter.CurrentFolder?.Path)
-                                                              .Where((Path) => !string.IsNullOrWhiteSpace(Path))
-                                                              .ToArray());
-                    }
+                    PathList.Add(Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
+                                                    .Where((Path) => !string.IsNullOrWhiteSpace(Path))
+                                                    .ToArray());
                 }
                 else
                 {
@@ -216,7 +174,6 @@ namespace RX_Explorer
 
         private void ListItemSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            EmptyTip.Visibility = QueueTaskController.ListItemSource.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
             TaskListBadge.Value = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
         }
 
@@ -241,11 +198,9 @@ namespace RX_Explorer
 
         private async void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
         {
-            if (CurrentNavigationControl?.Content is FileControl Control
-                && Enum.GetName(typeof(CoreAcceleratorKeyEventType), args.EventType).Contains("KeyUp")
+            if (Enum.GetName(typeof(CoreAcceleratorKeyEventType), args.EventType).Contains("KeyUp")
                 && args.KeyStatus.IsMenuKeyDown
-                && Control.Frame.CurrentSourcePageType == typeof(FileControl)
-                && Control.Frame == CurrentNavigationControl
+                && CurrentTabRenderer.RendererFrame.Content is FileControl Control
                 && !Control.ShouldNotAcceptShortcutKeyInput
                 && !QueueContentDialog.IsRunningOrWaiting
                 && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
@@ -389,7 +344,7 @@ namespace RX_Explorer
                             }
                         default:
                             {
-                                if (CurrentNavigationControl?.Content is FileControl Control && Control.CurrentPresenter?.CurrentFolder is RootStorageFolder)
+                                if (CurrentTabRenderer?.RendererFrame.Content is FileControl Control && Control.CurrentPresenter?.CurrentFolder is RootStorageFolder)
                                 {
                                     Home HomeControl = Control.CurrentPresenter.RootFolderControl;
 
@@ -637,7 +592,7 @@ namespace RX_Explorer
             bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
             bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
 
-            if (CurrentNavigationControl?.Content is FileControl Control)
+            if (CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
             {
                 if (BackButtonPressed)
                 {
@@ -779,14 +734,11 @@ namespace RX_Explorer
         {
             FullTrustProcessController.RequestResizeController(TabCollection.Count + 1);
 
-            Frame BaseFrame = new Frame();
-
             TabViewItem Tab = new TabViewItem
             {
                 IsTabStop = false,
                 AllowDrop = true,
                 IsDoubleTapEnabled = true,
-                Content = BaseFrame,
                 IconSource = new SymbolIconSource { Symbol = Symbol.Document },
                 HeaderTemplate = TabViewItemHeaderTemplate
             };
@@ -833,7 +785,6 @@ namespace RX_Explorer
             if (ValidPathArray.Count == 0)
             {
                 Tab.Header = RootStorageFolder.Instance.DisplayName;
-                ValidPathArray.Add(RootStorageFolder.Instance.Path);
             }
             else
             {
@@ -849,16 +800,7 @@ namespace RX_Explorer
                 }
             }
 
-            BaseFrame.Tag = ValidPathArray.ToArray();
-
-            if (AnimationController.Current.IsEnableAnimation)
-            {
-                BaseFrame.Navigate(typeof(FileControl), new Tuple<TabViewItem, string[]>(Tab, ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());
-            }
-            else
-            {
-                BaseFrame.Navigate(typeof(FileControl), new Tuple<TabViewItem, string[]>(Tab, ValidPathArray.ToArray()), new SuppressNavigationTransitionInfo());
-            }
+            Tab.Content = new TabItemContentRenderer(Tab, ValidPathArray.ToArray());
 
             return Tab;
         }
@@ -959,19 +901,17 @@ namespace RX_Explorer
 
         private void TabViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach (Frame Nav in TabCollection.Select((Item) => Item.Content as Frame))
-            {
-                Nav.Navigated -= Nav_Navigated;
-            }
-
             if (TabViewControl.SelectedItem is TabViewItem Item)
             {
-                if (Item.Content is Frame ContentFrame)
-                {
-                    CurrentNavigationControl = ContentFrame;
-                    CurrentNavigationControl.Navigated += Nav_Navigated;
+                TaskBarController.SetText(Convert.ToString(Item.Header));
 
-                    if (ContentFrame.Content is FileControl Control)
+                if (Item.Content is TabItemContentRenderer Renderer)
+                {
+                    CurrentTabRenderer = Renderer;
+
+                    MainPage.Current.NavView.IsBackEnabled = Renderer.RendererFrame.CanGoBack;
+
+                    if (Renderer.RendererFrame.Content is FileControl Control)
                     {
                         switch (Control.CurrentPresenter?.CurrentFolder)
                         {
@@ -992,30 +932,22 @@ namespace RX_Explorer
                         }
                     }
                 }
-
-                TaskBarController.SetText(Convert.ToString(Item.Header));
-                MainPage.Current.NavView.IsBackEnabled = CurrentNavigationControl.CanGoBack;
             }
-        }
-
-        private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
-        {
-            MainPage.Current.NavView.IsBackEnabled = CurrentNavigationControl.CanGoBack;
         }
 
         private void TabViewControl_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
         {
             args.Data.RequestedOperation = DataPackageOperation.Copy;
 
-            if (args.Tab.Content is Frame frame)
+            if (args.Tab.Content is TabItemContentRenderer Renderer)
             {
-                if (frame.Content is Home)
+                if (Renderer.RendererFrame.Content is Home)
                 {
                     args.Data.SetData(ExtendedDataFormats.TabItem, new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Array.Empty<string>()))).AsRandomAccessStream());
                 }
-                else if (args.Tab.Tag is FileControl Control)
+                else if (Renderer.Presenters.Any())
                 {
-                    args.Data.SetData(ExtendedDataFormats.TabItem, new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Control.BladeViewer.Items.Cast<BladeItem>().Select((Item) => ((Item.Content as FilePresenter)?.CurrentFolder?.Path))))).AsRandomAccessStream());
+                    args.Data.SetData(ExtendedDataFormats.TabItem, new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)))).AsRandomAccessStream());
                 }
                 else
                 {
@@ -1120,17 +1052,14 @@ namespace RX_Explorer
             {
                 if (TabCollection.Remove(Tab))
                 {
-                    if (Tab.Content is Frame BaseFrame)
+                    if (Tab.Content is TabItemContentRenderer Renderer)
                     {
-                        while (BaseFrame.CanGoBack)
+                        while (Renderer.RendererFrame.CanGoBack)
                         {
-                            BaseFrame.GoBack(new SuppressNavigationTransitionInfo());
+                            Renderer.RendererFrame.GoBack(new SuppressNavigationTransitionInfo());
                         }
-                    }
 
-                    if (Tab.Tag is FileControl Control)
-                    {
-                        Control.Dispose();
+                        Renderer.Dispose();
                     }
 
                     Tab.DragEnter -= Tab_DragEnter;
@@ -1223,65 +1152,9 @@ namespace RX_Explorer
 
         private void TaskListPanelButton_Click(object sender, RoutedEventArgs e)
         {
-            TaskListPanel.IsPaneOpen = true;
-        }
-
-        private void PinTaskListPanel_Click(object sender, RoutedEventArgs e)
-        {
-            if (TaskListPanel.DisplayMode == SplitViewDisplayMode.Overlay)
+            if (TabViewControl.SelectedItem is TabViewItem Tab && Tab.Content is TabItemContentRenderer Renderer)
             {
-                TaskListPanel.DisplayMode = SplitViewDisplayMode.Inline;
-
-                PinTaskListPanel.Content = new Viewbox
-                {
-                    Child = new FontIcon
-                    {
-                        Glyph = "\uE77A"
-                    }
-                };
-
-                QueueTaskController.PinTaskList = true;
-            }
-            else
-            {
-                TaskListPanel.DisplayMode = SplitViewDisplayMode.Overlay;
-
-                PinTaskListPanel.Content = new Viewbox
-                {
-                    Child = new FontIcon
-                    {
-                        Glyph = "\uE840"
-                    }
-                };
-
-                QueueTaskController.PinTaskList = false;
-            }
-        }
-
-        private void CancelTaskButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (((Button)sender).DataContext is OperationListBaseModel Model)
-            {
-                if (Model.CanBeCancelled)
-                {
-                    Model.UpdateStatus(OperationStatus.Cancelling);
-                }
-            }
-        }
-
-        private void RemoveTaskButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (((Button)sender).DataContext is OperationListBaseModel Model)
-            {
-                QueueTaskController.ListItemSource.Remove(Model);
-            }
-        }
-
-        private void ClearTaskListPanel_Click(object sender, RoutedEventArgs e)
-        {
-            foreach (OperationListBaseModel Model in QueueTaskController.ListItemSource.Where((Item) => Item.Status is OperationStatus.Cancelled or OperationStatus.Completed or OperationStatus.Error).ToArray())
-            {
-                QueueTaskController.ListItemSource.Remove(Model);
+                Renderer.SetPanelOpenStatus(true);
             }
         }
 
@@ -1300,7 +1173,7 @@ namespace RX_Explorer
 
         private async void VerticalSplitViewButton_Click(object sender, RoutedEventArgs e)
         {
-            if (CurrentNavigationControl?.Content is FileControl Control)
+            if (CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
             {
                 if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
@@ -1397,14 +1270,6 @@ namespace RX_Explorer
             {
                 ViewModeFlyout.Hide();
             }
-        }
-
-        private void ViewModeControlButton_Click(object sender, RoutedEventArgs e)
-        {
-            //if (sender is Button Btn)
-            //{
-            //    Btn.Flyout.ShowAt(Btn);
-            //}
         }
     }
 }

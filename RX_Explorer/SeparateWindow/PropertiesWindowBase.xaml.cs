@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Deferred;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
+using RX_Explorer.View;
 using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
@@ -1619,20 +1620,17 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 await TabViewContainer.Current.CreateNewTabAsync(new string[] { Path.GetDirectoryName(Link.LinkTargetPath) });
 
-                if (TabViewContainer.Current.TabCollection.LastOrDefault()?.Tag is FileControl Control)
+                if (TabViewContainer.Current.TabCollection.LastOrDefault()?.Content is TabItemContentRenderer Renderer)
                 {
-                    do
+                    for (int Retry = 0; Retry < 5; Retry++)
                     {
                         await Task.Delay(500);
-                    }
-                    while (Control.CurrentPresenter?.CurrentFolder == null);
 
-                    await Task.Delay(500);
-
-                    if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem.Path == Link.LinkTargetPath) is FileSystemStorageItemBase Target)
-                    {
-                        Control.CurrentPresenter.SelectedItem = Target;
-                        Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
+                        if (Renderer.CurrentPresenter?.FileCollection.FirstOrDefault((SItem) => SItem.Path == Link.LinkTargetPath) is FileSystemStorageItemBase Target)
+                        {
+                            Renderer.CurrentPresenter.SelectedItem = Target;
+                            Renderer.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
+                        }
                     }
                 }
             }

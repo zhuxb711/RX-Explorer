@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using RX_Explorer.View;
 using System;
 using System.Linq;
 using Windows.ApplicationModel;

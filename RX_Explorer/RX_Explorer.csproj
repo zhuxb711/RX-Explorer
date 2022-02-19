@@ -351,6 +351,9 @@
     <Compile Include="View\SecureAreaContainer.xaml.cs">
       <DependentUpon>SecureAreaContainer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\TabItemContentRenderer.xaml.cs">
+      <DependentUpon>TabItemContentRenderer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\TabViewContainer.xaml.cs">
       <DependentUpon>TabViewContainer.xaml</DependentUpon>
     </Compile>
@@ -703,6 +706,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\SecureAreaContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\TabItemContentRenderer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

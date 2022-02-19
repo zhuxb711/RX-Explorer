@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
+using RX_Explorer.View;
 using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;

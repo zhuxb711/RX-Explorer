@@ -26,7 +26,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class SecureArea : Page
     {

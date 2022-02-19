@@ -4,7 +4,6 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
-using RX_Explorer.View;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -44,7 +43,7 @@ using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs;
 using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class MainPage : Page
     {
@@ -330,9 +329,9 @@ namespace RX_Explorer
 
             try
             {
-                Frame CurrentFram = TabViewContainer.CurrentNavigationControl;
+                Frame CurrentFrame = TabViewContainer.CurrentTabRenderer.RendererFrame;
 
-                if (CurrentFram.SourcePageType != typeof(FileControl) && CurrentFram.SourcePageType != typeof(SearchPage))
+                if (CurrentFrame.Content is not (FileControl or SearchPage))
                 {
                     if (ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] is bool IsAlwaysCloseApp)
                     {
@@ -340,9 +339,9 @@ namespace RX_Explorer
                         {
                             e.Handled = true;
 
-                            while (CurrentFram.CanGoBack)
+                            while (CurrentFrame.CanGoBack)
                             {
-                                CurrentFram.GoBack();
+                                CurrentFrame.GoBack();
                             }
 
                             return;
@@ -397,9 +396,9 @@ namespace RX_Explorer
                         {
                             e.Handled = true;
 
-                            while (CurrentFram.CanGoBack)
+                            while (CurrentFrame.CanGoBack)
                             {
-                                CurrentFram.GoBack();
+                                CurrentFrame.GoBack();
                             }
 
                             return;
@@ -690,7 +689,7 @@ namespace RX_Explorer
 
             if (PageDictionary[e.SourcePageType] == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
-                NavView.IsBackEnabled = (TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault();
+                NavView.IsBackEnabled = (TabViewContainer.CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault();
             }
             else if (PageDictionary[e.SourcePageType] == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
             {
@@ -1009,9 +1008,9 @@ namespace RX_Explorer
             {
                 if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
                 {
-                    if ((TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault())
+                    if (TabViewContainer.CurrentTabRenderer.RendererFrame.CanGoBack)
                     {
-                        TabViewContainer.CurrentNavigationControl.GoBack();
+                        TabViewContainer.CurrentTabRenderer.RendererFrame.GoBack();
                     }
                 }
                 else if (Nav.CurrentSourcePageType == typeof(SecureAreaContainer))

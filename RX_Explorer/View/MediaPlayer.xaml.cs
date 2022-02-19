@@ -17,7 +17,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class MediaPlayer : Page
     {

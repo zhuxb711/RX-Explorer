@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
+using RX_Explorer.View;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -524,7 +525,7 @@ namespace RX_Explorer.Class
 
                                             if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFile File)
                                             {
-                                                TabViewContainer.CurrentNavigationControl?.Navigate(InnerViewerType, File, NavigationTransition);
+                                                TabViewContainer.CurrentTabRenderer.RendererFrame.Navigate(InnerViewerType, File, NavigationTransition);
                                             }
                                         }
                                     }

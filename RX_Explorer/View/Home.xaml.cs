@@ -33,7 +33,7 @@ using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using ProgressBar = Microsoft.UI.Xaml.Controls.ProgressBar;
 using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class Home : Page
     {
@@ -1288,19 +1288,21 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        foreach ((TabViewItem Tab, BladeItem[] Blades) in TabViewContainer.Current.TabCollection.Where((Tab) => Tab.Tag is FileControl)
-                                                                                                                 .Select((Tab) => (Tab, (Tab.Tag as FileControl).BladeViewer.Items.Cast<BladeItem>().ToArray())).ToArray())
+                        foreach (TabViewItem Tab in TabViewContainer.Current.TabCollection.ToArray())
                         {
-                            if (Blades.Select((BItem) => (BItem.Content as FilePresenter)?.CurrentFolder?.Path)
-                                      .All((BladePath) => Item.Path.Equals(Path.GetPathRoot(BladePath), StringComparison.OrdinalIgnoreCase)))
+                            if (Tab.Content is TabItemContentRenderer Renderer)
                             {
-                                await TabViewContainer.Current.CleanUpAndRemoveTabItem(Tab);
-                            }
-                            else
-                            {
-                                foreach (BladeItem BItem in Blades.Where((BItem) => Item.Path.Equals(Path.GetPathRoot((BItem.Content as FilePresenter)?.CurrentFolder?.Path))))
+                                if (Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
+                                                       .All((Path) => Item.Path.Equals(System.IO.Path.GetPathRoot(Path), StringComparison.OrdinalIgnoreCase)))
                                 {
-                                    await (Tab.Tag as FileControl).CloseBladeAsync(BItem);
+                                    await TabViewContainer.Current.CleanUpAndRemoveTabItem(Tab);
+                                }
+                                else
+                                {
+                                    foreach (FilePresenter Presenter in Renderer.Presenters.Where((Presenter) => Item.Path.Equals(Path.GetPathRoot(Presenter.CurrentFolder?.Path))))
+                                    {
+                                        await Renderer.CloseBladeByPresenterAsync(Presenter);
+                                    }
                                 }
                             }
                         }

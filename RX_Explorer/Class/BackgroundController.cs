@@ -1,5 +1,6 @@
 ﻿using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.Toolkit.Uwp.Helpers;
+using RX_Explorer.View;
 using ShareClassLibrary;
 using System;
 using System.ComponentModel;

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.Notifications;
 using RX_Explorer.Class;
+using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

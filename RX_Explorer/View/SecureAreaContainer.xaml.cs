@@ -2,7 +2,7 @@
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class SecureAreaContainer : Page
     {

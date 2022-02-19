@@ -42,12 +42,62 @@ using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class SettingPage : UserControl
     {
         private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
         private readonly ObservableCollection<TerminalProfile> TerminalList = new ObservableCollection<TerminalProfile>();
+
+        public static bool AllowTaskParalledExecution
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["TaskListParalledExecution"] is bool IsParalled)
+                {
+                    return IsParalled;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["TaskListParalledExecution"] = true;
+                    return true;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["TaskListParalledExecution"] = value;
+        }
+
+        public static bool OpenPanelWhenTaskIsCreated
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["TaskListOpenPanelWhenNewTaskCreated"] is bool IsPanelOpened)
+                {
+                    return IsPanelOpened;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["TaskListOpenPanelWhenNewTaskCreated"] = true;
+                    return true;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["TaskListOpenPanelWhenNewTaskCreated"] = value;
+        }
+
+        public static bool IsTaskListPinned
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] is bool ShouldPin)
+                {
+                    return ShouldPin;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] = value;
+        }
 
         public static bool IsDisplayProtectedSystemItems
         {
@@ -1256,47 +1306,44 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.LocalSettings.Values["FileLoadMode"] = FileLoadMode.SelectedIndex;
 
-                foreach (TabViewItem Tab in TabViewContainer.Current.TabCollection)
+                foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Item) => Item.Tag).OfType<FileControl>())
                 {
-                    if ((Tab.Content as Frame)?.Content is FileControl Control)
+                    Control.FolderTree.RootNodes.Clear();
+
+                    Control.FolderTree.RootNodes.Add(new TreeViewNode
                     {
-                        Control.FolderTree.RootNodes.Clear();
+                        Content = TreeViewNodeContent.QuickAccessNode,
+                        IsExpanded = false,
+                        HasUnrealizedChildren = true
+                    });
 
-                        Control.FolderTree.RootNodes.Add(new TreeViewNode
+                    foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
+                    {
+                        TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
+
+                        TreeViewNode RootNode = new TreeViewNode
                         {
-                            Content = TreeViewNodeContent.QuickAccessNode,
                             IsExpanded = false,
-                            HasUnrealizedChildren = true
-                        });
+                            Content = Content,
+                            HasUnrealizedChildren = Content.HasChildren
+                        };
 
-                        foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
+                        Control.FolderTree.RootNodes.Add(RootNode);
+
+                        if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
                         {
-                            TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
-
-                            TreeViewNode RootNode = new TreeViewNode
+                            if (Content.HasChildren)
                             {
-                                IsExpanded = false,
-                                Content = Content,
-                                HasUnrealizedChildren = Content.HasChildren
-                            };
-
-                            Control.FolderTree.RootNodes.Add(RootNode);
-
-                            if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
-                            {
-                                if (Content.HasChildren)
-                                {
-                                    RootNode.IsExpanded = true;
-                                }
-
-                                Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
+                                RootNode.IsExpanded = true;
                             }
-                        }
 
-                        if (Control.CurrentPresenter.CurrentFolder != null)
-                        {
-                            await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
+                            Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
                         }
+                    }
+
+                    if (Control.CurrentPresenter.CurrentFolder != null)
+                    {
+                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
                     }
                 }
             }

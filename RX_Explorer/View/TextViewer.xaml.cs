@@ -14,7 +14,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class TextViewer : Page
     {

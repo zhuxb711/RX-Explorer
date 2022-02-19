@@ -26,7 +26,7 @@ using Windows.UI.Xaml.Navigation;
 using Package = Windows.ApplicationModel.Package;
 using RefreshRequestedEventArgs = RX_Explorer.Class.RefreshRequestedEventArgs;
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class SearchPage : Page
     {

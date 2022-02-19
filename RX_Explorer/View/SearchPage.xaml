@@ -1,4 +1,4 @@
-﻿<Page x:Class="RX_Explorer.SearchPage"
+﻿<Page x:Class="RX_Explorer.View.SearchPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:Cls="using:RX_Explorer.Class"

@@ -51,7 +51,7 @@ using RefreshRequestedEventArgs = RX_Explorer.Class.RefreshRequestedEventArgs;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
-namespace RX_Explorer
+namespace RX_Explorer.View
 {
     public sealed partial class FilePresenter : Page, IDisposable
     {
@@ -2327,8 +2327,8 @@ namespace RX_Explorer
             {
                 if (Container.CurrentPresenter == this
                     && CurrentFolder is not RootStorageFolder
-                    && Container.Frame.CurrentSourcePageType == typeof(FileControl)
-                    && Container.Frame == TabViewContainer.CurrentNavigationControl
+                    && Container.Frame.Content is FileControl
+                    && Container.Renderer == TabViewContainer.CurrentTabRenderer
                     && !Container.ShouldNotAcceptShortcutKeyInput
                     && !QueueContentDialog.IsRunningOrWaiting
                     && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
@@ -2736,16 +2736,16 @@ namespace RX_Explorer
 
             if (TabIconImage != null)
             {
-                Container.CurrentTabItem.IconSource = new ImageIconSource { ImageSource = TabIconImage };
+                Container.Renderer.TabItem.IconSource = new ImageIconSource { ImageSource = TabIconImage };
             }
             else
             {
-                Container.CurrentTabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
+                Container.Renderer.TabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
             }
 
             string FolderDisplayName = await CurrentFolder.GetStorageItemAsync() is StorageFolder CoreItem ? CoreItem.DisplayName : CurrentFolder.DisplayName;
 
-            Container.CurrentTabItem.Header = FolderDisplayName;
+            Container.Renderer.TabItem.Header = FolderDisplayName;
 
             TaskBarController.SetText(FolderDisplayName);
 
@@ -3400,21 +3400,23 @@ namespace RX_Explorer
                         PermanentDelete |= IsAvoidRecycleBin;
                     }
 
-                    foreach ((TabViewItem Tab, BladeItem[] Blades) in TabViewContainer.Current.TabCollection.Where((Tab) => Tab.Tag is FileControl)
-                                                                                                            .Select((Tab) => (Tab, (Tab.Tag as FileControl).BladeViewer.Items.Cast<BladeItem>().ToArray())).ToArray())
+                    foreach (TabViewItem Tab in TabViewContainer.Current.TabCollection.ToArray())
                     {
-                        foreach (string DeletePath in PathList)
+                        if (Tab.Content is TabItemContentRenderer Renderer)
                         {
-                            if (Blades.Select((BItem) => (BItem.Content as FilePresenter)?.CurrentFolder?.Path)
-                                      .All((BladePath) => BladePath.StartsWith(DeletePath, StringComparison.OrdinalIgnoreCase)))
+                            foreach (string DeletePath in PathList)
                             {
-                                await TabViewContainer.Current.CleanUpAndRemoveTabItem(Tab);
-                            }
-                            else
-                            {
-                                foreach (BladeItem BItem in Blades.Where((Item) => ((Item.Content as FilePresenter).CurrentFolder?.Path.StartsWith(DeletePath, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                                if (Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
+                                                       .All((BladePath) => BladePath.StartsWith(DeletePath, StringComparison.OrdinalIgnoreCase)))
                                 {
-                                    await (Tab.Tag as FileControl).CloseBladeAsync(BItem);
+                                    await TabViewContainer.Current.CleanUpAndRemoveTabItem(Tab);
+                                }
+                                else
+                                {
+                                    foreach (FilePresenter Presenter in Renderer.Presenters.Where((Presenter) => (Presenter.CurrentFolder?.Path.StartsWith(DeletePath, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                                    {
+                                        await Renderer.CloseBladeByPresenterAsync(Presenter);
+                                    }
                                 }
                             }
                         }

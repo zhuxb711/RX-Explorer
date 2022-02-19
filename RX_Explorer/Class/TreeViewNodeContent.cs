@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RX_Explorer.View;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;

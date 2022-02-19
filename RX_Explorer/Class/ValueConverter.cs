@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
+using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
 using System.IO;
