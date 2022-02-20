@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Deferred;
+﻿using MediaDevices;
+using Microsoft.Toolkit.Deferred;
 using Microsoft.Win32;
 using ShareClassLibrary;
 using System;
@@ -53,6 +54,8 @@ namespace FullTrustProcess
 
         private static CancellationTokenSource CurrentTaskCancellation;
 
+        private static List<MediaDevice> MTPDeviceList;
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -71,6 +74,9 @@ namespace FullTrustProcess
                 AliveCheckTimer.Elapsed += AliveCheckTimer_Elapsed;
 
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+                MTPDeviceList = new List<MediaDevice>(MediaDevice.GetDevices());
+                MTPDeviceList.ForEach((Item) => Item.Connect());
 
                 if (args.FirstOrDefault() == "/ExecuteAdminOperation")
                 {
@@ -547,6 +553,8 @@ namespace FullTrustProcess
                 PipeCancellationReadController?.Dispose();
                 PipeCommunicationBaseController?.Dispose();
 
+                MTPDeviceList.ForEach((Item) => Item.Dispose());
+
                 LogTracer.MakeSureLogIsFlushed(2000);
             }
         }
@@ -718,6 +726,166 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.MTPCheckExists:
+                        {
+                            string Path = CommandValue["Path"];
+                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                            string DeviceId = @$"\\?\{SplitArray[0]}";
+                            string RelativePath = @$"\{string.Concat(SplitArray.Skip(1))}";
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.DirectoryExists(RelativePath) || Device.FileExists(RelativePath))
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP folder or file is not found");
+                                }
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPGetItem:
+                        {
+                            string Path = CommandValue["Path"];
+                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                            string DeviceId = @$"\\?\{SplitArray[0]}";
+                            string RelativePath = @$"\{string.Concat(SplitArray.Skip(1))}";
+
+                            static FileAttributes ConvertAttribute(MediaFileAttributes Attributes)
+                            {
+                                FileAttributes Return = 0;
+
+                                if (Attributes.HasFlag(MediaFileAttributes.Hidden))
+                                {
+                                    Return |= FileAttributes.Hidden;
+                                }
+                                else if (Attributes.HasFlag(MediaFileAttributes.System))
+                                {
+                                    Return |= FileAttributes.System;
+                                }
+                                else if (Attributes.HasFlag(MediaFileAttributes.Object) || Attributes.HasFlag(MediaFileAttributes.Directory))
+                                {
+                                    Return |= FileAttributes.Directory;
+                                }
+
+                                if (Return == 0)
+                                {
+                                    Return |= FileAttributes.Normal;
+                                }
+
+                                return Return;
+                            }
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                MediaFileSystemInfo Item = null;
+
+                                if (Device.DirectoryExists(RelativePath))
+                                {
+                                    Item = Device.GetDirectoryInfo(RelativePath);
+                                }
+                                else if (Device.FileExists(RelativePath))
+                                {
+                                    Item = Device.GetFileInfo(RelativePath);
+                                }
+
+                                if (Item != null)
+                                {
+                                    Value.Add("Success", JsonSerializer.Serialize(new MTP_File_Data(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), Item.CreationTime.GetValueOrDefault().ToLocalTime(), Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP folder or file is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPGetChildItems:
+                        {
+                            string Path = CommandValue["Path"];
+                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                            string DeviceId = @$"\\?\{SplitArray[0]}";
+                            string RelativePath = @$"\{string.Concat(SplitArray.Skip(1))}";
+                            string Type = CommandValue["Type"];
+                            bool IncludeHiddenItems = Convert.ToBoolean(CommandValue["IncludeHiddenItems"]);
+                            bool IncludeSystemItems = Convert.ToBoolean(CommandValue["IncludeSystemItems"]);
+                            bool IncludeAllSubItems = Convert.ToBoolean(CommandValue["IncludeAllSubItems"]);
+                            uint MaxNumLimit = Convert.ToUInt32(CommandValue["MaxNumLimit"]);
+
+                            static FileAttributes ConvertAttribute(MediaFileAttributes Attributes)
+                            {
+                                FileAttributes Return = 0;
+
+                                if (Attributes.HasFlag(MediaFileAttributes.Hidden))
+                                {
+                                    Return |= FileAttributes.Hidden;
+                                }
+                                else if (Attributes.HasFlag(MediaFileAttributes.System))
+                                {
+                                    Return |= FileAttributes.System;
+                                }
+                                else if (Attributes.HasFlag(MediaFileAttributes.Object) || Attributes.HasFlag(MediaFileAttributes.Directory))
+                                {
+                                    Return |= FileAttributes.Directory;
+                                }
+
+                                if (Return == 0)
+                                {
+                                    Return |= FileAttributes.Normal;
+                                }
+
+                                return Return;
+                            }
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.DirectoryExists(RelativePath))
+                                {
+                                    IEnumerable<MediaFileSystemInfo> BasicItems = Type switch
+                                    {
+                                        "All" => Device.GetDirectoryInfo(RelativePath).EnumerateFileSystemInfos("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
+                                        "File" => Device.GetDirectoryInfo(RelativePath).EnumerateFiles("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
+                                        "Folder" => Device.GetDirectoryInfo(RelativePath).EnumerateDirectories("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    IEnumerable<MediaFileSystemInfo> MTPSubItems = BasicItems.Where((Item) => IncludeSystemItems || !Item.Attributes.HasFlag(MediaFileAttributes.System))
+                                                                                             .Where((Item) => IncludeHiddenItems || !Item.Attributes.HasFlag(MediaFileAttributes.Hidden));
+
+                                    List<MTP_File_Data> Result = new List<MTP_File_Data>();
+
+                                    foreach (MediaFileSystemInfo Item in MTPSubItems)
+                                    {
+                                        Result.Add(new MTP_File_Data(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), new DateTimeOffset(Item.CreationTime.GetValueOrDefault().ToLocalTime()), new DateTimeOffset(Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                        if (Result.Count >= MaxNumLimit || CurrentTaskCancellation.IsCancellationRequested)
+                                        {
+                                            break;
+                                        }
+                                    }
+
+                                    Value.Add("Success", JsonSerializer.Serialize(Result));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP folder is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
                     case CommandType.ConvertToLongPath:
                         {
                             string Path = CommandValue["Path"];

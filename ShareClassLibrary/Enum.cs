@@ -124,6 +124,9 @@ namespace ShareClassLibrary
         GetDirectoryMonitorHandle,
         MapToUNCPath,
         SetTaskBarProgress,
-        GetProperties
+        GetProperties,
+        MTPGetItem,
+        MTPCheckExists,
+        MTPGetChildItems
     }
 }

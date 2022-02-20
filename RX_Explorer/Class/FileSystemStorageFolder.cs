@@ -61,6 +61,11 @@ namespace RX_Explorer.Class
 
         }
 
+        public FileSystemStorageFolder(MTP_File_Data Data) : base(Data)
+        {
+
+        }
+
         public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false,
                                                                   bool IncludeSystemItem = false,
                                                                   BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)

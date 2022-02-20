@@ -518,41 +518,13 @@ namespace RX_Explorer.View
                                                 {
                                                     args.Handled = true;
 
-                                                    if (string.IsNullOrEmpty(Drive.Path))
-                                                    {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
-                                                        {
-                                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                        };
-
-                                                        await Dialog.ShowAsync();
-                                                    }
-                                                    else
-                                                    {
-                                                        await HomeControl.OpenTargetFolder(Drive.Path);
-                                                    }
+                                                    HomeControl.OpenTargetFolder(string.IsNullOrEmpty(Drive.Path) ? Drive.DriveId : Drive.Path);
                                                 }
                                                 else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library)
                                                 {
                                                     args.Handled = true;
 
-                                                    if (string.IsNullOrEmpty(Library.Path))
-                                                    {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
-                                                        {
-                                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                        };
-
-                                                        await Dialog.ShowAsync();
-                                                    }
-                                                    else
-                                                    {
-                                                        await HomeControl.OpenTargetFolder(Library.Path);
-                                                    }
+                                                    HomeControl.OpenTargetFolder(Library.Path);
                                                 }
 
                                                 break;

@@ -480,6 +480,96 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<bool> MTPCheckExists(string Path)
+        {
+            if (await SendCommandAsync(CommandType.MTPCheckExists, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.ContainsKey("Success"))
+                {
+                    return true;
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPCheckExists)}, message: {ErrorMessage}");
+                }
+            }
+
+            return false;
+        }
+
+        public async Task<MTP_File_Data> GetMTPItemDataAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.MTPGetItem, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return JsonSerializer.Deserialize<MTP_File_Data>(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetMTPItemDataAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<IReadOnlyList<MTP_File_Data>> GetMTPChildItemsDataAsync(string Path,
+                                                                                  bool IncludeHiddenItems,
+                                                                                  bool IncludeSystemItems,
+                                                                                  bool IncludeAllSubItems,
+                                                                                  uint MaxNumLimit,
+                                                                                  BasicFilters Filters,
+                                                                                  CancellationToken CancelToken = default)
+        {
+            string ConvertFilterToText(BasicFilters Filters)
+            {
+                if (Filters.HasFlag(BasicFilters.File) && Filters.HasFlag(BasicFilters.Folder))
+                {
+                    return "All";
+                }
+                else if (Filters.HasFlag(BasicFilters.File))
+                {
+                    return "File";
+                }
+                else if (Filters.HasFlag(BasicFilters.Folder))
+                {
+                    return "Folder";
+                }
+
+                return string.Empty;
+            }
+
+            using (CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(GetMTPChildItemsDataAsync)}");
+                }
+            }))
+            {
+                if (await SendCommandAsync(CommandType.MTPGetChildItems,
+                                           ("Path", Path),
+                                           ("IncludeHiddenItems", Convert.ToString(IncludeHiddenItems)),
+                                           ("IncludeSystemItems", Convert.ToString(IncludeSystemItems)),
+                                           ("IncludeAllSubItems", Convert.ToString(IncludeAllSubItems)),
+                                           ("MaxNumLimit", Convert.ToString(MaxNumLimit)),
+                                           ("Type", ConvertFilterToText(Filters))) is IDictionary<string, string> Response)
+                {
+                    if (Response.TryGetValue("Success", out string RawText))
+                    {
+                        return JsonSerializer.Deserialize<IReadOnlyList<MTP_File_Data>>(RawText);
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetMTPChildItemsDataAsync)}, message: {ErrorMessage}");
+                    }
+                }
+
+                return new List<MTP_File_Data>();
+            }
+        }
+
         public async Task<string> ConvertShortPathToLongPathAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.ConvertToLongPath, ("Path", Path)) is IDictionary<string, string> Response)
@@ -1121,7 +1211,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetHiddenItemDataAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetThumbnailAsync)}, message: {ErrorMessage}");
                     }
                 }
             }

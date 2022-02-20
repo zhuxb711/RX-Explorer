@@ -115,26 +115,36 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    try
+                    if (Path.StartsWith(@"\\?\", StringComparison.OrdinalIgnoreCase))
                     {
-                        return Win32_Native_API.CheckExists(Path);
-                    }
-                    catch (LocationNotAvailableException)
-                    {
-                        string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                        if (string.IsNullOrEmpty(DirectoryPath))
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            await StorageFolder.GetFolderFromPathAsync(Path);
-                            return true;
+                            return await Exclusive.Controller.MTPCheckExists(Path);
                         }
-                        else
+                    }
+                    else
+                    {
+                        try
                         {
-                            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
+                            return Win32_Native_API.CheckExists(Path);
+                        }
+                        catch (LocationNotAvailableException)
+                        {
+                            string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
-                            if (await Folder.TryGetItemAsync(System.IO.Path.GetFileName(Path)) is IStorageItem)
+                            if (string.IsNullOrEmpty(DirectoryPath))
                             {
+                                await StorageFolder.GetFolderFromPathAsync(Path);
                                 return true;
+                            }
+                            else
+                            {
+                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
+
+                                if (await Folder.TryGetItemAsync(System.IO.Path.GetFileName(Path)) is IStorageItem)
+                                {
+                                    return true;
+                                }
                             }
                         }
                     }
@@ -234,54 +244,67 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    try
+                    if (Path.StartsWith(@"\\?\", StringComparison.OrdinalIgnoreCase))
                     {
-                        return Win32_Native_API.GetStorageItem(Path);
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            if (await Exclusive.Controller.GetMTPItemDataAsync(Path) is MTP_File_Data Data)
+                            {
+                                return new MTPStorageFolder(Data);
+                            }
+                        }
                     }
-                    catch (LocationNotAvailableException)
+                    else
                     {
                         try
                         {
-                            string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                            if (string.IsNullOrEmpty(DirectoryPath))
-                            {
-                                return new FileSystemStorageFolder(await StorageFolder.GetFolderFromPathAsync(Path));
-                            }
-                            else
-                            {
-                                StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
-
-                                switch (await ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)))
-                                {
-                                    case StorageFolder Folder:
-                                        {
-                                            return new FileSystemStorageFolder(Folder);
-                                        }
-                                    case StorageFile File:
-                                        {
-                                            return new FileSystemStorageFile(File);
-                                        }
-                                    default:
-                                        {
-                                            LogTracer.Log($"UWP storage API could not found the path: \"{Path}\"");
-                                            break;
-                                        }
-                                }
-                            }
+                            return Win32_Native_API.GetStorageItem(Path);
                         }
-                        catch (Exception ex) when (ex is not (FileNotFoundException or DirectoryNotFoundException))
+                        catch (LocationNotAvailableException)
                         {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                            using (SafeFileHandle Handle = await Exclusive.Controller.GetNativeHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None))
+                            try
                             {
-                                if (Handle.IsInvalid)
+                                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                                if (string.IsNullOrEmpty(DirectoryPath))
                                 {
-                                    LogTracer.Log($"Could not get native handle and failed to get the storage item, path: \"{Path}\"");
+                                    return new FileSystemStorageFolder(await StorageFolder.GetFolderFromPathAsync(Path));
                                 }
                                 else
                                 {
-                                    return Win32_Native_API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
+                                    StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
+
+                                    switch (await ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)))
+                                    {
+                                        case StorageFolder Folder:
+                                            {
+                                                return new FileSystemStorageFolder(Folder);
+                                            }
+                                        case StorageFile File:
+                                            {
+                                                return new FileSystemStorageFile(File);
+                                            }
+                                        default:
+                                            {
+                                                LogTracer.Log($"UWP storage API could not found the path: \"{Path}\"");
+                                                break;
+                                            }
+                                    }
+                                }
+                            }
+                            catch (Exception ex) when (ex is not (FileNotFoundException or DirectoryNotFoundException))
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                using (SafeFileHandle Handle = await Exclusive.Controller.GetNativeHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None))
+                                {
+                                    if (Handle.IsInvalid)
+                                    {
+                                        LogTracer.Log($"Could not get native handle and failed to get the storage item, path: \"{Path}\"");
+                                    }
+                                    else
+                                    {
+                                        return Win32_Native_API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
+                                    }
                                 }
                             }
                         }
@@ -427,22 +450,33 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageItemBase(Win32_File_Data Data)
+        protected FileSystemStorageItemBase(Win32_File_Data Data) : this(Data.Path)
         {
-            Path = Data.Path;
-
-            if (Data.IsDataValid)
+            if (Data != null && Data.IsDataValid)
             {
+                Size = Data.Size;
                 IsReadOnly = Data.IsReadOnly;
                 IsSystemItem = Data.IsSystemItem;
-                Size = Data.Size;
                 ModifiedTime = Data.ModifiedTime;
                 CreationTime = Data.CreationTime;
             }
-            else
+        }
+
+        protected FileSystemStorageItemBase(MTP_File_Data Data) : this(Data.Path)
+        {
+            if (Data != null)
             {
-                LogTracer.Log($"Could not get file information from native api, path: \"{Data.Path}\"");
+                Size = Data.Size;
+                IsReadOnly = Data.IsReadOnly;
+                IsSystemItem = Data.IsSystemItem;
+                ModifiedTime = Data.ModifiedTime;
+                CreationTime = Data.CreationTime;
             }
+        }
+
+        protected FileSystemStorageItemBase(string Path)
+        {
+            this.Path = Path;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)
@@ -609,7 +643,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
+        public virtual async Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
         {
             async Task<SafeFileHandle> GetNativeHandleCoreAsync()
             {
@@ -649,7 +683,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected async Task<BitmapImage> GetThumbnailOverlayAsync()
+        protected virtual async Task<BitmapImage> GetThumbnailOverlayAsync()
         {
             async Task<BitmapImage> GetThumbnailOverlayCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
             {

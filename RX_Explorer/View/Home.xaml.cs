@@ -1,5 +1,4 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -964,37 +963,16 @@ namespace RX_Explorer.View
                 case WslDriveData:
                 case NormalDriveData:
                     {
-                        await OpenTargetFolder(Drive.Path);
+                        OpenTargetFolder(string.IsNullOrEmpty(Drive.Path) ? Drive.DriveId : Drive.Path);
                         break;
                     }
             }
         }
 
-        public async Task OpenTargetFolder(string Path)
+        public void OpenTargetFolder(string Path)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(Path))
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync();
-                }
-                else
-                {
-                    DelaySelectionCancellation?.Cancel();
-                    EnterActionRequested?.Invoke(this, Path);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An error was threw when entering device");
-            }
+            DelaySelectionCancellation?.Cancel();
+            EnterActionRequested?.Invoke(this, Path);
         }
 
         private async void DriveGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
@@ -1062,7 +1040,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        await OpenTargetFolder(Library.Path);
+                        OpenTargetFolder(Library.Path);
                     }
                 }
             }
@@ -1110,7 +1088,7 @@ namespace RX_Explorer.View
             LibraryGrid.SelectedIndex = -1;
         }
 
-        private async void OpenLibrary_Click(object sender, RoutedEventArgs e)
+        private void OpenLibrary_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
@@ -1118,7 +1096,7 @@ namespace RX_Explorer.View
 
             if (LibraryGrid.SelectedItem is LibraryStorageFolder Library)
             {
-                await OpenTargetFolder(Library.Path);
+                OpenTargetFolder(Library.Path);
             }
         }
 
@@ -1186,13 +1164,13 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void LibraryGrid_ItemClick(object sender, ItemClickEventArgs e)
+        private void LibraryGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
             DriveGrid.SelectedIndex = -1;
 
             if (!SettingPage.IsDoubleClickEnabled && e.ClickedItem is LibraryStorageFolder Library)
             {
-                await OpenTargetFolder(Library.Path);
+                OpenTargetFolder(Library.Path);
             }
         }
 
