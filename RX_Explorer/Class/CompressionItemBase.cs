@@ -89,7 +89,6 @@ namespace RX_Explorer.Class
                         {
                             DisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
                         }
-
                     }
                 }
                 catch (Exception ex)

@@ -3458,4 +3458,7 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
     <value>Cierra el visor.</value>
   </data>
+  <data name="File_Admin_DisplayType" xml:space="preserve">
+    <value>Archivar</value>
+  </data>
 </root>

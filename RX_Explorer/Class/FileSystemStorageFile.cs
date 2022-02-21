@@ -13,9 +13,13 @@ namespace RX_Explorer.Class
 {
     public class FileSystemStorageFile : FileSystemStorageItemBase, ICoreStorageItem<StorageFile>
     {
-        public override string SizeDescription => Size.GetSizeDescription();
+        public override string Type => string.IsNullOrEmpty(base.Type) ? Globalization.GetString("File_Admin_DisplayType") : base.Type;
 
         public override string DisplayType => (StorageItem?.DisplayType) ?? Type;
+
+        public override string DisplayName => (StorageItem?.DisplayName) ?? Name;
+
+        public override string SizeDescription => Size.GetSizeDescription();
 
         public override bool IsReadOnly
         {
@@ -47,7 +51,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static readonly Uri Const_File_Image_Uri = AppThemeController.Current.Theme == ElementTheme.Dark 
+        private static readonly Uri Const_File_Image_Uri = AppThemeController.Current.Theme == ElementTheme.Dark
                                                                 ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
                                                                 : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
 
@@ -61,6 +65,11 @@ namespace RX_Explorer.Class
         }
 
         public FileSystemStorageFile(Win32_File_Data Data) : base(Data)
+        {
+
+        }
+
+        public FileSystemStorageFile(MTP_File_Data Data) : base(Data)
         {
 
         }
@@ -95,7 +104,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<ulong> GetSizeOnDiskAsync()
+        public virtual async Task<ulong> GetSizeOnDiskAsync()
         {
             using (SafeFileHandle Handle = await GetNativeHandleAsync(AccessMode.Read, OptimizeOption.None))
             {

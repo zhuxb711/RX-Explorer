@@ -32,11 +32,11 @@ namespace RX_Explorer.Class
 
         public virtual string Name => System.IO.Path.GetFileName(Path) ?? string.Empty;
 
-        public virtual string DisplayName => Name;
-
         public virtual string Type => System.IO.Path.GetExtension(Path)?.ToUpper() ?? string.Empty;
 
-        public virtual string DisplayType => Type;
+        public abstract string DisplayName { get; }
+
+        public abstract string DisplayType { get; }
 
         public ColorTag ColorTag
         {

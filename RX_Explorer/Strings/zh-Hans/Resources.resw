@@ -3458,4 +3458,7 @@
   <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
     <value>关闭查看器</value>
   </data>
+  <data name="File_Admin_DisplayType" xml:space="preserve">
+    <value>文件</value>
+  </data>
 </root>

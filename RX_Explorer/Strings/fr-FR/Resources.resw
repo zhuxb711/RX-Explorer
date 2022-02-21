@@ -3458,4 +3458,7 @@ Les noms non valides incluent
   <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
     <value>Fermer la visionneuse</value>
   </data>
+  <data name="File_Admin_DisplayType" xml:space="preserve">
+    <value>Fichier</value>
+  </data>
 </root>

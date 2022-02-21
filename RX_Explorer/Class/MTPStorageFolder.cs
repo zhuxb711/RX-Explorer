@@ -17,8 +17,6 @@ namespace RX_Explorer.Class
     {
         private MTP_File_Data RawData;
 
-        public override string Name => Path.Replace(DeviceId, string.Empty);
-
         public override string DisplayName => Name;
 
         public override bool IsReadOnly => RawData.IsReadOnly;
@@ -61,24 +59,30 @@ namespace RX_Explorer.Class
         {
             if (ForceUpdate)
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+                try
                 {
-                    if (ControllerRef != null)
+                    using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
                     {
-                        RawData = await ControllerRef.Value.Controller.GetMTPItemDataAsync(Path);
-                    }
-                    else
-                    {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        if (ControllerRef != null)
                         {
                             RawData = await ControllerRef.Value.Controller.GetMTPItemDataAsync(Path);
                         }
+                        else
+                        {
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            {
+                                RawData = await ControllerRef.Value.Controller.GetMTPItemDataAsync(Path);
+                            }
+                        }
                     }
-                }
 
-                Size = RawData.Size;
-                ModifiedTime = RawData.ModifiedTime;
-                CreationTime = RawData.CreationTime;
+                    ModifiedTime = RawData.ModifiedTime;
+                    CreationTime = RawData.CreationTime;
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An unexpected exception was threw in {nameof(LoadCoreAsync)}");
+                }
             }
         }
 
@@ -107,7 +111,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-
+                        Result.Add(new MTPStorageFile(Data));
                     }
                 }
             }
@@ -115,21 +119,21 @@ namespace RX_Explorer.Class
             return Result;
         }
 
-        public override async Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, StorageItemTypes ItemTypes, CreateOption Option)
+        public override Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, StorageItemTypes ItemTypes, CreateOption Option)
         {
-            return null;
+            return Task.FromResult<FileSystemStorageItemBase>(null);
         }
 
-        public override async Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
+        public override Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
         {
-            return 0;
+            return Task.FromResult<ulong>(0);
         }
 
-        public override async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false,
+        public override Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false,
                                                                    bool IncludeSystemItem = false,
                                                                    BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
         {
-            return true;
+            return Task.FromResult<bool>(true);
         }
 
         public override Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
@@ -144,12 +148,7 @@ namespace RX_Explorer.Class
 
         public MTPStorageFolder(MTP_File_Data Data) : base(Data)
         {
-            if (Data == null)
-            {
-                throw new ArgumentNullException(nameof(Data));
-            }
-
-            RawData = Data;
+            RawData = Data ?? throw new ArgumentNullException(nameof(Data));
         }
     }
 }

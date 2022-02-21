@@ -3563,4 +3563,7 @@ Invalid names include
   <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
     <value>Close the viewer</value>
   </data>
+  <data name="File_Admin_DisplayType" xml:space="preserve">
+    <value>File</value>
+  </data>
 </root>

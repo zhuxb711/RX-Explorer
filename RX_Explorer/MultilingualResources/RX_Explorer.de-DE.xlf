@@ -4591,6 +4591,10 @@ Inkorrekte Namen sind
           <source>Close the viewer</source>
           <target state="translated">Schließen Sie den Viewer</target>
         </trans-unit>
+        <trans-unit id="File_Admin_DisplayType" translate="yes" xml:space="preserve">
+          <source>File</source>
+          <target state="translated">Datei</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -3458,4 +3458,7 @@ Inkorrekte Namen sind
   <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
     <value>Schließen Sie den Viewer</value>
   </data>
+  <data name="File_Admin_DisplayType" xml:space="preserve">
+    <value>Datei</value>
+  </data>
 </root>

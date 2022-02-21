@@ -736,7 +736,7 @@ namespace FullTrustProcess
                             string Path = CommandValue["Path"];
                             string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
                             string DeviceId = @$"\\?\{SplitArray[0]}";
-                            string RelativePath = @$"\{string.Concat(SplitArray.Skip(1))}";
+                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
 
                             if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
                             {
@@ -757,7 +757,7 @@ namespace FullTrustProcess
                             string Path = CommandValue["Path"];
                             string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
                             string DeviceId = @$"\\?\{SplitArray[0]}";
-                            string RelativePath = @$"\{string.Concat(SplitArray.Skip(1))}";
+                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
 
                             static FileAttributes ConvertAttribute(MediaFileAttributes Attributes)
                             {
@@ -840,7 +840,7 @@ namespace FullTrustProcess
                             string Path = CommandValue["Path"];
                             string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
                             string DeviceId = @$"\\?\{SplitArray[0]}";
-                            string RelativePath = @$"\{string.Concat(SplitArray.Skip(1))}";
+                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
                             string Type = CommandValue["Type"];
                             bool IncludeHiddenItems = Convert.ToBoolean(CommandValue["IncludeHiddenItems"]);
                             bool IncludeSystemItems = Convert.ToBoolean(CommandValue["IncludeSystemItems"]);
@@ -895,21 +895,35 @@ namespace FullTrustProcess
 
                                         if (Item is MediaFileInfo File)
                                         {
-                                            using (Stream ThumbnailStream = File.OpenThumbnail())
-                                            using (MemoryStream MStream = new MemoryStream())
+                                            try
                                             {
-                                                ThumbnailStream.CopyTo(MStream);
-                                                IconData = MStream.ToArray();
-                                            }
-
-                                            if (IconData.Length == 0)
-                                            {
-                                                using (Stream IconStream = File.OpenThumbnail())
+                                                using (Stream ThumbnailStream = File.OpenThumbnail())
                                                 using (MemoryStream MStream = new MemoryStream())
                                                 {
-                                                    IconStream.CopyTo(MStream);
+                                                    ThumbnailStream.CopyTo(MStream);
                                                     IconData = MStream.ToArray();
                                                 }
+                                            }
+                                            catch (Exception)
+                                            {
+                                                IconData = Array.Empty<byte>();
+                                            }
+
+                                            try
+                                            {
+                                                if (IconData.Length == 0)
+                                                {
+                                                    using (Stream IconStream = File.OpenThumbnail())
+                                                    using (MemoryStream MStream = new MemoryStream())
+                                                    {
+                                                        IconStream.CopyTo(MStream);
+                                                        IconData = MStream.ToArray();
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception)
+                                            {
+                                                IconData = Array.Empty<byte>();
                                             }
                                         }
 
