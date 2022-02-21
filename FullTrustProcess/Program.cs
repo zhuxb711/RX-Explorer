@@ -54,7 +54,15 @@ namespace FullTrustProcess
 
         private static CancellationTokenSource CurrentTaskCancellation;
 
-        private static List<MediaDevice> MTPDeviceList;
+        private static IReadOnlyList<MediaDevice> MTPDeviceList
+        {
+            get
+            {
+                List<MediaDevice> Devices = MediaDevice.GetDevices().ToList();
+                Devices.ForEach((Device) => Device.Connect());
+                return Devices;
+            }
+        }
 
         [STAThread]
         static void Main(string[] args)
@@ -74,9 +82,6 @@ namespace FullTrustProcess
                 AliveCheckTimer.Elapsed += AliveCheckTimer_Elapsed;
 
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
-                MTPDeviceList = new List<MediaDevice>(MediaDevice.GetDevices());
-                MTPDeviceList.ForEach((Item) => Item.Connect());
 
                 if (args.FirstOrDefault() == "/ExecuteAdminOperation")
                 {
@@ -794,7 +799,29 @@ namespace FullTrustProcess
 
                                 if (Item != null)
                                 {
-                                    Value.Add("Success", JsonSerializer.Serialize(new MTP_File_Data(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), Item.CreationTime.GetValueOrDefault().ToLocalTime(), Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                    byte[] IconData = Array.Empty<byte>();
+
+                                    if (Item is MediaFileInfo File)
+                                    {
+                                        using (Stream ThumbnailStream = File.OpenThumbnail())
+                                        using (MemoryStream MStream = new MemoryStream())
+                                        {
+                                            ThumbnailStream.CopyTo(MStream);
+                                            IconData = MStream.ToArray();
+                                        }
+
+                                        if (IconData.Length == 0)
+                                        {
+                                            using (Stream IconStream = File.OpenThumbnail())
+                                            using (MemoryStream MStream = new MemoryStream())
+                                            {
+                                                IconStream.CopyTo(MStream);
+                                                IconData = MStream.ToArray();
+                                            }
+                                        }
+                                    }
+
+                                    Value.Add("Success", JsonSerializer.Serialize(new MTP_File_Data(Device.DeviceId + Item.FullName, Item.Length, IconData, ConvertAttribute(Item.Attributes), Item.CreationTime.GetValueOrDefault().ToLocalTime(), Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
                                 }
                                 else
                                 {
@@ -864,7 +891,29 @@ namespace FullTrustProcess
 
                                     foreach (MediaFileSystemInfo Item in MTPSubItems)
                                     {
-                                        Result.Add(new MTP_File_Data(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), new DateTimeOffset(Item.CreationTime.GetValueOrDefault().ToLocalTime()), new DateTimeOffset(Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                        byte[] IconData = Array.Empty<byte>();
+
+                                        if (Item is MediaFileInfo File)
+                                        {
+                                            using (Stream ThumbnailStream = File.OpenThumbnail())
+                                            using (MemoryStream MStream = new MemoryStream())
+                                            {
+                                                ThumbnailStream.CopyTo(MStream);
+                                                IconData = MStream.ToArray();
+                                            }
+
+                                            if (IconData.Length == 0)
+                                            {
+                                                using (Stream IconStream = File.OpenThumbnail())
+                                                using (MemoryStream MStream = new MemoryStream())
+                                                {
+                                                    IconStream.CopyTo(MStream);
+                                                    IconData = MStream.ToArray();
+                                                }
+                                            }
+                                        }
+
+                                        Result.Add(new MTP_File_Data(Device.DeviceId + Item.FullName, Item.Length, IconData, ConvertAttribute(Item.Attributes), new DateTimeOffset(Item.CreationTime.GetValueOrDefault().ToLocalTime()), new DateTimeOffset(Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
 
                                         if (Result.Count >= MaxNumLimit || CurrentTaskCancellation.IsCancellationRequested)
                                         {

@@ -2,6 +2,7 @@
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,21 +15,71 @@ namespace RX_Explorer.Class
 {
     public class MTPStorageFolder : FileSystemStorageFolder
     {
+        private MTP_File_Data RawData;
+
+        public override string Name => Path.Replace(DeviceId, string.Empty);
+
+        public override string DisplayName => Name;
+
+        public override bool IsReadOnly => RawData.IsReadOnly;
+
+        public override bool IsSystemItem => RawData.IsSystemItem;
+
         public string DeviceId => @$"\\?\{new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()}";
 
-        protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
+        protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
         {
-            return Task.FromResult(new BitmapImage());
+            if (RawData.IconData.Length > 0)
+            {
+                BitmapImage Thumbnail = new BitmapImage();
+
+                using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
+                {
+                    await Thumbnail.SetSourceAsync(IconStream.AsRandomAccessStream());
+                }
+
+                return Thumbnail;
+            }
+
+            return null;
         }
 
         protected override Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
         {
+            if (RawData.IconData.Length > 0)
+            {
+                using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
+                {
+                    return Task.FromResult(IconStream.AsRandomAccessStream());
+                }
+            }
+
             return null;
         }
 
-        protected override Task LoadCoreAsync(bool ForceUpdate)
+        protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
-            return base.LoadCoreAsync(ForceUpdate);
+            if (ForceUpdate)
+            {
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+                {
+                    if (ControllerRef != null)
+                    {
+                        RawData = await ControllerRef.Value.Controller.GetMTPItemDataAsync(Path);
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            RawData = await ControllerRef.Value.Controller.GetMTPItemDataAsync(Path);
+                        }
+                    }
+                }
+
+                Size = RawData.Size;
+                ModifiedTime = RawData.ModifiedTime;
+                CreationTime = RawData.CreationTime;
+            }
         }
 
         public override Task<IStorageItem> GetStorageItemAsync()
@@ -93,7 +144,12 @@ namespace RX_Explorer.Class
 
         public MTPStorageFolder(MTP_File_Data Data) : base(Data)
         {
+            if (Data == null)
+            {
+                throw new ArgumentNullException(nameof(Data));
+            }
 
+            RawData = Data;
         }
     }
 }

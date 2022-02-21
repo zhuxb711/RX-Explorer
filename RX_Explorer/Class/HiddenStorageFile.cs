@@ -85,6 +85,11 @@ namespace RX_Explorer.Class
 
         public HiddenStorageFile(Win32_File_Data Data) : base(Data)
         {
+            if (Data == null)
+            {
+                throw new ArgumentNullException(nameof(Data));
+            }
+
             base.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity);
         }
     }
