@@ -1121,12 +1121,54 @@ namespace RX_Explorer.Class
                     {
                         case StorageFolder Folder:
                             {
-                                GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
+                                GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
+                                                         .AsTask(Cancellation.Token)
+                                                         .ContinueWith((PreviousTask) =>
+                                                         {
+                                                             try
+                                                             {
+                                                                 if (Cancellation.IsCancellationRequested)
+                                                                 {
+                                                                     PreviousTask.Result?.Dispose();
+                                                                 }
+                                                                 else
+                                                                 {
+                                                                     return PreviousTask.Result;
+                                                                 }
+                                                             }
+                                                             catch (Exception ex)
+                                                             {
+                                                                 LogTracer.Log(ex, "Could not get thumbnail from UWP API");
+                                                             }
+
+                                                             return null;
+                                                         }, TaskContinuationOptions.ExecuteSynchronously);
                                 break;
                             }
                         case StorageFile File:
                             {
-                                GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
+                                GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
+                                                       .AsTask(Cancellation.Token)
+                                                       .ContinueWith((PreviousTask) =>
+                                                       {
+                                                           try
+                                                           {
+                                                               if (Cancellation.IsCancellationRequested)
+                                                               {
+                                                                   PreviousTask.Result?.Dispose();
+                                                               }
+                                                               else
+                                                               {
+                                                                   return PreviousTask.Result;
+                                                               }
+                                                           }
+                                                           catch (Exception ex)
+                                                           {
+                                                               LogTracer.Log(ex, "Could not get thumbnail from UWP API");
+                                                           }
+
+                                                           return null;
+                                                       }, TaskContinuationOptions.ExecuteSynchronously);
                                 break;
                             }
                         default:
@@ -1135,50 +1177,35 @@ namespace RX_Explorer.Class
                             }
                     }
 
-                    await Task.WhenAny(GetThumbnailTask, Task.Delay(5000));
+                    await Task.WhenAny(GetThumbnailTask, Task.Delay(3000));
 
                     if (GetThumbnailTask.IsCompleted)
                     {
                         using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
                         {
-                            if (Thumbnail == null || Thumbnail.Size == 0 || Thumbnail.OriginalHeight == 0 || Thumbnail.OriginalWidth == 0)
+                            if (Thumbnail != null && Thumbnail.Size != 0 && Thumbnail.OriginalHeight != 0 && Thumbnail.OriginalWidth != 0)
                             {
-                                return null;
+                                BitmapImage Bitmap = new BitmapImage();
+
+                                await Bitmap.SetSourceAsync(Thumbnail);
+
+                                return Bitmap;
                             }
-
-                            BitmapImage Bitmap = new BitmapImage();
-
-                            await Bitmap.SetSourceAsync(Thumbnail);
-
-                            return Bitmap;
                         }
                     }
                     else
                     {
-                        _ = GetThumbnailTask.ContinueWith((task) =>
-                        {
-                            try
-                            {
-                                task.Result?.Dispose();
-                            }
-                            catch
-                            {
-
-                            }
-                        }, default, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
-
                         Cancellation.Cancel();
-
                         InfoTipController.Current.Show(InfoTipType.ThumbnailDelay);
-
-                        return null;
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                LogTracer.Log(ex, $"Could not get the thumbnail of path: {nameof(GetThumbnailBitmapAsync)}");
             }
+
+            return null;
         }
 
         public static async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(this IStorageItem Item, ThumbnailMode Mode)
