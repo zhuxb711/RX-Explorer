@@ -103,7 +103,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private CancellationTokenSource SHA256Cancellation;
         private CancellationTokenSource SavingCancellation;
 
-        private int ConfirmButtonLockResource;
+        private int ActionButtonLockResource;
 
         private readonly PointerEventHandler PointerPressedHandler;
         private readonly PointerEventHandler PointerReleasedHandler;
@@ -188,7 +188,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             ShortcutWindowsStateContent.SelectedIndex = 0;
 
             Window.Closed += Window_Closed;
-            Window.CloseRequested += Window_CloseRequested;
 
             Loading += PropertiesWindow_Loading;
         }
@@ -204,6 +203,12 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
             PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Details_Tab")));
+
+            if (RootDrive is MTPDriveData)
+            {
+                PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Security_Tab")));
+                PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Tools_Tab")));
+            }
 
             SecurityObjectNameContentScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(ScrollableTextBlock_PointerPressed), true);
             SecurityObjectNameContentScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(ScrollableTextBlock_PointerReleased), true);
@@ -232,7 +237,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         MultiLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
                         MultiLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                        while (PivotControl.Items.Count > 2)
+                        while (PivotControl.Items.Count > (StorageItems.Any((Item) => Item is IMTPStorageItem) ? 1 : 2))
                         {
                             PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
                         }
@@ -248,7 +253,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                         switch (StorageItems.First())
                         {
-                            case FileSystemStorageFolder:
+                            case FileSystemStorageFolder Folder:
                                 {
                                     GeneralPanelSwitcher.Value = "Folder";
 
@@ -257,7 +262,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FolderLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
                                     FolderLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                                    while (PivotControl.Items.Count > 2)
+                                    while (PivotControl.Items.Count > (Folder is IMTPStorageItem ? 1 : 2))
                                     {
                                         PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
                                     }
@@ -279,6 +284,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                         PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Tools_Tab")));
                                     }
 
+                                    if (File is IMTPStorageItem)
+                                    {
+                                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Security_Tab")));
+                                    }
+
                                     if (File is not (LinkStorageFile or UrlStorageFile))
                                     {
                                         PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
@@ -297,12 +307,17 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
         }
 
-        private void Window_CloseRequested(AppWindow sender, AppWindowCloseRequestedEventArgs args)
+        private async Task CloseWindowAsync(bool SaveConfig)
         {
-            Window.CloseRequested -= Window_CloseRequested;
-
-            AppWindowPlacement Placement = sender.GetPlacement();
+            AppWindowPlacement Placement = Window.GetPlacement();
             ApplicationData.Current.LocalSettings.Values["PropertyWindowSizeConfiguration"] = JsonSerializer.Serialize(new WindowSizeConfiguration(Placement.Size.Height, Placement.Size.Width));
+
+            if (SaveConfig)
+            {
+                await SaveConfiguration();
+            }
+
+            await Window.CloseAsync();
         }
 
         private void Window_Closed(AppWindow sender, AppWindowClosedEventArgs args)
@@ -478,9 +493,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         }
                     }
                 }
-                else
+                else if (RootDrive is not MTPDriveData)
                 {
-                    if (RootDriveName.Text != Regex.Replace(RootDrive.DisplayName, $@"\({RootDrive.Path.TrimEnd('\\')}\)$", string.Empty).Trim())
+                    if (RootDriveName.Text != Regex.Replace(RootDrive.DisplayName, $@"\({Regex.Escape(RootDrive.Path.TrimEnd('\\'))}\)$", string.Empty).Trim())
                     {
                         if (HandleRenameAutomatically)
                         {
@@ -548,9 +563,13 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             List<Task> ParallelLoadingList = new List<Task>(3)
             {
-                LoadDataForGeneralPage(),
-                LoadDataForSecurityPage()
+                LoadDataForGeneralPage()
             };
+
+            if (RootDrive is not MTPDriveData && (StorageItems?.All((Item) => Item is not IMTPStorageItem)).GetValueOrDefault(true))
+            {
+                ParallelLoadingList.Add(LoadDataForSecurityPage());
+            }
 
             if ((StorageItems?.Length).GetValueOrDefault() == 1 && StorageItems?.First() is FileSystemStorageFile StorageItem)
             {
@@ -750,7 +769,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     string ContentType = string.Empty;
 
-                    if (string.IsNullOrEmpty(ContentType))
+                    if (StorageItem is not IMTPStorageItem)
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
@@ -1102,6 +1121,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                                                : (Array.TrueForAll(StorageItems, (Item) => !Item.IsReadOnly)
                                                                                        ? false
                                                                                        : null));
+                        MultiHiddenAttribute.IsEnabled = StorageItems.All((Item) => Item is not IMTPStorageItem);
+                        MultiReadonlyAttribute.IsEnabled = StorageItems.All((Item) => Item is not IMTPStorageItem);
 
                         try
                         {
@@ -1157,7 +1178,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                             ulong[] SizeOnDiskResultArray = await Task.WhenAll(SizeOnDiskTaskList);
                             ulong SizeOnDisk = Convert.ToUInt64(SizeOnDiskResultArray.Sum((Result) => Convert.ToInt64(Result)));
-                            MultiSizeOnDiskContent.Text = $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
+                            MultiSizeOnDiskContent.Text = SizeOnDisk > 0 ? $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Drive_Capacity_Unit")})" : Globalization.GetString("UnknownText");
                         }
                         catch (Exception ex)
                         {
@@ -1186,6 +1207,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FolderCreatedContent.Text = Folder.CreationTime.ToString("F");
                                     FolderHiddenAttribute.IsChecked = Folder is IHiddenStorageItem;
                                     FolderReadonlyAttribute.IsChecked = null;
+                                    FolderHiddenAttribute.IsEnabled = Folder is not IMTPStorageItem;
+                                    FolderReadonlyAttribute.IsEnabled = Folder is not IMTPStorageItem;
 
                                     try
                                     {
@@ -1230,6 +1253,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileCreatedContent.Text = File.CreationTime.ToString("F");
                                     FileModifiedContent.Text = File.ModifiedTime.ToString("F");
                                     FileHiddenAttribute.IsChecked = File is IHiddenStorageItem;
+                                    FileHiddenAttribute.IsEnabled = File is not IMTPStorageItem;
+                                    FileReadonlyAttribute.IsEnabled = File is not IMTPStorageItem;
 
                                     if (Regex.IsMatch(File.Name, @"\.(exe|bat|lnk|url)$"))
                                     {
@@ -1289,6 +1314,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                         switch (File.Type.ToLower())
                                         {
                                             case ".jpg":
+                                            case ".jpeg":
                                             case ".png":
                                             case ".bmp":
                                             case ".mkv":
@@ -1457,7 +1483,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 default:
                     {
                         RootDriveThumbnail.Source = RootDrive.Thumbnail;
-                        RootDriveName.Text = Regex.Replace(RootDrive.DisplayName, $@"\({RootDrive.Path.TrimEnd('\\')}\)$", string.Empty).Trim();
+                        RootDriveName.Text = Regex.Replace(RootDrive.DisplayName, $@"\({Regex.Escape(RootDrive.Path.TrimEnd('\\'))}\)$", string.Empty).Trim();
                         RootDriveCapacity.Text = RootDrive.UsedSpace;
                         RootDriveFreeSpace.Text = RootDrive.FreeSpace;
                         RootDriveTotalSpace.Text = RootDrive.Capacity;
@@ -1478,15 +1504,24 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                         CapacityRingStoryboard.Begin();
 
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        if (RootDrive is MTPDriveData)
                         {
-                            bool IsCompressed = await Exclusive.Controller.GetDriveCompressionStatusAsync(RootDrive.Path);
-                            bool IsAllowIndex = await Exclusive.Controller.GetDriveIndexStatusAsync(RootDrive.Path);
+                            AllowIndex.IsEnabled = false;
+                            CompressDrive.IsEnabled = false;
+                            DriveCleanup.IsEnabled = false;
+                        }
+                        else
+                        {
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            {
+                                bool IsCompressed = await Exclusive.Controller.GetDriveCompressionStatusAsync(RootDrive.Path);
+                                bool IsAllowIndex = await Exclusive.Controller.GetDriveIndexStatusAsync(RootDrive.Path);
 
-                            CompressDrive.IsChecked = IsCompressed;
-                            CompressDrive.Tag = IsCompressed;
-                            AllowIndex.IsChecked = IsAllowIndex;
-                            AllowIndex.Tag = IsAllowIndex;
+                                CompressDrive.IsChecked = IsCompressed;
+                                CompressDrive.Tag = IsCompressed;
+                                AllowIndex.IsChecked = IsAllowIndex;
+                                AllowIndex.Tag = IsAllowIndex;
+                            }
                         }
 
                         break;
@@ -1496,49 +1531,30 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Interlocked.Exchange(ref ConfirmButtonLockResource, 1) == 0)
+            if (Interlocked.Exchange(ref ActionButtonLockResource, 1) == 0)
             {
                 try
                 {
-                    await SaveConfiguration();
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not save configuration");
+                    await CloseWindowAsync(true);
                 }
                 finally
                 {
-                    try
-                    {
-                        await Window.CloseAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Could not close the window");
-                    }
-                    finally
-                    {
-                        Interlocked.Exchange(ref ConfirmButtonLockResource, 0);
-                    }
+                    Interlocked.Exchange(ref ActionButtonLockResource, 0);
                 }
             }
         }
 
         private async void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Interlocked.Exchange(ref ConfirmButtonLockResource, 1) == 0)
+            if (Interlocked.Exchange(ref ActionButtonLockResource, 1) == 0)
             {
                 try
                 {
-                    await Window.CloseAsync();
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex);
+                    await CloseWindowAsync(false);
                 }
                 finally
                 {
-                    Interlocked.Exchange(ref ConfirmButtonLockResource, 0);
+                    Interlocked.Exchange(ref ActionButtonLockResource, 0);
                 }
             }
         }
@@ -1650,7 +1666,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     MD5TextBox.Text = Globalization.GetString("HashPlaceHolderText");
                     Md5Cancellation = new CancellationTokenSource();
 
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                     using (MD5 MD5Alg = MD5.Create())
                     {
                         MD5TextBox.Text = await MD5Alg.GetHashAsync(Stream, Md5Cancellation.Token, async (s, args) =>
@@ -1700,7 +1716,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     SHA1TextBox.Text = Globalization.GetString("HashPlaceHolderText");
                     SHA1Cancellation = new CancellationTokenSource();
 
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                     using (SHA1 SHA1Alg = SHA1.Create())
                     {
                         SHA1TextBox.Text = await SHA1Alg.GetHashAsync(Stream, SHA1Cancellation.Token, async (s, args) =>
@@ -1750,7 +1766,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     SHA256TextBox.Text = Globalization.GetString("HashPlaceHolderText");
                     SHA256Cancellation = new CancellationTokenSource();
 
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                     using (SHA256 SHA256Alg = SHA256.Create())
                     {
                         SHA256TextBox.Text = await SHA256Alg.GetHashAsync(Stream, SHA256Cancellation.Token, async (s, args) =>
@@ -1790,13 +1806,12 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (StorageItems.First() is FileSystemStorageFile File)
             {
+                await CloseWindowAsync(false);
+
                 await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
-                    ProgramPickerDialog Dialog = new ProgramPickerDialog(File, true);
-                    await Dialog.ShowAsync();
+                    await new ProgramPickerDialog(File, true).ShowAsync();
                 });
-
-                await Window.CloseAsync();
             }
         }
 

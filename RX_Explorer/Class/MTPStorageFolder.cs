@@ -37,27 +37,14 @@ namespace RX_Explorer.Class
 
         public string DeviceId => @$"\\?\{new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()}";
 
-        protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
+        protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
         {
-            if (await GetStorageItemAsync() is IStorageItem Item)
-            {
-                if (await Item.GetThumbnailBitmapAsync(Mode) is BitmapImage Thumbnail)
-                {
-                    return Thumbnail;
-                }
-            }
-
-            return null;
+            return Task.FromResult<BitmapImage>(null);
         }
 
-        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected override Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
         {
-            if (await GetStorageItemAsync() is IStorageItem Item)
-            {
-                return await Item.GetThumbnailRawStreamAsync(Mode);
-            }
-
-            return null;
+            return Task.FromResult<IRandomAccessStream>(null);
         }
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
@@ -70,26 +57,38 @@ namespace RX_Explorer.Class
 
         public override async Task<IStorageItem> GetStorageItemAsync()
         {
-            if (Path.Equals(DeviceId, StringComparison.OrdinalIgnoreCase))
+            if (StorageItem != null)
             {
-                return StorageDevice.FromId(DeviceId);
+                return StorageItem;
             }
-            else if (ParentFolder != null)
+            else
             {
-                if (await ParentFolder.GetStorageItemAsync() is StorageFolder Folder)
+                if (Path.Equals(DeviceId, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (await Folder.TryGetItemAsync(Name) is IStorageItem Item)
+                    return StorageItem = StorageDevice.FromId(DeviceId);
+                }
+                else if (ParentFolder != null)
+                {
+                    if (await ParentFolder.GetStorageItemAsync() is StorageFolder Folder)
                     {
-                        return Item;
+                        if (await Folder.TryGetItemAsync(Name) is StorageFolder Item)
+                        {
+                            return StorageItem = Item;
+                        }
                     }
                 }
-            }
-            else if (StorageDevice.FromId(DeviceId) is StorageFolder RootFolder)
-            {
-                return await RootFolder.GetStorageItemByTraverse<StorageFolder>(new PathAnalysis(Path, DeviceId));
-            }
+                else if (StorageDevice.FromId(DeviceId) is StorageFolder RootFolder)
+                {
+                    return StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFolder>(new PathAnalysis(Path, DeviceId));
+                }
 
-            return null;
+                return null;
+            }
+        }
+
+        public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
+        {
+            return Task.FromResult<IReadOnlyDictionary<string, string>>(new Dictionary<string, string>());
         }
 
         public override async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems = false,
@@ -120,9 +119,29 @@ namespace RX_Explorer.Class
             return Result;
         }
 
-        public override Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, StorageItemTypes ItemTypes, CreateOption Option)
+        public override async Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, StorageItemTypes ItemTypes, CreateOption Option)
         {
-            return Task.FromResult<FileSystemStorageItemBase>(null);
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            {
+                MTPFileData Data = await Exclusive.Controller.MTPCreateSubItemAsync(Path, Name, ItemTypes, Option);
+
+                if (Data != null)
+                {
+                    switch (ItemTypes)
+                    {
+                        case StorageItemTypes.File:
+                            {
+                                return new MTPStorageFile(Data, this);
+                            }
+                        case StorageItemTypes.Folder:
+                            {
+                                return new MTPStorageFolder(Data, this);
+                            }
+                    }
+                }
+
+                return null;
+            }
         }
 
         public override async Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
@@ -133,13 +152,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false,
-                                                                   bool IncludeSystemItem = false,
+        public override async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItems = false,
+                                                                   bool IncludeSystemItems = false,
                                                                    BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                return await Exclusive.Controller.MTPCheckContainersAnyItemsAsync(Path, IncludeHiddenItem, IncludeSystemItem, Filter);
+                return await Exclusive.Controller.MTPCheckContainersAnyItemsAsync(Path, IncludeHiddenItems, IncludeSystemItems, Filter);
             }
         }
 
@@ -180,15 +199,15 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public MTPStorageFolder(MTPFileData Data) : base(Data)
+        public MTPStorageFolder(MTPFileData Data) : this(Data, null)
         {
-            RawData = Data ?? throw new ArgumentNullException(nameof(Data));
+
         }
 
         public MTPStorageFolder(MTPFileData Data, MTPStorageFolder Parent) : base(Data)
         {
-            RawData = Data ?? throw new ArgumentNullException(nameof(Data));
-            ParentFolder = Parent ?? throw new ArgumentNullException(nameof(Parent));
+            RawData = Data;
+            ParentFolder = Parent;
         }
     }
 }

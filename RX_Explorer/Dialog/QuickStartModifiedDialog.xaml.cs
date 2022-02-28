@@ -637,6 +637,7 @@ namespace RX_Explorer.Dialog
                 Picker.FileTypeFilter.Add(".ico");
                 Picker.FileTypeFilter.Add(".png");
                 Picker.FileTypeFilter.Add(".jpg");
+                Picker.FileTypeFilter.Add(".jpeg");
                 Picker.FileTypeFilter.Add(".bmp");
 
                 if (await Picker.PickSingleFileAsync() is StorageFile ExecuteFile)

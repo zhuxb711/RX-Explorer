@@ -68,15 +68,15 @@ namespace RX_Explorer.Class
 
         }
 
-        public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false,
-                                                                  bool IncludeSystemItem = false,
+        public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItems = false,
+                                                                  bool IncludeSystemItems = false,
                                                                   BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
         {
             try
             {
                 try
                 {
-                    return await Task.Run(() => NativeWin32API.CheckContainsAnyItem(Path, IncludeHiddenItem, IncludeSystemItem, Filter));
+                    return await Task.Run(() => NativeWin32API.CheckContainsAnyItem(Path, IncludeHiddenItems, IncludeSystemItems, Filter));
                 }
                 catch (LocationNotAvailableException)
                 {

@@ -94,7 +94,7 @@ namespace RX_Explorer.View
 
                 if (PdfFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                    Stream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 

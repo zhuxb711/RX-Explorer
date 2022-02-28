@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
-using Windows.Devices.Portable;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.UI.Core;
@@ -37,7 +36,7 @@ namespace RX_Explorer.Class
         /// </summary>
         public FileSystemStorageFolder DriveFolder { get; }
 
-        public string Name => (DriveFolder?.Name) ?? string.Empty;
+        public virtual string Name => (DriveFolder?.Name) ?? string.Empty;
         /// <summary>
         /// 驱动器名称
         /// </summary>
@@ -45,7 +44,7 @@ namespace RX_Explorer.Class
 
         public virtual string Path => (DriveFolder?.Path) ?? string.Empty;
 
-        public string FileSystem { get; } = Globalization.GetString("UnknownText");
+        public virtual string FileSystem { get; } = Globalization.GetString("UnknownText");
 
         /// <summary>
         /// 容量百分比
@@ -166,7 +165,14 @@ namespace RX_Explorer.Class
 
         public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, string DriveId)
         {
-            return await CreateAsync(DriveType, await Task.Run(() => new FileSystemStorageFolder(StorageDevice.FromId(DriveId))), DriveId);
+            if (await FileSystemStorageItemBase.OpenAsync(DriveId) is FileSystemStorageFolder Folder)
+            {
+                return await CreateAsync(DriveType, Folder, DriveId);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public static async Task<DriveDataBase> CreateAsync(DriveInfo Info)
@@ -194,7 +200,7 @@ namespace RX_Explorer.Class
             {
                 return new WslDriveData(DriveFolder, PropertiesRetrieve, DriveId);
             }
-            else if (string.IsNullOrEmpty(DriveFolder.Path) && DriveType == DriveType.Removable && !string.IsNullOrEmpty(DriveId))
+            else if (DriveFolder.Path.Equals(DriveId, StringComparison.OrdinalIgnoreCase))
             {
                 return new MTPDriveData(DriveFolder, PropertiesRetrieve, DriveId);
             }
@@ -202,23 +208,14 @@ namespace RX_Explorer.Class
             {
                 if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out string BitlockerStateRaw) && !string.IsNullOrEmpty(BitlockerStateRaw))
                 {
-                    switch (Convert.ToInt32(BitlockerStateRaw))
+                    if (Convert.ToInt32(BitlockerStateRaw) == 6)
                     {
-                        case 6:
-                            {
-                                return new LockedDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
-                            }
-                        default:
-                            {
-                                return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
-                            }
+                        return new LockedDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
                     }
                 }
-                else
-                {
-                    return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
-                }
             }
+
+            return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
         }
 
         public async Task LoadAsync()
@@ -246,6 +243,9 @@ namespace RX_Explorer.Class
                 finally
                 {
                     OnPropertyChanged(nameof(Thumbnail));
+                    OnPropertyChanged(nameof(DisplayName));
+                    OnPropertyChanged(nameof(Percent));
+                    OnPropertyChanged(nameof(DriveSpaceDescription));
                 }
             }
         }

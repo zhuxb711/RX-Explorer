@@ -3510,8 +3510,7 @@ namespace RX_Explorer.View
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
                         await UnauthorizeDialog.ShowAsync();
@@ -3659,6 +3658,7 @@ namespace RX_Explorer.View
                                 case ".png":
                                 case ".bmp":
                                 case ".jpg":
+                                case ".jpeg":
                                 case ".heic":
                                 case ".tiff":
                                     {
@@ -3988,9 +3988,7 @@ namespace RX_Explorer.View
                             {
                                 try
                                 {
-                                    string DestFilePath = Path.Combine(CurrentFolder.Path, $"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}");
-
-                                    if (await FileSystemStorageItemBase.CreateNewAsync(DestFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
+                                    if (await CurrentFolder.CreateNewSubItemAsync($"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}", StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
                                     {
                                         if (await Item.GetStorageItemAsync() is StorageFile DestinationFile)
                                         {
@@ -4012,8 +4010,7 @@ namespace RX_Explorer.View
                                     {
                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                         Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
                                     await Dialog.ShowAsync();
@@ -4037,6 +4034,7 @@ namespace RX_Explorer.View
                 case ".png":
                 case ".bmp":
                 case ".jpg":
+                case ".jpeg":
                 case ".heic":
                 case ".tiff":
                     {
@@ -4044,7 +4042,7 @@ namespace RX_Explorer.View
                         {
                             TranscodeImageDialog Dialog = null;
 
-                            using (FileStream OriginStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                            using (Stream OriginStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                             {
                                 BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
                                 Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
@@ -4305,8 +4303,7 @@ namespace RX_Explorer.View
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnauthorizedCreateFolder_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
                     await dialog.ShowAsync();
@@ -4574,29 +4571,7 @@ namespace RX_Explorer.View
                                                             }
                                                     }
                                                 }
-                                                else
-                                                {
-                                                    if (!await Item.LaunchAsync())
-                                                    {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
-                                                        {
-                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                            Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                        };
-
-                                                        await Dialog.ShowAsync();
-                                                    }
-                                                }
-                                            }
-
-                                            break;
-                                        }
-                                    case ".url":
-                                        {
-                                            if (File is UrlStorageFile Item)
-                                            {
-                                                if (!await Item.LaunchAsync())
+                                                else if (!await Item.LaunchAsync())
                                                 {
                                                     QueueContentDialog Dialog = new QueueContentDialog
                                                     {
@@ -4607,6 +4582,22 @@ namespace RX_Explorer.View
 
                                                     await Dialog.ShowAsync();
                                                 }
+                                            }
+
+                                            break;
+                                        }
+                                    case ".url":
+                                        {
+                                            if (File is UrlStorageFile Item && !await Item.LaunchAsync())
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                await Dialog.ShowAsync();
                                             }
 
                                             break;
@@ -4644,19 +4635,16 @@ namespace RX_Explorer.View
                                                             }
                                                         }
                                                     }
-                                                    else
+                                                    else if (!await LaunchWin32ByPathAsync(File.Path))
                                                     {
-                                                        if (!await LaunchWin32ByPathAsync(File.Path))
+                                                        QueueContentDialog Dialog = new QueueContentDialog
                                                         {
-                                                            QueueContentDialog Dialog = new QueueContentDialog
-                                                            {
-                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                            };
+                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                        };
 
-                                                            await Dialog.ShowAsync();
-                                                        }
+                                                        await Dialog.ShowAsync();
                                                     }
                                                 }
                                             }
@@ -4712,19 +4700,16 @@ namespace RX_Explorer.View
                                                                 }
                                                             }
                                                         }
-                                                        else
+                                                        else if (!await LaunchUwpByAUMIDAsync(Info.AppUserModelId, File.Path))
                                                         {
-                                                            if (!await LaunchUwpByAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                            QueueContentDialog Dialog = new QueueContentDialog
                                                             {
-                                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                                {
-                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                    Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                                };
+                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                            };
 
-                                                                await Dialog.ShowAsync();
-                                                            }
+                                                            await Dialog.ShowAsync();
                                                         }
                                                     }
                                                     else
@@ -4773,7 +4758,7 @@ namespace RX_Explorer.View
         {
             Type InternalType = File.Type.ToLower() switch
             {
-                ".jpg" or ".png" or ".bmp" => typeof(PhotoViewer),
+                ".jpg" or ".jpeg" or ".png" or ".bmp" => typeof(PhotoViewer),
                 ".mkv" or ".mp4" or ".mp3" or
                 ".flac" or ".wma" or ".wmv" or
                 ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
@@ -5483,7 +5468,7 @@ namespace RX_Explorer.View
                     }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                 }
 
-                if (Item is not MTPStorageFile and not MTPStorageFolder)
+                if (Item is not IMTPStorageItem)
                 {
                     DelayTooltipCancellation?.Cancel();
                     DelayTooltipCancellation?.Dispose();
@@ -5762,19 +5747,26 @@ namespace RX_Explorer.View
             {
                 try
                 {
-                    if (!FileSystemItemNameChecker.IsValid(NameEditBox.Text))
+                    string ActualRequestName = NameEditBox.Text;
+
+                    if (!SettingPage.IsShowFileExtensionsEnabled && CurrentEditItem is FileSystemStorageFile)
+                    {
+                        ActualRequestName += Path.GetExtension(CurrentEditItem.Path);
+                    }
+
+                    if (!FileSystemItemNameChecker.IsValid(ActualRequestName))
                     {
                         InvalidNameTip.Target = NameLabel;
                         InvalidNameTip.IsOpen = true;
                         return;
                     }
 
-                    if (CurrentEditItem.Name == NameEditBox.Text)
+                    if (CurrentEditItem.Name == ActualRequestName)
                     {
                         return;
                     }
 
-                    if (!CurrentEditItem.Name.Equals(NameEditBox.Text, StringComparison.OrdinalIgnoreCase) && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, NameEditBox.Text)))
+                    if (!CurrentEditItem.Name.Equals(ActualRequestName, StringComparison.OrdinalIgnoreCase) && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, ActualRequestName)))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -5792,7 +5784,7 @@ namespace RX_Explorer.View
 
                     try
                     {
-                        string NewName = await CurrentEditItem.RenameAsync(NameEditBox.Text);
+                        string NewName = await CurrentEditItem.RenameAsync(ActualRequestName);
 
                         FileSystemStorageItemBase TargetItem = null;
 
@@ -5829,8 +5821,7 @@ namespace RX_Explorer.View
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
                         await UnauthorizeDialog.ShowAsync();
@@ -5842,8 +5833,7 @@ namespace RX_Explorer.View
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
                     await UnauthorizeDialog.ShowAsync();

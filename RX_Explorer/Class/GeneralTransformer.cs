@@ -200,17 +200,17 @@ namespace RX_Explorer.Class
                 IsAnyTransformTaskRunning = true;
 
                 using (ExtendedExecutionController ExtExecution = await ExtendedExecutionController.CreateExtendedExecutionAsync())
-                using (FileStream OriginStream = await SourceFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                using (Stream OriginStream = await SourceFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                 {
                     BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
 
                     using (SoftwareBitmap TranscodeImage = await Decoder.GetSoftwareBitmapAsync())
-                    using (FileStream TargetStream = await DestinationFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
+                    using (Stream TargetStream = await DestinationFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
                     {
                         BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(DestinationFile.Type.ToLower() switch
                         {
                             ".png" => BitmapEncoder.PngEncoderId,
-                            ".jpg" => BitmapEncoder.JpegEncoderId,
+                            ".jpg" or ".jpeg" => BitmapEncoder.JpegEncoderId,
                             ".bmp" => BitmapEncoder.BmpEncoderId,
                             ".heic" => BitmapEncoder.HeifEncoderId,
                             ".tiff" => BitmapEncoder.TiffEncoderId,

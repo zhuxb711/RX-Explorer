@@ -731,6 +731,195 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.MTPCreateSubItem:
+                        {
+                            string Path = CommandValue["Path"];
+                            string Name = CommandValue["Name"];
+                            string Option = CommandValue["Option"];
+                            string Type = CommandValue["Type"];
+                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                            string DeviceId = @$"\\?\{SplitArray[0]}";
+                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                static FileAttributes ConvertAttribute(MediaFileAttributes Attributes)
+                                {
+                                    FileAttributes Return = 0;
+
+                                    if (Attributes.HasFlag(MediaFileAttributes.Hidden))
+                                    {
+                                        Return |= FileAttributes.Hidden;
+                                    }
+                                    else if (Attributes.HasFlag(MediaFileAttributes.System))
+                                    {
+                                        Return |= FileAttributes.System;
+                                    }
+                                    else if (Attributes.HasFlag(MediaFileAttributes.Object) || Attributes.HasFlag(MediaFileAttributes.Directory))
+                                    {
+                                        Return |= FileAttributes.Directory;
+                                    }
+
+                                    if (Return == 0)
+                                    {
+                                        Return |= FileAttributes.Normal;
+                                    }
+
+                                    return Return;
+                                }
+
+                                if (Device.DirectoryExists(RelativePath))
+                                {
+                                    switch (Type)
+                                    {
+                                        case "File":
+                                            {
+                                                switch (Option)
+                                                {
+                                                    case "Open":
+                                                        {
+                                                            string TargetPath = $"{RelativePath}\\{Name}";
+
+                                                            if (!Device.FileExists(TargetPath))
+                                                            {
+                                                                Device.UploadFile(new MemoryStream(), TargetPath);
+                                                            }
+
+                                                            MediaFileInfo File = Device.GetFileInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                    case "Unique":
+                                                        {
+                                                            string TargetPath = $"{RelativePath}\\{Name}";
+
+                                                            if (Device.FileExists(TargetPath) || Device.DirectoryExists(TargetPath))
+                                                            {
+                                                                string UniquePath = TargetPath;
+                                                                string NameWithoutExt = UniquePath.Substring(0, UniquePath.LastIndexOf('.'));
+                                                                string Extension = UniquePath.Substring(UniquePath.LastIndexOf('.'));
+
+                                                                for (ushort Count = 1; Device.DirectoryExists(UniquePath) || Device.FileExists(UniquePath); Count++)
+                                                                {
+                                                                    if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
+                                                                    {
+                                                                        UniquePath = $"{RelativePath}{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}";
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        UniquePath = $"{RelativePath}{NameWithoutExt} ({Count}){Extension}";
+                                                                    }
+                                                                }
+
+                                                                TargetPath = UniquePath;
+                                                            }
+
+                                                            Device.UploadFile(new MemoryStream(), TargetPath);
+                                                            MediaFileInfo File = Device.GetFileInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                    case "Replace":
+                                                        {
+                                                            string TargetPath = $"{RelativePath}\\{Name}";
+
+                                                            if (Device.FileExists(TargetPath))
+                                                            {
+                                                                Device.DeleteFile(TargetPath);
+                                                            }
+
+                                                            Device.UploadFile(new MemoryStream(), TargetPath);
+                                                            MediaFileInfo File = Device.GetFileInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                }
+
+                                                break;
+                                            }
+                                        case "Folder":
+                                            {
+                                                switch (Option)
+                                                {
+                                                    case "Open":
+                                                        {
+                                                            string TargetPath = $"{RelativePath}\\{Name}";
+
+                                                            if (!Device.DirectoryExists(TargetPath))
+                                                            {
+                                                                Device.CreateDirectory(TargetPath);
+                                                            }
+
+                                                            MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                    case "Unique":
+                                                        {
+                                                            string TargetPath = $"{RelativePath}\\{Name}";
+
+                                                            if (Device.FileExists(TargetPath) || Device.DirectoryExists(TargetPath))
+                                                            {
+                                                                string UniquePath = TargetPath;
+
+                                                                for (ushort Count = 1; Device.DirectoryExists(UniquePath) || Device.FileExists(UniquePath); Count++)
+                                                                {
+                                                                    if (Regex.IsMatch(Name, @".*\(\d+\)"))
+                                                                    {
+                                                                        UniquePath = $"{RelativePath}{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})";
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        UniquePath = $"{RelativePath}{Name} ({Count})";
+                                                                    }
+                                                                }
+
+                                                                TargetPath = UniquePath;
+                                                            }
+
+                                                            Device.CreateDirectory(TargetPath);
+                                                            MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                    case "Replace":
+                                                        {
+                                                            string TargetPath = $"{RelativePath}\\{Name}";
+
+                                                            if (Device.DirectoryExists(TargetPath))
+                                                            {
+                                                                Device.DeleteDirectory(TargetPath, true);
+                                                            }
+
+                                                            Device.CreateDirectory(TargetPath);
+                                                            MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                }
+
+                                                break;
+                                            }
+                                    }
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP folder is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
                     case CommandType.MTPGetDriveSize:
                         {
                             string DeviceId = CommandValue["DeviceId"];
@@ -739,8 +928,10 @@ namespace FullTrustProcess
                             {
                                 if (Device.GetDrives().FirstOrDefault() is MediaDriveInfo DriveInfo)
                                 {
-                                    Value.Add("Success", JsonSerializer.Serialize(new MTPDriveSizeData
+                                    Value.Add("Success", JsonSerializer.Serialize(new MTPDriveVolumnData
                                     {
+                                        Name = Device.FriendlyName,
+                                        FileSystem = DriveInfo.DriveFormat,
                                         FreeByte = Convert.ToUInt64(DriveInfo.AvailableFreeSpace),
                                         TotalByte = Convert.ToUInt64(DriveInfo.TotalSize)
                                     }));
@@ -784,7 +975,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.MTPCheckContainsAnyItems:
                         {
-                            string Filter = CommandValue["Type"];
+                            string Filter = CommandValue["Filter"];
                             bool IncludeHiddenItems = Convert.ToBoolean(CommandValue["IncludeHiddenItems"]);
                             bool IncludeSystemItems = Convert.ToBoolean(CommandValue["IncludeSystemItems"]);
                             string Path = CommandValue["Path"];
@@ -1664,7 +1855,7 @@ namespace FullTrustProcess
                                 Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(' ') ? $"\"{Para.Trim('\"')}\"" : Para));
                             }
 
-                            using (ShellLink Link = ShellLink.Create(StorageItemController.GenerateUniquePath(Package.LinkPath), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
+                            using (ShellLink Link = ShellLink.Create(StorageItemController.GenerateUniquePath(Package.LinkPath, CreateType.File), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
                             {
                                 Link.ShowState = (FormWindowState)Package.WindowState;
                                 Link.RunAsAdministrator = Package.NeedRunAsAdmin;
@@ -1717,10 +1908,11 @@ namespace FullTrustProcess
                         }
                     case CommandType.CreateNew:
                         {
-                            string CreateNewPath = CommandValue["NewPath"];
-                            string UniquePath = StorageItemController.GenerateUniquePath(CreateNewPath);
+                            CreateType Type = Enum.Parse<CreateType>(CommandValue["Type"]);
 
-                            CreateType Type = (CreateType)Enum.Parse(typeof(CreateType), CommandValue["Type"]);
+                            string CreateNewPath = CommandValue["NewPath"];
+                            string UniquePath = StorageItemController.GenerateUniquePath(CreateNewPath, Type);
+
 
                             if (StorageItemController.CheckPermission(Path.GetDirectoryName(UniquePath) ?? UniquePath, Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
                             {
@@ -3232,7 +3424,7 @@ namespace FullTrustProcess
                                                             Directory.CreateDirectory(DirectoryPath);
                                                         }
 
-                                                        string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
+                                                        string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name), CreateType.File);
 
                                                         using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
                                                         {

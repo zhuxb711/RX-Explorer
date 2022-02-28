@@ -140,7 +140,7 @@ namespace RX_Explorer.Dialog
                     }
                 case "JPEG":
                     {
-                        Picker.FileTypeChoices.Add($"JPEG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new string[] { ".jpg" });
+                        Picker.FileTypeChoices.Add($"JPEG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new string[] { ".jpg", ".jpeg" });
                         Picker.SuggestedFileName = "Image.jpg";
                         break;
                     }

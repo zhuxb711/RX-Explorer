@@ -435,7 +435,7 @@ namespace RX_Explorer.Class
                 });
             }
 
-            if (SettingPage.ContextMenuExtensionEnabled)
+            if (SettingPage.ContextMenuExtensionEnabled && PathArray.All((Path) => !Path.StartsWith(@"\\?\")))
             {
                 try
                 {
@@ -533,7 +533,7 @@ namespace RX_Explorer.Class
                             {
                                 return System.IO.Path.GetExtension(Path).ToLower() switch
                                 {
-                                    ".jpg" or ".png" or ".bmp" => typeof(PhotoViewer),
+                                    ".jpg" or ".jpeg" or ".png" or ".bmp" => typeof(PhotoViewer),
                                     ".mkv" or ".mp4" or ".mp3" or
                                     ".flac" or ".wma" or ".wmv" or
                                     ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
@@ -1155,7 +1155,7 @@ namespace RX_Explorer.Class
                         case StorageFolder Folder:
                             {
                                 GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
-                                                         .AsTask(Cancellation.Token)
+                                                         .AsTask()
                                                          .ContinueWith((PreviousTask) =>
                                                          {
                                                              try
@@ -1181,7 +1181,7 @@ namespace RX_Explorer.Class
                         case StorageFile File:
                             {
                                 GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
-                                                       .AsTask(Cancellation.Token)
+                                                       .AsTask()
                                                        .ContinueWith((PreviousTask) =>
                                                        {
                                                            try
@@ -1216,14 +1216,11 @@ namespace RX_Explorer.Class
                     {
                         using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
                         {
-                            if (Thumbnail != null && Thumbnail.Size != 0 && Thumbnail.OriginalHeight != 0 && Thumbnail.OriginalWidth != 0)
-                            {
-                                BitmapImage Bitmap = new BitmapImage();
+                            BitmapImage Bitmap = new BitmapImage();
 
-                                await Bitmap.SetSourceAsync(Thumbnail);
+                            await Bitmap.SetSourceAsync(Thumbnail);
 
-                                return Bitmap;
-                            }
+                            return Bitmap;
                         }
                     }
                     else

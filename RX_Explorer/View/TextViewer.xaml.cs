@@ -68,7 +68,7 @@ namespace RX_Explorer.View
 
                 if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                    Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -120,7 +120,7 @@ namespace RX_Explorer.View
             {
                 if (await FileSystemStorageItemBase.CreateNewAsync(TextFilePath, StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile File)
                 {
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                     using (StreamWriter Writer = new StreamWriter(Stream, SaveEncoding))
                     {
                         await Writer.WriteAsync(EditText.Text);

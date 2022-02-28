@@ -475,8 +475,7 @@ namespace RX_Explorer.View
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
                             await UnauthorizeDialog.ShowAsync();
@@ -554,8 +553,7 @@ namespace RX_Explorer.View
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
                         await UnauthorizeDialog.ShowAsync();
@@ -607,29 +605,29 @@ namespace RX_Explorer.View
                 args.ItemContainer.PointerExited += ItemContainer_PointerExited;
                 args.ItemContainer.PointerCanceled += ItemContainer_PointerCanceled;
 
-                if (AnimationController.Current.IsEnableAnimation)
-                {
-                    ProgressBar ProBar = args.ItemContainer.FindChildOfType<ProgressBar>();
-                    Storyboard Story = new Storyboard();
-                    DoubleAnimation Animation = new DoubleAnimation()
-                    {
-                        To = (args.Item as DriveDataBase).Percent,
-                        From = 0,
-                        EnableDependentAnimation = true,
-                        EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
-                        Duration = new TimeSpan(0, 0, 0, 0, 800)
-                    };
-                    Storyboard.SetTarget(Animation, ProBar);
-                    Storyboard.SetTargetProperty(Animation, "Value");
-                    Story.Children.Add(Animation);
-                    Story.Begin();
-                }
-
                 args.RegisterUpdateCallback(async (s, e) =>
                 {
                     if (e.Item is DriveDataBase Drive)
                     {
-                        await Drive.LoadAsync().ConfigureAwait(false);
+                        await Drive.LoadAsync();
+
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            ProgressBar ProBar = e.ItemContainer.FindChildOfType<ProgressBar>();
+                            Storyboard Story = new Storyboard();
+                            DoubleAnimation Animation = new DoubleAnimation()
+                            {
+                                To = Drive.Percent,
+                                From = 0,
+                                EnableDependentAnimation = true,
+                                EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
+                                Duration = new TimeSpan(0, 0, 0, 0, 800)
+                            };
+                            Storyboard.SetTarget(Animation, ProBar);
+                            Storyboard.SetTargetProperty(Animation, "Value");
+                            Story.Children.Add(Animation);
+                            Story.Begin();
+                        }
                     }
                 });
             }

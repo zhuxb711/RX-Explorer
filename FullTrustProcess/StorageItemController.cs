@@ -392,42 +392,25 @@ namespace FullTrustProcess
             }
         }
 
-        public static string GenerateUniquePath(string Path)
+        public static string GenerateUniquePath(string Path, CreateType Type)
         {
             string UniquePath = Path;
 
-            if (File.Exists(Path))
+            if (File.Exists(Path) || Directory.Exists(Path))
             {
-                string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(Path);
-                string Extension = System.IO.Path.GetExtension(Path);
+                string Name = Type == CreateType.Folder ? System.IO.Path.GetFileName(Path) : System.IO.Path.GetFileNameWithoutExtension(Path);
+                string Extension = Type == CreateType.Folder ? string.Empty : System.IO.Path.GetExtension(Path);
                 string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                for (ushort Count = 1; Directory.Exists(UniquePath) || File.Exists(UniquePath); Count++)
-                {
-                    if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
-                    {
-                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
-                    }
-                    else
-                    {
-                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{NameWithoutExt} ({Count}){Extension}");
-                    }
-                }
-            }
-            else if (Directory.Exists(Path))
-            {
-                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-                string Name = System.IO.Path.GetFileName(Path);
 
                 for (ushort Count = 1; Directory.Exists(UniquePath) || File.Exists(UniquePath); Count++)
                 {
                     if (Regex.IsMatch(Name, @".*\(\d+\)"))
                     {
-                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})");
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
                     }
                     else
                     {
-                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name} ({Count})");
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name} ({Count}){Extension}");
                     }
                 }
             }

@@ -78,7 +78,7 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        public override Task<FileStream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
+        public override Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
             return null;
         }

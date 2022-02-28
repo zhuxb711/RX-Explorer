@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage.FileProperties;
@@ -14,9 +15,9 @@ namespace RX_Explorer.Class
 {
     public sealed class PhotoDisplayItem : INotifyPropertyChanged
     {
-        public BitmapImage ActualSource { get; private set; }
+        public BitmapImage ActualSource { get; }
 
-        public BitmapImage ThumbnailSource { get; private set; }
+        public BitmapImage ThumbnailSource { get; }
 
         public string FileName => PhotoFile.Name;
 
@@ -28,54 +29,90 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public PhotoDisplayItem(FileSystemStorageFile Item)
+        private int ActualLoaded;
+        private int ThumbnailLoaded;
+
+        public PhotoDisplayItem(FileSystemStorageFile Item) : this()
         {
             PhotoFile = Item;
         }
 
-        public PhotoDisplayItem(BitmapImage Image)
+        public PhotoDisplayItem(BitmapImage Image) : this()
         {
             ActualSource = Image;
         }
 
+        private PhotoDisplayItem()
+        {
+            ActualSource = new BitmapImage();
+            ThumbnailSource = new BitmapImage();
+        }
+
         public async Task GenerateActualSourceAsync()
         {
-            if (ActualSource == null)
+            if (Interlocked.CompareExchange(ref ActualLoaded, 1, 0) == 0)
             {
                 try
                 {
-                    BitmapImage TempImage = new BitmapImage();
-
-                    using (FileStream Stream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                     {
-                        await TempImage.SetSourceAsync(Stream.AsRandomAccessStream());
+                        if (ActualStream != null)
+                        {
+                            await ActualSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
+                        }
                     }
-
-                    ActualSource = TempImage;
-
-                    OnPropertyChanged(nameof(ActualSource));
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "Could not get the image data from file");
                     IsErrorInLoading = true;
                     OnPropertyChanged(nameof(IsErrorInLoading));
+                    LogTracer.Log(ex, "Could not get the image data from file");
+                }
+                finally
+                {
+                    OnPropertyChanged(nameof(ActualSource));
                 }
             }
         }
 
         public async Task GenerateThumbnailAsync()
         {
-            if (ThumbnailSource == null)
+            if (Interlocked.CompareExchange(ref ThumbnailLoaded, 1, 0) == 0)
             {
                 try
                 {
-                    ThumbnailSource = await PhotoFile.GetThumbnailAsync(ThumbnailMode.PicturesView);
-                    OnPropertyChanged(nameof(ThumbnailSource));
+                    bool ThumbnailFailed = false;
+
+                    using (IRandomAccessStream ThumbnailStream = await PhotoFile.GetThumbnailRawStreamAsync(ThumbnailMode.PicturesView))
+                    {
+                        if (ThumbnailStream != null)
+                        {
+                            await ThumbnailSource.SetSourceAsync(ThumbnailStream);
+                        }
+                        else
+                        {
+                            ThumbnailFailed = true;
+                        }
+                    }
+
+                    if (ThumbnailFailed)
+                    {
+                        using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                        {
+                            if (ActualStream != null)
+                            {
+                                await ThumbnailSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, "Could not get the thumbnail data from file");
+                }
+                finally
+                {
+                    OnPropertyChanged(nameof(ThumbnailSource));
                 }
             }
         }
@@ -84,7 +121,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (FileStream Stream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                using (Stream Stream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                 {
                     BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream.AsRandomAccessStream());
 
@@ -115,18 +152,15 @@ namespace RX_Explorer.Class
                                     return ComputerVisionProvider.RotateEffect(Origin, -90);
                                 }
                             }
-                        default:
-                            {
-                                return null;
-                            }
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not generate the image with specific rotation");
-                return null;
             }
+
+            return null;
         }
 
         private void OnPropertyChanged([CallerMemberName] string PropertyName = null)

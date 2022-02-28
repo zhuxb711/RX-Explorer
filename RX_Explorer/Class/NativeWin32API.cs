@@ -531,38 +531,21 @@ namespace RX_Explorer.Class
         {
             string UniquePath = Path;
 
-            if (ItemType == StorageItemTypes.File)
+            if (CheckExists(UniquePath))
             {
-                string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(Path);
-                string Extension = System.IO.Path.GetExtension(Path);
-                string Directory = System.IO.Path.GetDirectoryName(Path);
-
-                for (ushort Count = 1; CheckExists(UniquePath); Count++)
-                {
-                    if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
-                    {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
-                    }
-                    else
-                    {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt} ({Count}){Extension}");
-                    }
-                }
-            }
-            else
-            {
-                string Directory = System.IO.Path.GetDirectoryName(Path);
-                string Name = System.IO.Path.GetFileName(Path);
+                string Name = ItemType == StorageItemTypes.Folder ? System.IO.Path.GetFileName(Path) : System.IO.Path.GetFileNameWithoutExtension(Path);
+                string Extension = ItemType == StorageItemTypes.Folder ? string.Empty : System.IO.Path.GetExtension(Path);
+                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
                 for (ushort Count = 1; CheckExists(UniquePath); Count++)
                 {
                     if (Regex.IsMatch(Name, @".*\(\d+\)"))
                     {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})");
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
                     }
                     else
                     {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{Name} ({Count})");
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name} ({Count}){Extension}");
                     }
                 }
             }
@@ -587,7 +570,7 @@ namespace RX_Explorer.Class
             return CreateFileFromApp(FolderPath, FILE_ACCESS.File_List_Directory, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Open_Existing, FILE_ATTRIBUTE_FLAG.File_Flag_Backup_Semantics, IntPtr.Zero);
         }
 
-        public static bool CheckContainsAnyItem(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, BasicFilters Filter)
+        public static bool CheckContainsAnyItem(string FolderPath, bool IncludeHiddenItems, bool IncludeSystemItems, BasicFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -606,7 +589,7 @@ namespace RX_Explorer.Class
                         {
                             FileAttributes Attribute = Data.dwFileAttributes;
 
-                            if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
+                            if ((IncludeHiddenItems || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItems || !Attribute.HasFlag(FileAttributes.System)))
                             {
                                 if (Attribute.HasFlag(FileAttributes.Directory))
                                 {

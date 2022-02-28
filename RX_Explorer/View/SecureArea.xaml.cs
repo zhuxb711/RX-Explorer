@@ -405,8 +405,8 @@ namespace RX_Explorer.View
 
                         if (await FileSystemStorageItemBase.CreateNewAsync(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
                         {
-                            using (FileStream OriginFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                            using (FileStream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                            using (Stream OriginFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            using (Stream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                             {
                                 SLEVersion Version;
 
@@ -693,10 +693,10 @@ namespace RX_Explorer.View
                         {
                             try
                             {
-                                using (FileStream EncryptedFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                                using (Stream EncryptedFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                                 using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, AESKey))
                                 {
-                                    using (FileStream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                    using (Stream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     {
                                         await SLEStream.CopyToAsync(DecryptedFStream, EncryptedFStream.Length, Cancellation.Token, async (s, e) =>
                                         {
@@ -1119,7 +1119,7 @@ namespace RX_Explorer.View
 
         private async Task<bool> TryOpenInternally(FileSystemStorageFile File)
         {
-            using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+            using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
             {
                 SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -1127,7 +1127,7 @@ namespace RX_Explorer.View
                 {
                     Type InternalType = Path.GetExtension(Header.FileName.ToLower()) switch
                     {
-                        ".jpg" or ".png" or ".bmp" => typeof(PhotoViewer),
+                        ".jpg" or ".jpeg" or ".png" or ".bmp" => typeof(PhotoViewer),
                         ".mkv" or ".mp4" or ".mp3" or
                         ".flac" or ".wma" or ".wmv" or
                         ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),

@@ -22,11 +22,7 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class FullTrustProcessController : IDisposable
     {
-        public const ushort DynamicBackupProcessNum = 2;
-
-        private readonly int CurrentProcessId;
-
-        private bool IsDisposed;
+        public static ushort DynamicBackupProcessNum => 3;
 
         public bool IsAnyActionExcutingInCurrentController { get; private set; }
 
@@ -69,6 +65,10 @@ namespace RX_Explorer.Class
         public static Task ResizeTask;
 
         private static readonly AutoResetEvent DispatcherSleepLocker = new AutoResetEvent(false);
+
+        private readonly int CurrentProcessId;
+
+        private bool IsDisposed;
 
         static FullTrustProcessController()
         {
@@ -480,13 +480,45 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<MTPDriveSizeData> GetMTPDriveSizeAsync(string DeviceId)
+        public async Task<MTPFileData> MTPCreateSubItemAsync(string Path, string Name, StorageItemTypes ItemTypes, CreateOption Option)
+        {
+            if (await SendCommandAsync(CommandType.MTPCreateSubItem,
+                                       ("Path", Path),
+                                       ("Name", Name),
+                                       ("Type", ItemTypes switch
+                                       {
+                                           StorageItemTypes.File => "File",
+                                           StorageItemTypes.Folder => "Folder",
+                                           _ => throw new NotSupportedException()
+                                       }),
+                                       ("Option", Option switch
+                                       {
+                                           CreateOption.ReplaceExisting => "Replace",
+                                           CreateOption.OpenIfExist => "Open",
+                                           CreateOption.GenerateUniqueName => "Unique",
+                                           _ => throw new NotSupportedException()
+                                       })) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return JsonSerializer.Deserialize<MTPFileData>(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPCreateSubItemAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<MTPDriveVolumnData> GetMTPDriveSizeAsync(string DeviceId)
         {
             if (await SendCommandAsync(CommandType.MTPGetDriveSize, ("DeviceId", DeviceId)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string RawText))
                 {
-                    return JsonSerializer.Deserialize<MTPDriveSizeData>(RawText);
+                    return JsonSerializer.Deserialize<MTPDriveVolumnData>(RawText);
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
@@ -494,7 +526,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return new MTPDriveSizeData();
+            return new MTPDriveVolumnData();
         }
 
         public async Task<ulong> GetMTPFolderSizeAsync(string Path, CancellationToken CancelToken = default)
@@ -523,7 +555,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> MTPCheckContainersAnyItemsAsync(string Path, bool IncludeHiddenItem, bool IncludeSystemItem, BasicFilters Filter)
+        public async Task<bool> MTPCheckContainersAnyItemsAsync(string Path, bool IncludeHiddenItems, bool IncludeSystemItems, BasicFilters Filter)
         {
             string ConvertFilterToText(BasicFilters Filters)
             {
@@ -543,7 +575,7 @@ namespace RX_Explorer.Class
                 return string.Empty;
             }
 
-            if (await SendCommandAsync(CommandType.MTPCheckContainsAnyItems, ("Path", Path), ("IncludeHiddenItem", Convert.ToString(IncludeHiddenItem)), ("IncludeSystemItem", Convert.ToString(IncludeSystemItem)), ("Filter", ConvertFilterToText(Filter))) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.MTPCheckContainsAnyItems, ("Path", Path), ("IncludeHiddenItems", Convert.ToString(IncludeHiddenItems)), ("IncludeSystemItems", Convert.ToString(IncludeSystemItems)), ("Filter", ConvertFilterToText(Filter))) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string RawText))
                 {
@@ -695,7 +727,7 @@ namespace RX_Explorer.Class
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(SetDriveLabelAsync)}, message: {ErrorMessage}");
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetPermissionsAsync)}, message: {ErrorMessage}");
                 }
             }
 

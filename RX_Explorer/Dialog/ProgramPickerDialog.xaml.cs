@@ -115,6 +115,7 @@ namespace RX_Explorer.Dialog
                 switch (OpenFile.Type.ToLower())
                 {
                     case ".jpg":
+                    case ".jpeg":
                     case ".png":
                     case ".bmp":
                     case ".heic":

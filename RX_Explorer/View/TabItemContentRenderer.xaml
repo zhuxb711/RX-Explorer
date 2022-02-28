@@ -124,8 +124,8 @@
                                            Visibility="{x:Bind FromDescription,Converter={StaticResource VisibilityConverter}}"
                                            Text="{x:Bind FromDescription}">
                                     <ToolTipService.ToolTip>
-                                        <TextBlock Text="{x:Bind FromDescription}"
-                                                   Visibility="{Binding ElementName=FromDescriptionLabel,Path=IsTextTrimmed}" />
+                                        <ToolTip Content="{x:Bind FromDescription}"
+                                                 Visibility="{Binding ElementName=FromDescriptionLabel,Path=IsTextTrimmed}" />
                                     </ToolTipService.ToolTip>
                                 </TextBlock>
                                 <TextBlock Margin="0,5,0,0"
@@ -135,8 +135,8 @@
                                            Visibility="{x:Bind ToDescription,Converter={StaticResource VisibilityConverter}}"
                                            Text="{x:Bind ToDescription}">
                                      <ToolTipService.ToolTip>
-                                        <TextBlock Text="{x:Bind ToDescription}"
-                                                   Visibility="{Binding ElementName=ToDescriptionLabel,Path=IsTextTrimmed}" />
+                                        <ToolTip Content="{x:Bind ToDescription}"
+                                                 Visibility="{Binding ElementName=ToDescriptionLabel,Path=IsTextTrimmed}" />
                                     </ToolTipService.ToolTip>
                                 </TextBlock>
                                 <RelativePanel Margin="0,5,0,0">

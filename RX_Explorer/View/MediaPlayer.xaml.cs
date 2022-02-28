@@ -50,7 +50,7 @@ namespace RX_Explorer.View
 
                 if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                    Stream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -152,7 +152,7 @@ namespace RX_Explorer.View
             {
                 if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                    Stream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -224,7 +224,7 @@ namespace RX_Explorer.View
             {
                 if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                    Stream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 

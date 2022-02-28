@@ -17,7 +17,7 @@ namespace RX_Explorer.Class
 
         public override string DisplayType => (StorageItem?.DisplayType) ?? Type;
 
-        public override string DisplayName => (StorageItem?.DisplayName) ?? Name;
+        public override string DisplayName => Name;
 
         public override string SizeDescription => Size.GetSizeDescription();
 
@@ -74,7 +74,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public async virtual Task<FileStream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
+        public async virtual Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
             if (NativeWin32API.CreateStreamFromFile(Path, Mode, Option) is FileStream Stream)
             {

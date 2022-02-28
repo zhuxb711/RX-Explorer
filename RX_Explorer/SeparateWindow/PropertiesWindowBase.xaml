@@ -806,17 +806,33 @@
                                                HorizontalAlignment="Center"
                                                Foreground="{ThemeResource SystemAccentColor}"
                                                Text="{x:Bind Sys:String.Format('{0:0%}',CapacityProgress.Value),Mode=OneWay}" />
-                                    <TextBlock Grid.Row="1"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"
-                                               Name="RootDriveDescriptionLabel" />
-                                    <Button HorizontalAlignment="Right"
-                                            VerticalAlignment="Center"
-                                            Grid.Row="1"
-                                            Content="磁盘清理"
-                                            x:Uid="DriveCleanup"
-                                            Name="DriveCleanup"
-                                            Click="DriveCleanup_Click" />
+                                    <Grid Grid.Row="1"
+                                          HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"
+                                                              MinWidth="80"/>
+                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="*"
+                                                              MinWidth="80"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Name="RootDriveDescriptionLabel"
+                                                   Grid.Column="1"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip Content="{x:Bind RootDriveDescriptionLabel.Text,Mode=OneWay}"
+                                                         Visibility="{x:Bind RootDriveDescriptionLabel.IsTextTrimmed,Mode=OneWay}" />
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
+                                        <Button Content="磁盘清理"
+                                                Grid.Column="2"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                x:Uid="DriveCleanup"
+                                                Name="DriveCleanup"
+                                                Click="DriveCleanup_Click" />
+                                    </Grid>
                                 </Grid>
                                 <Border Height="2"
                                         Grid.Row="5"
@@ -959,8 +975,8 @@
                                                x:Uid="SecurityPermissionHeaderAllowLabel"
                                                Grid.Column="2">
                                         <ToolTipService.ToolTip>
-                                            <TextBlock Text="{x:Bind SecurityPermissionHeaderAllowLabel.Text}"
-                                                       Visibility="{x:Bind SecurityPermissionHeaderAllowLabel.IsTextTrimmed,Mode=OneWay}" />
+                                            <ToolTip Content="{x:Bind SecurityPermissionHeaderAllowLabel.Text}"
+                                                     Visibility="{x:Bind SecurityPermissionHeaderAllowLabel.IsTextTrimmed,Mode=OneWay}" />
                                         </ToolTipService.ToolTip>
                                     </TextBlock>
                                     <TextBlock Text="拒绝"
@@ -968,8 +984,8 @@
                                                x:Uid="SecurityPermissionHeaderDenyLabel"
                                                Grid.Column="3">
                                         <ToolTipService.ToolTip>
-                                            <TextBlock Text="{x:Bind SecurityPermissionHeaderDenyLabel.Text}"
-                                                       Visibility="{x:Bind SecurityPermissionHeaderDenyLabel.IsTextTrimmed,Mode=OneWay}" />
+                                            <ToolTip Content="{x:Bind SecurityPermissionHeaderDenyLabel.Text}"
+                                                     Visibility="{x:Bind SecurityPermissionHeaderDenyLabel.IsTextTrimmed,Mode=OneWay}" />
                                         </ToolTipService.ToolTip>
                                     </TextBlock>
                                 </Grid>

@@ -1234,8 +1234,7 @@ namespace RX_Explorer.View
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
                             await UnauthorizeDialog.ShowAsync();
@@ -1262,9 +1261,9 @@ namespace RX_Explorer.View
 
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                if (await FileSystemStorageItemBase.CheckExistsAsync(Content.Path))
+                if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder CurrentFolder)
                 {
-                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(Content.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder Folder)
+                    if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder Folder)
                     {
                         OperationRecorder.Current.Push(new string[] { $"{Folder.Path}||New" });
                     }
@@ -1274,8 +1273,7 @@ namespace RX_Explorer.View
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnauthorizedCreateFolder_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
                         await dialog.ShowAsync();

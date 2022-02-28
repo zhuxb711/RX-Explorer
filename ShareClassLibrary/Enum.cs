@@ -128,6 +128,7 @@
         MTPGetChildItems,
         MTPCheckContainsAnyItems,
         MTPGetFolderSize,
-        MTPGetDriveSize
+        MTPGetDriveSize,
+        MTPCreateSubItem
     }
 }

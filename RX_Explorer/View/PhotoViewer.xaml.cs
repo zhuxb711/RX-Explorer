@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -56,7 +57,7 @@ namespace RX_Explorer.View
 
                 if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                     {
                         SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -79,7 +80,7 @@ namespace RX_Explorer.View
                         }
                     }
                 }
-                else if (File.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || File.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase) || File.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase))
+                else if (Regex.IsMatch(File.Type.ToLower(), @"\.(png|bmp|jpg|jpeg)$"))
                 {
                     Adjust.IsEnabled = true;
                     SetAsWallpaper.IsEnabled = true;
@@ -294,7 +295,7 @@ namespace RX_Explorer.View
         {
             FileSystemStorageFile Item = PhotoCollection[PhotoFlip.SelectedIndex].PhotoFile;
 
-            using (FileStream OriginStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+            using (Stream OriginStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
             {
                 BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
                 TranscodeImageDialog Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);

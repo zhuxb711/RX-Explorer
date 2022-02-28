@@ -222,7 +222,7 @@
                                             <VisualStateGroup>
                                                 <VisualState x:Name="GreaterThanOrEqual">
                                                     <VisualState.StateTriggers>
-                                                        <Triggers:CompareStateTrigger Value="{x:Bind Percent}"
+                                                        <Triggers:CompareStateTrigger Value="{x:Bind Percent,Mode=OneWay}"
                                                                                       To="0.9"
                                                                                       Comparison="GreaterThanOrEqual" />
                                                     </VisualState.StateTriggers>
@@ -242,16 +242,21 @@
                                                     Padding="5,0,0,0"
                                                     Grid.Column="1">
                                             <TextBlock HorizontalAlignment="Left"
+                                                       Name="NameLabel"
                                                        TextTrimming="CharacterEllipsis"
-                                                       Text="{x:Bind DisplayName}"
-                                                       ToolTipService.ToolTip="{x:Bind DisplayName}" />
+                                                       Text="{x:Bind DisplayName,Mode=OneWay}">
+                                                <ToolTipService.ToolTip>
+                                                    <ToolTip Content="{x:Bind DisplayName,Mode=OneWay}"
+                                                             Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed,Mode=OneWay}" />
+                                                </ToolTipService.ToolTip>
+                                            </TextBlock>
                                             <muxc:ProgressBar x:Name="Pro"
                                                               HorizontalAlignment="Stretch"
                                                               Height="12"
                                                               Margin="0,2,0,0"
                                                               Maximum="1"
                                                               Minimum="0"
-                                                              Value="{x:Bind Percent}" />
+                                                              Value="{x:Bind Percent,Mode=OneWay}" />
                                             <TextBlock FontSize="13"
                                                        HorizontalAlignment="Left"
                                                        TextTrimming="CharacterEllipsis"

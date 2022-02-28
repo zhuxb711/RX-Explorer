@@ -170,57 +170,67 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            try
+                            if (Path.StartsWith(@"\\?\", StringComparison.OrdinalIgnoreCase))
                             {
-                                if (NativeWin32API.GetStorageItem(Path) is FileSystemStorageItemBase Item)
+                                if (Exclusive.Controller.GetMTPItemDataAsync(Path).Result is MTPFileData Data)
                                 {
-                                    Result.Add(Item);
+                                    Result.Add(new MTPStorageFolder(Data));
                                 }
                             }
-                            catch (LocationNotAvailableException)
+                            else
                             {
                                 try
                                 {
-                                    string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                                    if (string.IsNullOrEmpty(DirectoryPath))
+                                    if (NativeWin32API.GetStorageItem(Path) is FileSystemStorageItemBase Item)
                                     {
-                                        Result.Add(new FileSystemStorageFolder(StorageFolder.GetFolderFromPathAsync(Path).AsTask().Result));
-                                    }
-                                    else
-                                    {
-                                        StorageFolder ParentFolder = StorageFolder.GetFolderFromPathAsync(DirectoryPath).AsTask().Result;
-
-                                        switch (ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)).AsTask().Result)
-                                        {
-                                            case StorageFolder Folder:
-                                                {
-                                                    Result.Add(new FileSystemStorageFolder(Folder));
-                                                    break;
-                                                }
-                                            case StorageFile File:
-                                                {
-                                                    Result.Add(new FileSystemStorageFile(File));
-                                                    break;
-                                                }
-                                        }
+                                        Result.Add(Item);
                                     }
                                 }
-                                catch (Exception ex) when (ex is not (FileNotFoundException or DirectoryNotFoundException))
+                                catch (LocationNotAvailableException)
                                 {
-                                    using (SafeFileHandle Handle = Exclusive.Controller.GetNativeHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None).Result)
+                                    try
                                     {
-                                        if (Handle.IsInvalid)
+                                        string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                                        if (string.IsNullOrEmpty(DirectoryPath))
                                         {
-                                            LogTracer.Log($"Could not get native handle and failed to get the storage item, path: \"{Path}\"");
+                                            Result.Add(new FileSystemStorageFolder(StorageFolder.GetFolderFromPathAsync(Path).AsTask().Result));
                                         }
                                         else
                                         {
-                                            FileSystemStorageItemBase Item = NativeWin32API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
+                                            StorageFolder ParentFolder = StorageFolder.GetFolderFromPathAsync(DirectoryPath).AsTask().Result;
 
-                                            if (Item != null)
+                                            switch (ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)).AsTask().Result)
                                             {
-                                                Result.Add(Item);
+                                                case StorageFolder Folder:
+                                                    {
+                                                        Result.Add(new FileSystemStorageFolder(Folder));
+                                                        break;
+                                                    }
+                                                case StorageFile File:
+                                                    {
+                                                        Result.Add(new FileSystemStorageFile(File));
+                                                        break;
+                                                    }
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex) when (ex is not (FileNotFoundException or DirectoryNotFoundException))
+                                    {
+                                        using (SafeFileHandle Handle = Exclusive.Controller.GetNativeHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None).Result)
+                                        {
+                                            if (Handle.IsInvalid)
+                                            {
+                                                LogTracer.Log($"Could not get native handle and failed to get the storage item, path: \"{Path}\"");
+                                            }
+                                            else
+                                            {
+                                                FileSystemStorageItemBase Item = NativeWin32API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
+
+                                                if (Item != null)
+                                                {
+                                                    Result.Add(Item);
+                                                }
                                             }
                                         }
                                     }
@@ -323,115 +333,140 @@ namespace RX_Explorer.Class
         {
             try
             {
-                switch (ItemTypes)
+                if (Path.StartsWith(@"\\?\", StringComparison.OrdinalIgnoreCase))
                 {
-                    case StorageItemTypes.File:
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        MTPFileData Data = await Exclusive.Controller.MTPCreateSubItemAsync(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path), ItemTypes, Option);
+
+                        if (Data != null)
                         {
-                            try
+                            switch (ItemTypes)
                             {
-                                if (NativeWin32API.CreateFileFromPath(Path, Option, out string NewPath))
-                                {
-                                    return await OpenAsync(NewPath);
-                                }
-                                else
-                                {
-                                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
-
-                                    switch (Option)
+                                case StorageItemTypes.File:
                                     {
-                                        case CreateOption.GenerateUniqueName:
-                                            {
-                                                return new FileSystemStorageFile(await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName));
-                                            }
-                                        case CreateOption.OpenIfExist:
-                                            {
-                                                return new FileSystemStorageFile(await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists));
-                                            }
-                                        case CreateOption.ReplaceExisting:
-                                            {
-                                                return new FileSystemStorageFile(await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting));
-                                            }
-                                        default:
-                                            {
-                                                break;
-                                            }
+                                        return new MTPStorageFile(Data);
                                     }
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                {
-                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, Path);
-
-                                    if (string.IsNullOrEmpty(NewItemPath))
+                                case StorageItemTypes.Folder:
                                     {
-                                        LogTracer.Log($"Could not use full trust process to create the storage item, path: \"{Path}\"");
+                                        return new MTPStorageFolder(Data);
+                                    }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    switch (ItemTypes)
+                    {
+                        case StorageItemTypes.File:
+                            {
+                                try
+                                {
+                                    if (NativeWin32API.CreateFileFromPath(Path, Option, out string NewPath))
+                                    {
+                                        return await OpenAsync(NewPath);
                                     }
                                     else
                                     {
-                                        return await OpenAsync(NewItemPath);
+                                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
+
+                                        switch (Option)
+                                        {
+                                            case CreateOption.GenerateUniqueName:
+                                                {
+                                                    return new FileSystemStorageFile(await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName));
+                                                }
+                                            case CreateOption.OpenIfExist:
+                                                {
+                                                    return new FileSystemStorageFile(await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists));
+                                                }
+                                            case CreateOption.ReplaceExisting:
+                                                {
+                                                    return new FileSystemStorageFile(await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting));
+                                                }
+                                            default:
+                                                {
+                                                    break;
+                                                }
+                                        }
                                     }
                                 }
-                            }
-
-                            break;
-                        }
-                    case StorageItemTypes.Folder:
-                        {
-                            try
-                            {
-                                if (NativeWin32API.CreateDirectoryFromPath(Path, Option, out string NewPath))
+                                catch (Exception)
                                 {
-                                    return await OpenAsync(NewPath);
-                                }
-                                else
-                                {
-                                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
-
-                                    switch (Option)
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
-                                        case CreateOption.GenerateUniqueName:
-                                            {
-                                                StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                                return new FileSystemStorageFolder(NewFolder);
-                                            }
-                                        case CreateOption.OpenIfExist:
-                                            {
-                                                StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                                return new FileSystemStorageFolder(NewFolder);
-                                            }
-                                        case CreateOption.ReplaceExisting:
-                                            {
-                                                StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                                return new FileSystemStorageFolder(NewFolder);
-                                            }
-                                        default:
-                                            {
-                                                break;
-                                            }
+                                        string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, Path);
+
+                                        if (string.IsNullOrEmpty(NewItemPath))
+                                        {
+                                            LogTracer.Log($"Could not use full trust process to create the storage item, path: \"{Path}\"");
+                                        }
+                                        else
+                                        {
+                                            return await OpenAsync(NewItemPath);
+                                        }
                                     }
                                 }
-                            }
-                            catch (Exception)
-                            {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                {
-                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, Path);
 
-                                    if (string.IsNullOrEmpty(NewItemPath))
+                                break;
+                            }
+                        case StorageItemTypes.Folder:
+                            {
+                                try
+                                {
+                                    if (NativeWin32API.CreateDirectoryFromPath(Path, Option, out string NewPath))
                                     {
-                                        LogTracer.Log($"Could not use full trust process to create the storage item, path: \"{Path}\"");
+                                        return await OpenAsync(NewPath);
                                     }
                                     else
                                     {
-                                        return await OpenAsync(NewItemPath);
+                                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
+
+                                        switch (Option)
+                                        {
+                                            case CreateOption.GenerateUniqueName:
+                                                {
+                                                    StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
+                                                    return new FileSystemStorageFolder(NewFolder);
+                                                }
+                                            case CreateOption.OpenIfExist:
+                                                {
+                                                    StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
+                                                    return new FileSystemStorageFolder(NewFolder);
+                                                }
+                                            case CreateOption.ReplaceExisting:
+                                                {
+                                                    StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
+                                                    return new FileSystemStorageFolder(NewFolder);
+                                                }
+                                            default:
+                                                {
+                                                    break;
+                                                }
+                                        }
                                     }
                                 }
-                            }
+                                catch (Exception)
+                                {
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    {
+                                        string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, Path);
 
-                            break;
-                        }
+                                        if (string.IsNullOrEmpty(NewItemPath))
+                                        {
+                                            LogTracer.Log($"Could not use full trust process to create the storage item, path: \"{Path}\"");
+                                        }
+                                        else
+                                        {
+                                            return await OpenAsync(NewItemPath);
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                    }
                 }
             }
             catch (Exception ex)
@@ -835,7 +870,7 @@ namespace RX_Explorer.Class
         }
 
 
-        public async Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
+        public virtual async Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
         {
             async Task<IReadOnlyDictionary<string, string>> GetPropertiesTask(IEnumerable<string> Properties)
             {
@@ -1083,7 +1118,7 @@ namespace RX_Explorer.Class
                     {
                         if (await OpenAsync(JsonPath) is FileSystemStorageFile JsonFile)
                         {
-                            using (FileStream Stream = await JsonFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            using (Stream Stream = await JsonFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                             using (StreamReader Reader = new StreamReader(Stream, true))
                             {
                                 var JsonObject = JsonSerializer.Deserialize<IDictionary<string, IDictionary<string, object>>>(Reader.ReadToEnd());

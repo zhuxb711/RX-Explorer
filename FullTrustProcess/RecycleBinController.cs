@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShareClassLibrary;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -127,11 +128,11 @@ namespace FullTrustProcess
 
                         if (File.Exists(SourceItem.FileSystemPath))
                         {
-                            File.Move(SourceItem.FileSystemPath, StorageItemController.GenerateUniquePath(OriginPath));
+                            File.Move(SourceItem.FileSystemPath, StorageItemController.GenerateUniquePath(OriginPath, CreateType.File));
                         }
                         else if (Directory.Exists(SourceItem.FileSystemPath))
                         {
-                            Directory.Move(SourceItem.FileSystemPath, StorageItemController.GenerateUniquePath(OriginPath));
+                            Directory.Move(SourceItem.FileSystemPath, StorageItemController.GenerateUniquePath(OriginPath, CreateType.Folder));
                         }
 
                         string ExtraInfoPath = Path.Combine(Path.GetDirectoryName(SourceItem.FileSystemPath), Path.GetFileName(SourceItem.FileSystemPath).Replace("$R", "$I"));
