@@ -480,6 +480,23 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<MTPDriveSizeData> GetMTPDriveSizeAsync(string DeviceId)
+        {
+            if (await SendCommandAsync(CommandType.MTPGetDriveSize, ("DeviceId", DeviceId)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return JsonSerializer.Deserialize<MTPDriveSizeData>(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetMTPDriveSizeAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return new MTPDriveSizeData();
+        }
+
         public async Task<ulong> GetMTPFolderSizeAsync(string Path, CancellationToken CancelToken = default)
         {
             using (CancelToken.Register(() =>
@@ -558,13 +575,13 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<MTP_File_Data> GetMTPItemDataAsync(string Path)
+        public async Task<MTPFileData> GetMTPItemDataAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.MTPGetItem, ("Path", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string RawText))
                 {
-                    return JsonSerializer.Deserialize<MTP_File_Data>(RawText);
+                    return JsonSerializer.Deserialize<MTPFileData>(RawText);
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
@@ -575,7 +592,7 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public async Task<IReadOnlyList<MTP_File_Data>> GetMTPChildItemsDataAsync(string Path,
+        public async Task<IReadOnlyList<MTPFileData>> GetMTPChildItemsDataAsync(string Path,
                                                                                   bool IncludeHiddenItems,
                                                                                   bool IncludeSystemItems,
                                                                                   bool IncludeAllSubItems,
@@ -619,7 +636,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Success", out string RawText))
                     {
-                        return JsonSerializer.Deserialize<IReadOnlyList<MTP_File_Data>>(RawText);
+                        return JsonSerializer.Deserialize<IReadOnlyList<MTPFileData>>(RawText);
                     }
                     else if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
@@ -627,7 +644,7 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                return new List<MTP_File_Data>();
+                return new List<MTPFileData>();
             }
         }
 
@@ -1240,13 +1257,13 @@ namespace RX_Explorer.Class
         }
 
 
-        public async Task<HiddenDataPackage> GetHiddenItemDataAsync(string Path)
+        public async Task<HiddenFileData> GetHiddenItemDataAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetHiddenItemData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<HiddenDataPackage>(Result);
+                    return JsonSerializer.Deserialize<HiddenFileData>(Result);
                 }
                 else
                 {
@@ -1325,7 +1342,7 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<bool> CreateLinkAsync(LinkDataPackage Package)
+        public async Task<bool> CreateLinkAsync(LinkFileData Package)
         {
             if (await SendCommandAsync(CommandType.CreateLink, ("DataPackage", JsonSerializer.Serialize(Package))) is IDictionary<string, string> Response)
             {
@@ -1345,7 +1362,7 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task UpdateLinkAsync(LinkDataPackage Package)
+        public async Task UpdateLinkAsync(LinkFileData Package)
         {
             if (await SendCommandAsync(CommandType.UpdateLink, ("DataPackage", JsonSerializer.Serialize(Package))) is IDictionary<string, string> Response)
             {
@@ -1356,7 +1373,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task UpdateUrlAsync(UrlDataPackage Package)
+        public async Task UpdateUrlAsync(UrlFileData Package)
         {
             if (await SendCommandAsync(CommandType.UpdateUrl, ("DataPackage", JsonSerializer.Serialize(Package))) is IDictionary<string, string> Response)
             {
@@ -1449,13 +1466,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<LinkDataPackage> GetLinkDataAsync(string Path)
+        public async Task<LinkFileData> GetLinkDataAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetLinkData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<LinkDataPackage>(Result);
+                    return JsonSerializer.Deserialize<LinkFileData>(Result);
                 }
                 else
                 {
@@ -1469,13 +1486,13 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public async Task<UrlDataPackage> GetUrlDataAsync(string Path)
+        public async Task<UrlFileData> GetUrlDataAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetUrlData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<UrlDataPackage>(Result);
+                    return JsonSerializer.Deserialize<UrlFileData>(Result);
                 }
                 else
                 {
@@ -1720,7 +1737,7 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(PropertyDic["ActualPath"]);
+                            NativeFileData Data = NativeWin32API.GetStorageItemRawData(PropertyDic["ActualPath"]);
 
                             if (Data.IsDataValid)
                             {

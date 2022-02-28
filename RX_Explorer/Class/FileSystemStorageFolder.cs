@@ -28,6 +28,8 @@ namespace RX_Explorer.Class
 
         public override bool IsReadOnly => false;
 
+        public override ulong Size => 0;
+
         public override bool IsSystemItem
         {
             get
@@ -56,12 +58,12 @@ namespace RX_Explorer.Class
             StorageItem = Item;
         }
 
-        public FileSystemStorageFolder(Win32_File_Data Data) : base(Data)
+        public FileSystemStorageFolder(NativeFileData Data) : base(Data)
         {
 
         }
 
-        public FileSystemStorageFolder(MTP_File_Data Data) : base(Data)
+        public FileSystemStorageFolder(MTPFileData Data) : base(Data)
         {
 
         }
@@ -74,7 +76,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    return await Task.Run(() => Win32_Native_API.CheckContainsAnyItem(Path, IncludeHiddenItem, IncludeSystemItem, Filter));
+                    return await Task.Run(() => NativeWin32API.CheckContainsAnyItem(Path, IncludeHiddenItem, IncludeSystemItem, Filter));
                 }
                 catch (LocationNotAvailableException)
                 {
@@ -210,7 +212,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    Result.AddRange(await Task.Run(() => Win32_Native_API.Search(Path,
+                    Result.AddRange(await Task.Run(() => NativeWin32API.Search(Path,
                                                                                  SearchWord,
                                                                                  IncludeHiddenItems,
                                                                                  IncludeSystemItems,
@@ -285,7 +287,7 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                if (Win32_Native_API.CreateFileFromPath(SubItemPath, Option, out string NewPath))
+                                if (NativeWin32API.CreateFileFromPath(SubItemPath, Option, out string NewPath))
                                 {
                                     return await OpenAsync(NewPath);
                                 }
@@ -335,7 +337,7 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                if (Win32_Native_API.CreateDirectoryFromPath(SubItemPath, Option, out string NewPath))
+                                if (NativeWin32API.CreateDirectoryFromPath(SubItemPath, Option, out string NewPath))
                                 {
                                     return await OpenAsync(NewPath);
                                 }
@@ -473,7 +475,7 @@ namespace RX_Explorer.Class
 
                     try
                     {
-                        SubItems = await Task.Run(() => Win32_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems, MaxNumLimit));
+                        SubItems = await Task.Run(() => NativeWin32API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems, MaxNumLimit));
                     }
                     catch (LocationNotAvailableException)
                     {
@@ -523,7 +525,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(Path);
+                    NativeFileData Data = NativeWin32API.GetStorageItemRawData(Path);
 
                     if (Data.IsDataValid)
                     {

@@ -64,19 +64,19 @@ namespace RX_Explorer.Class
             StorageItem = Item;
         }
 
-        public FileSystemStorageFile(Win32_File_Data Data) : base(Data)
+        public FileSystemStorageFile(NativeFileData Data) : base(Data)
         {
 
         }
 
-        public FileSystemStorageFile(MTP_File_Data Data) : base(Data)
+        public FileSystemStorageFile(MTPFileData Data) : base(Data)
         {
 
         }
 
         public async virtual Task<FileStream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
-            if (Win32_Native_API.CreateStreamFromFile(Path, Mode, Option) is FileStream Stream)
+            if (NativeWin32API.CreateStreamFromFile(Path, Mode, Option) is FileStream Stream)
             {
                 return Stream;
             }
@@ -92,10 +92,9 @@ namespace RX_Explorer.Class
 
                 SafeFileHandle Handle = await GetNativeHandleAsync(Mode, Option);
 
-                if (Handle.IsInvalid)
+                if ((Handle?.IsInvalid).GetValueOrDefault(true))
                 {
-                    LogTracer.Log($"Could not create a new file stream, Path: \"{Path}\"");
-                    throw new UnauthorizedAccessException();
+                    throw new UnauthorizedAccessException($"Could not create a new file stream, Path: \"{Path}\"");
                 }
                 else
                 {
@@ -110,7 +109,7 @@ namespace RX_Explorer.Class
             {
                 if (!Handle.IsInvalid)
                 {
-                    return Win32_Native_API.GetSizeOnDisk(Path, Handle.DangerousGetHandle());
+                    return NativeWin32API.GetSizeOnDisk(Path, Handle.DangerousGetHandle());
                 }
             }
 
@@ -119,7 +118,7 @@ namespace RX_Explorer.Class
 
         public virtual async Task<StorageStreamTransaction> GetTransactionStreamFromFileAsync()
         {
-            if (StorageItem is StorageFile File)
+            if (await GetStorageItemAsync() is StorageFile File)
             {
                 return await File.OpenTransactedWriteAsync();
             }
@@ -135,7 +134,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(Path);
+                    NativeFileData Data = NativeWin32API.GetStorageItemRawData(Path);
 
                     if (Data.IsDataValid)
                     {

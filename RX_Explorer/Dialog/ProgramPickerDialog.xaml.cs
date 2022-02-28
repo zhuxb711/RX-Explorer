@@ -194,7 +194,7 @@ namespace RX_Explorer.Dialog
                 {
                     if (await FileSystemStorageItemBase.OpenAsync(ExecutablePath) is LinkStorageFile LinkFile)
                     {
-                        if (await LinkFile.GetRawDataAsync() is LinkDataPackage Package && !string.IsNullOrEmpty(Package.LinkTargetPath))
+                        if (await LinkFile.GetRawDataAsync() is LinkFileData Package && !string.IsNullOrEmpty(Package.LinkTargetPath))
                         {
                             ExecutablePath = Package.LinkTargetPath;
                         }
@@ -261,7 +261,7 @@ namespace RX_Explorer.Dialog
                     {
                         if (await FileSystemStorageItemBase.OpenAsync(ExecutablePath) is LinkStorageFile LinkFile)
                         {
-                            if (await LinkFile.GetRawDataAsync() is LinkDataPackage Package && !string.IsNullOrEmpty(Package.LinkTargetPath))
+                            if (await LinkFile.GetRawDataAsync() is LinkFileData Package && !string.IsNullOrEmpty(Package.LinkTargetPath))
                             {
                                 ExecutablePath = Package.LinkTargetPath;
                             }

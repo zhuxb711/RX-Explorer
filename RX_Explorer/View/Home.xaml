@@ -255,7 +255,7 @@
                                             <TextBlock FontSize="13"
                                                        HorizontalAlignment="Left"
                                                        TextTrimming="CharacterEllipsis"
-                                                       Text="{x:Bind DriveSpaceDescription}" />
+                                                       Text="{x:Bind DriveSpaceDescription,Mode=OneWay}" />
                                         </StackPanel>
                                     </Grid>
                                 </UserControl>

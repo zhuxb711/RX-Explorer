@@ -15,7 +15,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public LockedDriveData(FileSystemStorageFolder Drive, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType, string DriveId = null) : base(Drive, PropertiesRetrieve, DriveType, DriveId)
+        public LockedDriveData(FileSystemStorageFolder Drive, IReadOnlyDictionary<string, string> PropertiesRetrieve, DriveType DriveType, string DriveId = null) : base(Drive, PropertiesRetrieve, DriveType, DriveId)
         {
 
         }

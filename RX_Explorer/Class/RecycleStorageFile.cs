@@ -42,7 +42,7 @@ namespace RX_Explorer.Class
             ModifiedTime = DeleteTime.ToLocalTime();
         }
 
-        public RecycleStorageFile(Win32_File_Data Data, string OriginPath, DateTimeOffset DeleteTime) : base(Data)
+        public RecycleStorageFile(NativeFileData Data, string OriginPath, DateTimeOffset DeleteTime) : base(Data)
         {
             this.OriginPath = OriginPath;
             ModifiedTime = DeleteTime.ToLocalTime();

@@ -14,7 +14,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(Path);
+                NativeFileData Data = NativeWin32API.GetStorageItemRawData(Path);
 
                 if (Data.IsDataValid)
                 {
@@ -37,7 +37,7 @@ namespace RX_Explorer.Class
             this.LibType = LibType;
         }
 
-        private LibraryStorageFolder(LibraryType LibType, Win32_File_Data Data) : base(Data)
+        private LibraryStorageFolder(LibraryType LibType, NativeFileData Data) : base(Data)
         {
             this.LibType = LibType;
         }

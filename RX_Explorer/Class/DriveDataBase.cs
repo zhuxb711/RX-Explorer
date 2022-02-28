@@ -18,7 +18,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供驱动器的界面支持
     /// </summary>
-    public class DriveDataBase : INotifyPropertyChanged, IDriveData, IEquatable<DriveDataBase>
+    public abstract class DriveDataBase : INotifyPropertyChanged, IDriveData, IEquatable<DriveDataBase>
     {
         private static readonly Uri SystemDriveIconUri = new Uri("ms-appx:///Assets/SystemDrive.ico");
         private static readonly Uri SystemDriveUnLockedIconUri = new Uri("ms-appx:///Assets/SystemDriveUnLocked.ico");
@@ -43,7 +43,7 @@ namespace RX_Explorer.Class
         /// </summary>
         public virtual string DisplayName => (DriveFolder?.DisplayName) ?? string.Empty;
 
-        public string Path => (DriveFolder?.Path) ?? string.Empty;
+        public virtual string Path => (DriveFolder?.Path) ?? string.Empty;
 
         public string FileSystem { get; } = Globalization.GetString("UnknownText");
 
@@ -119,25 +119,19 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 总字节数
         /// </summary>
-        public ulong TotalByte { get; }
+        public virtual ulong TotalByte { get; }
 
         /// <summary>
         /// 空闲字节数
         /// </summary>
-        public ulong FreeByte { get; }
+        public virtual ulong FreeByte { get; }
 
         public ulong UsedByte => TotalByte - FreeByte;
 
         /// <summary>
         /// 存储空间描述
         /// </summary>
-        public string DriveSpaceDescription
-        {
-            get
-            {
-                return $"{FreeSpace} {Globalization.GetString("Disk_Capacity_Description")} {Capacity}";
-            }
-        }
+        public string DriveSpaceDescription => $"{FreeSpace} {Globalization.GetString("Disk_Capacity_Description")} {Capacity}";
 
         public DriveType DriveType { get; private set; }
 
@@ -194,41 +188,36 @@ namespace RX_Explorer.Class
 
         private static async Task<DriveDataBase> CreateAsync(DriveType DriveType, FileSystemStorageFolder DriveFolder, string DriveId = null)
         {
-            if (await DriveFolder.GetStorageItemAsync() is IStorageItem Item)
+            IReadOnlyDictionary<string, string> PropertiesRetrieve = await DriveFolder.GetPropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+            if (DriveFolder.Path.StartsWith(@"\\wsl", StringComparison.OrdinalIgnoreCase))
             {
-                BasicProperties Properties = await Item.GetBasicPropertiesAsync();
-
-                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                if (DriveFolder.Path.StartsWith(@"\\wsl", StringComparison.OrdinalIgnoreCase))
-                {
-                    return new WslDriveData(DriveFolder, PropertiesRetrieve, DriveId);
-                }
-                else
-                {
-                    if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out object BitlockerStateRaw) && BitlockerStateRaw is int BitlockerState)
-                    {
-                        switch (BitlockerState)
-                        {
-                            case 6 when !PropertiesRetrieve.ContainsKey("System.Capacity") && !PropertiesRetrieve.ContainsKey("System.FreeSpace"):
-                                {
-                                    return new LockedDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
-                                }
-                            default:
-                                {
-                                    return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
-                                }
-                        }
-                    }
-                    else
-                    {
-                        return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
-                    }
-                }
+                return new WslDriveData(DriveFolder, PropertiesRetrieve, DriveId);
+            }
+            else if (string.IsNullOrEmpty(DriveFolder.Path) && DriveType == DriveType.Removable && !string.IsNullOrEmpty(DriveId))
+            {
+                return new MTPDriveData(DriveFolder, PropertiesRetrieve, DriveId);
             }
             else
             {
-                return new NormalDriveData(DriveFolder, null, DriveType, DriveId);
+                if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out string BitlockerStateRaw) && !string.IsNullOrEmpty(BitlockerStateRaw))
+                {
+                    switch (Convert.ToInt32(BitlockerStateRaw))
+                    {
+                        case 6:
+                            {
+                                return new LockedDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
+                            }
+                        default:
+                            {
+                                return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
+                            }
+                    }
+                }
+                else
+                {
+                    return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
+                }
             }
         }
 
@@ -240,13 +229,13 @@ namespace RX_Explorer.Class
                 {
                     if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
                     {
-                        Thumbnail = await GetThumbnailAsync();
+                        await Task.WhenAll(LoadCoreAsync(), GetThumbnailAsync());
                     }
                     else
                     {
                         await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                         {
-                            Thumbnail = await GetThumbnailAsync();
+                            await Task.WhenAll(LoadCoreAsync(), GetThumbnailAsync());
                         });
                     }
                 }
@@ -261,7 +250,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        private async Task<BitmapImage> GetThumbnailAsync()
+        protected abstract Task LoadCoreAsync();
+
+        public async Task<BitmapImage> GetThumbnailAsync()
+        {
+            return Thumbnail ??= await GetThumbnailCoreAsync();
+        }
+
+        protected virtual async Task<BitmapImage> GetThumbnailCoreAsync()
         {
             BitmapImage Thumbnail = await DriveFolder.GetThumbnailAsync(ThumbnailMode.SingleItem);
 
@@ -324,7 +320,7 @@ namespace RX_Explorer.Class
             return Thumbnail;
         }
 
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
@@ -449,7 +445,7 @@ namespace RX_Explorer.Class
         /// <param name="DriveFolder">驱动器文件夹</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="PropertiesRetrieve">额外信息</param>
-        protected DriveDataBase(FileSystemStorageFolder DriveFolder, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType, string DriveId = null)
+        protected DriveDataBase(FileSystemStorageFolder DriveFolder, IReadOnlyDictionary<string, string> PropertiesRetrieve, DriveType DriveType, string DriveId = null)
         {
             this.DriveFolder = DriveFolder ?? throw new FileNotFoundException();
             this.DriveType = DriveType;
@@ -457,24 +453,24 @@ namespace RX_Explorer.Class
 
             if (PropertiesRetrieve != null)
             {
-                if (PropertiesRetrieve.TryGetValue("System.Capacity", out object TotalByteRaw) && TotalByteRaw is ulong TotalByte)
+                if (PropertiesRetrieve.TryGetValue("System.Capacity", out string TotalByteRaw) && !string.IsNullOrEmpty(TotalByteRaw))
                 {
-                    this.TotalByte = TotalByte;
+                    TotalByte = Convert.ToUInt64(TotalByteRaw);
                 }
 
-                if (PropertiesRetrieve.TryGetValue("System.FreeSpace", out object FreeByteRaw) && FreeByteRaw is ulong FreeByte)
+                if (PropertiesRetrieve.TryGetValue("System.FreeSpace", out string FreeByteRaw) && !string.IsNullOrEmpty(FreeByteRaw))
                 {
-                    this.FreeByte = FreeByte;
+                    FreeByte = Convert.ToUInt64(FreeByteRaw);
                 }
 
-                if (PropertiesRetrieve.TryGetValue("System.Volume.FileSystem", out object FileSystemRaw) && FileSystemRaw is string FileSystem)
+                if (PropertiesRetrieve.TryGetValue("System.Volume.FileSystem", out string FileSystemRaw) && !string.IsNullOrEmpty(FileSystemRaw))
                 {
-                    this.FileSystem = FileSystem;
+                    FileSystem = FileSystemRaw;
                 }
 
-                if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out object BitlockerStateCodeRaw) && BitlockerStateCodeRaw is int BitlockerStatusCode)
+                if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out string BitlockerStateCodeRaw) && !string.IsNullOrEmpty(BitlockerStateCodeRaw))
                 {
-                    this.BitlockerStatusCode = BitlockerStatusCode;
+                    BitlockerStatusCode = Convert.ToInt32(BitlockerStateCodeRaw);
                 }
             }
         }

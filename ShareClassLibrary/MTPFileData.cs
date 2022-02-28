@@ -4,13 +4,11 @@ using System.Text.Json.Serialization;
 
 namespace ShareClassLibrary
 {
-    public sealed class MTP_File_Data
+    public sealed class MTPFileData
     {
         public string Path { get; }
 
         public ulong Size { get; }
-
-        public byte[] IconData { get; }
 
         [JsonIgnore]
         public bool IsReadOnly => Attributes.HasFlag(FileAttributes.ReadOnly);
@@ -24,11 +22,10 @@ namespace ShareClassLibrary
 
         public DateTimeOffset ModifiedTime { get; }
 
-        public MTP_File_Data(string Path, ulong Size, byte[] IconData, FileAttributes Attributes, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
+        public MTPFileData(string Path, ulong Size, FileAttributes Attributes, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
         {
             this.Path = Path;
             this.Size = Size;
-            this.IconData = IconData;
             this.Attributes = Attributes;
             this.CreationTime = CreationTime;
             this.ModifiedTime = ModifiedTime;

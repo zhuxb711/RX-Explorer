@@ -76,6 +76,11 @@ namespace RX_Explorer.Class
             }
         }
 
+        public PathAnalysis(string FullPath) : this(FullPath, string.Empty)
+        {
+
+        }
+
         /// <summary>
         /// 获取下一级文件夹的完整路径
         /// </summary>

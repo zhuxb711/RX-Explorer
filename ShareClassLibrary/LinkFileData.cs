@@ -2,7 +2,7 @@
 
 namespace ShareClassLibrary
 {
-    public sealed class LinkDataPackage
+    public sealed class LinkFileData
     {
         public string LinkPath { get; set; }
 

@@ -57,11 +57,11 @@ namespace RX_Explorer.Class
 
         public double ThumbnailOpacity { get; protected set; } = 1d;
 
-        public ulong Size { get; protected set; }
+        public virtual ulong Size { get; protected set; }
 
-        public DateTimeOffset CreationTime { get; protected set; }
+        public virtual DateTimeOffset CreationTime { get; protected set; }
 
-        public DateTimeOffset ModifiedTime { get; protected set; }
+        public virtual DateTimeOffset ModifiedTime { get; protected set; }
 
         public virtual string ModifiedTimeDescription
         {
@@ -126,7 +126,7 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            return Win32_Native_API.CheckExists(Path);
+                            return NativeWin32API.CheckExists(Path);
                         }
                         catch (LocationNotAvailableException)
                         {
@@ -172,7 +172,7 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                if (Win32_Native_API.GetStorageItem(Path) is FileSystemStorageItemBase Item)
+                                if (NativeWin32API.GetStorageItem(Path) is FileSystemStorageItemBase Item)
                                 {
                                     Result.Add(Item);
                                 }
@@ -216,7 +216,7 @@ namespace RX_Explorer.Class
                                         }
                                         else
                                         {
-                                            FileSystemStorageItemBase Item = Win32_Native_API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
+                                            FileSystemStorageItemBase Item = NativeWin32API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
 
                                             if (Item != null)
                                             {
@@ -248,7 +248,7 @@ namespace RX_Explorer.Class
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            if (await Exclusive.Controller.GetMTPItemDataAsync(Path) is MTP_File_Data Data)
+                            if (await Exclusive.Controller.GetMTPItemDataAsync(Path) is MTPFileData Data)
                             {
                                 return new MTPStorageFolder(Data);
                             }
@@ -258,7 +258,7 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            return Win32_Native_API.GetStorageItem(Path);
+                            return NativeWin32API.GetStorageItem(Path);
                         }
                         catch (LocationNotAvailableException)
                         {
@@ -303,7 +303,7 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        return Win32_Native_API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
+                                        return NativeWin32API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
                                     }
                                 }
                             }
@@ -329,7 +329,7 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                if (Win32_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
+                                if (NativeWin32API.CreateFileFromPath(Path, Option, out string NewPath))
                                 {
                                     return await OpenAsync(NewPath);
                                 }
@@ -381,7 +381,7 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                if (Win32_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
+                                if (NativeWin32API.CreateDirectoryFromPath(Path, Option, out string NewPath))
                                 {
                                     return await OpenAsync(NewPath);
                                 }
@@ -442,7 +442,7 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        protected FileSystemStorageItemBase(string Path, SafeFileHandle Handle, bool LeaveOpen) : this(Win32_Native_API.GetStorageItemRawDataFromHandle(Path, Handle.DangerousGetHandle()))
+        protected FileSystemStorageItemBase(string Path, SafeFileHandle Handle, bool LeaveOpen) : this(NativeWin32API.GetStorageItemRawDataFromHandle(Path, Handle.DangerousGetHandle()))
         {
             if (!LeaveOpen)
             {
@@ -450,7 +450,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageItemBase(Win32_File_Data Data) : this(Data.Path)
+        protected FileSystemStorageItemBase(NativeFileData Data) : this(Data.Path)
         {
             if (Data != null && Data.IsDataValid)
             {
@@ -462,7 +462,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageItemBase(MTP_File_Data Data) : this(Data.Path)
+        protected FileSystemStorageItemBase(MTPFileData Data) : this(Data.Path)
         {
             if (Data != null)
             {
@@ -476,7 +476,7 @@ namespace RX_Explorer.Class
 
         protected FileSystemStorageItemBase(string Path)
         {
-            this.Path = Path;
+            this.Path = Path.TrimEnd('\\');
         }
 
         protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)

@@ -2050,7 +2050,7 @@ namespace RX_Explorer.View
 
                                                         if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                                         {
-                                                            if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty), true) is TreeViewNode CurrentNode)
+                                                            if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
                                                             {
                                                                 await CurrentNode.UpdateAllSubNodeAsync();
                                                             }
@@ -2092,7 +2092,7 @@ namespace RX_Explorer.View
 
                                         if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                         {
-                                            if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty), true) is TreeViewNode CurrentNode)
+                                            if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
                                             {
                                                 await CurrentNode.UpdateAllSubNodeAsync();
                                             }
@@ -2261,7 +2261,7 @@ namespace RX_Explorer.View
 
                                                     if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                                     {
-                                                        if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty), true) is TreeViewNode CurrentNode)
+                                                        if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
                                                         {
                                                             await CurrentNode.UpdateAllSubNodeAsync();
                                                         }
@@ -5024,7 +5024,7 @@ namespace RX_Explorer.View
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                         {
                                             LinkPath = Path.Combine(CurrentFolder.Path, NewFileName),
                                             LinkTargetPath = dialog.Path,
@@ -5483,48 +5483,51 @@ namespace RX_Explorer.View
                     }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                 }
 
-                DelayTooltipCancellation?.Cancel();
-                DelayTooltipCancellation?.Dispose();
-                DelayTooltipCancellation = new CancellationTokenSource();
-
-                Task.Delay(800).ContinueWith(async (task, input) =>
+                if (Item is not MTPStorageFile and not MTPStorageFolder)
                 {
-                    try
+                    DelayTooltipCancellation?.Cancel();
+                    DelayTooltipCancellation?.Dispose();
+                    DelayTooltipCancellation = new CancellationTokenSource();
+
+                    Task.Delay(800).ContinueWith(async (task, input) =>
                     {
-                        if (input is CancellationToken Token && !Token.IsCancellationRequested)
+                        try
                         {
-                            TooltipFlyout.Hide();
-
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            if (input is CancellationToken Token && !Token.IsCancellationRequested)
                             {
-                                TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
+                                TooltipFlyout.Hide();
 
-                                if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
-                                    && !Token.IsCancellationRequested
-                                    && !Container.ShouldNotAcceptShortcutKeyInput
-                                    && !FileFlyout.IsOpen
-                                    && !FolderFlyout.IsOpen
-                                    && !EmptyFlyout.IsOpen
-                                    && !MixedFlyout.IsOpen
-                                    && !LinkFlyout.IsOpen)
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
-                                    PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
+                                    TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
 
-                                    TooltipFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
+                                    if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
+                                        && !Token.IsCancellationRequested
+                                        && !Container.ShouldNotAcceptShortcutKeyInput
+                                        && !FileFlyout.IsOpen
+                                        && !FolderFlyout.IsOpen
+                                        && !EmptyFlyout.IsOpen
+                                        && !MixedFlyout.IsOpen
+                                        && !LinkFlyout.IsOpen)
                                     {
-                                        Position = new Point(Point.Position.X, Point.Position.Y + 25),
-                                        ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
-                                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
-                                    });
+                                        PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
+
+                                        TooltipFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
+                                        {
+                                            Position = new Point(Point.Position.X, Point.Position.Y + 25),
+                                            ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
+                                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
+                                        });
+                                    }
                                 }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "An exception was threw when generate the tooltip flyout");
-                    }
-                }, DelayTooltipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "An exception was threw when generate the tooltip flyout");
+                        }
+                    }, DelayTooltipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
+                }
             }
         }
 
@@ -6758,7 +6761,7 @@ namespace RX_Explorer.View
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                         {
                                             LinkPath = Path.Combine(DesktopPath, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
                                             LinkTargetPath = SItem.Path
@@ -6789,7 +6792,7 @@ namespace RX_Explorer.View
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
-                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                                 {
                                                     LinkPath = Path.Combine(DataPath.Desktop, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
                                                     LinkTargetPath = SItem.Path
@@ -6922,7 +6925,7 @@ namespace RX_Explorer.View
 
             if (RootNode != null)
             {
-                TreeViewNode TargetNode = await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty));
+                TreeViewNode TargetNode = await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path));
                 Container.FolderTree.SelectNodeAndScrollToVertical(TargetNode);
             }
         }

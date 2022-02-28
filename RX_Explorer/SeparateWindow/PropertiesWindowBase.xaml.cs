@@ -450,7 +450,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     {
                                         string[] TargetSplit = ShortcutTargetContent.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-                                        await Exclusive.Controller.UpdateLinkAsync(new LinkDataPackage
+                                        await Exclusive.Controller.UpdateLinkAsync(new LinkFileData
                                         {
                                             LinkPath = StorageItem.Path,
                                             LinkTargetPath = TargetSplit.FirstOrDefault(),
@@ -466,7 +466,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     }
                                 case UrlStorageFile:
                                     {
-                                        await Exclusive.Controller.UpdateUrlAsync(new UrlDataPackage
+                                        await Exclusive.Controller.UpdateUrlAsync(new UrlFileData
                                         {
                                             UrlPath = StorageItem.Path,
                                             UrlTargetPath = ShortcutUrlContent.Text

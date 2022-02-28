@@ -3071,7 +3071,7 @@ namespace RX_Explorer.View
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                         {
                                             LinkPath = Path.Combine(DesktopPath, $"{Path.GetFileName(Content.Path)}.lnk"),
                                             LinkTargetPath = Content.Path
@@ -3102,7 +3102,7 @@ namespace RX_Explorer.View
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
-                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                                 {
                                                     LinkPath = Path.Combine(DataPath.Desktop, $"{Path.GetFileName(Content.Path)}.lnk"),
                                                     LinkTargetPath = Content.Path

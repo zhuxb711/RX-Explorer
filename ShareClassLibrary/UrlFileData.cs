@@ -1,6 +1,6 @@
 ﻿namespace ShareClassLibrary
 {
-    public sealed class UrlDataPackage
+    public sealed class UrlFileData
     {
         public string UrlPath { get; set; }
 

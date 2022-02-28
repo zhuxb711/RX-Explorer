@@ -2,7 +2,7 @@
 
 namespace RX_Explorer.Interface
 {
-    public interface IHiddenStorageItem : IUnsupportedStorageItem<HiddenDataPackage>
+    public interface IHiddenStorageItem : IUnsupportedStorageItem<HiddenFileData>
     {
 
     }

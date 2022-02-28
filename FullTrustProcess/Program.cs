@@ -731,6 +731,32 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.MTPGetDriveSize:
+                        {
+                            string DeviceId = CommandValue["DeviceId"];
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.GetDrives().FirstOrDefault() is MediaDriveInfo DriveInfo)
+                                {
+                                    Value.Add("Success", JsonSerializer.Serialize(new MTPDriveSizeData
+                                    {
+                                        FreeByte = Convert.ToUInt64(DriveInfo.AvailableFreeSpace),
+                                        TotalByte = Convert.ToUInt64(DriveInfo.TotalSize)
+                                    }));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "No available data for MTPDriveData");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
                     case CommandType.MTPGetFolderSize:
                         {
                             string Path = CommandValue["Path"];
@@ -748,6 +774,10 @@ namespace FullTrustProcess
                                 {
                                     Value.Add("Error", "MTP folder is not found");
                                 }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
                             }
 
                             break;
@@ -785,6 +815,10 @@ namespace FullTrustProcess
                                     Value.Add("Error", "MTP folder is not found");
                                 }
                             }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
 
                             break;
                         }
@@ -805,6 +839,10 @@ namespace FullTrustProcess
                                 {
                                     Value.Add("Error", "MTP folder or file is not found");
                                 }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
                             }
 
                             break;
@@ -856,29 +894,7 @@ namespace FullTrustProcess
 
                                 if (Item != null)
                                 {
-                                    byte[] IconData = Array.Empty<byte>();
-
-                                    if (Item is MediaFileInfo File)
-                                    {
-                                        using (Stream ThumbnailStream = File.OpenThumbnail())
-                                        using (MemoryStream MStream = new MemoryStream())
-                                        {
-                                            ThumbnailStream.CopyTo(MStream);
-                                            IconData = MStream.ToArray();
-                                        }
-
-                                        if (IconData.Length == 0)
-                                        {
-                                            using (Stream IconStream = File.OpenThumbnail())
-                                            using (MemoryStream MStream = new MemoryStream())
-                                            {
-                                                IconStream.CopyTo(MStream);
-                                                IconData = MStream.ToArray();
-                                            }
-                                        }
-                                    }
-
-                                    Value.Add("Success", JsonSerializer.Serialize(new MTP_File_Data(Device.DeviceId + Item.FullName, Item.Length, IconData, ConvertAttribute(Item.Attributes), Item.CreationTime.GetValueOrDefault().ToLocalTime(), Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                    Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), Item.CreationTime.GetValueOrDefault().ToLocalTime(), Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
                                 }
                                 else
                                 {
@@ -944,47 +960,11 @@ namespace FullTrustProcess
                                     IEnumerable<MediaFileSystemInfo> MTPSubItems = BasicItems.Where((Item) => IncludeSystemItems || !Item.Attributes.HasFlag(MediaFileAttributes.System))
                                                                                              .Where((Item) => IncludeHiddenItems || !Item.Attributes.HasFlag(MediaFileAttributes.Hidden));
 
-                                    List<MTP_File_Data> Result = new List<MTP_File_Data>();
+                                    List<MTPFileData> Result = new List<MTPFileData>();
 
                                     foreach (MediaFileSystemInfo Item in MTPSubItems)
                                     {
-                                        byte[] IconData = Array.Empty<byte>();
-
-                                        if (Item is MediaFileInfo File)
-                                        {
-                                            try
-                                            {
-                                                using (Stream ThumbnailStream = File.OpenThumbnail())
-                                                using (MemoryStream MStream = new MemoryStream())
-                                                {
-                                                    ThumbnailStream.CopyTo(MStream);
-                                                    IconData = MStream.ToArray();
-                                                }
-                                            }
-                                            catch (Exception)
-                                            {
-                                                IconData = Array.Empty<byte>();
-                                            }
-
-                                            try
-                                            {
-                                                if (IconData.Length == 0)
-                                                {
-                                                    using (Stream IconStream = File.OpenThumbnail())
-                                                    using (MemoryStream MStream = new MemoryStream())
-                                                    {
-                                                        IconStream.CopyTo(MStream);
-                                                        IconData = MStream.ToArray();
-                                                    }
-                                                }
-                                            }
-                                            catch (Exception)
-                                            {
-                                                IconData = Array.Empty<byte>();
-                                            }
-                                        }
-
-                                        Result.Add(new MTP_File_Data(Device.DeviceId + Item.FullName, Item.Length, IconData, ConvertAttribute(Item.Attributes), new DateTimeOffset(Item.CreationTime.GetValueOrDefault().ToLocalTime()), new DateTimeOffset(Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                        Result.Add(new MTPFileData(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), new DateTimeOffset(Item.CreationTime.GetValueOrDefault().ToLocalTime()), new DateTimeOffset(Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
 
                                         if (Result.Count >= MaxNumLimit || CurrentTaskCancellation.IsCancellationRequested)
                                         {
@@ -1542,7 +1522,7 @@ namespace FullTrustProcess
 
                             using (ShellItem Item = new ShellItem(ExecutePath))
                             {
-                                HiddenDataPackage Package = new HiddenDataPackage
+                                HiddenFileData Package = new HiddenFileData
                                 {
                                     DisplayType = Item.FileInfo.TypeName
                                 };
@@ -1675,7 +1655,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.CreateLink:
                         {
-                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(CommandValue["DataPackage"]);
+                            LinkFileData Package = JsonSerializer.Deserialize<LinkFileData>(CommandValue["DataPackage"]);
 
                             string Arguments = null;
 
@@ -1863,7 +1843,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.UpdateUrl:
                         {
-                            UrlDataPackage Package = JsonSerializer.Deserialize<UrlDataPackage>(CommandValue["DataPackage"]);
+                            UrlFileData Package = JsonSerializer.Deserialize<UrlFileData>(CommandValue["DataPackage"]);
 
                             if (File.Exists(Package.UrlPath))
                             {
@@ -1896,7 +1876,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.UpdateLink:
                         {
-                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(CommandValue["DataPackage"]);
+                            LinkFileData Package = JsonSerializer.Deserialize<LinkFileData>(CommandValue["DataPackage"]);
 
                             if (File.Exists(Package.LinkPath))
                             {
@@ -2034,7 +2014,7 @@ namespace FullTrustProcess
                                 {
                                     string UrlPath = Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl);
 
-                                    UrlDataPackage Package = new UrlDataPackage
+                                    UrlFileData Package = new UrlFileData
                                     {
                                         UrlPath = ExecutePath,
                                         UrlTargetPath = UrlPath
@@ -2097,7 +2077,7 @@ namespace FullTrustProcess
                                             ActualPath = ActualPath.Replace($"%{Var.Value}%", Environment.GetEnvironmentVariable(Var.Value));
                                         }
 
-                                        LinkDataPackage Package = new LinkDataPackage
+                                        LinkFileData Package = new LinkFileData
                                         {
                                             LinkPath = ExecutePath,
                                             LinkTargetPath = ActualPath
@@ -2133,7 +2113,7 @@ namespace FullTrustProcess
                                 {
                                     using (ShellLink Link = new ShellLink(ExecutePath))
                                     {
-                                        LinkDataPackage Package = new LinkDataPackage
+                                        LinkFileData Package = new LinkFileData
                                         {
                                             LinkPath = ExecutePath,
                                             WorkDirectory = Link.WorkingDirectory,

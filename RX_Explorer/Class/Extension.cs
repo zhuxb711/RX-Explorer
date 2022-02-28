@@ -43,6 +43,39 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
+        public static async Task<T> GetStorageItemByTraverse<T>(this StorageFolder RootFolder, PathAnalysis Analysis) where T : class, IStorageItem
+        {
+            if (Analysis.HasNextLevel)
+            {
+                switch (await RootFolder.TryGetItemAsync(Analysis.NextRelativePath()))
+                {
+                    case StorageFolder SubFolder:
+                        {
+                            if (Analysis.HasNextLevel)
+                            {
+                                return await SubFolder.GetStorageItemByTraverse<T>(Analysis);
+                            }
+                            else if (SubFolder is T)
+                            {
+                                return SubFolder as T;
+                            }
+
+                            break;
+                        }
+                    case StorageFile SubFile when !Analysis.HasNextLevel && SubFile is T:
+                        {
+                            return SubFile as T;
+                        }
+                }
+            }
+            else
+            {
+                return RootFolder as T;
+            }
+
+            return null;
+        }
+
         public static IEnumerable<T> GetElementAtPoint<T>(this UIElement Element, Point At, bool IncludeInvisble) where T : UIElement
         {
             return VisualTreeHelper.FindElementsInHostCoordinates(At, Element, IncludeInvisble).OfType<T>();

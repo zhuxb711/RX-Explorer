@@ -1,11 +1,12 @@
 ﻿using Microsoft.Win32.SafeHandles;
+using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Devices.Portable;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
@@ -13,43 +14,47 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class MTPStorageFolder : FileSystemStorageFolder
+    public class MTPStorageFolder : FileSystemStorageFolder, IMTPStorageItem
     {
-        private MTP_File_Data RawData;
-
-        public override string DisplayName => Name;
+        private MTPFileData RawData;
+        private readonly MTPStorageFolder ParentFolder;
 
         public override bool IsReadOnly => RawData.IsReadOnly;
 
         public override bool IsSystemItem => RawData.IsSystemItem;
 
+        public override DateTimeOffset CreationTime
+        {
+            get => RawData?.CreationTime ?? base.CreationTime;
+            protected set => base.CreationTime = value;
+        }
+
+        public override DateTimeOffset ModifiedTime
+        {
+            get => RawData?.ModifiedTime ?? base.ModifiedTime;
+            protected set => base.ModifiedTime = value;
+        }
+
         public string DeviceId => @$"\\?\{new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()}";
 
         protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
         {
-            if (RawData.IconData.Length > 0)
+            if (await GetStorageItemAsync() is IStorageItem Item)
             {
-                BitmapImage Thumbnail = new BitmapImage();
-
-                using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
+                if (await Item.GetThumbnailBitmapAsync(Mode) is BitmapImage Thumbnail)
                 {
-                    await Thumbnail.SetSourceAsync(IconStream.AsRandomAccessStream());
+                    return Thumbnail;
                 }
-
-                return Thumbnail;
             }
 
             return null;
         }
 
-        protected override Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
         {
-            if (RawData.IconData.Length > 0)
+            if (await GetStorageItemAsync() is IStorageItem Item)
             {
-                using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
-                {
-                    return Task.FromResult(IconStream.AsRandomAccessStream());
-                }
+                return await Item.GetThumbnailRawStreamAsync(Mode);
             }
 
             return null;
@@ -57,38 +62,34 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
-            if (ForceUpdate)
+            if (RawData == null || ForceUpdate)
             {
-                try
-                {
-                    using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
-                    {
-                        if (ControllerRef != null)
-                        {
-                            RawData = await ControllerRef.Value.Controller.GetMTPItemDataAsync(Path);
-                        }
-                        else
-                        {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                            {
-                                RawData = await ControllerRef.Value.Controller.GetMTPItemDataAsync(Path);
-                            }
-                        }
-                    }
-
-                    ModifiedTime = RawData.ModifiedTime;
-                    CreationTime = RawData.CreationTime;
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An unexpected exception was threw in {nameof(LoadCoreAsync)}");
-                }
+                RawData = await GetRawDataAsync();
             }
         }
 
-        public override Task<IStorageItem> GetStorageItemAsync()
+        public override async Task<IStorageItem> GetStorageItemAsync()
         {
-            return Task.FromResult<IStorageItem>(null);
+            if (Path.Equals(DeviceId, StringComparison.OrdinalIgnoreCase))
+            {
+                return StorageDevice.FromId(DeviceId);
+            }
+            else if (ParentFolder != null)
+            {
+                if (await ParentFolder.GetStorageItemAsync() is StorageFolder Folder)
+                {
+                    if (await Folder.TryGetItemAsync(Name) is IStorageItem Item)
+                    {
+                        return Item;
+                    }
+                }
+            }
+            else if (StorageDevice.FromId(DeviceId) is StorageFolder RootFolder)
+            {
+                return await RootFolder.GetStorageItemByTraverse<StorageFolder>(new PathAnalysis(Path, DeviceId));
+            }
+
+            return null;
         }
 
         public override async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems = false,
@@ -103,15 +104,15 @@ namespace RX_Explorer.Class
 
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                foreach (MTP_File_Data Data in await Exclusive.Controller.GetMTPChildItemsDataAsync(Path, IncludeHiddenItems, IncludeSystemItems, IncludeAllSubItems, MaxNumLimit, Filter, CancelToken))
+                foreach (MTPFileData Data in await Exclusive.Controller.GetMTPChildItemsDataAsync(Path, IncludeHiddenItems, IncludeSystemItems, IncludeAllSubItems, MaxNumLimit, Filter, CancelToken))
                 {
                     if (Data.Attributes.HasFlag(System.IO.FileAttributes.Directory))
                     {
-                        Result.Add(new MTPStorageFolder(Data));
+                        Result.Add(new MTPStorageFolder(Data, this));
                     }
                     else
                     {
-                        Result.Add(new MTPStorageFile(Data));
+                        Result.Add(new MTPStorageFile(Data, this));
                     }
                 }
             }
@@ -152,9 +153,42 @@ namespace RX_Explorer.Class
             return Task.FromResult<BitmapImage>(null);
         }
 
-        public MTPStorageFolder(MTP_File_Data Data) : base(Data)
+        public async Task<MTPFileData> GetRawDataAsync()
+        {
+            try
+            {
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+                {
+                    if (ControllerRef != null)
+                    {
+                        return await ControllerRef.Value.Controller.GetMTPItemDataAsync(Path);
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            return await Exclusive.Controller.GetMTPItemDataAsync(Path);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An unexpected exception was threw in {nameof(GetRawDataAsync)}");
+            }
+
+            return null;
+        }
+
+        public MTPStorageFolder(MTPFileData Data) : base(Data)
         {
             RawData = Data ?? throw new ArgumentNullException(nameof(Data));
+        }
+
+        public MTPStorageFolder(MTPFileData Data, MTPStorageFolder Parent) : base(Data)
+        {
+            RawData = Data ?? throw new ArgumentNullException(nameof(Data));
+            ParentFolder = Parent ?? throw new ArgumentNullException(nameof(Parent));
         }
     }
 }
