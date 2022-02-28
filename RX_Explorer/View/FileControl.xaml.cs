@@ -36,7 +36,6 @@ using Windows.UI.Xaml.Navigation;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using FontIconSource = Microsoft.UI.Xaml.Controls.FontIconSource;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
-using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
 using TreeViewCollapsedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewCollapsedEventArgs;
 using TreeViewExpandingEventArgs = Microsoft.UI.Xaml.Controls.TreeViewExpandingEventArgs;
@@ -413,7 +412,15 @@ namespace RX_Explorer.View
 
                     string[] CurrentSplit = Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
 
-                    if (Path.StartsWith(@"\\"))
+                    if (Path.StartsWith(@"\\?\"))
+                    {
+                        if (CurrentSplit.Length > 0)
+                        {
+                            RootPath = $@"\\?\{CurrentSplit[1]}";
+                            CurrentSplit = CurrentSplit.Skip(2).Prepend(RootPath).ToArray();
+                        }
+                    }
+                    else if (Path.StartsWith(@"\\"))
                     {
                         if (CurrentSplit.Length > 0)
                         {
@@ -428,7 +435,7 @@ namespace RX_Explorer.View
 
                     if (AddressButtonList.Count == 0)
                     {
-                        if (!Path.StartsWith(@"\\"))
+                        if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
                         {
                             AddressButtonList.Add(new AddressBlock(RootStorageFolder.Instance.Path, RootStorageFolder.Instance.DisplayName));
                         }
@@ -562,7 +569,7 @@ namespace RX_Explorer.View
                         {
                             AddressButtonList.Clear();
 
-                            if (!Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase))
+                            if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
                             {
                                 AddressButtonList.Add(new AddressBlock(RootStorageFolder.Instance.Path, RootStorageFolder.Instance.DisplayName));
                             }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ShareClassLibrary
+﻿namespace ShareClassLibrary
 {
     public enum AccountType
     {
@@ -127,6 +125,8 @@ namespace ShareClassLibrary
         GetProperties,
         MTPGetItem,
         MTPCheckExists,
-        MTPGetChildItems
+        MTPGetChildItems,
+        MTPCheckContainsAnyItems,
+        MTPGetFolderSize
     }
 }

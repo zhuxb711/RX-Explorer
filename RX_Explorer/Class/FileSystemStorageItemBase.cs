@@ -119,7 +119,7 @@ namespace RX_Explorer.Class
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            return await Exclusive.Controller.MTPCheckExists(Path);
+                            return await Exclusive.Controller.MTPCheckExistsAsync(Path);
                         }
                     }
                     else

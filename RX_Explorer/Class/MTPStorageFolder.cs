@@ -124,16 +124,22 @@ namespace RX_Explorer.Class
             return Task.FromResult<FileSystemStorageItemBase>(null);
         }
 
-        public override Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
+        public override async Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
         {
-            return Task.FromResult<ulong>(0);
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            {
+                return await Exclusive.Controller.GetMTPFolderSizeAsync(Path, CancelToken);
+            }
         }
 
-        public override Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false,
+        public override async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false,
                                                                    bool IncludeSystemItem = false,
                                                                    BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
         {
-            return Task.FromResult<bool>(true);
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            {
+                return await Exclusive.Controller.MTPCheckContainersAnyItemsAsync(Path, IncludeHiddenItem, IncludeSystemItem, Filter);
+            }
         }
 
         public override Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)

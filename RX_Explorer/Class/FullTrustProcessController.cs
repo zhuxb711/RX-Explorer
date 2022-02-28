@@ -480,7 +480,68 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<bool> MTPCheckExists(string Path)
+        public async Task<ulong> GetMTPFolderSizeAsync(string Path, CancellationToken CancelToken = default)
+        {
+            using (CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(GetMTPFolderSizeAsync)}");
+                }
+            }))
+            {
+                if (await SendCommandAsync(CommandType.MTPGetFolderSize, ("Path", Path)) is IDictionary<string, string> Response)
+                {
+                    if (Response.TryGetValue("Success", out string RawText))
+                    {
+                        return Convert.ToUInt64(RawText);
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetMTPFolderSizeAsync)}, message: {ErrorMessage}");
+                    }
+                }
+
+                return 0;
+            }
+        }
+
+        public async Task<bool> MTPCheckContainersAnyItemsAsync(string Path, bool IncludeHiddenItem, bool IncludeSystemItem, BasicFilters Filter)
+        {
+            string ConvertFilterToText(BasicFilters Filters)
+            {
+                if (Filters.HasFlag(BasicFilters.File) && Filters.HasFlag(BasicFilters.Folder))
+                {
+                    return "All";
+                }
+                else if (Filters.HasFlag(BasicFilters.File))
+                {
+                    return "File";
+                }
+                else if (Filters.HasFlag(BasicFilters.Folder))
+                {
+                    return "Folder";
+                }
+
+                return string.Empty;
+            }
+
+            if (await SendCommandAsync(CommandType.MTPCheckContainsAnyItems, ("Path", Path), ("IncludeHiddenItem", Convert.ToString(IncludeHiddenItem)), ("IncludeSystemItem", Convert.ToString(IncludeSystemItem)), ("Filter", ConvertFilterToText(Filter))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return Convert.ToBoolean(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPCheckContainersAnyItemsAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return false;
+        }
+
+        public async Task<bool> MTPCheckExistsAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.MTPCheckExists, ("Path", Path)) is IDictionary<string, string> Response)
             {
@@ -490,7 +551,7 @@ namespace RX_Explorer.Class
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPCheckExists)}, message: {ErrorMessage}");
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPCheckExistsAsync)}, message: {ErrorMessage}");
                 }
             }
 

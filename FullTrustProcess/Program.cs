@@ -731,6 +731,63 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.MTPGetFolderSize:
+                        {
+                            string Path = CommandValue["Path"];
+                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                            string DeviceId = @$"\\?\{SplitArray[0]}";
+                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.DirectoryExists(RelativePath))
+                                {
+                                    Value.Add("Success", Convert.ToString(Device.GetDirectoryInfo(RelativePath).EnumerateFiles("*", SearchOption.AllDirectories).Sum((File) => Convert.ToInt64(File.Length))));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP folder is not found");
+                                }
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPCheckContainsAnyItems:
+                        {
+                            string Filter = CommandValue["Type"];
+                            bool IncludeHiddenItems = Convert.ToBoolean(CommandValue["IncludeHiddenItems"]);
+                            bool IncludeSystemItems = Convert.ToBoolean(CommandValue["IncludeSystemItems"]);
+                            string Path = CommandValue["Path"];
+                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                            string DeviceId = @$"\\?\{SplitArray[0]}";
+                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.DirectoryExists(RelativePath))
+                                {
+                                    MediaDirectoryInfo Directory = Device.GetDirectoryInfo(RelativePath);
+
+                                    IEnumerable<MediaFileSystemInfo> BasicItems = Filter switch
+                                    {
+                                        "All" => Directory.EnumerateFileSystemInfos("*"),
+                                        "Folder" => Directory.EnumerateDirectories("*"),
+                                        "File" => Directory.EnumerateFiles("*"),
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    Value.Add("Success", Convert.ToString(BasicItems.Where((Item) => IncludeSystemItems || !Item.Attributes.HasFlag(MediaFileAttributes.System))
+                                                                                    .Where((Item) => IncludeHiddenItems || !Item.Attributes.HasFlag(MediaFileAttributes.Hidden))
+                                                                                    .Any()));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP folder is not found");
+                                }
+                            }
+
+                            break;
+                        }
                     case CommandType.MTPCheckExists:
                         {
                             string Path = CommandValue["Path"];
