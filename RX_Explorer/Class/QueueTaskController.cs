@@ -271,7 +271,7 @@ namespace RX_Explorer.Class
                                     {
                                         try
                                         {
-                                            List<Uri> UriList = new List<Uri>();
+                                            List<Uri> UriList = new List<Uri>(CModel.CopyFrom.Length);
 
                                             foreach (string Path in CModel.CopyFrom)
                                             {

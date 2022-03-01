@@ -511,7 +511,7 @@ namespace RX_Explorer.Class
 
         protected FileSystemStorageItemBase(string Path)
         {
-            this.Path = Path.TrimEnd('\\');
+            this.Path = Path;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)
