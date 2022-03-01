@@ -200,7 +200,7 @@ namespace RX_Explorer.Class
             {
                 return new WslDriveData(DriveFolder, PropertiesRetrieve, DriveId);
             }
-            else if (DriveFolder.Path.Equals(DriveId, StringComparison.OrdinalIgnoreCase))
+            else if (DriveFolder.Path.TrimEnd('\\').Equals(DriveId, StringComparison.OrdinalIgnoreCase))
             {
                 return new MTPDriveData(DriveFolder, PropertiesRetrieve, DriveId);
             }

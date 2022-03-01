@@ -487,15 +487,15 @@ namespace RX_Explorer.Class
                                        ("Name", Name),
                                        ("Type", ItemTypes switch
                                        {
-                                           StorageItemTypes.File => "File",
-                                           StorageItemTypes.Folder => "Folder",
+                                           StorageItemTypes.File => Enum.GetName(typeof(CreateType), CreateType.File),
+                                           StorageItemTypes.Folder => Enum.GetName(typeof(CreateType), CreateType.Folder),
                                            _ => throw new NotSupportedException()
                                        }),
                                        ("Option", Option switch
                                        {
-                                           CreateOption.ReplaceExisting => "Replace",
-                                           CreateOption.OpenIfExist => "Open",
-                                           CreateOption.GenerateUniqueName => "Unique",
+                                           CreateOption.ReplaceExisting => Enum.GetName(typeof(CollisionOptions), CollisionOptions.OverrideOnCollision),
+                                           CreateOption.OpenIfExist => Enum.GetName(typeof(CollisionOptions), CollisionOptions.None),
+                                           CreateOption.GenerateUniqueName => Enum.GetName(typeof(CollisionOptions), CollisionOptions.RenameOnCollision),
                                            _ => throw new NotSupportedException()
                                        })) is IDictionary<string, string> Response)
             {
@@ -514,7 +514,7 @@ namespace RX_Explorer.Class
 
         public async Task<MTPDriveVolumnData> GetMTPDriveSizeAsync(string DeviceId)
         {
-            if (await SendCommandAsync(CommandType.MTPGetDriveSize, ("DeviceId", DeviceId)) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.MTPGetDriveVolumnData, ("DeviceId", DeviceId)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string RawText))
                 {

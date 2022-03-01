@@ -183,6 +183,8 @@ namespace RX_Explorer.Class
                 {
                     if (await View.GetDataAsync(ExtendedDataFormats.NotSupportedStorageItem) is IRandomAccessStream RandomStream)
                     {
+                        RandomStream.Seek(0);
+
                         using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
                         {
                             PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
@@ -194,6 +196,8 @@ namespace RX_Explorer.Class
                 {
                     if (await View.GetDataAsync(ExtendedDataFormats.CompressionItems) is IRandomAccessStream RandomStream)
                     {
+                        RandomStream.Seek(0);
+
                         using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
                         {
                             PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));

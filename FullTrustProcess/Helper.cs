@@ -1,4 +1,5 @@
-﻿using MimeTypes;
+﻿using MediaDevices;
+using MimeTypes;
 using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
@@ -9,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Principal;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Vanara.PInvoke;
@@ -22,6 +24,58 @@ namespace FullTrustProcess
 {
     public static class Helper
     {
+        public static string MTPGenerateUniquePath(MediaDevice Device, string Path, CreateType Type)
+        {
+            string UniquePath = Path;
+
+            if (Device.FileExists(Path) || Device.DirectoryExists(Path))
+            {
+                string Name = Type == CreateType.Folder ? System.IO.Path.GetFileName(Path) : System.IO.Path.GetFileNameWithoutExtension(Path);
+                string Extension = Type == CreateType.Folder ? string.Empty : System.IO.Path.GetExtension(Path);
+                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                for (ushort Count = 1; Device.DirectoryExists(UniquePath) || Device.FileExists(UniquePath); Count++)
+                {
+                    if (Regex.IsMatch(Name, @".*\(\d+\)"))
+                    {
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
+                    }
+                    else
+                    {
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name} ({Count}){Extension}");
+                    }
+                }
+            }
+
+            return UniquePath;
+        }
+
+        public static string StorageGenerateUniquePath(string Path, CreateType Type)
+        {
+            string UniquePath = Path;
+
+            if (File.Exists(Path) || Directory.Exists(Path))
+            {
+                string Name = Type == CreateType.Folder ? System.IO.Path.GetFileName(Path) : System.IO.Path.GetFileNameWithoutExtension(Path);
+                string Extension = Type == CreateType.Folder ? string.Empty : System.IO.Path.GetExtension(Path);
+                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                for (ushort Count = 1; Directory.Exists(UniquePath) || File.Exists(UniquePath); Count++)
+                {
+                    if (Regex.IsMatch(Name, @".*\(\d+\)"))
+                    {
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
+                    }
+                    else
+                    {
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name} ({Count}){Extension}");
+                    }
+                }
+            }
+
+            return UniquePath;
+        }
+
         public static string ConvertShortPathToLongPath(string ShortPath)
         {
             int BufferSize = 512;

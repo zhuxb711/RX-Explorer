@@ -737,8 +737,9 @@ namespace FullTrustProcess
                         {
                             string Path = CommandValue["Path"];
                             string Name = CommandValue["Name"];
-                            string Option = CommandValue["Option"];
-                            string Type = CommandValue["Type"];
+                            CreateType Type = Enum.Parse<CreateType>(CommandValue["Type"]);
+                            CollisionOptions Option = Enum.Parse<CollisionOptions>(CommandValue["Option"]);
+
                             string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
                             string DeviceId = @$"\\?\{SplitArray[0]}";
                             string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
@@ -774,11 +775,11 @@ namespace FullTrustProcess
                                 {
                                     switch (Type)
                                     {
-                                        case "File":
+                                        case CreateType.File:
                                             {
                                                 switch (Option)
                                                 {
-                                                    case "Open":
+                                                    case CollisionOptions.None:
                                                         {
                                                             string TargetPath = $"{RelativePath}\\{Name}";
 
@@ -792,7 +793,7 @@ namespace FullTrustProcess
 
                                                             break;
                                                         }
-                                                    case "Unique":
+                                                    case CollisionOptions.RenameOnCollision:
                                                         {
                                                             string TargetPath = $"{RelativePath}\\{Name}";
 
@@ -823,7 +824,7 @@ namespace FullTrustProcess
 
                                                             break;
                                                         }
-                                                    case "Replace":
+                                                    case CollisionOptions.OverrideOnCollision:
                                                         {
                                                             string TargetPath = $"{RelativePath}\\{Name}";
 
@@ -842,11 +843,11 @@ namespace FullTrustProcess
 
                                                 break;
                                             }
-                                        case "Folder":
+                                        case CreateType.Folder:
                                             {
                                                 switch (Option)
                                                 {
-                                                    case "Open":
+                                                    case CollisionOptions.None:
                                                         {
                                                             string TargetPath = $"{RelativePath}\\{Name}";
 
@@ -860,7 +861,7 @@ namespace FullTrustProcess
 
                                                             break;
                                                         }
-                                                    case "Unique":
+                                                    case CollisionOptions.RenameOnCollision:
                                                         {
                                                             string TargetPath = $"{RelativePath}\\{Name}";
 
@@ -889,7 +890,7 @@ namespace FullTrustProcess
 
                                                             break;
                                                         }
-                                                    case "Replace":
+                                                    case CollisionOptions.OverrideOnCollision:
                                                         {
                                                             string TargetPath = $"{RelativePath}\\{Name}";
 
@@ -922,7 +923,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case CommandType.MTPGetDriveSize:
+                    case CommandType.MTPGetDriveVolumnData:
                         {
                             string DeviceId = CommandValue["DeviceId"];
 
@@ -932,7 +933,7 @@ namespace FullTrustProcess
                                 {
                                     Value.Add("Success", JsonSerializer.Serialize(new MTPDriveVolumnData
                                     {
-                                        Name = Device.FriendlyName,
+                                        Name = string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName,
                                         FileSystem = DriveInfo.DriveFormat,
                                         FreeByte = Convert.ToUInt64(DriveInfo.AvailableFreeSpace),
                                         TotalByte = Convert.ToUInt64(DriveInfo.TotalSize)
@@ -1869,7 +1870,7 @@ namespace FullTrustProcess
                                 Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(' ') ? $"\"{Para.Trim('\"')}\"" : Para));
                             }
 
-                            using (ShellLink Link = ShellLink.Create(StorageItemController.GenerateUniquePath(Package.LinkPath, CreateType.File), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
+                            using (ShellLink Link = ShellLink.Create(Helper.StorageGenerateUniquePath(Package.LinkPath, CreateType.File), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
                             {
                                 Link.ShowState = (FormWindowState)Package.WindowState;
                                 Link.RunAsAdministrator = Package.NeedRunAsAdmin;
@@ -1925,7 +1926,7 @@ namespace FullTrustProcess
                             CreateType Type = Enum.Parse<CreateType>(CommandValue["Type"]);
 
                             string CreateNewPath = CommandValue["NewPath"];
-                            string UniquePath = StorageItemController.GenerateUniquePath(CreateNewPath, Type);
+                            string UniquePath = Helper.StorageGenerateUniquePath(CreateNewPath, Type);
 
 
                             if (StorageItemController.CheckPermission(Path.GetDirectoryName(UniquePath) ?? UniquePath, Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
@@ -2960,7 +2961,7 @@ namespace FullTrustProcess
                             string SourcePathJson = CommandValue["SourcePath"];
                             string DestinationPath = CommandValue["DestinationPath"];
 
-                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), CommandValue["CollisionOptions"]);
+                            CollisionOptions Option = Enum.Parse<CollisionOptions>(CommandValue["CollisionOptions"]);
 
                             List<string> SourcePathList = JsonSerializer.Deserialize<List<string>>(SourcePathJson);
 
@@ -2991,15 +2992,49 @@ namespace FullTrustProcess
                                                     using (FileStream Stream = File.Create(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")), 4096, FileOptions.DeleteOnClose | FileOptions.RandomAccess))
                                                     {
                                                         SourceDevice.DownloadFile(SourceRelativePath, Stream);
+
+                                                        string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourceRelativePath));
+
+                                                        switch (Option)
+                                                        {
+                                                            case CollisionOptions.RenameOnCollision:
+                                                                {
+                                                                    TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.File);
+                                                                    break;
+                                                                }
+                                                            case CollisionOptions.OverrideOnCollision:
+                                                                {
+                                                                    DestinationDevice.DeleteFile(TargetPath);
+                                                                    break;
+                                                                }
+                                                        }
+
                                                         Stream.Seek(0, SeekOrigin.Begin);
-                                                        DestinationDevice.UploadFile(Stream, Path.Combine(DestinationRelativePath, Path.GetFileName(SourceRelativePath)));
+                                                        DestinationDevice.UploadFile(Stream, TargetPath);
                                                     }
                                                 }
                                                 else if (SourceDevice.DirectoryExists(SourceRelativePath))
                                                 {
                                                     DirectoryInfo NewDirectory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")));
                                                     SourceDevice.DownloadFolder(SourceRelativePath, NewDirectory.FullName, true);
-                                                    DestinationDevice.UploadFolder(NewDirectory.FullName, Path.Combine(DestinationRelativePath, Path.GetFileName(SourceRelativePath)), true);
+
+                                                    string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourceRelativePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.Folder);
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                DestinationDevice.DeleteDirectory(TargetPath, true);
+                                                                break;
+                                                            }
+                                                    }
+
+                                                    DestinationDevice.UploadFolder(NewDirectory.FullName, TargetPath, true);
                                                 }
                                             }
 
@@ -3031,11 +3066,43 @@ namespace FullTrustProcess
 
                                                 if (File.Exists(SourcePath))
                                                 {
-                                                    DestinationDevice.UploadFile(SourcePath, Path.Combine(DestinationRelativePath, Path.GetFileName(SourcePath)));
+                                                    string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourcePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.File);
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                DestinationDevice.DeleteFile(TargetPath);
+                                                                break;
+                                                            }
+                                                    }
+
+                                                    DestinationDevice.UploadFile(SourcePath, TargetPath);
                                                 }
                                                 else if (Directory.Exists(SourcePath))
                                                 {
-                                                    DestinationDevice.UploadFolder(SourcePath, Path.Combine(DestinationRelativePath, Path.GetFileName(SourcePath)), true);
+                                                    string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourcePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.Folder);
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                DestinationDevice.DeleteDirectory(TargetPath, true);
+                                                                break;
+                                                            }
+                                                    }
+
+                                                    DestinationDevice.UploadFolder(SourcePath, TargetPath, true);
                                                 }
                                             }
 
@@ -3068,11 +3135,54 @@ namespace FullTrustProcess
 
                                                 if (SourceDevice.FileExists(SourceRelativePath))
                                                 {
-                                                    SourceDevice.DownloadFile(SourceRelativePath, Path.Combine(DestinationPath, Path.GetFileName(SourceRelativePath)));
+                                                    string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourceRelativePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                SourceDevice.DownloadFile(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.File));
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                using (FileStream Stream = File.Open(TargetPath, FileMode.Truncate))
+                                                                {
+                                                                    SourceDevice.DownloadFile(SourceRelativePath, Stream);
+                                                                }
+
+                                                                break;
+                                                            }
+                                                        default:
+                                                            {
+                                                                SourceDevice.DownloadFile(SourceRelativePath, TargetPath);
+                                                                break;
+                                                            }
+                                                    }
                                                 }
                                                 else if (SourceDevice.DirectoryExists(SourceRelativePath))
                                                 {
-                                                    SourceDevice.DownloadFolder(SourceRelativePath, Path.Combine(DestinationPath, Path.GetFileName(SourceRelativePath)), true);
+                                                    string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourceRelativePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                SourceDevice.DownloadFolder(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.Folder));
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                Directory.Delete(SourceRelativePath, true);
+                                                                SourceDevice.DownloadFolder(SourceRelativePath, TargetPath);
+                                                                break;
+                                                            }
+                                                        default:
+                                                            {
+                                                                SourceDevice.DownloadFolder(SourceRelativePath, TargetPath);
+                                                                break;
+                                                            }
+                                                    }
                                                 }
                                             }
 
@@ -3582,7 +3692,7 @@ namespace FullTrustProcess
                                                             Directory.CreateDirectory(DirectoryPath);
                                                         }
 
-                                                        string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name), CreateType.File);
+                                                        string UniqueName = Helper.StorageGenerateUniquePath(System.IO.Path.Combine(Path, Package.Name), CreateType.File);
 
                                                         using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
                                                         {

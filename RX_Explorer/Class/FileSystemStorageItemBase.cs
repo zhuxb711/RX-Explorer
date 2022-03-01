@@ -174,7 +174,14 @@ namespace RX_Explorer.Class
                             {
                                 if (Exclusive.Controller.GetMTPItemDataAsync(Path).Result is MTPFileData Data)
                                 {
-                                    Result.Add(new MTPStorageFolder(Data));
+                                    if (Data.Attributes.HasFlag(System.IO.FileAttributes.Directory))
+                                    {
+                                        Result.Add(new MTPStorageFolder(Data));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new MTPStorageFile(Data));
+                                    }
                                 }
                             }
                             else
@@ -260,7 +267,14 @@ namespace RX_Explorer.Class
                         {
                             if (await Exclusive.Controller.GetMTPItemDataAsync(Path) is MTPFileData Data)
                             {
-                                return new MTPStorageFolder(Data);
+                                if (Data.Attributes.HasFlag(System.IO.FileAttributes.Directory))
+                                {
+                                    return new MTPStorageFolder(Data);
+                                }
+                                else
+                                {
+                                    return new MTPStorageFile(Data);
+                                }
                             }
                         }
                     }

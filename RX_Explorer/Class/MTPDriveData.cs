@@ -10,19 +10,19 @@ namespace RX_Explorer.Class
 {
     public class MTPDriveData : NormalDriveData
     {
-        public override string Name => string.IsNullOrEmpty(SizeData?.Name) ? base.Name : SizeData.Name;
+        public override string Name => string.IsNullOrEmpty(RawData?.Name) ? base.Name : RawData.Name;
 
         public override string DisplayName => Name;
 
         public override string Path => DriveId;
 
-        public override ulong TotalByte => (SizeData?.TotalByte).GetValueOrDefault();
+        public override ulong TotalByte => (RawData?.TotalByte).GetValueOrDefault();
 
-        public override ulong FreeByte => (SizeData?.FreeByte).GetValueOrDefault();
+        public override ulong FreeByte => (RawData?.FreeByte).GetValueOrDefault();
 
-        public override string FileSystem => string.IsNullOrEmpty(SizeData?.FileSystem) ? base.FileSystem : SizeData.FileSystem;
+        public override string FileSystem => string.IsNullOrEmpty(RawData?.FileSystem) ? base.FileSystem : RawData.FileSystem;
 
-        private MTPDriveVolumnData SizeData;
+        private MTPDriveVolumnData RawData;
 
         public MTPDriveData(FileSystemStorageFolder Drive, IReadOnlyDictionary<string, string> PropertiesRetrieve, string DriveId = null) : base(Drive, PropertiesRetrieve, DriveType.Removable, DriveId)
         {
@@ -43,7 +43,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                SizeData = await Exclusive.Controller.GetMTPDriveSizeAsync(Path);
+                RawData = await Exclusive.Controller.GetMTPDriveSizeAsync(Path);
             }
         }
     }

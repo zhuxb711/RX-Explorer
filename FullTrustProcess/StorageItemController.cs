@@ -392,32 +392,6 @@ namespace FullTrustProcess
             }
         }
 
-        public static string GenerateUniquePath(string Path, CreateType Type)
-        {
-            string UniquePath = Path;
-
-            if (File.Exists(Path) || Directory.Exists(Path))
-            {
-                string Name = Type == CreateType.Folder ? System.IO.Path.GetFileName(Path) : System.IO.Path.GetFileNameWithoutExtension(Path);
-                string Extension = Type == CreateType.Folder ? string.Empty : System.IO.Path.GetExtension(Path);
-                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                for (ushort Count = 1; Directory.Exists(UniquePath) || File.Exists(UniquePath); Count++)
-                {
-                    if (Regex.IsMatch(Name, @".*\(\d+\)"))
-                    {
-                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
-                    }
-                    else
-                    {
-                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name} ({Count}){Extension}");
-                    }
-                }
-            }
-
-            return UniquePath;
-        }
-
         public static bool Create(CreateType Type, string Path)
         {
             try
