@@ -662,7 +662,7 @@ namespace FullTrustProcess
             {
                 if (!Directory.Exists(DestinationPath))
                 {
-                    _ = Directory.CreateDirectory(DestinationPath);
+                    Directory.CreateDirectory(DestinationPath);
                 }
 
                 ShellFileOperations.OperationFlags Flags = ShellFileOperations.OperationFlags.AddUndoRecord

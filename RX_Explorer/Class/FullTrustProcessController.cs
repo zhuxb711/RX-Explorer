@@ -2195,9 +2195,9 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<bool> PasteRemoteFile(string DestinationPath)
+        public async Task<bool> PasteRemoteFile(string DestinationPath, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await SendCommandAsync(CommandType.PasteRemoteFile, ("Path", DestinationPath)) is IDictionary<string, string> Response)
+            if (await SendCommandAndReportProgressAsync(CommandType.PasteRemoteFile, ProgressHandler, ("Path", DestinationPath)) is IDictionary<string, string> Response)
             {
                 if (Response.ContainsKey("Success"))
                 {

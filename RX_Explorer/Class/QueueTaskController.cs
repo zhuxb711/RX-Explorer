@@ -256,7 +256,13 @@ namespace RX_Explorer.Class
                                     {
                                         using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
                                         {
-                                            if (!Exclusive.Controller.PasteRemoteFile(RModel.CopyTo).Result)
+                                            if (!Exclusive.Controller.PasteRemoteFile(RModel.CopyTo, (s, e) =>
+                                            {
+                                                Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                {
+                                                    RModel.UpdateProgress(e.ProgressPercentage);
+                                                }).AsTask(), ProgressChangedCoreAsync());
+                                            }).Result)
                                             {
                                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                 {
