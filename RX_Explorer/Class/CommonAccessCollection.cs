@@ -243,7 +243,7 @@ namespace RX_Explorer.Class
                             {
                                 LogTracer.Log(Ex, $"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
                             }
-                            else if (!DriveList.Contains(PreviousTask.Result))
+                            else if (PreviousTask.Result != null && !DriveList.Contains(PreviousTask.Result))
                             {
                                 DriveList.Add(PreviousTask.Result);
                             }
@@ -319,13 +319,16 @@ namespace RX_Explorer.Class
             {
                 DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DriveType.Removable, args.Id);
 
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                if (NewDrive != null)
                 {
-                    if (!DriveList.Contains(NewDrive))
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {
-                        DriveList.Add(NewDrive);
-                    }
-                });
+                        if (!DriveList.Contains(NewDrive))
+                        {
+                            DriveList.Add(NewDrive);
+                        }
+                    });
+                }
             }
             catch (Exception ex)
             {

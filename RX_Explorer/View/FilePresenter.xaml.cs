@@ -1075,44 +1075,6 @@ namespace RX_Explorer.View
             return Flyout;
         }
 
-        private async void SetAsQuickAccessButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (SelectedItem is FileSystemStorageFolder Folder)
-            {
-                if (CommonAccessCollection.LibraryList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync();
-                }
-                else
-                {
-                    if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
-                    {
-                        CommonAccessCollection.LibraryList.Add(LibFolder);
-                        SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
-                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
-                    }
-                }
-            }
-        }
-
-        private async void CommandBarFlyout_Opening(object sender, object e)
-        {
-            if (sender is CommandBarFlyout Flyout)
-            {
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-                {
-                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
-                }
-            }
-        }
-
         private CommandBarFlyout CreateNewLinkFileContextMenu()
         {
             CommandBarFlyout Flyout = new CommandBarFlyout
@@ -1994,6 +1956,44 @@ namespace RX_Explorer.View
 
             PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(SelectedItemList.ToArray());
             await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+        }
+
+        private async void SetAsQuickAccessButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedItem is FileSystemStorageFolder Folder)
+            {
+                if (CommonAccessCollection.LibraryList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+                else
+                {
+                    if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
+                    {
+                        CommonAccessCollection.LibraryList.Add(LibFolder);
+                        SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
+                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
+                    }
+                }
+            }
+        }
+
+        private async void CommandBarFlyout_Opening(object sender, object e)
+        {
+            if (sender is CommandBarFlyout Flyout)
+            {
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
+                }
+            }
         }
 
         private async void DirectoryWatcher_FileChanged(object sender, FileChangedDeferredEventArgs args)
@@ -4157,7 +4157,14 @@ namespace RX_Explorer.View
 
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                await Exclusive.Controller.RunAsync("explorer.exe", Parameters: CurrentFolder.Path);
+                if (CurrentFolder is MTPStorageFolder)
+                {
+                    await Exclusive.Controller.RunAsync("explorer.exe", Parameters: $"::{{20D04FE0-3AEA-1069-A2D8-08002B30309D}}\\{CurrentFolder.Path}");
+                }
+                else
+                {
+                    await Exclusive.Controller.RunAsync("explorer.exe", Parameters: CurrentFolder.Path);
+                }
             }
         }
 
@@ -5643,7 +5650,20 @@ namespace RX_Explorer.View
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        if (!await Exclusive.Controller.RunAsync(Profile.Path, string.Empty, WindowState.Normal, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path)).ToArray()))
+                        string LaunchPath = string.Empty;
+
+                        if (CurrentFolder is MTPStorageFolder)
+                        {
+                            LaunchPath = Environment.GetFolderPath(Environment.SpecialFolder.System);
+                        }
+                        else
+                        {
+                            LaunchPath = CurrentFolder.Path;
+                        }
+
+                        if (!await Exclusive.Controller.RunAsync(Profile.Path,
+                                                                 RunAsAdmin: Profile.RunAsAdmin,
+                                                                 Parameters: Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Replace("[CurrentLocation]", LaunchPath)).ToArray()))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {

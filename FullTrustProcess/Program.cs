@@ -1037,14 +1037,7 @@ namespace FullTrustProcess
 
                             if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
                             {
-                                if (Device.DirectoryExists(RelativePath) || Device.FileExists(RelativePath))
-                                {
-                                    Value.Add("Success", string.Empty);
-                                }
-                                else
-                                {
-                                    Value.Add("Error", "MTP folder or file is not found");
-                                }
+                                Value.Add("Success", Convert.ToString(Device.DirectoryExists(RelativePath) || Device.FileExists(RelativePath)));
                             }
                             else
                             {

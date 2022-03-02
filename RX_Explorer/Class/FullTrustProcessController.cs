@@ -594,9 +594,9 @@ namespace RX_Explorer.Class
         {
             if (await SendCommandAsync(CommandType.MTPCheckExists, ("Path", Path)) is IDictionary<string, string> Response)
             {
-                if (Response.ContainsKey("Success"))
+                if (Response.TryGetValue("Success", out string RawText))
                 {
-                    return true;
+                    return Convert.ToBoolean(RawText);
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {

@@ -51,7 +51,6 @@
 	</Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MediaDevices" Version="1.9.1" />
     <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
     <PackageReference Include="UTF.Unknown" Version="2.5.0" />
     <PackageReference Include="Vanara.PInvoke.CfgMgr32">
@@ -78,6 +77,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ShareClassLibrary\ShareClassLibrary.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MediaDevices">
+      <HintPath>CustomLibraries\MediaDevices.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <PropertyGroup />
 </Project>
