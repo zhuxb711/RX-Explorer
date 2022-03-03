@@ -90,22 +90,27 @@ namespace RX_Explorer.Class
 
         public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
-            FileAccessMode Access = Mode switch
+            FileAccess Access = Mode switch
             {
-                AccessMode.Read => FileAccessMode.Read,
-                AccessMode.ReadWrite or AccessMode.Exclusive or AccessMode.Write => FileAccessMode.ReadWrite,
+                AccessMode.Read => FileAccess.Read,
+                AccessMode.ReadWrite or AccessMode.Exclusive => FileAccess.ReadWrite,
+                AccessMode.Write => FileAccess.Write,
                 _ => throw new NotSupportedException()
             };
 
-            if (await GetStorageItemAsync() is StorageFile File)
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                if (await File.OpenAsync(Access) is IRandomAccessStream Stream)
+                SafeFileHandle Handle = await Exclusive.Controller.MTPDownloadAndGetHandleAsync(Path, Mode, Option);
+
+                if ((Handle?.IsInvalid).GetValueOrDefault(true))
                 {
-                    return Stream.AsStream();
+                    throw new UnauthorizedAccessException($"Could not create a new file stream, Path: \"{Path}\"");
+                }
+                else
+                {
+                    return new FileStream(Handle, Access);
                 }
             }
-
-            return null;
         }
 
         public override Task<ulong> GetSizeOnDiskAsync()

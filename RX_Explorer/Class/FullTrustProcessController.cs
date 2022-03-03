@@ -480,6 +480,23 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<SafeFileHandle> MTPDownloadAndGetHandleAsync(string Path, AccessMode Access, OptimizeOption Option)
+        {
+            if (await SendCommandAsync(CommandType.MTPDownloadToTempFile, ("Path", Path), ("AccessMode", Enum.GetName(typeof(AccessMode), Access)), ("OptimizeOption", Enum.GetName(typeof(OptimizeOption), Option))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string HandleString))
+                {
+                    return new SafeFileHandle(new IntPtr(Convert.ToInt64(HandleString)), true);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPDownloadAndGetHandleAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return null;
+        }
+
         public async Task<MTPFileData> MTPCreateSubItemAsync(string Path, string Name, StorageItemTypes ItemTypes, CreateOption Option)
         {
             if (await SendCommandAsync(CommandType.MTPCreateSubItem,

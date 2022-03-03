@@ -733,6 +733,72 @@ namespace FullTrustProcess
 
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.MTPDownloadToTempFile:
+                        {
+                            string Path = CommandValue["Path"];
+                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                            string DeviceId = @$"\\?\{SplitArray[0]}";
+                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
+
+                            AccessMode Mode = Enum.Parse<AccessMode>(CommandValue["AccessMode"]);
+                            OptimizeOption Option = Enum.Parse<OptimizeOption>(CommandValue["OptimizeOption"]);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.FileExists(RelativePath))
+                                {
+                                    string TempFilePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+
+                                    Device.DownloadFile(RelativePath, TempFilePath);
+
+                                    Kernel32.FileAccess Access = Mode switch
+                                    {
+                                        AccessMode.Read => Kernel32.FileAccess.FILE_GENERIC_READ,
+                                        AccessMode.ReadWrite or AccessMode.Exclusive => Kernel32.FileAccess.FILE_GENERIC_READ | Kernel32.FileAccess.FILE_GENERIC_WRITE,
+                                        AccessMode.Write => Kernel32.FileAccess.FILE_GENERIC_WRITE,
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    FileShare Share = Mode switch
+                                    {
+                                        AccessMode.Read => FileShare.Read,
+                                        AccessMode.ReadWrite or AccessMode.Write => FileShare.ReadWrite,
+                                        AccessMode.Exclusive => FileShare.None,
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    FileFlagsAndAttributes Flags = FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED | FileFlagsAndAttributes.FILE_FLAG_DELETE_ON_CLOSE | Option switch
+                                    {
+                                        OptimizeOption.None => FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL,
+                                        OptimizeOption.Sequential => FileFlagsAndAttributes.FILE_FLAG_SEQUENTIAL_SCAN,
+                                        OptimizeOption.RandomAccess => FileFlagsAndAttributes.FILE_FLAG_RANDOM_ACCESS,
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(TempFilePath, Access, Share, null, FileMode.OpenOrCreate, Flags))
+                                    {
+                                        if (Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), Handle.DangerousGetHandle(), ExplorerProcess.Handle, out IntPtr TargetHandle, default, default, Kernel32.DUPLICATE_HANDLE_OPTIONS.DUPLICATE_SAME_ACCESS))
+                                        {
+                                            Value.Add("Success", Convert.ToString(TargetHandle.ToInt64()));
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error", $"Could not duplicate the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP file is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
                     case CommandType.MTPCreateSubItem:
                         {
                             string Path = CommandValue["Path"];
@@ -1552,8 +1618,8 @@ namespace FullTrustProcess
 
                                     FileShare Share = Mode switch
                                     {
-                                        AccessMode.Read => FileShare.ReadWrite,
-                                        AccessMode.ReadWrite or AccessMode.Write => FileShare.Read,
+                                        AccessMode.Read => FileShare.Read,
+                                        AccessMode.ReadWrite or AccessMode.Write => FileShare.ReadWrite,
                                         AccessMode.Exclusive => FileShare.None,
                                         _ => throw new NotSupportedException()
                                     };
