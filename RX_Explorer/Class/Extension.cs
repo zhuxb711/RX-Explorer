@@ -1,5 +1,4 @@
-﻿using Microsoft.Toolkit.Deferred;
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
 using RX_Explorer.View;
@@ -141,28 +140,6 @@ namespace RX_Explorer.Class
                                     else if (!string.IsNullOrWhiteSpace(File.Name))
                                     {
                                         StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-
-                                        QueueTaskController.RegisterPostProcessing(TempFile.Path, async (sender, args) =>
-                                        {
-                                            EventDeferral Deferral = args.GetDeferral();
-
-                                            try
-                                            {
-                                                if (await ApplicationData.Current.TemporaryFolder.TryGetItemAsync(Path.GetFileName(args.OriginPath)) is StorageFile File)
-                                                {
-                                                    await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                LogTracer.Log(ex, "Post-processing failed in QueueTaskController");
-                                            }
-                                            finally
-                                            {
-                                                Deferral.Complete();
-                                            }
-                                        });
-
                                         PathList.Add(TempFile.Path);
                                     }
                                 }
@@ -307,12 +284,12 @@ namespace RX_Explorer.Class
                     byte[] DataBuffer = new byte[4096];
 
                     int ProgressValue = 0;
-                    int bytesRead = 0;
+                    int BytesRead = 0;
 
-                    while ((bytesRead = From.Read(DataBuffer, 0, DataBuffer.Length)) > 0)
+                    while ((BytesRead = From.Read(DataBuffer, 0, DataBuffer.Length)) > 0)
                     {
-                        To.Write(DataBuffer, 0, bytesRead);
-                        TotalBytesRead += bytesRead;
+                        To.Write(DataBuffer, 0, BytesRead);
+                        TotalBytesRead += BytesRead;
 
                         if (TotalBytesLength > 1024 * 1024)
                         {
@@ -321,21 +298,21 @@ namespace RX_Explorer.Class
                             if (LatestValue > ProgressValue)
                             {
                                 ProgressValue = LatestValue;
-                                ProgressHandler.Invoke(null, new ProgressChangedEventArgs(LatestValue, null));
+                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(LatestValue, null));
                             }
                         }
 
                         CancelToken.ThrowIfCancellationRequested();
                     }
-
-                    ProgressHandler.Invoke(null, new ProgressChangedEventArgs(100, null));
-
-                    To.Flush();
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    LogTracer.Log(ex, "Could not track the progress of coping the stream");
                     From.CopyTo(To);
+                }
+                finally
+                {
+                    To.Flush();
+                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
                 }
             });
         }
@@ -844,34 +821,42 @@ namespace RX_Explorer.Class
             {
                 if (Node.Children.Count > 0)
                 {
-                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder)).Select((Item) => Item.Path).ToList();
-                    List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
-                    List<string> AddList = FolderList.Except(PathList).ToList();
-                    List<string> RemoveList = PathList.Except(FolderList).ToList();
+                    IReadOnlyList<FileSystemStorageItemBase> FolderList = await ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder);
+                    IEnumerable<string> FolderPathList = FolderList.Select((Item) => Item.Path);
+                    IEnumerable<string> CurrentPathList = Node.Children.Select((Item) => Item.Content).OfType<TreeViewNodeContent>().Select((Content) => Content.Path);
+                    IReadOnlyList<string> AddList = FolderPathList.Except(CurrentPathList).ToList();
+                    IReadOnlyList<string> RemoveList = CurrentPathList.Except(FolderPathList).ToList();
 
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
-                        foreach (string AddPath in AddList)
+                        try
                         {
-                            if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
+                            foreach (string AddPath in AddList)
                             {
-                                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
-
-                                Node.Children.Add(new TreeViewNode
+                                if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
                                 {
-                                    Content = Content,
-                                    HasUnrealizedChildren = Content.HasChildren,
-                                    IsExpanded = false
-                                });
+                                    TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
+
+                                    Node.Children.Add(new TreeViewNode
+                                    {
+                                        Content = Content,
+                                        HasUnrealizedChildren = Content.HasChildren,
+                                        IsExpanded = false
+                                    });
+                                }
+                            }
+
+                            foreach (string RemovePath in RemoveList)
+                            {
+                                if (Node.Children.Where((Item) => Item.Content is TreeViewNodeContent).FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RemoveNode)
+                                {
+                                    Node.Children.Remove(RemoveNode);
+                                }
                             }
                         }
-
-                        foreach (string RemovePath in RemoveList)
+                        catch (Exception ex)
                         {
-                            if (Node.Children.Where((Item) => Item.Content is TreeViewNodeContent).FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RemoveNode)
-                            {
-                                Node.Children.Remove(RemoveNode);
-                            }
+                            LogTracer.Log(ex, "Could not refresh the treeview node");
                         }
                     });
 
@@ -1046,14 +1031,14 @@ namespace RX_Explorer.Class
         /// 根据名称和类型寻找指定UI元素的子元素
         /// </summary>
         /// <typeparam name="T">类型</typeparam>
-        /// <param name="root"></param>
-        /// <param name="name">子元素名称</param>
+        /// <param name="Parent"></param>
+        /// <param name="Name">子元素名称</param>
         /// <returns></returns>
-        public static T FindChildOfName<T>(this DependencyObject root, string name) where T : DependencyObject
+        public static T FindChildOfName<T>(this DependencyObject Parent, string Name) where T : DependencyObject
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
 
-            ObjectQueue.Enqueue(root);
+            ObjectQueue.Enqueue(Parent);
 
             while (ObjectQueue.Count > 0)
             {
@@ -1065,7 +1050,7 @@ namespace RX_Explorer.Class
                     {
                         DependencyObject ChildObject = VisualTreeHelper.GetChild(Current, i);
 
-                        if (ChildObject is T TypedChild && (TypedChild as FrameworkElement)?.Name == name)
+                        if (ChildObject is T TypedChild && (TypedChild as FrameworkElement)?.Name == Name)
                         {
                             return TypedChild;
                         }
@@ -1080,9 +1065,28 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public static T FindParentOfType<T>(this DependencyObject child) where T : DependencyObject
+        public static T FindParentOfName<T>(this DependencyObject Child, string Name) where T : DependencyObject
         {
-            DependencyObject CurrentParent = VisualTreeHelper.GetParent(child);
+            DependencyObject CurrentParent = VisualTreeHelper.GetParent(Child);
+
+            while (CurrentParent != null)
+            {
+                if (CurrentParent is T TypedParent && (TypedParent as FrameworkElement)?.Name == Name)
+                {
+                    return TypedParent;
+                }
+                else
+                {
+                    CurrentParent = VisualTreeHelper.GetParent(CurrentParent);
+                }
+            }
+
+            return null;
+        }
+
+        public static T FindParentOfType<T>(this DependencyObject Child) where T : DependencyObject
+        {
+            DependencyObject CurrentParent = VisualTreeHelper.GetParent(Child);
 
             while (CurrentParent != null)
             {

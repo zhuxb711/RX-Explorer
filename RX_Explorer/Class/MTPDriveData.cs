@@ -43,7 +43,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                RawData = await Exclusive.Controller.GetMTPDriveSizeAsync(Path);
+                RawData = await Exclusive.Controller.GetMTPDriveVolumnDataAsync(Path);
             }
         }
     }

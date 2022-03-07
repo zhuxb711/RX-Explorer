@@ -437,6 +437,8 @@ namespace RX_Explorer.View
                                         });
                                     });
 
+                                    await SLEStream.FlushAsync();
+
                                     CurrentPosition += OriginFile.Size;
 
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
@@ -706,6 +708,8 @@ namespace RX_Explorer.View
                                                 ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize);
                                             });
                                         });
+
+                                        await DecryptedFStream.FlushAsync();
                                     }
 
                                     CurrentPosition += OriginFile.Size;
@@ -715,10 +719,7 @@ namespace RX_Explorer.View
                                         ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
                                     });
 
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                    {
-                                        await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.Header.Version > SLEVersion.Version_1_0_0 ? SLEStream.Header.FileName : $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}{SLEStream.Header.FileName}", true);
-                                    }
+                                    await DecryptedFile.RenameAsync(SLEStream.Header.Version > SLEVersion.Version_1_0_0 ? SLEStream.Header.FileName : $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}{SLEStream.Header.FileName}");
                                 }
 
                                 SecureCollection.Remove(OriginFile);
@@ -847,10 +848,7 @@ namespace RX_Explorer.View
                             }
                         }
 
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        {
-                            await Exclusive.Controller.RenameAsync(RenameItem.Path, NewName, true);
-                        }
+                        await RenameItem.RenameAsync(NewName);
                     }
                 }
             }

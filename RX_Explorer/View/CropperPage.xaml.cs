@@ -324,6 +324,8 @@ namespace RX_Explorer.View
                         await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png);
                         break;
                 }
+
+                await Stream.FlushAsync();
             }
 
             await Task.Delay(1000);

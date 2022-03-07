@@ -67,13 +67,13 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (ModifiedTime != DateTimeOffset.MaxValue.ToLocalTime() && ModifiedTime != DateTimeOffset.MinValue.ToLocalTime())
+                if (ModifiedTime == DateTimeOffset.MaxValue.ToLocalTime() || ModifiedTime == DateTimeOffset.MinValue.ToLocalTime())
                 {
-                    return ModifiedTime.ToString("G");
+                    return string.Empty;
                 }
                 else
                 {
-                    return string.Empty;
+                    return ModifiedTime.ToString("G");
                 }
             }
         }
@@ -82,9 +82,9 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (CreationTime == DateTimeOffset.MaxValue.ToLocalTime())
+                if (CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || CreationTime == DateTimeOffset.MinValue.ToLocalTime())
                 {
-                    return Globalization.GetString("UnknownText");
+                    return string.Empty;
                 }
                 else
                 {
@@ -108,6 +108,34 @@ namespace RX_Explorer.Class
         protected ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
+
+        public static Task<EndOfShareNotification> SetBulkAccessSharedControllerAsync<T>(T Item) where T : FileSystemStorageItemBase
+        {
+            return SetBulkAccessSharedControllerAsync(new T[] { Item });
+        }
+
+        public static async Task<EndOfShareNotification> SetBulkAccessSharedControllerAsync<T>(IEnumerable<T> Items) where T : FileSystemStorageItemBase
+        {
+            RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRef = new RefSharedRegion<FullTrustProcessController.ExclusiveUsage>(await FullTrustProcessController.GetAvailableControllerAsync());
+
+            foreach (T Item in Items)
+            {
+                Item.SetBulkAccessSharedControllerCore(SharedRef);
+            }
+
+            return new EndOfShareNotification(() =>
+            {
+                SharedRef.Dispose();
+            });
+        }
+
+        private void SetBulkAccessSharedControllerCore(RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRef)
+        {
+            if (Interlocked.Exchange(ref ControllerSharedRef, SharedRef) is RefSharedRegion<FullTrustProcessController.ExclusiveUsage> PreviousRef)
+            {
+                PreviousRef.Dispose();
+            }
+        }
 
         public static async Task<bool> CheckExistsAsync(string Path)
         {
@@ -599,8 +627,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRegion = await FullTrustProcessController.GetProcessSharedRegionAsync())
-                        using (DisposableNotification Disposable = SetProcessRefShareRegion(SharedRegion))
+                        using (EndOfShareNotification Disposable = await SetBulkAccessSharedControllerAsync(this))
                         {
                             await Task.WhenAll(LoadCoreAsync(false), GetStorageItemAsync(), GetThumbnailOverlayAsync());
 
@@ -648,23 +675,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public DisposableNotification SetProcessRefShareRegion(RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRef)
-        {
-            if (Interlocked.Exchange(ref ControllerSharedRef, SharedRef) is RefSharedRegion<FullTrustProcessController.ExclusiveUsage> PreviousRef)
-            {
-                PreviousRef.Dispose();
-            }
-
-            return new DisposableNotification(() =>
-            {
-                if (Interlocked.Exchange(ref ControllerSharedRef, null) is RefSharedRegion<FullTrustProcessController.ExclusiveUsage> PreviousRef)
-                {
-                    PreviousRef.Dispose();
-                }
-            });
-        }
-
-        protected RefSharedRegion<FullTrustProcessController.ExclusiveUsage> GetProcessSharedRegion()
+        protected RefSharedRegion<FullTrustProcessController.ExclusiveUsage> GetBulkAccessSharedController()
         {
             return ControllerSharedRef?.CreateNew();
         }
@@ -696,7 +707,7 @@ namespace RX_Explorer.Class
         {
             async Task<SafeFileHandle> GetNativeHandleCoreAsync()
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
                 {
                     if (ControllerRef != null)
                     {
@@ -751,7 +762,7 @@ namespace RX_Explorer.Class
                 return null;
             }
 
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
             {
                 if (ControllerRef != null)
                 {
@@ -812,7 +823,7 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
                 {
                     if (ControllerRef != null)
                     {
@@ -866,7 +877,7 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
                 {
                     if (ControllerRef != null)
                     {
@@ -888,7 +899,7 @@ namespace RX_Explorer.Class
         {
             async Task<IReadOnlyDictionary<string, string>> GetPropertiesTask(IEnumerable<string> Properties)
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
                 {
                     if (ControllerRef != null)
                     {
@@ -1005,7 +1016,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                string NewName = await Exclusive.Controller.RenameAsync(Path, DesireName);
+                string NewName = await Exclusive.Controller.RenameAsync(Path, DesireName, true);
                 Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
                 return NewName;
             }

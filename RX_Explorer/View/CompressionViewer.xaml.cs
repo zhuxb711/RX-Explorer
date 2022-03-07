@@ -41,6 +41,7 @@ namespace RX_Explorer.View
         private FileSystemStorageFile ZipFile;
         private CancellationTokenSource DelayDragCancellation;
         private CancellationTokenSource TaskCancellation;
+        private CancellationTokenSource InitCancellation;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -351,20 +352,21 @@ namespace RX_Explorer.View
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
+            InitCancellation = new CancellationTokenSource();
+
+            ListViewControl.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
+            SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
+
+            CurrentSortTarget = CompressionSortTarget.Name;
+            CurrentSortDirection = SortDirection.Ascending;
+
             if (e.Parameter is FileSystemStorageFile File)
             {
-                ListViewControl.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
-                SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
-
-                CurrentSortTarget = CompressionSortTarget.Name;
-                CurrentSortDirection = SortDirection.Ascending;
-
                 TextEncodingDialog Dialog = new TextEncodingDialog();
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    ZipStrings.CodePage = Dialog.UserSelectedEncoding.CodePage;
-                    await InitializeAsync(File);
+                    await InitializeAsync(File, Dialog.UserSelectedEncoding, InitCancellation.Token);
                 }
                 else
                 {
@@ -375,6 +377,8 @@ namespace RX_Explorer.View
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+
             ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
 
             SelectionExtension.Dispose();
@@ -384,9 +388,11 @@ namespace RX_Explorer.View
             DelayDragCancellation?.Dispose();
             DelayDragCancellation = null;
 
+            InitCancellation?.Cancel();
+            InitCancellation?.Dispose();
+
             TaskCancellation?.Cancel();
             TaskCancellation?.Dispose();
-            TaskCancellation = null;
 
             EntryList.Clear();
             AddressBox.Text = string.Empty;
@@ -399,60 +405,78 @@ namespace RX_Explorer.View
             }
         }
 
-        private async Task InitializeAsync(FileSystemStorageFile File)
+        private async Task InitializeAsync(FileSystemStorageFile File, Encoding Encoding, CancellationToken CancelToken)
         {
+            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+
             try
             {
                 Stream CompressedStream = null;
 
-                if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
+                switch (File.Type.ToLower())
                 {
-                    Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                    case ".sle":
+                        {
+                            Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
-                    SLEHeader Header = SLEHeader.GetHeader(Stream);
+                            SLEHeader Header = SLEHeader.GetHeader(Stream);
 
-                    if (Header.Version >= SLEVersion.Version_1_5_0 && Path.GetExtension(Header.FileName).Equals(".zip", StringComparison.OrdinalIgnoreCase))
-                    {
-                        IsReadonlyMode = true;
-                        CompressedStream = new SLEInputStream(Stream, SecureArea.AESKey);
-                    }
-                    else
-                    {
-                        throw new NotSupportedException();
-                    }
+                            if (Header.Version >= SLEVersion.Version_1_5_0 && Path.GetExtension(Header.FileName).Equals(".zip", StringComparison.OrdinalIgnoreCase))
+                            {
+                                CompressedStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                            }
+
+                            break;
+                        }
+                    case ".zip":
+                        {
+                            CompressedStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess);
+                            break;
+                        }
                 }
-                else if (File.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase))
+
+                if (CancelToken.IsCancellationRequested)
                 {
-                    IsReadonlyMode = false;
-                    CompressedStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess);
+                    CompressedStream?.Dispose();
                 }
                 else
                 {
-                    throw new NotSupportedException();
+                    try
+                    {
+                        if (CompressedStream == null)
+                        {
+                            throw new NotSupportedException();
+                        }
+                        else if (CompressedStream is SLEInputStream)
+                        {
+                            IsReadonlyMode = true;
+                        }
+
+                        ZipStrings.CodePage = Encoding.CodePage;
+
+                        ZipFile = File;
+                        ZipObj = new ZipFile(CompressedStream);
+
+                        DisplayItemsInFolderEntry(string.Empty);
+
+                        await Task.Delay(1000);
+                    }
+                    finally
+                    {
+                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                    }
                 }
-
-                if (CompressedStream == null)
-                {
-                    throw new NotSupportedException();
-                }
-
-                ZipFile = File;
-                ZipObj = new ZipFile(CompressedStream);
-
-                DisplayItemsInFolderEntry(string.Empty);
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not initialize the viewer");
+                LogTracer.Log(ex, "Could not initialize the compression viewer");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                await new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_CouldNotOpenCompression_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
-                };
-
-                await Dialog.ShowAsync();
+                }.ShowAsync();
 
                 Frame.GoBack();
             }
@@ -833,6 +857,8 @@ namespace RX_Explorer.View
                                 {
                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / TotalSize), null));
                                 });
+
+                                await Stream.FlushAsync(Token);
                             }
 
                             CurrentPosition += Entry.Size;

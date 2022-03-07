@@ -17,7 +17,20 @@ namespace RX_Explorer.Class
         }
     }
 
+    public sealed class LaunchProgramException : Exception
+    {
+        public LaunchProgramException(string ErrorMessage) : base(ErrorMessage)
+        {
+        }
 
+        public LaunchProgramException() : base()
+        {
+        }
+
+        public LaunchProgramException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
 
     /// <summary>
     /// 密码错误异常

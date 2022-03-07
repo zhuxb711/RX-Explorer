@@ -98,7 +98,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return new FileStream(Handle, Access);
+                    return new FileStream(Handle, Access, 4096, true);
                 }
             }
         }

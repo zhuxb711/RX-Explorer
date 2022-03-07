@@ -1382,12 +1382,10 @@ namespace RX_Explorer.View
                                         using (Stream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                         {
                                             await SLEStream.CopyToAsync(DecryptedFStream, 2048);
+                                            await DecryptedFStream.FlushAsync();
                                         }
 
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                        {
-                                            await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.Header.FileName, true);
-                                        }
+                                        await DecryptedFile.RenameAsync(SLEStream.Header.FileName);
                                     }
                                 }
                             }

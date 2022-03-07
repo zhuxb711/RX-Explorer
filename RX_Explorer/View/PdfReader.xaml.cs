@@ -25,8 +25,8 @@ namespace RX_Explorer.View
 {
     public sealed partial class PdfReader : Page
     {
-        private ObservableCollection<BitmapImage> PdfCollection;
-        private SynchronizedCollection<int> LoadTable;
+        private readonly ObservableCollection<BitmapImage> PdfCollection = new ObservableCollection<BitmapImage>();
+        private readonly SynchronizedCollection<int> LoadTable = new SynchronizedCollection<int>();
 
         private PdfDocument Pdf;
         private Stream PdfStream;
@@ -42,6 +42,9 @@ namespace RX_Explorer.View
         public PdfReader()
         {
             InitializeComponent();
+
+            Flip.SelectionChanged += Flip_SelectionChanged_TaskOne;
+            Flip.SelectionChanged += Flip_SelectionChanged_TaskTwo;
 
             PointerWheelChangedEventHandler = new PointerEventHandler(Page_PointerWheelChanged);
 
@@ -67,133 +70,127 @@ namespace RX_Explorer.View
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
+            AddHandler(PointerWheelChangedEvent, PointerWheelChangedEventHandler, true);
+
+            Cancellation = new CancellationTokenSource();
+
             if (e.Parameter is FileSystemStorageFile Parameters)
             {
                 LastPageIndex = 0;
                 ZoomFactor = 100;
                 FileNameDisplay.Text = Parameters.Name;
 
-                Cancellation = new CancellationTokenSource();
-                LoadTable = new SynchronizedCollection<int>();
-                PdfCollection = new ObservableCollection<BitmapImage>();
-
-                await InitializeAsync(Parameters);
-
-                AddHandler(PointerWheelChangedEvent, PointerWheelChangedEventHandler, true);
-
-                Flip.SelectionChanged += Flip_SelectionChanged_TaskOne;
-                Flip.SelectionChanged += Flip_SelectionChanged_TaskTwo;
+                await InitializeAsync(Parameters, Cancellation.Token);
             }
         }
 
-        private async Task InitializeAsync(FileSystemStorageFile PdfFile)
+        private async Task InitializeAsync(FileSystemStorageFile PdfFile, CancellationToken CancelToken)
         {
+            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+
             try
             {
-                LoadingControl.IsLoading = true;
-
-                if (PdfFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
+                switch (PdfFile.Type.ToLower())
                 {
-                    Stream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                    case ".sle":
+                        {
+                            Stream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
-                    SLEHeader Header = SLEHeader.GetHeader(Stream);
+                            SLEHeader Header = SLEHeader.GetHeader(Stream);
 
-                    if (Header.Version >= SLEVersion.Version_1_5_0 && Path.GetExtension(Header.FileName).Equals(".pdf", StringComparison.OrdinalIgnoreCase))
-                    {
-                        PdfStream = new SLEInputStream(Stream, SecureArea.AESKey);
-                    }
-                    else
-                    {
-                        throw new NotSupportedException();
-                    }
+                            if (Header.Version >= SLEVersion.Version_1_5_0 && Path.GetExtension(Header.FileName).Equals(".pdf", StringComparison.OrdinalIgnoreCase))
+                            {
+                                PdfStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                            }
+
+                            break;
+                        }
+                    case ".pdf":
+                        {
+                            PdfStream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                            break;
+                        }
                 }
-                else if (PdfFile.Type.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
+
+                if (CancelToken.IsCancellationRequested)
                 {
-                    PdfStream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                    PdfStream?.Dispose();
                 }
                 else
                 {
-                    throw new NotSupportedException();
-                }
-
-                if (PdfStream == null)
-                {
-                    throw new NotSupportedException();
-                }
-
-                try
-                {
-                    Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream.AsRandomAccessStream());
-                }
-                catch (Exception)
-                {
-                    PdfPasswordDialog Dialog = new PdfPasswordDialog();
-
-                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    try
                     {
-                        Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream.AsRandomAccessStream(), Dialog.Password);
+                        if (PdfStream == null)
+                        {
+                            throw new NotSupportedException();
+                        }
+
+                        try
+                        {
+                            Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream.AsRandomAccessStream());
+                        }
+                        catch (Exception)
+                        {
+                            PdfPasswordDialog Dialog = new PdfPasswordDialog();
+
+                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream.AsRandomAccessStream(), Dialog.Password);
+                            }
+                            else
+                            {
+                                Frame.GoBack();
+                                return;
+                            }
+                        }
+
+                        NumIndicator.Text = Convert.ToString(Pdf.PageCount);
+                        TextBoxControl.Text = "1";
+
+                        IEnumerable<int> InitRange = Enumerable.Range(0, Convert.ToInt32(Pdf.PageCount));
+
+                        PdfCollection.AddRange(InitRange.Select((_) => new BitmapImage()));
+                        LoadTable.AddRange(InitRange);
+
+                        Flip.ItemsSource = PdfCollection;
+
+                        await JumpToPageIndexAsync(0);
+
+                        await Task.Delay(1000);
                     }
-                    else
+                    finally
                     {
-                        Frame.GoBack();
-                        return;
+                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                     }
                 }
-
-                NumIndicator.Text = Convert.ToString(Pdf.PageCount);
-                TextBoxControl.Text = "1";
-
-                IEnumerable<int> InitRange = Enumerable.Range(0, Convert.ToInt32(Pdf.PageCount));
-
-                PdfCollection.AddRange(InitRange.Select((_) => new BitmapImage()));
-                LoadTable.AddRange(InitRange);
-
-                Flip.ItemsSource = PdfCollection;
-
-                await JumpToPageIndexAsync(0);
             }
             catch (Exception ex)
             {
-                try
+                LogTracer.Log(ex, "Could not open .pdf file");
+
+                await new QueueContentDialog
                 {
-                    LogTracer.Log(ex, "Could not open .pdf file");
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_PDFOpenFailure"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                }.ShowAsync();
 
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_PDFOpenFailure"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
-                    };
-
-                    await Dialog.ShowAsync();
-
-                    if (Frame.CanGoBack)
-                    {
-                        Frame.GoBack();
-                    }
-                }
-                catch (Exception Ex)
-                {
-                    LogTracer.Log(Ex, "Exception was threw when exiting the PDF Viewer");
-                }
-            }
-            finally
-            {
-                LoadingControl.IsLoading = false;
+                Frame.GoBack();
             }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            Flip.SelectionChanged -= Flip_SelectionChanged_TaskOne;
-            Flip.SelectionChanged -= Flip_SelectionChanged_TaskTwo;
+            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
 
             RemoveHandler(PointerWheelChangedEvent, PointerWheelChangedEventHandler);
 
             Cancellation?.Cancel();
             Cancellation?.Dispose();
 
-            PdfCollection?.Clear();
+            LoadTable.Clear();
+            PdfCollection.Clear();
+
             PdfStream?.Dispose();
         }
 
@@ -432,13 +429,11 @@ namespace RX_Explorer.View
                 {
                     if (PageNum != Flip.SelectedIndex + 1)
                     {
-                        LoadingControl.IsLoading = true;
+                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
-                        await JumpToPageIndexAsync(PageNum - 1);
+                        await Task.WhenAll(JumpToPageIndexAsync(PageNum - 1), Task.Delay(1000));
 
-                        await Task.Delay(500);
-
-                        LoadingControl.IsLoading = false;
+                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                     }
                 }
                 else

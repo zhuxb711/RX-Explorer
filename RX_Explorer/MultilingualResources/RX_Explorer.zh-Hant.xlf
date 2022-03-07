@@ -1789,7 +1789,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">RX 檔案總管沒有權限貼上檔案</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename</source>
+          <source>RX does not have permission to rename this file</source>
           <target state="translated">RX 檔案總管沒有權限重新命名</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
@@ -4596,6 +4596,18 @@ Invalid names include
         <trans-unit id="File_Admin_DisplayType" translate="yes" xml:space="preserve">
           <source>File</source>
           <target state="translated">文件</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Rename" translate="yes" xml:space="preserve">
+          <source>Rename task</source>
+          <target state="translated">重命名任務</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotOpenImage_Content" translate="yes" xml:space="preserve">
+          <source>Unable to open this image file</source>
+          <target state="translated">無法打開此圖像文件</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NotSupportedFile_Content" translate="yes" xml:space="preserve">
+          <source>This file type is not supported</source>
+          <target state="translated">不支持此文件類型</target>
         </trans-unit>
       </group>
     </body>

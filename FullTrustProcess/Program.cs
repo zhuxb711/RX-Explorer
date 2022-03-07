@@ -54,15 +54,7 @@ namespace FullTrustProcess
 
         private static CancellationTokenSource CurrentTaskCancellation;
 
-        private static IReadOnlyList<MediaDevice> MTPDeviceList
-        {
-            get
-            {
-                List<MediaDevice> Devices = MediaDevice.GetDevices().ToList();
-                Devices.ForEach((Device) => Device.Connect());
-                return Devices;
-            }
-        }
+        private static IEnumerable<MediaDevice> MTPDeviceList => MediaDevice.GetDevices().ForEach((Device) => Device.Connect());
 
         [STAThread]
         static void Main(string[] args)
@@ -733,23 +725,76 @@ namespace FullTrustProcess
 
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
-                    case CommandType.MTPDownloadToTempFile:
+                    case CommandType.MTPReplaceWithNewFile:
                         {
                             string Path = CommandValue["Path"];
-                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                            string DeviceId = @$"\\?\{SplitArray[0]}";
-                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
+                            string NewFilePath = CommandValue["NewFilePath"];
 
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.FileExists(PathAnalysis.RelativePath))
+                                {
+                                    Device.DeleteFile(PathAnalysis.RelativePath);
+                                    Device.UploadFile(NewFilePath, PathAnalysis.RelativePath);
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP file is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPDownloadAndGetPath:
+                        {
+                            string Path = CommandValue["Path"];
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.FileExists(PathAnalysis.RelativePath))
+                                {
+                                    string TempFilePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}{System.IO.Path.GetExtension(PathAnalysis.RelativePath)}");
+
+                                    Device.DownloadFile(PathAnalysis.RelativePath, TempFilePath);
+
+                                    Value.Add("Success", TempFilePath);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP file is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPDownloadAndGetHandle:
+                        {
+                            string Path = CommandValue["Path"];
                             AccessMode Mode = Enum.Parse<AccessMode>(CommandValue["AccessMode"]);
                             OptimizeOption Option = Enum.Parse<OptimizeOption>(CommandValue["OptimizeOption"]);
 
-                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
-                            {
-                                if (Device.FileExists(RelativePath))
-                                {
-                                    string TempFilePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
 
-                                    Device.DownloadFile(RelativePath, TempFilePath);
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.FileExists(PathAnalysis.RelativePath))
+                                {
+                                    string TempFilePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}{System.IO.Path.GetExtension(PathAnalysis.RelativePath)}");
+
+                                    Device.DownloadFile(PathAnalysis.RelativePath, TempFilePath);
 
                                     Kernel32.FileAccess Access = Mode switch
                                     {
@@ -806,11 +851,9 @@ namespace FullTrustProcess
                             CreateType Type = Enum.Parse<CreateType>(CommandValue["Type"]);
                             CollisionOptions Option = Enum.Parse<CollisionOptions>(CommandValue["Option"]);
 
-                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                            string DeviceId = @$"\\?\{SplitArray[0]}";
-                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
 
-                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
                             {
                                 static FileAttributes ConvertAttribute(MediaFileAttributes Attributes)
                                 {
@@ -837,7 +880,7 @@ namespace FullTrustProcess
                                     return Return;
                                 }
 
-                                if (Device.DirectoryExists(RelativePath))
+                                if (Device.DirectoryExists(PathAnalysis.RelativePath))
                                 {
                                     switch (Type)
                                     {
@@ -847,7 +890,7 @@ namespace FullTrustProcess
                                                 {
                                                     case CollisionOptions.None:
                                                         {
-                                                            string TargetPath = $"{RelativePath}\\{Name}";
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
 
                                                             if (!Device.FileExists(TargetPath))
                                                             {
@@ -861,23 +904,23 @@ namespace FullTrustProcess
                                                         }
                                                     case CollisionOptions.RenameOnCollision:
                                                         {
-                                                            string TargetPath = $"{RelativePath}\\{Name}";
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
 
                                                             if (Device.FileExists(TargetPath) || Device.DirectoryExists(TargetPath))
                                                             {
                                                                 string UniquePath = TargetPath;
-                                                                string NameWithoutExt = UniquePath.Substring(0, UniquePath.LastIndexOf('.'));
-                                                                string Extension = UniquePath.Substring(UniquePath.LastIndexOf('.'));
+                                                                string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(UniquePath);
+                                                                string Extension = System.IO.Path.GetExtension(UniquePath);
 
                                                                 for (ushort Count = 1; Device.DirectoryExists(UniquePath) || Device.FileExists(UniquePath); Count++)
                                                                 {
                                                                     if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
                                                                     {
-                                                                        UniquePath = $"{RelativePath}{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}";
+                                                                        UniquePath = $"{System.IO.Path.Combine(PathAnalysis.RelativePath, NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase)))}({Count}){Extension}";
                                                                     }
                                                                     else
                                                                     {
-                                                                        UniquePath = $"{RelativePath}{NameWithoutExt} ({Count}){Extension}";
+                                                                        UniquePath = $"{System.IO.Path.Combine(PathAnalysis.RelativePath, NameWithoutExt)} ({Count}){Extension}";
                                                                     }
                                                                 }
 
@@ -892,7 +935,7 @@ namespace FullTrustProcess
                                                         }
                                                     case CollisionOptions.OverrideOnCollision:
                                                         {
-                                                            string TargetPath = $"{RelativePath}\\{Name}";
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
 
                                                             if (Device.FileExists(TargetPath))
                                                             {
@@ -915,7 +958,7 @@ namespace FullTrustProcess
                                                 {
                                                     case CollisionOptions.None:
                                                         {
-                                                            string TargetPath = $"{RelativePath}\\{Name}";
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
 
                                                             if (!Device.DirectoryExists(TargetPath))
                                                             {
@@ -929,7 +972,7 @@ namespace FullTrustProcess
                                                         }
                                                     case CollisionOptions.RenameOnCollision:
                                                         {
-                                                            string TargetPath = $"{RelativePath}\\{Name}";
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
 
                                                             if (Device.FileExists(TargetPath) || Device.DirectoryExists(TargetPath))
                                                             {
@@ -939,11 +982,11 @@ namespace FullTrustProcess
                                                                 {
                                                                     if (Regex.IsMatch(Name, @".*\(\d+\)"))
                                                                     {
-                                                                        UniquePath = $"{RelativePath}{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})";
+                                                                        UniquePath = $"{PathAnalysis.RelativePath}{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})";
                                                                     }
                                                                     else
                                                                     {
-                                                                        UniquePath = $"{RelativePath}{Name} ({Count})";
+                                                                        UniquePath = $"{PathAnalysis.RelativePath}{Name} ({Count})";
                                                                     }
                                                                 }
 
@@ -958,7 +1001,7 @@ namespace FullTrustProcess
                                                         }
                                                     case CollisionOptions.OverrideOnCollision:
                                                         {
-                                                            string TargetPath = $"{RelativePath}\\{Name}";
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
 
                                                             if (Device.DirectoryExists(TargetPath))
                                                             {
@@ -995,7 +1038,7 @@ namespace FullTrustProcess
 
                             if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
                             {
-                                if (Device.GetDrives().FirstOrDefault() is MediaDriveInfo DriveInfo)
+                                if (Device.GetDrives()?.FirstOrDefault() is MediaDriveInfo DriveInfo)
                                 {
                                     Value.Add("Success", JsonSerializer.Serialize(new MTPDriveVolumnData
                                     {
@@ -1020,17 +1063,16 @@ namespace FullTrustProcess
                     case CommandType.MTPGetFolderSize:
                         {
                             string Path = CommandValue["Path"];
-                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                            string DeviceId = @$"\\?\{SplitArray[0]}";
-                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
 
-                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
                             {
-                                if (Device.DirectoryExists(RelativePath))
+                                if (Device.DirectoryExists(PathAnalysis.RelativePath))
                                 {
                                     ulong TotalSize = 0;
 
-                                    foreach (MediaFileInfo File in Device.GetDirectoryInfo(RelativePath).EnumerateFiles("*", SearchOption.AllDirectories))
+                                    foreach (MediaFileInfo File in Device.GetDirectoryInfo(PathAnalysis.RelativePath).EnumerateFiles("*", SearchOption.AllDirectories))
                                     {
                                         if (CancelToken.IsCancellationRequested)
                                         {
@@ -1056,19 +1098,18 @@ namespace FullTrustProcess
                         }
                     case CommandType.MTPCheckContainsAnyItems:
                         {
+                            string Path = CommandValue["Path"];
                             string Filter = CommandValue["Filter"];
                             bool IncludeHiddenItems = Convert.ToBoolean(CommandValue["IncludeHiddenItems"]);
                             bool IncludeSystemItems = Convert.ToBoolean(CommandValue["IncludeSystemItems"]);
-                            string Path = CommandValue["Path"];
-                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                            string DeviceId = @$"\\?\{SplitArray[0]}";
-                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
 
-                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
                             {
-                                if (Device.DirectoryExists(RelativePath))
+                                if (Device.DirectoryExists(PathAnalysis.RelativePath))
                                 {
-                                    MediaDirectoryInfo Directory = Device.GetDirectoryInfo(RelativePath);
+                                    MediaDirectoryInfo Directory = Device.GetDirectoryInfo(PathAnalysis.RelativePath);
 
                                     IEnumerable<MediaFileSystemInfo> BasicItems = Filter switch
                                     {
@@ -1097,13 +1138,12 @@ namespace FullTrustProcess
                     case CommandType.MTPCheckExists:
                         {
                             string Path = CommandValue["Path"];
-                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                            string DeviceId = @$"\\?\{SplitArray[0]}";
-                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
 
-                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
                             {
-                                Value.Add("Success", Convert.ToString(Device.DirectoryExists(RelativePath) || Device.FileExists(RelativePath)));
+                                Value.Add("Success", Convert.ToString(Device.DirectoryExists(PathAnalysis.RelativePath) || Device.FileExists(PathAnalysis.RelativePath)));
                             }
                             else
                             {
@@ -1115,9 +1155,8 @@ namespace FullTrustProcess
                     case CommandType.MTPGetItem:
                         {
                             string Path = CommandValue["Path"];
-                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                            string DeviceId = @$"\\?\{SplitArray[0]}";
-                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
 
                             static FileAttributes ConvertAttribute(MediaFileAttributes Attributes)
                             {
@@ -1144,17 +1183,17 @@ namespace FullTrustProcess
                                 return Return;
                             }
 
-                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
                             {
                                 MediaFileSystemInfo Item = null;
 
-                                if (Device.DirectoryExists(RelativePath))
+                                if (Device.DirectoryExists(PathAnalysis.RelativePath))
                                 {
-                                    Item = Device.GetDirectoryInfo(RelativePath);
+                                    Item = Device.GetDirectoryInfo(PathAnalysis.RelativePath);
                                 }
-                                else if (Device.FileExists(RelativePath))
+                                else if (Device.FileExists(PathAnalysis.RelativePath))
                                 {
-                                    Item = Device.GetFileInfo(RelativePath);
+                                    Item = Device.GetFileInfo(PathAnalysis.RelativePath);
                                 }
 
                                 if (Item != null)
@@ -1176,14 +1215,13 @@ namespace FullTrustProcess
                     case CommandType.MTPGetChildItems:
                         {
                             string Path = CommandValue["Path"];
-                            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                            string DeviceId = @$"\\?\{SplitArray[0]}";
-                            string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
                             string Type = CommandValue["Type"];
                             bool IncludeHiddenItems = Convert.ToBoolean(CommandValue["IncludeHiddenItems"]);
                             bool IncludeSystemItems = Convert.ToBoolean(CommandValue["IncludeSystemItems"]);
                             bool IncludeAllSubItems = Convert.ToBoolean(CommandValue["IncludeAllSubItems"]);
                             uint MaxNumLimit = Convert.ToUInt32(CommandValue["MaxNumLimit"]);
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
 
                             static FileAttributes ConvertAttribute(MediaFileAttributes Attributes)
                             {
@@ -1210,15 +1248,15 @@ namespace FullTrustProcess
                                 return Return;
                             }
 
-                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
                             {
-                                if (Device.DirectoryExists(RelativePath))
+                                if (Device.DirectoryExists(PathAnalysis.RelativePath))
                                 {
                                     IEnumerable<MediaFileSystemInfo> BasicItems = Type switch
                                     {
-                                        "All" => Device.GetDirectoryInfo(RelativePath).EnumerateFileSystemInfos("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
-                                        "File" => Device.GetDirectoryInfo(RelativePath).EnumerateFiles("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
-                                        "Folder" => Device.GetDirectoryInfo(RelativePath).EnumerateDirectories("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
+                                        "All" => Device.GetDirectoryInfo(PathAnalysis.RelativePath).EnumerateFileSystemInfos("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
+                                        "File" => Device.GetDirectoryInfo(PathAnalysis.RelativePath).EnumerateFiles("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
+                                        "Folder" => Device.GetDirectoryInfo(PathAnalysis.RelativePath).EnumerateDirectories("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
                                         _ => throw new NotSupportedException()
                                     };
 
@@ -2025,7 +2063,29 @@ namespace FullTrustProcess
                             string ExecutePath = CommandValue["ExecutePath"];
                             string DesireName = CommandValue["DesireName"];
 
-                            if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
+                            if (ExecutePath.StartsWith(@"\\?\"))
+                            {
+                                MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(ExecutePath);
+
+                                if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                                {
+                                    if (Device.FileExists(PathAnalysis.RelativePath) || Device.DirectoryExists(PathAnalysis.RelativePath))
+                                    {
+                                        string UniqueNewName = Path.GetFileName(Helper.MTPGenerateUniquePath(Device, Path.Combine(Path.GetDirectoryName(PathAnalysis.RelativePath), DesireName), Device.DirectoryExists(PathAnalysis.RelativePath) ? CreateType.Folder : CreateType.File));
+                                        Device.Rename(PathAnalysis.RelativePath, UniqueNewName);
+                                        Value.Add("Success", UniqueNewName);
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error", "MTP file is not found");
+                                    }
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP device is not found");
+                                }
+                            }
+                            else if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
                                 if (StorageItemController.CheckCaptured(ExecutePath))
                                 {
@@ -3028,17 +3088,13 @@ namespace FullTrustProcess
                             {
                                 if (SourcePathList.All((Source) => Source.StartsWith(@"\\?\")) && DestinationPath.StartsWith(@"\\?\"))
                                 {
-                                    string[] SourceSplitArray = new string(SourcePathList.First().Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                    string SourceDeviceId = @$"\\?\{SourceSplitArray[0]}";
+                                    MTPPathAnalysis SourcePathAnalysis = Helper.AnalysisMTPPath(SourcePathList.First());
+                                    MTPPathAnalysis DestinationPathAnalysis = Helper.AnalysisMTPPath(DestinationPath);
 
-                                    string[] DestinationSplitArray = new string(DestinationPath.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                    string DestinationDeviceId = @$"\\?\{DestinationSplitArray[0]}";
-                                    string DestinationRelativePath = @$"\{string.Join('\\', DestinationSplitArray.Skip(1))}";
-
-                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourceDeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
-                                        && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationDeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
+                                        && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
                                     {
-                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Select((Source) => @$"\{string.Join('\\', new string(Source.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).Skip(1))}");
+                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Select((Source) => Helper.AnalysisMTPPath(Source).RelativePath);
 
                                         if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                         {
@@ -3055,7 +3111,7 @@ namespace FullTrustProcess
                                                             PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
                                                         });
 
-                                                        string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourceRelativePath));
+                                                        string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
 
                                                         switch (Option)
                                                         {
@@ -3088,7 +3144,7 @@ namespace FullTrustProcess
                                                         PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
                                                     });
 
-                                                    string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourceRelativePath));
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
 
                                                     switch (Option)
                                                     {
@@ -3125,11 +3181,9 @@ namespace FullTrustProcess
                                 }
                                 else if (DestinationPath.StartsWith(@"\\?\"))
                                 {
-                                    string[] DestinationSplitArray = new string(DestinationPath.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                    string DestinationDeviceId = @$"\\?\{DestinationSplitArray[0]}";
-                                    string DestinationRelativePath = @$"\{string.Join('\\', DestinationSplitArray.Skip(1))}";
+                                    MTPPathAnalysis DestinationPathAnalysis = Helper.AnalysisMTPPath(DestinationPath);
 
-                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationDeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
                                     {
                                         if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                         {
@@ -3139,7 +3193,7 @@ namespace FullTrustProcess
 
                                                 if (File.Exists(SourcePath))
                                                 {
-                                                    string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourcePath));
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourcePath));
 
                                                     switch (Option)
                                                     {
@@ -3162,7 +3216,7 @@ namespace FullTrustProcess
                                                 }
                                                 else if (Directory.Exists(SourcePath))
                                                 {
-                                                    string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourcePath));
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourcePath));
 
                                                     switch (Option)
                                                     {
@@ -3199,12 +3253,11 @@ namespace FullTrustProcess
                                 }
                                 else if (SourcePathList.All((Source) => Source.StartsWith(@"\\?\")))
                                 {
-                                    string[] SourceSplitArray = new string(SourcePathList.First().Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                    string SourceDeviceId = @$"\\?\{SourceSplitArray[0]}";
+                                    MTPPathAnalysis SourcePathAnalysis = Helper.AnalysisMTPPath(SourcePathList.First());
 
-                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourceDeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
                                     {
-                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Select((Source) => @$"\{string.Join('\\', new string(Source.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).Skip(1))}");
+                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Select((Source) => Helper.AnalysisMTPPath(Source).RelativePath);
 
                                         if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                         {
@@ -3396,17 +3449,13 @@ namespace FullTrustProcess
                             {
                                 if (SourcePathList.Keys.All((Source) => Source.StartsWith(@"\\?\")) && DestinationPath.StartsWith(@"\\?\"))
                                 {
-                                    string[] SourceSplitArray = new string(SourcePathList.Keys.First().Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                    string SourceDeviceId = @$"\\?\{SourceSplitArray[0]}";
+                                    MTPPathAnalysis SourcePathAnalysis = Helper.AnalysisMTPPath(SourcePathList.Keys.First());
+                                    MTPPathAnalysis DestinationPathAnalysis = Helper.AnalysisMTPPath(DestinationPath);
 
-                                    string[] DestinationSplitArray = new string(DestinationPath.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                    string DestinationDeviceId = @$"\\?\{DestinationSplitArray[0]}";
-                                    string DestinationRelativePath = @$"\{string.Join('\\', DestinationSplitArray.Skip(1))}";
-
-                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourceDeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
-                                        && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationDeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
+                                        && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
                                     {
-                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => @$"\{string.Join('\\', new string(Source.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).Skip(1))}");
+                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => Helper.AnalysisMTPPath(Source).RelativePath);
 
                                         if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                         {
@@ -3423,7 +3472,7 @@ namespace FullTrustProcess
                                                             PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
                                                         });
 
-                                                        string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourceRelativePath));
+                                                        string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
 
                                                         switch (Option)
                                                         {
@@ -3458,7 +3507,7 @@ namespace FullTrustProcess
                                                         PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
                                                     });
 
-                                                    string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourceRelativePath));
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
 
                                                     switch (Option)
                                                     {
@@ -3497,11 +3546,9 @@ namespace FullTrustProcess
                                 }
                                 else if (DestinationPath.StartsWith(@"\\?\"))
                                 {
-                                    string[] DestinationSplitArray = new string(DestinationPath.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                    string DestinationDeviceId = @$"\\?\{DestinationSplitArray[0]}";
-                                    string DestinationRelativePath = @$"\{string.Join('\\', DestinationSplitArray.Skip(1))}";
+                                    MTPPathAnalysis DestinationPathAnalysis = Helper.AnalysisMTPPath(DestinationPath);
 
-                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationDeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
                                     {
                                         if (SourcePathList.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                         {
@@ -3511,7 +3558,7 @@ namespace FullTrustProcess
 
                                                 if (File.Exists(SourcePath))
                                                 {
-                                                    string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourcePath));
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourcePath));
 
                                                     switch (Option)
                                                     {
@@ -3536,7 +3583,7 @@ namespace FullTrustProcess
                                                 }
                                                 else if (Directory.Exists(SourcePath))
                                                 {
-                                                    string TargetPath = Path.Combine(DestinationRelativePath, Path.GetFileName(SourcePath));
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourcePath));
 
                                                     switch (Option)
                                                     {
@@ -3575,12 +3622,11 @@ namespace FullTrustProcess
                                 }
                                 else if (SourcePathList.Keys.All((Source) => Source.StartsWith(@"\\?\")))
                                 {
-                                    string[] SourceSplitArray = new string(SourcePathList.Keys.First().Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                    string SourceDeviceId = @$"\\?\{SourceSplitArray[0]}";
+                                    MTPPathAnalysis SourcePathAnalysis = Helper.AnalysisMTPPath(SourcePathList.Keys.First());
 
-                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourceDeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
                                     {
-                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => @$"\{string.Join('\\', new string(Source.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).Skip(1))}");
+                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => Helper.AnalysisMTPPath(Source).RelativePath);
 
                                         if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                         {
@@ -3790,13 +3836,11 @@ namespace FullTrustProcess
                             {
                                 if (ExecutePathList.All((Source) => Source.StartsWith(@"\\?\")))
                                 {
-                                    string[] SplitArray = new string(ExecutePathList.First().Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                    string DeviceId = @$"\\?\{SplitArray[0]}";
-                                    string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
+                                    MTPPathAnalysis SourcePathAnalysis = Helper.AnalysisMTPPath(ExecutePathList.First());
 
-                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice MTPDevice)
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice MTPDevice)
                                     {
-                                        IEnumerable<string> RelativePathArray = ExecutePathList.Select((Source) => @$"\{string.Join('\\', new string(Source.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).Skip(1))}");
+                                        IEnumerable<string> RelativePathArray = ExecutePathList.Select((Source) => Helper.AnalysisMTPPath(Source).RelativePath);
 
                                         if (RelativePathArray.All((RelativePath) => MTPDevice.FileExists(RelativePath) || MTPDevice.DirectoryExists(RelativePath)))
                                         {

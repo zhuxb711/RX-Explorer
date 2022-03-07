@@ -780,11 +780,11 @@ namespace RX_Explorer.View
                             {
                                 if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
                                 {
-                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Lib.Path);
+                                    QueueTaskController.EnqueueMoveOpeartion(new OperationListMoveModel(PathList.ToArray(), Lib.Path));
                                 }
                                 else
                                 {
-                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Lib.Path);
+                                    QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(PathList.ToArray(), Lib.Path));
                                 }
 
                                 break;
@@ -793,11 +793,11 @@ namespace RX_Explorer.View
                             {
                                 if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
                                 {
-                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Drive.Path);
+                                    QueueTaskController.EnqueueMoveOpeartion(new OperationListMoveModel(PathList.ToArray(), Drive.Path));
                                 }
                                 else
                                 {
-                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Drive.Path);
+                                    QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(PathList.ToArray(), Drive.Path));
                                 }
 
                                 break;
@@ -809,7 +809,7 @@ namespace RX_Explorer.View
             {
                 if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
                 {
-                    QueueTaskController.EnqueueRemoteCopyOpeartion(Item.Path);
+                    QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Item.Path));
                 }
             }
             catch (Exception ex)
@@ -1266,7 +1266,7 @@ namespace RX_Explorer.View
                     {
                         foreach (TabViewItem Tab in TabViewContainer.Current.TabCollection.ToArray())
                         {
-                            if (Tab.Content is TabItemContentRenderer Renderer)
+                            if (Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
                             {
                                 if (Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
                                                        .All((Path) => Item.Path.Equals(System.IO.Path.GetPathRoot(Path), StringComparison.OrdinalIgnoreCase)))
@@ -1642,7 +1642,7 @@ namespace RX_Explorer.View
 
                                     if (await FileSystemStorageItemBase.CheckExistsAsync(DocumentPath))
                                     {
-                                        QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DocumentPath);
+                                        QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { SItem.Path }, DocumentPath));
                                     }
                                     else
                                     {
@@ -1656,7 +1656,7 @@ namespace RX_Explorer.View
 
                                             if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Documents))
                                             {
-                                                QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DataPath.Documents);
+                                                QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { SItem.Path }, DataPath.Documents));
                                             }
                                             else
                                             {
@@ -1675,7 +1675,7 @@ namespace RX_Explorer.View
                                 {
                                     if (Item.Tag is string RemovablePath)
                                     {
-                                        QueueTaskController.EnqueueCopyOpeartion(SItem.Path, RemovablePath);
+                                        QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { SItem.Path }, RemovablePath));
                                     }
 
                                     break;

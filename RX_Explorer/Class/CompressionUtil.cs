@@ -281,6 +281,7 @@ namespace RX_Explorer.Class
                     GZipStream.FileName = Source.Name;
 
                     await SourceFileStream.CopyToAsync(GZipStream, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
+                    await GZipStream.FlushAsync();
                 }
             }
             else
@@ -338,6 +339,7 @@ namespace RX_Explorer.Class
                         using (Stream NewFileStrem = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                         {
                             await GZipStream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
+                            await NewFileStrem.FlushAsync();
                         }
                     }
                     else
@@ -376,6 +378,7 @@ namespace RX_Explorer.Class
                 {
                     BZip2Stream.IsStreamOwner = false;
                     await SourceFileStream.CopyToAsync(BZip2Stream, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
+                    await BZip2Stream.FlushAsync();
                 }
             }
             else
@@ -414,6 +417,7 @@ namespace RX_Explorer.Class
                 {
                     BZip2Stream.IsStreamOwner = false;
                     await BZip2Stream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
+                    await NewFileStrem.FlushAsync();
                 }
             }
             else
@@ -952,6 +956,8 @@ namespace RX_Explorer.Class
                                         {
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * Reader.Entry.CompressedSize)) * 100d / TotalSize), null));
                                         });
+
+                                        await OutputStream.FlushAsync();
 
                                         CurrentPosition += Convert.ToUInt64(Reader.Entry.CompressedSize);
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));

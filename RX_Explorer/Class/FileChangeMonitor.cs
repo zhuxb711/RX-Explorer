@@ -16,6 +16,31 @@ namespace RX_Explorer.Class
         private CancellationTokenSource Cancellation;
         public event EventHandler<FileChangedDeferredEventArgs> FileChanged;
 
+        public Task InvokeAddedEventManuallyAsync(FileAddedDeferredEventArgs Args)
+        {
+            return InvokeEventManuallyCoreAsync(Args);
+        }
+
+        public Task InvokeRemovedEventManuallyAsync(FileRemovedDeferredEventArgs Args)
+        {
+            return InvokeEventManuallyCoreAsync(Args);
+        }
+
+        public Task InvokeRenamedEventManuallyAsync(FileRenamedDeferredEventArgs Args)
+        {
+            return InvokeEventManuallyCoreAsync(Args);
+        }
+
+        public Task InvokeModifiedEventManuallyAsync(FileModifiedDeferredEventArgs Args)
+        {
+            return InvokeEventManuallyCoreAsync(Args);
+        }
+
+        private async Task InvokeEventManuallyCoreAsync(FileChangedDeferredEventArgs Args)
+        {
+            await FileChanged?.InvokeAsync(this, Args);
+        }
+
         public async Task StartMonitorAsync(string Path)
         {
             await StopMonitorAsync();
@@ -78,17 +103,17 @@ namespace RX_Explorer.Class
                         try
                         {
                             if (NativeWin32API.ReadDirectoryChanges(Data.Handle.DangerousGetHandle(),
-                                                                      BufferPtr,
-                                                                      4096,
-                                                                      false,
-                                                                      NativeWin32API.FILE_NOTIFY_CHANGE.File_Notify_Change_File_Name
-                                                                      | NativeWin32API.FILE_NOTIFY_CHANGE.File_Notify_Change_Dir_Name
-                                                                      | NativeWin32API.FILE_NOTIFY_CHANGE.File_Notify_Change_Last_Write
-                                                                      | NativeWin32API.FILE_NOTIFY_CHANGE.File_Notify_Change_Size
-                                                                      | NativeWin32API.FILE_NOTIFY_CHANGE.File_Notify_Change_Attribute,
-                                                                      out uint BytesReturned,
-                                                                      IntPtr.Zero,
-                                                                      IntPtr.Zero))
+                                                                    BufferPtr,
+                                                                    4096,
+                                                                    false,
+                                                                    NativeWin32API.FILE_NOTIFY_CHANGE.File_Notify_Change_File_Name
+                                                                    | NativeWin32API.FILE_NOTIFY_CHANGE.File_Notify_Change_Dir_Name
+                                                                    | NativeWin32API.FILE_NOTIFY_CHANGE.File_Notify_Change_Last_Write
+                                                                    | NativeWin32API.FILE_NOTIFY_CHANGE.File_Notify_Change_Size
+                                                                    | NativeWin32API.FILE_NOTIFY_CHANGE.File_Notify_Change_Attribute,
+                                                                    out uint BytesReturned,
+                                                                    IntPtr.Zero,
+                                                                    IntPtr.Zero))
                             {
                                 if (BytesReturned > 0)
                                 {

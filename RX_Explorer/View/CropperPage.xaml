@@ -309,18 +309,15 @@
                                     TintOpacity="0.6"
                                     BlurAmount="3" />
             </controls:Loading.Background>
-            <StackPanel Orientation="Horizontal"
-                        Padding="12">
-                <muxc:ProgressRing IsActive="True"
-                                   Height="25"
-                                   Width="25"
-                                   HorizontalAlignment="Center" />
+            <StackPanel>
                 <TextBlock Text="正在保存..."
                            x:Uid="CropperPageSavingTips"
-                           Margin="10,0,0,0"
                            FontSize="16"
                            VerticalAlignment="Center"
                            TextAlignment="Center" />
+                <muxc:ProgressBar Width="180"
+                                  Margin="0,10,0,0"
+                                  IsIndeterminate="True" />
             </StackPanel>
         </controls:Loading>
     </Grid>

@@ -113,6 +113,7 @@
     <Compile Include="Class\ExtendedDataFormats.cs" />
     <Compile Include="Class\LibraryFolderRecord.cs" />
     <Compile Include="Class\MTPDriveData.cs" />
+    <Compile Include="Class\MTPFileReadWriteStream.cs" />
     <Compile Include="Class\MTPStorageFile.cs" />
     <Compile Include="Class\MTPStorageFolder.cs" />
     <Compile Include="Class\NavigationRecordDisplay.cs" />
@@ -135,7 +136,7 @@
     <Compile Include="Class\CustomDataTemplateSelector.cs" />
     <Compile Include="Class\CustomStaticDataSource.cs" />
     <Compile Include="Class\CustomStyleSelector.cs" />
-    <Compile Include="Class\DisposableNotification.cs" />
+    <Compile Include="Class\EndOfShareNotification.cs" />
     <Compile Include="Class\DisposableObservableCollection.cs" />
     <Compile Include="Class\DriveChangedDeferredEventArgs.cs" />
     <Compile Include="Class\Enum.cs" />
@@ -174,6 +175,7 @@
     <Compile Include="Class\OperationListMoveUndoModel.cs" />
     <Compile Include="Class\OperationListNewUndoModel.cs" />
     <Compile Include="Class\OperationListRemoteModel.cs" />
+    <Compile Include="Class\OperationListRenameModel.cs" />
     <Compile Include="Class\OperationListRenameUndoModel.cs" />
     <Compile Include="Class\OperationListUndoModel.cs" />
     <Compile Include="Class\PortableImageDataPackage.cs" />

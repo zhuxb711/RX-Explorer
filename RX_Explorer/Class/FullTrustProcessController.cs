@@ -228,11 +228,6 @@ namespace RX_Explorer.Class
             return CompletionSource.Task;
         }
 
-        public static async Task<RefSharedRegion<ExclusiveUsage>> GetProcessSharedRegionAsync()
-        {
-            return new RefSharedRegion<ExclusiveUsage>(await GetAvailableControllerAsync());
-        }
-
         private static async Task<FullTrustProcessController> CreateAsync()
         {
             FullTrustProcessController Controller = new FullTrustProcessController();
@@ -480,9 +475,37 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task MTPReplaceWithNewFileAsync(string Path, string NewFilePath)
+        {
+            if (await SendCommandAsync(CommandType.MTPReplaceWithNewFile, ("Path", Path), ("NewFilePath", NewFilePath)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPReplaceWithNewFileAsync)}, message: {ErrorMessage}");
+                }
+            }
+        }
+
+        public async Task<string> MTPDownloadAndGetPathAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.MTPDownloadAndGetPath, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return RawText;
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPDownloadAndGetPathAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return null;
+        }
+
         public async Task<SafeFileHandle> MTPDownloadAndGetHandleAsync(string Path, AccessMode Access, OptimizeOption Option)
         {
-            if (await SendCommandAsync(CommandType.MTPDownloadToTempFile, ("Path", Path), ("AccessMode", Enum.GetName(typeof(AccessMode), Access)), ("OptimizeOption", Enum.GetName(typeof(OptimizeOption), Option))) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.MTPDownloadAndGetHandle, ("Path", Path), ("AccessMode", Enum.GetName(typeof(AccessMode), Access)), ("OptimizeOption", Enum.GetName(typeof(OptimizeOption), Option))) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string HandleString))
                 {
@@ -529,7 +552,7 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public async Task<MTPDriveVolumnData> GetMTPDriveSizeAsync(string DeviceId)
+        public async Task<MTPDriveVolumnData> GetMTPDriveVolumnDataAsync(string DeviceId)
         {
             if (await SendCommandAsync(CommandType.MTPGetDriveVolumnData, ("DeviceId", DeviceId)) is IDictionary<string, string> Response)
             {
@@ -539,7 +562,7 @@ namespace RX_Explorer.Class
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(GetMTPDriveSizeAsync)}, message: {ErrorMessage}");
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetMTPDriveVolumnDataAsync)}, message: {ErrorMessage}");
                 }
             }
 

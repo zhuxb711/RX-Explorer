@@ -16,13 +16,12 @@ namespace RX_Explorer.Class
 
         public override bool CanBeCancelled => false;
 
-        public override Task PrepareSizeDataAsync(CancellationToken Token)
+        protected override Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
         {
-            Calculator = new ProgressCalculator(0);
-            return Task.CompletedTask;
+            return Task.FromResult(new ProgressCalculator(0));
         }
 
-        public OperationListRenameUndoModel(string UndoFrom, string UndoTo, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorThrow, OnCancelled)
+        public OperationListRenameUndoModel(string UndoFrom, string UndoTo)
         {
             if (string.IsNullOrWhiteSpace(UndoTo))
             {

@@ -130,6 +130,8 @@
         MTPGetFolderSize,
         MTPGetDriveVolumnData,
         MTPCreateSubItem,
-        MTPDownloadToTempFile
+        MTPDownloadAndGetHandle,
+        MTPDownloadAndGetPath,
+        MTPReplaceWithNewFile
     }
 }

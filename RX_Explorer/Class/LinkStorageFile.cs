@@ -57,7 +57,7 @@ namespace RX_Explorer.Class
 
         public async Task<LinkFileData> GetRawDataAsync()
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
             {
                 if (ControllerRef != null)
                 {

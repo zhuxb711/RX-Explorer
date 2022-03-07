@@ -79,7 +79,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
                 {
                     if (ControllerRef != null)
                     {

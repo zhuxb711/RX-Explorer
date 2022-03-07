@@ -8,13 +8,7 @@ namespace RX_Explorer.Class
 {
     public class OperationListDecompressionModel : OperationListBaseModel
     {
-        public override string OperationKindText
-        {
-            get
-            {
-                return Globalization.GetString("TaskList_OperationKind_Decompression");
-            }
-        }
+        public override string OperationKindText => Globalization.GetString("TaskList_OperationKind_Decompression");
 
         public override string FromDescription
         {
@@ -31,13 +25,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string ToDescription
-        {
-            get
-            {
-                return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{DecompressionTo}";
-            }
-        }
+        public override string ToDescription => $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{DecompressionTo}";
 
         public Encoding Encoding { get; }
 
@@ -49,7 +37,7 @@ namespace RX_Explorer.Class
 
         public override bool CanBeCancelled => true;
 
-        public override async Task PrepareSizeDataAsync(CancellationToken Token)
+        protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
         {
             ulong TotalSize = 0;
 
@@ -75,10 +63,10 @@ namespace RX_Explorer.Class
                 }
             }
 
-            Calculator = new ProgressCalculator(TotalSize);
+            return new ProgressCalculator(TotalSize);
         }
 
-        public OperationListDecompressionModel(string[] DecompressionFrom, string DecompressionTo, bool ShouldCreateFolder, Encoding Encoding = null, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorThrow, OnCancelled)
+        public OperationListDecompressionModel(string[] DecompressionFrom, string DecompressionTo, bool ShouldCreateFolder, Encoding Encoding = null)
         {
             if (string.IsNullOrWhiteSpace(DecompressionTo))
             {

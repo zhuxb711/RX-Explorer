@@ -518,12 +518,10 @@
                                          Checked="SearchEngineChoiceSave_Checked" />
                             <StackPanel Orientation="Horizontal"
                                         Visibility="{x:Bind SearchInDefaultEngine.IsChecked, Mode=OneWay}">
-                                <Line X1="10"
-                                      X2="10"
-                                      Y1="0"
-                                      Y2="165"
-                                      StrokeThickness="3"
-                                      Stroke="Gray" />
+                                <Border Width="3"
+                                        Margin="10,0,0,0"
+                                        Background="Gray"
+                                        VerticalAlignment="Stretch"/>
                                 <StackPanel Margin="18,5,0,0">
                                     <CheckBox Content="忽略大小写"
                                               x:Uid="SearchEngineIgnoreCase"
@@ -576,12 +574,10 @@
                             </RelativePanel>
                             <StackPanel Orientation="Horizontal"
                                         Visibility="{x:Bind SearchInEverythingEngine.IsChecked, Mode=OneWay}">
-                                <Line X1="10"
-                                      X2="10"
-                                      Y1="0"
-                                      Y2="100"
-                                      StrokeThickness="3"
-                                      Stroke="Gray" />
+                                <Border Width="3"
+                                        Margin="10,0,0,0"
+                                        Background="Gray"
+                                        VerticalAlignment="Stretch" />
                                 <StackPanel Margin="18,5,0,0">
                                     <CheckBox Content="忽略大小写"
                                               x:Uid="SearchEngineIgnoreCase"

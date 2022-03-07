@@ -1,4 +1,6 @@
-﻿using RX_Explorer.Class;
+﻿using Microsoft.Toolkit.Deferred;
+using RX_Explorer.Class;
+using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
 using System;
@@ -596,42 +598,45 @@ namespace RX_Explorer.View
                     }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                 }
 
-                DelayTooltipCancellation?.Cancel();
-                DelayTooltipCancellation?.Dispose();
-                DelayTooltipCancellation = new CancellationTokenSource();
-
-                Task.Delay(800).ContinueWith(async (task, input) =>
+                if (Item is not IMTPStorageItem)
                 {
-                    try
+                    DelayTooltipCancellation?.Cancel();
+                    DelayTooltipCancellation?.Dispose();
+                    DelayTooltipCancellation = new CancellationTokenSource();
+
+                    Task.Delay(800).ContinueWith(async (task, input) =>
                     {
-                        if (input is CancellationToken Token && !Token.IsCancellationRequested)
+                        try
                         {
-                            TooltipFlyout.Hide();
-
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            if (input is CancellationToken Token && !Token.IsCancellationRequested)
                             {
-                                TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
+                                TooltipFlyout.Hide();
 
-                                if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
-                                    && !Token.IsCancellationRequested)
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
-                                    PointerPoint Point = e.GetCurrentPoint(SearchResultList);
+                                    TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
 
-                                    TooltipFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
+                                    if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
+                                        && !Token.IsCancellationRequested)
                                     {
-                                        Position = new Point(Point.Position.X, Point.Position.Y + 25),
-                                        ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
-                                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
-                                    });
+                                        PointerPoint Point = e.GetCurrentPoint(SearchResultList);
+
+                                        TooltipFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
+                                        {
+                                            Position = new Point(Point.Position.X, Point.Position.Y + 25),
+                                            ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
+                                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
+                                        });
+                                    }
                                 }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "An exception was threw when generate the tooltip flyout");
-                    }
-                }, DelayTooltipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "An exception was threw when generate the tooltip flyout");
+                        }
+                    }, DelayTooltipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
+                }
             }
         }
 
@@ -1234,7 +1239,35 @@ namespace RX_Explorer.View
 
                 if (ExecuteDelete)
                 {
-                    QueueTaskController.EnqueueDeleteOpeartion(PathList, PermanentDelete);
+                    OperationListDeleteModel Model = new OperationListDeleteModel(PathList, PermanentDelete);
+
+                    QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                    {
+                        EventDeferral Deferral = e.GetDeferral();
+
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        {
+                            try
+                            {
+                                foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                {
+                                    if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder)
+                                    {
+                                        foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(MTPFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                                        {
+                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
+                                        }
+                                    }
+                                }
+                            }
+                            finally
+                            {
+                                Deferral.Complete();
+                            }
+                        });
+                    });
+
+                    QueueTaskController.EnqueueDeleteOpeartion(Model);
                 }
             }
         }

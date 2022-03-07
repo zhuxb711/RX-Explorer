@@ -1525,7 +1525,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>RX no tiene permiso para descomprimir el archivo Zip aquí. Es posible que no tengas acceso a este archivo</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX no tiene permiso para renombrar</value>
+    <value>RX no tiene permiso para cambiar el nombre de este archivo</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>Algunos archivos o carpetas ya no existen; la operación de deshacer no se ha podido completar del todo.</value>
@@ -3460,5 +3460,14 @@ Las denominaciones no válidas son:
   </data>
   <data name="File_Admin_DisplayType" xml:space="preserve">
     <value>Archivar</value>
+  </data>
+  <data name="TaskList_OperationKind_Rename" xml:space="preserve">
+    <value>Renombrar tarea</value>
+  </data>
+  <data name="QueueDialog_CouldNotOpenImage_Content" xml:space="preserve">
+    <value>No se puede abrir este archivo de imagen</value>
+  </data>
+  <data name="QueueDialog_NotSupportedFile_Content" xml:space="preserve">
+    <value>Este tipo de archivo no es compatible</value>
   </data>
 </root>

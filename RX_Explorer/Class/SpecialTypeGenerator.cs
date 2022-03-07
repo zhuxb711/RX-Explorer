@@ -21,7 +21,7 @@ namespace RX_Explorer.Class
 {
     public sealed class SpecialTypeGenerator
     {
-        private static volatile SpecialTypeGenerator instance;
+        private static volatile SpecialTypeGenerator Instance;
 
         private static readonly object Locker = new object();
 
@@ -31,7 +31,7 @@ namespace RX_Explorer.Class
             {
                 lock (Locker)
                 {
-                    return instance ??= new SpecialTypeGenerator();
+                    return Instance ??= new SpecialTypeGenerator();
                 }
             }
         }
@@ -62,25 +62,27 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Sequential))
-                    using (ZipFile Zip = ZipFile.Create(Stream))
+                    using (Stream NewStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Sequential))
                     {
-                        Zip.BeginUpdate();
-                        Zip.CommitUpdate();
+                        using (ZipFile Zip = ZipFile.Create(NewStream))
+                        {
+                            Zip.IsStreamOwner = false;
+                            Zip.BeginUpdate();
+                            Zip.CommitUpdate();
+                        }
+
+                        await NewStream.FlushAsync();
                     }
 
                     return File;
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex);
-                    throw new UnauthorizedAccessException();
+                    LogTracer.Log(ex, "Could not create new Zip file");
                 }
             }
-            else
-            {
-                throw new UnauthorizedAccessException();
-            }
+
+            throw new UnauthorizedAccessException();
         }
 
         public async Task<FileSystemStorageFile> CreateRtfFile(FileSystemStorageFolder TargetFolder, string Name)
@@ -104,17 +106,20 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Sequential))
+                    using (Stream NewStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Sequential))
                     {
                         RichEditBox REB = new RichEditBox();
+                        
                         using (InMemoryRandomAccessStream MemoryStream = new InMemoryRandomAccessStream())
                         {
                             REB.Document.SaveToStream(Windows.UI.Text.TextGetOptions.FormatRtf, MemoryStream);
                             using (Stream TempStream = MemoryStream.AsStreamForRead())
                             {
-                                await TempStream.CopyToAsync(Stream);
+                                await TempStream.CopyToAsync(NewStream);
                             }
                         }
+
+                        await NewStream.FlushAsync();
                     }
 
                     return File;
@@ -122,13 +127,10 @@ namespace RX_Explorer.Class
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex);
-                    return null;
                 }
             }
-            else
-            {
-                throw new UnauthorizedAccessException();
-            }
+
+            throw new UnauthorizedAccessException();
         }
 
         public async Task<FileSystemStorageFile> CreateExcelFile(FileSystemStorageFolder TargetFolder, string Name)
@@ -152,10 +154,14 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Sequential))
-                    using (SpreadsheetDocument Document = SpreadsheetDocument.Create(FileStream, SpreadsheetDocumentType.Workbook))
+                    using (Stream NewStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Sequential))
                     {
-                        CreateExcelParts(Document);
+                        using (SpreadsheetDocument Document = SpreadsheetDocument.Create(NewStream, SpreadsheetDocumentType.Workbook))
+                        {
+                            CreateExcelParts(Document);
+                        }
+
+                        await NewStream.FlushAsync();
                     }
 
                     return File;
@@ -163,13 +169,10 @@ namespace RX_Explorer.Class
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex);
-                    return null;
                 }
             }
-            else
-            {
-                throw new UnauthorizedAccessException();
-            }
+
+            throw new UnauthorizedAccessException();
         }
 
         private void CreateExcelParts(SpreadsheetDocument document)

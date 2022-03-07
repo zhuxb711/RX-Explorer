@@ -134,7 +134,6 @@
                 </GridView.ItemsPanel>
             </GridView>
         </Grid>
-
         <controls:Loading x:Name="TranscodeLoadingControl"
                           IsLoading="False"
                           Grid.RowSpan="2">
@@ -146,11 +145,10 @@
             <StackPanel>
                 <TextBlock Text="正在保存..."
                            x:Uid="PhotoViewerSaveTips"
-                           Margin="10,0,0,0"
                            FontSize="16"
                            VerticalAlignment="Center"
                            TextAlignment="Center" />
-                <muxc:ProgressBar Width="150"
+                <muxc:ProgressBar Width="180"
                                   Margin="0,10,0,0"
                                   IsIndeterminate="True" />
             </StackPanel>

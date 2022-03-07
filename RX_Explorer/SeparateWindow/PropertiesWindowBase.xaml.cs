@@ -188,8 +188,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             ShortcutWindowsStateContent.SelectedIndex = 0;
 
             Window.Closed += Window_Closed;
+            Window.CloseRequested += Window_CloseRequested;
 
             Loading += PropertiesWindow_Loading;
+        }
+
+        private void Window_CloseRequested(AppWindow sender, AppWindowCloseRequestedEventArgs args)
+        {
+            AppWindowPlacement Placement = Window.GetPlacement();
+            ApplicationData.Current.LocalSettings.Values["PropertyWindowSizeConfiguration"] = JsonSerializer.Serialize(new WindowSizeConfiguration(Placement.Size.Height, Placement.Size.Width));
         }
 
         private PropertiesWindowBase(AppWindow Window, DriveDataBase RootDrive) : this(Window)
@@ -715,8 +722,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             try
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRegion = await FullTrustProcessController.GetProcessSharedRegionAsync())
-                using (DisposableNotification Disposable = StorageItem.SetProcessRefShareRegion(SharedRegion))
+                using (EndOfShareNotification Disposable = await FileSystemStorageItemBase.SetBulkAccessSharedControllerAsync(StorageItem))
                 {
                     Dictionary<string, object> BasicPropertiesDictionary = new Dictionary<string, object>(10)
                     {
@@ -1204,7 +1210,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FolderSizeContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
                                     FolderContainsContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
                                     FolderLocationContent.Text = Path.GetDirectoryName(Folder.Path) ?? Folder.Path;
-                                    FolderCreatedContent.Text = Folder.CreationTime.ToString("F");
+                                    FolderCreatedContent.Text = Folder.CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || Folder.CreationTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : Folder.CreationTime.ToString("F");
                                     FolderHiddenAttribute.IsChecked = Folder is IHiddenStorageItem;
                                     FolderReadonlyAttribute.IsChecked = null;
                                     FolderHiddenAttribute.IsEnabled = Folder is not IMTPStorageItem;
@@ -1250,8 +1256,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileReadonlyAttribute.IsChecked = File.IsReadOnly;
                                     FileSizeContent.Text = $"{File.SizeDescription} ({File.Size:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
                                     FileLocationContent.Text = Path.GetDirectoryName(File.Path) ?? File.Path;
-                                    FileCreatedContent.Text = File.CreationTime.ToString("F");
-                                    FileModifiedContent.Text = File.ModifiedTime.ToString("F");
+                                    FileCreatedContent.Text = File.CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || File.CreationTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.CreationTime.ToString("F");
+                                    FileModifiedContent.Text = File.ModifiedTime == DateTimeOffset.MaxValue.ToLocalTime() || File.ModifiedTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.ModifiedTime.ToString("F");
                                     FileHiddenAttribute.IsChecked = File is IHiddenStorageItem;
                                     FileHiddenAttribute.IsEnabled = File is not IMTPStorageItem;
                                     FileReadonlyAttribute.IsEnabled = File is not IMTPStorageItem;
@@ -1636,7 +1642,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 await TabViewContainer.Current.CreateNewTabAsync(new string[] { Path.GetDirectoryName(Link.LinkTargetPath) });
 
-                if (TabViewContainer.Current.TabCollection.LastOrDefault()?.Content is TabItemContentRenderer Renderer)
+                if (TabViewContainer.Current.TabCollection.LastOrDefault()?.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
                 {
                     for (int Retry = 0; Retry < 5; Retry++)
                     {

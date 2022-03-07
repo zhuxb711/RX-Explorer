@@ -161,7 +161,7 @@ namespace RX_Explorer.Class
 
                                 for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 50)
                                 {
-                                    IReadOnlyList<IStorageItem> ReadOnlyItemList = (await Task.WhenAny(Query.GetItemsAsync(Index, 50).AsTask(), CancelCompletionSource.Task)).Result;
+                                    IReadOnlyList<IStorageItem> ReadOnlyItemList = await await Task.WhenAny(Query.GetItemsAsync(Index, 50).AsTask(), CancelCompletionSource.Task);
 
                                     if (ReadOnlyItemList.Count > 0)
                                     {
@@ -213,31 +213,31 @@ namespace RX_Explorer.Class
                 try
                 {
                     Result.AddRange(await Task.Run(() => NativeWin32API.Search(Path,
-                                                                                 SearchWord,
-                                                                                 IncludeHiddenItems,
-                                                                                 IncludeSystemItems,
-                                                                                 IsRegexExpression,
-                                                                                 IgnoreCase,
-                                                                                 CancelToken)).ContinueWith((PreviousTask) =>
-                                                                                 {
-                                                                                     if (PreviousTask.IsFaulted)
-                                                                                     {
-                                                                                         if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is LocationNotAvailableException))
-                                                                                         {
-                                                                                             return SearchInUwpApiAsync(Path, false).Result;
-                                                                                         }
-                                                                                         else if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is DirectoryNotFoundException))
-                                                                                         {
-                                                                                             LogTracer.Log(PreviousTask.Exception.InnerExceptions.FirstOrDefault() ?? new Exception(), $"Path not found");
-                                                                                         }
+                                                                               SearchWord,
+                                                                               IncludeHiddenItems,
+                                                                               IncludeSystemItems,
+                                                                               IsRegexExpression,
+                                                                               IgnoreCase,
+                                                                               CancelToken)).ContinueWith((PreviousTask) =>
+                                                                               {
+                                                                                   if (PreviousTask.IsFaulted)
+                                                                                   {
+                                                                                       if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is LocationNotAvailableException))
+                                                                                       {
+                                                                                           return SearchInUwpApiAsync(Path, false).Result;
+                                                                                       }
+                                                                                       else if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is DirectoryNotFoundException))
+                                                                                       {
+                                                                                           LogTracer.Log(PreviousTask.Exception.InnerExceptions.FirstOrDefault() ?? new Exception(), $"Path not found");
+                                                                                       }
 
-                                                                                         return new List<FileSystemStorageItemBase>(0);
-                                                                                     }
-                                                                                     else
-                                                                                     {
-                                                                                         return PreviousTask.Result;
-                                                                                     }
-                                                                                 }));
+                                                                                       return new List<FileSystemStorageItemBase>(0);
+                                                                                   }
+                                                                                   else
+                                                                                   {
+                                                                                       return PreviousTask.Result;
+                                                                                   }
+                                                                               }));
 
                     if (SearchInSubFolders)
                     {

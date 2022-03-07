@@ -21,7 +21,7 @@ namespace RX_Explorer.Class
 
         public async Task<UrlFileData> GetRawDataAsync()
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
             {
                 if (ControllerRef != null)
                 {

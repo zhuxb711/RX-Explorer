@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Interface;
 using System;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -28,6 +29,18 @@ namespace RX_Explorer.Class
                 {
                     return ModifiedTime.ToString("G");
                 }
+            }
+        }
+
+        public override Task<IStorageItem> GetStorageItemAsync()
+        {
+            if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
+            {
+                return Task.FromResult<IStorageItem>(null);
+            }
+            else
+            {
+                return base.GetStorageItemAsync();
             }
         }
 

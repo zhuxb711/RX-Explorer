@@ -2,6 +2,7 @@
 using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -67,7 +68,7 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
             {
                 if (ControllerRef != null)
                 {
@@ -77,7 +78,7 @@ namespace RX_Explorer.Class
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        InnerDisplayType = await ControllerRef.Value.Controller.GetFriendlyTypeNameAsync(Type);
+                        InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
                     }
                 }
             }
@@ -98,17 +99,38 @@ namespace RX_Explorer.Class
                 _ => throw new NotSupportedException()
             };
 
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-            {
-                SafeFileHandle Handle = await Exclusive.Controller.MTPDownloadAndGetHandleAsync(Path, Mode, Option);
+            SafeFileHandle Handle;
 
-                if ((Handle?.IsInvalid).GetValueOrDefault(true))
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+            {
+                if (ControllerRef != null)
                 {
-                    throw new UnauthorizedAccessException($"Could not create a new file stream, Path: \"{Path}\"");
+                    Handle = await ControllerRef.Value.Controller.MTPDownloadAndGetHandleAsync(Path, Mode, Option);
                 }
                 else
                 {
-                    return new FileStream(Handle, Access);
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        Handle = await Exclusive.Controller.MTPDownloadAndGetHandleAsync(Path, Mode, Option);
+                    }
+                }
+            }
+
+            if ((Handle?.IsInvalid).GetValueOrDefault(true))
+            {
+                throw new UnauthorizedAccessException($"Could not create a new file stream, Path: \"{Path}\"");
+            }
+            else
+            {
+                FileStream Stream = new FileStream(Handle, Access, 4096, true);
+
+                if (Access is FileAccess.Read)
+                {
+                    return Stream;
+                }
+                else
+                {
+                    return new MTPFileReadWriteStream(Path, Stream);
                 }
             }
         }
@@ -126,6 +148,11 @@ namespace RX_Explorer.Class
             }
 
             return null;
+        }
+
+        public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
+        {
+            return Task.FromResult<IReadOnlyDictionary<string, string>>(new Dictionary<string, string>(Properties.Select((Prop) => new KeyValuePair<string, string>(Prop, string.Empty))));
         }
 
         public override async Task<IStorageItem> GetStorageItemAsync()
@@ -146,7 +173,7 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
-                else if (StorageDevice.FromId(DeviceId) is StorageFolder RootFolder)
+                else if (await Task.Run(() => StorageDevice.FromId(DeviceId)) is StorageFolder RootFolder)
                 {
                     return StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFile>(new PathAnalysis(Path, DeviceId));
                 }
@@ -159,7 +186,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
                 {
                     if (ControllerRef != null)
                     {

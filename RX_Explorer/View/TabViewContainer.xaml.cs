@@ -772,7 +772,7 @@ namespace RX_Explorer.View
                 }
             }
 
-            Tab.Content = new TabItemContentRenderer(Tab, ValidPathArray.ToArray());
+            Tab.Content = new Frame { Content = new TabItemContentRenderer(Tab, ValidPathArray.ToArray()) };
 
             return Tab;
         }
@@ -877,7 +877,7 @@ namespace RX_Explorer.View
             {
                 TaskBarController.SetText(Convert.ToString(Item.Header));
 
-                if (Item.Content is TabItemContentRenderer Renderer)
+                if (Item.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
                 {
                     CurrentTabRenderer = Renderer;
 
@@ -911,7 +911,7 @@ namespace RX_Explorer.View
         {
             args.Data.RequestedOperation = DataPackageOperation.Copy;
 
-            if (args.Tab.Content is TabItemContentRenderer Renderer)
+            if (args.Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
             {
                 if (Renderer.RendererFrame.Content is Home)
                 {
@@ -1024,7 +1024,7 @@ namespace RX_Explorer.View
             {
                 if (TabCollection.Remove(Tab))
                 {
-                    if (Tab.Content is TabItemContentRenderer Renderer)
+                    if (Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
                     {
                         while (Renderer.RendererFrame.CanGoBack)
                         {
@@ -1124,7 +1124,7 @@ namespace RX_Explorer.View
 
         private void TaskListPanelButton_Click(object sender, RoutedEventArgs e)
         {
-            if (TabViewControl.SelectedItem is TabViewItem Tab && Tab.Content is TabItemContentRenderer Renderer)
+            if (TabViewControl.SelectedItem is TabViewItem Tab && Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
             {
                 Renderer.SetPanelOpenStatus(true);
             }

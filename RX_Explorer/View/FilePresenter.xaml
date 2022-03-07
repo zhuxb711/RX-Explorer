@@ -116,11 +116,19 @@
             <controls:Case IsDefault="True">
                 <Grid PointerWheelChanged="Presenter_PointerWheelChanged">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition />
                         <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
 
-                    <controls:SwitchPresenter Name="ViewModeSwitcher">
+                    <muxc:ProgressBar IsIndeterminate="True"
+                                      Height="4"
+                                      HorizontalAlignment="Stretch"
+                                      Visibility="Collapsed"
+                                      Name="FileLoadProgress"/>
+
+                    <controls:SwitchPresenter Name="ViewModeSwitcher"
+                                              Grid.Row="1">
                         <controls:Case Value="GridViewTilesControl">
                             <SemanticZoom>
                                 <SemanticZoom.ZoomedInView>
@@ -1508,15 +1516,16 @@
                                VerticalAlignment="Center"
                                x:Uid="HasFile"
                                Text="无文件"
+                               Grid.Row="1"
                                FontSize="18"
                                Visibility="Collapsed" />
-                    <Canvas>
+                    <Canvas Grid.Row="1">
                         <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
                                    Stroke="{ThemeResource SystemAccentColorLight2}"
                                    x:Name="DrawRectangle"
                                    Opacity="0.4" />
                     </Canvas>
-                    <StackPanel Grid.Row="1"
+                    <StackPanel Grid.Row="2"
                                 VerticalAlignment="Bottom">
                         <TextBlock x:Name="StatusTips"
                                    x:FieldModifier="public"

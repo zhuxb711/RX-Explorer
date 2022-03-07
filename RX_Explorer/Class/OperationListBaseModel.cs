@@ -7,7 +7,7 @@ using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
 {
-    public abstract class OperationListBaseModel : INotifyPropertyChanged
+    public abstract class OperationListBaseModel : INotifyPropertyChanged, IDisposable
     {
         public abstract string OperationKindText { get; }
 
@@ -16,7 +16,6 @@ namespace RX_Explorer.Class
         public abstract string ToDescription { get; }
 
         public int Progress { get; private set; }
-
         public string ProgressSpeed { get; private set; }
 
         public string RemainingTime { get; private set; }
@@ -80,6 +79,8 @@ namespace RX_Explorer.Class
         public bool ProgressPause { get; private set; }
 
         public abstract bool CanBeCancelled { get; }
+
+        public CancellationTokenSource Cancellation { get; }
 
         public Visibility RemoveButtonVisibility { get; private set; }
 
@@ -156,8 +157,6 @@ namespace RX_Explorer.Class
                             CancelButtonVisibility = Visibility.Collapsed;
                             SpeedAndTimeVisibility = Visibility.Collapsed;
                             ActionButtonAreaVisibility = Visibility.Collapsed;
-
-                            OnErrorThrow?.Invoke(this, null);
                             break;
                         }
                     case OperationStatus.Cancelling:
@@ -169,7 +168,7 @@ namespace RX_Explorer.Class
                             SpeedAndTimeVisibility = Visibility.Collapsed;
                             ActionButtonAreaVisibility = Visibility.Collapsed;
 
-                            OnCancelRequested?.Invoke(this, null);
+                            Cancellation?.Cancel();
                             break;
                         }
                     case OperationStatus.Cancelled:
@@ -180,8 +179,6 @@ namespace RX_Explorer.Class
                             CancelButtonVisibility = Visibility.Collapsed;
                             SpeedAndTimeVisibility = Visibility.Collapsed;
                             ActionButtonAreaVisibility = Visibility.Collapsed;
-
-                            OnCancelled?.Invoke(this, null);
                             break;
                         }
                     case OperationStatus.Completed:
@@ -194,8 +191,6 @@ namespace RX_Explorer.Class
                             ActionButtonAreaVisibility = Visibility.Collapsed;
 
                             UpdateProgress(100);
-
-                            OnCompleted?.Invoke(this, null);
                             break;
                         }
                 }
@@ -226,15 +221,14 @@ namespace RX_Explorer.Class
 
         private string Message;
         private short ActionButtonIndex = -1;
+        private ProgressCalculator Calculator;
 
-        private event EventHandler OnCompleted;
-        private event EventHandler OnErrorThrow;
-        private event EventHandler OnCancelled;
-        public event EventHandler OnCancelRequested;
+        public async Task PrepareSizeDataAsync(CancellationToken Token)
+        {
+            Calculator = await PrepareSizeDataCoreAsync(Token);
+        }
 
-        protected ProgressCalculator Calculator;
-
-        public abstract Task PrepareSizeDataAsync(CancellationToken Token);
+        protected abstract Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token);
 
         public void UpdateProgress(int NewProgress)
         {
@@ -306,18 +300,29 @@ namespace RX_Explorer.Class
             }
         }
 
-        public OperationListBaseModel(EventHandler OnCompleted, EventHandler OnErrorThrow, EventHandler OnCancelled)
+        public void Dispose()
         {
+            GC.SuppressFinalize(this);
+            Cancellation?.Dispose();
+        }
+
+        public OperationListBaseModel()
+        {
+            ProgressIndeterminate = true;
             Status = OperationStatus.Waiting;
             RemoveButtonVisibility = Visibility.Collapsed;
             ActionButtonAreaVisibility = Visibility.Collapsed;
             SpeedAndTimeVisibility = Visibility.Collapsed;
 
-            ProgressIndeterminate = true;
+            if (CanBeCancelled)
+            {
+                Cancellation = new CancellationTokenSource();
+            }
+        }
 
-            this.OnCompleted = OnCompleted;
-            this.OnErrorThrow = OnErrorThrow;
-            this.OnCancelled = OnCancelled;
+        ~OperationListBaseModel()
+        {
+            Dispose();
         }
     }
 }

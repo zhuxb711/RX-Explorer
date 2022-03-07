@@ -70,6 +70,11 @@ namespace RX_Explorer.View
             TaskListPanel.IsPaneOpen = IsOpened;
         }
 
+        public void SetLoadingTipsStatus(bool ShowTips)
+        {
+            LoadingControl.IsLoading = ShowTips;
+        }
+
         public async Task SetTreeViewStatusAsync(bool IsOpened)
         {
             if (BaseControl.CurrentPresenter?.CurrentFolder != null)

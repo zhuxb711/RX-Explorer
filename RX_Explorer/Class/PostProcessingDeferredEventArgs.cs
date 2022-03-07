@@ -4,11 +4,14 @@ namespace RX_Explorer.Class
 {
     public sealed class PostProcessingDeferredEventArgs : DeferredEventArgs
     {
-        public string OriginPath { get; }
+        public OperationStatus Status { get; }
 
-        public PostProcessingDeferredEventArgs(string OriginPath)
+        public object Parameter { get; }
+
+        public PostProcessingDeferredEventArgs(OperationStatus Status, object Parameter)
         {
-            this.OriginPath = OriginPath;
+            this.Status = Status;
+            this.Parameter = Parameter;
         }
     }
 }

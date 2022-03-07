@@ -129,12 +129,12 @@ namespace FullTrustProcess
                 byte[] DataBuffer = new byte[4096];
 
                 int ProgressValue = 0;
-                int bytesRead = 0;
+                int BytesRead = 0;
 
-                while ((bytesRead = From.Read(DataBuffer, 0, DataBuffer.Length)) > 0)
+                while ((BytesRead = From.Read(DataBuffer, 0, DataBuffer.Length)) > 0)
                 {
-                    To.Write(DataBuffer, 0, bytesRead);
-                    TotalBytesRead += bytesRead;
+                    To.Write(DataBuffer, 0, BytesRead);
+                    TotalBytesRead += BytesRead;
 
                     if (TotalBytesLength > 1024 * 1024)
                     {
@@ -143,25 +143,25 @@ namespace FullTrustProcess
                         if (LatestValue > ProgressValue)
                         {
                             ProgressValue = LatestValue;
-                            ProgressHandler.Invoke(null, new ProgressChangedEventArgs(LatestValue, null));
+                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(LatestValue, null));
                         }
                     }
 
                     CancelToken.ThrowIfCancellationRequested();
                 }
-
-                ProgressHandler.Invoke(null, new ProgressChangedEventArgs(100, null));
-
-                To.Flush();
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                LogTracer.Log(ex, "Could not track the progress of coping the stream");
                 From.CopyTo(To);
+            }
+            finally
+            {
+                To.Flush();
+                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
             }
         }
 
-        public static void ForEach<T>(this IEnumerable<T> Source, Action<T> Action)
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> Source, Action<T> Action)
         {
             if (Source == null)
             {
@@ -176,6 +176,8 @@ namespace FullTrustProcess
             {
                 Action(item);
             }
+
+            return Source;
         }
     }
 }

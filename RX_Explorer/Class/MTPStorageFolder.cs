@@ -4,6 +4,7 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Portable;
@@ -65,7 +66,7 @@ namespace RX_Explorer.Class
             {
                 if (Path.Equals(DeviceId, StringComparison.OrdinalIgnoreCase))
                 {
-                    return StorageItem = StorageDevice.FromId(DeviceId);
+                    return StorageItem = await Task.Run(() => StorageDevice.FromId(DeviceId));
                 }
                 else if (ParentFolder != null)
                 {
@@ -77,7 +78,7 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
-                else if (StorageDevice.FromId(DeviceId) is StorageFolder RootFolder)
+                else if (await Task.Run(() => StorageDevice.FromId(DeviceId)) is StorageFolder RootFolder)
                 {
                     return StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFolder>(new PathAnalysis(Path, DeviceId));
                 }
@@ -88,7 +89,7 @@ namespace RX_Explorer.Class
 
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
         {
-            return Task.FromResult<IReadOnlyDictionary<string, string>>(new Dictionary<string, string>());
+            return Task.FromResult<IReadOnlyDictionary<string, string>>(new Dictionary<string, string>(Properties.Select((Prop) => new KeyValuePair<string, string>(Prop, string.Empty))));
         }
 
         public override async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems = false,
@@ -117,6 +118,27 @@ namespace RX_Explorer.Class
             }
 
             return Result;
+        }
+
+        public override async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord,
+                                                                                         bool SearchInSubFolders = false,
+                                                                                         bool IncludeHiddenItems = false,
+                                                                                         bool IncludeSystemItems = false,
+                                                                                         bool IsRegexExpression = false,
+                                                                                         bool IsAQSExpression = false,
+                                                                                         bool UseIndexerOnly = false,
+                                                                                         bool IgnoreCase = true,
+                                                                                         CancellationToken CancelToken = default)
+        {
+            if (IsAQSExpression)
+            {
+                throw new ArgumentException($"{nameof(IsAQSExpression)} is not supported");
+            }
+
+            IReadOnlyList<FileSystemStorageItemBase> Result = await GetChildItemsAsync(IncludeHiddenItems, IncludeSystemItems, SearchInSubFolders, CancelToken: CancelToken);
+
+            return IsRegexExpression ? Result.Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None)).ToList()
+                                     : Result.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).ToList();
         }
 
         public override async Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, StorageItemTypes ItemTypes, CreateOption Option)
@@ -176,7 +198,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
                 {
                     if (ControllerRef != null)
                     {
