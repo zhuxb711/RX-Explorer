@@ -190,7 +190,7 @@ namespace RX_Explorer.View
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    FileCollection.AddRange(SortCollectionGenerator.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending));
+                    FileCollection.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending));
                 }
 
                 if (FileCollection.Count == 0)
@@ -435,7 +435,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void ListHeader_Click(object sender, RoutedEventArgs e)
+        private async void ListHeader_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button Btn)
             {
@@ -459,7 +459,7 @@ namespace RX_Explorer.View
                     CurrentSortDirection = SortDirection.Ascending;
                 }
 
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, CurrentSortTarget, CurrentSortDirection).ToArray();
+                IReadOnlyList<IRecycleStorageItem> SortResult = new List<IRecycleStorageItem>(await SortCollectionGenerator.GetSortedCollectionAsync(FileCollection, CurrentSortTarget, CurrentSortDirection));
 
                 FileCollection.Clear();
 
@@ -642,7 +642,7 @@ namespace RX_Explorer.View
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    foreach (IRecycleStorageItem Item in SortCollectionGenerator.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending))
+                    foreach (IRecycleStorageItem Item in await SortCollectionGenerator.GetSortedCollectionAsync(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending))
                     {
                         FileCollection.Add(Item);
                     }

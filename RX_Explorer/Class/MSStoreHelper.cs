@@ -47,44 +47,21 @@ namespace RX_Explorer.Class
                     {
                         if (License != null)
                         {
-                            if ((License.AddOnLicenses?.Any((Item) => Item.Value.InAppOfferToken == "Donation")).GetValueOrDefault())
+                            if ((License.AddOnLicenses?.Any((Item) => Item.Value.InAppOfferToken == "Donation")).GetValueOrDefault()
+                                || License.IsActive && !License.IsTrial)
                             {
                                 ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
                                 return true;
                             }
-                            else
-                            {
-                                if (License.IsActive)
-                                {
-                                    if (License.IsTrial)
-                                    {
-                                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
-                                        return false;
-                                    }
-                                    else
-                                    {
-                                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                                        return true;
-                                    }
-                                }
-                                else
-                                {
-                                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
-                                    return false;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
-                            return false;
                         }
                     }
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, $"{nameof(CheckPurchaseStatusAsync)} threw an exception");
-                        return false;
                     }
+
+                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
+                    return false;
                 });
             }
         }
@@ -193,30 +170,33 @@ namespace RX_Explorer.Class
 
         public Task PreLoadStoreData()
         {
-            return PreLoadTask ??= Task.Factory.StartNew(() =>
+            lock (Locker)
             {
-                try
+                return PreLoadTask ??= Task.Factory.StartNew(() =>
                 {
-                    Store = StoreContext.GetDefault();
-                    Store.OfflineLicensesChanged += Store_OfflineLicensesChanged;
+                    try
+                    {
+                        Store = StoreContext.GetDefault();
+                        Store.OfflineLicensesChanged += Store_OfflineLicensesChanged;
 
-                    License = Store.GetAppLicenseAsync().AsTask().Result;
-                    ProductResult = Store.GetStoreProductForCurrentAppAsync().AsTask().Result;
+                        License = Store.GetAppLicenseAsync().AsTask().Result;
+                        ProductResult = Store.GetStoreProductForCurrentAppAsync().AsTask().Result;
 
 #if DEBUG
-                    Updates = new List<StorePackageUpdate>(0);
+                        Updates = new List<StorePackageUpdate>(0);
 #else
-                    if (Windows.ApplicationModel.Package.Current.SignatureKind == Windows.ApplicationModel.PackageSignatureKind.Store)
-                    {
-                        Updates = Store.GetAppAndOptionalStorePackageUpdatesAsync().AsTask().Result;
-                    }
+                        if (Windows.ApplicationModel.Package.Current.SignatureKind == Windows.ApplicationModel.PackageSignatureKind.Store)
+                        {
+                            Updates = Store.GetAppAndOptionalStorePackageUpdatesAsync().AsTask().Result;
+                        }
 #endif
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not load MSStore data");
-                }
-            }, TaskCreationOptions.LongRunning);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not load MSStore data");
+                    }
+                }, TaskCreationOptions.LongRunning);
+            }
         }
 
         private MSStoreHelper()

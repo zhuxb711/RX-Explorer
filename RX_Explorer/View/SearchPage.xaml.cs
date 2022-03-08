@@ -60,11 +60,11 @@ namespace RX_Explorer.View
             PointerReleasedEventHandler = new PointerEventHandler(ViewControl_PointerReleased);
         }
 
-        private void Filter_RefreshListRequested(object sender, RefreshRequestedEventArgs e)
+        private async void Filter_RefreshListRequested(object sender, RefreshRequestedEventArgs e)
         {
             SearchResult.Clear();
 
-            foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.GetSortedCollection(e.FilterCollection, STarget, SDirection))
+            foreach (FileSystemStorageItemBase Item in await SortCollectionGenerator.GetSortedCollectionAsync(e.FilterCollection, STarget, SDirection))
             {
                 SearchResult.Add(Item);
             }
@@ -280,7 +280,7 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.GetSortedCollection(Result, SortTarget.Name, SortDirection.Ascending))
+                                foreach (FileSystemStorageItemBase Item in await SortCollectionGenerator.GetSortedCollectionAsync(Result, SortTarget.Name, SortDirection.Ascending))
                                 {
                                     if (SearchCancellation.IsCancellationRequested)
                                     {
@@ -311,7 +311,7 @@ namespace RX_Explorer.View
                                 }
                                 else
                                 {
-                                    SearchResult.AddRange(SortCollectionGenerator.GetSortedCollection(SearchItems, SortTarget.Name, SortDirection.Ascending));
+                                    SearchResult.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(SearchItems, SortTarget.Name, SortDirection.Ascending));
                                 }
                             }
 
@@ -730,7 +730,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void ListHeader_Click(object sender, RoutedEventArgs e)
+        private async void ListHeader_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button Btn)
             {
@@ -756,7 +756,7 @@ namespace RX_Explorer.View
 
                 ListViewDetailHeader.Indicator.SetIndicatorStatus(STarget, SDirection);
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, STarget, SDirection).ToArray();
+                IReadOnlyList<FileSystemStorageItemBase> SortResult = new List<FileSystemStorageItemBase>(await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult, STarget, SDirection));
 
                 SearchResult.Clear();
 

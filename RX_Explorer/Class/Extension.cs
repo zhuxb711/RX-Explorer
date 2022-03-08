@@ -353,8 +353,9 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Could not get file handle from COMInterface, path: \"{Item.Path}\"");
-                return new SafeFileHandle(IntPtr.Zero, true);
             }
+
+            return new SafeFileHandle(IntPtr.Zero, true);
         }
 
         public static async Task ShowCommandBarFlyoutWithExtraContextMenuItems(this CommandBarFlyout Flyout, FrameworkElement RelatedTo, Point ShowAt, CancellationToken CancelToken, params string[] PathArray)
@@ -416,96 +417,12 @@ namespace RX_Explorer.Class
                 });
             }
 
-            if (SettingPage.ContextMenuExtensionEnabled && PathArray.All((Path) => !Path.StartsWith(@"\\?\")))
+            if (SettingPage.ContextMenuExtensionEnabled)
             {
                 try
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
-
-                        if (!CancelToken.IsCancellationRequested && ExtraMenuItems.Count > 0)
-                        {
-                            async void ClickHandler(object sender, RoutedEventArgs args)
-                            {
-                                if (sender is FrameworkElement Btn && Btn.Tag is ContextMenuItem MenuItem)
-                                {
-                                    Flyout.Hide();
-
-                                    if (!await MenuItem.InvokeAsync())
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_InvokeContextMenuError_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        await Dialog.ShowAsync();
-                                    }
-                                }
-                            }
-
-                            short ShowExtNum = 0;
-
-                            if (Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Any((Item) => Item.Name == "Decompression"))
-                            {
-                                ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count(), 0));
-                            }
-                            else
-                            {
-                                ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count() + 1, 0));
-                            }
-
-                            int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
-
-                            if (ExtraMenuItems.Count > ShowExtNum + 1)
-                            {
-                                IEnumerable<AppBarButton> ShowExtItem = await Task.WhenAll(ExtraMenuItems.Take(ShowExtNum).Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
-                                IEnumerable<MenuFlyoutItemBase> FlyoutItems = await ContextMenuItem.GenerateSubMenuItemsAsync(ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler);
-
-                                if (!CancelToken.IsCancellationRequested)
-                                {
-                                    CleanUpContextMenuExtensionItems();
-
-                                    Flyout.SecondaryCommands.Insert(Index, new AppBarSeparator { Name = "CustomSep" });
-
-                                    foreach (AppBarButton AddItem in ShowExtItem)
-                                    {
-                                        Flyout.SecondaryCommands.Insert(Index, AddItem);
-                                    }
-
-                                    MenuFlyout MoreFlyout = new MenuFlyout();
-                                    MoreFlyout.Items.AddRange(FlyoutItems);
-
-                                    Flyout.SecondaryCommands.Insert(Index + ShowExtNum, new AppBarButton
-                                    {
-                                        Label = Globalization.GetString("CommandBarFlyout_More_Item"),
-                                        Icon = new SymbolIcon(Symbol.More),
-                                        Name = "ExtraButton",
-                                        FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
-                                        Width = 320,
-                                        Flyout = MoreFlyout
-                                    });
-                                }
-                            }
-                            else
-                            {
-                                IEnumerable<AppBarButton> ShowExtItem = await Task.WhenAll(ExtraMenuItems.Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
-
-                                if (!CancelToken.IsCancellationRequested)
-                                {
-                                    foreach (AppBarButton AddItem in ShowExtItem)
-                                    {
-                                        Flyout.SecondaryCommands.Insert(Index, AddItem);
-                                    }
-
-
-                                    Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
-                                }
-                            }
-                        }
-
                         if (PathArray.Length == 1
                             && Flyout.SecondaryCommands.OfType<AppBarButton>()
                                                        .FirstOrDefault((Item) => Item.Name == "OpenWithButton")?.Flyout is MenuFlyout OpenWithFlyout)
@@ -640,7 +557,12 @@ namespace RX_Explorer.Class
 
                                 string DefaultProgramPath = SQLite.Current.GetDefaultProgramPickerRecord(Path.GetExtension(PathArray.First()));
 
-                                if (!string.IsNullOrEmpty(DefaultProgramPath) && !ProgramPickerItem.InnerViewer.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase))
+                                if (!string.IsNullOrEmpty(DefaultProgramPath)
+                                    && !ProgramPickerItem.InnerViewer.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase)
+                                    && OpenWithFlyout.Items.OfType<FrameworkElement>()
+                                                           .Select((Item) => ((string, ProgramPickerItem))Item.Tag)
+                                                           .Select((Item) => Item.Item2)
+                                                           .All((Item) => !Item.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase)))
                                 {
                                     OpenWithFlyout.Items.Insert(0, await GenerateOpenWithItemAsync(DefaultProgramPath));
                                 }
@@ -648,6 +570,93 @@ namespace RX_Explorer.Class
                                 if (OpenWithFlyout.Items.Count > 2)
                                 {
                                     OpenWithFlyout.Items.Insert(OpenWithFlyout.Items.Count - 2, new MenuFlyoutSeparator());
+                                }
+                            }
+                        }
+
+                        if (PathArray.All((Path) => !Path.StartsWith(@"\\?\")))
+                        {
+                            IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
+
+                            if (!CancelToken.IsCancellationRequested && ExtraMenuItems.Count > 0)
+                            {
+                                async void ClickHandler(object sender, RoutedEventArgs args)
+                                {
+                                    if (sender is FrameworkElement Btn && Btn.Tag is ContextMenuItem MenuItem)
+                                    {
+                                        Flyout.Hide();
+
+                                        if (!await MenuItem.InvokeAsync())
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_InvokeContextMenuError_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            await Dialog.ShowAsync();
+                                        }
+                                    }
+                                }
+
+                                short ShowExtNum = 0;
+
+                                if (Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Any((Item) => Item.Name == "Decompression"))
+                                {
+                                    ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count(), 0));
+                                }
+                                else
+                                {
+                                    ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count() + 1, 0));
+                                }
+
+                                int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
+
+                                if (ExtraMenuItems.Count > ShowExtNum + 1)
+                                {
+                                    IEnumerable<AppBarButton> ShowExtItem = await Task.WhenAll(ExtraMenuItems.Take(ShowExtNum).Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
+                                    IEnumerable<MenuFlyoutItemBase> FlyoutItems = await ContextMenuItem.GenerateSubMenuItemsAsync(ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler);
+
+                                    if (!CancelToken.IsCancellationRequested)
+                                    {
+                                        CleanUpContextMenuExtensionItems();
+
+                                        Flyout.SecondaryCommands.Insert(Index, new AppBarSeparator { Name = "CustomSep" });
+
+                                        foreach (AppBarButton AddItem in ShowExtItem)
+                                        {
+                                            Flyout.SecondaryCommands.Insert(Index, AddItem);
+                                        }
+
+                                        MenuFlyout MoreFlyout = new MenuFlyout();
+                                        MoreFlyout.Items.AddRange(FlyoutItems);
+
+                                        Flyout.SecondaryCommands.Insert(Index + ShowExtNum, new AppBarButton
+                                        {
+                                            Label = Globalization.GetString("CommandBarFlyout_More_Item"),
+                                            Icon = new SymbolIcon(Symbol.More),
+                                            Name = "ExtraButton",
+                                            FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
+                                            Width = 320,
+                                            Flyout = MoreFlyout
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    IEnumerable<AppBarButton> ShowExtItem = await Task.WhenAll(ExtraMenuItems.Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
+
+                                    if (!CancelToken.IsCancellationRequested)
+                                    {
+                                        foreach (AppBarButton AddItem in ShowExtItem)
+                                        {
+                                            Flyout.SecondaryCommands.Insert(Index, AddItem);
+                                        }
+
+
+                                        Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
+                                    }
                                 }
                             }
                         }
@@ -762,23 +771,48 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static IEnumerable<T> OrderByLikeFileSystem<T>(this IEnumerable<T> Input, Func<T, string> GetString, SortDirection Direction)
+        public static async Task<IEnumerable<T>> OrderByNaturalStringSortAlgorithmAsync<T>(this IEnumerable<T> Input, Func<T, string> StringSelector, SortDirection Direction)
         {
             if (Input.Any())
             {
-                if (Direction == SortDirection.Ascending)
+                try
                 {
-                    return Input.OrderBy((Item) => GetString(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        return await Exclusive.Controller.OrderByNaturalStringSortAlgorithmAsync(Input, StringSelector, Direction);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    return Input.OrderByDescending((Item) => GetString(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
+                    LogTracer.Log(ex, "Could not order the string with natural algorithm");
                 }
             }
-            else
+
+            return Input;
+        }
+
+        public static IEnumerable<T> OrderByFastStringSortAlgorithm<T>(this IEnumerable<T> Input, Func<T, string> StringSelector, SortDirection Direction)
+        {
+            if (Input.Any())
             {
-                return Input;
+                try
+                {
+                    if (Direction == SortDirection.Ascending)
+                    {
+                        return Input.OrderBy((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
+                    }
+                    else
+                    {
+                        return Input.OrderByDescending((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not order the string with natural algorithm");
+                }
             }
+
+            return Input;
         }
 
         public static bool CanTraceToRootNode(this TreeViewNode Node, params TreeViewNode[] RootNodes)

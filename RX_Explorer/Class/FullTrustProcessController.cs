@@ -475,6 +475,34 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<IEnumerable<T>> OrderByNaturalStringSortAlgorithmAsync<T>(IEnumerable<T> InputList, Func<T, string> StringSelector, SortDirection Direction)
+        {
+            Dictionary<string, T> MapDictionary = InputList.ToDictionary((Item) => Guid.NewGuid().ToString("N"));
+
+            if (await SendCommandAsync(CommandType.OrderByNaturalStringSortAlgorithm, ("InputList", JsonSerializer.Serialize(MapDictionary.Select((Item) => new StringNaturalAlgorithmData(Item.Key, StringSelector(Item.Value) ?? string.Empty))))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    IEnumerable<StringNaturalAlgorithmData> SortedList = JsonSerializer.Deserialize<IEnumerable<StringNaturalAlgorithmData>>(RawText);
+
+                    if (Direction == SortDirection.Ascending)
+                    {
+                        return SortedList.Select((Item) => MapDictionary[Item.UniqueId]);
+                    }
+                    else
+                    {
+                        return SortedList.Select((Item) => MapDictionary[Item.UniqueId]).Reverse();
+                    }
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(OrderByNaturalStringSortAlgorithmAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return InputList;
+        }
+
         public async Task MTPReplaceWithNewFileAsync(string Path, string NewFilePath)
         {
             if (await SendCommandAsync(CommandType.MTPReplaceWithNewFile, ("Path", Path), ("NewFilePath", NewFilePath)) is IDictionary<string, string> Response)
@@ -879,7 +907,7 @@ namespace RX_Explorer.Class
                 {
                     return JsonSerializer.Deserialize<IEnumerable<int>>(EncodingsString).Select((CodePage) => Encoding.GetEncoding(CodePage))
                                                                                         .Where((Encoding) => !string.IsNullOrWhiteSpace(Encoding.EncodingName))
-                                                                                        .OrderByLikeFileSystem((Encoding) => Encoding.EncodingName, SortDirection.Ascending)
+                                                                                        .OrderByFastStringSortAlgorithm((Encoding) => Encoding.EncodingName, SortDirection.Ascending)
                                                                                         .ToList();
                 }
                 else
@@ -1377,7 +1405,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Success", out string Result))
                     {
-                        return JsonSerializer.Deserialize<ContextMenuPackage[]>(Result).OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending).Select((Item) => new ContextMenuItem(Item)).ToList();
+                        return JsonSerializer.Deserialize<ContextMenuPackage[]>(Result).OrderByFastStringSortAlgorithm((Item) => Item.Name, SortDirection.Ascending).Select((Item) => new ContextMenuItem(Item)).ToList();
                     }
                     else
                     {

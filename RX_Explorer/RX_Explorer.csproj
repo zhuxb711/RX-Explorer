@@ -200,6 +200,7 @@
     <Compile Include="Class\SLEHeader.cs" />
     <Compile Include="Class\SLEInputStream.cs" />
     <Compile Include="Class\SLEOutputStream.cs" />
+    <Compile Include="Class\SortStateChangedEventArgs.cs" />
     <Compile Include="Class\UncPath.cs" />
     <Compile Include="Class\UrlStorageFile.cs" />
     <Compile Include="Class\LayoutModeChangedEventArgs.cs" />

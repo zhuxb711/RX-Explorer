@@ -121,7 +121,7 @@ namespace RX_Explorer.View
                                     Pips.NumberOfPages = SearchResult.Count;
 
                                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(Path.GetDirectoryName(File.Path));
-                                    List<FileSystemStorageFile> PictureFileList = SortCollectionGenerator.GetSortedCollection(SearchResult.Cast<FileSystemStorageFile>(), Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()).ToList();
+                                    List<FileSystemStorageFile> PictureFileList = new List<FileSystemStorageFile>(await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult.Cast<FileSystemStorageFile>(), Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
 
                                     PhotoCollection.AddRange(PictureFileList.Select((Item) => new PhotoDisplayItem(Item)));
                                     PhotoFlip.SelectedIndex = Math.Max(0, PictureFileList.IndexOf(File));

@@ -132,6 +132,7 @@
         MTPCreateSubItem,
         MTPDownloadAndGetHandle,
         MTPDownloadAndGetPath,
-        MTPReplaceWithNewFile
+        MTPReplaceWithNewFile,
+        OrderByNaturalStringSortAlgorithm,
     }
 }

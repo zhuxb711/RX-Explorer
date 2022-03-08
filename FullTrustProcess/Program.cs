@@ -725,6 +725,11 @@ namespace FullTrustProcess
 
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.OrderByNaturalStringSortAlgorithm:
+                        {
+                            Value.Add("Success", JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<StringNaturalAlgorithmData>>(CommandValue["InputList"]).OrderBy((Item) => Item.Value, Comparer<string>.Create((a, b) => ShlwApi.StrCmpLogicalW(a, b)))));
+                            break;
+                        }
                     case CommandType.MTPReplaceWithNewFile:
                         {
                             string Path = CommandValue["Path"];
