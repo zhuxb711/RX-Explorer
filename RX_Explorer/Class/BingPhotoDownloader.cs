@@ -33,7 +33,7 @@ namespace RX_Explorer.Class
                     {
                         if (await FileSystemStorageItemBase.CreateNewAsync(System.IO.Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
                         {
-                            using (FileStream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
+                            using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
                             {
                                 HttpWebRequest Request = WebRequest.CreateHttp(new Uri($"https://www.bing.com{Path}"));
                                 Request.Timeout = 5000;

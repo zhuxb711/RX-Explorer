@@ -518,41 +518,13 @@ namespace RX_Explorer.View
                                                 {
                                                     args.Handled = true;
 
-                                                    if (string.IsNullOrEmpty(Drive.Path))
-                                                    {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
-                                                        {
-                                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                        };
-
-                                                        await Dialog.ShowAsync();
-                                                    }
-                                                    else
-                                                    {
-                                                        await HomeControl.OpenTargetFolder(Drive.Path);
-                                                    }
+                                                    HomeControl.OpenTargetFolder(string.IsNullOrEmpty(Drive.Path) ? Drive.DriveId : Drive.Path);
                                                 }
                                                 else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library)
                                                 {
                                                     args.Handled = true;
 
-                                                    if (string.IsNullOrEmpty(Library.Path))
-                                                    {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
-                                                        {
-                                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                        };
-
-                                                        await Dialog.ShowAsync();
-                                                    }
-                                                    else
-                                                    {
-                                                        await HomeControl.OpenTargetFolder(Library.Path);
-                                                    }
+                                                    HomeControl.OpenTargetFolder(Library.Path);
                                                 }
 
                                                 break;
@@ -800,7 +772,7 @@ namespace RX_Explorer.View
                 }
             }
 
-            Tab.Content = new TabItemContentRenderer(Tab, ValidPathArray.ToArray());
+            Tab.Content = new Frame { Content = new TabItemContentRenderer(Tab, ValidPathArray.ToArray()) };
 
             return Tab;
         }
@@ -905,7 +877,7 @@ namespace RX_Explorer.View
             {
                 TaskBarController.SetText(Convert.ToString(Item.Header));
 
-                if (Item.Content is TabItemContentRenderer Renderer)
+                if (Item.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
                 {
                     CurrentTabRenderer = Renderer;
 
@@ -939,7 +911,7 @@ namespace RX_Explorer.View
         {
             args.Data.RequestedOperation = DataPackageOperation.Copy;
 
-            if (args.Tab.Content is TabItemContentRenderer Renderer)
+            if (args.Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
             {
                 if (Renderer.RendererFrame.Content is Home)
                 {
@@ -1052,7 +1024,7 @@ namespace RX_Explorer.View
             {
                 if (TabCollection.Remove(Tab))
                 {
-                    if (Tab.Content is TabItemContentRenderer Renderer)
+                    if (Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
                     {
                         while (Renderer.RendererFrame.CanGoBack)
                         {
@@ -1152,7 +1124,7 @@ namespace RX_Explorer.View
 
         private void TaskListPanelButton_Click(object sender, RoutedEventArgs e)
         {
-            if (TabViewControl.SelectedItem is TabViewItem Tab && Tab.Content is TabItemContentRenderer Renderer)
+            if (TabViewControl.SelectedItem is TabViewItem Tab && Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
             {
                 Renderer.SetPanelOpenStatus(true);
             }

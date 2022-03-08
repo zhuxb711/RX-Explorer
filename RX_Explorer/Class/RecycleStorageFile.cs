@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Interface;
 using System;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -31,6 +32,18 @@ namespace RX_Explorer.Class
             }
         }
 
+        public override Task<IStorageItem> GetStorageItemAsync()
+        {
+            if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
+            {
+                return Task.FromResult<IStorageItem>(null);
+            }
+            else
+            {
+                return base.GetStorageItemAsync();
+            }
+        }
+
         public override Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
         {
             return DeleteAsync();
@@ -42,7 +55,7 @@ namespace RX_Explorer.Class
             ModifiedTime = DeleteTime.ToLocalTime();
         }
 
-        public RecycleStorageFile(Win32_File_Data Data, string OriginPath, DateTimeOffset DeleteTime) : base(Data)
+        public RecycleStorageFile(NativeFileData Data, string OriginPath, DateTimeOffset DeleteTime) : base(Data)
         {
             this.OriginPath = OriginPath;
             ModifiedTime = DeleteTime.ToLocalTime();

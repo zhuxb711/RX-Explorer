@@ -15,13 +15,13 @@ namespace RX_Explorer.Class
     {
         public string UrlTargetPath => (RawData?.UrlTargetPath) ?? Globalization.GetString("UnknownText");
 
-        protected UrlDataPackage RawData { get; set; }
+        protected UrlFileData RawData { get; set; }
 
         public override string DisplayType => Globalization.GetString("Url_Admin_DisplayType");
 
-        public async Task<UrlDataPackage> GetRawDataAsync()
+        public async Task<UrlFileData> GetRawDataAsync()
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
             {
                 if (ControllerRef != null)
                 {
@@ -97,7 +97,7 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public UrlStorageFile(Win32_File_Data Data) : base(Data)
+        public UrlStorageFile(NativeFileData Data) : base(Data)
         {
 
         }

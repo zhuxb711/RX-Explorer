@@ -392,49 +392,6 @@ namespace FullTrustProcess
             }
         }
 
-        public static string GenerateUniquePath(string Path)
-        {
-            string UniquePath = Path;
-
-            if (File.Exists(Path))
-            {
-                string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(Path);
-                string Extension = System.IO.Path.GetExtension(Path);
-                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                for (ushort Count = 1; Directory.Exists(UniquePath) || File.Exists(UniquePath); Count++)
-                {
-                    if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
-                    {
-                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
-                    }
-                    else
-                    {
-                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{NameWithoutExt} ({Count}){Extension}");
-                    }
-                }
-            }
-            else if (Directory.Exists(Path))
-            {
-                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-                string Name = System.IO.Path.GetFileName(Path);
-
-                for (ushort Count = 1; Directory.Exists(UniquePath) || File.Exists(UniquePath); Count++)
-                {
-                    if (Regex.IsMatch(Name, @".*\(\d+\)"))
-                    {
-                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})");
-                    }
-                    else
-                    {
-                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name} ({Count})");
-                    }
-                }
-            }
-
-            return UniquePath;
-        }
-
         public static bool Create(CreateType Type, string Path)
         {
             try
@@ -705,7 +662,7 @@ namespace FullTrustProcess
             {
                 if (!Directory.Exists(DestinationPath))
                 {
-                    _ = Directory.CreateDirectory(DestinationPath);
+                    Directory.CreateDirectory(DestinationPath);
                 }
 
                 ShellFileOperations.OperationFlags Flags = ShellFileOperations.OperationFlags.AddUndoRecord

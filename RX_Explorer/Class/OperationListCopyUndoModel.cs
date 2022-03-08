@@ -22,19 +22,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string ToDescription
-        {
-            get
-            {
-                return string.Empty;
-            }
-        }
+        public override string ToDescription => string.Empty;
 
         public string[] UndoFrom { get; }
 
         public override bool CanBeCancelled => true;
 
-        public override async Task PrepareSizeDataAsync(CancellationToken Token)
+        protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
         {
             ulong TotalSize = 0;
 
@@ -60,10 +54,10 @@ namespace RX_Explorer.Class
                 }
             }
 
-            Calculator = new ProgressCalculator(TotalSize);
+            return new ProgressCalculator(TotalSize);
         }
 
-        public OperationListCopyUndoModel(string[] UndoFrom, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorThrow, OnCancelled)
+        public OperationListCopyUndoModel(string[] UndoFrom)
         {
             if (UndoFrom.Any((Path) => string.IsNullOrWhiteSpace(Path)))
             {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Deferred;
+﻿using MediaDevices;
+using Microsoft.Toolkit.Deferred;
 using Microsoft.Win32;
 using ShareClassLibrary;
 using System;
@@ -52,6 +53,8 @@ namespace FullTrustProcess
         private static NamedPipeReadController PipeCommunicationBaseController;
 
         private static CancellationTokenSource CurrentTaskCancellation;
+
+        private static IEnumerable<MediaDevice> MTPDeviceList => MediaDevice.GetDevices().ForEach((Device) => Device.Connect());
 
         [STAThread]
         static void Main(string[] args)
@@ -547,6 +550,8 @@ namespace FullTrustProcess
                 PipeCancellationReadController?.Dispose();
                 PipeCommunicationBaseController?.Dispose();
 
+                MTPDeviceList.ForEach((Item) => Item.Dispose());
+
                 LogTracer.MakeSureLogIsFlushed(2000);
             }
         }
@@ -716,8 +721,579 @@ namespace FullTrustProcess
 
             try
             {
+                CancellationToken CancelToken = CurrentTaskCancellation.Token;
+
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.OrderByNaturalStringSortAlgorithm:
+                        {
+                            Value.Add("Success", JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<StringNaturalAlgorithmData>>(CommandValue["InputList"]).OrderBy((Item) => Item.Value, Comparer<string>.Create((a, b) => ShlwApi.StrCmpLogicalW(a, b)))));
+                            break;
+                        }
+                    case CommandType.MTPReplaceWithNewFile:
+                        {
+                            string Path = CommandValue["Path"];
+                            string NewFilePath = CommandValue["NewFilePath"];
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.FileExists(PathAnalysis.RelativePath))
+                                {
+                                    Device.DeleteFile(PathAnalysis.RelativePath);
+                                    Device.UploadFile(NewFilePath, PathAnalysis.RelativePath);
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP file is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPDownloadAndGetPath:
+                        {
+                            string Path = CommandValue["Path"];
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.FileExists(PathAnalysis.RelativePath))
+                                {
+                                    string TempFilePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}{System.IO.Path.GetExtension(PathAnalysis.RelativePath)}");
+
+                                    Device.DownloadFile(PathAnalysis.RelativePath, TempFilePath);
+
+                                    Value.Add("Success", TempFilePath);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP file is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPDownloadAndGetHandle:
+                        {
+                            string Path = CommandValue["Path"];
+                            AccessMode Mode = Enum.Parse<AccessMode>(CommandValue["AccessMode"]);
+                            OptimizeOption Option = Enum.Parse<OptimizeOption>(CommandValue["OptimizeOption"]);
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.FileExists(PathAnalysis.RelativePath))
+                                {
+                                    string TempFilePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{Guid.NewGuid().ToString("N")}{System.IO.Path.GetExtension(PathAnalysis.RelativePath)}");
+
+                                    Device.DownloadFile(PathAnalysis.RelativePath, TempFilePath);
+
+                                    Kernel32.FileAccess Access = Mode switch
+                                    {
+                                        AccessMode.Read => Kernel32.FileAccess.FILE_GENERIC_READ,
+                                        AccessMode.ReadWrite or AccessMode.Exclusive => Kernel32.FileAccess.FILE_GENERIC_READ | Kernel32.FileAccess.FILE_GENERIC_WRITE,
+                                        AccessMode.Write => Kernel32.FileAccess.FILE_GENERIC_WRITE,
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    FileShare Share = Mode switch
+                                    {
+                                        AccessMode.Read => FileShare.Read,
+                                        AccessMode.ReadWrite or AccessMode.Write => FileShare.ReadWrite,
+                                        AccessMode.Exclusive => FileShare.None,
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    FileFlagsAndAttributes Flags = FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED | FileFlagsAndAttributes.FILE_FLAG_DELETE_ON_CLOSE | Option switch
+                                    {
+                                        OptimizeOption.None => FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL,
+                                        OptimizeOption.Sequential => FileFlagsAndAttributes.FILE_FLAG_SEQUENTIAL_SCAN,
+                                        OptimizeOption.RandomAccess => FileFlagsAndAttributes.FILE_FLAG_RANDOM_ACCESS,
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(TempFilePath, Access, Share, null, FileMode.OpenOrCreate, Flags))
+                                    {
+                                        if (Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), Handle.DangerousGetHandle(), ExplorerProcess.Handle, out IntPtr TargetHandle, default, default, Kernel32.DUPLICATE_HANDLE_OPTIONS.DUPLICATE_SAME_ACCESS))
+                                        {
+                                            Value.Add("Success", Convert.ToString(TargetHandle.ToInt64()));
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error", $"Could not duplicate the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP file is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPCreateSubItem:
+                        {
+                            string Path = CommandValue["Path"];
+                            string Name = CommandValue["Name"];
+                            CreateType Type = Enum.Parse<CreateType>(CommandValue["Type"]);
+                            CollisionOptions Option = Enum.Parse<CollisionOptions>(CommandValue["Option"]);
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                static FileAttributes ConvertAttribute(MediaFileAttributes Attributes)
+                                {
+                                    FileAttributes Return = 0;
+
+                                    if (Attributes.HasFlag(MediaFileAttributes.Hidden))
+                                    {
+                                        Return |= FileAttributes.Hidden;
+                                    }
+                                    else if (Attributes.HasFlag(MediaFileAttributes.System))
+                                    {
+                                        Return |= FileAttributes.System;
+                                    }
+                                    else if (Attributes.HasFlag(MediaFileAttributes.Object) || Attributes.HasFlag(MediaFileAttributes.Directory))
+                                    {
+                                        Return |= FileAttributes.Directory;
+                                    }
+
+                                    if (Return == 0)
+                                    {
+                                        Return |= FileAttributes.Normal;
+                                    }
+
+                                    return Return;
+                                }
+
+                                if (Device.DirectoryExists(PathAnalysis.RelativePath))
+                                {
+                                    switch (Type)
+                                    {
+                                        case CreateType.File:
+                                            {
+                                                switch (Option)
+                                                {
+                                                    case CollisionOptions.None:
+                                                        {
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
+
+                                                            if (!Device.FileExists(TargetPath))
+                                                            {
+                                                                Device.UploadFile(new MemoryStream(), TargetPath);
+                                                            }
+
+                                                            MediaFileInfo File = Device.GetFileInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                    case CollisionOptions.RenameOnCollision:
+                                                        {
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
+
+                                                            if (Device.FileExists(TargetPath) || Device.DirectoryExists(TargetPath))
+                                                            {
+                                                                string UniquePath = TargetPath;
+                                                                string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(UniquePath);
+                                                                string Extension = System.IO.Path.GetExtension(UniquePath);
+
+                                                                for (ushort Count = 1; Device.DirectoryExists(UniquePath) || Device.FileExists(UniquePath); Count++)
+                                                                {
+                                                                    if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
+                                                                    {
+                                                                        UniquePath = $"{System.IO.Path.Combine(PathAnalysis.RelativePath, NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase)))}({Count}){Extension}";
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        UniquePath = $"{System.IO.Path.Combine(PathAnalysis.RelativePath, NameWithoutExt)} ({Count}){Extension}";
+                                                                    }
+                                                                }
+
+                                                                TargetPath = UniquePath;
+                                                            }
+
+                                                            Device.UploadFile(new MemoryStream(), TargetPath);
+                                                            MediaFileInfo File = Device.GetFileInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                    case CollisionOptions.OverrideOnCollision:
+                                                        {
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
+
+                                                            if (Device.FileExists(TargetPath))
+                                                            {
+                                                                Device.DeleteFile(TargetPath);
+                                                            }
+
+                                                            Device.UploadFile(new MemoryStream(), TargetPath);
+                                                            MediaFileInfo File = Device.GetFileInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                }
+
+                                                break;
+                                            }
+                                        case CreateType.Folder:
+                                            {
+                                                switch (Option)
+                                                {
+                                                    case CollisionOptions.None:
+                                                        {
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
+
+                                                            if (!Device.DirectoryExists(TargetPath))
+                                                            {
+                                                                Device.CreateDirectory(TargetPath);
+                                                            }
+
+                                                            MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                    case CollisionOptions.RenameOnCollision:
+                                                        {
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
+
+                                                            if (Device.FileExists(TargetPath) || Device.DirectoryExists(TargetPath))
+                                                            {
+                                                                string UniquePath = TargetPath;
+
+                                                                for (ushort Count = 1; Device.DirectoryExists(UniquePath) || Device.FileExists(UniquePath); Count++)
+                                                                {
+                                                                    if (Regex.IsMatch(Name, @".*\(\d+\)"))
+                                                                    {
+                                                                        UniquePath = $"{PathAnalysis.RelativePath}{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})";
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        UniquePath = $"{PathAnalysis.RelativePath}{Name} ({Count})";
+                                                                    }
+                                                                }
+
+                                                                TargetPath = UniquePath;
+                                                            }
+
+                                                            Device.CreateDirectory(TargetPath);
+                                                            MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                    case CollisionOptions.OverrideOnCollision:
+                                                        {
+                                                            string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
+
+                                                            if (Device.DirectoryExists(TargetPath))
+                                                            {
+                                                                Device.DeleteDirectory(TargetPath, true);
+                                                            }
+
+                                                            Device.CreateDirectory(TargetPath);
+                                                            MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
+                                                            Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                                            break;
+                                                        }
+                                                }
+
+                                                break;
+                                            }
+                                    }
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP folder is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPGetDriveVolumnData:
+                        {
+                            string DeviceId = CommandValue["DeviceId"];
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.GetDrives()?.FirstOrDefault() is MediaDriveInfo DriveInfo)
+                                {
+                                    Value.Add("Success", JsonSerializer.Serialize(new MTPDriveVolumnData
+                                    {
+                                        Name = string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName,
+                                        FileSystem = DriveInfo.DriveFormat,
+                                        FreeByte = Convert.ToUInt64(DriveInfo.AvailableFreeSpace),
+                                        TotalByte = Convert.ToUInt64(DriveInfo.TotalSize)
+                                    }));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "No available data for MTPDriveData");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPGetFolderSize:
+                        {
+                            string Path = CommandValue["Path"];
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.DirectoryExists(PathAnalysis.RelativePath))
+                                {
+                                    ulong TotalSize = 0;
+
+                                    foreach (MediaFileInfo File in Device.GetDirectoryInfo(PathAnalysis.RelativePath).EnumerateFiles("*", SearchOption.AllDirectories))
+                                    {
+                                        if (CancelToken.IsCancellationRequested)
+                                        {
+                                            break;
+                                        }
+
+                                        TotalSize += File.Length;
+                                    }
+
+                                    Value.Add("Success", Convert.ToString(TotalSize));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP folder is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPCheckContainsAnyItems:
+                        {
+                            string Path = CommandValue["Path"];
+                            string Filter = CommandValue["Filter"];
+                            bool IncludeHiddenItems = Convert.ToBoolean(CommandValue["IncludeHiddenItems"]);
+                            bool IncludeSystemItems = Convert.ToBoolean(CommandValue["IncludeSystemItems"]);
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.DirectoryExists(PathAnalysis.RelativePath))
+                                {
+                                    MediaDirectoryInfo Directory = Device.GetDirectoryInfo(PathAnalysis.RelativePath);
+
+                                    IEnumerable<MediaFileSystemInfo> BasicItems = Filter switch
+                                    {
+                                        "All" => Directory.EnumerateFileSystemInfos("*"),
+                                        "Folder" => Directory.EnumerateDirectories("*"),
+                                        "File" => Directory.EnumerateFiles("*"),
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    Value.Add("Success", Convert.ToString(BasicItems.Where((Item) => IncludeSystemItems || !Item.Attributes.HasFlag(MediaFileAttributes.System))
+                                                                                    .Where((Item) => IncludeHiddenItems || !Item.Attributes.HasFlag(MediaFileAttributes.Hidden))
+                                                                                    .Any()));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP folder is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPCheckExists:
+                        {
+                            string Path = CommandValue["Path"];
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                Value.Add("Success", Convert.ToString(Device.DirectoryExists(PathAnalysis.RelativePath) || Device.FileExists(PathAnalysis.RelativePath)));
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPGetItem:
+                        {
+                            string Path = CommandValue["Path"];
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            static FileAttributes ConvertAttribute(MediaFileAttributes Attributes)
+                            {
+                                FileAttributes Return = 0;
+
+                                if (Attributes.HasFlag(MediaFileAttributes.Hidden))
+                                {
+                                    Return |= FileAttributes.Hidden;
+                                }
+                                else if (Attributes.HasFlag(MediaFileAttributes.System))
+                                {
+                                    Return |= FileAttributes.System;
+                                }
+                                else if (Attributes.HasFlag(MediaFileAttributes.Object) || Attributes.HasFlag(MediaFileAttributes.Directory))
+                                {
+                                    Return |= FileAttributes.Directory;
+                                }
+
+                                if (Return == 0)
+                                {
+                                    Return |= FileAttributes.Normal;
+                                }
+
+                                return Return;
+                            }
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                MediaFileSystemInfo Item = null;
+
+                                if (Device.DirectoryExists(PathAnalysis.RelativePath))
+                                {
+                                    Item = Device.GetDirectoryInfo(PathAnalysis.RelativePath);
+                                }
+                                else if (Device.FileExists(PathAnalysis.RelativePath))
+                                {
+                                    Item = Device.GetFileInfo(PathAnalysis.RelativePath);
+                                }
+
+                                if (Item != null)
+                                {
+                                    Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), Item.CreationTime.GetValueOrDefault().ToLocalTime(), Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP folder or file is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
+                    case CommandType.MTPGetChildItems:
+                        {
+                            string Path = CommandValue["Path"];
+                            string Type = CommandValue["Type"];
+                            bool IncludeHiddenItems = Convert.ToBoolean(CommandValue["IncludeHiddenItems"]);
+                            bool IncludeSystemItems = Convert.ToBoolean(CommandValue["IncludeSystemItems"]);
+                            bool IncludeAllSubItems = Convert.ToBoolean(CommandValue["IncludeAllSubItems"]);
+                            uint MaxNumLimit = Convert.ToUInt32(CommandValue["MaxNumLimit"]);
+
+                            MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
+
+                            static FileAttributes ConvertAttribute(MediaFileAttributes Attributes)
+                            {
+                                FileAttributes Return = 0;
+
+                                if (Attributes.HasFlag(MediaFileAttributes.Hidden))
+                                {
+                                    Return |= FileAttributes.Hidden;
+                                }
+                                else if (Attributes.HasFlag(MediaFileAttributes.System))
+                                {
+                                    Return |= FileAttributes.System;
+                                }
+                                else if (Attributes.HasFlag(MediaFileAttributes.Object) || Attributes.HasFlag(MediaFileAttributes.Directory))
+                                {
+                                    Return |= FileAttributes.Directory;
+                                }
+
+                                if (Return == 0)
+                                {
+                                    Return |= FileAttributes.Normal;
+                                }
+
+                                return Return;
+                            }
+
+                            if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                            {
+                                if (Device.DirectoryExists(PathAnalysis.RelativePath))
+                                {
+                                    IEnumerable<MediaFileSystemInfo> BasicItems = Type switch
+                                    {
+                                        "All" => Device.GetDirectoryInfo(PathAnalysis.RelativePath).EnumerateFileSystemInfos("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
+                                        "File" => Device.GetDirectoryInfo(PathAnalysis.RelativePath).EnumerateFiles("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
+                                        "Folder" => Device.GetDirectoryInfo(PathAnalysis.RelativePath).EnumerateDirectories("*", IncludeAllSubItems ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly),
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    IEnumerable<MediaFileSystemInfo> MTPSubItems = BasicItems.Where((Item) => IncludeSystemItems || !Item.Attributes.HasFlag(MediaFileAttributes.System))
+                                                                                             .Where((Item) => IncludeHiddenItems || !Item.Attributes.HasFlag(MediaFileAttributes.Hidden));
+
+                                    List<MTPFileData> Result = new List<MTPFileData>();
+
+                                    foreach (MediaFileSystemInfo Item in MTPSubItems)
+                                    {
+                                        Result.Add(new MTPFileData(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), new DateTimeOffset(Item.CreationTime.GetValueOrDefault().ToLocalTime()), new DateTimeOffset(Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+
+                                        if (Result.Count >= MaxNumLimit || CancelToken.IsCancellationRequested)
+                                        {
+                                            break;
+                                        }
+                                    }
+
+                                    Value.Add("Success", JsonSerializer.Serialize(Result));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP folder is not found");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "MTP device is not found");
+                            }
+
+                            break;
+                        }
                     case CommandType.ConvertToLongPath:
                         {
                             string Path = CommandValue["Path"];
@@ -771,7 +1347,7 @@ namespace FullTrustProcess
 
                             if (System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveLabelData(Path, DriveLabelName), CurrentTaskCancellation.Token);
+                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveLabelData(Path, DriveLabelName), CancelToken);
 
                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                 {
@@ -793,7 +1369,7 @@ namespace FullTrustProcess
 
                             if (System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveIndexStatusData(Path, AllowIndex, ApplyToSubItems), CurrentTaskCancellation.Token);
+                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveIndexStatusData(Path, AllowIndex, ApplyToSubItems), CancelToken);
 
                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                 {
@@ -830,7 +1406,7 @@ namespace FullTrustProcess
 
                             if (System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveCompressStatusData(Path, IsSetCompressionStatus, ApplyToSubItems), CurrentTaskCancellation.Token);
+                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveCompressStatusData(Path, IsSetCompressionStatus, ApplyToSubItems), CancelToken);
 
                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                 {
@@ -1072,8 +1648,8 @@ namespace FullTrustProcess
 
                                 if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                                 {
-                                    AccessMode Mode = (AccessMode)Enum.Parse(typeof(AccessMode), CommandValue["AccessMode"]);
-                                    OptimizeOption Option = (OptimizeOption)Enum.Parse(typeof(OptimizeOption), CommandValue["OptimizeOption"]);
+                                    AccessMode Mode = Enum.Parse<AccessMode>(CommandValue["AccessMode"]);
+                                    OptimizeOption Option = Enum.Parse<OptimizeOption>(CommandValue["OptimizeOption"]);
 
                                     Kernel32.FileAccess Access = Mode switch
                                     {
@@ -1085,8 +1661,8 @@ namespace FullTrustProcess
 
                                     FileShare Share = Mode switch
                                     {
-                                        AccessMode.Read => FileShare.ReadWrite,
-                                        AccessMode.ReadWrite or AccessMode.Write => FileShare.Read,
+                                        AccessMode.Read => FileShare.Read,
+                                        AccessMode.ReadWrite or AccessMode.Write => FileShare.ReadWrite,
                                         AccessMode.Exclusive => FileShare.None,
                                         _ => throw new NotSupportedException()
                                     };
@@ -1254,7 +1830,7 @@ namespace FullTrustProcess
 
                             using (ShellItem Item = new ShellItem(ExecutePath))
                             {
-                                HiddenDataPackage Package = new HiddenDataPackage
+                                HiddenFileData Package = new HiddenFileData
                                 {
                                     DisplayType = Item.FileInfo.TypeName
                                 };
@@ -1387,7 +1963,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.CreateLink:
                         {
-                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(CommandValue["DataPackage"]);
+                            LinkFileData Package = JsonSerializer.Deserialize<LinkFileData>(CommandValue["DataPackage"]);
 
                             string Arguments = null;
 
@@ -1396,7 +1972,7 @@ namespace FullTrustProcess
                                 Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(' ') ? $"\"{Para.Trim('\"')}\"" : Para));
                             }
 
-                            using (ShellLink Link = ShellLink.Create(StorageItemController.GenerateUniquePath(Package.LinkPath), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
+                            using (ShellLink Link = ShellLink.Create(Helper.StorageGenerateUniquePath(Package.LinkPath, CreateType.File), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
                             {
                                 Link.ShowState = (FormWindowState)Package.WindowState;
                                 Link.RunAsAdministrator = Package.NeedRunAsAdmin;
@@ -1449,10 +2025,11 @@ namespace FullTrustProcess
                         }
                     case CommandType.CreateNew:
                         {
-                            string CreateNewPath = CommandValue["NewPath"];
-                            string UniquePath = StorageItemController.GenerateUniquePath(CreateNewPath);
+                            CreateType Type = Enum.Parse<CreateType>(CommandValue["Type"]);
 
-                            CreateType Type = (CreateType)Enum.Parse(typeof(CreateType), CommandValue["Type"]);
+                            string CreateNewPath = CommandValue["NewPath"];
+                            string UniquePath = Helper.StorageGenerateUniquePath(CreateNewPath, Type);
+
 
                             if (StorageItemController.CheckPermission(Path.GetDirectoryName(UniquePath) ?? UniquePath, Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
                             {
@@ -1491,7 +2068,29 @@ namespace FullTrustProcess
                             string ExecutePath = CommandValue["ExecutePath"];
                             string DesireName = CommandValue["DesireName"];
 
-                            if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
+                            if (ExecutePath.StartsWith(@"\\?\"))
+                            {
+                                MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(ExecutePath);
+
+                                if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                                {
+                                    if (Device.FileExists(PathAnalysis.RelativePath) || Device.DirectoryExists(PathAnalysis.RelativePath))
+                                    {
+                                        string UniqueNewName = Path.GetFileName(Helper.MTPGenerateUniquePath(Device, Path.Combine(Path.GetDirectoryName(PathAnalysis.RelativePath), DesireName), Device.DirectoryExists(PathAnalysis.RelativePath) ? CreateType.Folder : CreateType.File));
+                                        Device.Rename(PathAnalysis.RelativePath, UniqueNewName);
+                                        Value.Add("Success", UniqueNewName);
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error", "MTP file is not found");
+                                    }
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "MTP device is not found");
+                                }
+                            }
+                            else if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
                                 if (StorageItemController.CheckCaptured(ExecutePath))
                                 {
@@ -1575,7 +2174,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.UpdateUrl:
                         {
-                            UrlDataPackage Package = JsonSerializer.Deserialize<UrlDataPackage>(CommandValue["DataPackage"]);
+                            UrlFileData Package = JsonSerializer.Deserialize<UrlFileData>(CommandValue["DataPackage"]);
 
                             if (File.Exists(Package.UrlPath))
                             {
@@ -1608,7 +2207,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.UpdateLink:
                         {
-                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(CommandValue["DataPackage"]);
+                            LinkFileData Package = JsonSerializer.Deserialize<LinkFileData>(CommandValue["DataPackage"]);
 
                             if (File.Exists(Package.LinkPath))
                             {
@@ -1746,7 +2345,7 @@ namespace FullTrustProcess
                                 {
                                     string UrlPath = Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl);
 
-                                    UrlDataPackage Package = new UrlDataPackage
+                                    UrlFileData Package = new UrlFileData
                                     {
                                         UrlPath = ExecutePath,
                                         UrlTargetPath = UrlPath
@@ -1809,7 +2408,7 @@ namespace FullTrustProcess
                                             ActualPath = ActualPath.Replace($"%{Var.Value}%", Environment.GetEnvironmentVariable(Var.Value));
                                         }
 
-                                        LinkDataPackage Package = new LinkDataPackage
+                                        LinkFileData Package = new LinkFileData
                                         {
                                             LinkPath = ExecutePath,
                                             LinkTargetPath = ActualPath
@@ -1845,11 +2444,11 @@ namespace FullTrustProcess
                                 {
                                     using (ShellLink Link = new ShellLink(ExecutePath))
                                     {
-                                        LinkDataPackage Package = new LinkDataPackage
+                                        LinkFileData Package = new LinkFileData
                                         {
                                             LinkPath = ExecutePath,
                                             WorkDirectory = Link.WorkingDirectory,
-                                            WindowState = (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)),
+                                            WindowState = Enum.Parse<WindowState>(Enum.GetName(typeof(FormWindowState), Link.ShowState)),
                                             HotKey = (int)Link.HotKey,
                                             NeedRunAsAdmin = Link.RunAsAdministrator,
                                             Comment = Link.Description,
@@ -2486,129 +3085,308 @@ namespace FullTrustProcess
                             string SourcePathJson = CommandValue["SourcePath"];
                             string DestinationPath = CommandValue["DestinationPath"];
 
-                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), CommandValue["CollisionOptions"]);
+                            CollisionOptions Option = Enum.Parse<CollisionOptions>(CommandValue["CollisionOptions"]);
 
-                            List<string> SourcePathList = JsonSerializer.Deserialize<List<string>>(SourcePathJson);
-                            List<string> OperationRecordList = new List<string>();
+                            IReadOnlyList<string> SourcePathList = JsonSerializer.Deserialize<IReadOnlyList<string>>(SourcePathJson);
 
-                            if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                            try
                             {
-                                if (StorageItemController.CheckPermission(DestinationPath, FileSystemRights.Modify))
+                                if (SourcePathList.All((Source) => Source.StartsWith(@"\\?\")) && DestinationPath.StartsWith(@"\\?\"))
                                 {
-                                    try
-                                    {
-                                        if (StorageItemController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
-                                        {
-                                            if (CurrentTaskCancellation.IsCancellationRequested)
-                                            {
-                                                throw new COMException(null, HRESULT.E_ABORT);
-                                            }
+                                    MTPPathAnalysis SourcePathAnalysis = Helper.AnalysisMTPPath(SourcePathList.First());
+                                    MTPPathAnalysis DestinationPathAnalysis = Helper.AnalysisMTPPath(DestinationPath);
 
-                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                        },
-                                        PostCopyEvent: (se, arg) =>
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
+                                        && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
+                                    {
+                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Select((Source) => Helper.AnalysisMTPPath(Source).RelativePath);
+
+                                        if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                         {
-                                            if (arg.Result == HRESULT.S_OK)
+                                            foreach (string SourceRelativePath in SourceRelativePathArray)
                                             {
-                                                if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                                CancelToken.ThrowIfCancellationRequested();
+
+                                                if (SourceDevice.FileExists(SourceRelativePath))
                                                 {
-                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                    using (FileStream Stream = File.Create(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")), 4096, FileOptions.DeleteOnClose | FileOptions.RandomAccess))
+                                                    {
+                                                        SourceDevice.DownloadFile(SourceRelativePath, Stream, CancelToken, (s, e) =>
+                                                        {
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
+                                                        });
+
+                                                        string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
+
+                                                        switch (Option)
+                                                        {
+                                                            case CollisionOptions.RenameOnCollision:
+                                                                {
+                                                                    TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.File);
+                                                                    break;
+                                                                }
+                                                            case CollisionOptions.OverrideOnCollision:
+                                                                {
+                                                                    DestinationDevice.DeleteFile(TargetPath);
+                                                                    break;
+                                                                }
+                                                        }
+
+                                                        Stream.Seek(0, SeekOrigin.Begin);
+
+                                                        DestinationDevice.UploadFile(Stream, TargetPath, CancelToken, (s, e) =>
+                                                        {
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(50 + e.ProgressPercentage / 2));
+                                                        });
+                                                    }
                                                 }
-                                                else
+                                                else if (SourceDevice.DirectoryExists(SourceRelativePath))
                                                 {
-                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                    DirectoryInfo NewDirectory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")));
+
+                                                    SourceDevice.DownloadFolder(SourceRelativePath, NewDirectory.FullName, CancelToken, (s, e) =>
+                                                    {
+                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
+                                                    });
+
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.Folder);
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                DestinationDevice.DeleteDirectory(TargetPath, true);
+                                                                break;
+                                                            }
+                                                    }
+
+                                                    DestinationDevice.UploadFolder(NewDirectory.FullName, TargetPath, CancelToken, (s, e) =>
+                                                    {
+                                                        PipeProgressWriterController?.SendData(Convert.ToString(50 + e.ProgressPercentage / 2));
+                                                    });
                                                 }
                                             }
-                                            else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED || arg.Result == HRESULT.COPYENGINE_E_USER_CANCELLED)
-                                            {
-                                                Value.Add("Error_UserCancel", "User stop the operation");
-                                            }
-                                        }))
-                                        {
-                                            if (!Value.ContainsKey("Error_UserCancel"))
-                                            {
-                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
-                                            }
-                                        }
-                                        else if (Marshal.GetLastWin32Error() == 5)
-                                        {
-                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option));
 
-                                            foreach (KeyValuePair<string, string> Result in ResultMap)
-                                            {
-                                                Value.Add(Result);
-                                            }
+                                            Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
                                         }
-                                        else if (!Value.ContainsKey("Error_UserCancel"))
+                                        else
                                         {
-                                            Value.Add("Error_Failure", "An error occurred while copying the files");
+                                            Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
                                         }
                                     }
-                                    catch (Exception ex) when (ex is COMException or OperationCanceledException)
+                                    else
                                     {
-                                        Value.Add("Error_Cancelled", "Operation is cancelled");
+                                        Value.Add("Error_NotFound", "MTP device is not found");
                                     }
                                 }
-                                else
+                                else if (DestinationPath.StartsWith(@"\\?\"))
                                 {
-                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option));
+                                    MTPPathAnalysis DestinationPathAnalysis = Helper.AnalysisMTPPath(DestinationPath);
 
-                                    foreach (KeyValuePair<string, string> Result in ResultMap)
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
                                     {
-                                        Value.Add(Result);
+                                        if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                        {
+                                            foreach (string SourcePath in SourcePathList)
+                                            {
+                                                CancelToken.ThrowIfCancellationRequested();
+
+                                                if (File.Exists(SourcePath))
+                                                {
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourcePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.File);
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                DestinationDevice.DeleteFile(TargetPath);
+                                                                break;
+                                                            }
+                                                    }
+
+                                                    DestinationDevice.UploadFile(SourcePath, TargetPath, CancelToken, (s, e) =>
+                                                    {
+                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                    });
+                                                }
+                                                else if (Directory.Exists(SourcePath))
+                                                {
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourcePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.Folder);
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                DestinationDevice.DeleteDirectory(TargetPath, true);
+                                                                break;
+                                                            }
+                                                    }
+
+                                                    DestinationDevice.UploadFolder(SourcePath, TargetPath, CancelToken, (s, e) =>
+                                                    {
+                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                    });
+                                                }
+                                            }
+
+                                            Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error_NotFound", "MTP device is not found");
                                     }
                                 }
-                            }
-                            else
-                            {
-                                Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
-                            }
-
-                            break;
-                        }
-                    case CommandType.Move:
-                        {
-                            string SourcePathJson = CommandValue["SourcePath"];
-                            string DestinationPath = CommandValue["DestinationPath"];
-
-                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), CommandValue["CollisionOptions"]);
-
-                            Dictionary<string, string> SourcePathList = JsonSerializer.Deserialize<Dictionary<string, string>>(SourcePathJson);
-                            List<string> OperationRecordList = new List<string>();
-
-                            if (SourcePathList.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
-                            {
-                                if (SourcePathList.Keys.Any((Item) => StorageItemController.CheckCaptured(Item)))
+                                else if (SourcePathList.All((Source) => Source.StartsWith(@"\\?\")))
                                 {
-                                    Value.Add("Error_Capture", "An error occurred while moving the folder");
+                                    MTPPathAnalysis SourcePathAnalysis = Helper.AnalysisMTPPath(SourcePathList.First());
+
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
+                                    {
+                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Select((Source) => Helper.AnalysisMTPPath(Source).RelativePath);
+
+                                        if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
+                                        {
+                                            foreach (string SourceRelativePath in SourceRelativePathArray)
+                                            {
+                                                CancelToken.ThrowIfCancellationRequested();
+
+                                                if (SourceDevice.FileExists(SourceRelativePath))
+                                                {
+                                                    string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourceRelativePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                SourceDevice.DownloadFile(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.File), CancelToken, (s, e) =>
+                                                                {
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                });
+
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                using (FileStream Stream = File.Open(TargetPath, FileMode.Truncate))
+                                                                {
+                                                                    SourceDevice.DownloadFile(SourceRelativePath, Stream, CancelToken, (s, e) =>
+                                                                    {
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                    });
+                                                                }
+
+                                                                break;
+                                                            }
+                                                        default:
+                                                            {
+                                                                SourceDevice.DownloadFile(SourceRelativePath, TargetPath, CancelToken, (s, e) =>
+                                                                {
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                });
+
+                                                                break;
+                                                            }
+                                                    }
+                                                }
+                                                else if (SourceDevice.DirectoryExists(SourceRelativePath))
+                                                {
+                                                    string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourceRelativePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                SourceDevice.DownloadFolder(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.Folder), CancelToken, (s, e) =>
+                                                                {
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                });
+
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                Directory.Delete(SourceRelativePath, true);
+
+                                                                SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, CancelToken, (s, e) =>
+                                                                {
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                });
+
+                                                                break;
+                                                            }
+                                                        default:
+                                                            {
+                                                                SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, CancelToken, (s, e) =>
+                                                                {
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                });
+
+                                                                break;
+                                                            }
+                                                    }
+                                                }
+                                            }
+
+                                            Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error_NotFound", "MTP device is not found");
+                                    }
                                 }
-                                else
+                                else if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                 {
-                                    if (StorageItemController.CheckPermission(DestinationPath, FileSystemRights.Modify)
-                                        && SourcePathList.Keys.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
+                                    List<string> OperationRecordList = new List<string>();
+
+                                    if (StorageItemController.CheckPermission(DestinationPath, FileSystemRights.Modify))
                                     {
                                         try
                                         {
-                                            if (StorageItemController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
+                                            if (StorageItemController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
                                             {
-                                                if (CurrentTaskCancellation.IsCancellationRequested)
+                                                if (CancelToken.IsCancellationRequested)
                                                 {
                                                     throw new COMException(null, HRESULT.E_ABORT);
                                                 }
 
                                                 PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                             },
-                                            PostMoveEvent: (se, arg) =>
+                                            PostCopyEvent: (se, arg) =>
                                             {
-                                                if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
+                                                if (arg.Result == HRESULT.S_OK)
                                                 {
                                                     if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
                                                     {
-                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
                                                     }
                                                     else
                                                     {
-                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
                                                     }
                                                 }
                                                 else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED || arg.Result == HRESULT.COPYENGINE_E_USER_CANCELLED)
@@ -2619,19 +3397,12 @@ namespace FullTrustProcess
                                             {
                                                 if (!Value.ContainsKey("Error_UserCancel"))
                                                 {
-                                                    if (SourcePathList.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
-                                                    {
-                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
-                                                    }
-                                                    else
-                                                    {
-                                                        Value.Add("Error_Capture", "An error occurred while moving the files");
-                                                    }
+                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                                 }
                                             }
                                             else if (Marshal.GetLastWin32Error() == 5)
                                             {
-                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option));
+                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option));
 
                                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                                 {
@@ -2640,17 +3411,17 @@ namespace FullTrustProcess
                                             }
                                             else if (!Value.ContainsKey("Error_UserCancel"))
                                             {
-                                                Value.Add("Error_Failure", "An error occurred while moving the files");
+                                                Value.Add("Error_Failure", "An error occurred while copying the files");
                                             }
                                         }
-                                        catch (Exception ex) when (ex is COMException or OperationCanceledException)
+                                        catch (COMException ex) when (ex.ErrorCode == HRESULT.E_ABORT)
                                         {
-                                            Value.Add("Error_Cancelled", "The specified file could not be moved");
+                                            throw new OperationCanceledException();
                                         }
                                     }
                                     else
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option));
+                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option));
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -2658,10 +3429,402 @@ namespace FullTrustProcess
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                }
                             }
-                            else
+                            catch (OperationCanceledException)
                             {
-                                Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                Value.Add("Error_Cancelled", "Operation is cancelled");
+                            }
+
+                            break;
+                        }
+                    case CommandType.Move:
+                        {
+                            string SourcePathJson = CommandValue["SourcePath"];
+                            string DestinationPath = CommandValue["DestinationPath"];
+
+                            CollisionOptions Option = Enum.Parse<CollisionOptions>(CommandValue["CollisionOptions"]);
+
+                            Dictionary<string, string> SourcePathList = JsonSerializer.Deserialize<Dictionary<string, string>>(SourcePathJson);
+
+                            try
+                            {
+                                if (SourcePathList.Keys.All((Source) => Source.StartsWith(@"\\?\")) && DestinationPath.StartsWith(@"\\?\"))
+                                {
+                                    MTPPathAnalysis SourcePathAnalysis = Helper.AnalysisMTPPath(SourcePathList.Keys.First());
+                                    MTPPathAnalysis DestinationPathAnalysis = Helper.AnalysisMTPPath(DestinationPath);
+
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
+                                        && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
+                                    {
+                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => Helper.AnalysisMTPPath(Source).RelativePath);
+
+                                        if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
+                                        {
+                                            foreach (string SourceRelativePath in SourceRelativePathArray)
+                                            {
+                                                CancelToken.ThrowIfCancellationRequested();
+
+                                                if (SourceDevice.FileExists(SourceRelativePath))
+                                                {
+                                                    using (FileStream Stream = File.Create(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")), 4096, FileOptions.DeleteOnClose | FileOptions.RandomAccess))
+                                                    {
+                                                        SourceDevice.DownloadFile(SourceRelativePath, Stream, CancelToken, (s, e) =>
+                                                        {
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
+                                                        });
+
+                                                        string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
+
+                                                        switch (Option)
+                                                        {
+                                                            case CollisionOptions.RenameOnCollision:
+                                                                {
+                                                                    TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.File);
+                                                                    break;
+                                                                }
+                                                            case CollisionOptions.OverrideOnCollision:
+                                                                {
+                                                                    DestinationDevice.DeleteFile(TargetPath);
+                                                                    break;
+                                                                }
+                                                        }
+
+                                                        Stream.Seek(0, SeekOrigin.Begin);
+
+                                                        DestinationDevice.UploadFile(Stream, TargetPath, CancelToken, (s, e) =>
+                                                        {
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(50 + e.ProgressPercentage / 2));
+                                                        });
+
+                                                        SourceDevice.DeleteFile(SourceRelativePath);
+                                                    }
+                                                }
+                                                else if (SourceDevice.DirectoryExists(SourceRelativePath))
+                                                {
+                                                    DirectoryInfo NewDirectory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")));
+
+                                                    SourceDevice.DownloadFolder(SourceRelativePath, NewDirectory.FullName, CancelToken, (s, e) =>
+                                                    {
+                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
+                                                    });
+
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.Folder);
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                DestinationDevice.DeleteDirectory(TargetPath, true);
+                                                                break;
+                                                            }
+                                                    }
+
+                                                    DestinationDevice.UploadFolder(NewDirectory.FullName, TargetPath, CancelToken, (s, e) =>
+                                                    {
+                                                        PipeProgressWriterController?.SendData(Convert.ToString(50 + e.ProgressPercentage / 2));
+                                                    });
+
+                                                    SourceDevice.DeleteDirectory(SourceRelativePath, true);
+                                                }
+                                            }
+
+                                            Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error_NotFound", "MTP device is not found");
+                                    }
+                                }
+                                else if (DestinationPath.StartsWith(@"\\?\"))
+                                {
+                                    MTPPathAnalysis DestinationPathAnalysis = Helper.AnalysisMTPPath(DestinationPath);
+
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
+                                    {
+                                        if (SourcePathList.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                        {
+                                            foreach (string SourcePath in SourcePathList.Keys)
+                                            {
+                                                CancelToken.ThrowIfCancellationRequested();
+
+                                                if (File.Exists(SourcePath))
+                                                {
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourcePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.File);
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                DestinationDevice.DeleteFile(TargetPath);
+                                                                break;
+                                                            }
+                                                    }
+
+                                                    DestinationDevice.UploadFile(SourcePath, TargetPath, CancelToken, (s, e) =>
+                                                    {
+                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                    });
+
+                                                    File.Delete(SourcePath);
+                                                }
+                                                else if (Directory.Exists(SourcePath))
+                                                {
+                                                    string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourcePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.Folder);
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                DestinationDevice.DeleteDirectory(TargetPath, true);
+                                                                break;
+                                                            }
+                                                    }
+
+                                                    DestinationDevice.UploadFolder(SourcePath, TargetPath, CancelToken, (s, e) =>
+                                                    {
+                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                    });
+
+                                                    Directory.Delete(SourcePath, true);
+                                                }
+                                            }
+
+                                            Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error_NotFound", "MTP device is not found");
+                                    }
+                                }
+                                else if (SourcePathList.Keys.All((Source) => Source.StartsWith(@"\\?\")))
+                                {
+                                    MTPPathAnalysis SourcePathAnalysis = Helper.AnalysisMTPPath(SourcePathList.Keys.First());
+
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
+                                    {
+                                        IEnumerable<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => Helper.AnalysisMTPPath(Source).RelativePath);
+
+                                        if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
+                                        {
+                                            foreach (string SourceRelativePath in SourceRelativePathArray)
+                                            {
+                                                CancelToken.ThrowIfCancellationRequested();
+
+                                                if (SourceDevice.FileExists(SourceRelativePath))
+                                                {
+                                                    string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourceRelativePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                SourceDevice.DownloadFile(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.File), CancelToken, (s, e) =>
+                                                                {
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                });
+
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                using (FileStream Stream = File.Open(TargetPath, FileMode.Truncate))
+                                                                {
+                                                                    SourceDevice.DownloadFile(SourceRelativePath, Stream, CancelToken, (s, e) =>
+                                                                    {
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                    });
+                                                                }
+
+                                                                break;
+                                                            }
+                                                        default:
+                                                            {
+                                                                SourceDevice.DownloadFile(SourceRelativePath, TargetPath, CancelToken, (s, e) =>
+                                                                {
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                });
+
+                                                                break;
+                                                            }
+                                                    }
+
+                                                    SourceDevice.DeleteFile(SourceRelativePath);
+                                                }
+                                                else if (SourceDevice.DirectoryExists(SourceRelativePath))
+                                                {
+                                                    string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourceRelativePath));
+
+                                                    switch (Option)
+                                                    {
+                                                        case CollisionOptions.RenameOnCollision:
+                                                            {
+                                                                SourceDevice.DownloadFolder(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.Folder), CancelToken, (s, e) =>
+                                                                {
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                });
+
+                                                                break;
+                                                            }
+                                                        case CollisionOptions.OverrideOnCollision:
+                                                            {
+                                                                Directory.Delete(SourceRelativePath, true);
+
+                                                                SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, CancelToken, (s, e) =>
+                                                                {
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                });
+
+                                                                break;
+                                                            }
+                                                        default:
+                                                            {
+                                                                SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, CancelToken, (s, e) =>
+                                                                {
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                });
+
+                                                                break;
+                                                            }
+                                                    }
+
+                                                    SourceDevice.DeleteDirectory(SourceRelativePath, true);
+                                                }
+                                            }
+
+                                            Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error_NotFound", "MTP device is not found");
+                                    }
+                                }
+                                else if (SourcePathList.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                {
+                                    List<string> OperationRecordList = new List<string>(SourcePathList.Count);
+
+                                    if (SourcePathList.Keys.Any((Item) => StorageItemController.CheckCaptured(Item)))
+                                    {
+                                        Value.Add("Error_Capture", "An error occurred while moving the folder");
+                                    }
+                                    else
+                                    {
+                                        if (StorageItemController.CheckPermission(DestinationPath, FileSystemRights.Modify)
+                                            && SourcePathList.Keys.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
+                                        {
+                                            try
+                                            {
+                                                if (StorageItemController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
+                                                {
+                                                    if (CancelToken.IsCancellationRequested)
+                                                    {
+                                                        throw new COMException(null, HRESULT.E_ABORT);
+                                                    }
+
+                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                },
+                                                PostMoveEvent: (se, arg) =>
+                                                {
+                                                    if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
+                                                    {
+                                                        if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                                        {
+                                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                        }
+                                                        else
+                                                        {
+                                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                        }
+                                                    }
+                                                    else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED || arg.Result == HRESULT.COPYENGINE_E_USER_CANCELLED)
+                                                    {
+                                                        Value.Add("Error_UserCancel", "User stop the operation");
+                                                    }
+                                                }))
+                                                {
+                                                    if (!Value.ContainsKey("Error_UserCancel"))
+                                                    {
+                                                        if (SourcePathList.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                        {
+                                                            Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                        }
+                                                        else
+                                                        {
+                                                            Value.Add("Error_Capture", "An error occurred while moving the files");
+                                                        }
+                                                    }
+                                                }
+                                                else if (Marshal.GetLastWin32Error() == 5)
+                                                {
+                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option));
+
+                                                    foreach (KeyValuePair<string, string> Result in ResultMap)
+                                                    {
+                                                        Value.Add(Result);
+                                                    }
+                                                }
+                                                else if (!Value.ContainsKey("Error_UserCancel"))
+                                                {
+                                                    Value.Add("Error_Failure", "An error occurred while moving the files");
+                                                }
+                                            }
+                                            catch (COMException ex) when (ex.ErrorCode == HRESULT.E_ABORT)
+                                            {
+                                                throw new OperationCanceledException();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option));
+
+                                            foreach (KeyValuePair<string, string> Result in ResultMap)
+                                            {
+                                                Value.Add(Result);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                }
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                Value.Add("Error_Cancelled", "Operation is cancelled");
                             }
 
                             break;
@@ -2672,80 +3835,124 @@ namespace FullTrustProcess
 
                             bool PermanentDelete = Convert.ToBoolean(CommandValue["PermanentDelete"]);
 
-                            List<string> ExecutePathList = JsonSerializer.Deserialize<List<string>>(ExecutePathJson);
-                            List<string> OperationRecordList = new List<string>();
+                            IReadOnlyList<string> ExecutePathList = JsonSerializer.Deserialize<IReadOnlyList<string>>(ExecutePathJson);
 
-                            if (ExecutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                            try
                             {
-                                if (ExecutePathList.Any((Item) => StorageItemController.CheckCaptured(Item)))
+                                if (ExecutePathList.All((Source) => Source.StartsWith(@"\\?\")))
                                 {
-                                    Value.Add("Error_Capture", "An error occurred while deleting the files");
-                                }
-                                else
-                                {
-                                    if (ExecutePathList.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
+                                    MTPPathAnalysis SourcePathAnalysis = Helper.AnalysisMTPPath(ExecutePathList.First());
+
+                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice MTPDevice)
                                     {
-                                        try
+                                        IEnumerable<string> RelativePathArray = ExecutePathList.Select((Source) => Helper.AnalysisMTPPath(Source).RelativePath);
+
+                                        if (RelativePathArray.All((RelativePath) => MTPDevice.FileExists(RelativePath) || MTPDevice.DirectoryExists(RelativePath)))
                                         {
-                                            if (StorageItemController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
+                                            foreach (string Path in RelativePathArray)
                                             {
-                                                if (CurrentTaskCancellation.IsCancellationRequested)
-                                                {
-                                                    throw new COMException(null, HRESULT.E_ABORT);
-                                                }
+                                                CancelToken.ThrowIfCancellationRequested();
 
-                                                PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                            },
-                                            PostDeleteEvent: (se, arg) =>
-                                            {
-                                                if (!PermanentDelete)
+                                                if (MTPDevice.FileExists(Path))
                                                 {
-                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                                    MTPDevice.DeleteFile(Path);
                                                 }
-                                            }))
-                                            {
-                                                if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                else if (MTPDevice.DirectoryExists(Path))
                                                 {
-                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
-                                                }
-                                                else
-                                                {
-                                                    Value.Add("Error_Capture", "An error occurred while deleting the folder");
+                                                    MTPDevice.DeleteDirectory(Path, true);
                                                 }
                                             }
-                                            else if (Marshal.GetLastWin32Error() == 5)
-                                            {
-                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete));
 
-                                                foreach (KeyValuePair<string, string> Result in ResultMap)
-                                                {
-                                                    Value.Add(Result);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                Value.Add("Error_Failure", "The specified file could not be deleted");
-                                            }
+                                            Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
                                         }
-                                        catch (Exception ex) when (ex is COMException or OperationCanceledException)
+                                        else
                                         {
-                                            Value.Add("Error_Cancelled", "Operation is cancelled");
+                                            Value.Add("Error_NotFound", $"One of path in \"{nameof(ExecutePathList)}\" is not a file or directory");
                                         }
                                     }
                                     else
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete));
+                                        Value.Add("Error_NotFound", "MTP device is not found");
+                                    }
+                                }
+                                else if (ExecutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                {
+                                    List<string> OperationRecordList = new List<string>(ExecutePathList.Count);
 
-                                        foreach (KeyValuePair<string, string> Result in ResultMap)
+                                    if (ExecutePathList.Any((Item) => StorageItemController.CheckCaptured(Item)))
+                                    {
+                                        Value.Add("Error_Capture", "An error occurred while deleting the files");
+                                    }
+                                    else
+                                    {
+                                        if (ExecutePathList.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                         {
-                                            Value.Add(Result);
+                                            try
+                                            {
+                                                if (StorageItemController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
+                                                {
+                                                    if (CancelToken.IsCancellationRequested)
+                                                    {
+                                                        throw new COMException(null, HRESULT.E_ABORT);
+                                                    }
+
+                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                },
+                                                PostDeleteEvent: (se, arg) =>
+                                                {
+                                                    if (!PermanentDelete)
+                                                    {
+                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                                    }
+                                                }))
+                                                {
+                                                    if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                    {
+                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                    }
+                                                    else
+                                                    {
+                                                        Value.Add("Error_Capture", "An error occurred while deleting the folder");
+                                                    }
+                                                }
+                                                else if (Marshal.GetLastWin32Error() == 5)
+                                                {
+                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete));
+
+                                                    foreach (KeyValuePair<string, string> Result in ResultMap)
+                                                    {
+                                                        Value.Add(Result);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Value.Add("Error_Failure", "The specified file could not be deleted");
+                                                }
+                                            }
+                                            catch (COMException ex) when (ex.ErrorCode == HRESULT.E_ABORT)
+                                            {
+                                                throw new OperationCanceledException();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete));
+
+                                            foreach (KeyValuePair<string, string> Result in ResultMap)
+                                            {
+                                                Value.Add(Result);
+                                            }
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    Value.Add("Error_NotFound", $"One of path in \"{nameof(ExecutePathList)}\" is not a file or directory");
+                                }
                             }
-                            else
+                            catch (OperationCanceledException)
                             {
-                                Value.Add("Error_NotFound", $"One of path in \"{nameof(ExecutePathList)}\" is not a file or directory");
+                                Value.Add("Error_Cancelled", "Operation is cancelled");
                             }
 
                             break;
@@ -2777,7 +3984,7 @@ namespace FullTrustProcess
                                             }
                                             else
                                             {
-                                                switch ((ProcessWindowStyle)Enum.Parse(typeof(ProcessWindowStyle), ExecuteWindowStyle))
+                                                switch (Enum.Parse<ProcessWindowStyle>(ExecuteWindowStyle))
                                                 {
                                                     case ProcessWindowStyle.Hidden:
                                                         {
@@ -2949,7 +4156,9 @@ namespace FullTrustProcess
                                 {
                                     RemoteDataObject Rdo = new RemoteDataObject(RawData);
 
-                                    foreach (RemoteClipboardDataPackage Package in Rdo.GetRemoteData())
+                                    RemoteClipboardDataPackage[] RemoteDataArray = Rdo.GetRemoteData().ToArray();
+
+                                    foreach (RemoteClipboardDataPackage Package in RemoteDataArray)
                                     {
                                         try
                                         {
@@ -2964,11 +4173,14 @@ namespace FullTrustProcess
                                                             Directory.CreateDirectory(DirectoryPath);
                                                         }
 
-                                                        string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
+                                                        string UniqueName = Helper.StorageGenerateUniquePath(System.IO.Path.Combine(Path, Package.Name), CreateType.File);
 
                                                         using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
                                                         {
-                                                            Package.ContentStream.CopyTo(Stream);
+                                                            Package.ContentStream.CopyTo(Stream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
+                                                            {
+                                                                PipeProgressWriterController?.SendData(Convert.ToString(Math.Max(0, Math.Min(100, Math.Ceiling(e.ProgressPercentage / Convert.ToDouble(RemoteDataArray.Length))))));
+                                                            });
                                                         }
 
                                                         break;

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -476,8 +475,7 @@ namespace RX_Explorer.View
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
                             await UnauthorizeDialog.ShowAsync();
@@ -555,8 +553,7 @@ namespace RX_Explorer.View
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
                         await UnauthorizeDialog.ShowAsync();
@@ -608,29 +605,29 @@ namespace RX_Explorer.View
                 args.ItemContainer.PointerExited += ItemContainer_PointerExited;
                 args.ItemContainer.PointerCanceled += ItemContainer_PointerCanceled;
 
-                if (AnimationController.Current.IsEnableAnimation)
-                {
-                    ProgressBar ProBar = args.ItemContainer.FindChildOfType<ProgressBar>();
-                    Storyboard Story = new Storyboard();
-                    DoubleAnimation Animation = new DoubleAnimation()
-                    {
-                        To = (args.Item as DriveDataBase).Percent,
-                        From = 0,
-                        EnableDependentAnimation = true,
-                        EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
-                        Duration = new TimeSpan(0, 0, 0, 0, 800)
-                    };
-                    Storyboard.SetTarget(Animation, ProBar);
-                    Storyboard.SetTargetProperty(Animation, "Value");
-                    Story.Children.Add(Animation);
-                    Story.Begin();
-                }
-
                 args.RegisterUpdateCallback(async (s, e) =>
                 {
                     if (e.Item is DriveDataBase Drive)
                     {
-                        await Drive.LoadAsync().ConfigureAwait(false);
+                        await Drive.LoadAsync();
+
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            ProgressBar ProBar = e.ItemContainer.FindChildOfType<ProgressBar>();
+                            Storyboard Story = new Storyboard();
+                            DoubleAnimation Animation = new DoubleAnimation()
+                            {
+                                To = Drive.Percent,
+                                From = 0,
+                                EnableDependentAnimation = true,
+                                EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
+                                Duration = new TimeSpan(0, 0, 0, 0, 800)
+                            };
+                            Storyboard.SetTarget(Animation, ProBar);
+                            Storyboard.SetTargetProperty(Animation, "Value");
+                            Story.Children.Add(Animation);
+                            Story.Begin();
+                        }
                     }
                 });
             }
@@ -783,11 +780,11 @@ namespace RX_Explorer.View
                             {
                                 if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
                                 {
-                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Lib.Path);
+                                    QueueTaskController.EnqueueMoveOpeartion(new OperationListMoveModel(PathList.ToArray(), Lib.Path));
                                 }
                                 else
                                 {
-                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Lib.Path);
+                                    QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(PathList.ToArray(), Lib.Path));
                                 }
 
                                 break;
@@ -796,11 +793,11 @@ namespace RX_Explorer.View
                             {
                                 if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
                                 {
-                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Drive.Path);
+                                    QueueTaskController.EnqueueMoveOpeartion(new OperationListMoveModel(PathList.ToArray(), Drive.Path));
                                 }
                                 else
                                 {
-                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Drive.Path);
+                                    QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(PathList.ToArray(), Drive.Path));
                                 }
 
                                 break;
@@ -812,7 +809,7 @@ namespace RX_Explorer.View
             {
                 if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
                 {
-                    QueueTaskController.EnqueueRemoteCopyOpeartion(Item.Path);
+                    QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Item.Path));
                 }
             }
             catch (Exception ex)
@@ -964,37 +961,16 @@ namespace RX_Explorer.View
                 case WslDriveData:
                 case NormalDriveData:
                     {
-                        await OpenTargetFolder(Drive.Path);
+                        OpenTargetFolder(string.IsNullOrEmpty(Drive.Path) ? Drive.DriveId : Drive.Path);
                         break;
                     }
             }
         }
 
-        public async Task OpenTargetFolder(string Path)
+        public void OpenTargetFolder(string Path)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(Path))
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync();
-                }
-                else
-                {
-                    DelaySelectionCancellation?.Cancel();
-                    EnterActionRequested?.Invoke(this, Path);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An error was threw when entering device");
-            }
+            DelaySelectionCancellation?.Cancel();
+            EnterActionRequested?.Invoke(this, Path);
         }
 
         private async void DriveGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
@@ -1062,7 +1038,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        await OpenTargetFolder(Library.Path);
+                        OpenTargetFolder(Library.Path);
                     }
                 }
             }
@@ -1110,7 +1086,7 @@ namespace RX_Explorer.View
             LibraryGrid.SelectedIndex = -1;
         }
 
-        private async void OpenLibrary_Click(object sender, RoutedEventArgs e)
+        private void OpenLibrary_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
@@ -1118,7 +1094,7 @@ namespace RX_Explorer.View
 
             if (LibraryGrid.SelectedItem is LibraryStorageFolder Library)
             {
-                await OpenTargetFolder(Library.Path);
+                OpenTargetFolder(Library.Path);
             }
         }
 
@@ -1186,13 +1162,13 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void LibraryGrid_ItemClick(object sender, ItemClickEventArgs e)
+        private void LibraryGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
             DriveGrid.SelectedIndex = -1;
 
             if (!SettingPage.IsDoubleClickEnabled && e.ClickedItem is LibraryStorageFolder Library)
             {
-                await OpenTargetFolder(Library.Path);
+                OpenTargetFolder(Library.Path);
             }
         }
 
@@ -1290,7 +1266,7 @@ namespace RX_Explorer.View
                     {
                         foreach (TabViewItem Tab in TabViewContainer.Current.TabCollection.ToArray())
                         {
-                            if (Tab.Content is TabItemContentRenderer Renderer)
+                            if (Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
                             {
                                 if (Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
                                                        .All((Path) => Item.Path.Equals(System.IO.Path.GetPathRoot(Path), StringComparison.OrdinalIgnoreCase)))
@@ -1599,7 +1575,7 @@ namespace RX_Explorer.View
                                     {
                                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                         {
-                                            if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                            if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                             {
                                                 LinkPath = Path.Combine(DesktopPath, $"{SItem.Name}.lnk"),
                                                 LinkTargetPath = SItem.Path
@@ -1630,7 +1606,7 @@ namespace RX_Explorer.View
                                             {
                                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                                 {
-                                                    if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                                    if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                                     {
                                                         LinkPath = Path.Combine(DataPath.Desktop, $"{SItem.Name}.lnk"),
                                                         LinkTargetPath = SItem.Path
@@ -1666,7 +1642,7 @@ namespace RX_Explorer.View
 
                                     if (await FileSystemStorageItemBase.CheckExistsAsync(DocumentPath))
                                     {
-                                        QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DocumentPath);
+                                        QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { SItem.Path }, DocumentPath));
                                     }
                                     else
                                     {
@@ -1680,7 +1656,7 @@ namespace RX_Explorer.View
 
                                             if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Documents))
                                             {
-                                                QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DataPath.Documents);
+                                                QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { SItem.Path }, DataPath.Documents));
                                             }
                                             else
                                             {
@@ -1699,7 +1675,7 @@ namespace RX_Explorer.View
                                 {
                                     if (Item.Tag is string RemovablePath)
                                     {
-                                        QueueTaskController.EnqueueCopyOpeartion(SItem.Path, RemovablePath);
+                                        QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { SItem.Path }, RemovablePath));
                                     }
 
                                     break;

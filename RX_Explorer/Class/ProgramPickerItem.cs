@@ -95,31 +95,28 @@ namespace RX_Explorer.Class
 
         public async Task<bool> LaunchAsync(string FilePath)
         {
-            if (System.IO.Path.IsPathRooted(Path))
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                if (System.IO.Path.IsPathRooted(Path))
                 {
-                    return await Exclusive.Controller.RunAsync(Path, System.IO.Path.GetDirectoryName(Path), Parameters: FilePath);
+                    return await Exclusive.Controller.RunAsync(Path, System.IO.Path.GetDirectoryName(FilePath), Parameters: FilePath);
                 }
-            }
-            else
-            {
-                try
+                else
                 {
-                    StorageFile File = await StorageFile.GetFileFromPathAsync(FilePath);
+                    try
+                    {
+                        StorageFile File = await StorageFile.GetFileFromPathAsync(FilePath);
 
-                    if (await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Path, DisplayApplicationPicker = false }))
-                    {
-                        return true;
+                        if (await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Path, DisplayApplicationPicker = false }))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
                     }
-                    else
-                    {
-                        throw new Exception();
-                    }
-                }
-                catch (Exception)
-                {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    catch (Exception)
                     {
                         return await Exclusive.Controller.LaunchUWPFromPfnAsync(Path, FilePath);
                     }

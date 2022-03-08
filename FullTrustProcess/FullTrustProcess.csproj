@@ -78,5 +78,10 @@
   <ItemGroup>
     <ProjectReference Include="..\ShareClassLibrary\ShareClassLibrary.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MediaDevices">
+      <HintPath>CustomLibraries\MediaDevices.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <PropertyGroup />
 </Project>

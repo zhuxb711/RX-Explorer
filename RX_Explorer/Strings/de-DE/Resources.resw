@@ -1525,7 +1525,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>RX hat hier keine Berechtigung zum Dekomprimieren der Zip-Datei. Es kann sein, dass Sie keinen Zugang zu dieser Datei haben</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX ist nicht zum Umbenennen berechtigt</value>
+    <value>RX hat keine Berechtigung, diese Datei umzubenennen</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>Da einige Dateien/Ordner nicht mehr vorhanden sind, konnte nicht alles vollständig rückgängig gemacht werden.</value>
@@ -3457,5 +3457,17 @@ Inkorrekte Namen sind
   </data>
   <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
     <value>Schließen Sie den Viewer</value>
+  </data>
+  <data name="File_Admin_DisplayType" xml:space="preserve">
+    <value>Datei</value>
+  </data>
+  <data name="TaskList_OperationKind_Rename" xml:space="preserve">
+    <value>Aufgabe umbenennen</value>
+  </data>
+  <data name="QueueDialog_CouldNotOpenImage_Content" xml:space="preserve">
+    <value>Diese Bilddatei kann nicht geöffnet werden</value>
+  </data>
+  <data name="QueueDialog_NotSupportedFile_Content" xml:space="preserve">
+    <value>Dieser Dateityp wird nicht unterstützt</value>
   </data>
 </root>

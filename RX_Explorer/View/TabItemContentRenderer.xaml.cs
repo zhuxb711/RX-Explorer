@@ -4,13 +4,16 @@ using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer.View
 {
@@ -65,6 +68,93 @@ namespace RX_Explorer.View
         public void SetPanelOpenStatus(bool IsOpened)
         {
             TaskListPanel.IsPaneOpen = IsOpened;
+        }
+
+        public void SetLoadingTipsStatus(bool ShowTips)
+        {
+            LoadingControl.IsLoading = ShowTips;
+        }
+
+        public async Task SetTreeViewStatusAsync(bool IsOpened)
+        {
+            if (BaseControl.CurrentPresenter?.CurrentFolder != null)
+            {
+                if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
+                {
+                    BaseControl.TreeViewGridCol.Width = IsOpened ? new GridLength(Scale * BaseControl.ActualWidth) : new GridLength(0);
+                }
+                else
+                {
+                    BaseControl.TreeViewGridCol.Width = IsOpened ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+                }
+
+                if (IsOpened)
+                {
+                    BaseControl.FolderTree.RootNodes.Clear();
+
+                    BaseControl.FolderTree.RootNodes.Add(new TreeViewNode
+                    {
+                        Content = TreeViewNodeContent.QuickAccessNode,
+                        IsExpanded = false,
+                        HasUnrealizedChildren = true
+                    });
+
+                    foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
+                    {
+                        TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
+
+                        TreeViewNode RootNode = new TreeViewNode
+                        {
+                            IsExpanded = false,
+                            Content = Content,
+                            HasUnrealizedChildren = Content.HasChildren
+                        };
+
+                        BaseControl.FolderTree.RootNodes.Add(RootNode);
+
+                        if (Path.GetPathRoot(BaseControl.CurrentPresenter.CurrentFolder.Path).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (Content.HasChildren)
+                            {
+                                RootNode.IsExpanded = true;
+                            }
+
+                            BaseControl.FolderTree.SelectNodeAndScrollToVertical(RootNode);
+                        }
+                    }
+                }
+            }
+        }
+
+        public async Task RefreshTreeViewAsync()
+        {
+            if (BaseControl.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+            {
+                foreach (TreeViewNode Node in QuickAccessNode.Children)
+                {
+                    await Node.UpdateAllSubNodeAsync();
+                }
+            }
+
+            foreach (TreeViewNode RootNode in BaseControl.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+            {
+                await RootNode.UpdateAllSubNodeAsync();
+            }
+        }
+
+        public async Task RefreshPresentersAsync()
+        {
+            List<Task> ParallelTask = new List<Task>();
+
+            foreach (FilePresenter Presenter in Presenters)
+            {
+                if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
+                {
+                    ParallelTask.Add(Presenter.DisplayItemsInFolder(CurrentFolder, true));
+                }
+            }
+
+            await Task.WhenAll(ParallelTask);
         }
 
         private void TabItemContentRenderer_Loaded(object sender, RoutedEventArgs e)

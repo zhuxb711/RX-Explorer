@@ -112,6 +112,10 @@
     <Compile Include="Class\AddressBlock.cs" />
     <Compile Include="Class\ExtendedDataFormats.cs" />
     <Compile Include="Class\LibraryFolderRecord.cs" />
+    <Compile Include="Class\MTPDriveData.cs" />
+    <Compile Include="Class\MTPFileReadWriteStream.cs" />
+    <Compile Include="Class\MTPStorageFile.cs" />
+    <Compile Include="Class\MTPStorageFolder.cs" />
     <Compile Include="Class\NavigationRecordDisplay.cs" />
     <Compile Include="Class\AddressSuggestionItem.cs" />
     <Compile Include="Class\AnimationController.cs" />
@@ -132,7 +136,7 @@
     <Compile Include="Class\CustomDataTemplateSelector.cs" />
     <Compile Include="Class\CustomStaticDataSource.cs" />
     <Compile Include="Class\CustomStyleSelector.cs" />
-    <Compile Include="Class\DisposableNotification.cs" />
+    <Compile Include="Class\EndOfShareNotification.cs" />
     <Compile Include="Class\DisposableObservableCollection.cs" />
     <Compile Include="Class\DriveChangedDeferredEventArgs.cs" />
     <Compile Include="Class\Enum.cs" />
@@ -171,6 +175,7 @@
     <Compile Include="Class\OperationListMoveUndoModel.cs" />
     <Compile Include="Class\OperationListNewUndoModel.cs" />
     <Compile Include="Class\OperationListRemoteModel.cs" />
+    <Compile Include="Class\OperationListRenameModel.cs" />
     <Compile Include="Class\OperationListRenameUndoModel.cs" />
     <Compile Include="Class\OperationListUndoModel.cs" />
     <Compile Include="Class\PortableImageDataPackage.cs" />
@@ -195,11 +200,12 @@
     <Compile Include="Class\SLEHeader.cs" />
     <Compile Include="Class\SLEInputStream.cs" />
     <Compile Include="Class\SLEOutputStream.cs" />
+    <Compile Include="Class\SortStateChangedEventArgs.cs" />
     <Compile Include="Class\UncPath.cs" />
     <Compile Include="Class\UrlStorageFile.cs" />
     <Compile Include="Class\LayoutModeChangedEventArgs.cs" />
     <Compile Include="Class\LayoutModeModel.cs" />
-    <Compile Include="Class\Win32_File_Data.cs" />
+    <Compile Include="Class\NativeFileData.cs" />
     <Compile Include="Class\WindowSizeConfiguration.cs" />
     <Compile Include="Class\WslDriveData.cs" />
     <Compile Include="Dialog\AQSGuide.xaml.cs">
@@ -221,6 +227,7 @@
       <DependentUpon>SecureAreaChangeLocationDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Interface\ICoreStorageItem.cs" />
+    <Compile Include="Interface\IMTPStorageItem.cs" />
     <Compile Include="Interface\IUnsupportedStorageItemGeneric.cs" />
     <Compile Include="View\SettingPage.xaml.cs">
       <DependentUpon>SettingPage.xaml</DependentUpon>
@@ -257,7 +264,7 @@
     <Compile Include="Class\TreeViewNodeContent.cs" />
     <Compile Include="Class\ValueConverter.cs" />
     <Compile Include="Class\LayoutModeController.cs" />
-    <Compile Include="Class\Win32_Native_API.cs" />
+    <Compile Include="Class\NativeWin32API.cs" />
     <Compile Include="Class\CredentialProtector.cs" />
     <Compile Include="Dialog\BitlockerPasswordDialog.xaml.cs">
       <DependentUpon>BitlockerPasswordDialog.xaml</DependentUpon>

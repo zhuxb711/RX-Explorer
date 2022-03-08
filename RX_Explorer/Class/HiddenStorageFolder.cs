@@ -12,7 +12,7 @@ namespace RX_Explorer.Class
 {
     public class HiddenStorageFolder : FileSystemStorageFolder, IHiddenStorageItem
     {
-        protected HiddenDataPackage RawData { get; set; }
+        protected HiddenFileData RawData { get; set; }
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
@@ -57,22 +57,31 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        public async Task<HiddenDataPackage> GetRawDataAsync()
+        public async Task<HiddenFileData> GetRawDataAsync()
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+            try
             {
-                if (ControllerRef != null)
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
                 {
-                    return await ControllerRef.Value.Controller.GetHiddenItemDataAsync(Path);
-                }
-                else
-                {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    if (ControllerRef != null)
                     {
-                        return await Exclusive.Controller.GetHiddenItemDataAsync(Path);
+                        return await ControllerRef.Value.Controller.GetHiddenItemDataAsync(Path);
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            return await Exclusive.Controller.GetHiddenItemDataAsync(Path);
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An unexpected exception was threw in {nameof(GetRawDataAsync)}");
+            }
+
+            return null;
         }
 
         public override void SetThumbnailOpacity(ThumbnailStatus Status)
@@ -81,8 +90,13 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(ThumbnailOpacity));
         }
 
-        public HiddenStorageFolder(Win32_File_Data Data) : base(Data)
+        public HiddenStorageFolder(NativeFileData Data) : base(Data)
         {
+            if (Data == null)
+            {
+                throw new ArgumentNullException(nameof(Data));
+            }
+
             base.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity);
         }
     }

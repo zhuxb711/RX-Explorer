@@ -2,10 +2,9 @@
 using RX_Explorer.Dialog;
 using ShareClassLibrary;
 using System;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.System;
@@ -19,15 +18,15 @@ namespace RX_Explorer.View
     public sealed partial class TextViewer : Page
     {
         private string TextFilePath;
-
         private Encoding SaveEncoding;
+        private CancellationTokenSource Cancellation;
 
         public TextViewer()
         {
             InitializeComponent();
         }
 
-        private async Task Initialize(FileSystemStorageFile TextFile)
+        private async Task InitializeAsync(FileSystemStorageFile TextFile, CancellationToken CancelToken)
         {
             Title.Text = TextFile.Name;
             TextFilePath = TextFile.Path;
@@ -36,8 +35,7 @@ namespace RX_Explorer.View
 
             if (await EncodingDialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                SaveEncoding = EncodingDialog.UserSelectedEncoding;
-                await LoadTextFromFileWithEncoding(TextFile, SaveEncoding).ConfigureAwait(false);
+                await LoadTextFromFileWithEncoding(TextFile, EncodingDialog.UserSelectedEncoding, CancelToken);
             }
             else
             {
@@ -47,71 +45,99 @@ namespace RX_Explorer.View
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
+            Cancellation = new CancellationTokenSource();
+
             if (e?.Parameter is FileSystemStorageFile TextFile)
             {
-                await Initialize(TextFile);
+                await InitializeAsync(TextFile, Cancellation.Token);
             }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+
+            Cancellation?.Cancel();
+            Cancellation?.Dispose();
+
             EditText.Text = string.Empty;
         }
 
-        private async Task LoadTextFromFileWithEncoding(FileSystemStorageFile File, Encoding TextEncoding)
+        private async Task LoadTextFromFileWithEncoding(FileSystemStorageFile File, Encoding TextEncoding, CancellationToken CancelToken)
         {
-            LoadingControl.IsLoading = true;
+            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
             try
             {
                 Stream TextStream = null;
 
-                if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
+                switch (File.Type.ToLower())
                 {
-                    FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                    case ".sle":
+                        {
+                            Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
-                    SLEHeader Header = SLEHeader.GetHeader(Stream);
+                            SLEHeader Header = SLEHeader.GetHeader(Stream);
 
-                    if (Header.Version >= SLEVersion.Version_1_5_0)
-                    {
-                        TextStream = new SLEInputStream(Stream, SecureArea.AESKey);
-                    }
-                    else
-                    {
-                        throw new NotSupportedException();
-                    }
+                            if (Header.Version >= SLEVersion.Version_1_5_0)
+                            {
+                                TextStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                            }
+
+                            break;
+                        }
+                    case ".txt":
+                        {
+                            TextStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential);
+                            break;
+                        }
                 }
-                else if (File.Type.Equals(".txt", StringComparison.OrdinalIgnoreCase))
+
+                if (CancelToken.IsCancellationRequested)
                 {
-                    Save.IsEnabled = true;
-                    TextStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential);
+                    TextStream?.Dispose();
                 }
                 else
                 {
-                    throw new NotSupportedException();
-                }
+                    try
+                    {
+                        if (TextStream == null)
+                        {
+                            throw new NotSupportedException();
+                        }
+                        else if (TextStream is SLEInputStream)
+                        {
+                            Save.IsEnabled = false;
+                        }
 
-                using (StreamReader Reader = new StreamReader(TextStream, TextEncoding, false))
-                {
-                    EditText.Text = await Reader.ReadToEndAsync();
+                        SaveEncoding = TextEncoding;
+
+                        using (StreamReader Reader = new StreamReader(TextStream, TextEncoding, false))
+                        {
+                            EditText.Text = await Reader.ReadToEndAsync();
+                        }
+
+                        await Task.Delay(1000);
+                    }
+                    finally
+                    {
+                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not load the content in file");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                await new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_CouldReadWriteFile_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
+                }.ShowAsync();
 
-                await Dialog.ShowAsync();
+                Frame.GoBack();
             }
-
-            await Task.Delay(500);
-            LoadingControl.IsLoading = false;
         }
 
         private async void Save_Click(object sender, RoutedEventArgs e)
@@ -120,10 +146,11 @@ namespace RX_Explorer.View
             {
                 if (await FileSystemStorageItemBase.CreateNewAsync(TextFilePath, StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile File)
                 {
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                     using (StreamWriter Writer = new StreamWriter(Stream, SaveEncoding))
                     {
                         await Writer.WriteAsync(EditText.Text);
+                        await Writer.FlushAsync();
                     }
                 }
                 else

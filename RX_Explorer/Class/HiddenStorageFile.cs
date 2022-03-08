@@ -12,7 +12,7 @@ namespace RX_Explorer.Class
 {
     public class HiddenStorageFile : FileSystemStorageFile, IHiddenStorageItem
     {
-        protected HiddenDataPackage RawData { get; set; }
+        protected HiddenFileData RawData { get; set; }
 
         public override string DisplayType => (RawData?.DisplayType) ?? Type;
 
@@ -65,26 +65,50 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(ThumbnailOpacity));
         }
 
-        public async Task<HiddenDataPackage> GetRawDataAsync()
+        public override Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+            return null;
+        }
+
+        public override Task<StorageStreamTransaction> GetTransactionStreamFromFileAsync()
+        {
+            return null;
+        }
+
+        public async Task<HiddenFileData> GetRawDataAsync()
+        {
+            try
             {
-                if (ControllerRef != null)
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
                 {
-                    return await ControllerRef.Value.Controller.GetHiddenItemDataAsync(Path);
-                }
-                else
-                {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    if (ControllerRef != null)
                     {
-                        return await Exclusive.Controller.GetHiddenItemDataAsync(Path);
+                        return await ControllerRef.Value.Controller.GetHiddenItemDataAsync(Path);
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            return await Exclusive.Controller.GetHiddenItemDataAsync(Path);
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An unexpected exception was threw in {nameof(GetRawDataAsync)}");
+            }
+
+            return null;
         }
 
-        public HiddenStorageFile(Win32_File_Data Data) : base(Data)
+        public HiddenStorageFile(NativeFileData Data) : base(Data)
         {
+            if (Data == null)
+            {
+                throw new ArgumentNullException(nameof(Data));
+            }
+
             base.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity);
         }
     }

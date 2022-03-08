@@ -55,47 +55,23 @@ namespace RX_Explorer.View
 {
     public sealed partial class FilePresenter : Page, IDisposable
     {
-        public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; }
-        private ObservableCollection<FileSystemStorageGroupItem> GroupCollection { get; }
-
-        private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
-
-        private WeakReference<FileControl> WeakToFileControl;
-
-        private FileControl Container
-        {
-            get
-            {
-                if (WeakToFileControl != null)
-                {
-                    if (WeakToFileControl.TryGetTarget(out FileControl Instance))
-                    {
-                        return Instance;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            set
-            {
-                WeakToFileControl = new WeakReference<FileControl>(value);
-            }
-        }
+        public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; } = new ObservableCollection<FileSystemStorageItemBase>();
 
         public ConcurrentStack<NavigationRelatedRecord> BackNavigationStack { get; } = new ConcurrentStack<NavigationRelatedRecord>();
 
         public ConcurrentStack<NavigationRelatedRecord> ForwardNavigationStack { get; } = new ConcurrentStack<NavigationRelatedRecord>();
 
-        private FileChangeMonitor AreaWatcher;
 
-        private SemaphoreSlim EnterLock;
-        private SemaphoreSlim CollectionChangeLock;
+        public FileChangeMonitor AreaWatcher { get; } = new FileChangeMonitor();
+
+        private readonly FileControl Container;
+
+        private readonly SemaphoreSlim EnterLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim CollectionChangeLock = new SemaphoreSlim(1, 1);
+
+        private readonly ObservableCollection<FileSystemStorageGroupItem> GroupCollection = new ObservableCollection<FileSystemStorageGroupItem>();
+
+        private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
 
         private readonly PointerEventHandler PointerPressedEventHandler;
         private readonly PointerEventHandler PointerReleasedEventHandler;
@@ -159,7 +135,6 @@ namespace RX_Explorer.View
 
         private WiFiShareProvider WiFiProvider;
         private ListViewBaseSelectionExtension SelectionExtension;
-        private FileSystemStorageItemBase TabTarget;
         private DateTimeOffset LastPressTime;
         private string LastPressString;
         private CancellationTokenSource DelayRenameCancellation;
@@ -214,13 +189,7 @@ namespace RX_Explorer.View
             }
         }
 
-        public IReadOnlyList<FileSystemStorageItemBase> SelectedItems
-        {
-            get
-            {
-                return ItemPresenter?.SelectedItems.Cast<FileSystemStorageItemBase>().ToList() ?? new List<FileSystemStorageItemBase>();
-            }
-        }
+        public IReadOnlyList<FileSystemStorageItemBase> SelectedItems => ItemPresenter?.SelectedItems.Cast<FileSystemStorageItemBase>().ToList() ?? new List<FileSystemStorageItemBase>();
 
         public FilePresenter(FileControl Container)
         {
@@ -228,21 +197,14 @@ namespace RX_Explorer.View
 
             this.Container = Container;
 
-            GroupCollection = new ObservableCollection<FileSystemStorageGroupItem>();
 
-            FileCollection = new ObservableCollection<FileSystemStorageItemBase>();
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
-
             ListViewDetailHeader.Filter.RefreshListRequested += Filter_RefreshListRequested;
 
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
             PointerReleasedEventHandler = new PointerEventHandler(ViewControl_PointerReleased);
 
-            AreaWatcher = new FileChangeMonitor();
             AreaWatcher.FileChanged += DirectoryWatcher_FileChanged;
-
-            EnterLock = new SemaphoreSlim(1, 1);
-            CollectionChangeLock = new SemaphoreSlim(1, 1);
 
             FileFlyout = CreateNewFileContextMenu();
             FolderFlyout = CreateNewFolderContextMenu();
@@ -752,7 +714,7 @@ namespace RX_Explorer.View
                 AlwaysExpanded = true,
                 ShouldConstrainToRootBounds = false
             };
-            Flyout.Opening += CommandBarFlyout_Opening;
+            Flyout.Opening += FolderFlyout_Opening;
             Flyout.Closed += CommandBarFlyout_Closed;
             Flyout.Closing += CommandBarFlyout_Closing;
 
@@ -1073,44 +1035,6 @@ namespace RX_Explorer.View
             #endregion
 
             return Flyout;
-        }
-
-        private async void SetAsQuickAccessButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (SelectedItem is FileSystemStorageFolder Folder)
-            {
-                if (CommonAccessCollection.LibraryList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync();
-                }
-                else
-                {
-                    if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
-                    {
-                        CommonAccessCollection.LibraryList.Add(LibFolder);
-                        SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
-                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
-                    }
-                }
-            }
-        }
-
-        private async void CommandBarFlyout_Opening(object sender, object e)
-        {
-            if (sender is CommandBarFlyout Flyout)
-            {
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-                {
-                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
-                }
-            }
         }
 
         private CommandBarFlyout CreateNewLinkFileContextMenu()
@@ -1996,19 +1920,57 @@ namespace RX_Explorer.View
             await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
         }
 
+        private async void SetAsQuickAccessButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedItem is FileSystemStorageFolder Folder)
+            {
+                if (CommonAccessCollection.LibraryList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+                else
+                {
+                    if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
+                    {
+                        CommonAccessCollection.LibraryList.Add(LibFolder);
+                        SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
+                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
+                    }
+                }
+            }
+        }
+
+        private async void FolderFlyout_Opening(object sender, object e)
+        {
+            if (sender is CommandBarFlyout Flyout)
+            {
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
+                }
+            }
+        }
+
         private async void DirectoryWatcher_FileChanged(object sender, FileChangedDeferredEventArgs args)
         {
             EventDeferral Deferral = args.GetDeferral();
 
             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
             {
-                try
+                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                 {
-                    switch (args)
+                    try
                     {
-                        case FileAddedDeferredEventArgs AddedArgs:
-                            {
-                                if (CurrentFolder.Path == Path.GetDirectoryName(AddedArgs.Path))
+                        switch (args)
+                        {
+                            case FileAddedDeferredEventArgs AddedArgs:
                                 {
                                     if (FileCollection.All((Item) => !Item.Path.Equals(AddedArgs.Path, StringComparison.OrdinalIgnoreCase)))
                                     {
@@ -2022,7 +1984,7 @@ namespace RX_Explorer.View
                                                     {
                                                         PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
-                                                        int Index = SortCollectionGenerator.SearchInsertLocation(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                                                        int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
                                                         if (Index >= 0)
                                                         {
@@ -2050,7 +2012,7 @@ namespace RX_Explorer.View
 
                                                         if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                                         {
-                                                            if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty), true) is TreeViewNode CurrentNode)
+                                                            if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
                                                             {
                                                                 await CurrentNode.UpdateAllSubNodeAsync();
                                                             }
@@ -2060,13 +2022,10 @@ namespace RX_Explorer.View
                                             }
                                         }
                                     }
-                                }
 
-                                break;
-                            }
-                        case FileRemovedDeferredEventArgs RemovedArgs:
-                            {
-                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(RemovedArgs.Path), StringComparison.OrdinalIgnoreCase))
+                                    break;
+                                }
+                            case FileRemovedDeferredEventArgs RemovedArgs:
                                 {
                                     bool ShouldRefreshTreeView = false;
 
@@ -2092,19 +2051,16 @@ namespace RX_Explorer.View
 
                                         if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                         {
-                                            if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty), true) is TreeViewNode CurrentNode)
+                                            if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
                                             {
                                                 await CurrentNode.UpdateAllSubNodeAsync();
                                             }
                                         }
                                     }
-                                }
 
-                                break;
-                            }
-                        case FileModifiedDeferredEventArgs ModifiedArgs:
-                            {
-                                if (CurrentFolder.Path == Path.GetDirectoryName(ModifiedArgs.Path))
+                                    break;
+                                }
+                            case FileModifiedDeferredEventArgs ModifiedArgs:
                                 {
                                     if (await FileSystemStorageItemBase.OpenAsync(ModifiedArgs.Path) is FileSystemStorageFile ModifiedItem)
                                     {
@@ -2126,7 +2082,7 @@ namespace RX_Explorer.View
 
                                                             if (FileCollection.Any())
                                                             {
-                                                                int Index = SortCollectionGenerator.SearchInsertLocation(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                                                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
                                                                 if (Index >= 0)
                                                                 {
@@ -2167,7 +2123,7 @@ namespace RX_Explorer.View
                                                     {
                                                         if (FileCollection.Any())
                                                         {
-                                                            int Index = SortCollectionGenerator.SearchInsertLocation(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                                                            int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
                                                             if (Index >= 0)
                                                             {
@@ -2190,7 +2146,7 @@ namespace RX_Explorer.View
                                         {
                                             if (FileCollection.Any())
                                             {
-                                                int Index = SortCollectionGenerator.SearchInsertLocation(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
                                                 if (Index >= 0)
                                                 {
@@ -2207,13 +2163,10 @@ namespace RX_Explorer.View
                                             }
                                         }
                                     }
-                                }
 
-                                break;
-                            }
-                        case FileRenamedDeferredEventArgs RenamedArgs:
-                            {
-                                if (CurrentFolder.Path == Path.GetDirectoryName(RenamedArgs.Path))
+                                    break;
+                                }
+                            case FileRenamedDeferredEventArgs RenamedArgs:
                                 {
                                     string NewPath = Path.Combine(CurrentFolder.Path, RenamedArgs.NewName);
 
@@ -2233,7 +2186,7 @@ namespace RX_Explorer.View
                                                 {
                                                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
-                                                    int Index = SortCollectionGenerator.SearchInsertLocation(FileCollection, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
                                                     if (Index >= 0)
                                                     {
@@ -2261,7 +2214,7 @@ namespace RX_Explorer.View
 
                                                     if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                                     {
-                                                        if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty), true) is TreeViewNode CurrentNode)
+                                                        if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
                                                         {
                                                             await CurrentNode.UpdateAllSubNodeAsync();
                                                         }
@@ -2270,19 +2223,19 @@ namespace RX_Explorer.View
                                             }
                                         }
                                     }
-                                }
 
-                                break;
-                            }
+                                    break;
+                                }
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{ nameof(FileChangeMonitor)}: Add item to collection failed");
-                }
-                finally
-                {
-                    Deferral.Complete();
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"{ nameof(FileChangeMonitor)}: Add item to collection failed");
+                    }
+                    finally
+                    {
+                        Deferral.Complete();
+                    }
                 }
             });
         }
@@ -2384,7 +2337,7 @@ namespace RX_Explorer.View
                             {
                                 args.Handled = true;
 
-                                await EnterSelectedItemAsync(Item).ConfigureAwait(false);
+                                await OpenSelectedItemAsync(Item).ConfigureAwait(false);
                                 break;
                             }
                         case VirtualKey.Back when Container.GoBackRecord.IsEnabled:
@@ -2576,35 +2529,48 @@ namespace RX_Explorer.View
             }
         }
 
-        private void Current_SortConfigChanged(object sender, SortCollectionGenerator.SortStateChangedEventArgs args)
+        private async void Current_SortConfigChanged(object sender, SortStateChangedEventArgs args)
         {
-            if (args.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+            EventDeferral Deferral = args.GetDeferral();
+
+            try
             {
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(args.Target, args.Direction);
-
-                if (IsGroupedEnable)
+                if (args.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                 {
-                    foreach (FileSystemStorageGroupItem GroupItem in GroupCollection)
+                    ListViewDetailHeader.Indicator.SetIndicatorStatus(args.Target, args.Direction);
+
+                    if (IsGroupedEnable)
                     {
-                        FileSystemStorageItemBase[] SortedGroupItem = SortCollectionGenerator.GetSortedCollection(GroupItem, args.Target, args.Direction).ToArray();
-
-                        GroupItem.Clear();
-
-                        foreach (FileSystemStorageItemBase Item in SortedGroupItem)
+                        foreach (FileSystemStorageGroupItem GroupItem in GroupCollection)
                         {
-                            GroupItem.Add(Item);
+                            IReadOnlyList<FileSystemStorageItemBase> SortedGroupItem = new List<FileSystemStorageItemBase>(await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, args.Target, args.Direction));
+
+                            GroupItem.Clear();
+
+                            foreach (FileSystemStorageItemBase Item in SortedGroupItem)
+                            {
+                                GroupItem.Add(Item);
+                            }
                         }
                     }
+
+                    IReadOnlyList<FileSystemStorageItemBase> SortResult = new List<FileSystemStorageItemBase>(await SortCollectionGenerator.GetSortedCollectionAsync(FileCollection, args.Target, args.Direction));
+
+                    FileCollection.Clear();
+
+                    foreach (FileSystemStorageItemBase Item in SortResult)
+                    {
+                        FileCollection.Add(Item);
+                    }
                 }
-
-                FileSystemStorageItemBase[] ItemList = SortCollectionGenerator.GetSortedCollection(FileCollection, args.Target, args.Direction).ToArray();
-
-                FileCollection.Clear();
-
-                foreach (FileSystemStorageItemBase Item in ItemList)
-                {
-                    FileCollection.Add(Item);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not apply changes on sort config was changed");
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 
@@ -2686,31 +2652,50 @@ namespace RX_Explorer.View
                         TabViewContainer.Current.LayoutModeControl.CurrentPath = Config.Path;
                         TabViewContainer.Current.LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
 
-                        IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
-
-                        if (ChildItems.Count > 0)
+                        using (CancellationTokenSource LoadingTipCancellation = new CancellationTokenSource())
                         {
-                            HasFile.Visibility = Visibility.Collapsed;
-
-                            if (Config.GroupTarget != GroupTarget.None)
+                            _ = Task.Delay(1500).ContinueWith((PreviousTask, Obj) =>
                             {
-                                foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
+                                if (Obj is CancellationToken CancelToken && !CancelToken.IsCancellationRequested)
                                 {
-                                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
+                                    FileLoadProgress.Visibility = Visibility.Visible;
                                 }
+                            }, LoadingTipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
 
-                                IsGroupedEnable = true;
-                            }
-                            else
+                            try
                             {
-                                IsGroupedEnable = false;
-                            }
+                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
 
-                            FileCollection.AddRange(SortCollectionGenerator.GetSortedCollection(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
-                        }
-                        else
-                        {
-                            HasFile.Visibility = Visibility.Visible;
+                                if (ChildItems.Count > 0)
+                                {
+                                    HasFile.Visibility = Visibility.Collapsed;
+
+                                    if (Config.GroupTarget != GroupTarget.None)
+                                    {
+                                        foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
+                                        {
+                                            GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
+                                        }
+
+                                        IsGroupedEnable = true;
+                                    }
+                                    else
+                                    {
+                                        IsGroupedEnable = false;
+                                    }
+
+                                    FileCollection.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
+                                }
+                                else
+                                {
+                                    HasFile.Visibility = Visibility.Visible;
+                                }
+                            }
+                            finally
+                            {
+                                LoadingTipCancellation.Cancel();
+                                FileLoadProgress.Visibility = Visibility.Collapsed;
+                            }
                         }
 
                         StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
@@ -2943,7 +2928,7 @@ namespace RX_Explorer.View
 
                                     if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
                                     {
-                                        int Index = SortCollectionGenerator.SearchInsertLocation(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                                        int Index = await SortCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
                                         if (Index >= 0)
                                         {
@@ -2996,7 +2981,7 @@ namespace RX_Explorer.View
 
                                     if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
                                     {
-                                        int Index = SortCollectionGenerator.SearchInsertLocation(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                                        int Index = await SortCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
                                         if (Index >= 0)
                                         {
@@ -3074,123 +3059,198 @@ namespace RX_Explorer.View
                             {
                                 case "Delete":
                                     {
-                                        QueueTaskController.EnqueueDeleteUndoOpeartion(SplitGroup.Select((Item) => Item[0]).ToArray(), OnCompleted: async (s, e) =>
+                                        OperationListDeleteUndoModel Model = new OperationListDeleteUndoModel(SplitGroup.Select((Item) => Item[0]).ToArray());
+
+                                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
                                         {
-                                            if (!SettingPage.IsDetachTreeViewAndPresenter)
+                                            EventDeferral Deferral = e.GetDeferral();
+
+                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                                             {
-                                                if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                                try
                                                 {
-                                                    foreach (TreeViewNode Node in QuickAccessNode.Children)
+                                                    if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
-                                                        await Node.UpdateAllSubNodeAsync();
+                                                        if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                                        {
+                                                            foreach (TreeViewNode Node in QuickAccessNode.Children)
+                                                            {
+                                                                await Node.UpdateAllSubNodeAsync();
+                                                            }
+                                                        }
+
+                                                        foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                        {
+                                                            await RootNode.UpdateAllSubNodeAsync();
+                                                        }
                                                     }
                                                 }
-
-                                                foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                finally
                                                 {
-                                                    await RootNode.UpdateAllSubNodeAsync();
+                                                    Deferral.Complete();
                                                 }
-                                            }
+                                            });
                                         });
+
+                                        QueueTaskController.EnqueueDeleteUndoOpeartion(Model);
 
                                         break;
                                     }
                                 case "Move":
                                     {
-                                        Dictionary<string, string> Dic = new Dictionary<string, string>();
+                                        Dictionary<string, string> MoveMap = new Dictionary<string, string>(SplitGroup.Select((Group) => new KeyValuePair<string, string>(Group[2], Path.GetFileName(Group[0]))));
 
-                                        foreach (string[] Group in SplitGroup)
-                                        {
-                                            Dic.Add(Group[2], Path.GetFileName(Group[0]));
-                                        }
+                                        OperationListMoveUndoModel Model = new OperationListMoveUndoModel(MoveMap, OriginFolderPath);
 
-                                        QueueTaskController.EnqueueMoveUndoOpeartion(Dic, OriginFolderPath, OnCompleted: async (s, e) =>
+                                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
                                         {
-                                            if (!SettingPage.IsDetachTreeViewAndPresenter)
+                                            EventDeferral Deferral = e.GetDeferral();
+
+                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                                             {
-                                                if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                                try
                                                 {
-                                                    foreach (TreeViewNode Node in QuickAccessNode.Children)
+                                                    if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
-                                                        await Node.UpdateAllSubNodeAsync();
+                                                        if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                                        {
+                                                            foreach (TreeViewNode Node in QuickAccessNode.Children)
+                                                            {
+                                                                await Node.UpdateAllSubNodeAsync();
+                                                            }
+                                                        }
+
+                                                        foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                        {
+                                                            await RootNode.UpdateAllSubNodeAsync();
+                                                        }
                                                     }
                                                 }
-
-                                                foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                finally
                                                 {
-                                                    await RootNode.UpdateAllSubNodeAsync();
+                                                    Deferral.Complete();
                                                 }
-                                            }
+                                            });
                                         });
+
+                                        QueueTaskController.EnqueueMoveUndoOpeartion(Model);
 
                                         break;
                                     }
                                 case "Copy":
                                     {
-                                        QueueTaskController.EnqueueCopyUndoOpeartion(SplitGroup.Select((Item) => Item[2]).ToArray(), OnCompleted: async (s, e) =>
+                                        OperationListCopyUndoModel Model = new OperationListCopyUndoModel(SplitGroup.Select((Item) => Item[2]).ToArray());
+
+                                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
                                         {
-                                            if (!SettingPage.IsDetachTreeViewAndPresenter)
+                                            EventDeferral Deferral = e.GetDeferral();
+
+                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                                             {
-                                                if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                                try
                                                 {
-                                                    foreach (TreeViewNode Node in QuickAccessNode.Children)
+                                                    if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
-                                                        await Node.UpdateAllSubNodeAsync();
+                                                        if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                                        {
+                                                            foreach (TreeViewNode Node in QuickAccessNode.Children)
+                                                            {
+                                                                await Node.UpdateAllSubNodeAsync();
+                                                            }
+                                                        }
+
+                                                        foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                        {
+                                                            await RootNode.UpdateAllSubNodeAsync();
+                                                        }
                                                     }
                                                 }
-
-                                                foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                finally
                                                 {
-                                                    await RootNode.UpdateAllSubNodeAsync();
+                                                    Deferral.Complete();
                                                 }
-                                            }
+                                            });
                                         });
+
+                                        QueueTaskController.EnqueueCopyUndoOpeartion(Model);
 
                                         break;
                                     }
                                 case "Rename":
                                     {
-                                        QueueTaskController.EnqueueRenameUndoOpeartion(SplitGroup.Select((Item) => Item[2]).First(), SplitGroup.Select((Item) => Item[0]).First(), OnCompleted: async (s, e) =>
+                                        OperationListRenameUndoModel Model = new OperationListRenameUndoModel(SplitGroup.First()[2], SplitGroup.First()[0]);
+
+                                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
                                         {
-                                            if (!SettingPage.IsDetachTreeViewAndPresenter)
+                                            EventDeferral Deferral = e.GetDeferral();
+
+                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                                             {
-                                                if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                                try
                                                 {
-                                                    foreach (TreeViewNode Node in QuickAccessNode.Children)
+                                                    if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
-                                                        await Node.UpdateAllSubNodeAsync();
+                                                        if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                                        {
+                                                            foreach (TreeViewNode Node in QuickAccessNode.Children)
+                                                            {
+                                                                await Node.UpdateAllSubNodeAsync();
+                                                            }
+                                                        }
+
+                                                        foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                        {
+                                                            await RootNode.UpdateAllSubNodeAsync();
+                                                        }
                                                     }
                                                 }
-
-                                                foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                finally
                                                 {
-                                                    await RootNode.UpdateAllSubNodeAsync();
+                                                    Deferral.Complete();
                                                 }
-                                            }
+                                            });
                                         });
+
+                                        QueueTaskController.EnqueueRenameUndoOpeartion(Model);
 
                                         break;
                                     }
                                 case "New":
                                     {
-                                        QueueTaskController.EnqueueNewUndoOpeartion(SplitGroup.Select((Item) => Item[0]).First(), OnCompleted: async (s, e) =>
+                                        OperationListNewUndoModel Model = new OperationListNewUndoModel(SplitGroup.First()[0]);
+
+                                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
                                         {
-                                            if (!SettingPage.IsDetachTreeViewAndPresenter)
+                                            EventDeferral Deferral = e.GetDeferral();
+
+                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                                             {
-                                                if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                                try
                                                 {
-                                                    foreach (TreeViewNode Node in QuickAccessNode.Children)
+                                                    if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
-                                                        await Node.UpdateAllSubNodeAsync();
+                                                        if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                                        {
+                                                            foreach (TreeViewNode Node in QuickAccessNode.Children)
+                                                            {
+                                                                await Node.UpdateAllSubNodeAsync();
+                                                            }
+                                                        }
+
+                                                        foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                        {
+                                                            await RootNode.UpdateAllSubNodeAsync();
+                                                        }
                                                     }
                                                 }
-
-                                                foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                finally
                                                 {
-                                                    await RootNode.UpdateAllSubNodeAsync();
+                                                    Deferral.Complete();
                                                 }
-                                            }
+                                            });
                                         });
+
+                                        QueueTaskController.EnqueueNewUndoOpeartion(Model);
 
                                         break;
                                     }
@@ -3273,20 +3333,94 @@ namespace RX_Explorer.View
                 {
                     if (Package.RequestedOperation.HasFlag(DataPackageOperation.Move))
                     {
-                        if (PathList.All((Path) => System.IO.Path.GetDirectoryName(Path) != CurrentFolder.Path))
+                        if (PathList.All((Path) => !System.IO.Path.GetDirectoryName(Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                         {
-                            QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
+                            OperationListMoveModel Model = new OperationListMoveModel(PathList.ToArray(), CurrentFolder.Path);
+
+                            QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                            {
+                                EventDeferral Deferral = e.GetDeferral();
+
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                {
+                                    try
+                                    {
+                                        if (e.Status == OperationStatus.Completed)
+                                        {
+                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                            {
+                                                if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder)
+                                                {
+                                                    foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(MTPFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                                                    {
+                                                        await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
+                                                    }
+
+                                                    if (MTPFolder == CurrentFolder)
+                                                    {
+                                                        IEnumerable<FileSystemStorageItemBase> NewItems = await Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
+
+                                                        foreach (FileSystemStorageItemBase Item in NewItems.Except(Presenter.FileCollection))
+                                                        {
+                                                            await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        Deferral.Complete();
+                                    }
+                                });
+                            });
+
+                            QueueTaskController.EnqueueMoveOpeartion(Model);
                         }
                     }
                     else
                     {
-                        QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
+                        OperationListCopyModel Model = new OperationListCopyModel(PathList.ToArray(), CurrentFolder.Path);
+
+                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                        {
+                            EventDeferral Deferral = e.GetDeferral();
+
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                            {
+                                try
+                                {
+                                    if (e.Status == OperationStatus.Completed)
+                                    {
+                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                        {
+                                            if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                            {
+                                                IEnumerable<FileSystemStorageItemBase> NewItems = await Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
+
+                                                foreach (FileSystemStorageItemBase Item in NewItems.Except(Presenter.FileCollection))
+                                                {
+                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
+                            });
+                        });
+
+                        QueueTaskController.EnqueueCopyOpeartion(Model);
                     }
                 }
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                QueueTaskController.EnqueueRemoteCopyOpeartion(CurrentFolder.Path);
+                QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(CurrentFolder.Path));
             }
             catch (Exception ex)
             {
@@ -3402,7 +3536,7 @@ namespace RX_Explorer.View
 
                     foreach (TabViewItem Tab in TabViewContainer.Current.TabCollection.ToArray())
                     {
-                        if (Tab.Content is TabItemContentRenderer Renderer)
+                        if (Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
                         {
                             foreach (string DeletePath in PathList)
                             {
@@ -3422,7 +3556,35 @@ namespace RX_Explorer.View
                         }
                     }
 
-                    QueueTaskController.EnqueueDeleteOpeartion(PathList, PermanentDelete);
+                    OperationListDeleteModel Model = new OperationListDeleteModel(PathList, PermanentDelete);
+
+                    QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                    {
+                        EventDeferral Deferral = e.GetDeferral();
+
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        {
+                            try
+                            {
+                                foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                {
+                                    if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                    {
+                                        foreach (string Path in PathList)
+                                        {
+                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
+                                        }
+                                    }
+                                }
+                            }
+                            finally
+                            {
+                                Deferral.Complete();
+                            }
+                        });
+                    });
+
+                    QueueTaskController.EnqueueDeleteOpeartion(Model);
                 }
             }
         }
@@ -3435,86 +3597,108 @@ namespace RX_Explorer.View
 
             if (SelectedItemsCopy.Count > 0)
             {
-                RenameDialog dialog = new RenameDialog(SelectedItemsCopy);
+                RenameDialog Dialog = new RenameDialog(SelectedItemsCopy);
 
-                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    try
+                    if (SelectedItemsCopy.Count == 1)
                     {
-                        if (SelectedItemsCopy.Count == 1)
+                        string OriginName = SelectedItemsCopy[0].Name;
+                        string NewName = Dialog.DesireNameMap[OriginName];
+
+                        if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
+                            && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, NewName)))
                         {
-                            string OriginName = SelectedItemsCopy[0].Name;
-                            string NewName = dialog.DesireNameMap[OriginName];
-
-                            if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
-                                && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, NewName)))
+                            QueueContentDialog Dialog1 = new QueueContentDialog
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
 
-                                if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
-                                {
-                                    return;
-                                }
-                            }
-
-                            await SelectedItemsCopy[0].RenameAsync(NewName);
-
-                            FileSystemStorageItemBase TargetItem = null;
-
-                            for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
+                            if (await Dialog1.ShowAsync() != ContentDialogResult.Primary)
                             {
-                                TargetItem = FileCollection.FirstOrDefault((Item) => Item.Name.Equals(NewName, StringComparison.OrdinalIgnoreCase));
-
-                                if (TargetItem == null)
-                                {
-                                    await Task.Delay(500);
-                                }
-                                else
-                                {
-                                    SelectedItem = TargetItem;
-                                    ItemPresenter.ScrollIntoView(TargetItem);
-                                    break;
-                                }
+                                return;
                             }
                         }
-                        else
+
+                        OperationListRenameModel Model = new OperationListRenameModel(SelectedItemsCopy.First().Path, Path.Combine(CurrentFolder.Path, NewName));
+
+                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
                         {
-                            foreach (FileSystemStorageItemBase OriginItem in SelectedItemsCopy)
+                            EventDeferral Deferral = e.GetDeferral();
+
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                             {
-                                await OriginItem.RenameAsync(dialog.DesireNameMap[OriginItem.Name]);
-                            }
+                                try
+                                {
+                                    if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
+                                    {
+                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                        {
+                                            if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                            {
+                                                await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(SelectedItemsCopy.First().Path, NewName));
+                                            }
+                                        }
+
+                                        for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
+                                        {
+                                            if (FileCollection.FirstOrDefault((Item) => Item.Name.Equals(NewName, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase TargetItem)
+                                            {
+                                                SelectedItem = TargetItem;
+                                                ItemPresenter.ScrollIntoView(TargetItem);
+                                                break;
+                                            }
+
+                                            await Task.Delay(500);
+                                        }
+                                    }
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
+                            });
+                        });
+
+                        QueueTaskController.EnqueueRenameOpeartion(Model);
+                    }
+                    else
+                    {
+                        foreach (FileSystemStorageItemBase OriginItem in SelectedItemsCopy)
+                        {
+                            OperationListRenameModel Model = new OperationListRenameModel(OriginItem.Path, Path.Combine(CurrentFolder.Path, Dialog.DesireNameMap[OriginItem.Name]));
+
+                            QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                            {
+                                EventDeferral Deferral = e.GetDeferral();
+
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                {
+                                    try
+                                    {
+                                        if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
+                                        {
+                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                            {
+                                                if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                                {
+                                                    await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(SelectedItemsCopy.First().Path, NewName));
+                                                }
+                                            }
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        Deferral.Complete();
+                                    }
+                                });
+                            });
+
+                            QueueTaskController.EnqueueRenameOpeartion(Model);
                         }
-                    }
-                    catch (FileLoadException)
-                    {
-                        QueueContentDialog LoadExceptionDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_FileOccupied_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                        };
-
-                        await LoadExceptionDialog.ShowAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Could not rename the file");
-
-                        QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
-
-                        await UnauthorizeDialog.ShowAsync();
                     }
                 }
             }
@@ -3610,83 +3794,11 @@ namespace RX_Explorer.View
                     {
                         StatusTips.Text += $"  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItemsCopy.Count.ToString())}{SizeInfo}";
                     }
-                }
-                else
-                {
-                    if (StatusTipsSplit.Length > 0)
+
+                    if (SelectedItemsCopy.Count == 1 && SettingPage.IsQuicklookEnabled && !SettingPage.IsOpened)
                     {
-                        StatusTips.Text = StatusTipsSplit[0];
-                    }
-                }
+                        FileSystemStorageItemBase Item = SelectedItemsCopy.First();
 
-                if (SelectedItemsCopy.Count == 1 && SelectedItemsCopy.First() is FileSystemStorageItemBase Item)
-                {
-                    if (Item is FileSystemStorageFile)
-                    {
-                        AppBarButton EditButton = FileFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "EditButton");
-                        AppBarButton OpenWithButton = FileFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenWithButton");
-
-                        if (EditButton.Flyout is MenuFlyout EditButtonFlyout && OpenWithButton.Flyout is MenuFlyout OpenWithButtonFlyout)
-                        {
-                            MenuFlyoutItem ChooseOtherAppButton = OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "ChooseOtherAppButton");
-                            MenuFlyoutItem RunAsAdminButton = OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "RunAsAdminButton");
-                            MenuFlyoutItem TranscodeButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "TranscodeButton");
-                            MenuFlyoutItem VideoEditButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "VideoEditButton");
-                            MenuFlyoutItem VideoMergeButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "VideoMergeButton");
-
-                            EditButton.Visibility = Visibility.Collapsed;
-                            ChooseOtherAppButton.Visibility = Visibility.Visible;
-                            RunAsAdminButton.Visibility = Visibility.Collapsed;
-
-                            switch (Item.Type.ToLower())
-                            {
-                                case ".mp4":
-                                case ".wmv":
-                                    {
-                                        EditButton.Visibility = Visibility.Visible;
-                                        TranscodeButton.Visibility = Visibility.Visible;
-                                        VideoEditButton.Visibility = Visibility.Visible;
-                                        VideoMergeButton.Visibility = Visibility.Visible;
-                                        break;
-                                    }
-                                case ".mkv":
-                                case ".m4a":
-                                case ".mov":
-                                case ".mp3":
-                                case ".flac":
-                                case ".wma":
-                                case ".alac":
-                                case ".png":
-                                case ".bmp":
-                                case ".jpg":
-                                case ".heic":
-                                case ".tiff":
-                                    {
-                                        EditButton.Visibility = Visibility.Visible;
-                                        TranscodeButton.Visibility = Visibility.Visible;
-                                        VideoEditButton.Visibility = Visibility.Collapsed;
-                                        VideoMergeButton.Visibility = Visibility.Collapsed;
-                                        break;
-                                    }
-                                case ".exe":
-                                case ".bat":
-                                    {
-                                        ChooseOtherAppButton.Visibility = Visibility.Collapsed;
-                                        RunAsAdminButton.Visibility = Visibility.Visible;
-                                        break;
-                                    }
-                                case ".msi":
-                                case ".msc":
-                                    {
-                                        RunAsAdminButton.Visibility = Visibility.Visible;
-                                        break;
-                                    }
-                            }
-                        }
-                    }
-
-                    if (SettingPage.IsQuicklookEnabled && !SettingPage.IsOpened)
-                    {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
                             if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
@@ -3697,6 +3809,13 @@ namespace RX_Explorer.View
                                 }
                             }
                         }
+                    }
+                }
+                else
+                {
+                    if (StatusTipsSplit.Length > 0)
+                    {
+                        StatusTips.Text = StatusTipsSplit[0];
                     }
                 }
             }
@@ -3841,7 +3960,7 @@ namespace RX_Explorer.View
 
                 if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Algorithm, Dialog.Level, File.Path, Path.Combine(CurrentFolder.Path, Dialog.FileName));
+                    QueueTaskController.EnqueueCompressionOpeartion(new OperationListCompressionModel(Dialog.Type, Dialog.Algorithm, Dialog.Level, new string[] { File.Path }, Path.Combine(CurrentFolder.Path, Dialog.FileName)));
                 }
             }
         }
@@ -3862,7 +3981,7 @@ namespace RX_Explorer.View
                     || File.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase))
 
                 {
-                    QueueTaskController.EnqueueDecompressionOpeartion(File.Path, CurrentFolder.Path, (sender as FrameworkElement)?.Name == "DecompressionOption2");
+                    QueueTaskController.EnqueueDecompressionOpeartion(new OperationListDecompressionModel(new string[] { File.Path }, CurrentFolder.Path, (sender as FrameworkElement)?.Name == "DecompressionOption2"));
                 }
             }
         }
@@ -3890,7 +4009,7 @@ namespace RX_Explorer.View
                     }
                     else if (ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
                     {
-                        await EnterSelectedItemAsync(Item).ConfigureAwait(false);
+                        await OpenSelectedItemAsync(Item).ConfigureAwait(false);
                     }
                 }
                 else if (Element is Grid)
@@ -3988,9 +4107,7 @@ namespace RX_Explorer.View
                             {
                                 try
                                 {
-                                    string DestFilePath = Path.Combine(CurrentFolder.Path, $"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}");
-
-                                    if (await FileSystemStorageItemBase.CreateNewAsync(DestFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
+                                    if (await CurrentFolder.CreateNewSubItemAsync($"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}", StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
                                     {
                                         if (await Item.GetStorageItemAsync() is StorageFile DestinationFile)
                                         {
@@ -4012,8 +4129,7 @@ namespace RX_Explorer.View
                                     {
                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                         Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
                                     await Dialog.ShowAsync();
@@ -4037,21 +4153,24 @@ namespace RX_Explorer.View
                 case ".png":
                 case ".bmp":
                 case ".jpg":
+                case ".jpeg":
                 case ".heic":
                 case ".tiff":
                     {
                         if (SelectedItem is FileSystemStorageFile File)
                         {
-                            TranscodeImageDialog Dialog = null;
+                            BitmapDecoder Decoder = null;
 
-                            using (FileStream OriginStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                            using (Stream OriginStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                             {
-                                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
-                                Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
+                                Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
                             }
+
+                            TranscodeImageDialog Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
 
                             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
+                                await GeneralTransformer.TranscodeFromImageAsync(File, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
                             }
                         }
 
@@ -4159,7 +4278,14 @@ namespace RX_Explorer.View
 
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                await Exclusive.Controller.RunAsync("explorer.exe", Parameters: CurrentFolder.Path);
+                if (CurrentFolder is MTPStorageFolder)
+                {
+                    await Exclusive.Controller.RunAsync("explorer.exe", Parameters: $"::{{20D04FE0-3AEA-1069-A2D8-08002B30309D}}\\{CurrentFolder.Path}");
+                }
+                else
+                {
+                    await Exclusive.Controller.RunAsync("explorer.exe", Parameters: CurrentFolder.Path);
+                }
             }
         }
 
@@ -4245,7 +4371,7 @@ namespace RX_Explorer.View
 
             if (SelectedItem is FileSystemStorageItemBase ReFile)
             {
-                await EnterSelectedItemAsync(ReFile).ConfigureAwait(false);
+                await OpenSelectedItemAsync(ReFile).ConfigureAwait(false);
             }
         }
 
@@ -4305,8 +4431,7 @@ namespace RX_Explorer.View
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnauthorizedCreateFolder_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
                     await dialog.ShowAsync();
@@ -4450,322 +4575,371 @@ namespace RX_Explorer.View
 
                 if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
                 {
-                    await EnterSelectedItemAsync(ReFile);
+                    await OpenSelectedItemAsync(ReFile);
                 }
             }
         }
 
-        public async Task EnterSelectedItemAsync(string Path, bool RunAsAdministrator = false)
+        public async Task OpenSelectedItemAsync(string Path, bool RunAsAdministrator = false)
         {
             if (RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
             {
-                await EnterSelectedItemAsync(RootStorageFolder.Instance, RunAsAdministrator);
+                await OpenSelectedItemAsync(RootStorageFolder.Instance, RunAsAdministrator);
             }
             else if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase Item)
             {
-                await EnterSelectedItemAsync(Item, RunAsAdministrator);
+                await OpenSelectedItemAsync(Item, RunAsAdministrator);
             }
         }
 
-        public async Task EnterSelectedItemAsync(FileSystemStorageItemBase ReFile, bool RunAsAdministrator = false)
+        public async Task OpenSelectedItemAsync(FileSystemStorageItemBase ReFile, bool RunAsAdministrator = false)
         {
-            if (Interlocked.Exchange(ref TabTarget, ReFile) == null)
+            try
             {
-                try
+                switch (ReFile)
                 {
-                    switch (TabTarget)
-                    {
-                        case FileSystemStorageFile File:
+                    case FileSystemStorageFile File:
+                        {
+                            if (await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                             {
-                                if (!await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    if (File is MTPStorageFile)
                                     {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    await Dialog.ShowAsync();
-
-                                    return;
-                                }
-
-                                switch (File.Type.ToLower())
-                                {
-                                    case ".exe":
-                                    case ".bat":
-                                    case ".msi":
+                                        switch (File.Type.ToLower())
                                         {
-                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                            {
-                                                if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), RunAsAdmin: RunAsAdministrator))
+                                            case ".exe":
+                                            case ".bat":
+                                            case ".msi":
+                                            case ".msc":
+                                            case ".lnk":
+                                            case ".url":
                                                 {
-                                                    QueueContentDialog Dialog = new QueueContentDialog
-                                                    {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
-
-                                                    await Dialog.ShowAsync();
+                                                    throw new NotSupportedException();
                                                 }
-                                            }
-
-                                            break;
-                                        }
-                                    case ".msc":
-                                        {
-                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                            {
-                                                if (!await Exclusive.Controller.RunAsync(File.Path, RunAsAdmin: RunAsAdministrator, Parameters: new string[] { File.Path }))
+                                            default:
                                                 {
-                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
+
+                                                    if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath.Equals(Package.Current.Id.FamilyName, StringComparison.OrdinalIgnoreCase))
                                                     {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
-
-                                                    await Dialog.ShowAsync();
-                                                }
-                                            }
-
-                                            break;
-                                        }
-                                    case ".lnk":
-                                        {
-                                            if (File is LinkStorageFile Item)
-                                            {
-                                                if (Item.LinkType == ShellLinkType.Normal)
-                                                {
-                                                    switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath))
-                                                    {
-                                                        case FileSystemStorageFolder:
-                                                            {
-                                                                if (!await DisplayItemsInFolder(Item.LinkTargetPath))
-                                                                {
-                                                                    QueueContentDialog dialog = new QueueContentDialog
-                                                                    {
-                                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Item.LinkTargetPath}\"",
-                                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                                                                    };
-
-                                                                    await dialog.ShowAsync();
-                                                                }
-
-                                                                break;
-                                                            }
-                                                        case FileSystemStorageFile:
-                                                            {
-                                                                if (!await Item.LaunchAsync())
-                                                                {
-                                                                    QueueContentDialog Dialog = new QueueContentDialog
-                                                                    {
-                                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                        Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                                    };
-
-                                                                    await Dialog.ShowAsync();
-                                                                }
-                                                                break;
-                                                            }
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    if (!await Item.LaunchAsync())
-                                                    {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        if (!TryOpenInternally(File))
                                                         {
-                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                            Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                        };
+                                                            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
-                                                        await Dialog.ShowAsync();
-                                                    }
-                                                }
-                                            }
-
-                                            break;
-                                        }
-                                    case ".url":
-                                        {
-                                            if (File is UrlStorageFile Item)
-                                            {
-                                                if (!await Item.LaunchAsync())
-                                                {
-                                                    QueueContentDialog Dialog = new QueueContentDialog
-                                                    {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
-
-                                                    await Dialog.ShowAsync();
-                                                }
-                                            }
-
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
-
-                                            if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath.Equals(Package.Current.Id.FamilyName, StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                async Task<bool> LaunchWin32ByPathAsync(string Path)
-                                                {
-                                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                                    {
-                                                        return await Exclusive.Controller.RunAsync(Path);
-                                                    }
-                                                }
-
-                                                if (!TryOpenInternally(File))
-                                                {
-                                                    if (await File.GetStorageItemAsync() is StorageFile SFile)
-                                                    {
-                                                        if (!await Launcher.LaunchFileAsync(SFile))
-                                                        {
-                                                            if (!await LaunchWin32ByPathAsync(SFile.Path))
+                                                            try
                                                             {
-                                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                                {
-                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                    Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                                };
+                                                                string TempPath = await Exclusive.Controller.MTPDownloadAndGetPathAsync(File.Path);
 
-                                                                await Dialog.ShowAsync();
+                                                                if (await FileSystemStorageItemBase.OpenAsync(TempPath) is FileSystemStorageFile TempFile)
+                                                                {
+                                                                    if (await TempFile.GetStorageItemAsync() is StorageFile SFile)
+                                                                    {
+                                                                        if (!await Launcher.LaunchFileAsync(SFile))
+                                                                        {
+                                                                            if (!await Exclusive.Controller.RunAsync(SFile.Path))
+                                                                            {
+                                                                                throw new UnauthorizedAccessException();
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    else if (!await Exclusive.Controller.RunAsync(TempFile.Path))
+                                                                    {
+                                                                        throw new UnauthorizedAccessException();
+                                                                    }
+
+                                                                    await Task.Delay(1000);
+                                                                }
+                                                                else
+                                                                {
+                                                                    throw new UnauthorizedAccessException();
+                                                                }
+                                                            }
+                                                            finally
+                                                            {
+                                                                TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                                                             }
                                                         }
                                                     }
                                                     else
                                                     {
-                                                        if (!await LaunchWin32ByPathAsync(File.Path))
+                                                        if (await FileSystemStorageItemBase.CheckExistsAsync(AdminExecutablePath))
                                                         {
-                                                            QueueContentDialog Dialog = new QueueContentDialog
-                                                            {
-                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                            };
+                                                            string TempPath = await Exclusive.Controller.MTPDownloadAndGetPathAsync(File.Path);
 
-                                                            await Dialog.ShowAsync();
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (await FileSystemStorageItemBase.CheckExistsAsync(AdminExecutablePath))
-                                                {
-                                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                                    {
-                                                        if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path))
-                                                        {
-                                                            QueueContentDialog Dialog = new QueueContentDialog
+                                                            if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Parameters: TempPath))
                                                             {
-                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                            };
-
-                                                            await Dialog.ShowAsync();
-                                                        }
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    async Task<bool> LaunchUwpByAUMIDAsync(string AUMID, string Path)
-                                                    {
-                                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                                        {
-                                                            return await Exclusive.Controller.LaunchUWPFromAUMIDAsync(AUMID, Path);
-                                                        }
-                                                    }
-
-                                                    if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is AppInfo Info)
-                                                    {
-                                                        if (await File.GetStorageItemAsync() is StorageFile InnerFile)
-                                                        {
-                                                            if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions
-                                                            {
-                                                                TargetApplicationPackageFamilyName = Info.PackageFamilyName,
-                                                                DisplayApplicationPicker = false
-                                                            }))
-                                                            {
-                                                                if (!await LaunchUwpByAUMIDAsync(Info.AppUserModelId, File.Path))
-                                                                {
-                                                                    QueueContentDialog Dialog = new QueueContentDialog
-                                                                    {
-                                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                        Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                                    };
-
-                                                                    await Dialog.ShowAsync();
-                                                                }
+                                                                throw new UnauthorizedAccessException();
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            if (!await LaunchUwpByAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                            if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is AppInfo Info)
                                                             {
-                                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                                {
-                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                    Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                                };
+                                                                TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
-                                                                await Dialog.ShowAsync();
+                                                                try
+                                                                {
+                                                                    string TempPath = await Exclusive.Controller.MTPDownloadAndGetPathAsync(File.Path);
+
+                                                                    if (await FileSystemStorageItemBase.OpenAsync(TempPath) is FileSystemStorageFile TempFile)
+                                                                    {
+                                                                        if (await TempFile.GetStorageItemAsync() is StorageFile InnerFile)
+                                                                        {
+                                                                            if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions
+                                                                            {
+                                                                                TargetApplicationPackageFamilyName = Info.PackageFamilyName,
+                                                                                DisplayApplicationPicker = false
+                                                                            }))
+                                                                            {
+                                                                                if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, TempFile.Path))
+                                                                                {
+                                                                                    throw new UnauthorizedAccessException();
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        else if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, TempFile.Path))
+                                                                        {
+                                                                            throw new UnauthorizedAccessException();
+                                                                        }
+
+                                                                        await Task.Delay(1000);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        throw new UnauthorizedAccessException();
+                                                                    }
+                                                                }
+                                                                finally
+                                                                {
+                                                                    TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                await OpenFileWithProgramPicker(File);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        switch (File.Type.ToLower())
+                                        {
+                                            case ".exe":
+                                            case ".bat":
+                                            case ".msi":
+                                                {
+                                                    if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), RunAsAdmin: RunAsAdministrator))
+                                                    {
+                                                        throw new LaunchProgramException();
+                                                    }
+
+                                                    break;
+                                                }
+                                            case ".msc":
+                                                {
+                                                    if (!await Exclusive.Controller.RunAsync(File.Path, RunAsAdmin: RunAsAdministrator, Parameters: new string[] { File.Path }))
+                                                    {
+                                                        throw new LaunchProgramException();
+                                                    }
+
+                                                    break;
+                                                }
+                                            case ".lnk":
+                                                {
+                                                    if (File is LinkStorageFile Item)
+                                                    {
+                                                        if (Item.LinkType == ShellLinkType.Normal)
+                                                        {
+                                                            switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath))
+                                                            {
+                                                                case FileSystemStorageFolder:
+                                                                    {
+                                                                        if (!await DisplayItemsInFolder(Item.LinkTargetPath))
+                                                                        {
+                                                                            throw new DirectoryNotFoundException();
+                                                                        }
+
+                                                                        break;
+                                                                    }
+                                                                case FileSystemStorageFile:
+                                                                    {
+                                                                        if (!await Item.LaunchAsync())
+                                                                        {
+                                                                            throw new UnauthorizedAccessException();
+                                                                        }
+
+                                                                        break;
+                                                                    }
+                                                            }
+                                                        }
+                                                        else if (!await Item.LaunchAsync())
+                                                        {
+                                                            throw new UnauthorizedAccessException();
+                                                        }
+                                                    }
+
+                                                    break;
+                                                }
+                                            case ".url":
+                                                {
+                                                    if (File is UrlStorageFile Item && !await Item.LaunchAsync())
+                                                    {
+                                                        throw new UnauthorizedAccessException();
+                                                    }
+
+                                                    break;
+                                                }
+                                            default:
+                                                {
+                                                    string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
+
+                                                    if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath.Equals(Package.Current.Id.FamilyName, StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        if (!TryOpenInternally(File))
+                                                        {
+                                                            if (await File.GetStorageItemAsync() is StorageFile SFile)
+                                                            {
+                                                                if (!await Launcher.LaunchFileAsync(SFile))
+                                                                {
+                                                                    if (!await Exclusive.Controller.RunAsync(SFile.Path))
+                                                                    {
+                                                                        throw new UnauthorizedAccessException();
+                                                                    }
+                                                                }
+                                                            }
+                                                            else if (!await Exclusive.Controller.RunAsync(File.Path))
+                                                            {
+                                                                throw new UnauthorizedAccessException();
                                                             }
                                                         }
                                                     }
                                                     else
                                                     {
-                                                        await OpenFileWithProgramPicker(File);
+                                                        if (await FileSystemStorageItemBase.CheckExistsAsync(AdminExecutablePath))
+                                                        {
+                                                            if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path))
+                                                            {
+                                                                throw new UnauthorizedAccessException();
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is AppInfo Info)
+                                                            {
+                                                                if (await File.GetStorageItemAsync() is StorageFile InnerFile)
+                                                                {
+                                                                    if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions
+                                                                    {
+                                                                        TargetApplicationPackageFamilyName = Info.PackageFamilyName,
+                                                                        DisplayApplicationPicker = false
+                                                                    }))
+                                                                    {
+                                                                        if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                                        {
+                                                                            throw new UnauthorizedAccessException();
+                                                                        }
+                                                                    }
+                                                                }
+                                                                else if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                                {
+                                                                    throw new UnauthorizedAccessException();
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                await OpenFileWithProgramPicker(File);
+                                                            }
+                                                        }
                                                     }
+
+                                                    break;
                                                 }
-                                            }
-
-                                            break;
                                         }
+                                    }
                                 }
-
-                                break;
                             }
-                        case FileSystemStorageFolder Folder:
+                            else
                             {
-                                if (!await DisplayItemsInFolder(Folder))
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                                    };
-
-                                    await Dialog.ShowAsync();
-                                }
-
-                                break;
+                                throw new FileNotFoundException();
                             }
-                    }
+
+                            break;
+                        }
+                    case FileSystemStorageFolder Folder:
+                        {
+                            if (!await DisplayItemsInFolder(Folder))
+                            {
+                                throw new DirectoryNotFoundException();
+                            }
+
+                            break;
+                        }
                 }
-                catch (Exception ex)
+            }
+            catch (LaunchProgramException)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    LogTracer.Log(ex, $"{nameof(EnterSelectedItemAsync)} throw an exception");
-                }
-                finally
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
+            catch (FileNotFoundException)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    Interlocked.Exchange(ref TabTarget, null);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
+            catch (DirectoryNotFoundException)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                };
+
+                await Dialog.ShowAsync();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
+            catch (NotSupportedException)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_NotSupportedFile_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(OpenSelectedItemAsync)} throw an exception");
             }
         }
 
@@ -4773,7 +4947,7 @@ namespace RX_Explorer.View
         {
             Type InternalType = File.Type.ToLower() switch
             {
-                ".jpg" or ".png" or ".bmp" => typeof(PhotoViewer),
+                ".jpg" or ".jpeg" or ".png" or ".bmp" => typeof(PhotoViewer),
                 ".mkv" or ".mp4" or ".mp3" or
                 ".flac" or ".wma" or ".wmv" or
                 ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
@@ -4802,38 +4976,100 @@ namespace RX_Explorer.View
 
         private async Task OpenFileWithProgramPicker(FileSystemStorageFile File)
         {
-            ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
-
-            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+            try
             {
-                if (Dialog.UserPickedItem == ProgramPickerItem.InnerViewer)
-                {
-                    if (!TryOpenInternally(File))
-                    {
-                        QueueContentDialog Dialog1 = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
 
-                        await Dialog1.ShowAsync();
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    if (Dialog.UserPickedItem == ProgramPickerItem.InnerViewer)
+                    {
+                        if (!TryOpenInternally(File))
+                        {
+                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await Dialog1.ShowAsync();
+                        }
+                    }
+                    else
+                    {
+                        if (File is MTPStorageFile)
+                        {
+                            switch (Path.GetExtension(File.Path).ToLower())
+                            {
+                                case ".exe":
+                                case ".bat":
+                                case ".msi":
+                                case ".msc":
+                                case ".lnk":
+                                case ".url":
+                                    {
+                                        throw new NotSupportedException();
+                                    }
+                                default:
+                                    {
+                                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+
+                                        try
+                                        {
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                            {
+                                                string TempPath = await Exclusive.Controller.MTPDownloadAndGetPathAsync(File.Path);
+
+                                                if (!await Dialog.UserPickedItem.LaunchAsync(TempPath))
+                                                {
+                                                    throw new LaunchProgramException();
+                                                }
+                                            }
+
+                                            await Task.Delay(1000);
+                                        }
+                                        finally
+                                        {
+                                            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                                        }
+
+                                        break;
+                                    }
+                            }
+                        }
+                        else if (!await Dialog.UserPickedItem.LaunchAsync(File.Path))
+                        {
+                            throw new LaunchProgramException();
+                        }
                     }
                 }
-                else
+            }
+            catch (LaunchProgramException)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    if (!await Dialog.UserPickedItem.LaunchAsync(File.Path))
-                    {
-                        QueueContentDialog Dialog1 = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
 
-                        await Dialog1.ShowAsync();
-                    }
-                }
+                await Dialog.ShowAsync();
+            }
+            catch (NotSupportedException)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_NotSupportedFile_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not launch the file with program picker");
             }
         }
 
@@ -4932,11 +5168,11 @@ namespace RX_Explorer.View
 
             if (SelectedItem != null)
             {
-                await EnterSelectedItemAsync(SelectedItem, true).ConfigureAwait(false);
+                await OpenSelectedItemAsync(SelectedItem, true).ConfigureAwait(false);
             }
         }
 
-        private void ListHeader_Click(object sender, RoutedEventArgs e)
+        private async void ListHeader_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button Btn)
             {
@@ -4955,16 +5191,16 @@ namespace RX_Explorer.View
                 {
                     if (Config.SortDirection == SortDirection.Ascending)
                     {
-                        SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, STarget, SortDirection.Descending);
+                        await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Descending);
                     }
                     else
                     {
-                        SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, STarget, SortDirection.Ascending);
+                        await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Ascending);
                     }
                 }
                 else
                 {
-                    SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, STarget, SortDirection.Ascending);
+                    await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Ascending);
                 }
             }
         }
@@ -5018,29 +5254,32 @@ namespace RX_Explorer.View
                             }
                         case ".lnk":
                             {
-                                LinkOptionsDialog dialog = new LinkOptionsDialog();
-
-                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                if (CurrentFolder is not MTPStorageFolder)
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    LinkOptionsDialog Dialog = new LinkOptionsDialog();
+
+                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                         {
-                                            LinkPath = Path.Combine(CurrentFolder.Path, NewFileName),
-                                            LinkTargetPath = dialog.Path,
-                                            WorkDirectory = dialog.WorkDirectory,
-                                            WindowState = dialog.WindowState,
-                                            HotKey = dialog.HotKey,
-                                            Comment = dialog.Comment,
-                                            Arguments = dialog.Arguments
-                                        }))
-                                        {
-                                            throw new UnauthorizedAccessException();
+                                            if (await Exclusive.Controller.CreateLinkAsync(new LinkFileData
+                                            {
+                                                LinkPath = Path.Combine(CurrentFolder.Path, NewFileName),
+                                                LinkTargetPath = Dialog.Path,
+                                                WorkDirectory = Dialog.WorkDirectory,
+                                                WindowState = Dialog.WindowState,
+                                                HotKey = Dialog.HotKey,
+                                                Comment = Dialog.Comment,
+                                                Arguments = Dialog.Arguments
+                                            }))
+                                            {
+                                                break;
+                                            }
                                         }
                                     }
                                 }
 
-                                return;
+                                throw new UnauthorizedAccessException();
                             }
                         default:
                             {
@@ -5055,19 +5294,26 @@ namespace RX_Explorer.View
 
                     if (NewFile != null)
                     {
-                        OperationRecorder.Current.Push(new string[] { $"{NewFile.Path}||New" });
+                        if (CurrentFolder is MTPStorageFolder)
+                        {
+                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                            {
+                                IEnumerable<FileSystemStorageItemBase> NewItems = await Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
 
-                        FileSystemStorageItemBase TargetItem = null;
+                                foreach (FileSystemStorageItemBase NewItem in NewItems.Except(Presenter.FileCollection))
+                                {
+                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(NewItem.Path));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            OperationRecorder.Current.Push(new string[] { $"{NewFile.Path}||New" });
+                        }
 
                         for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
                         {
-                            TargetItem = FileCollection.FirstOrDefault((Item) => Item == NewFile);
-
-                            if (TargetItem == null)
-                            {
-                                await Task.Delay(500);
-                            }
-                            else
+                            if (FileCollection.FirstOrDefault((Item) => Item == NewFile) is FileSystemStorageItemBase TargetItem)
                             {
                                 SelectedItem = TargetItem;
                                 ItemPresenter.ScrollIntoView(TargetItem);
@@ -5089,6 +5335,10 @@ namespace RX_Explorer.View
                                 }
 
                                 break;
+                            }
+                            else
+                            {
+                                await Task.Delay(500);
                             }
                         }
                     }
@@ -5117,7 +5367,16 @@ namespace RX_Explorer.View
 
             if (SelectedItem is FileSystemStorageFolder Folder)
             {
-                if (!await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
+                if (await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
+                {
+                    CompressDialog Dialog = new CompressDialog(Folder);
+
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        QueueTaskController.EnqueueCompressionOpeartion(new OperationListCompressionModel(Dialog.Type, Dialog.Algorithm, Dialog.Level, new string[] { Folder.Path }, Path.Combine(CurrentFolder.Path, Dialog.FileName)));
+                    }
+                }
+                else
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -5127,15 +5386,6 @@ namespace RX_Explorer.View
                     };
 
                     await Dialog.ShowAsync();
-
-                    return;
-                }
-
-                CompressDialog dialog = new CompressDialog(Folder);
-
-                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
-                {
-                    QueueTaskController.EnqueueCompressionOpeartion(dialog.Type, dialog.Algorithm, dialog.Level, Folder.Path, Path.Combine(CurrentFolder.Path, dialog.FileName));
                 }
             }
         }
@@ -5212,11 +5462,11 @@ namespace RX_Explorer.View
                             {
                                 if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
                                 {
-                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Folder.Path);
+                                    QueueTaskController.EnqueueMoveOpeartion(new OperationListMoveModel(PathList.ToArray(), Folder.Path));
                                 }
                                 else
                                 {
-                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Folder.Path);
+                                    QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(PathList.ToArray(), Folder.Path));
                                 }
 
                                 break;
@@ -5247,7 +5497,7 @@ namespace RX_Explorer.View
             {
                 if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
                 {
-                    QueueTaskController.EnqueueRemoteCopyOpeartion(Item.Path);
+                    QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Item.Path));
                 }
             }
             catch
@@ -5352,7 +5602,7 @@ namespace RX_Explorer.View
                     {
                         if (input is CancellationToken Token && !Token.IsCancellationRequested)
                         {
-                            await EnterSelectedItemAsync(Item);
+                            await OpenSelectedItemAsync(Item);
                         }
                     }
                     catch (Exception ex)
@@ -5483,48 +5733,51 @@ namespace RX_Explorer.View
                     }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                 }
 
-                DelayTooltipCancellation?.Cancel();
-                DelayTooltipCancellation?.Dispose();
-                DelayTooltipCancellation = new CancellationTokenSource();
-
-                Task.Delay(800).ContinueWith(async (task, input) =>
+                if (Item is not IMTPStorageItem)
                 {
-                    try
+                    DelayTooltipCancellation?.Cancel();
+                    DelayTooltipCancellation?.Dispose();
+                    DelayTooltipCancellation = new CancellationTokenSource();
+
+                    Task.Delay(800).ContinueWith(async (task, input) =>
                     {
-                        if (input is CancellationToken Token && !Token.IsCancellationRequested)
+                        try
                         {
-                            TooltipFlyout.Hide();
-
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            if (input is CancellationToken Token && !Token.IsCancellationRequested)
                             {
-                                TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
+                                TooltipFlyout.Hide();
 
-                                if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
-                                    && !Token.IsCancellationRequested
-                                    && !Container.ShouldNotAcceptShortcutKeyInput
-                                    && !FileFlyout.IsOpen
-                                    && !FolderFlyout.IsOpen
-                                    && !EmptyFlyout.IsOpen
-                                    && !MixedFlyout.IsOpen
-                                    && !LinkFlyout.IsOpen)
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
-                                    PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
+                                    TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
 
-                                    TooltipFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
+                                    if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
+                                        && !Token.IsCancellationRequested
+                                        && !Container.ShouldNotAcceptShortcutKeyInput
+                                        && !FileFlyout.IsOpen
+                                        && !FolderFlyout.IsOpen
+                                        && !EmptyFlyout.IsOpen
+                                        && !MixedFlyout.IsOpen
+                                        && !LinkFlyout.IsOpen)
                                     {
-                                        Position = new Point(Point.Position.X, Point.Position.Y + 25),
-                                        ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
-                                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
-                                    });
+                                        PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
+
+                                        TooltipFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
+                                        {
+                                            Position = new Point(Point.Position.X, Point.Position.Y + 25),
+                                            ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
+                                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
+                                        });
+                                    }
                                 }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "An exception was threw when generate the tooltip flyout");
-                    }
-                }, DelayTooltipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "An exception was threw when generate the tooltip flyout");
+                        }
+                    }, DelayTooltipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
+                }
             }
         }
 
@@ -5556,31 +5809,105 @@ namespace RX_Explorer.View
                 {
                     if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
                     {
-                        if (PathList.All((Item) => !Path.GetDirectoryName(Item).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                        if (PathList.All((Path) => !System.IO.Path.GetDirectoryName(Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                         {
-                            QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
+                            OperationListMoveModel Model = new OperationListMoveModel(PathList.ToArray(), CurrentFolder.Path);
+
+                            QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                            {
+                                EventDeferral Deferral = e.GetDeferral();
+
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                {
+                                    try
+                                    {
+                                        if (e.Status == OperationStatus.Completed)
+                                        {
+                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                            {
+                                                if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder)
+                                                {
+                                                    foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(MTPFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                                                    {
+                                                        await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
+                                                    }
+
+                                                    if (MTPFolder == CurrentFolder)
+                                                    {
+                                                        IEnumerable<FileSystemStorageItemBase> NewItems = await Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
+
+                                                        foreach (FileSystemStorageItemBase Item in NewItems.Except(Presenter.FileCollection))
+                                                        {
+                                                            await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        Deferral.Complete();
+                                    }
+                                });
+                            });
+
+                            QueueTaskController.EnqueueMoveOpeartion(Model);
                         }
                     }
                     else
                     {
-                        QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
+                        OperationListCopyModel Model = new OperationListCopyModel(PathList.ToArray(), CurrentFolder.Path);
+
+                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                        {
+                            EventDeferral Deferral = e.GetDeferral();
+
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                            {
+                                try
+                                {
+                                    if (e.Status == OperationStatus.Completed)
+                                    {
+                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                        {
+                                            if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                            {
+                                                IEnumerable<FileSystemStorageItemBase> NewItems = await Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
+
+                                                foreach (FileSystemStorageItemBase Item in NewItems.Except(Presenter.FileCollection))
+                                                {
+                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
+                            });
+                        });
+
+                        QueueTaskController.EnqueueCopyOpeartion(Model);
                     }
                 }
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                QueueTaskController.EnqueueRemoteCopyOpeartion(CurrentFolder.Path);
+                QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(CurrentFolder.Path));
             }
             catch
             {
-                QueueContentDialog dialog = new QueueContentDialog
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_FailToGetClipboardError_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                await dialog.ShowAsync();
+                await Dialog.ShowAsync();
             }
             finally
             {
@@ -5614,7 +5941,7 @@ namespace RX_Explorer.View
                                                 || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
                                                 || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
                 {
-                    QueueTaskController.EnqueueDecompressionOpeartion(SelectedItems.Select((Item) => Item.Path), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie");
+                    QueueTaskController.EnqueueDecompressionOpeartion(new OperationListDecompressionModel(SelectedItems.Select((Item) => Item.Path).ToArray(), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie"));
                 }
             }
         }
@@ -5641,7 +5968,7 @@ namespace RX_Explorer.View
 
             if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Algorithm, Dialog.Level, SelectedItems.Select((Item) => Item.Path), Path.Combine(CurrentFolder.Path, Dialog.FileName));
+                QueueTaskController.EnqueueCompressionOpeartion(new OperationListCompressionModel(Dialog.Type, Dialog.Algorithm, Dialog.Level, SelectedItems.Select((Item) => Item.Path).ToArray(), Path.Combine(CurrentFolder.Path, Dialog.FileName)));
             }
         }
 
@@ -5655,7 +5982,20 @@ namespace RX_Explorer.View
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        if (!await Exclusive.Controller.RunAsync(Profile.Path, string.Empty, WindowState.Normal, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path)).ToArray()))
+                        string LaunchPath = string.Empty;
+
+                        if (CurrentFolder is MTPStorageFolder)
+                        {
+                            LaunchPath = Environment.GetFolderPath(Environment.SpecialFolder.System);
+                        }
+                        else
+                        {
+                            LaunchPath = CurrentFolder.Path;
+                        }
+
+                        if (!await Exclusive.Controller.RunAsync(Profile.Path,
+                                                                 RunAsAdmin: Profile.RunAsAdmin,
+                                                                 Parameters: Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Replace("[CurrentLocation]", LaunchPath)).ToArray()))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -5759,19 +6099,26 @@ namespace RX_Explorer.View
             {
                 try
                 {
-                    if (!FileSystemItemNameChecker.IsValid(NameEditBox.Text))
+                    string ActualRequestName = NameEditBox.Text;
+
+                    if (!SettingPage.IsShowFileExtensionsEnabled && CurrentEditItem is FileSystemStorageFile)
+                    {
+                        ActualRequestName += Path.GetExtension(CurrentEditItem.Path);
+                    }
+
+                    if (!FileSystemItemNameChecker.IsValid(ActualRequestName))
                     {
                         InvalidNameTip.Target = NameLabel;
                         InvalidNameTip.IsOpen = true;
                         return;
                     }
 
-                    if (CurrentEditItem.Name == NameEditBox.Text)
+                    if (CurrentEditItem.Name == ActualRequestName)
                     {
                         return;
                     }
 
-                    if (!CurrentEditItem.Name.Equals(NameEditBox.Text, StringComparison.OrdinalIgnoreCase) && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, NameEditBox.Text)))
+                    if (!CurrentEditItem.Name.Equals(ActualRequestName, StringComparison.OrdinalIgnoreCase) && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, ActualRequestName)))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -5787,51 +6134,48 @@ namespace RX_Explorer.View
                         }
                     }
 
-                    try
+
+                    OperationListRenameModel Model = new OperationListRenameModel(CurrentEditItem.Path, Path.Combine(CurrentFolder.Path, ActualRequestName));
+
+                    QueueTaskController.RegisterPostAction(Model, async (s, e) =>
                     {
-                        string NewName = await CurrentEditItem.RenameAsync(NameEditBox.Text);
+                        EventDeferral Deferral = e.GetDeferral();
 
-                        FileSystemStorageItemBase TargetItem = null;
-
-                        for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                         {
-                            TargetItem = FileCollection.FirstOrDefault((Item) => Item.Name.Equals(NewName, StringComparison.OrdinalIgnoreCase));
-
-                            if (TargetItem == null)
+                            try
                             {
-                                await Task.Delay(500);
+                                if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
+                                {
+                                    foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                    {
+                                        if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                        {
+                                            await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(CurrentEditItem.Path, NewName));
+                                        }
+                                    }
+
+                                    for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
+                                    {
+                                        if (FileCollection.FirstOrDefault((Item) => Item.Name.Equals(NewName, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase TargetItem)
+                                        {
+                                            SelectedItem = TargetItem;
+                                            ItemPresenter.ScrollIntoView(TargetItem);
+                                            break;
+                                        }
+
+                                        await Task.Delay(500);
+                                    }
+                                }
                             }
-                            else
+                            finally
                             {
-                                SelectedItem = TargetItem;
-                                ItemPresenter.ScrollIntoView(TargetItem);
-                                break;
+                                Deferral.Complete();
                             }
-                        }
-                    }
-                    catch (FileLoadException)
-                    {
-                        QueueContentDialog LoadExceptionDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_FileOccupied_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                        };
+                        });
+                    });
 
-                        await LoadExceptionDialog.ShowAsync();
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
-
-                        await UnauthorizeDialog.ShowAsync();
-                    }
+                    QueueTaskController.EnqueueRenameOpeartion(Model);
                 }
                 catch
                 {
@@ -5839,8 +6183,7 @@ namespace RX_Explorer.View
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
                     await UnauthorizeDialog.ShowAsync();
@@ -5883,42 +6226,40 @@ namespace RX_Explorer.View
             }
         }
 
-        private void OrderByName_Click(object sender, RoutedEventArgs e)
+        private async void OrderByName_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Name);
+            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Name);
         }
 
-        private void OrderByTime_Click(object sender, RoutedEventArgs e)
+        private async void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.ModifiedTime);
+            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.ModifiedTime);
         }
 
-        private void OrderByType_Click(object sender, RoutedEventArgs e)
+        private async void OrderByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Type);
+            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Type);
         }
 
-        private void OrderBySize_Click(object sender, RoutedEventArgs e)
+        private async void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Size);
+            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Size);
         }
 
-        private void SortDesc_Click(object sender, RoutedEventArgs e)
+        private async void SortDesc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, Direction: SortDirection.Descending);
+            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, Direction: SortDirection.Descending);
         }
 
-        private void SortAsc_Click(object sender, RoutedEventArgs e)
+        private async void SortAsc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-
-            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, Direction: SortDirection.Ascending);
+            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, Direction: SortDirection.Ascending);
         }
 
         private void SortMenuFlyout_Opening(object sender, object e)
@@ -6255,7 +6596,7 @@ namespace RX_Explorer.View
             Container.ShouldNotAcceptShortcutKeyInput = true;
         }
 
-        private void Filter_RefreshListRequested(object sender, RefreshRequestedEventArgs args)
+        private async void Filter_RefreshListRequested(object sender, RefreshRequestedEventArgs args)
         {
             PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
@@ -6266,7 +6607,7 @@ namespace RX_Explorer.View
             {
                 foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(args.FilterCollection, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
                 {
-                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
+                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
                 }
             }
 
@@ -6365,7 +6706,7 @@ namespace RX_Explorer.View
                         }
                         else
                         {
-                            QueueTaskController.EnqueueDecompressionOpeartion(File.Path, TargetFolder.Path, false, Dialog.CurrentEncoding);
+                            QueueTaskController.EnqueueDecompressionOpeartion(new OperationListDecompressionModel(new string[] { File.Path }, TargetFolder.Path, false, Dialog.CurrentEncoding));
                         }
                     }
                 }
@@ -6404,7 +6745,7 @@ namespace RX_Explorer.View
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    QueueTaskController.EnqueueDecompressionOpeartion(SelectedItems.Select((Item) => Item.Path), Dialog.ExtractLocation, true, Dialog.CurrentEncoding);
+                    QueueTaskController.EnqueueDecompressionOpeartion(new OperationListDecompressionModel(SelectedItems.Select((Item) => Item.Path).ToArray(), Dialog.ExtractLocation, true, Dialog.CurrentEncoding));
                 }
             }
         }
@@ -6520,7 +6861,7 @@ namespace RX_Explorer.View
                             }
                         case FileSystemStorageFile File:
                             {
-                                await EnterSelectedItemAsync(File);
+                                await OpenSelectedItemAsync(File);
                                 break;
                             }
                     }
@@ -6758,7 +7099,7 @@ namespace RX_Explorer.View
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                         {
                                             LinkPath = Path.Combine(DesktopPath, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
                                             LinkTargetPath = SItem.Path
@@ -6789,7 +7130,7 @@ namespace RX_Explorer.View
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
-                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                                 {
                                                     LinkPath = Path.Combine(DataPath.Desktop, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
                                                     LinkTargetPath = SItem.Path
@@ -6825,7 +7166,7 @@ namespace RX_Explorer.View
 
                                 if (await FileSystemStorageItemBase.CheckExistsAsync(DocumentPath))
                                 {
-                                    QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DocumentPath);
+                                    QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { SItem.Path }, DocumentPath));
                                 }
                                 else
                                 {
@@ -6839,7 +7180,7 @@ namespace RX_Explorer.View
 
                                         if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Documents))
                                         {
-                                            QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DataPath.Documents);
+                                            QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { SItem.Path }, DataPath.Documents));
                                         }
                                         else
                                         {
@@ -6858,7 +7199,7 @@ namespace RX_Explorer.View
                             {
                                 if (Item.Tag is string RemovablePath)
                                 {
-                                    QueueTaskController.EnqueueCopyOpeartion(SItem.Path, RemovablePath);
+                                    QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { SItem.Path }, RemovablePath));
                                 }
 
                                 break;
@@ -6922,7 +7263,7 @@ namespace RX_Explorer.View
 
             if (RootNode != null)
             {
-                TreeViewNode TargetNode = await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty));
+                TreeViewNode TargetNode = await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path));
                 Container.FolderTree.SelectNodeAndScrollToVertical(TargetNode);
             }
         }
@@ -7078,22 +7419,99 @@ namespace RX_Explorer.View
 
         private void FileFlyout_Opening(object sender, object e)
         {
-            AppBarButton Decompression = FileFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "Decompression");
+            if (sender is CommandBarFlyout Flyout)
+            {
+                IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
 
-            if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
-            {
-                Decompression.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                Decompression.Visibility = Visibility.Collapsed;
+                if (SelectedItemsCopy.Count == 1)
+                {
+                    AppBarButton EditButton = Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "EditButton");
+                    AppBarButton OpenWithButton = Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenWithButton");
+
+                    if (EditButton.Flyout is MenuFlyout EditButtonFlyout && OpenWithButton.Flyout is MenuFlyout OpenWithButtonFlyout)
+                    {
+                        MenuFlyoutItem ChooseOtherAppButton = OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "ChooseOtherAppButton");
+                        MenuFlyoutItem RunAsAdminButton = OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "RunAsAdminButton");
+                        MenuFlyoutItem TranscodeButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "TranscodeButton");
+                        MenuFlyoutItem VideoEditButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "VideoEditButton");
+                        MenuFlyoutItem VideoMergeButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "VideoMergeButton");
+
+                        EditButton.Visibility = Visibility.Collapsed;
+                        ChooseOtherAppButton.Visibility = Visibility.Visible;
+                        RunAsAdminButton.Visibility = Visibility.Collapsed;
+                        VideoMergeButton.Visibility = Visibility.Collapsed;
+                        VideoMergeButton.Visibility = Visibility.Collapsed;
+
+                        FileSystemStorageItemBase Item = SelectedItemsCopy.First();
+
+                        if (Item is not IMTPStorageItem)
+                        {
+                            switch (Item.Type.ToLower())
+                            {
+                                case ".mp4":
+                                case ".wmv":
+                                    {
+                                        EditButton.Visibility = Visibility.Visible;
+                                        TranscodeButton.Visibility = Visibility.Visible;
+                                        VideoEditButton.Visibility = Visibility.Visible;
+                                        VideoMergeButton.Visibility = Visibility.Visible;
+                                        break;
+                                    }
+                                case ".mkv":
+                                case ".m4a":
+                                case ".mov":
+                                case ".mp3":
+                                case ".flac":
+                                case ".wma":
+                                case ".alac":
+                                case ".png":
+                                case ".bmp":
+                                case ".jpg":
+                                case ".jpeg":
+                                case ".heic":
+                                case ".tiff":
+                                    {
+                                        EditButton.Visibility = Visibility.Visible;
+                                        TranscodeButton.Visibility = Visibility.Visible;
+                                        VideoEditButton.Visibility = Visibility.Collapsed;
+                                        VideoMergeButton.Visibility = Visibility.Collapsed;
+                                        break;
+                                    }
+                                case ".exe":
+                                case ".bat":
+                                    {
+                                        ChooseOtherAppButton.Visibility = Visibility.Collapsed;
+                                        RunAsAdminButton.Visibility = Visibility.Visible;
+                                        break;
+                                    }
+                                case ".msi":
+                                case ".msc":
+                                    {
+                                        RunAsAdminButton.Visibility = Visibility.Visible;
+                                        break;
+                                    }
+                            }
+                        }
+                    }
+                }
+
+                AppBarButton Decompression = Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "Decompression");
+
+                if (SelectedItemsCopy.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                                    || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                    || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                    || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                    || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                    || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                    || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                    || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
+                {
+                    Decompression.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    Decompression.Visibility = Visibility.Collapsed;
+                }
             }
         }
 
@@ -7273,7 +7691,6 @@ namespace RX_Explorer.View
             EnterLock?.Dispose();
             CollectionChangeLock?.Dispose();
 
-            AreaWatcher = null;
             WiFiProvider = null;
             SelectionExtension = null;
             DelayRenameCancellation = null;
@@ -7282,8 +7699,6 @@ namespace RX_Explorer.View
             DelayTooltipCancellation = null;
             DelayDragCancellation = null;
             ContextMenuCancellation = null;
-            EnterLock = null;
-            CollectionChangeLock = null;
 
             BackNavigationStack.Clear();
             ForwardNavigationStack.Clear();

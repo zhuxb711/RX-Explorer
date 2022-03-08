@@ -669,18 +669,7 @@ namespace RX_Explorer.View
 
         private async void Current_AnimationStateChanged(object sender, bool e)
         {
-            foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
-            {
-                foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
-                                                                             .Select((Blade) => Blade.Content)
-                                                                             .OfType<FilePresenter>())
-                {
-                    if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
-                    {
-                        await Presenter.DisplayItemsInFolder(CurrentFolder, true);
-                    }
-                }
-            }
+            await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync()));
         }
 
         public async Task InitializeAsync()
@@ -1387,18 +1376,16 @@ namespace RX_Explorer.View
 
                                 if (await FileSystemStorageItemBase.CreateNewAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                                 {
-                                    using (FileStream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                                    using (Stream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                                     using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, SecureArea.AESKey))
                                     {
-                                        using (FileStream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                        using (Stream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                         {
                                             await SLEStream.CopyToAsync(DecryptedFStream, 2048);
+                                            await DecryptedFStream.FlushAsync();
                                         }
 
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                        {
-                                            await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.Header.FileName, true);
-                                        }
+                                        await DecryptedFile.RenameAsync(SLEStream.Header.FileName);
                                     }
                                 }
                             }
@@ -1682,7 +1669,7 @@ namespace RX_Explorer.View
 
                 if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile File)
                 {
-                    using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                     {
                         BitmapImage Bitmap = new BitmapImage();
 
@@ -1860,6 +1847,7 @@ namespace RX_Explorer.View
             Picker.FileTypeFilter.Add(".png");
             Picker.FileTypeFilter.Add(".jpg");
             Picker.FileTypeFilter.Add(".jpeg");
+            Picker.FileTypeFilter.Add(".jpeg");
             Picker.FileTypeFilter.Add(".bmp");
 
             if (await Picker.PickSingleFileAsync() is StorageFile File)
@@ -2027,60 +2015,11 @@ namespace RX_Explorer.View
 
         private async void TreeViewDetach_Toggled(object sender, RoutedEventArgs e)
         {
+            IsDetachTreeViewAndPresenter = !TreeViewDetach.IsOn;
+
             try
             {
-                IsDetachTreeViewAndPresenter = !TreeViewDetach.IsOn;
-
-                foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
-                {
-                    if (Control.CurrentPresenter?.CurrentFolder != null)
-                    {
-                        if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
-                        {
-                            Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(Scale * Control.ActualWidth) : new GridLength(0);
-                        }
-                        else
-                        {
-                            Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-                        }
-
-                        if (TreeViewDetach.IsOn)
-                        {
-                            Control.FolderTree.RootNodes.Clear();
-
-                            Control.FolderTree.RootNodes.Add(new TreeViewNode
-                            {
-                                Content = TreeViewNodeContent.QuickAccessNode,
-                                IsExpanded = false,
-                                HasUnrealizedChildren = true
-                            });
-
-                            foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
-                            {
-                                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
-
-                                TreeViewNode RootNode = new TreeViewNode
-                                {
-                                    IsExpanded = false,
-                                    Content = Content,
-                                    HasUnrealizedChildren = Content.HasChildren
-                                };
-
-                                Control.FolderTree.RootNodes.Add(RootNode);
-
-                                if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    if (Content.HasChildren)
-                                    {
-                                        RootNode.IsExpanded = true;
-                                    }
-
-                                    Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
-                                }
-                            }
-                        }
-                    }
-                }
+                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.SetTreeViewStatusAsync(TreeViewDetach.IsOn)));
             }
             catch (Exception ex)
             {
@@ -2137,38 +2076,16 @@ namespace RX_Explorer.View
 
         private async void DisplayHiddenItem_Toggled(object sender, RoutedEventArgs e)
         {
+            IsShowHiddenFilesEnabled = DisplayHiddenItem.IsOn;
+
             try
             {
-                IsShowHiddenFilesEnabled = DisplayHiddenItem.IsOn;
-
-                foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
+                if (!IsDetachTreeViewAndPresenter)
                 {
-                    if (!IsDetachTreeViewAndPresenter)
-                    {
-                        if (Control.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-                        {
-                            foreach (TreeViewNode Node in QuickAccessNode.Children)
-                            {
-                                await Node.UpdateAllSubNodeAsync();
-                            }
-                        }
-
-                        foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                        {
-                            await RootNode.UpdateAllSubNodeAsync();
-                        }
-                    }
-
-                    foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
-                                                                                 .Select((Blade) => Blade.Content)
-                                                                                 .OfType<FilePresenter>())
-                    {
-                        if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
-                        {
-                            await Presenter.DisplayItemsInFolder(CurrentFolder, true);
-                        }
-                    }
+                    await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshTreeViewAsync()));
                 }
+
+                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync()));
             }
             catch (Exception ex)
             {
@@ -2803,38 +2720,16 @@ namespace RX_Explorer.View
 
             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
+                IsDisplayProtectedSystemItems = true;
+
                 try
                 {
-                    IsDisplayProtectedSystemItems = true;
-
-                    foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
+                    if (!IsDetachTreeViewAndPresenter)
                     {
-                        if (!IsDetachTreeViewAndPresenter)
-                        {
-                            if (Control.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-                            {
-                                foreach (TreeViewNode Node in QuickAccessNode.Children)
-                                {
-                                    await Node.UpdateAllSubNodeAsync();
-                                }
-                            }
-
-                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                            {
-                                await RootNode.UpdateAllSubNodeAsync();
-                            }
-                        }
-
-                        foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
-                                                                                     .Select((Blade) => Blade.Content)
-                                                                                     .OfType<FilePresenter>())
-                        {
-                            if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
-                            {
-                                await Presenter.DisplayItemsInFolder(CurrentFolder, true);
-                            }
-                        }
+                        await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshTreeViewAsync()));
                     }
+
+                    await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync()));
                 }
                 catch (Exception ex)
                 {
@@ -2855,38 +2750,16 @@ namespace RX_Explorer.View
 
         private async void HideProtectedSystemItems_Checked(object sender, RoutedEventArgs e)
         {
+            IsDisplayProtectedSystemItems = false;
+
             try
             {
-                IsDisplayProtectedSystemItems = false;
-
-                foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
+                if (!IsDetachTreeViewAndPresenter)
                 {
-                    if (!IsDetachTreeViewAndPresenter)
-                    {
-                        if (Control.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-                        {
-                            foreach (TreeViewNode Node in QuickAccessNode.Children)
-                            {
-                                await Node.UpdateAllSubNodeAsync();
-                            }
-                        }
-
-                        foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                        {
-                            await RootNode.UpdateAllSubNodeAsync();
-                        }
-                    }
-
-                    foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
-                                                                                 .Select((Blade) => Blade.Content)
-                                                                                 .OfType<FilePresenter>())
-                    {
-                        if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
-                        {
-                            await Presenter.DisplayItemsInFolder(CurrentFolder, true);
-                        }
-                    }
+                    await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshTreeViewAsync()));
                 }
+
+                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync()));
             }
             catch (Exception ex)
             {
@@ -3180,20 +3053,7 @@ namespace RX_Explorer.View
                 CommonAccessCollection.LoadLibraryFoldersAsync(true)
             };
 
-            foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
-            {
-                foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
-                                                                             .Select((Blade) => Blade.Content)
-                                                                             .OfType<FilePresenter>())
-                {
-                    if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
-                    {
-                        ParallelTask.Add(Presenter.DisplayItemsInFolder(CurrentFolder, true));
-                    }
-                }
-            }
-
-            await Task.WhenAll(ParallelTask);
+            await Task.WhenAll(ParallelTask.Concat(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync())));
         }
 
         private void SettingNavigation_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
@@ -3449,22 +3309,11 @@ namespace RX_Explorer.View
 
         private async void FileExtensionSwitch_Toggled(object sender, RoutedEventArgs e)
         {
+            IsShowFileExtensionsEnabled = FileExtensionSwitch.IsOn;
+
             try
             {
-                IsShowFileExtensionsEnabled = FileExtensionSwitch.IsOn;
-
-                foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
-                {
-                    foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
-                                                                                 .Select((Blade) => Blade.Content)
-                                                                                 .OfType<FilePresenter>())
-                    {
-                        if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
-                        {
-                            await Presenter.DisplayItemsInFolder(CurrentFolder, true);
-                        }
-                    }
-                }
+                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync()));
             }
             catch (Exception ex)
             {

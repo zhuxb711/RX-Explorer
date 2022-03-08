@@ -1337,7 +1337,7 @@
     <value>RX n'a pas la permission pour copier</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour renommer ce dossier</value>
+    <value>RX n'a pas la permission de renommer ce fichier</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>Retour</value>
@@ -3457,5 +3457,17 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
     <value>Fermer la visionneuse</value>
+  </data>
+  <data name="File_Admin_DisplayType" xml:space="preserve">
+    <value>Fichier</value>
+  </data>
+  <data name="TaskList_OperationKind_Rename" xml:space="preserve">
+    <value>Renommer la tâche</value>
+  </data>
+  <data name="QueueDialog_CouldNotOpenImage_Content" xml:space="preserve">
+    <value>Impossible d'ouvrir ce fichier image</value>
+  </data>
+  <data name="QueueDialog_NotSupportedFile_Content" xml:space="preserve">
+    <value>Ce type de fichier n'est pas pris en charge</value>
   </data>
 </root>

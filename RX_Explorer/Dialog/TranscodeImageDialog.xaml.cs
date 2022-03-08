@@ -42,7 +42,7 @@ namespace RX_Explorer.Dialog
             ScaleCombo.SelectedIndex = 0;
         }
 
-        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             ContentDialogButtonClickDeferral Deferral = args.GetDeferral();
 
@@ -58,8 +58,6 @@ namespace RX_Explorer.Dialog
                     IsPrimaryButtonEnabled = false;
                     IsSecondaryButtonEnabled = false;
                     ProgressArea.Visibility = Visibility.Visible;
-
-                    await Task.WhenAll(GeneralTransformer.TranscodeFromImageAsync(TargetFile, TargetFile, IsEnableScale, ScaleWidth, ScaleHeight, InterpolationMode), Task.Delay(1000));
                 }
             }
             finally
@@ -140,7 +138,7 @@ namespace RX_Explorer.Dialog
                     }
                 case "JPEG":
                     {
-                        Picker.FileTypeChoices.Add($"JPEG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new string[] { ".jpg" });
+                        Picker.FileTypeChoices.Add($"JPEG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new string[] { ".jpg", ".jpeg" });
                         Picker.SuggestedFileName = "Image.jpg";
                         break;
                     }

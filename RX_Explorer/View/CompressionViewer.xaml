@@ -381,6 +381,14 @@
                 </Grid>
             </ListView.Header>
         </ListView>
+        <TextBlock Name="HasFile"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   x:Uid="HasFile"
+                   Text="无文件"
+                   Grid.Row="1"
+                   FontSize="18"
+                   Visibility="Collapsed" />
         <Canvas Grid.Row="1">
             <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
                        Stroke="{ThemeResource SystemAccentColorLight2}"

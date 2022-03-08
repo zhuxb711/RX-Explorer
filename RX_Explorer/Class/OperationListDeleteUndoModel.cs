@@ -28,7 +28,7 @@ namespace RX_Explorer.Class
 
         public override bool CanBeCancelled => true;
 
-        public override async Task PrepareSizeDataAsync(CancellationToken Token)
+        protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
         {
             ulong TotalSize = 0;
 
@@ -54,10 +54,10 @@ namespace RX_Explorer.Class
                 }
             }
 
-            Calculator = new ProgressCalculator(TotalSize);
+            return new ProgressCalculator(TotalSize);
         }
 
-        public OperationListDeleteUndoModel(string[] UndoFrom, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorThrow, OnCancelled)
+        public OperationListDeleteUndoModel(string[] UndoFrom)
         {
             if (UndoFrom.Any((Path) => string.IsNullOrWhiteSpace(Path)))
             {

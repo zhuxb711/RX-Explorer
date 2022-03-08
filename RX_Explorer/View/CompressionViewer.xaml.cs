@@ -41,6 +41,7 @@ namespace RX_Explorer.View
         private FileSystemStorageFile ZipFile;
         private CancellationTokenSource DelayDragCancellation;
         private CancellationTokenSource TaskCancellation;
+        private CancellationTokenSource InitCancellation;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -351,20 +352,21 @@ namespace RX_Explorer.View
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
+            InitCancellation = new CancellationTokenSource();
+
+            ListViewControl.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
+            SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
+
+            CurrentSortTarget = CompressionSortTarget.Name;
+            CurrentSortDirection = SortDirection.Ascending;
+
             if (e.Parameter is FileSystemStorageFile File)
             {
-                ListViewControl.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
-                SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
-
-                CurrentSortTarget = CompressionSortTarget.Name;
-                CurrentSortDirection = SortDirection.Ascending;
-
                 TextEncodingDialog Dialog = new TextEncodingDialog();
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    ZipStrings.CodePage = Dialog.UserSelectedEncoding.CodePage;
-                    await InitializeAsync(File);
+                    await InitializeAsync(File, Dialog.UserSelectedEncoding, InitCancellation.Token);
                 }
                 else
                 {
@@ -375,6 +377,8 @@ namespace RX_Explorer.View
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+
             ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
 
             SelectionExtension.Dispose();
@@ -384,9 +388,11 @@ namespace RX_Explorer.View
             DelayDragCancellation?.Dispose();
             DelayDragCancellation = null;
 
+            InitCancellation?.Cancel();
+            InitCancellation?.Dispose();
+
             TaskCancellation?.Cancel();
             TaskCancellation?.Dispose();
-            TaskCancellation = null;
 
             EntryList.Clear();
             AddressBox.Text = string.Empty;
@@ -399,60 +405,76 @@ namespace RX_Explorer.View
             }
         }
 
-        private async Task InitializeAsync(FileSystemStorageFile File)
+        private async Task InitializeAsync(FileSystemStorageFile File, Encoding Encoding, CancellationToken CancelToken)
         {
+            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+
             try
             {
                 Stream CompressedStream = null;
 
-                if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
+                switch (File.Type.ToLower())
                 {
-                    FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                    case ".sle":
+                        {
+                            Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
-                    SLEHeader Header = SLEHeader.GetHeader(Stream);
+                            SLEHeader Header = SLEHeader.GetHeader(Stream);
 
-                    if (Header.Version >= SLEVersion.Version_1_5_0 && Path.GetExtension(Header.FileName).Equals(".zip", StringComparison.OrdinalIgnoreCase))
-                    {
-                        IsReadonlyMode = true;
-                        CompressedStream = new SLEInputStream(Stream, SecureArea.AESKey);
-                    }
-                    else
-                    {
-                        throw new NotSupportedException();
-                    }
+                            if (Header.Version >= SLEVersion.Version_1_5_0 && Path.GetExtension(Header.FileName).Equals(".zip", StringComparison.OrdinalIgnoreCase))
+                            {
+                                CompressedStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                            }
+
+                            break;
+                        }
+                    case ".zip":
+                        {
+                            CompressedStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess);
+                            break;
+                        }
                 }
-                else if (File.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase))
+
+                if (CancelToken.IsCancellationRequested)
                 {
-                    IsReadonlyMode = false;
-                    CompressedStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess);
+                    CompressedStream?.Dispose();
                 }
                 else
                 {
-                    throw new NotSupportedException();
+                    try
+                    {
+                        if (CompressedStream == null)
+                        {
+                            throw new NotSupportedException();
+                        }
+                        else if (CompressedStream is SLEInputStream)
+                        {
+                            IsReadonlyMode = true;
+                        }
+
+                        ZipStrings.CodePage = Encoding.CodePage;
+
+                        ZipFile = File;
+                        ZipObj = new ZipFile(CompressedStream);
+
+                        await Task.WhenAll(DisplayItemsInEntryAsync(string.Empty), Task.Delay(1000));
+                    }
+                    finally
+                    {
+                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                    }
                 }
-
-                if (CompressedStream == null)
-                {
-                    throw new NotSupportedException();
-                }
-
-                ZipFile = File;
-                ZipObj = new ZipFile(CompressedStream);
-
-                DisplayItemsInFolderEntry(string.Empty);
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not initialize the viewer");
+                LogTracer.Log(ex, "Could not initialize the compression viewer");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                await new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_CouldNotOpenCompression_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
-                };
-
-                await Dialog.ShowAsync();
+                }.ShowAsync();
 
                 Frame.GoBack();
             }
@@ -512,7 +534,7 @@ namespace RX_Explorer.View
             return Result;
         }
 
-        private void DisplayItemsInFolderEntry(string Path)
+        private async Task DisplayItemsInEntryAsync(string Path)
         {
             EntryList.Clear();
 
@@ -522,63 +544,66 @@ namespace RX_Explorer.View
 
             List<CompressionItemBase> Result = new List<CompressionItemBase>();
 
-            foreach (ZipEntry Entry in ZipObj)
+            foreach (ZipEntry Entry in ZipObj.OfType<ZipEntry>().Where((Entry) => Entry.Name.StartsWith(Path)))
             {
-                if (Entry.Name.StartsWith(Path))
+                string RelativePath = Entry.Name;
+
+                if (!string.IsNullOrEmpty(Path))
                 {
-                    string RelativePath = Entry.Name;
+                    RelativePath = Entry.Name.Replace(Path, string.Empty);
+                }
 
-                    if (!string.IsNullOrEmpty(Path))
-                    {
-                        RelativePath = Entry.Name.Replace(Path, string.Empty);
-                    }
+                string[] SplitArray = RelativePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-                    string[] SplitArray = RelativePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
-                    switch (SplitArray.Length)
-                    {
-                        case 1:
+                switch (SplitArray.Length)
+                {
+                    case 1:
+                        {
+                            if (Result.FirstOrDefault((Item) => Item.Path == Entry.Name) is CompressionItemBase ItemBase)
                             {
-                                if (Result.FirstOrDefault((Item) => Item.Path == Entry.Name) is CompressionItemBase ItemBase)
+                                ItemBase.UpdateFromNewEntry(Entry);
+                            }
+                            else
+                            {
+                                if (Entry.IsDirectory)
                                 {
-                                    ItemBase.UpdateFromNewEntry(Entry);
+                                    Result.Add(new CompressionFolder(Entry));
                                 }
                                 else
                                 {
-                                    if (Entry.IsDirectory)
-                                    {
-                                        Result.Add(new CompressionFolder(Entry));
-                                    }
-                                    else
-                                    {
-                                        Result.Add(new CompressionFile(Entry));
-                                    }
+                                    Result.Add(new CompressionFile(Entry));
                                 }
-
-                                break;
                             }
-                        case > 1:
+
+                            break;
+                        }
+                    case > 1:
+                        {
+                            string FolderPath = $"{Path}{SplitArray[0]}/";
+
+                            if (Result.All((Item) => Item.Path != FolderPath))
                             {
-                                string FolderPath = $"{Path}{SplitArray[0]}/";
-
-                                if (Result.All((Item) => Item.Path != FolderPath))
-                                {
-                                    Result.Add(new CompressionFolder(FolderPath));
-                                }
-
-                                break;
+                                Result.Add(new CompressionFolder(FolderPath));
                             }
-                    }
+
+                            break;
+                        }
                 }
             }
 
-            foreach (CompressionItemBase Item in GetSortedCollection(Result, CurrentSortTarget, CurrentSortDirection))
+            EntryList.AddRange(await GetSortedCollectionAsync(Result, CurrentSortTarget, CurrentSortDirection));
+
+            if (EntryList.Count > 0)
             {
-                EntryList.Add(Item);
+                HasFile.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                HasFile.Visibility = Visibility.Visible;
             }
         }
 
-        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection, CompressionSortTarget Target, SortDirection Direction) where T : CompressionItemBase
+        public async Task<IEnumerable<T>> GetSortedCollectionAsync<T>(IEnumerable<T> InputCollection, CompressionSortTarget Target, SortDirection Direction) where T : CompressionItemBase
         {
             IEnumerable<T> FolderList = InputCollection.Where((It) => It is CompressionFolder);
             IEnumerable<T> FileList = InputCollection.Where((It) => It is CompressionFile);
@@ -587,25 +612,37 @@ namespace RX_Explorer.View
             {
                 case CompressionSortTarget.Name:
                     {
+                        IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction);
+                        IEnumerable<T> SortedFileList = await FileList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction);
+
                         return Direction == SortDirection.Ascending
-                                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Name, Direction)
-                                                        .Concat(FileList.OrderByLikeFileSystem((Item) => Item.Name, Direction))
-                                            : FileList.OrderByLikeFileSystem((Item) => Item.Name, Direction)
-                                                      .Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, Direction));
+                                            ? SortedFolderList.Concat(SortedFileList)
+                                            : SortedFileList.Concat(SortedFolderList);
                     }
                 case CompressionSortTarget.Type:
                     {
-                        return Direction == SortDirection.Ascending
-                                            ? FolderList.OrderBy((Item) => Item.Type)
-                                                        .Concat(FileList.OrderBy((Item) => Item.Type))
-                                                        .GroupBy((Item) => Item.Type)
-                                                        .Select((Group) => Group.OrderByLikeFileSystem((Item) => Item.Name, Direction))
-                                                        .SelectMany((Array) => Array)
-                                            : FolderList.OrderByDescending((Item) => Item.Type)
-                                                        .Concat(FileList.OrderByDescending((Item) => Item.Type))
-                                                        .GroupBy((Item) => Item.Type)
-                                                        .Select((Group) => Group.OrderByLikeFileSystem((Item) => Item.Name, Direction))
-                                                        .SelectMany((Array) => Array);
+                        List<T> SortResult = new List<T>();
+
+                        if (Direction == SortDirection.Ascending)
+                        {
+                            foreach (IGrouping<string, T> Group in FolderList.OrderBy((Item) => Item.Type)
+                                                                             .Concat(FileList.OrderBy((Item) => Item.Type))
+                                                                             .GroupBy((Item) => Item.Type))
+                            {
+                                SortResult.AddRange(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
+                            }
+                        }
+                        else
+                        {
+                            foreach (IGrouping<string, T> Group in FolderList.OrderByDescending((Item) => Item.Type)
+                                                                             .Concat(FileList.OrderByDescending((Item) => Item.Type))
+                                                                             .GroupBy((Item) => Item.Type))
+                            {
+                                SortResult.AddRange(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
+                            }
+                        }
+
+                        return SortResult;
                     }
                 case CompressionSortTarget.ModifiedTime:
                     {
@@ -617,27 +654,27 @@ namespace RX_Explorer.View
                     }
                 case CompressionSortTarget.Size:
                     {
+                        IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending);
+
                         return Direction == SortDirection.Ascending
-                                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending)
-                                                        .Concat(FileList.OrderBy((Item) => Item.Size))
-                                            : FileList.OrderByDescending((Item) => Item.Size)
-                                                      .Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending));
+                                            ? SortedFolderList.Concat(FileList.OrderBy((Item) => Item.Size))
+                                            : FileList.OrderByDescending((Item) => Item.Size).Concat(SortedFolderList);
                     }
                 case CompressionSortTarget.CompressedSize:
                     {
+                        IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending);
+
                         return Direction == SortDirection.Ascending
-                                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending)
-                                                        .Concat(FileList.OrderBy((Item) => Item.CompressedSize))
-                                            : FileList.OrderByDescending((Item) => Item.CompressedSize)
-                                                      .Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending));
+                                            ? SortedFolderList.Concat(FileList.OrderBy((Item) => Item.CompressedSize))
+                                            : FileList.OrderByDescending((Item) => Item.CompressedSize).Concat(SortedFolderList);
                     }
                 case CompressionSortTarget.CompressionRate:
                     {
+                        IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending);
+
                         return Direction == SortDirection.Ascending
-                                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending)
-                                                        .Concat(FileList.OrderBy((Item) => Item.CompressionRate))
-                                            : FileList.OrderByDescending((Item) => Item.CompressionRate)
-                                                      .Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending));
+                                            ? SortedFolderList.Concat(FileList.OrderBy((Item) => Item.CompressionRate))
+                                            : FileList.OrderByDescending((Item) => Item.CompressionRate).Concat(SortedFolderList);
                     }
                 default:
                     {
@@ -646,7 +683,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void ListHeader_Click(object sender, RoutedEventArgs e)
+        private async void ListHeader_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button Btn)
             {
@@ -671,7 +708,7 @@ namespace RX_Explorer.View
                     CurrentSortDirection = SortDirection.Ascending;
                 }
 
-                CompressionItemBase[] SortResult = GetSortedCollection(EntryList, CurrentSortTarget, CurrentSortDirection).ToArray();
+                CompressionItemBase[] SortResult = (await GetSortedCollectionAsync(EntryList, CurrentSortTarget, CurrentSortDirection)).ToArray();
 
                 EntryList.Clear();
 
@@ -682,17 +719,17 @@ namespace RX_Explorer.View
             }
         }
 
-        private void ListViewControl_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        private async void ListViewControl_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is CompressionItemBase Item)
             {
-                DisplayItemsInFolderEntry(Item.Path);
+                await DisplayItemsInEntryAsync(Item.Path);
             }
         }
 
-        private void GoParentFolder_Click(object sender, RoutedEventArgs e)
+        private async void GoParentFolder_Click(object sender, RoutedEventArgs e)
         {
-            DisplayItemsInFolderEntry(string.Join('/', CurrentPath.Split('/', StringSplitOptions.RemoveEmptyEntries).SkipLast(1)));
+            await DisplayItemsInEntryAsync(string.Join('/', CurrentPath.Split('/', StringSplitOptions.RemoveEmptyEntries).SkipLast(1)));
         }
 
         private void AddressBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -721,13 +758,13 @@ namespace RX_Explorer.View
 
             if (ZipObj.GetEntry($"{QueryText}/") is ZipEntry DirectoryEntry)
             {
-                DisplayItemsInFolderEntry(DirectoryEntry.Name);
+                await DisplayItemsInEntryAsync(DirectoryEntry.Name);
             }
             else
             {
                 if (GetAllItemsInFolder(QueryText).Count > 0)
                 {
-                    DisplayItemsInFolderEntry(QueryText);
+                    await DisplayItemsInEntryAsync(QueryText);
                 }
                 else
                 {
@@ -826,13 +863,15 @@ namespace RX_Explorer.View
                     {
                         if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TargetFile)
                         {
-                            using (FileStream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                            using (Stream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                             using (Stream ZipStream = ZipObj.GetInputStream(Entry))
                             {
                                 await ZipStream.CopyToAsync(Stream, Entry.Size, Token, (s, e) =>
                                 {
                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / TotalSize), null));
                                 });
+
+                                await Stream.FlushAsync(Token);
                             }
 
                             CurrentPosition += Entry.Size;
@@ -873,7 +912,7 @@ namespace RX_Explorer.View
                         }, TaskCreationOptions.LongRunning);
                     }
 
-                    DisplayItemsInFolderEntry(CurrentPath);
+                    await DisplayItemsInEntryAsync(CurrentPath);
                 }
                 catch (Exception ex)
                 {
@@ -912,7 +951,7 @@ namespace RX_Explorer.View
                         ZipObj.CommitUpdate();
                     });
 
-                    DisplayItemsInFolderEntry(CurrentPath);
+                    await DisplayItemsInEntryAsync(CurrentPath);
                 }
                 catch (Exception ex)
                 {
@@ -1043,7 +1082,7 @@ namespace RX_Explorer.View
                             ZipObj.CommitUpdate();
                         });
 
-                        DisplayItemsInFolderEntry(CurrentPath);
+                        await DisplayItemsInEntryAsync(CurrentPath);
                     }
                     catch (Exception ex)
                     {
@@ -1206,7 +1245,7 @@ namespace RX_Explorer.View
                                 }
                             }, TaskCancellation.Token, TaskCreationOptions.LongRunning);
 
-                            DisplayItemsInFolderEntry(CurrentPath);
+                            await DisplayItemsInEntryAsync(CurrentPath);
                         }
                         catch (Exception ex)
                         {

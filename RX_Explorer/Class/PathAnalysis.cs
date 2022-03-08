@@ -16,12 +16,18 @@ namespace RX_Explorer.Class
 
         private Queue<string> PathQueue;
 
-        private string CurrentLevel;
+        private string CurrentPath;
 
         /// <summary>
         /// 指示是否还有下一级路径
         /// </summary>
-        public bool HasNextLevel { get; private set; }
+        public bool HasNextLevel
+        {
+            get
+            {
+                return PathQueue.Count > 0;
+            }
+        }
 
         /// <summary>
         /// 初始化PathAnalysis对象
@@ -35,39 +41,44 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(FullPath), "FullPath could not be null or empty");
             }
 
-            this.FullPath = FullPath;
+            this.FullPath = FullPath.TrimEnd('\\');
+            this.CurrentPath = CurrentPath.TrimEnd('\\') ?? string.Empty;
 
-            CurrentLevel = CurrentPath ?? string.Empty;
-
-            if (string.IsNullOrEmpty(CurrentPath))
+            if (string.IsNullOrEmpty(this.CurrentPath))
             {
-                string[] Split = FullPath.Split("\\", StringSplitOptions.RemoveEmptyEntries);
-                
-                if (FullPath.StartsWith(@"\\"))
+                string[] Split = this.FullPath.Split("\\", StringSplitOptions.RemoveEmptyEntries);
+
+                if (this.FullPath.StartsWith(@"\\?\") && Split.Length > 0)
                 {
-                    if (Split.Length > 0)
-                    {
-                        Split[0] = @"\\" + Split[0];
-                    }
+                    Split[0] = $@"\\?\{Split[1]}\";
                 }
-
-                Split[0] = $"{Split[0]}\\";
-                PathQueue = new Queue<string>(Split);
-                HasNextLevel = true;
-            }
-            else
-            {
-                if (FullPath != CurrentPath)
+                else if (this.FullPath.StartsWith(@"\\") && Split.Length > 0)
                 {
-                    HasNextLevel = true;
-                    PathQueue = new Queue<string>(FullPath.Replace(CurrentPath, string.Empty).Split("\\", StringSplitOptions.RemoveEmptyEntries));
+                    Split[0] = $@"\\{Split[0]}\";
                 }
                 else
                 {
-                    HasNextLevel = false;
+                    Split[0] = $@"{Split[0]}\";
+                }
+
+                PathQueue = new Queue<string>(Split);
+            }
+            else
+            {
+                if (this.FullPath.TrimEnd('\\').Equals(this.CurrentPath.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase))
+                {
                     PathQueue = new Queue<string>(0);
                 }
+                else
+                {
+                    PathQueue = new Queue<string>(this.FullPath.Replace(this.CurrentPath, string.Empty).Split("\\", StringSplitOptions.RemoveEmptyEntries));
+                }
             }
+        }
+
+        public PathAnalysis(string FullPath) : this(FullPath, string.Empty)
+        {
+
         }
 
         /// <summary>
@@ -76,21 +87,12 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public string NextFullPath()
         {
-            if (PathQueue.Count != 0)
+            if (PathQueue.TryDequeue(out string RelativePath))
             {
-                CurrentLevel = Path.Combine(CurrentLevel, PathQueue.Dequeue());
-                
-                if (PathQueue.Count == 0)
-                {
-                    HasNextLevel = false;
-                }
-                
-                return CurrentLevel;
+                CurrentPath = Path.Combine(CurrentPath, RelativePath);
             }
-            else
-            {
-                return CurrentLevel;
-            }
+
+            return CurrentPath;
         }
 
         /// <summary>
@@ -99,15 +101,8 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public string NextRelativePath()
         {
-            if (PathQueue.Count != 0)
+            if (PathQueue.TryDequeue(out string RelativePath))
             {
-                string RelativePath = PathQueue.Dequeue();
-                
-                if (PathQueue.Count == 0)
-                {
-                    HasNextLevel = false;
-                }
-
                 return RelativePath;
             }
             else

@@ -1,12 +1,10 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -47,11 +45,6 @@ namespace RX_Explorer.Class
         private bool colorFilterCheckBox2;
         private bool colorFilterCheckBox3;
         private bool colorFilterCheckBox4;
-
-        private readonly Color OrangeColor = Colors.Orange;
-        private readonly Color GreenColor = "#22B324".ToColor();
-        private readonly Color PurpleColor = "#CC6EFF".ToColor();
-        private readonly Color BlueColor = "#42C5FF".ToColor();
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<RefreshRequestedEventArgs> RefreshListRequested;
@@ -736,7 +729,7 @@ namespace RX_Explorer.Class
             string[] ExtensionArray = OriginCopy.OfType<FileSystemStorageFile>()
                                                 .Select((Source) => Source.Type)
                                                 .Where((Type) => !string.IsNullOrWhiteSpace(Type))
-                                                .OrderByLikeFileSystem((Type) => Type, SortDirection.Ascending)
+                                                .OrderByFastStringSortAlgorithm((Type) => Type, SortDirection.Ascending)
                                                 .Distinct()
                                                 .ToArray();
 

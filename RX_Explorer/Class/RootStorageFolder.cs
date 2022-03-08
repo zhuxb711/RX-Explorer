@@ -92,7 +92,7 @@ namespace RX_Explorer.Class
             return new List<FileSystemStorageItemBase>((await Task.WhenAll(ParallelTask)).SelectMany((Array) => Array));
         }
 
-        private RootStorageFolder() : base(new Win32_File_Data("RootFolderUniquePath", default))
+        private RootStorageFolder() : base(new NativeFileData("RootFolderUniquePath", default))
         {
 
         }

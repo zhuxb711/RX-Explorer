@@ -13,7 +13,7 @@ using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
 {
-    public static class Win32_Native_API
+    public static class NativeWin32API
     {
         [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern IntPtr FindFirstFileExFromApp(string lpFileName,
@@ -391,7 +391,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                PathAnalysis Analysis = new PathAnalysis(Path, string.Empty);
+                PathAnalysis Analysis = new PathAnalysis(Path);
 
                 while (true)
                 {
@@ -531,38 +531,21 @@ namespace RX_Explorer.Class
         {
             string UniquePath = Path;
 
-            if (ItemType == StorageItemTypes.File)
+            if (CheckExists(UniquePath))
             {
-                string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(Path);
-                string Extension = System.IO.Path.GetExtension(Path);
-                string Directory = System.IO.Path.GetDirectoryName(Path);
-
-                for (ushort Count = 1; CheckExists(UniquePath); Count++)
-                {
-                    if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
-                    {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
-                    }
-                    else
-                    {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt} ({Count}){Extension}");
-                    }
-                }
-            }
-            else
-            {
-                string Directory = System.IO.Path.GetDirectoryName(Path);
-                string Name = System.IO.Path.GetFileName(Path);
+                string Name = ItemType == StorageItemTypes.Folder ? System.IO.Path.GetFileName(Path) : System.IO.Path.GetFileNameWithoutExtension(Path);
+                string Extension = ItemType == StorageItemTypes.Folder ? string.Empty : System.IO.Path.GetExtension(Path);
+                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
                 for (ushort Count = 1; CheckExists(UniquePath); Count++)
                 {
                     if (Regex.IsMatch(Name, @".*\(\d+\)"))
                     {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})");
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
                     }
                     else
                     {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{Name} ({Count})");
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name} ({Count}){Extension}");
                     }
                 }
             }
@@ -587,7 +570,7 @@ namespace RX_Explorer.Class
             return CreateFileFromApp(FolderPath, FILE_ACCESS.File_List_Directory, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Open_Existing, FILE_ATTRIBUTE_FLAG.File_Flag_Backup_Semantics, IntPtr.Zero);
         }
 
-        public static bool CheckContainsAnyItem(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, BasicFilters Filter)
+        public static bool CheckContainsAnyItem(string FolderPath, bool IncludeHiddenItems, bool IncludeSystemItems, BasicFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -606,7 +589,7 @@ namespace RX_Explorer.Class
                         {
                             FileAttributes Attribute = Data.dwFileAttributes;
 
-                            if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
+                            if ((IncludeHiddenItems || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItems || !Attribute.HasFlag(FileAttributes.System)))
                             {
                                 if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
@@ -755,30 +738,30 @@ namespace RX_Explorer.Class
                                     {
                                         if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                                         {
-                                            SearchResult.Add(new HiddenStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
+                                            SearchResult.Add(new HiddenStorageFolder(new NativeFileData(CurrentDataPath, Data)));
                                         }
                                         else
                                         {
-                                            SearchResult.Add(new FileSystemStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
+                                            SearchResult.Add(new FileSystemStorageFolder(new NativeFileData(CurrentDataPath, Data)));
                                         }
                                     }
                                     else
                                     {
                                         if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                                         {
-                                            SearchResult.Add(new HiddenStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                            SearchResult.Add(new HiddenStorageFile(new NativeFileData(CurrentDataPath, Data)));
                                         }
                                         else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            SearchResult.Add(new UrlStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                            SearchResult.Add(new UrlStorageFile(new NativeFileData(CurrentDataPath, Data)));
                                         }
                                         else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            SearchResult.Add(new LinkStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                            SearchResult.Add(new LinkStorageFile(new NativeFileData(CurrentDataPath, Data)));
                                         }
                                         else
                                         {
-                                            SearchResult.Add(new FileSystemStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                            SearchResult.Add(new FileSystemStorageFile(new NativeFileData(CurrentDataPath, Data)));
                                         }
                                     }
                                 }
@@ -835,11 +818,11 @@ namespace RX_Explorer.Class
 
                                     if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
+                                        Result.Add(new HiddenStorageFolder(new NativeFileData(CurrentDataPath, Data)));
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
+                                        Result.Add(new FileSystemStorageFolder(new NativeFileData(CurrentDataPath, Data)));
                                     }
                                 }
                                 else
@@ -848,19 +831,19 @@ namespace RX_Explorer.Class
 
                                     if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                        Result.Add(new HiddenStorageFile(new NativeFileData(CurrentDataPath, Data)));
                                     }
                                     else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        Result.Add(new UrlStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                        Result.Add(new UrlStorageFile(new NativeFileData(CurrentDataPath, Data)));
                                     }
                                     else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        Result.Add(new LinkStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                        Result.Add(new LinkStorageFile(new NativeFileData(CurrentDataPath, Data)));
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                        Result.Add(new FileSystemStorageFile(new NativeFileData(CurrentDataPath, Data)));
                                     }
                                 }
                             }
@@ -905,30 +888,30 @@ namespace RX_Explorer.Class
                         {
                             if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                             {
-                                return new HiddenStorageFolder(new Win32_File_Data(ItemPath, Data));
+                                return new HiddenStorageFolder(new NativeFileData(ItemPath, Data));
                             }
                             else
                             {
-                                return new FileSystemStorageFolder(new Win32_File_Data(ItemPath, Data));
+                                return new FileSystemStorageFolder(new NativeFileData(ItemPath, Data));
                             }
                         }
                         else
                         {
                             if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                             {
-                                return new HiddenStorageFile(new Win32_File_Data(ItemPath, Data));
+                                return new HiddenStorageFile(new NativeFileData(ItemPath, Data));
                             }
                             else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                             {
-                                return new UrlStorageFile(new Win32_File_Data(ItemPath, Data));
+                                return new UrlStorageFile(new NativeFileData(ItemPath, Data));
                             }
                             else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                             {
-                                return new LinkStorageFile(new Win32_File_Data(ItemPath, Data));
+                                return new LinkStorageFile(new NativeFileData(ItemPath, Data));
                             }
                             else
                             {
-                                return new FileSystemStorageFile(new Win32_File_Data(ItemPath, Data));
+                                return new FileSystemStorageFile(new NativeFileData(ItemPath, Data));
                             }
                         }
                     }
@@ -951,7 +934,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static Win32_File_Data GetStorageItemRawData(string ItemPath)
+        public static NativeFileData GetStorageItemRawData(string ItemPath)
         {
             if (string.IsNullOrWhiteSpace(ItemPath))
             {
@@ -964,11 +947,11 @@ namespace RX_Explorer.Class
             {
                 if (Ptr.CheckIfValidPtr())
                 {
-                    return new Win32_File_Data(ItemPath, Data);
+                    return new NativeFileData(ItemPath, Data);
                 }
                 else
                 {
-                    return new Win32_File_Data(ItemPath);
+                    return new NativeFileData(ItemPath);
                 }
             }
             finally
@@ -977,7 +960,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static Win32_File_Data GetStorageItemRawDataFromHandle(string Path, IntPtr FileHandle)
+        public static NativeFileData GetStorageItemRawDataFromHandle(string Path, IntPtr FileHandle)
         {
             if (FileHandle.CheckIfValidPtr())
             {
@@ -993,23 +976,23 @@ namespace RX_Explorer.Class
 
                         if (Info.FileAttributes.HasFlag(FileAttributes.Directory))
                         {
-                            return new Win32_File_Data(Path, 0, Info.FileAttributes, Info.LastWriteTime, Info.CreationTime);
+                            return new NativeFileData(Path, 0, Info.FileAttributes, Info.LastWriteTime, Info.CreationTime);
                         }
                         else
                         {
                             if (GetFileSizeEx(FileHandle, out long Size))
                             {
-                                return new Win32_File_Data(Path, Size > 0 ? Convert.ToUInt64(Size) : 0, Info.FileAttributes, Info.LastWriteTime, Info.CreationTime);
+                                return new NativeFileData(Path, Size > 0 ? Convert.ToUInt64(Size) : 0, Info.FileAttributes, Info.LastWriteTime, Info.CreationTime);
                             }
                             else
                             {
-                                return new Win32_File_Data(Path, 0, Info.FileAttributes, Info.LastWriteTime, Info.CreationTime);
+                                return new NativeFileData(Path, 0, Info.FileAttributes, Info.LastWriteTime, Info.CreationTime);
                             }
                         }
                     }
                     else
                     {
-                        return new Win32_File_Data(Path);
+                        return new NativeFileData(Path);
                     }
                 }
                 finally
@@ -1019,7 +1002,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                return new Win32_File_Data(Path);
+                return new NativeFileData(Path);
             }
         }
 
@@ -1109,7 +1092,7 @@ namespace RX_Explorer.Class
 
         public static FileSystemStorageItemBase GetStorageItemFromHandle(string Path, IntPtr FileHandle)
         {
-            Win32_File_Data Data = GetStorageItemRawDataFromHandle(Path, FileHandle);
+            NativeFileData Data = GetStorageItemRawDataFromHandle(Path, FileHandle);
 
             if (Data.IsDataValid)
             {

@@ -16,7 +16,7 @@ namespace RX_Explorer.Class
 {
     public class FileSystemStorageFolder : FileSystemStorageItemBase, ICoreStorageItem<StorageFolder>
     {
-        public override string Name => System.IO.Path.GetPathRoot(Path) == Path ? Path : System.IO.Path.GetFileName(Path);
+        public override string Name => (System.IO.Path.GetPathRoot(Path)?.Equals(Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault() ? Path : System.IO.Path.GetFileName(Path);
 
         public override string DisplayName => (StorageItem?.DisplayName) ?? Name;
 
@@ -27,6 +27,8 @@ namespace RX_Explorer.Class
         public override string Type => Globalization.GetString("Folder_Admin_DisplayType");
 
         public override bool IsReadOnly => false;
+
+        public override ulong Size => 0;
 
         public override bool IsSystemItem
         {
@@ -56,20 +58,25 @@ namespace RX_Explorer.Class
             StorageItem = Item;
         }
 
-        public FileSystemStorageFolder(Win32_File_Data Data) : base(Data)
+        public FileSystemStorageFolder(NativeFileData Data) : base(Data)
         {
 
         }
 
-        public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false,
-                                                                  bool IncludeSystemItem = false,
+        public FileSystemStorageFolder(MTPFileData Data) : base(Data)
+        {
+
+        }
+
+        public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItems = false,
+                                                                  bool IncludeSystemItems = false,
                                                                   BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
         {
             try
             {
                 try
                 {
-                    return await Task.Run(() => Win32_Native_API.CheckContainsAnyItem(Path, IncludeHiddenItem, IncludeSystemItem, Filter));
+                    return await Task.Run(() => NativeWin32API.CheckContainsAnyItem(Path, IncludeHiddenItems, IncludeSystemItems, Filter));
                 }
                 catch (LocationNotAvailableException)
                 {
@@ -154,7 +161,7 @@ namespace RX_Explorer.Class
 
                                 for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 50)
                                 {
-                                    IReadOnlyList<IStorageItem> ReadOnlyItemList = (await Task.WhenAny(Query.GetItemsAsync(Index, 50).AsTask(), CancelCompletionSource.Task)).Result;
+                                    IReadOnlyList<IStorageItem> ReadOnlyItemList = await await Task.WhenAny(Query.GetItemsAsync(Index, 50).AsTask(), CancelCompletionSource.Task);
 
                                     if (ReadOnlyItemList.Count > 0)
                                     {
@@ -205,32 +212,32 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    Result.AddRange(await Task.Run(() => Win32_Native_API.Search(Path,
-                                                                                 SearchWord,
-                                                                                 IncludeHiddenItems,
-                                                                                 IncludeSystemItems,
-                                                                                 IsRegexExpression,
-                                                                                 IgnoreCase,
-                                                                                 CancelToken)).ContinueWith((PreviousTask) =>
-                                                                                 {
-                                                                                     if (PreviousTask.IsFaulted)
-                                                                                     {
-                                                                                         if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is LocationNotAvailableException))
-                                                                                         {
-                                                                                             return SearchInUwpApiAsync(Path, false).Result;
-                                                                                         }
-                                                                                         else if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is DirectoryNotFoundException))
-                                                                                         {
-                                                                                             LogTracer.Log(PreviousTask.Exception.InnerExceptions.FirstOrDefault() ?? new Exception(), $"Path not found");
-                                                                                         }
+                    Result.AddRange(await Task.Run(() => NativeWin32API.Search(Path,
+                                                                               SearchWord,
+                                                                               IncludeHiddenItems,
+                                                                               IncludeSystemItems,
+                                                                               IsRegexExpression,
+                                                                               IgnoreCase,
+                                                                               CancelToken)).ContinueWith((PreviousTask) =>
+                                                                               {
+                                                                                   if (PreviousTask.IsFaulted)
+                                                                                   {
+                                                                                       if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is LocationNotAvailableException))
+                                                                                       {
+                                                                                           return SearchInUwpApiAsync(Path, false).Result;
+                                                                                       }
+                                                                                       else if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is DirectoryNotFoundException))
+                                                                                       {
+                                                                                           LogTracer.Log(PreviousTask.Exception.InnerExceptions.FirstOrDefault() ?? new Exception(), $"Path not found");
+                                                                                       }
 
-                                                                                         return new List<FileSystemStorageItemBase>(0);
-                                                                                     }
-                                                                                     else
-                                                                                     {
-                                                                                         return PreviousTask.Result;
-                                                                                     }
-                                                                                 }));
+                                                                                       return new List<FileSystemStorageItemBase>(0);
+                                                                                   }
+                                                                                   else
+                                                                                   {
+                                                                                       return PreviousTask.Result;
+                                                                                   }
+                                                                               }));
 
                     if (SearchInSubFolders)
                     {
@@ -280,7 +287,7 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                if (Win32_Native_API.CreateFileFromPath(SubItemPath, Option, out string NewPath))
+                                if (NativeWin32API.CreateFileFromPath(SubItemPath, Option, out string NewPath))
                                 {
                                     return await OpenAsync(NewPath);
                                 }
@@ -330,7 +337,7 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                if (Win32_Native_API.CreateDirectoryFromPath(SubItemPath, Option, out string NewPath))
+                                if (NativeWin32API.CreateDirectoryFromPath(SubItemPath, Option, out string NewPath))
                                 {
                                     return await OpenAsync(NewPath);
                                 }
@@ -468,7 +475,7 @@ namespace RX_Explorer.Class
 
                     try
                     {
-                        SubItems = await Task.Run(() => Win32_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems, MaxNumLimit));
+                        SubItems = await Task.Run(() => NativeWin32API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems, MaxNumLimit));
                     }
                     catch (LocationNotAvailableException)
                     {
@@ -518,7 +525,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(Path);
+                    NativeFileData Data = NativeWin32API.GetStorageItemRawData(Path);
 
                     if (Data.IsDataValid)
                     {

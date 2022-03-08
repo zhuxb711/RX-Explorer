@@ -9,13 +9,7 @@ namespace RX_Explorer.Class
 {
     public class OperationListCopyModel : OperationListBaseModel
     {
-        public override string OperationKindText
-        {
-            get
-            {
-                return Globalization.GetString("TaskList_OperationKind_Copy");
-            }
-        }
+        public override string OperationKindText => Globalization.GetString("TaskList_OperationKind_Copy");
 
         public override string FromDescription
         {
@@ -37,13 +31,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string ToDescription
-        {
-            get
-            {
-                return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{CopyTo}";
-            }
-        }
+        public override string ToDescription => $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{CopyTo}";
 
         public string[] CopyFrom { get; }
 
@@ -51,7 +39,7 @@ namespace RX_Explorer.Class
 
         public override bool CanBeCancelled => true;
 
-        public override async Task PrepareSizeDataAsync(CancellationToken Token)
+        protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
         {
             ulong TotalSize = 0;
 
@@ -77,10 +65,10 @@ namespace RX_Explorer.Class
                 }
             }
 
-            Calculator = new ProgressCalculator(TotalSize);
+            return new ProgressCalculator(TotalSize);
         }
 
-        public OperationListCopyModel(string[] CopyFrom, string CopyTo, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorThrow, OnCancelled)
+        public OperationListCopyModel(string[] CopyFrom, string CopyTo)
         {
             if (string.IsNullOrWhiteSpace(CopyTo))
             {

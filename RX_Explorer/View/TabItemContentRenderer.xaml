@@ -6,6 +6,8 @@
       xmlns:Cls="using:RX_Explorer.Class"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:sys="using:System"
+      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
@@ -19,8 +21,32 @@
                Name="TaskListPanel"
                OpenPaneLength="330"
                PaneBackground="{ThemeResource ElementCustomAcrylicBrush}">
-        <Frame Name="BaseFrame"
-               Navigated="BaseFrame_Navigated"/>
+        <Grid>
+            <Frame Name="BaseFrame"
+                   Navigated="BaseFrame_Navigated" />
+            <controls:Loading x:Name="LoadingControl"
+                              IsLoading="False"
+                              Grid.ColumnSpan="2">
+                <controls:Loading.Background>
+                    <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
+                                        TintOpacity="0.6"
+                                        BlurAmount="3" />
+                </controls:Loading.Background>
+                <StackPanel Orientation="Horizontal"
+                            Padding="12">
+                    <StackPanel>
+                        <TextBlock FontSize="16"
+                                   VerticalAlignment="Center"
+                                   TextAlignment="Center"
+                                   Text="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}" />
+                        <muxc:ProgressBar IsIndeterminate="True"
+                                          Width="180"
+                                          Name="ProBar"
+                                          Margin="0,10,0,0" />
+                    </StackPanel>
+                </StackPanel>
+            </controls:Loading>
+        </Grid>
         <SplitView.Pane>
             <Grid Margin="10">
                 <Grid.RowDefinitions>
@@ -124,8 +150,8 @@
                                            Visibility="{x:Bind FromDescription,Converter={StaticResource VisibilityConverter}}"
                                            Text="{x:Bind FromDescription}">
                                     <ToolTipService.ToolTip>
-                                        <TextBlock Text="{x:Bind FromDescription}"
-                                                   Visibility="{Binding ElementName=FromDescriptionLabel,Path=IsTextTrimmed}" />
+                                        <ToolTip Content="{x:Bind FromDescription}"
+                                                 Visibility="{Binding ElementName=FromDescriptionLabel,Path=IsTextTrimmed}" />
                                     </ToolTipService.ToolTip>
                                 </TextBlock>
                                 <TextBlock Margin="0,5,0,0"
@@ -135,8 +161,8 @@
                                            Visibility="{x:Bind ToDescription,Converter={StaticResource VisibilityConverter}}"
                                            Text="{x:Bind ToDescription}">
                                      <ToolTipService.ToolTip>
-                                        <TextBlock Text="{x:Bind ToDescription}"
-                                                   Visibility="{Binding ElementName=ToDescriptionLabel,Path=IsTextTrimmed}" />
+                                        <ToolTip Content="{x:Bind ToDescription}"
+                                                 Visibility="{Binding ElementName=ToDescriptionLabel,Path=IsTextTrimmed}" />
                                     </ToolTipService.ToolTip>
                                 </TextBlock>
                                 <RelativePanel Margin="0,5,0,0">

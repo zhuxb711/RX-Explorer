@@ -1764,8 +1764,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">RX无权将文件粘贴至此处</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename</source>
-          <target state="translated">RX无权重命名此文件夹</target>
+          <source>RX does not have permission to rename this file</source>
+          <target state="translated">RX无权重命名此文件</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
           <source>Go back</source>
@@ -4592,6 +4592,22 @@ Invalid names include
         <trans-unit id="QueueDialog_CloseOnInnerViewer_SencondaryButton" translate="yes" xml:space="preserve">
           <source>Close the viewer</source>
           <target state="translated">关闭查看器</target>
+        </trans-unit>
+        <trans-unit id="File_Admin_DisplayType" translate="yes" xml:space="preserve">
+          <source>File</source>
+          <target state="translated">文件</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Rename" translate="yes" xml:space="preserve">
+          <source>Rename task</source>
+          <target state="translated">重命名任务</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotOpenImage_Content" translate="yes" xml:space="preserve">
+          <source>Unable to open this image file</source>
+          <target state="translated">无法打开此图像文件</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NotSupportedFile_Content" translate="yes" xml:space="preserve">
+          <source>This file type is not supported</source>
+          <target state="translated">该文件类型不受支持</target>
         </trans-unit>
       </group>
     </body>

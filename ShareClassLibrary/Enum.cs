@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ShareClassLibrary
+﻿namespace ShareClassLibrary
 {
     public enum AccountType
     {
@@ -124,6 +122,17 @@ namespace ShareClassLibrary
         GetDirectoryMonitorHandle,
         MapToUNCPath,
         SetTaskBarProgress,
-        GetProperties
+        GetProperties,
+        MTPGetItem,
+        MTPCheckExists,
+        MTPGetChildItems,
+        MTPCheckContainsAnyItems,
+        MTPGetFolderSize,
+        MTPGetDriveVolumnData,
+        MTPCreateSubItem,
+        MTPDownloadAndGetHandle,
+        MTPDownloadAndGetPath,
+        MTPReplaceWithNewFile,
+        OrderByNaturalStringSortAlgorithm,
     }
 }

@@ -213,51 +213,23 @@ namespace RX_Explorer.Dialog
         {
             string UniquePath = ItemPath;
 
-            switch (Type)
+            if (await FileSystemStorageItemBase.CheckExistsAsync(UniquePath))
             {
-                case StorageItemTypes.File:
+                string Name = Type == StorageItemTypes.Folder ? Path.GetFileName(UniquePath) : Path.GetFileNameWithoutExtension(UniquePath);
+                string Extension = Type == StorageItemTypes.Folder ? string.Empty : Path.GetExtension(UniquePath);
+                string DirectoryPath = Path.GetDirectoryName(UniquePath);
+
+                for (ushort Count = 1; await FileSystemStorageItemBase.CheckExistsAsync(UniquePath) || ExceptPath.Contains(UniquePath); Count++)
+                {
+                    if (Regex.IsMatch(Name, @".*\(\d+\)"))
                     {
-                        string NameWithoutExt = Path.GetFileNameWithoutExtension(ItemPath);
-                        string Extension = Path.GetExtension(ItemPath);
-                        string Directory = Path.GetDirectoryName(ItemPath);
-
-                        for (ushort Count = 1; await FileSystemStorageItemBase.CheckExistsAsync(UniquePath) || ExceptPath.Contains(UniquePath); Count++)
-                        {
-                            if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
-                            {
-                                UniquePath = Path.Combine(Directory, $"{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
-                            }
-                            else
-                            {
-                                UniquePath = Path.Combine(Directory, $"{NameWithoutExt} ({Count}){Extension}");
-                            }
-                        }
-
-                        break;
+                        UniquePath = Path.Combine(DirectoryPath, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
                     }
-                case StorageItemTypes.Folder:
+                    else
                     {
-                        string Directory = Path.GetDirectoryName(ItemPath);
-                        string Name = Path.GetFileName(ItemPath);
-
-                        for (ushort Count = 1; await FileSystemStorageItemBase.CheckExistsAsync(UniquePath) || ExceptPath.Contains(UniquePath); Count++)
-                        {
-                            if (Regex.IsMatch(Name, @".*\(\d+\)"))
-                            {
-                                UniquePath = Path.Combine(Directory, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})");
-                            }
-                            else
-                            {
-                                UniquePath = Path.Combine(Directory, $"{Name} ({Count})");
-                            }
-                        }
-
-                        break;
+                        UniquePath = Path.Combine(DirectoryPath, $"{Name} ({Count}){Extension}");
                     }
-                default:
-                    {
-                        break;
-                    }
+                }
             }
 
             return UniquePath;

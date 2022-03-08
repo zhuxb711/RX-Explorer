@@ -2,11 +2,11 @@
 
 namespace RX_Explorer.Class
 {
-    public sealed class DisposableNotification : IDisposable
+    public sealed class EndOfShareNotification : IDisposable
     {
         private readonly Action ActionOnDispose;
 
-        public DisposableNotification(Action ActionOnDispose)
+        public EndOfShareNotification(Action ActionOnDispose)
         {
             this.ActionOnDispose = ActionOnDispose;
         }
@@ -17,7 +17,7 @@ namespace RX_Explorer.Class
             ActionOnDispose?.Invoke();
         }
 
-        ~DisposableNotification()
+        ~EndOfShareNotification()
         {
             Dispose();
         }

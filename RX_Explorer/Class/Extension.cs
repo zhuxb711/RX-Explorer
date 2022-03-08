@@ -1,5 +1,4 @@
-﻿using Microsoft.Toolkit.Deferred;
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
 using RX_Explorer.View;
@@ -43,6 +42,39 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
+        public static async Task<T> GetStorageItemByTraverse<T>(this StorageFolder RootFolder, PathAnalysis Analysis) where T : class, IStorageItem
+        {
+            if (Analysis.HasNextLevel)
+            {
+                switch (await RootFolder.TryGetItemAsync(Analysis.NextRelativePath()))
+                {
+                    case StorageFolder SubFolder:
+                        {
+                            if (Analysis.HasNextLevel)
+                            {
+                                return await SubFolder.GetStorageItemByTraverse<T>(Analysis);
+                            }
+                            else if (SubFolder is T)
+                            {
+                                return SubFolder as T;
+                            }
+
+                            break;
+                        }
+                    case StorageFile SubFile when !Analysis.HasNextLevel && SubFile is T:
+                        {
+                            return SubFile as T;
+                        }
+                }
+            }
+            else
+            {
+                return RootFolder as T;
+            }
+
+            return null;
+        }
+
         public static IEnumerable<T> GetElementAtPoint<T>(this UIElement Element, Point At, bool IncludeInvisble) where T : UIElement
         {
             return VisualTreeHelper.FindElementsInHostCoordinates(At, Element, IncludeInvisble).OfType<T>();
@@ -108,28 +140,6 @@ namespace RX_Explorer.Class
                                     else if (!string.IsNullOrWhiteSpace(File.Name))
                                     {
                                         StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-
-                                        QueueTaskController.RegisterPostProcessing(TempFile.Path, async (sender, args) =>
-                                        {
-                                            EventDeferral Deferral = args.GetDeferral();
-
-                                            try
-                                            {
-                                                if (await ApplicationData.Current.TemporaryFolder.TryGetItemAsync(Path.GetFileName(args.OriginPath)) is StorageFile File)
-                                                {
-                                                    await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                LogTracer.Log(ex, "Post-processing failed in QueueTaskController");
-                                            }
-                                            finally
-                                            {
-                                                Deferral.Complete();
-                                            }
-                                        });
-
                                         PathList.Add(TempFile.Path);
                                     }
                                 }
@@ -150,6 +160,8 @@ namespace RX_Explorer.Class
                 {
                     if (await View.GetDataAsync(ExtendedDataFormats.NotSupportedStorageItem) is IRandomAccessStream RandomStream)
                     {
+                        RandomStream.Seek(0);
+
                         using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
                         {
                             PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
@@ -161,6 +173,8 @@ namespace RX_Explorer.Class
                 {
                     if (await View.GetDataAsync(ExtendedDataFormats.CompressionItems) is IRandomAccessStream RandomStream)
                     {
+                        RandomStream.Seek(0);
+
                         using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
                         {
                             PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
@@ -270,35 +284,35 @@ namespace RX_Explorer.Class
                     byte[] DataBuffer = new byte[4096];
 
                     int ProgressValue = 0;
-                    int bytesRead = 0;
+                    int BytesRead = 0;
 
-                    while ((bytesRead = From.Read(DataBuffer, 0, DataBuffer.Length)) > 0)
+                    while ((BytesRead = From.Read(DataBuffer, 0, DataBuffer.Length)) > 0)
                     {
-                        To.Write(DataBuffer, 0, bytesRead);
-                        TotalBytesRead += bytesRead;
+                        To.Write(DataBuffer, 0, BytesRead);
+                        TotalBytesRead += BytesRead;
 
                         if (TotalBytesLength > 1024 * 1024)
                         {
-                            int LatestValue = Convert.ToInt32(TotalBytesRead * 100d / TotalBytesLength);
+                            int LatestValue = Math.Min(100, Math.Max(100, Convert.ToInt32(Math.Ceiling(TotalBytesRead * 100d / TotalBytesLength))));
 
                             if (LatestValue > ProgressValue)
                             {
                                 ProgressValue = LatestValue;
-                                ProgressHandler.Invoke(null, new ProgressChangedEventArgs(ProgressValue, null));
+                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(LatestValue, null));
                             }
                         }
 
                         CancelToken.ThrowIfCancellationRequested();
                     }
-
-                    ProgressHandler.Invoke(null, new ProgressChangedEventArgs(100, null));
-
-                    To.Flush();
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    LogTracer.Log(ex, "Could not track the progress of coping the stream");
                     From.CopyTo(To);
+                }
+                finally
+                {
+                    To.Flush();
+                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
                 }
             });
         }
@@ -339,8 +353,9 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Could not get file handle from COMInterface, path: \"{Item.Path}\"");
-                return new SafeFileHandle(IntPtr.Zero, true);
             }
+
+            return new SafeFileHandle(IntPtr.Zero, true);
         }
 
         public static async Task ShowCommandBarFlyoutWithExtraContextMenuItems(this CommandBarFlyout Flyout, FrameworkElement RelatedTo, Point ShowAt, CancellationToken CancelToken, params string[] PathArray)
@@ -408,90 +423,6 @@ namespace RX_Explorer.Class
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
-
-                        if (!CancelToken.IsCancellationRequested && ExtraMenuItems.Count > 0)
-                        {
-                            async void ClickHandler(object sender, RoutedEventArgs args)
-                            {
-                                if (sender is FrameworkElement Btn && Btn.Tag is ContextMenuItem MenuItem)
-                                {
-                                    Flyout.Hide();
-
-                                    if (!await MenuItem.InvokeAsync())
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_InvokeContextMenuError_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        await Dialog.ShowAsync();
-                                    }
-                                }
-                            }
-
-                            short ShowExtNum = 0;
-
-                            if (Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Any((Item) => Item.Name == "Decompression"))
-                            {
-                                ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count(), 0));
-                            }
-                            else
-                            {
-                                ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count() + 1, 0));
-                            }
-
-                            int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
-
-                            if (ExtraMenuItems.Count > ShowExtNum + 1)
-                            {
-                                IEnumerable<AppBarButton> ShowExtItem = await Task.WhenAll(ExtraMenuItems.Take(ShowExtNum).Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
-                                IEnumerable<MenuFlyoutItemBase> FlyoutItems = await ContextMenuItem.GenerateSubMenuItemsAsync(ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler);
-
-                                if (!CancelToken.IsCancellationRequested)
-                                {
-                                    CleanUpContextMenuExtensionItems();
-
-                                    Flyout.SecondaryCommands.Insert(Index, new AppBarSeparator { Name = "CustomSep" });
-
-                                    foreach (AppBarButton AddItem in ShowExtItem)
-                                    {
-                                        Flyout.SecondaryCommands.Insert(Index, AddItem);
-                                    }
-
-                                    MenuFlyout MoreFlyout = new MenuFlyout();
-                                    MoreFlyout.Items.AddRange(FlyoutItems);
-
-                                    Flyout.SecondaryCommands.Insert(Index + ShowExtNum, new AppBarButton
-                                    {
-                                        Label = Globalization.GetString("CommandBarFlyout_More_Item"),
-                                        Icon = new SymbolIcon(Symbol.More),
-                                        Name = "ExtraButton",
-                                        FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
-                                        Width = 320,
-                                        Flyout = MoreFlyout
-                                    });
-                                }
-                            }
-                            else
-                            {
-                                IEnumerable<AppBarButton> ShowExtItem = await Task.WhenAll(ExtraMenuItems.Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
-
-                                if (!CancelToken.IsCancellationRequested)
-                                {
-                                    foreach (AppBarButton AddItem in ShowExtItem)
-                                    {
-                                        Flyout.SecondaryCommands.Insert(Index, AddItem);
-                                    }
-
-
-                                    Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
-                                }
-                            }
-                        }
-
                         if (PathArray.Length == 1
                             && Flyout.SecondaryCommands.OfType<AppBarButton>()
                                                        .FirstOrDefault((Item) => Item.Name == "OpenWithButton")?.Flyout is MenuFlyout OpenWithFlyout)
@@ -500,7 +431,7 @@ namespace RX_Explorer.Class
                             {
                                 return System.IO.Path.GetExtension(Path).ToLower() switch
                                 {
-                                    ".jpg" or ".png" or ".bmp" => typeof(PhotoViewer),
+                                    ".jpg" or ".jpeg" or ".png" or ".bmp" => typeof(PhotoViewer),
                                     ".mkv" or ".mp4" or ".mp3" or
                                     ".flac" or ".wma" or ".wmv" or
                                     ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
@@ -626,7 +557,12 @@ namespace RX_Explorer.Class
 
                                 string DefaultProgramPath = SQLite.Current.GetDefaultProgramPickerRecord(Path.GetExtension(PathArray.First()));
 
-                                if (!string.IsNullOrEmpty(DefaultProgramPath) && !ProgramPickerItem.InnerViewer.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase))
+                                if (!string.IsNullOrEmpty(DefaultProgramPath)
+                                    && !ProgramPickerItem.InnerViewer.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase)
+                                    && OpenWithFlyout.Items.OfType<FrameworkElement>()
+                                                           .Select((Item) => ((string, ProgramPickerItem))Item.Tag)
+                                                           .Select((Item) => Item.Item2)
+                                                           .All((Item) => !Item.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase)))
                                 {
                                     OpenWithFlyout.Items.Insert(0, await GenerateOpenWithItemAsync(DefaultProgramPath));
                                 }
@@ -634,6 +570,93 @@ namespace RX_Explorer.Class
                                 if (OpenWithFlyout.Items.Count > 2)
                                 {
                                     OpenWithFlyout.Items.Insert(OpenWithFlyout.Items.Count - 2, new MenuFlyoutSeparator());
+                                }
+                            }
+                        }
+
+                        if (PathArray.All((Path) => !Path.StartsWith(@"\\?\")))
+                        {
+                            IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
+
+                            if (!CancelToken.IsCancellationRequested && ExtraMenuItems.Count > 0)
+                            {
+                                async void ClickHandler(object sender, RoutedEventArgs args)
+                                {
+                                    if (sender is FrameworkElement Btn && Btn.Tag is ContextMenuItem MenuItem)
+                                    {
+                                        Flyout.Hide();
+
+                                        if (!await MenuItem.InvokeAsync())
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_InvokeContextMenuError_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            await Dialog.ShowAsync();
+                                        }
+                                    }
+                                }
+
+                                short ShowExtNum = 0;
+
+                                if (Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Any((Item) => Item.Name == "Decompression"))
+                                {
+                                    ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count(), 0));
+                                }
+                                else
+                                {
+                                    ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count() + 1, 0));
+                                }
+
+                                int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
+
+                                if (ExtraMenuItems.Count > ShowExtNum + 1)
+                                {
+                                    IEnumerable<AppBarButton> ShowExtItem = await Task.WhenAll(ExtraMenuItems.Take(ShowExtNum).Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
+                                    IEnumerable<MenuFlyoutItemBase> FlyoutItems = await ContextMenuItem.GenerateSubMenuItemsAsync(ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler);
+
+                                    if (!CancelToken.IsCancellationRequested)
+                                    {
+                                        CleanUpContextMenuExtensionItems();
+
+                                        Flyout.SecondaryCommands.Insert(Index, new AppBarSeparator { Name = "CustomSep" });
+
+                                        foreach (AppBarButton AddItem in ShowExtItem)
+                                        {
+                                            Flyout.SecondaryCommands.Insert(Index, AddItem);
+                                        }
+
+                                        MenuFlyout MoreFlyout = new MenuFlyout();
+                                        MoreFlyout.Items.AddRange(FlyoutItems);
+
+                                        Flyout.SecondaryCommands.Insert(Index + ShowExtNum, new AppBarButton
+                                        {
+                                            Label = Globalization.GetString("CommandBarFlyout_More_Item"),
+                                            Icon = new SymbolIcon(Symbol.More),
+                                            Name = "ExtraButton",
+                                            FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
+                                            Width = 320,
+                                            Flyout = MoreFlyout
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    IEnumerable<AppBarButton> ShowExtItem = await Task.WhenAll(ExtraMenuItems.Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
+
+                                    if (!CancelToken.IsCancellationRequested)
+                                    {
+                                        foreach (AppBarButton AddItem in ShowExtItem)
+                                        {
+                                            Flyout.SecondaryCommands.Insert(Index, AddItem);
+                                        }
+
+
+                                        Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
+                                    }
                                 }
                             }
                         }
@@ -748,23 +771,48 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static IEnumerable<T> OrderByLikeFileSystem<T>(this IEnumerable<T> Input, Func<T, string> GetString, SortDirection Direction)
+        public static async Task<IEnumerable<T>> OrderByNaturalStringSortAlgorithmAsync<T>(this IEnumerable<T> Input, Func<T, string> StringSelector, SortDirection Direction)
         {
             if (Input.Any())
             {
-                if (Direction == SortDirection.Ascending)
+                try
                 {
-                    return Input.OrderBy((Item) => GetString(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        return await Exclusive.Controller.OrderByNaturalStringSortAlgorithmAsync(Input, StringSelector, Direction);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    return Input.OrderByDescending((Item) => GetString(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
+                    LogTracer.Log(ex, "Could not order the string with natural algorithm");
                 }
             }
-            else
+
+            return Input;
+        }
+
+        public static IEnumerable<T> OrderByFastStringSortAlgorithm<T>(this IEnumerable<T> Input, Func<T, string> StringSelector, SortDirection Direction)
+        {
+            if (Input.Any())
             {
-                return Input;
+                try
+                {
+                    if (Direction == SortDirection.Ascending)
+                    {
+                        return Input.OrderBy((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
+                    }
+                    else
+                    {
+                        return Input.OrderByDescending((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not order the string with natural algorithm");
+                }
             }
+
+            return Input;
         }
 
         public static bool CanTraceToRootNode(this TreeViewNode Node, params TreeViewNode[] RootNodes)
@@ -807,34 +855,42 @@ namespace RX_Explorer.Class
             {
                 if (Node.Children.Count > 0)
                 {
-                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder)).Select((Item) => Item.Path).ToList();
-                    List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
-                    List<string> AddList = FolderList.Except(PathList).ToList();
-                    List<string> RemoveList = PathList.Except(FolderList).ToList();
+                    IReadOnlyList<FileSystemStorageItemBase> FolderList = await ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder);
+                    IEnumerable<string> FolderPathList = FolderList.Select((Item) => Item.Path);
+                    IEnumerable<string> CurrentPathList = Node.Children.Select((Item) => Item.Content).OfType<TreeViewNodeContent>().Select((Content) => Content.Path);
+                    IReadOnlyList<string> AddList = FolderPathList.Except(CurrentPathList).ToList();
+                    IReadOnlyList<string> RemoveList = CurrentPathList.Except(FolderPathList).ToList();
 
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
-                        foreach (string AddPath in AddList)
+                        try
                         {
-                            if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
+                            foreach (string AddPath in AddList)
                             {
-                                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
-
-                                Node.Children.Add(new TreeViewNode
+                                if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
                                 {
-                                    Content = Content,
-                                    HasUnrealizedChildren = Content.HasChildren,
-                                    IsExpanded = false
-                                });
+                                    TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
+
+                                    Node.Children.Add(new TreeViewNode
+                                    {
+                                        Content = Content,
+                                        HasUnrealizedChildren = Content.HasChildren,
+                                        IsExpanded = false
+                                    });
+                                }
+                            }
+
+                            foreach (string RemovePath in RemoveList)
+                            {
+                                if (Node.Children.Where((Item) => Item.Content is TreeViewNodeContent).FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RemoveNode)
+                                {
+                                    Node.Children.Remove(RemoveNode);
+                                }
                             }
                         }
-
-                        foreach (string RemovePath in RemoveList)
+                        catch (Exception ex)
                         {
-                            if (Node.Children.Where((Item) => Item.Content is TreeViewNodeContent).FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RemoveNode)
-                            {
-                                Node.Children.Remove(RemoveNode);
-                            }
+                            LogTracer.Log(ex, "Could not refresh the treeview node");
                         }
                     });
 
@@ -1009,14 +1065,14 @@ namespace RX_Explorer.Class
         /// 根据名称和类型寻找指定UI元素的子元素
         /// </summary>
         /// <typeparam name="T">类型</typeparam>
-        /// <param name="root"></param>
-        /// <param name="name">子元素名称</param>
+        /// <param name="Parent"></param>
+        /// <param name="Name">子元素名称</param>
         /// <returns></returns>
-        public static T FindChildOfName<T>(this DependencyObject root, string name) where T : DependencyObject
+        public static T FindChildOfName<T>(this DependencyObject Parent, string Name) where T : DependencyObject
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
 
-            ObjectQueue.Enqueue(root);
+            ObjectQueue.Enqueue(Parent);
 
             while (ObjectQueue.Count > 0)
             {
@@ -1028,7 +1084,7 @@ namespace RX_Explorer.Class
                     {
                         DependencyObject ChildObject = VisualTreeHelper.GetChild(Current, i);
 
-                        if (ChildObject is T TypedChild && (TypedChild as FrameworkElement)?.Name == name)
+                        if (ChildObject is T TypedChild && (TypedChild as FrameworkElement)?.Name == Name)
                         {
                             return TypedChild;
                         }
@@ -1043,9 +1099,28 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public static T FindParentOfType<T>(this DependencyObject child) where T : DependencyObject
+        public static T FindParentOfName<T>(this DependencyObject Child, string Name) where T : DependencyObject
         {
-            DependencyObject CurrentParent = VisualTreeHelper.GetParent(child);
+            DependencyObject CurrentParent = VisualTreeHelper.GetParent(Child);
+
+            while (CurrentParent != null)
+            {
+                if (CurrentParent is T TypedParent && (TypedParent as FrameworkElement)?.Name == Name)
+                {
+                    return TypedParent;
+                }
+                else
+                {
+                    CurrentParent = VisualTreeHelper.GetParent(CurrentParent);
+                }
+            }
+
+            return null;
+        }
+
+        public static T FindParentOfType<T>(this DependencyObject Child) where T : DependencyObject
+        {
+            DependencyObject CurrentParent = VisualTreeHelper.GetParent(Child);
 
             while (CurrentParent != null)
             {
@@ -1122,7 +1197,7 @@ namespace RX_Explorer.Class
                         case StorageFolder Folder:
                             {
                                 GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
-                                                         .AsTask(Cancellation.Token)
+                                                         .AsTask()
                                                          .ContinueWith((PreviousTask) =>
                                                          {
                                                              try
@@ -1148,7 +1223,7 @@ namespace RX_Explorer.Class
                         case StorageFile File:
                             {
                                 GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
-                                                       .AsTask(Cancellation.Token)
+                                                       .AsTask()
                                                        .ContinueWith((PreviousTask) =>
                                                        {
                                                            try
@@ -1183,14 +1258,11 @@ namespace RX_Explorer.Class
                     {
                         using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
                         {
-                            if (Thumbnail != null && Thumbnail.Size != 0 && Thumbnail.OriginalHeight != 0 && Thumbnail.OriginalWidth != 0)
-                            {
-                                BitmapImage Bitmap = new BitmapImage();
+                            BitmapImage Bitmap = new BitmapImage();
 
-                                await Bitmap.SetSourceAsync(Thumbnail);
+                            await Bitmap.SetSourceAsync(Thumbnail);
 
-                                return Bitmap;
-                            }
+                            return Bitmap;
                         }
                     }
                     else

@@ -100,7 +100,7 @@ namespace RX_Explorer.Class
                 {
                     ZipStrings.CodePage = EncodingSetting.CodePage;
 
-                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
+                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
                     using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                     {
                         OutputStream.SetLevel((int)Level);
@@ -115,7 +115,7 @@ namespace RX_Explorer.Class
                             {
                                 case FileSystemStorageFile File:
                                     {
-                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                        using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                         {
                                             ZipEntry NewEntry = new ZipEntry(File.Name)
                                             {
@@ -215,7 +215,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFile InnerFile:
                             {
-                                using (FileStream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                using (Stream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                 {
                                     ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{Item.Name}")
                                     {
@@ -272,8 +272,8 @@ namespace RX_Explorer.Class
 
             if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
-                using (FileStream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
+                using (Stream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
                 using (GZipOutputStream GZipStream = new GZipOutputStream(NewFileStream))
                 {
                     GZipStream.SetLevel((int)Level);
@@ -281,6 +281,7 @@ namespace RX_Explorer.Class
                     GZipStream.FileName = Source.Name;
 
                     await SourceFileStream.CopyToAsync(GZipStream, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
+                    await GZipStream.FlushAsync();
                 }
             }
             else
@@ -309,7 +310,7 @@ namespace RX_Explorer.Class
                                                   CancellationToken CancelToken = default,
                                                   ProgressChangedEventHandler ProgressHandler = null)
         {
-            using (FileStream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.RandomAccess))
+            using (Stream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.RandomAccess))
             {
                 string NewFilePath = Path.Combine(NewDirectoryPath, Path.GetFileNameWithoutExtension(Source.Path));
 
@@ -335,9 +336,10 @@ namespace RX_Explorer.Class
 
                     if (await FileSystemStorageItemBase.CreateNewAsync(NewFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                     {
-                        using (FileStream NewFileStrem = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                        using (Stream NewFileStrem = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                         {
                             await GZipStream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
+                            await NewFileStrem.FlushAsync();
                         }
                     }
                     else
@@ -370,12 +372,13 @@ namespace RX_Explorer.Class
         {
             if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
-                using (FileStream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
+                using (Stream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
                 using (BZip2OutputStream BZip2Stream = new BZip2OutputStream(NewFileStream))
                 {
                     BZip2Stream.IsStreamOwner = false;
                     await SourceFileStream.CopyToAsync(BZip2Stream, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
+                    await BZip2Stream.FlushAsync();
                 }
             }
             else
@@ -408,12 +411,13 @@ namespace RX_Explorer.Class
                                                                StorageItemTypes.File,
                                                                CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
-                using (FileStream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
-                using (FileStream NewFileStrem = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                using (Stream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
+                using (Stream NewFileStrem = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                 using (BZip2InputStream BZip2Stream = new BZip2InputStream(SourceFileStream))
                 {
                     BZip2Stream.IsStreamOwner = false;
                     await BZip2Stream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
+                    await NewFileStrem.FlushAsync();
                 }
             }
             else
@@ -496,7 +500,7 @@ namespace RX_Explorer.Class
 
                 if (TotalSize > 0)
                 {
-                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
+                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
                     using (BZip2OutputStream OutputBZip2Stream = new BZip2OutputStream(NewFileStream))
                     using (TarOutputStream OutputTarStream = new TarOutputStream(OutputBZip2Stream, EncodingSetting))
                     {
@@ -511,7 +515,7 @@ namespace RX_Explorer.Class
                             {
                                 case FileSystemStorageFile File:
                                     {
-                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                        using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                         {
                                             TarEntry NewEntry = TarEntry.CreateTarEntry(File.Name);
                                             NewEntry.ModTime = DateTime.Now;
@@ -597,7 +601,7 @@ namespace RX_Explorer.Class
 
                 if (TotalSize > 0)
                 {
-                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
+                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
                     using (GZipOutputStream OutputGzipStream = new GZipOutputStream(NewFileStream))
                     using (TarOutputStream OutputTarStream = new TarOutputStream(OutputGzipStream, EncodingSetting))
                     {
@@ -613,7 +617,7 @@ namespace RX_Explorer.Class
                             {
                                 case FileSystemStorageFile File:
                                     {
-                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                        using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                         {
                                             TarEntry NewEntry = TarEntry.CreateTarEntry(File.Name);
                                             NewEntry.ModTime = DateTime.Now;
@@ -693,7 +697,7 @@ namespace RX_Explorer.Class
 
                 if (TotalSize > 0)
                 {
-                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
+                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
                     using (TarOutputStream OutputTarStream = new TarOutputStream(NewFileStream, EncodingSetting))
                     {
                         OutputTarStream.IsStreamOwner = false;
@@ -706,7 +710,7 @@ namespace RX_Explorer.Class
                             {
                                 case FileSystemStorageFile File:
                                     {
-                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                        using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                         {
                                             TarEntry NewEntry = TarEntry.CreateTarEntry(File.Name);
                                             NewEntry.ModTime = DateTime.Now;
@@ -798,7 +802,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFile InnerFile:
                             {
-                                using (FileStream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                using (Stream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                 {
                                     TarEntry NewEntry = TarEntry.CreateTarEntry($"{BaseFolderName}/{InnerFile.Name}");
                                     NewEntry.ModTime = DateTime.Now;
@@ -898,7 +902,7 @@ namespace RX_Explorer.Class
                     ReaderOptions ReadOptions = new ReaderOptions();
                     ReadOptions.ArchiveEncoding.Default = EncodingSetting;
 
-                    using (FileStream InputStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                    using (Stream InputStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                     using (IReader Reader = ReaderFactory.Open(InputStream, ReadOptions))
                     {
                         Dictionary<string, string> DirectoryMap = new Dictionary<string, string>();
@@ -945,13 +949,15 @@ namespace RX_Explorer.Class
 
                                 if (await FileSystemStorageItemBase.CreateNewAsync(DestFileName, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                                 {
-                                    using (FileStream OutputStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                    using (Stream OutputStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     using (EntryStream EntryStream = Reader.OpenEntryStream())
                                     {
                                         await EntryStream.CopyToAsync(OutputStream, Reader.Entry.Size, CancelToken, (s, e) =>
                                         {
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * Reader.Entry.CompressedSize)) * 100d / TotalSize), null));
                                         });
+
+                                        await OutputStream.FlushAsync();
 
                                         CurrentPosition += Convert.ToUInt64(Reader.Entry.CompressedSize);
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));

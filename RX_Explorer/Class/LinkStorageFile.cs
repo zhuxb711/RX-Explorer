@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
 
         public override string DisplayType => Globalization.GetString("Link_Admin_DisplayType");
 
-        protected LinkDataPackage RawData { get; set; }
+        protected LinkFileData RawData { get; set; }
 
         public string WorkDirectory => (RawData?.WorkDirectory) ?? string.Empty;
 
@@ -55,9 +55,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<LinkDataPackage> GetRawDataAsync()
+        public async Task<LinkFileData> GetRawDataAsync()
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
             {
                 if (ControllerRef != null)
                 {
@@ -78,7 +78,7 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        public override Task<FileStream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
+        public override Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
             return null;
         }
@@ -135,7 +135,7 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public LinkStorageFile(Win32_File_Data Data) : base(Data)
+        public LinkStorageFile(NativeFileData Data) : base(Data)
         {
             LinkType = ShellLinkType.Normal;
         }

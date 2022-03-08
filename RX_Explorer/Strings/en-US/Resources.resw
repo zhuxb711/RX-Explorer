@@ -1639,7 +1639,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX does not have permission to rename</value>
+    <value>RX does not have permission to rename this file</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>An error occurred while deleting the file, the undo operation could not be completed</value>
@@ -3562,5 +3562,17 @@ Invalid names include
   </data>
   <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
     <value>Close the viewer</value>
+  </data>
+  <data name="File_Admin_DisplayType" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="TaskList_OperationKind_Rename" xml:space="preserve">
+    <value>Rename task</value>
+  </data>
+  <data name="QueueDialog_CouldNotOpenImage_Content" xml:space="preserve">
+    <value>Unable to open this image file</value>
+  </data>
+  <data name="QueueDialog_NotSupportedFile_Content" xml:space="preserve">
+    <value>This file type is not supported</value>
   </data>
 </root>

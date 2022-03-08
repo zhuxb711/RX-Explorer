@@ -13,9 +13,13 @@ namespace RX_Explorer.Class
 {
     public class FileSystemStorageFile : FileSystemStorageItemBase, ICoreStorageItem<StorageFile>
     {
-        public override string SizeDescription => Size.GetSizeDescription();
+        public override string Type => string.IsNullOrEmpty(base.Type) ? Globalization.GetString("File_Admin_DisplayType") : base.Type;
 
         public override string DisplayType => (StorageItem?.DisplayType) ?? Type;
+
+        public override string DisplayName => Name;
+
+        public override string SizeDescription => Size.GetSizeDescription();
 
         public override bool IsReadOnly
         {
@@ -47,7 +51,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static readonly Uri Const_File_Image_Uri = AppThemeController.Current.Theme == ElementTheme.Dark 
+        private static readonly Uri Const_File_Image_Uri = AppThemeController.Current.Theme == ElementTheme.Dark
                                                                 ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
                                                                 : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
 
@@ -60,14 +64,19 @@ namespace RX_Explorer.Class
             StorageItem = Item;
         }
 
-        public FileSystemStorageFile(Win32_File_Data Data) : base(Data)
+        public FileSystemStorageFile(NativeFileData Data) : base(Data)
         {
 
         }
 
-        public async virtual Task<FileStream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
+        public FileSystemStorageFile(MTPFileData Data) : base(Data)
         {
-            if (Win32_Native_API.CreateStreamFromFile(Path, Mode, Option) is FileStream Stream)
+
+        }
+
+        public async virtual Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
+        {
+            if (NativeWin32API.CreateStreamFromFile(Path, Mode, Option) is FileStream Stream)
             {
                 return Stream;
             }
@@ -83,25 +92,24 @@ namespace RX_Explorer.Class
 
                 SafeFileHandle Handle = await GetNativeHandleAsync(Mode, Option);
 
-                if (Handle.IsInvalid)
+                if ((Handle?.IsInvalid).GetValueOrDefault(true))
                 {
-                    LogTracer.Log($"Could not create a new file stream, Path: \"{Path}\"");
-                    throw new UnauthorizedAccessException();
+                    throw new UnauthorizedAccessException($"Could not create a new file stream, Path: \"{Path}\"");
                 }
                 else
                 {
-                    return new FileStream(Handle, Access);
+                    return new FileStream(Handle, Access, 4096, true);
                 }
             }
         }
 
-        public async Task<ulong> GetSizeOnDiskAsync()
+        public virtual async Task<ulong> GetSizeOnDiskAsync()
         {
             using (SafeFileHandle Handle = await GetNativeHandleAsync(AccessMode.Read, OptimizeOption.None))
             {
                 if (!Handle.IsInvalid)
                 {
-                    return Win32_Native_API.GetSizeOnDisk(Path, Handle.DangerousGetHandle());
+                    return NativeWin32API.GetSizeOnDisk(Path, Handle.DangerousGetHandle());
                 }
             }
 
@@ -110,7 +118,7 @@ namespace RX_Explorer.Class
 
         public virtual async Task<StorageStreamTransaction> GetTransactionStreamFromFileAsync()
         {
-            if (StorageItem is StorageFile File)
+            if (await GetStorageItemAsync() is StorageFile File)
             {
                 return await File.OpenTransactedWriteAsync();
             }
@@ -126,7 +134,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(Path);
+                    NativeFileData Data = NativeWin32API.GetStorageItemRawData(Path);
 
                     if (Data.IsDataValid)
                     {

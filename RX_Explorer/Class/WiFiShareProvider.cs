@@ -81,7 +81,7 @@ namespace RX_Explorer.Class
                                {
                                    if (await FileSystemStorageItemBase.OpenAsync(FilePathMap.Value) is FileSystemStorageFile ShareFile)
                                    {
-                                       using (FileStream Stream = await ShareFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                       using (Stream Stream = await ShareFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                        {
                                            try
                                            {

@@ -178,7 +178,7 @@ namespace RX_Explorer.View
                 SuggestedStartLocation = PickerLocationId.Desktop
             };
             Picker.FileTypeChoices.Add($"PNG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".png" });
-            Picker.FileTypeChoices.Add($"JPEG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".jpg" });
+            Picker.FileTypeChoices.Add($"JPEG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".jpg", ".jpeg" });
             Picker.FileTypeChoices.Add($"BMP {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".bmp" });
             Picker.FileTypeChoices.Add($"TIFF {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".tiff" });
 
@@ -303,7 +303,7 @@ namespace RX_Explorer.View
         {
             LoadingControl.IsLoading = true;
 
-            using (FileStream Stream = await OriginFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
+            using (Stream Stream = await OriginFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
             {
                 switch (OriginFile.Type.ToLower())
                 {
@@ -324,6 +324,8 @@ namespace RX_Explorer.View
                         await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png);
                         break;
                 }
+
+                await Stream.FlushAsync();
             }
 
             await Task.Delay(1000);

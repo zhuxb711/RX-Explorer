@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,7 +48,14 @@ namespace RX_Explorer.Class
 
             if ((System.IO.Path.GetPathRoot(Folder.Path)?.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
             {
-                Content.Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.SingleItem);
+                if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.DriveFolder == Folder) is DriveDataBase Drive)
+                {
+                    Content.Thumbnail = await Drive.GetThumbnailAsync();
+                }
+                else
+                {
+                    Content.Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.SingleItem);
+                }
             }
 
             return Content;

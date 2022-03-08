@@ -3458,4 +3458,16 @@
   <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
     <value>關閉查看器</value>
   </data>
+  <data name="File_Admin_DisplayType" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="TaskList_OperationKind_Rename" xml:space="preserve">
+    <value>重命名任務</value>
+  </data>
+  <data name="QueueDialog_CouldNotOpenImage_Content" xml:space="preserve">
+    <value>無法打開此圖像文件</value>
+  </data>
+  <data name="QueueDialog_NotSupportedFile_Content" xml:space="preserve">
+    <value>不支持此文件類型</value>
+  </data>
 </root>

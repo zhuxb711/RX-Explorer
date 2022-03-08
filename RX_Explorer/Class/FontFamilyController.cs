@@ -272,7 +272,7 @@ namespace RX_Explorer.Class
                 });
             }
 
-            return FontList.Distinct().OrderByLikeFileSystem((Fonts) => Fonts.DisplayName, SortDirection.Ascending);
+            return FontList.Distinct().OrderByFastStringSortAlgorithm((Fonts) => Fonts.DisplayName, SortDirection.Ascending);
         }
 
         static FontFamilyController()

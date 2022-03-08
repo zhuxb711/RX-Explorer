@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace RX_Explorer.Interface
 {
-    public interface ILinkStorageFile : IUnsupportedStorageItem<LinkDataPackage>, IIndirectLaunchStorageItem
+    public interface ILinkStorageFile : IUnsupportedStorageItem<LinkFileData>, IIndirectLaunchStorageItem
     {
         public ShellLinkType LinkType { get; }
 

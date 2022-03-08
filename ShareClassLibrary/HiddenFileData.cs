@@ -1,6 +1,6 @@
 ﻿namespace ShareClassLibrary
 {
-    public sealed class HiddenDataPackage
+    public sealed class HiddenFileData
     {
         public byte[] IconData { get; set; }
 

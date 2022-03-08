@@ -2012,8 +2012,8 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">RX hat hier keine Berechtigung zum Dekomprimieren der Zip-Datei. Es kann sein, dass Sie keinen Zugang zu dieser Datei haben</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename</source>
-          <target state="translated">RX ist nicht zum Umbenennen berechtigt</target>
+          <source>RX does not have permission to rename this file</source>
+          <target state="translated">RX hat keine Berechtigung, diese Datei umzubenennen</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
           <source>An error occurred while deleting the file, the undo operation could not be completed</source>
@@ -4590,6 +4590,22 @@ Inkorrekte Namen sind
         <trans-unit id="QueueDialog_CloseOnInnerViewer_SencondaryButton" translate="yes" xml:space="preserve">
           <source>Close the viewer</source>
           <target state="translated">Schließen Sie den Viewer</target>
+        </trans-unit>
+        <trans-unit id="File_Admin_DisplayType" translate="yes" xml:space="preserve">
+          <source>File</source>
+          <target state="translated">Datei</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Rename" translate="yes" xml:space="preserve">
+          <source>Rename task</source>
+          <target state="translated">Aufgabe umbenennen</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotOpenImage_Content" translate="yes" xml:space="preserve">
+          <source>Unable to open this image file</source>
+          <target state="translated">Diese Bilddatei kann nicht geöffnet werden</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NotSupportedFile_Content" translate="yes" xml:space="preserve">
+          <source>This file type is not supported</source>
+          <target state="translated">Dieser Dateityp wird nicht unterstützt</target>
         </trans-unit>
       </group>
     </body>

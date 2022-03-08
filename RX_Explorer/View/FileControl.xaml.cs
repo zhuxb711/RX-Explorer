@@ -36,7 +36,6 @@ using Windows.UI.Xaml.Navigation;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using FontIconSource = Microsoft.UI.Xaml.Controls.FontIconSource;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
-using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
 using TreeViewCollapsedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewCollapsedEventArgs;
 using TreeViewExpandingEventArgs = Microsoft.UI.Xaml.Controls.TreeViewExpandingEventArgs;
@@ -288,6 +287,7 @@ namespace RX_Explorer.View
             {
                 Icon = new SymbolIcon { Symbol = Symbol.Send },
                 Label = Globalization.GetString("SendTo/Label"),
+                Name = "FolderSendToButton",
                 Width = 320
             };
 
@@ -413,7 +413,15 @@ namespace RX_Explorer.View
 
                     string[] CurrentSplit = Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
 
-                    if (Path.StartsWith(@"\\"))
+                    if (Path.StartsWith(@"\\?\"))
+                    {
+                        if (CurrentSplit.Length > 0)
+                        {
+                            RootPath = $@"\\?\{CurrentSplit[1]}";
+                            CurrentSplit = CurrentSplit.Skip(2).Prepend(RootPath).ToArray();
+                        }
+                    }
+                    else if (Path.StartsWith(@"\\"))
                     {
                         if (CurrentSplit.Length > 0)
                         {
@@ -428,7 +436,7 @@ namespace RX_Explorer.View
 
                     if (AddressButtonList.Count == 0)
                     {
-                        if (!Path.StartsWith(@"\\"))
+                        if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
                         {
                             AddressButtonList.Add(new AddressBlock(RootStorageFolder.Instance.Path, RootStorageFolder.Instance.DisplayName));
                         }
@@ -562,7 +570,7 @@ namespace RX_Explorer.View
                         {
                             AddressButtonList.Clear();
 
-                            if (!Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase))
+                            if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
                             {
                                 AddressButtonList.Add(new AddressBlock(RootStorageFolder.Instance.Path, RootStorageFolder.Instance.DisplayName));
                             }
@@ -1138,21 +1146,45 @@ namespace RX_Explorer.View
 
                     if (ExecuteDelete)
                     {
-                        QueueTaskController.EnqueueDeleteOpeartion(TargetContent.Path, PermanentDelete, async (s, e) =>
-                        {
-                            if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-                            {
-                                foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && TargetContent.Path.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
-                                {
-                                    await Node.UpdateAllSubNodeAsync();
-                                }
-                            }
+                        OperationListDeleteModel Model = new OperationListDeleteModel(new string[] { TargetContent.Path }, PermanentDelete);
 
-                            foreach (TreeViewNode RootNode in FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                        {
+                            EventDeferral Deferral = e.GetDeferral();
+
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                             {
-                                await RootNode.UpdateAllSubNodeAsync();
-                            }
+                                try
+                                {
+                                    foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                    {
+                                        if (Presenter.CurrentFolder is MTPStorageFolder Folder && Path.GetDirectoryName(TargetContent.Path).Equals(Folder.Path, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(TargetContent.Path));
+                                        }
+                                    }
+
+                                    if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                    {
+                                        foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && TargetContent.Path.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
+                                        {
+                                            await Node.UpdateAllSubNodeAsync();
+                                        }
+                                    }
+
+                                    foreach (TreeViewNode RootNode in FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        await RootNode.UpdateAllSubNodeAsync();
+                                    }
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
+                            });
                         });
+
+                        QueueTaskController.EnqueueDeleteOpeartion(Model);
                     }
                 }
                 else
@@ -1206,33 +1238,45 @@ namespace RX_Explorer.View
                             }
                         }
 
-                        try
-                        {
-                            await CurrentPresenter.DisplayItemsInFolder(Path.Combine(Path.GetDirectoryName(Folder.Path), await Folder.RenameAsync(NewName)), true, true);
-                        }
-                        catch (FileLoadException)
-                        {
-                            QueueContentDialog LoadExceptionDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_FileOccupied_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                            };
+                        OperationListRenameModel Model = new OperationListRenameModel(Folder.Path, Path.Combine(Path.GetDirectoryName(Folder.Path), NewName));
 
-                            await LoadExceptionDialog.ShowAsync();
-                        }
-                        catch (Exception)
+                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
                         {
-                            QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
+                            EventDeferral Deferral = e.GetDeferral();
 
-                            await UnauthorizeDialog.ShowAsync();
-                        }
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                            {
+                                try
+                                {
+                                    if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
+                                    {
+                                        string ParentFolder = Path.GetDirectoryName(Folder.Path);
+
+                                        if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                        {
+                                            foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && ParentFolder.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
+                                            {
+                                                await Node.UpdateAllSubNodeAsync();
+                                            }
+                                        }
+
+                                        if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(ParentFolder).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
+                                        {
+                                            if (await RootNode.GetNodeAsync(new PathAnalysis(ParentFolder), true) is TreeViewNode CurrentNode)
+                                            {
+                                                await CurrentNode.UpdateAllSubNodeAsync();
+                                            }
+                                        }
+                                    }
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
+                            });
+                        });
+
+                        QueueTaskController.EnqueueRenameOpeartion(Model);
                     }
                 }
                 else
@@ -1255,9 +1299,9 @@ namespace RX_Explorer.View
 
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                if (await FileSystemStorageItemBase.CheckExistsAsync(Content.Path))
+                if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder CurrentFolder)
                 {
-                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(Content.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder Folder)
+                    if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder Folder)
                     {
                         OperationRecorder.Current.Push(new string[] { $"{Folder.Path}||New" });
                     }
@@ -1267,8 +1311,7 @@ namespace RX_Explorer.View
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnauthorizedCreateFolder_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
                         await dialog.ShowAsync();
@@ -1345,7 +1388,11 @@ namespace RX_Explorer.View
                 return;
             }
 
-            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+            if (CurrentPresenter.CurrentFolder is MTPStorageFolder)
+            {
+                SearchInEverythingEngine.IsEnabled = false;
+            }
+            else if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
             {
                 if (Package.Current.Id.Architecture is ProcessorArchitecture.X64 or ProcessorArchitecture.X86OnArm64)
                 {
@@ -1579,15 +1626,15 @@ namespace RX_Explorer.View
 
                 if (ProtentialPath1 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath1))
                 {
-                    await CurrentPresenter.EnterSelectedItemAsync(ProtentialPath1);
+                    await CurrentPresenter.OpenSelectedItemAsync(ProtentialPath1);
                 }
                 else if (ProtentialPath2 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath2))
                 {
-                    await CurrentPresenter.EnterSelectedItemAsync(ProtentialPath2);
+                    await CurrentPresenter.OpenSelectedItemAsync(ProtentialPath2);
                 }
                 else if (ProtentialPath3 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath3))
                 {
-                    await CurrentPresenter.EnterSelectedItemAsync(ProtentialPath3);
+                    await CurrentPresenter.OpenSelectedItemAsync(ProtentialPath3);
                 }
                 else
                 {
@@ -1676,7 +1723,7 @@ namespace RX_Explorer.View
                         {
                             case FileSystemStorageFile File:
                                 {
-                                    await CurrentPresenter.EnterSelectedItemAsync(File);
+                                    await CurrentPresenter.OpenSelectedItemAsync(File);
                                     break;
                                 }
                             case FileSystemStorageFolder Folder:
@@ -2032,20 +2079,20 @@ namespace RX_Explorer.View
                     {
                         if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
                         {
-                            if (PathList.All((Item) => Path.GetDirectoryName(Item).Equals(Block.Path, StringComparison.OrdinalIgnoreCase)))
+                            if (PathList.All((Path) => !System.IO.Path.GetDirectoryName(Path).Equals(Block.Path, StringComparison.OrdinalIgnoreCase)))
                             {
-                                QueueTaskController.EnqueueMoveOpeartion(PathList, Block.Path);
+                                QueueTaskController.EnqueueMoveOpeartion(new OperationListMoveModel(PathList.ToArray(), Block.Path));
                             }
                         }
                         else
                         {
-                            QueueTaskController.EnqueueCopyOpeartion(PathList, Block.Path);
+                            QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(PathList.ToArray(), Block.Path));
                         }
                     }
                 }
                 catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
                 {
-                    QueueTaskController.EnqueueRemoteCopyOpeartion(Block.Path);
+                    QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Block.Path));
                 }
                 catch (Exception ex)
                 {
@@ -2418,39 +2465,65 @@ namespace RX_Explorer.View
 
         private void SearchEngineFlyout_Opening(object sender, object e)
         {
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("DefaultSearchEngine", out object Choice))
+            if (CurrentPresenter.CurrentFolder is MTPStorageFolder)
             {
-                switch (Enum.Parse<SearchCategory>(Convert.ToString(Choice)))
+                BuiltInSearchAllSubFolders.Visibility = Visibility.Visible;
+
+                SearchInDefaultEngine.Checked -= SearchEngineChoiceSave_Checked;
+                SearchInDefaultEngine.IsChecked = true;
+                SearchInDefaultEngine.Checked += SearchEngineChoiceSave_Checked;
+
+                SearchInEverythingEngine.Checked -= SearchEngineChoiceSave_Checked;
+                SearchInEverythingEngine.IsChecked = false;
+                SearchInEverythingEngine.Checked -= SearchEngineChoiceSave_Checked;
+
+                BuiltInEngineIncludeAQS.Visibility = Visibility.Collapsed;
+                BuiltInEngineIncludeAQS.Checked -= SeachEngineOptionSave_Checked;
+                BuiltInEngineIncludeAQS.IsChecked = false;
+                BuiltInEngineIncludeAQS.Checked += SeachEngineOptionSave_Checked;
+
+                BuiltInSearchUseIndexer.Visibility = Visibility.Collapsed;
+                BuiltInSearchUseIndexer.Checked -= SeachEngineOptionSave_Checked;
+                BuiltInSearchUseIndexer.IsChecked = false;
+                BuiltInSearchUseIndexer.Checked += SeachEngineOptionSave_Checked;
+
+                SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.BuiltInEngine);
+
+                BuiltInEngineIgnoreCase.IsChecked = Options.IgnoreCase;
+                BuiltInEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
+                BuiltInSearchAllSubFolders.IsChecked = Options.DeepSearch;
+            }
+            else
+            {
+                if (CurrentPresenter.CurrentFolder is RootStorageFolder)
                 {
-                    case SearchCategory.BuiltInEngine:
-                        {
-                            SearchInDefaultEngine.IsChecked = true;
-                            SearchInEverythingEngine.IsChecked = false;
+                    BuiltInEngineIncludeAQS.Visibility = Visibility.Visible;
+                    BuiltInSearchUseIndexer.Visibility = Visibility.Visible;
 
-                            SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.BuiltInEngine);
+                    BuiltInSearchAllSubFolders.Visibility = Visibility.Collapsed;
+                    BuiltInSearchAllSubFolders.Checked -= SeachEngineOptionSave_Checked;
+                    BuiltInSearchAllSubFolders.IsChecked = true;
+                    BuiltInSearchAllSubFolders.Checked += SeachEngineOptionSave_Checked;
 
-                            BuiltInEngineIgnoreCase.IsChecked = Options.IgnoreCase;
-                            BuiltInEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
-                            BuiltInSearchAllSubFolders.IsChecked = Options.DeepSearch;
-                            BuiltInEngineIncludeAQS.IsChecked = Options.UseAQSExpression;
-                            BuiltInSearchUseIndexer.IsChecked = Options.UseIndexerOnly;
+                    EverythingEngineSearchGloble.Visibility = Visibility.Collapsed;
+                    EverythingEngineSearchGloble.Checked -= SeachEngineOptionSave_Checked;
+                    EverythingEngineSearchGloble.IsChecked = true;
+                    EverythingEngineSearchGloble.Checked += SeachEngineOptionSave_Checked;
+                }
+                else
+                {
+                    BuiltInSearchAllSubFolders.Visibility = Visibility.Visible;
+                    BuiltInEngineIncludeAQS.Visibility = Visibility.Visible;
+                    BuiltInSearchUseIndexer.Visibility = Visibility.Visible;
+                    EverythingEngineSearchGloble.Visibility = Visibility.Visible;
+                }
 
-                            break;
-                        }
-                    case SearchCategory.EverythingEngine:
-                        {
-                            if (SearchInEverythingEngine.IsEnabled)
-                            {
-                                SearchInEverythingEngine.IsChecked = true;
-                                SearchInDefaultEngine.IsChecked = false;
-
-                                SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.EverythingEngine);
-
-                                EverythingEngineIgnoreCase.IsChecked = Options.IgnoreCase;
-                                EverythingEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
-                                EverythingEngineSearchGloble.IsChecked = Options.DeepSearch;
-                            }
-                            else
+                if (ApplicationData.Current.LocalSettings.Values.TryGetValue("DefaultSearchEngine", out object Choice))
+                {
+                    switch (Enum.Parse<SearchCategory>(Convert.ToString(Choice)))
+                    {
+                        case SearchCategory.BuiltInEngine:
+                        case SearchCategory.EverythingEngine when !SearchInEverythingEngine.IsEnabled:
                             {
                                 SearchInDefaultEngine.IsChecked = true;
                                 SearchInEverythingEngine.IsChecked = false;
@@ -2462,40 +2535,37 @@ namespace RX_Explorer.View
                                 BuiltInSearchAllSubFolders.IsChecked = Options.DeepSearch;
                                 BuiltInEngineIncludeAQS.IsChecked = Options.UseAQSExpression;
                                 BuiltInSearchUseIndexer.IsChecked = Options.UseIndexerOnly;
+
+                                break;
                             }
+                        case SearchCategory.EverythingEngine when SearchInEverythingEngine.IsEnabled:
+                            {
+                                SearchInEverythingEngine.IsChecked = true;
+                                SearchInDefaultEngine.IsChecked = false;
 
-                            break;
-                        }
+                                SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.EverythingEngine);
+
+                                EverythingEngineIgnoreCase.IsChecked = Options.IgnoreCase;
+                                EverythingEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
+                                EverythingEngineSearchGloble.IsChecked = Options.DeepSearch;
+
+                                break;
+                            }
+                    }
                 }
-            }
-            else
-            {
-                SearchInDefaultEngine.IsChecked = true;
-                SearchInEverythingEngine.IsChecked = false;
+                else
+                {
+                    SearchInDefaultEngine.IsChecked = true;
+                    SearchInEverythingEngine.IsChecked = false;
 
-                SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.BuiltInEngine);
+                    SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.BuiltInEngine);
 
-                BuiltInEngineIgnoreCase.IsChecked = Options.IgnoreCase;
-                BuiltInEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
-                BuiltInSearchAllSubFolders.IsChecked = Options.DeepSearch;
-                BuiltInEngineIncludeAQS.IsChecked = Options.UseAQSExpression;
-                BuiltInSearchUseIndexer.IsChecked = Options.UseIndexerOnly;
-            }
-
-            if (CurrentPresenter.CurrentFolder is RootStorageFolder)
-            {
-                BuiltInSearchAllSubFolders.IsEnabled = false;
-                BuiltInSearchAllSubFolders.Checked -= SeachEngineOptionSave_Checked;
-                BuiltInSearchAllSubFolders.IsChecked = true;
-                BuiltInSearchAllSubFolders.Checked += SeachEngineOptionSave_Checked;
-
-                EverythingEngineSearchGloble.IsEnabled = false;
-                EverythingEngineSearchGloble.IsChecked = true;
-            }
-            else
-            {
-                BuiltInSearchAllSubFolders.IsEnabled = true;
-                EverythingEngineSearchGloble.IsEnabled = true;
+                    BuiltInEngineIgnoreCase.IsChecked = Options.IgnoreCase;
+                    BuiltInEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
+                    BuiltInSearchAllSubFolders.IsChecked = Options.DeepSearch;
+                    BuiltInEngineIncludeAQS.IsChecked = Options.UseAQSExpression;
+                    BuiltInSearchUseIndexer.IsChecked = Options.UseIndexerOnly;
+                }
             }
         }
 
@@ -2767,7 +2837,7 @@ namespace RX_Explorer.View
                         {
                             if (!Token.IsCancellationRequested)
                             {
-                                await CurrentPresenter.EnterSelectedItemAsync(Block.Path);
+                                await CurrentPresenter.OpenSelectedItemAsync(Block.Path);
                             }
                         }
                     }
@@ -3064,7 +3134,7 @@ namespace RX_Explorer.View
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                         {
                                             LinkPath = Path.Combine(DesktopPath, $"{Path.GetFileName(Content.Path)}.lnk"),
                                             LinkTargetPath = Content.Path
@@ -3095,7 +3165,7 @@ namespace RX_Explorer.View
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
-                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                                 {
                                                     LinkPath = Path.Combine(DataPath.Desktop, $"{Path.GetFileName(Content.Path)}.lnk"),
                                                     LinkTargetPath = Content.Path
@@ -3131,7 +3201,7 @@ namespace RX_Explorer.View
 
                                 if (await FileSystemStorageItemBase.CheckExistsAsync(DocumentPath))
                                 {
-                                    QueueTaskController.EnqueueCopyOpeartion(Content.Path, DocumentPath);
+                                    QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { Content.Path }, DocumentPath));
                                 }
                                 else
                                 {
@@ -3145,7 +3215,7 @@ namespace RX_Explorer.View
 
                                         if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Documents))
                                         {
-                                            QueueTaskController.EnqueueCopyOpeartion(Content.Path, DataPath.Documents);
+                                            QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { Content.Path }, DataPath.Documents));
                                         }
                                         else
                                         {
@@ -3164,7 +3234,7 @@ namespace RX_Explorer.View
                             {
                                 if (Item.Tag is string RemovablePath)
                                 {
-                                    QueueTaskController.EnqueueCopyOpeartion(Content.Path, RemovablePath);
+                                    QueueTaskController.EnqueueCopyOpeartion(new OperationListCopyModel(new string[] { Content.Path }, RemovablePath));
                                 }
 
                                 break;
@@ -3324,6 +3394,7 @@ namespace RX_Explorer.View
                                 AppBarButton FolderCutButton = RightTapFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderCutButton");
                                 AppBarButton FolderDeleteButton = RightTapFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderDeleteButton");
                                 AppBarButton FolderRenameButton = RightTapFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderRenameButton");
+                                AppBarButton FolderSendToButton = RightTapFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderSendToButton");
 
                                 if (FolderTree.RootNodes.Contains(Node))
                                 {
@@ -3331,6 +3402,7 @@ namespace RX_Explorer.View
                                     FolderCutButton.IsEnabled = false;
                                     FolderDeleteButton.IsEnabled = false;
                                     FolderRenameButton.IsEnabled = false;
+                                    FolderSendToButton.Visibility = Visibility.Collapsed;
                                 }
                                 else
                                 {
@@ -3338,6 +3410,7 @@ namespace RX_Explorer.View
                                     FolderCutButton.IsEnabled = true;
                                     FolderDeleteButton.IsEnabled = true;
                                     FolderRenameButton.IsEnabled = true;
+                                    FolderSendToButton.Visibility = Visibility.Visible;
                                 }
 
                                 ContextMenuCancellation?.Cancel();

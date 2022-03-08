@@ -22,11 +22,7 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class FullTrustProcessController : IDisposable
     {
-        public const ushort DynamicBackupProcessNum = 2;
-
-        private readonly int CurrentProcessId;
-
-        private bool IsDisposed;
+        public static ushort DynamicBackupProcessNum => 3;
 
         public bool IsAnyActionExcutingInCurrentController { get; private set; }
 
@@ -69,6 +65,10 @@ namespace RX_Explorer.Class
         public static Task ResizeTask;
 
         private static readonly AutoResetEvent DispatcherSleepLocker = new AutoResetEvent(false);
+
+        private readonly int CurrentProcessId;
+
+        private bool IsDisposed;
 
         static FullTrustProcessController()
         {
@@ -226,11 +226,6 @@ namespace RX_Explorer.Class
             DispatcherSleepLocker.Set();
 
             return CompletionSource.Task;
-        }
-
-        public static async Task<RefSharedRegion<ExclusiveUsage>> GetProcessSharedRegionAsync()
-        {
-            return new RefSharedRegion<ExclusiveUsage>(await GetAvailableControllerAsync());
         }
 
         private static async Task<FullTrustProcessController> CreateAsync()
@@ -480,6 +475,279 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<IEnumerable<T>> OrderByNaturalStringSortAlgorithmAsync<T>(IEnumerable<T> InputList, Func<T, string> StringSelector, SortDirection Direction)
+        {
+            Dictionary<string, T> MapDictionary = InputList.ToDictionary((Item) => Guid.NewGuid().ToString("N"));
+
+            if (await SendCommandAsync(CommandType.OrderByNaturalStringSortAlgorithm, ("InputList", JsonSerializer.Serialize(MapDictionary.Select((Item) => new StringNaturalAlgorithmData(Item.Key, StringSelector(Item.Value) ?? string.Empty))))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    IEnumerable<StringNaturalAlgorithmData> SortedList = JsonSerializer.Deserialize<IEnumerable<StringNaturalAlgorithmData>>(RawText);
+
+                    if (Direction == SortDirection.Ascending)
+                    {
+                        return SortedList.Select((Item) => MapDictionary[Item.UniqueId]);
+                    }
+                    else
+                    {
+                        return SortedList.Select((Item) => MapDictionary[Item.UniqueId]).Reverse();
+                    }
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(OrderByNaturalStringSortAlgorithmAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return InputList;
+        }
+
+        public async Task MTPReplaceWithNewFileAsync(string Path, string NewFilePath)
+        {
+            if (await SendCommandAsync(CommandType.MTPReplaceWithNewFile, ("Path", Path), ("NewFilePath", NewFilePath)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPReplaceWithNewFileAsync)}, message: {ErrorMessage}");
+                }
+            }
+        }
+
+        public async Task<string> MTPDownloadAndGetPathAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.MTPDownloadAndGetPath, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return RawText;
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPDownloadAndGetPathAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<SafeFileHandle> MTPDownloadAndGetHandleAsync(string Path, AccessMode Access, OptimizeOption Option)
+        {
+            if (await SendCommandAsync(CommandType.MTPDownloadAndGetHandle, ("Path", Path), ("AccessMode", Enum.GetName(typeof(AccessMode), Access)), ("OptimizeOption", Enum.GetName(typeof(OptimizeOption), Option))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string HandleString))
+                {
+                    return new SafeFileHandle(new IntPtr(Convert.ToInt64(HandleString)), true);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPDownloadAndGetHandleAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<MTPFileData> MTPCreateSubItemAsync(string Path, string Name, StorageItemTypes ItemTypes, CreateOption Option)
+        {
+            if (await SendCommandAsync(CommandType.MTPCreateSubItem,
+                                       ("Path", Path),
+                                       ("Name", Name),
+                                       ("Type", ItemTypes switch
+                                       {
+                                           StorageItemTypes.File => Enum.GetName(typeof(CreateType), CreateType.File),
+                                           StorageItemTypes.Folder => Enum.GetName(typeof(CreateType), CreateType.Folder),
+                                           _ => throw new NotSupportedException()
+                                       }),
+                                       ("Option", Option switch
+                                       {
+                                           CreateOption.ReplaceExisting => Enum.GetName(typeof(CollisionOptions), CollisionOptions.OverrideOnCollision),
+                                           CreateOption.OpenIfExist => Enum.GetName(typeof(CollisionOptions), CollisionOptions.None),
+                                           CreateOption.GenerateUniqueName => Enum.GetName(typeof(CollisionOptions), CollisionOptions.RenameOnCollision),
+                                           _ => throw new NotSupportedException()
+                                       })) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return JsonSerializer.Deserialize<MTPFileData>(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPCreateSubItemAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<MTPDriveVolumnData> GetMTPDriveVolumnDataAsync(string DeviceId)
+        {
+            if (await SendCommandAsync(CommandType.MTPGetDriveVolumnData, ("DeviceId", DeviceId)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return JsonSerializer.Deserialize<MTPDriveVolumnData>(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetMTPDriveVolumnDataAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return new MTPDriveVolumnData();
+        }
+
+        public async Task<ulong> GetMTPFolderSizeAsync(string Path, CancellationToken CancelToken = default)
+        {
+            using (CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(GetMTPFolderSizeAsync)}");
+                }
+            }))
+            {
+                if (await SendCommandAsync(CommandType.MTPGetFolderSize, ("Path", Path)) is IDictionary<string, string> Response)
+                {
+                    if (Response.TryGetValue("Success", out string RawText))
+                    {
+                        return Convert.ToUInt64(RawText);
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetMTPFolderSizeAsync)}, message: {ErrorMessage}");
+                    }
+                }
+
+                return 0;
+            }
+        }
+
+        public async Task<bool> MTPCheckContainersAnyItemsAsync(string Path, bool IncludeHiddenItems, bool IncludeSystemItems, BasicFilters Filter)
+        {
+            string ConvertFilterToText(BasicFilters Filters)
+            {
+                if (Filters.HasFlag(BasicFilters.File) && Filters.HasFlag(BasicFilters.Folder))
+                {
+                    return "All";
+                }
+                else if (Filters.HasFlag(BasicFilters.File))
+                {
+                    return "File";
+                }
+                else if (Filters.HasFlag(BasicFilters.Folder))
+                {
+                    return "Folder";
+                }
+
+                return string.Empty;
+            }
+
+            if (await SendCommandAsync(CommandType.MTPCheckContainsAnyItems, ("Path", Path), ("IncludeHiddenItems", Convert.ToString(IncludeHiddenItems)), ("IncludeSystemItems", Convert.ToString(IncludeSystemItems)), ("Filter", ConvertFilterToText(Filter))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return Convert.ToBoolean(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPCheckContainersAnyItemsAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return false;
+        }
+
+        public async Task<bool> MTPCheckExistsAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.MTPCheckExists, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return Convert.ToBoolean(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPCheckExistsAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return false;
+        }
+
+        public async Task<MTPFileData> GetMTPItemDataAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.MTPGetItem, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return JsonSerializer.Deserialize<MTPFileData>(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetMTPItemDataAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<IReadOnlyList<MTPFileData>> GetMTPChildItemsDataAsync(string Path,
+                                                                                  bool IncludeHiddenItems,
+                                                                                  bool IncludeSystemItems,
+                                                                                  bool IncludeAllSubItems,
+                                                                                  uint MaxNumLimit,
+                                                                                  BasicFilters Filters,
+                                                                                  CancellationToken CancelToken = default)
+        {
+            string ConvertFilterToText(BasicFilters Filters)
+            {
+                if (Filters.HasFlag(BasicFilters.File) && Filters.HasFlag(BasicFilters.Folder))
+                {
+                    return "All";
+                }
+                else if (Filters.HasFlag(BasicFilters.File))
+                {
+                    return "File";
+                }
+                else if (Filters.HasFlag(BasicFilters.Folder))
+                {
+                    return "Folder";
+                }
+
+                return string.Empty;
+            }
+
+            using (CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(GetMTPChildItemsDataAsync)}");
+                }
+            }))
+            {
+                if (await SendCommandAsync(CommandType.MTPGetChildItems,
+                                           ("Path", Path),
+                                           ("IncludeHiddenItems", Convert.ToString(IncludeHiddenItems)),
+                                           ("IncludeSystemItems", Convert.ToString(IncludeSystemItems)),
+                                           ("IncludeAllSubItems", Convert.ToString(IncludeAllSubItems)),
+                                           ("MaxNumLimit", Convert.ToString(MaxNumLimit)),
+                                           ("Type", ConvertFilterToText(Filters))) is IDictionary<string, string> Response)
+                {
+                    if (Response.TryGetValue("Success", out string RawText))
+                    {
+                        return JsonSerializer.Deserialize<IReadOnlyList<MTPFileData>>(RawText);
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetMTPChildItemsDataAsync)}, message: {ErrorMessage}");
+                    }
+                }
+
+                return new List<MTPFileData>();
+            }
+        }
+
         public async Task<string> ConvertShortPathToLongPathAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.ConvertToLongPath, ("Path", Path)) is IDictionary<string, string> Response)
@@ -527,7 +795,7 @@ namespace RX_Explorer.Class
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(SetDriveLabelAsync)}, message: {ErrorMessage}");
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetPermissionsAsync)}, message: {ErrorMessage}");
                 }
             }
 
@@ -639,7 +907,7 @@ namespace RX_Explorer.Class
                 {
                     return JsonSerializer.Deserialize<IEnumerable<int>>(EncodingsString).Select((CodePage) => Encoding.GetEncoding(CodePage))
                                                                                         .Where((Encoding) => !string.IsNullOrWhiteSpace(Encoding.EncodingName))
-                                                                                        .OrderByLikeFileSystem((Encoding) => Encoding.EncodingName, SortDirection.Ascending)
+                                                                                        .OrderByFastStringSortAlgorithm((Encoding) => Encoding.EncodingName, SortDirection.Ascending)
                                                                                         .ToList();
                 }
                 else
@@ -1089,13 +1357,13 @@ namespace RX_Explorer.Class
         }
 
 
-        public async Task<HiddenDataPackage> GetHiddenItemDataAsync(string Path)
+        public async Task<HiddenFileData> GetHiddenItemDataAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetHiddenItemData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<HiddenDataPackage>(Result);
+                    return JsonSerializer.Deserialize<HiddenFileData>(Result);
                 }
                 else
                 {
@@ -1121,7 +1389,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetHiddenItemDataAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetThumbnailAsync)}, message: {ErrorMessage}");
                     }
                 }
             }
@@ -1137,7 +1405,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Success", out string Result))
                     {
-                        return JsonSerializer.Deserialize<ContextMenuPackage[]>(Result).OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending).Select((Item) => new ContextMenuItem(Item)).ToList();
+                        return JsonSerializer.Deserialize<ContextMenuPackage[]>(Result).OrderByFastStringSortAlgorithm((Item) => Item.Name, SortDirection.Ascending).Select((Item) => new ContextMenuItem(Item)).ToList();
                     }
                     else
                     {
@@ -1174,7 +1442,7 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<bool> CreateLinkAsync(LinkDataPackage Package)
+        public async Task<bool> CreateLinkAsync(LinkFileData Package)
         {
             if (await SendCommandAsync(CommandType.CreateLink, ("DataPackage", JsonSerializer.Serialize(Package))) is IDictionary<string, string> Response)
             {
@@ -1194,7 +1462,7 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task UpdateLinkAsync(LinkDataPackage Package)
+        public async Task UpdateLinkAsync(LinkFileData Package)
         {
             if (await SendCommandAsync(CommandType.UpdateLink, ("DataPackage", JsonSerializer.Serialize(Package))) is IDictionary<string, string> Response)
             {
@@ -1205,7 +1473,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task UpdateUrlAsync(UrlDataPackage Package)
+        public async Task UpdateUrlAsync(UrlFileData Package)
         {
             if (await SendCommandAsync(CommandType.UpdateUrl, ("DataPackage", JsonSerializer.Serialize(Package))) is IDictionary<string, string> Response)
             {
@@ -1298,13 +1566,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<LinkDataPackage> GetLinkDataAsync(string Path)
+        public async Task<LinkFileData> GetLinkDataAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetLinkData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<LinkDataPackage>(Result);
+                    return JsonSerializer.Deserialize<LinkFileData>(Result);
                 }
                 else
                 {
@@ -1318,13 +1586,13 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public async Task<UrlDataPackage> GetUrlDataAsync(string Path)
+        public async Task<UrlFileData> GetUrlDataAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetUrlData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<UrlDataPackage>(Result);
+                    return JsonSerializer.Deserialize<UrlFileData>(Result);
                 }
                 else
                 {
@@ -1569,7 +1837,7 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(PropertyDic["ActualPath"]);
+                            NativeFileData Data = NativeWin32API.GetStorageItemRawData(PropertyDic["ActualPath"]);
 
                             if (Data.IsDataValid)
                             {
@@ -1995,9 +2263,9 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<bool> PasteRemoteFile(string DestinationPath)
+        public async Task<bool> PasteRemoteFile(string DestinationPath, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await SendCommandAsync(CommandType.PasteRemoteFile, ("Path", DestinationPath)) is IDictionary<string, string> Response)
+            if (await SendCommandAndReportProgressAsync(CommandType.PasteRemoteFile, ProgressHandler, ("Path", DestinationPath)) is IDictionary<string, string> Response)
             {
                 if (Response.ContainsKey("Success"))
                 {
