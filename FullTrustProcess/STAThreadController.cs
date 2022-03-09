@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Vanara.PInvoke;
@@ -9,7 +10,7 @@ namespace FullTrustProcess
     public sealed class STAThreadController
     {
         private readonly Thread STAThread;
-        private readonly ConcurrentQueue<(TaskCompletionSource<bool>, Action)> TaskQueue;
+        private readonly ConcurrentQueue<STATaskData> TaskQueue;
         private readonly AutoResetEvent ProcessSleepLocker;
         private readonly static object Locker = new object();
 
@@ -25,11 +26,21 @@ namespace FullTrustProcess
             }
         }
 
-        public Task RunAsync(Action Act)
+        public Task RunAsync(Action Executer)
         {
-            TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
+            TaskCompletionSource<object> CompletionSource = new TaskCompletionSource<object>();
 
-            TaskQueue.Enqueue((CompletionSource, Act));
+            TaskQueue.Enqueue(new STATaskData<object>(CompletionSource, Executer));
+            ProcessSleepLocker.Set();
+
+            return CompletionSource.Task;
+        }
+
+        public Task<T> RunAsync<T>(Func<T> Executer)
+        {
+            TaskCompletionSource<T> CompletionSource = new TaskCompletionSource<T>();
+
+            TaskQueue.Enqueue(new STATaskData<T>(CompletionSource, Executer));
             ProcessSleepLocker.Set();
 
             return CompletionSource.Task;
@@ -44,16 +55,44 @@ namespace FullTrustProcess
                     ProcessSleepLocker.WaitOne();
                 }
 
-                while (TaskQueue.TryDequeue(out (TaskCompletionSource<bool>, Action) Group))
+                while (TaskQueue.TryDequeue(out STATaskData Core))
                 {
+                    object CompletionSourceObject = Core.GetType()
+                                                        .GetProperty("CompletionSource")
+                                                        .GetValue(Core);
+
                     try
                     {
-                        Group.Item2();
-                        Group.Item1.SetResult(true);
+                        object ExecuterResult = ((Delegate)Core.GetType()
+                                                               .GetProperty("Executer")
+                                                               .GetValue(Core)).DynamicInvoke();
+
+                        MethodInfo SetResultMethod = CompletionSourceObject.GetType()
+                                                                           .GetMethod("SetResult");
+
+                        if (ExecuterResult != null)
+                        {
+                            SetResultMethod.Invoke(CompletionSourceObject, new object[] { ExecuterResult });
+                        }
+                        else
+                        {
+                            Type ParameterType = SetResultMethod.GetParameters()[0].ParameterType;
+
+                            if (ParameterType.IsValueType)
+                            {
+                                SetResultMethod.Invoke(CompletionSourceObject, new object[] { Activator.CreateInstance(ParameterType) });
+                            }
+                            else
+                            {
+                                SetResultMethod.Invoke(CompletionSourceObject, new object[] { null });
+                            }
+                        }
                     }
                     catch (Exception ex)
                     {
-                        Group.Item1.SetException(ex);
+                        CompletionSourceObject.GetType()
+                                              .GetMethod("SetException")
+                                              .Invoke(CompletionSourceObject, new object[] { ex });
                     }
                 }
             }
@@ -64,7 +103,7 @@ namespace FullTrustProcess
             Ole32.OleInitialize();
 
             ProcessSleepLocker = new AutoResetEvent(false);
-            TaskQueue = new ConcurrentQueue<(TaskCompletionSource<bool>, Action)>();
+            TaskQueue = new ConcurrentQueue<STATaskData>();
 
             STAThread = new Thread(ThreadProcess)
             {

@@ -57,7 +57,7 @@ namespace RX_Explorer
             SendActivateToast();
         }
 
-        protected override void OnWindowCreated(WindowCreatedEventArgs args)
+        protected async override void OnWindowCreated(WindowCreatedEventArgs args)
         {
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
@@ -65,7 +65,7 @@ namespace RX_Explorer
             TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
 
-            FullTrustProcessController.RequestResizeController(1);
+            await FullTrustProcessController.SetExpectedControllerNumAsync(1);
         }
 
         private void SendActivateToast()

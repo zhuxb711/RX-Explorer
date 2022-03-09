@@ -1936,10 +1936,7 @@ namespace FullTrustProcess
                         {
                             string[] ExecutePath = JsonSerializer.Deserialize<string[]>(CommandValue["ExecutePath"]);
 
-                            await Helper.ExecuteOnSTAThreadAsync(() =>
-                            {
-                                Value.Add("Success", JsonSerializer.Serialize(ContextMenu.Current.GetContextMenuItems(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"]))));
-                            });
+                            Value.Add("Success", await Helper.ExecuteOnSTAThreadAsync(() => JsonSerializer.Serialize(ContextMenu.Current.GetContextMenuItems(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"])))));
 
                             break;
                         }
@@ -1947,17 +1944,14 @@ namespace FullTrustProcess
                         {
                             ContextMenuPackage Package = JsonSerializer.Deserialize<ContextMenuPackage>(CommandValue["DataPackage"]);
 
-                            await Helper.ExecuteOnSTAThreadAsync(() =>
+                            if (await Helper.ExecuteOnSTAThreadAsync(() => ContextMenu.Current.InvokeVerb(Package)))
                             {
-                                if (ContextMenu.Current.InvokeVerb(Package))
-                                {
-                                    Value.Add("Success", string.Empty);
-                                }
-                                else
-                                {
-                                    Value.Add("Error", $"Execute Id: \"{Package.Id}\", Verb: \"{Package.Verb}\" failed");
-                                }
-                            });
+                                Value.Add("Success", string.Empty);
+                            }
+                            else
+                            {
+                                Value.Add("Error", $"Execute Id: \"{Package.Id}\", Verb: \"{Package.Verb}\" failed");
+                            }
 
                             break;
                         }
@@ -2986,7 +2980,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.EmptyRecycleBin:
                         {
-                            Value.Add("RecycleBinItems_Clear_Result", Convert.ToString(RecycleBinController.EmptyRecycleBin()));
+                            Value.Add("RecycleBinItems_Clear_Result", await Helper.ExecuteOnSTAThreadAsync(() => Convert.ToString(RecycleBinController.EmptyRecycleBin())));
 
                             break;
                         }

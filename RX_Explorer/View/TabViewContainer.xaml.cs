@@ -61,6 +61,7 @@ namespace RX_Explorer.View
 
             Loaded += TabViewContainer_Loaded;
             PreviewTimer.Elapsed += PreviewTimer_Tick;
+            TabCollection.CollectionChanged += TabCollection_CollectionChanged;
 
             Application.Current.Suspending += Current_Suspending;
             CoreApplication.MainView.CoreWindow.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
@@ -69,6 +70,11 @@ namespace RX_Explorer.View
             CommonAccessCollection.LibraryNotFound += CommonAccessCollection_LibraryNotFound;
             QueueTaskController.ListItemSource.CollectionChanged += ListItemSource_CollectionChanged;
             QueueTaskController.ProgressChanged += QueueTaskController_ProgressChanged;
+        }
+
+        private async void TabCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            await FullTrustProcessController.SetExpectedControllerNumAsync(TabCollection.Count);
         }
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
@@ -704,8 +710,6 @@ namespace RX_Explorer.View
 
         private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)
         {
-            FullTrustProcessController.RequestResizeController(TabCollection.Count + 1);
-
             TabViewItem Tab = new TabViewItem
             {
                 IsTabStop = false,
@@ -1048,10 +1052,6 @@ namespace RX_Explorer.View
                         {
                             Application.Current.Exit();
                         }
-                    }
-                    else
-                    {
-                        FullTrustProcessController.RequestResizeController(TabCollection.Count);
                     }
                 }
             }

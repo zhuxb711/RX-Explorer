@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class FullTrustProcessController : IDisposable
     {
-        public static ushort DynamicBackupProcessNum => 3;
+        public static ushort DynamicBackupProcessNum => 2;
 
         public bool IsAnyActionExcutingInCurrentController { get; private set; }
 
@@ -58,13 +58,13 @@ namespace RX_Explorer.Class
 
         private static readonly ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>> WaitingTaskQueue = new ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>>();
 
-        private static volatile int LastRequestedControllerNum;
+        private static int ExpectedControllerNum;
 
         public static event EventHandler<bool> CurrentBusyStatus;
 
-        public static Task ResizeTask;
-
         private static readonly AutoResetEvent DispatcherSleepLocker = new AutoResetEvent(false);
+
+        private static readonly SemaphoreSlim ResizeTaskLocker = new SemaphoreSlim(1, 1);
 
         private readonly int CurrentProcessId;
 
@@ -99,6 +99,7 @@ namespace RX_Explorer.Class
                     DispatcherSleepLocker.WaitOne();
                 }
 
+            NEXT:
                 while (WaitingTaskQueue.TryDequeue(out TaskCompletionSource<ExclusiveUsage> CompletionSource))
                 {
                     while (true)
@@ -135,28 +136,31 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            if (AllControllerList.Count == 0)
+                            for (int WaitCount = 1; AvailableControllers.IsEmpty; WaitCount++)
                             {
-                                RequestResizeController(1);
-                            }
-                            else
-                            {
-                                if (!SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 5000))
+                                if (SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 2000))
                                 {
-                                    CurrentBusyStatus?.Invoke(null, true);
-
-                                    try
-                                    {
-                                        if (!SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 60000))
-                                        {
-                                            CompletionSource.TrySetException(new TimeoutException("Dispather timeout"));
-                                            break;
-                                        }
-                                    }
-                                    finally
+                                    if (WaitCount > 5)
                                     {
                                         CurrentBusyStatus?.Invoke(null, false);
                                     }
+
+                                    break;
+                                }
+
+                                switch (WaitCount)
+                                {
+                                    case 5:
+                                        {
+                                            CurrentBusyStatus?.Invoke(null, true);
+                                            break;
+                                        }
+                                    case 30:
+                                        {
+                                            CurrentBusyStatus?.Invoke(null, false);
+                                            CompletionSource.TrySetException(new TimeoutException("Dispather timeout"));
+                                            goto NEXT;
+                                        }
                                 }
                             }
                         }
@@ -165,55 +169,54 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static void RequestResizeController(int RequestedTarget)
+        public static async Task SetExpectedControllerNumAsync(int ExpectedNum)
         {
-            Task LocalResizeTask = ResizeControllerAsync(RequestedTarget);
+            await ResizeTaskLocker.WaitAsync();
 
-            if (Interlocked.CompareExchange(ref ResizeTask, LocalResizeTask, null) is Task PreviousTask)
+            try
             {
-                PreviousTask.ContinueWith((_) => LocalResizeTask.Wait());
+                ExpectedControllerNum = ExpectedNum;
+
+                if (ExpectedNum > AllControllersNum - DynamicBackupProcessNum)
+                {
+                    int AddCount = ExpectedNum - AllControllersNum + DynamicBackupProcessNum;
+
+                    List<Task> ParallelList = new List<Task>(AddCount);
+
+                    for (int Counter = 0; Counter < AddCount; Counter++)
+                    {
+                        ParallelList.Add(CreateAsync().ContinueWith((PreviousTask) =>
+                        {
+                            if (PreviousTask.Result is FullTrustProcessController NewController)
+                            {
+                                AvailableControllers.Enqueue(NewController);
+                            }
+                        }));
+                    }
+
+                    await Task.WhenAll(ParallelList);
+                }
+                else if (ExpectedNum < AllControllersNum - DynamicBackupProcessNum)
+                {
+                    int RemoveCount = AllControllersNum - DynamicBackupProcessNum - ExpectedNum;
+
+                    for (int Counter = 0; Counter < RemoveCount; Counter++)
+                    {
+                        if (AvailableControllers.TryDequeue(out FullTrustProcessController RemoveController))
+                        {
+                            RemoveController.Dispose();
+                        }
+                    }
+                }
             }
-        }
-
-        private static Task ResizeControllerAsync(int RequestedTarget)
-        {
-            return Task.Run(() =>
+            catch (Exception ex)
             {
-                try
-                {
-                    LastRequestedControllerNum = RequestedTarget;
-
-                    RequestedTarget += DynamicBackupProcessNum;
-
-                    for (int Retry = 0; AllControllerList.Count > RequestedTarget && Retry < 6; Retry++)
-                    {
-                        if (AvailableControllers.TryDequeue(out FullTrustProcessController Controller))
-                        {
-                            Controller.Dispose();
-                        }
-                        else
-                        {
-                            Thread.Sleep(500);
-                        }
-                    }
-
-                    for (int Retry = 0; AllControllerList.Count < RequestedTarget && Retry < 3; Retry++)
-                    {
-                        if (CreateAsync().Result is FullTrustProcessController NewController)
-                        {
-                            AvailableControllers.Enqueue(NewController);
-                        }
-                        else
-                        {
-                            Thread.Sleep(500);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An exception was threw when maintance FullTrustProcessController");
-                }
-            });
+                LogTracer.Log(ex, $"An exception was threw in {nameof(SetExpectedControllerNumAsync)}");
+            }
+            finally
+            {
+                ResizeTaskLocker.Release();
+            }
         }
 
 
@@ -2398,6 +2401,8 @@ namespace RX_Explorer.Class
 
             private readonly ExtendedExecutionController ExtExecution;
 
+            private static readonly object DisposeSyncRoot = new object();
+
             private bool IsDisposed;
 
             public ExclusiveUsage(FullTrustProcessController Controller, ExtendedExecutionController ExtExecution)
@@ -2415,7 +2420,18 @@ namespace RX_Explorer.Class
                     GC.SuppressFinalize(this);
 
                     ExtExecution?.Dispose();
-                    AvailableControllers.Enqueue(Controller);
+
+                    lock (DisposeSyncRoot)
+                    {
+                        if (ExpectedControllerNum < AllControllersNum - DynamicBackupProcessNum)
+                        {
+                            Controller.Dispose();
+                        }
+                        else
+                        {
+                            AvailableControllers.Enqueue(Controller);
+                        }
+                    }
                 }
             }
 

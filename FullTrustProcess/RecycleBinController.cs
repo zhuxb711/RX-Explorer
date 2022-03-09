@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Vanara.Extensions;
@@ -83,14 +85,19 @@ namespace FullTrustProcess
         {
             try
             {
-                RecycleBin.Empty(false);
+                if (RecycleBin.Count > 0)
+                {
+                    RecycleBin.Empty(false);
+                }
+
                 return true;
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(EmptyRecycleBin)}");
-                return false;
             }
+
+            return false;
         }
 
         public static bool Restore(params string[] OriginPathList)

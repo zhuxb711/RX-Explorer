@@ -289,15 +289,26 @@ namespace FullTrustProcess
             return Info;
         }
 
-        public static Task ExecuteOnSTAThreadAsync(Action Act)
+        public static Task<T> ExecuteOnSTAThreadAsync<T>(Func<T> Executer)
         {
             if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
             {
-                return STAThreadController.Current.RunAsync(Act);
+                return STAThreadController.Current.RunAsync(Executer);
             }
             else
             {
-                Act();
+                return Task.FromResult(Executer());
+            }
+        }
+
+        public static Task ExecuteOnSTAThreadAsync(Action Executer)
+        {
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                return STAThreadController.Current.RunAsync(Executer);
+            }
+            else
+            {
                 return Task.CompletedTask;
             }
         }
