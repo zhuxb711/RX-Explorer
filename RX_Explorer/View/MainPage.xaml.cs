@@ -509,6 +509,11 @@ namespace RX_Explorer.View
                         }
                     }
                 }
+
+                if (StartupModeController.Mode == StartupMode.LastOpenedTab)
+                {
+                    SaveLastOpenedTab();
+                }
             }
             catch (Exception ex)
             {
@@ -1587,6 +1592,25 @@ namespace RX_Explorer.View
                         }
                 }
             }
+        }
+
+        private void SaveLastOpenedTab()
+        {
+            List<string[]> PathList = new List<string[]>();
+
+            foreach (TabItemContentRenderer Renderer in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                              .Cast<Frame>()
+                                                                                              .Select((Frame) => Frame.Content)
+                                                                                              .Cast<TabItemContentRenderer>())
+            {
+                string[] CurrentPathArray = Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
+                                                               .Where((Path) => !string.IsNullOrWhiteSpace(Path))
+                                                               .ToArray();
+
+                PathList.Add(CurrentPathArray.Length > 0 ? CurrentPathArray : Renderer.InitializePaths.ToArray());
+            }
+
+            StartupModeController.SetLastOpenedPath(PathList);
         }
     }
 }

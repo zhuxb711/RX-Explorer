@@ -3347,7 +3347,11 @@ namespace RX_Explorer.View
                                     {
                                         if (e.Status == OperationStatus.Completed)
                                         {
-                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                      .Cast<Frame>()
+                                                                                                                      .Select((Frame) => Frame.Content)
+                                                                                                                      .Cast<TabItemContentRenderer>()
+                                                                                                                      .SelectMany((Renderer) => Renderer.Presenters))
                                             {
                                                 if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder)
                                                 {
@@ -3393,7 +3397,11 @@ namespace RX_Explorer.View
                                 {
                                     if (e.Status == OperationStatus.Completed)
                                     {
-                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                  .Cast<Frame>()
+                                                                                                                  .Select((Frame) => Frame.Content)
+                                                                                                                  .Cast<TabItemContentRenderer>()
+                                                                                                                  .SelectMany((Renderer) => Renderer.Presenters))
                                         {
                                             if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                             {
@@ -3566,7 +3574,11 @@ namespace RX_Explorer.View
                         {
                             try
                             {
-                                foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                          .Cast<Frame>()
+                                                                                                          .Select((Frame) => Frame.Content)
+                                                                                                          .Cast<TabItemContentRenderer>()
+                                                                                                          .SelectMany((Renderer) => Renderer.Presenters))
                                 {
                                     if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                     {
@@ -3635,7 +3647,11 @@ namespace RX_Explorer.View
                                 {
                                     if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
                                     {
-                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                  .Cast<Frame>()
+                                                                                                                  .Select((Frame) => Frame.Content)
+                                                                                                                  .Cast<TabItemContentRenderer>()
+                                                                                                                  .SelectMany((Renderer) => Renderer.Presenters))
                                         {
                                             if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                             {
@@ -3681,7 +3697,11 @@ namespace RX_Explorer.View
                                     {
                                         if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
                                         {
-                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                      .Cast<Frame>()
+                                                                                                                      .Select((Frame) => Frame.Content)
+                                                                                                                      .Cast<TabItemContentRenderer>()
+                                                                                                                      .SelectMany((Renderer) => Renderer.Presenters))
                                             {
                                                 if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                                 {
@@ -5296,7 +5316,11 @@ namespace RX_Explorer.View
                     {
                         if (CurrentFolder is MTPStorageFolder)
                         {
-                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                      .Cast<Frame>()
+                                                                                                      .Select((Frame) => Frame.Content)
+                                                                                                      .Cast<TabItemContentRenderer>()
+                                                                                                      .SelectMany((Renderer) => Renderer.Presenters))
                             {
                                 IEnumerable<FileSystemStorageItemBase> NewItems = await Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
 
@@ -5823,7 +5847,11 @@ namespace RX_Explorer.View
                                     {
                                         if (e.Status == OperationStatus.Completed)
                                         {
-                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                      .Cast<Frame>()
+                                                                                                                      .Select((Frame) => Frame.Content)
+                                                                                                                      .Cast<TabItemContentRenderer>()
+                                                                                                                      .SelectMany((Renderer) => Renderer.Presenters))
                                             {
                                                 if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder)
                                                 {
@@ -5869,7 +5897,11 @@ namespace RX_Explorer.View
                                 {
                                     if (e.Status == OperationStatus.Completed)
                                     {
-                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                  .Cast<Frame>()
+                                                                                                                  .Select((Frame) => Frame.Content)
+                                                                                                                  .Cast<TabItemContentRenderer>()
+                                                                                                                  .SelectMany((Renderer) => Renderer.Presenters))
                                         {
                                             if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                             {
@@ -6147,7 +6179,11 @@ namespace RX_Explorer.View
                             {
                                 if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
                                 {
-                                    foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).OfType<Frame>().Select((Frame) => Frame.Content).OfType<TabItemContentRenderer>().SelectMany((Renderer) => Renderer.Presenters))
+                                    foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                              .Cast<Frame>()
+                                                                                                              .Select((Frame) => Frame.Content)
+                                                                                                              .Cast<TabItemContentRenderer>()
+                                                                                                              .SelectMany((Renderer) => Renderer.Presenters))
                                     {
                                         if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                         {

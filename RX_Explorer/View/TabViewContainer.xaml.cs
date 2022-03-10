@@ -63,7 +63,6 @@ namespace RX_Explorer.View
             PreviewTimer.Elapsed += PreviewTimer_Tick;
             TabCollection.CollectionChanged += TabCollection_CollectionChanged;
 
-            Application.Current.Suspending += Current_Suspending;
             CoreApplication.MainView.CoreWindow.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
             CoreApplication.MainView.CoreWindow.PointerPressed += TabViewContainer_PointerPressed;
             CoreApplication.MainView.CoreWindow.KeyDown += TabViewContainer_KeyDown;
@@ -75,35 +74,6 @@ namespace RX_Explorer.View
         private async void TabCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             await FullTrustProcessController.SetExpectedControllerNumAsync(TabCollection.Count);
-        }
-
-        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
-        {
-            if (StartupModeController.Mode == StartupMode.LastOpenedTab)
-            {
-                SaveLastOpenedTab();
-            }
-        }
-
-        private void SaveLastOpenedTab()
-        {
-            List<string[]> PathList = new List<string[]>();
-
-            foreach (TabItemContentRenderer Renderer in TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>())
-            {
-                if (Renderer.Presenters.Any())
-                {
-                    PathList.Add(Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
-                                                    .Where((Path) => !string.IsNullOrWhiteSpace(Path))
-                                                    .ToArray());
-                }
-                else
-                {
-                    PathList.Add(Array.Empty<string>());
-                }
-            }
-
-            StartupModeController.SetLastOpenedPath(PathList);
         }
 
         private async void PreviewTimer_Tick(object sender, ElapsedEventArgs e)
@@ -750,7 +720,11 @@ namespace RX_Explorer.View
                 {
                     foreach (string Path in PathForNewTab.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
                     {
-                        if (Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase) || await FileSystemStorageItemBase.CheckExistsAsync(Path))
+                        if (RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                        {
+                            ValidPathArray.Add(Path);
+                        }
+                        else if (await FileSystemStorageItemBase.CheckExistsAsync(Path))
                         {
                             ValidPathArray.Add(await Exclusive.Controller.ConvertShortPathToLongPathAsync(Path));
                         }
@@ -758,22 +732,42 @@ namespace RX_Explorer.View
                 }
             }
 
-            if (ValidPathArray.Count == 0)
+            switch (ValidPathArray.Count)
             {
-                Tab.Header = RootStorageFolder.Instance.DisplayName;
-            }
-            else
-            {
-                string HeaderText = Path.GetFileName(ValidPathArray.Last());
+                case 0:
+                    {
+                        Tab.Header = RootStorageFolder.Instance.DisplayName;
+                        break;
+                    }
+                case 1:
+                    {
+                        string Path = ValidPathArray.First();
 
-                if (string.IsNullOrEmpty(HeaderText))
-                {
-                    Tab.Header = $"<{Globalization.GetString("UnknownText")}>";
-                }
-                else
-                {
-                    Tab.Header = HeaderText;
-                }
+                        if (RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                        {
+                            Tab.Header = RootStorageFolder.Instance.DisplayName;
+                        }
+                        else
+                        {
+                            string HeaderText = System.IO.Path.GetFileName(Path);
+
+                            if (string.IsNullOrEmpty(HeaderText))
+                            {
+                                Tab.Header = $"<{Globalization.GetString("UnknownText")}>";
+                            }
+                            else
+                            {
+                                Tab.Header = HeaderText;
+                            }
+                        }
+
+                        break;
+                    }
+                default:
+                    {
+                        Tab.Header = string.Join(" | ", ValidPathArray.Select((Path) => RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase) ? RootStorageFolder.Instance.DisplayName : System.IO.Path.GetFileName(Path)));
+                        break;
+                    }
             }
 
             Tab.Content = new Frame { Content = new TabItemContentRenderer(Tab, ValidPathArray.ToArray()) };
@@ -1048,6 +1042,11 @@ namespace RX_Explorer.View
 
                     if (TabCollection.Count == 0)
                     {
+                        if (StartupModeController.Mode == StartupMode.LastOpenedTab)
+                        {
+                            StartupModeController.SetLastOpenedPath(Enumerable.Empty<string[]>());
+                        }
+
                         if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
                         {
                             Application.Current.Exit();

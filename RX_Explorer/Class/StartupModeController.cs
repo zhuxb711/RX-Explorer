@@ -45,7 +45,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async IAsyncEnumerable<string[]> GetAllPathAsync()
+        public static async IAsyncEnumerable<string[]> GetAllPathAsync(StartupMode Mode)
         {
             switch (Mode)
             {
@@ -88,7 +88,7 @@ namespace RX_Explorer.Class
 
                                 foreach (string ValidPath in PathList.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
                                 {
-                                    if (await FileSystemStorageItemBase.CheckExistsAsync(ValidPath))
+                                    if (RootStorageFolder.Instance.Path.Equals(ValidPath, StringComparison.OrdinalIgnoreCase) || await FileSystemStorageItemBase.CheckExistsAsync(ValidPath))
                                     {
                                         ValidPathList.Add(ValidPath);
                                     }

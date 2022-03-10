@@ -27,7 +27,7 @@ namespace RX_Explorer.View
 
         public IEnumerable<FilePresenter> Presenters => BaseControl?.BladeViewer.Items.Cast<BladeItem>().Select((Blade) => Blade.Content).Cast<FilePresenter>() ?? Array.Empty<FilePresenter>();
 
-        public IEnumerable<string> InitializePathArray { get; }
+        public IEnumerable<string> InitializePaths { get; }
 
         private FileControl BaseControl;
 
@@ -36,7 +36,7 @@ namespace RX_Explorer.View
             InitializeComponent();
 
             this.TabItem = TabItem;
-            this.InitializePathArray = InitializePathArray.Length > 0 ? InitializePathArray : new string[] { RootStorageFolder.Instance.Path };
+            this.InitializePaths = InitializePathArray.Length > 0 ? InitializePathArray : new string[] { RootStorageFolder.Instance.Path };
 
             Loaded += TabItemContentRenderer_Loaded;
             Loaded += TabItemContentRenderer_Loaded1;

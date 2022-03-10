@@ -328,7 +328,7 @@ namespace RX_Explorer
                     }
                 case StartupMode.LastOpenedTab:
                     {
-                        List<string[]> LastOpenedPathArray = await StartupModeController.GetAllPathAsync().ToListAsync();
+                        List<string[]> LastOpenedPathArray = await StartupModeController.GetAllPathAsync(StartupMode.LastOpenedTab).ToListAsync();
 
                         if (LastOpenedPathArray.Count > 0)
                         {
@@ -345,7 +345,7 @@ namespace RX_Explorer
                     }
                 case StartupMode.SpecificTab:
                     {
-                        string[] SpecificPathArray = await StartupModeController.GetAllPathAsync()
+                        string[] SpecificPathArray = await StartupModeController.GetAllPathAsync(StartupMode.SpecificTab)
                                                                                 .Select((Item) => Item.SingleOrDefault())
                                                                                 .ToArrayAsync();
 

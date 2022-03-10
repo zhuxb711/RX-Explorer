@@ -200,7 +200,7 @@ namespace FullTrustProcess
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Error in writing log file: {ex.Message}");
+                    Debug.WriteLine($"An exception was threw in writing log file: {ex.Message}");
                 }
             }
         }

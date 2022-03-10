@@ -1,7 +1,6 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI;
-using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -669,7 +668,11 @@ namespace RX_Explorer.View
 
         private async void Current_AnimationStateChanged(object sender, bool e)
         {
-            await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync()));
+            await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                     .Cast<Frame>()
+                                                                     .Select((Frame) => Frame.Content)
+                                                                     .Cast<TabItemContentRenderer>()
+                                                                     .Select((Renderer) => Renderer.RefreshPresentersAsync()));
         }
 
         public async Task InitializeAsync()
@@ -1102,7 +1105,7 @@ namespace RX_Explorer.View
                     {
                         StartupSpecificTab.IsChecked = true;
 
-                        string[] PathArray = await StartupModeController.GetAllPathAsync().Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
+                        IEnumerable<string> PathArray = await StartupModeController.GetAllPathAsync(StartupMode.SpecificTab).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
 
                         foreach (string AddItem in PathArray.Except(SpecificTabListView.Items.Cast<string>()))
                         {
@@ -2014,7 +2017,11 @@ namespace RX_Explorer.View
 
             try
             {
-                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.SetTreeViewStatusAsync(TreeViewDetach.IsOn)));
+                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                         .Cast<Frame>()
+                                                                         .Select((Frame) => Frame.Content)
+                                                                         .Cast<TabItemContentRenderer>()
+                                                                         .Select((Renderer) => Renderer.SetTreeViewStatusAsync(TreeViewDetach.IsOn)));
             }
             catch (Exception ex)
             {
@@ -2077,10 +2084,18 @@ namespace RX_Explorer.View
             {
                 if (!IsDetachTreeViewAndPresenter)
                 {
-                    await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshTreeViewAsync()));
+                    await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                             .Cast<Frame>()
+                                                                             .Select((Frame) => Frame.Content)
+                                                                             .Cast<TabItemContentRenderer>()
+                                                                             .Select((Renderer) => Renderer.RefreshTreeViewAsync()));
                 }
 
-                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync()));
+                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                         .Cast<Frame>()
+                                                                         .Select((Frame) => Frame.Content)
+                                                                         .Cast<TabItemContentRenderer>()
+                                                                         .Select((Renderer) => Renderer.RefreshPresentersAsync()));
             }
             catch (Exception ex)
             {
@@ -2721,10 +2736,18 @@ namespace RX_Explorer.View
                 {
                     if (!IsDetachTreeViewAndPresenter)
                     {
-                        await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshTreeViewAsync()));
+                        await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                 .Cast<Frame>()
+                                                                                 .Select((Frame) => Frame.Content)
+                                                                                 .Cast<TabItemContentRenderer>()
+                                                                                 .Select((Renderer) => Renderer.RefreshTreeViewAsync()));
                     }
 
-                    await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync()));
+                    await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                             .Cast<Frame>()
+                                                                             .Select((Frame) => Frame.Content)
+                                                                             .Cast<TabItemContentRenderer>()
+                                                                             .Select((Renderer) => Renderer.RefreshPresentersAsync()));
                 }
                 catch (Exception ex)
                 {
@@ -2751,10 +2774,18 @@ namespace RX_Explorer.View
             {
                 if (!IsDetachTreeViewAndPresenter)
                 {
-                    await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshTreeViewAsync()));
+                    await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                             .Cast<Frame>()
+                                                                             .Select((Frame) => Frame.Content)
+                                                                             .Cast<TabItemContentRenderer>()
+                                                                             .Select((Renderer) => Renderer.RefreshTreeViewAsync()));
                 }
 
-                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync()));
+                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                         .Cast<Frame>()
+                                                                         .Select((Frame) => Frame.Content)
+                                                                         .Cast<TabItemContentRenderer>()
+                                                                         .Select((Renderer) => Renderer.RefreshPresentersAsync()));
             }
             catch (Exception ex)
             {
@@ -3048,7 +3079,11 @@ namespace RX_Explorer.View
                 CommonAccessCollection.LoadLibraryFoldersAsync(true)
             };
 
-            await Task.WhenAll(ParallelTask.Concat(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync())));
+            await Task.WhenAll(ParallelTask.Concat(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                         .Cast<Frame>()
+                                                                                         .Select((Frame) => Frame.Content)
+                                                                                         .Cast<TabItemContentRenderer>()
+                                                                                         .Select((Renderer) => Renderer.RefreshPresentersAsync())));
         }
 
         private void SettingNavigation_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
@@ -3308,7 +3343,11 @@ namespace RX_Explorer.View
 
             try
             {
-                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content).Cast<TabItemContentRenderer>().Select((Renderer) => Renderer.RefreshPresentersAsync()));
+                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                         .Cast<Frame>()
+                                                                         .Select((Frame) => Frame.Content)
+                                                                         .Cast<TabItemContentRenderer>()
+                                                                         .Select((Renderer) => Renderer.RefreshPresentersAsync()));
             }
             catch (Exception ex)
             {

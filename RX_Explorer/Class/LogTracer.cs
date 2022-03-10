@@ -287,12 +287,12 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        Debug.WriteLine($"Error in writing log file: Could not create the log file");
+                        throw new IOException("Could not create log file");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Error in writing log file: {ex.Message}");
+                    Debug.WriteLine($"An exception was threw in writing log file: {ex.Message}");
                 }
             }
         }
