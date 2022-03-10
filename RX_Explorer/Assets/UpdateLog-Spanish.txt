@@ -1,39 +1,53 @@
-﻿###Novedades de la versión 7.5.1.0
+﻿###Novedades de la versión 7.5.4.0
 
 #####Característica actualizada
 
->#####El mecanismo para colocar datos en el portapapeles se ha mejorado para evitar contenido innecesario en el portapapeles
+>#####Soporte agregado para dispositivos MTP (teléfonos inteligentes, tarjetas SD, etc.)
 
->#####El visor de archivos comprimidos incorporado admite la descompresión de archivos arrastrando y soltando
+>>#####La función de monitoreo de cambios de archivos no es compatible con dichos dispositivos y no admite operaciones de archivos simultáneas
 
->#####El visor de archivos comprimidos incorporado admite la cancelación de tareas de compresión y descompresión
+>>#####Según el dispositivo, es posible que algunos dispositivos no admitan una o más operaciones, como Mover/Copiar/Eliminar/Renombrar, las operaciones no admitidas fallarán
 
 #####IU actualizada
 
->#####La barra de progreso de la tarea en la lista de tareas permanecerá "Indeterminada" hasta la primera actualización de progreso
+>#####Se mejoró el estilo de algunas UI en la "Página de inicio"
 
->#####Aparecerá un mensaje de doble confirmación cuando la aplicación se cierre directamente en el visor incorporado
+>#####Las subopciones aparecerán automáticamente al cambiar el modo de interfaz de usuario en la configuración
 
->#####El visor de archivos integrado mostrará el nombre localizado en la columna "Tipo"
+>#####"Lista de tareas" se ha incorporado como parte del contenido de cada pestaña para evitar oscurecer los botones de algunas funciones clave
 
->#####Perfeccionamos la apariencia de algunos componentes
+>#####El visor de imágenes incorporado ahora usará directamente la imagen original para obtener una vista previa en ausencia de una miniatura
 
-#####Corrección de errores
+>#####Se mostrará una barra de progreso cuando una carpeta tarde demasiado en cargarse para indicar que aún se está cargando
 
->#####Se solucionó un problema por el cual las carpetas en las bibliotecas no se podían eliminar
+>#####Clasificación mejorada de nombres de archivos, ahora será consistente con el Explorador de Windows
 
->#####Se solucionó un problema por el cual la barra de etiquetas de archivos no se ocultaba automáticamente cuando se cerraba el menú
+#####Error corregido
 
->#####Se solucionó un problema por el que al hacer clic en subcarpetas de carpetas en la barra de direcciones no respondía
+>#####Se corrigieron algunos problemas de la interfaz de usuario en la página de configuración al cambiar de tema
 
->#####Se solucionó el problema de corrupción de datos al ejecutar tareas simultáneamente en un solo proceso auxiliar
+>#####Se solucionó un problema por el cual un dispositivo USB mal conectado podía hacer que la interfaz de usuario se congelara
 
->#####Se solucionó un problema por el cual el submenú de la barra de direcciones no cargaba el nombre localizado de la carpeta
+>#####Se solucionó un problema por el cual el visor incorporado admite archivos .jpg pero no archivos .jpeg
 
->#####Se solucionó un problema por el cual el indicador no aparecía incluso si la carpeta correspondiente no se podía encontrar en algunos casos
+>#####Se solucionó el problema de que parte del contenido de texto en las propiedades de la unidad puede ocultar otros elementos cuando el contenido es demasiado largo
 
->#####Se solucionó un problema por el cual el cuadro de entrada para cambiar el nombre podría no desaparecer en algunos casos
+>#####Se solucionó un problema por el cual el tamaño de la ventana actual no se recordaba al cerrar la ventana de propiedades con el botón Cerrar en la esquina superior derecha
 
->#####Se solucionó un problema que podía causar un bloqueo al saltar directamente de la página de búsqueda a una carpeta en los resultados de búsqueda
+>#####Se solucionó el problema de que la extensión del archivo se podía perder al usar la función de cambio de nombre después de que "Mostrar extensión de archivo" está deshabilitado
 
->#####Se corrigieron algunos otros problemas que podrían causar fallas
+>#####Se solucionó un problema por el cual la operación de pegar no se podía realizar varias veces después de copiar ciertos tipos de archivos
+
+>#####Se solucionó un problema por el cual el nombre de archivo de algunos archivos podría estar vacío cuando "Mostrar extensión de archivo" está deshabilitado
+
+>#####Se solucionó un problema por el cual el comando "Enviar a" se podía usar accidentalmente en la raíz de la unidad
+
+>#####Se solucionó un problema por el cual un elemento de menú que podría no coincidir con el tipo de archivo actual podía mostrarse en casos excepcionales
+
+>#####Se solucionó un problema por el cual cambiar el nombre de un nodo en el árbol de directorios de archivos que no es la carpeta actual podría no actualizarse correctamente
+
+>#####Se solucionó el problema de que cuando la aplicación predeterminada y la aplicación recomendada son las mismas, puede haber elementos duplicados en el menú emergente del botón "Abrir con"
+
+>#####Se solucionó un problema por el cual el visor de archivos integrado no mostraba el mensaje "Vacío" al navegar a una carpeta vacía
+
+>#####Se solucionó el problema de que la imagen de vista previa en el modo "Imagen de fondo personalizada" puede tener duplicados en algunos casos

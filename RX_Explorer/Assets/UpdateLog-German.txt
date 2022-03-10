@@ -1,39 +1,53 @@
-﻿###Was ist neu in Ver.7.5.1.0
+﻿###Was ist neu in Ver.7.5.4.0
 
 #####Funktion aktualisiert
 
->#####Der Mechanismus zum Einfügen von Daten in die Zwischenablage wurde verbessert, um unnötigen Inhalt der Zwischenablage zu vermeiden
+>#####Unterstützung für MTP-Geräte (Smartphones, SD-Karten usw.) hinzugefügt
 
->#####Der eingebaute Viewer für komprimierte Dateien unterstützt das Dekomprimieren von Dateien durch Ziehen und Ablegen
+>>#####Die Dateiänderungsüberwachungsfunktion wird auf solchen Geräten nicht unterstützt und unterstützt keine gleichzeitigen Dateioperationen
 
->#####Der eingebaute Viewer für komprimierte Dateien unterstützt das Abbrechen von Komprimierungs- und Dekomprimierungsaufgaben
+>>#####Je nach Gerät unterstützen einige Geräte möglicherweise einen oder mehrere Vorgänge nicht, wie z. B.: Verschieben/Kopieren/Löschen/Umbenennen, nicht unterstützte Vorgänge schlagen fehl
 
-#####Benutzeroberfläche aktualisiert
+#####UI aktualisiert
 
->#####Der Fortschrittsbalken der Aufgabe in der Aufgabenliste bleibt bis zur ersten Fortschrittsaktualisierung "Unbestimmt".
+>#####Verbesserung des Stils einiger Benutzeroberflächen auf der "Startseite"
 
->#####Eine doppelte Bestätigungsaufforderung erscheint, wenn die Anwendung direkt im integrierten Viewer geschlossen wird
+>#####Unteroptionen werden automatisch angezeigt, wenn Sie den UI-Modus in den Einstellungen wechseln
 
->#####Der integrierte Archiv-Viewer zeigt den lokalisierten Namen in der Spalte „Typ“ an
+>#####"Aufgabenliste" wurde als Teil des Inhalts jeder Registerkarte eingebettet, um zu vermeiden, dass Schaltflächen für einige Schlüsselfunktionen verdeckt werden
 
->#####Das Erscheinungsbild einiger Komponenten wurde verfeinert
+>#####Der eingebaute Bildbetrachter verwendet jetzt direkt das Originalbild für die Vorschau, wenn keine Miniaturansicht vorhanden ist
 
-#####Fehlerbehebung
+>#####Ein Fortschrittsbalken wird angezeigt, wenn das Laden eines Ordners zu lange dauert, um anzuzeigen, dass der Ladevorgang noch läuft
 
->#####Problem behoben, bei dem Ordner in Bibliotheken nicht gelöscht werden konnten
+>#####Verbesserte Sortierung von Dateinamen, wird nun konsistent mit dem Windows Explorer sein
 
->#####Es wurde ein Problem behoben, bei dem die Datei-Tag-Leiste nicht automatisch ausgeblendet wurde, wenn das Menü geschlossen wurde
+#####Fehler behoben
 
->#####Es wurde ein Problem behoben, bei dem das Klicken auf Unterordner von Ordnern in der Adressleiste nicht reagierte
+>#####Einige UI-Probleme auf der Einstellungsseite beim Wechseln von Themen behoben
 
->#####Das Problem der Datenkorruption bei der gleichzeitigen Ausführung von Aufgaben auf einem einzelnen Hilfsprozess wurde behoben
+>#####Es wurde ein Problem behoben, bei dem ein schlecht angeschlossenes USB-Gerät dazu führen konnte, dass die Benutzeroberfläche einfrierte
 
->#####Es wurde ein Problem behoben, bei dem das Untermenü der Adressleiste den lokalisierten Namen des Ordners nicht laden würde
+>#####Problem behoben, bei dem der integrierte Viewer .jpg-Dateien, aber keine .jpeg-Dateien unterstützt
 
->#####Es wurde ein Problem behoben, bei dem die Eingabeaufforderung nicht angezeigt wird, selbst wenn der entsprechende Ordner in einigen Fällen nicht gefunden werden kann
+>#####Das Problem, dass einige Textinhalte in den Laufwerkseigenschaften andere Elemente verdecken können, wenn der Inhalt zu lang ist, wurde behoben
 
->#####Ein Problem wurde behoben, bei dem das Eingabefeld zum Umbenennen in einigen Fällen möglicherweise nicht verschwand
+>#####Es wurde ein Problem behoben, bei dem die aktuelle Fenstergröße nicht gespeichert wurde, wenn das Eigenschaftenfenster mit der Schaltfläche „Schließen“ in der oberen rechten Ecke geschlossen wurde
 
->#####Ein Problem wurde behoben, das einen Absturz verursachen konnte, wenn direkt von der Suchseite zu einem Ordner in den Suchergebnissen gesprungen wurde
+>#####Das Problem, dass die Dateierweiterung verloren gehen kann, wenn die Umbenennungsfunktion verwendet wird, nachdem „Dateierweiterung anzeigen“ deaktiviert wurde, wurde behoben
 
->#####Einige andere Probleme behoben, die zu Abstürzen führen konnten
+>#####Es wurde ein Problem behoben, bei dem der Einfügevorgang nach dem Kopieren bestimmter Dateitypen nicht mehrmals durchgeführt werden konnte
+
+>#####Es wurde ein Problem behoben, bei dem der Dateiname einiger Dateien möglicherweise leer war, wenn „Dateierweiterung anzeigen“ deaktiviert war
+
+>#####Es wurde ein Problem behoben, bei dem der Befehl „Senden an“ versehentlich im Stammverzeichnis des Laufwerks verwendet werden konnte
+
+>#####Ein Problem wurde behoben, bei dem in seltenen Fällen ein Menüpunkt angezeigt werden konnte, der möglicherweise nicht mit dem aktuellen Dateityp übereinstimmt
+
+>#####Es wurde ein Problem behoben, bei dem das Umbenennen eines Knotens in der Dateiverzeichnisstruktur, der nicht der aktuelle Ordner ist, möglicherweise nicht korrekt aktualisiert wird
+
+>#####Das Problem, dass bei identischer Standard-App und empfohlener App möglicherweise doppelte Elemente im Popup-Menü der Schaltfläche „Öffnen mit“ vorhanden sind, wurde behoben
+
+>#####Es wurde ein Problem behoben, bei dem der integrierte Archivbetrachter beim Navigieren zu einem leeren Ordner keine „Leer“-Eingabeaufforderung anzeigte
+
+>#####Das Problem, dass das Vorschaubild im Modus "Benutzerdefiniertes Hintergrundbild" in einigen Fällen doppelt vorhanden sein konnte, wurde behoben

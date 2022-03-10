@@ -1,39 +1,53 @@
-﻿###Quoi de neuf dans la version 7.5.1.0
+﻿###Quoi de neuf dans la version 7.5.4.0
 
 #####Fonctionnalité mise à jour
 
->#####Le mécanisme de mise des données dans le presse-papiers a été amélioré pour éviter le contenu inutile du presse-papiers
+>#####Ajout de la prise en charge des appareils MTP (Smartphones, cartes SD, etc.)
 
->#####La visionneuse de fichiers compressés intégrée prend en charge la décompression des fichiers par glisser-déposer
+>>#####La fonction de surveillance des modifications de fichiers n'est pas prise en charge sur ces appareils et ne prend pas en charge les opérations de fichiers simultanées
 
->#####La visionneuse de fichiers compressés intégrée prend en charge l'annulation des tâches de compression et de décompression
+>>#####Selon l'appareil, certains appareils peuvent ne pas prendre en charge une ou plusieurs opérations, telles que : Déplacer/Copier/Supprimer/Renommer, les opérations non prises en charge échoueront
 
 #####UI mise à jour
 
->#####La barre de progression de la tâche dans la liste des tâches restera "Indéterminée" jusqu'à la première mise à jour de la progression
+>#####Amélioration du style de certaines interfaces utilisateur dans la "page d'accueil"
 
->#####Une double invite de confirmation apparaîtra lorsque l'application est fermée directement dans la visionneuse intégrée
+> ##### Les sous-options apparaîtront automatiquement lors du changement de mode d'interface utilisateur dans les paramètres
 
->#####La visionneuse d'archives intégrée affichera le nom localisé dans la colonne "Type"
+>#####"Liste des tâches" a été intégrée dans le contenu de chaque onglet pour éviter d'obscurcir les boutons de certaines fonctions clés
 
->#####Ajustement de l'apparence de certains composants
+>#####La visionneuse d'images intégrée utilisera désormais directement l'image d'origine pour l'aperçu en l'absence de vignette
 
-#####Corrections de bogues
+>#####Une barre de progression s'affiche lorsqu'un dossier met trop de temps à se charger pour indiquer que le chargement est toujours en cours
 
->#####Correction d'un problème où les dossiers dans les bibliothèques ne pouvaient pas être supprimés
+>#####Amélioration du tri des noms de fichiers, sera désormais compatible avec l'Explorateur Windows
 
->#####Correction d'un problème où la barre de balises de fichier n'était pas automatiquement masquée lorsque le menu était fermé
+#####Bug réparé
 
->#####Correction d'un problème où cliquer sur les sous-dossiers des dossiers dans la barre d'adresse ne répondait pas
+>##### Correction de certains problèmes d'interface utilisateur sur la page des paramètres lors du changement de thème
 
->#####Correction du problème de corruption des données lors de l'exécution simultanée de tâches sur un seul processus auxiliaire
+>#####Correction d'un problème où un périphérique USB mal connecté pouvait provoquer le gel de l'interface utilisateur
 
->#####Correction d'un problème où le sous-menu de la barre d'adresse ne chargeait pas le nom localisé du dossier
+>#####Correction d'un problème où la visionneuse intégrée prend en charge les fichiers .jpg mais pas les fichiers .jpeg
 
->#####Correction d'un problème où l'invite ne s'affiche pas même si le dossier correspondant est introuvable dans certains cas
+>#####Correction du problème selon lequel certains contenus textuels dans les propriétés du lecteur peuvent masquer d'autres éléments lorsque le contenu est trop long
 
->#####Correction d'un problème où la zone de saisie pour renommer pouvait ne pas disparaître dans certains cas
+>#####Correction d'un problème où la taille de la fenêtre actuelle n'était pas mémorisée lors de la fermeture de la fenêtre des propriétés à l'aide du bouton de fermeture dans le coin supérieur droit
 
->#####Correction d'un problème qui pouvait provoquer un plantage lors du passage direct de la page de recherche à un dossier dans les résultats de la recherche
+>#####Correction du problème de perte de l'extension de fichier lors de l'utilisation de la fonction de renommage après la désactivation de "Afficher l'extension de fichier"
 
->#####Correction d'autres problèmes pouvant provoquer des plantages
+>#####Correction d'un problème où l'opération de collage ne pouvait pas être effectuée plusieurs fois après avoir copié certains types de fichiers
+
+>#####Correction d'un problème où le nom de fichier de certains fichiers pouvait être vide lorsque "Afficher l'extension de fichier" est désactivé
+
+>#####Correction d'un problème où la commande "Envoyer vers" était accidentellement utilisable à la racine du lecteur
+
+>#####Correction d'un problème où un élément de menu qui pourrait ne pas correspondre au type de fichier actuel pouvait être affiché dans de rares cas
+
+>#####Correction d'un problème où renommer un nœud dans l'arborescence du répertoire de fichiers qui n'est pas le dossier actuel peut ne pas être mis à jour correctement
+
+>#####Correction d'un problème selon lequel lorsque l'application par défaut et l'application recommandée sont identiques, il peut y avoir des éléments en double dans le menu contextuel du bouton "Ouvrir avec"
+
+>#####Correction d'un problème où la visionneuse d'archives intégrée n'affichait pas d'invite "Vide" lors de la navigation vers un dossier vide
+
+>#####Correction d'un problème selon lequel l'image d'aperçu dans le mode "Image d'arrière-plan personnalisée" peut avoir des doublons dans certains cas

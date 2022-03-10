@@ -458,7 +458,7 @@ namespace RX_Explorer.Class
         {
             if (uri != null)
             {
-                using (SqliteCommand Command = new SqliteCommand("Insert Into BackgroundPicture Values (@FileName)", Connection))
+                using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into BackgroundPicture Values (@FileName)", Connection))
                 {
                     Command.Parameters.AddWithValue("@FileName", uri.ToString());
                     Command.ExecuteNonQuery();

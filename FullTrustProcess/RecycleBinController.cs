@@ -2,10 +2,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Vanara.Extensions;
@@ -85,11 +83,7 @@ namespace FullTrustProcess
         {
             try
             {
-                if (RecycleBin.Count > 0)
-                {
-                    RecycleBin.Empty(false);
-                }
-
+                RecycleBin.Empty(false);
                 return true;
             }
             catch (Exception ex)

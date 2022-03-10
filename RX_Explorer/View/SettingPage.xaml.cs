@@ -1599,11 +1599,6 @@ namespace RX_Explorer.View
                 PictureModeExpander.IsExpanded = true;
                 PreventFallBack.IsChecked = null;
 
-                if (PictureList.Count == 0)
-                {
-                    PictureList.AddRange(await GetCustomPictureAsync());
-                }
-
                 if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Uri)
                 {
                     if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)

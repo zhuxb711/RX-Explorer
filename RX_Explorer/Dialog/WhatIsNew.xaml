@@ -25,6 +25,7 @@
                 HorizontalAlignment="Stretch"
                 Visibility="{x:Bind LoadingTip.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"/>
         <ScrollViewer VerticalScrollMode="Enabled"
+                      VerticalScrollBarVisibility="Hidden"
                       Grid.Row="1"
                       MinWidth="650"
                       Visibility="{x:Bind LoadingTip.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}">

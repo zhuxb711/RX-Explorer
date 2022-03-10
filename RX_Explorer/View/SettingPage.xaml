@@ -1839,6 +1839,7 @@
                                                                                        Height="15"
                                                                                        Width="15"
                                                                                        VerticalAlignment="Center"
+                                                                                       Visibility="Collapsed"
                                                                                        Name="GetBingPhotoState" />
                                                                 </StackPanel>
                                                             </RadioButton>

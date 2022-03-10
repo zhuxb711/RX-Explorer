@@ -1,39 +1,53 @@
-﻿###What's new in Ver.7.5.1.0
+﻿###What's new in Ver.7.5.4.0
 
 #####Feature updated
 
->#####The mechanism on putting data into the clipboard has been improved to avoid unnecessary clipboard content
+>#####Added support for MTP devices (Smartphones, SD cards, etc.)
 
->#####Built-in compressed file viewer supports decompressing files by dragging and dropping
+>>#####The file change monitoring function is not supported on such devices, and do not support concurrent file operations
 
->#####Built-in compressed file viewer supports canceling compression and decompression tasks
+>>#####Depending on the device, some devices may not support one or more operations, such as: Move/Copy/Delete/Rename, unsupported operations will fail
 
 #####UI updated
 
->#####The progress bar of task in the task list will remain "Indeterminate" until the first progress update
+>#####Improved the style of some UI in the "Home Page"
 
->#####A double confirmation prompt will pop up when the application is closed directly in the built-in viewer
+>#####Sub-options will pop up automatically when switching UI mode in settings
 
->#####Built-in archive viewer will show localized name in "Type" column
+>#####"Task List" has been embedded as part of each tab's content to avoid obscuring buttons for some key functions
 
->#####Fine-tuned the appearance of some components
+>#####Built-in picture viewer will now directly use the original picture for preview in the absence of a thumbnail
 
-#####Bug Fixes
+>#####A progress bar will be displayed when a folder takes too much time on loading to indicate that loading is still in progress
 
->#####Fixed an issue where folders in Libraries could not be deleted
+>#####Improved sorting of file names, will now be consistent with the Windows Explorer
 
->#####Fixed an issue where the file tag bar would not be automatically hidden when the menu was closed
+#####Bug Fixed
 
->#####Fixed an issue where clicking on subfolders of folders in the address bar would not respond
+>#####Fixed some UI issues on the settings page when switching themes
 
->#####Fixed the problem of data corruption when executing tasks concurrently on a single auxiliary process
+>#####Fixed an issue where a poorly connected USB device could cause the UI to freeze
 
->#####Fixed an issue where the submenu of the address bar would not load the localized name of the folder
+>#####Fixed an issue where the built-in viewer supports .jpg files but not .jpeg files
 
->#####Fixed an issue that the prompt will not pop up even if the corresponding folder cannot be found in some cases
+>#####Fixed the problem that some text content in the drive properties may obscure other elements when the content is too long
 
->#####Fixed an issue where the input box for renaming might not disappear in some cases
+>#####Fixed an issue where the current window size would not be remembered when closing the properties window using the close button in the upper right corner
 
->#####Fixed an issue that could cause a crash when jumping directly from the search page to a folder in the search results
+>#####Fixed the problem that the file extension may be lost when using the rename function after "Show file extension" is disabled
 
->#####Fixed some other issues that could cause crashes
+>#####Fixed an issue where the paste operation could not be performed multiple times after copying certain types of files
+
+>#####Fixed an issue where the filename of some files might be empty when "Show file extension" is disabled
+
+>#####Fixed an issue where the "Send to" command was accidentally usable on the root of the drive
+
+>#####Fixed an issue where a menu item that might not match the current file type could be displayed in rare cases
+
+>#####Fixed an issue where renaming a node in the file directory tree that is not the current folder might not update correctly
+
+>#####Fixed the problem that when the default app and recommended app are the same, there may be duplicate items in the pop-up menu of the "Open With" button
+
+>#####Fixed an issue where the built-in archive viewer would not display a "Empty" prompt when navigating to an empty folder
+
+>#####Fixed the problem that the preview picture in the "Custom Background Picture" mode may have duplicates in some cases
