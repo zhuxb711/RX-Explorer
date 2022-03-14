@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.Devices.Portable;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.UI.Core;
@@ -165,14 +166,21 @@ namespace RX_Explorer.Class
 
         public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, string DriveId)
         {
-            if (await FileSystemStorageItemBase.OpenAsync(DriveId) is FileSystemStorageFolder Folder)
+            StorageFolder DriveFolder = await Task.Run(() => StorageDevice.FromId(DriveId));
+
+            if (string.IsNullOrEmpty(DriveFolder.Path))
             {
-                return await CreateAsync(DriveType, Folder, DriveId);
+                if (await FileSystemStorageItemBase.OpenAsync(DriveId) is FileSystemStorageFolder Folder)
+                {
+                    return await CreateAsync(DriveType, Folder, DriveId);
+                }
             }
-            else
+            else if (System.IO.Path.IsPathRooted(DriveFolder.Path))
             {
-                return null;
+                return await CreateAsync(DriveType, new FileSystemStorageFolder(DriveFolder), DriveId);
             }
+
+            return null;
         }
 
         public static async Task<DriveDataBase> CreateAsync(DriveInfo Info)
@@ -189,7 +197,12 @@ namespace RX_Explorer.Class
 
         public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, StorageFolder DriveFolder)
         {
-            return await CreateAsync(DriveType, await Task.Run(() => new FileSystemStorageFolder(DriveFolder)), null);
+            if (string.IsNullOrEmpty(DriveFolder.Path))
+            {
+                throw new ArgumentNullException(nameof(DriveFolder.Path), "Path is invalid and please use DriveId to create it instead");
+            }
+
+            return await CreateAsync(DriveType, new FileSystemStorageFolder(DriveFolder));
         }
 
         private static async Task<DriveDataBase> CreateAsync(DriveType DriveType, FileSystemStorageFolder DriveFolder, string DriveId = null)
