@@ -4651,19 +4651,9 @@ namespace RX_Explorer.View
                                                             {
                                                                 string TempPath = await Exclusive.Controller.MTPDownloadAndGetPathAsync(File.Path);
 
-                                                                if (await FileSystemStorageItemBase.OpenAsync(TempPath) is FileSystemStorageFile TempFile)
+                                                                if (await FileSystemStorageItemBase.CheckExistsAsync(TempPath))
                                                                 {
-                                                                    if (await TempFile.GetStorageItemAsync() is StorageFile SFile)
-                                                                    {
-                                                                        if (!await Launcher.LaunchFileAsync(SFile))
-                                                                        {
-                                                                            if (!await Exclusive.Controller.RunAsync(SFile.Path))
-                                                                            {
-                                                                                throw new UnauthorizedAccessException();
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    else if (!await Exclusive.Controller.RunAsync(TempFile.Path))
+                                                                    if (!await Exclusive.Controller.RunAsync(TempPath))
                                                                     {
                                                                         throw new UnauthorizedAccessException();
                                                                     }
@@ -4702,23 +4692,9 @@ namespace RX_Explorer.View
                                                                 {
                                                                     string TempPath = await Exclusive.Controller.MTPDownloadAndGetPathAsync(File.Path);
 
-                                                                    if (await FileSystemStorageItemBase.OpenAsync(TempPath) is FileSystemStorageFile TempFile)
+                                                                    if (await FileSystemStorageItemBase.CheckExistsAsync(TempPath))
                                                                     {
-                                                                        if (await TempFile.GetStorageItemAsync() is StorageFile InnerFile)
-                                                                        {
-                                                                            if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions
-                                                                            {
-                                                                                TargetApplicationPackageFamilyName = Info.PackageFamilyName,
-                                                                                DisplayApplicationPicker = false
-                                                                            }))
-                                                                            {
-                                                                                if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, TempFile.Path))
-                                                                                {
-                                                                                    throw new UnauthorizedAccessException();
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                        else if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, TempFile.Path))
+                                                                        if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, TempPath))
                                                                         {
                                                                             throw new UnauthorizedAccessException();
                                                                         }
@@ -4821,22 +4797,9 @@ namespace RX_Explorer.View
 
                                                     if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath.Equals(Package.Current.Id.FamilyName, StringComparison.OrdinalIgnoreCase))
                                                     {
-                                                        if (!TryOpenInternally(File))
+                                                        if (!TryOpenInternally(File) && !await Exclusive.Controller.RunAsync(File.Path))
                                                         {
-                                                            if (await File.GetStorageItemAsync() is StorageFile SFile)
-                                                            {
-                                                                if (!await Launcher.LaunchFileAsync(SFile))
-                                                                {
-                                                                    if (!await Exclusive.Controller.RunAsync(SFile.Path))
-                                                                    {
-                                                                        throw new UnauthorizedAccessException();
-                                                                    }
-                                                                }
-                                                            }
-                                                            else if (!await Exclusive.Controller.RunAsync(File.Path))
-                                                            {
-                                                                throw new UnauthorizedAccessException();
-                                                            }
+                                                            throw new UnauthorizedAccessException();
                                                         }
                                                     }
                                                     else
@@ -4852,21 +4815,7 @@ namespace RX_Explorer.View
                                                         {
                                                             if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is AppInfo Info)
                                                             {
-                                                                if (await File.GetStorageItemAsync() is StorageFile InnerFile)
-                                                                {
-                                                                    if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions
-                                                                    {
-                                                                        TargetApplicationPackageFamilyName = Info.PackageFamilyName,
-                                                                        DisplayApplicationPicker = false
-                                                                    }))
-                                                                    {
-                                                                        if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
-                                                                        {
-                                                                            throw new UnauthorizedAccessException();
-                                                                        }
-                                                                    }
-                                                                }
-                                                                else if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                                if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
                                                                 {
                                                                     throw new UnauthorizedAccessException();
                                                                 }
@@ -5006,14 +4955,7 @@ namespace RX_Explorer.View
                     {
                         if (!TryOpenInternally(File))
                         {
-                            QueueContentDialog Dialog1 = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await Dialog1.ShowAsync();
+                            throw new LaunchProgramException();
                         }
                     }
                     else
@@ -5152,11 +5094,8 @@ namespace RX_Explorer.View
                 };
 
                 await Dialog.ShowAsync();
-
-                return;
             }
-
-            if ((await SelectedItem.GetStorageItemAsync()) is StorageFile Item)
+            else if (await SelectedItem.GetStorageItemAsync() is StorageFile Item)
             {
                 VideoMergeDialog Dialog = new VideoMergeDialog(Item);
 

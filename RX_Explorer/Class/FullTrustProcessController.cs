@@ -24,9 +24,9 @@ namespace RX_Explorer.Class
     {
         public static ushort DynamicBackupProcessNum => 2;
 
-        public bool IsAnyActionExcutingInCurrentController { get; private set; }
+        public bool IsAnyCommandExecutingInCurrentController => CurrentControllerExecutingCommandNum > 0;
 
-        public static bool IsAnyActionExcutingInAllControllers => AllControllerList.ToArray().Any((Controller) => Controller.IsAnyActionExcutingInCurrentController);
+        public static bool IsAnyCommandExecutingInAllControllers => AllControllerList.ToArray().Any((Controller) => Controller.IsAnyCommandExecutingInCurrentController);
 
         public static int InUseControllersNum => AllControllerList.Count - AvailableControllers.Count;
 
@@ -67,6 +67,8 @@ namespace RX_Explorer.Class
         private static readonly SemaphoreSlim ResizeTaskLocker = new SemaphoreSlim(1, 1);
 
         private readonly int CurrentProcessId;
+
+        private int CurrentControllerExecutingCommandNum;
 
         private bool IsDisposed;
 
@@ -386,7 +388,7 @@ namespace RX_Explorer.Class
 
         private async Task<IDictionary<string, string>> SendCommandAsync(CommandType Type, params (string, string)[] Arguments)
         {
-            IsAnyActionExcutingInCurrentController = true;
+            Interlocked.Increment(ref CurrentControllerExecutingCommandNum);
 
             try
             {
@@ -416,7 +418,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsAnyActionExcutingInCurrentController = false;
+                Interlocked.Decrement(ref CurrentControllerExecutingCommandNum);
             }
 
             return null;
@@ -424,7 +426,7 @@ namespace RX_Explorer.Class
 
         private async Task<IDictionary<string, string>> SendCommandAndReportProgressAsync(CommandType Type, ProgressChangedEventHandler ProgressHandler, params (string, string)[] Arguments)
         {
-            IsAnyActionExcutingInCurrentController = true;
+            Interlocked.Increment(ref CurrentControllerExecutingCommandNum);
 
             try
             {
@@ -454,7 +456,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsAnyActionExcutingInCurrentController = false;
+                Interlocked.Decrement(ref CurrentControllerExecutingCommandNum);
             }
 
             return null;

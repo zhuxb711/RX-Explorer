@@ -4003,11 +4003,7 @@ namespace FullTrustProcess
                                                 }
                                             }
 
-                                            bool CouldBeRunAsAdmin = Path.GetExtension(ExecutePath).ToLower() switch
-                                            {
-                                                ".exe" or ".bat" or ".msi" or ".msc" => true,
-                                                _ => false
-                                            };
+                                            bool CouldBeRunAsAdmin = Regex.IsMatch(Path.GetExtension(ExecutePath), @"\.(exe|bat|msi|msc)$", RegexOptions.IgnoreCase);
 
                                             Shell32.SHELLEXECUTEINFO ExecuteInfo = new Shell32.SHELLEXECUTEINFO
                                             {

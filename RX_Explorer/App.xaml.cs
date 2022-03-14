@@ -71,7 +71,7 @@ namespace RX_Explorer
         private void SendActivateToast()
         {
             if (IsInBackgroundMode
-                && (FullTrustProcessController.IsAnyActionExcutingInAllControllers
+                && (FullTrustProcessController.IsAnyCommandExecutingInAllControllers
                     || GeneralTransformer.IsAnyTransformTaskRunning
                     || QueueTaskController.IsAnyTaskRunningInController))
             {

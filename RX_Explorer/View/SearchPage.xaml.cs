@@ -807,12 +807,12 @@ namespace RX_Explorer.View
                     DelaySelectionCancellation?.Cancel();
                     DelayTooltipCancellation?.Cancel();
 
-                    await LaunchSelectedItemAsync(Item);
+                    await OpenSelectedItemAsync(Item);
                 }
             }
         }
 
-        private async Task LaunchSelectedItemAsync(FileSystemStorageItemBase Item)
+        private async Task OpenSelectedItemAsync(FileSystemStorageItemBase Item)
         {
             try
             {
@@ -820,216 +820,100 @@ namespace RX_Explorer.View
                 {
                     case FileSystemStorageFile File:
                         {
-                            if (!await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
+                            if (await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                switch (File.Type.ToLower())
                                 {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog.ShowAsync();
-
-                                return;
-                            }
-
-                            switch (File.Type.ToLower())
-                            {
-                                case ".exe":
-                                case ".bat":
-                                case ".msi":
-                                    {
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    case ".exe":
+                                    case ".bat":
+                                    case ".msi":
                                         {
-                                            if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path)))
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
-                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path)))
                                                 {
-                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                };
-
-                                                await Dialog.ShowAsync();
-                                            }
-                                        }
-
-                                        break;
-                                    }
-                                case ".msc":
-                                    {
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                        {
-                                            if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path))
-                                            {
-                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                {
-                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                };
-
-                                                await Dialog.ShowAsync();
-                                            }
-                                        }
-
-                                        break;
-                                    }
-                                case ".lnk":
-                                    {
-                                        if (File is LinkStorageFile LinkItem)
-                                        {
-                                            if (LinkItem.LinkType == ShellLinkType.Normal)
-                                            {
-                                                switch (await FileSystemStorageItemBase.OpenAsync(LinkItem.LinkTargetPath))
-                                                {
-                                                    case FileSystemStorageFolder:
-                                                        {
-                                                            await TabViewContainer.Current.CreateNewTabAsync(LinkItem.LinkTargetPath);
-                                                            await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, LinkItem.LinkTargetPath);
-                                                            break;
-                                                        }
-                                                    case FileSystemStorageFile:
-                                                        {
-                                                            if (!await LinkItem.LaunchAsync())
-                                                            {
-                                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                                {
-                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                                };
-
-                                                                await Dialog.ShowAsync();
-                                                            }
-                                                            break;
-                                                        }
+                                                    throw new LaunchProgramException();
                                                 }
                                             }
-                                            else
-                                            {
-                                                if (!await LinkItem.LaunchAsync())
-                                                {
-                                                    QueueContentDialog Dialog = new QueueContentDialog
-                                                    {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
 
-                                                    await Dialog.ShowAsync();
+                                            break;
+                                        }
+                                    case ".msc":
+                                        {
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                            {
+                                                if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path))
+                                                {
+                                                    throw new LaunchProgramException();
                                                 }
                                             }
+
+                                            break;
                                         }
-
-                                        break;
-                                    }
-                                case ".url":
-                                    {
-                                        if (File is UrlStorageFile UrlItem)
+                                    case ".lnk":
                                         {
-                                            if (!await UrlItem.LaunchAsync())
+                                            if (File is LinkStorageFile LinkItem)
                                             {
-                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                if (LinkItem.LinkType == ShellLinkType.Normal)
                                                 {
-                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                };
-
-                                                await Dialog.ShowAsync();
-                                            }
-                                        }
-
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
-
-                                        if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
-                                        {
-                                            if (!TryOpenInternally(File))
-                                            {
-                                                if (await File.GetStorageItemAsync() is StorageFile SFile)
-                                                {
-                                                    if (!await Launcher.LaunchFileAsync(SFile))
+                                                    switch (await FileSystemStorageItemBase.OpenAsync(LinkItem.LinkTargetPath))
                                                     {
-                                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                                        {
-                                                            if (!await Exclusive.Controller.RunAsync(File.Path))
+                                                        case FileSystemStorageFolder:
                                                             {
-                                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                                {
-                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                                };
-
-                                                                await Dialog.ShowAsync();
+                                                                await TabViewContainer.Current.CreateNewTabAsync(LinkItem.LinkTargetPath);
+                                                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, LinkItem.LinkTargetPath);
+                                                                break;
                                                             }
-                                                        }
+                                                        case FileSystemStorageFile:
+                                                            {
+                                                                if (!await LinkItem.LaunchAsync())
+                                                                {
+                                                                    throw new LaunchProgramException();
+                                                                }
+                                                                break;
+                                                            }
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                                    if (!await LinkItem.LaunchAsync())
                                                     {
-                                                        if (!await Exclusive.Controller.RunAsync(File.Path))
-                                                        {
-                                                            QueueContentDialog Dialog = new QueueContentDialog
-                                                            {
-                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                            };
-
-                                                            await Dialog.ShowAsync();
-                                                        }
+                                                        throw new LaunchProgramException();
                                                     }
                                                 }
                                             }
+
+                                            break;
                                         }
-                                        else
+                                    case ".url":
                                         {
-                                            if (Path.IsPathRooted(AdminExecutablePath))
+                                            if (File is UrlStorageFile UrlItem)
                                             {
-                                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                                if (!await UrlItem.LaunchAsync())
                                                 {
-                                                    if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path))
-                                                    {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
-                                                        {
-                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                        };
-
-                                                        await Dialog.ShowAsync();
-                                                    }
+                                                    throw new LaunchProgramException();
                                                 }
                                             }
-                                            else
+
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
+
+                                            if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
                                             {
-                                                if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
+                                                if (!TryOpenInternally(File))
                                                 {
-                                                    if (await File.GetStorageItemAsync() is StorageFile InnerFile)
+                                                    if (await File.GetStorageItemAsync() is StorageFile SFile)
                                                     {
-                                                        if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
+                                                        if (!await Launcher.LaunchFileAsync(SFile))
                                                         {
                                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                                             {
-                                                                if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                                if (!await Exclusive.Controller.RunAsync(File.Path))
                                                                 {
-                                                                    QueueContentDialog Dialog = new QueueContentDialog
-                                                                    {
-                                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                                    };
-
-                                                                    await Dialog.ShowAsync();
+                                                                    throw new LaunchProgramException();
                                                                 }
                                                             }
                                                         }
@@ -1038,25 +922,48 @@ namespace RX_Explorer.View
                                                     {
                                                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                                         {
-                                                            if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                            if (!await Exclusive.Controller.RunAsync(File.Path))
                                                             {
-                                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                                {
-                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                    Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                                };
-
-                                                                await Dialog.ShowAsync();
+                                                                throw new LaunchProgramException();
                                                             }
                                                         }
                                                     }
                                                 }
                                             }
-                                        }
+                                            else
+                                            {
+                                                if (Path.IsPathRooted(AdminExecutablePath))
+                                                {
+                                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                                    {
+                                                        if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path))
+                                                        {
+                                                            throw new LaunchProgramException();
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
+                                                    {
+                                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                                        {
+                                                            if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                            {
+                                                                throw new LaunchProgramException();
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
 
-                                        break;
-                                    }
+                                            break;
+                                        }
+                                }
+                            }
+                            else
+                            {
+                                throw new FileNotFoundException();
                             }
 
                             break;
@@ -1070,23 +977,49 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog.ShowAsync();
+                                throw new DirectoryNotFoundException();
                             }
 
                             break;
                         }
                 }
             }
+            catch (FileNotFoundException)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
+            catch (DirectoryNotFoundException)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
+            catch (LaunchProgramException)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw in {nameof(LaunchSelectedItemAsync)}");
+                LogTracer.Log(ex, $"An error was threw in {nameof(OpenSelectedItemAsync)}");
 
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -1109,7 +1042,7 @@ namespace RX_Explorer.View
                 DelaySelectionCancellation?.Cancel();
                 DelayTooltipCancellation?.Cancel();
 
-                await LaunchSelectedItemAsync(Item);
+                await OpenSelectedItemAsync(Item);
             }
         }
 
@@ -1313,7 +1246,7 @@ namespace RX_Explorer.View
                 DelaySelectionCancellation?.Cancel();
                 DelayTooltipCancellation?.Cancel();
 
-                await LaunchSelectedItemAsync(Item);
+                await OpenSelectedItemAsync(Item);
             }
         }
 

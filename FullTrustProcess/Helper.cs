@@ -416,8 +416,9 @@ namespace FullTrustProcess
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not launch the application from AUMID");
-                return false;
             }
+
+            return false;
         }
 
         public static async Task<bool> LaunchApplicationFromPackageFamilyNameAsync(string PackageFamilyName, params string[] PathArray)

@@ -292,7 +292,9 @@ namespace RX_Explorer.View
 
         private void Current_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
         {
-            if (FullTrustProcessController.IsAnyActionExcutingInAllControllers || GeneralTransformer.IsAnyTransformTaskRunning || QueueTaskController.IsAnyTaskRunningInController)
+            if (FullTrustProcessController.IsAnyCommandExecutingInAllControllers
+                || GeneralTransformer.IsAnyTransformTaskRunning
+                || QueueTaskController.IsAnyTaskRunningInController)
             {
                 try
                 {
@@ -407,7 +409,7 @@ namespace RX_Explorer.View
                 }
 
                 if (GeneralTransformer.IsAnyTransformTaskRunning
-                    || FullTrustProcessController.IsAnyActionExcutingInAllControllers
+                    || FullTrustProcessController.IsAnyCommandExecutingInAllControllers
                     || QueueTaskController.IsAnyTaskRunningInController)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
@@ -418,7 +420,7 @@ namespace RX_Explorer.View
                         CloseButtonText = Globalization.GetString("QueueDialog_WaitUntilFinish_CloseButton")
                     };
 
-                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         ToastNotificationManager.History.Clear();
                         Application.Current.EnteredBackground -= Current_EnteredBackground;
