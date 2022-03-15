@@ -11,15 +11,13 @@
     <SelfContained>true</SelfContained>
 	<TieredCompilation>true</TieredCompilation>
     <PublishSingleFile>true</PublishSingleFile>
-	<PublishReadyToRun>true</PublishReadyToRun>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM64'">
     <SelfContained>true</SelfContained>
 	<TieredCompilation>true</TieredCompilation>
     <PublishSingleFile>true</PublishSingleFile>
-	<PublishReadyToRun>true</PublishReadyToRun>
-    <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
+	<RuntimeIdentifier>win-arm64</RuntimeIdentifier>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
