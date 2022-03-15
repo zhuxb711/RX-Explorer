@@ -30,7 +30,7 @@ namespace RX_Explorer.Class
 
         public WindowState WindowState => (RawData?.WindowState).GetValueOrDefault();
 
-        public int HotKey => (RawData?.HotKey).GetValueOrDefault();
+        public byte HotKey => (RawData?.HotKey).GetValueOrDefault();
 
         public async Task<bool> LaunchAsync()
         {

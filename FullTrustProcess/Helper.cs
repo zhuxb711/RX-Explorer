@@ -4,6 +4,8 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -24,6 +26,50 @@ namespace FullTrustProcess
 {
     public static class Helper
     {
+        public static byte[] GetThumbnailOverlay(string Path)
+        {
+            Shell32.SHFILEINFO Shfi = new Shell32.SHFILEINFO();
+
+            IntPtr Result = Shell32.SHGetFileInfo(Path, 0, ref Shfi, Shell32.SHFILEINFO.Size, Shell32.SHGFI.SHGFI_OVERLAYINDEX | Shell32.SHGFI.SHGFI_ICON | Shell32.SHGFI.SHGFI_SYSICONINDEX | Shell32.SHGFI.SHGFI_ICONLOCATION);
+
+            if (Result.CheckIfValidPtr())
+            {
+                User32.DestroyIcon(Shfi.hIcon);
+
+                if (Shell32.SHGetImageList(Shell32.SHIL.SHIL_LARGE, typeof(ComCtl32.IImageList).GUID, out object PPV).Succeeded)
+                {
+                    using (ComCtl32.SafeHIMAGELIST ImageList = ComCtl32.SafeHIMAGELIST.FromIImageList((ComCtl32.IImageList)PPV))
+                    {
+                        if (!ImageList.IsNull && !ImageList.IsInvalid)
+                        {
+                            int OverlayIndex = Shfi.iIcon >> 24;
+
+                            if (OverlayIndex != 0)
+                            {
+                                int OverlayImage = ImageList.Interface.GetOverlayImage(OverlayIndex);
+
+                                using (User32.SafeHICON OverlayIcon = ImageList.Interface.GetIcon(OverlayImage, ComCtl32.IMAGELISTDRAWFLAGS.ILD_TRANSPARENT | ComCtl32.IMAGELISTDRAWFLAGS.ILD_PRESERVEALPHA))
+                                {
+                                    if (!OverlayIcon.IsNull && !OverlayIcon.IsInvalid)
+                                    {
+                                        using (Bitmap IconBitmap = Bitmap.FromHicon(OverlayIcon.DangerousGetHandle()))
+                                        using (MemoryStream MStream = new MemoryStream())
+                                        {
+                                            IconBitmap.MakeTransparent(Color.Black);
+                                            IconBitmap.Save(MStream, ImageFormat.Png);
+                                            return MStream.ToArray();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return Array.Empty<byte>();
+        }
+
         public static MTPPathAnalysis AnalysisMTPPath(string Path)
         {
             string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);

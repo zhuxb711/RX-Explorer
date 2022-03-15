@@ -21,13 +21,10 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using UtfUnknown;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
 using Windows.ApplicationModel;
-using IDataObject = System.Windows.Forms.IDataObject;
-using Size = System.Drawing.Size;
 using Timer = System.Timers.Timer;
 
 namespace FullTrustProcess
@@ -1756,11 +1753,11 @@ namespace FullTrustProcess
                             if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
                                 using (ShellItem Item = new ShellItem(ExecutePath))
-                                using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
-                                using (Bitmap OriginBitmap = new Bitmap(Thumbnail))
+                                using (Gdi32.SafeHBITMAP ThumbnailPtr = Item.GetImage(new SIZE(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
+                                using (Bitmap OriginBitmap = Image.FromHbitmap(ThumbnailPtr.DangerousGetHandle()))
                                 using (MemoryStream Stream = new MemoryStream())
                                 {
-                                    OriginBitmap.MakeTransparent();
+                                    OriginBitmap.MakeTransparent(Color.Black);
                                     OriginBitmap.Save(Stream, ImageFormat.Png);
 
                                     Value.Add("Success", JsonSerializer.Serialize(Stream.ToArray()));
@@ -1837,11 +1834,11 @@ namespace FullTrustProcess
 
                                 try
                                 {
-                                    using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
-                                    using (Bitmap OriginBitmap = new Bitmap(Thumbnail))
+                                    using (Gdi32.SafeHBITMAP ThumbnailPtr = Item.GetImage(new SIZE(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
+                                    using (Bitmap OriginBitmap = Image.FromHbitmap(ThumbnailPtr.DangerousGetHandle()))
                                     using (MemoryStream IconStream = new MemoryStream())
                                     {
-                                        OriginBitmap.MakeTransparent();
+                                        OriginBitmap.MakeTransparent(Color.Black);
                                         OriginBitmap.Save(IconStream, ImageFormat.Png);
 
                                         Package.IconData = IconStream.ToArray();
@@ -1968,12 +1965,18 @@ namespace FullTrustProcess
 
                             using (ShellLink Link = ShellLink.Create(Helper.StorageGenerateUniquePath(Package.LinkPath, CreateType.File), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
                             {
-                                Link.ShowState = (FormWindowState)Package.WindowState;
+                                Link.ShowState = Package.WindowState switch
+                                {
+                                    WindowState.Normal => ShowWindowCommand.SW_SHOWNORMAL,
+                                    WindowState.Minimized => ShowWindowCommand.SW_SHOWMINIMIZED,
+                                    WindowState.Maximized => ShowWindowCommand.SW_SHOWMAXIMIZED,
+                                    _ => throw new NotSupportedException()
+                                };
                                 Link.RunAsAdministrator = Package.NeedRunAsAdmin;
 
                                 if (Package.HotKey > 0)
                                 {
-                                    Link.HotKey = (((Package.HotKey >= 112 && Package.HotKey <= 135) || (Package.HotKey >= 96 && Package.HotKey <= 105)) || (Package.HotKey >= 96 && Package.HotKey <= 105)) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                    Link.HotKey = ((Package.HotKey >= 112 && Package.HotKey <= 135) || (Package.HotKey >= 96 && Package.HotKey <= 105)) ? Package.HotKey : Macros.MAKEWORD(Package.HotKey, (byte)(User32.HOTKEYF.HOTKEYF_CONTROL | User32.HOTKEYF.HOTKEYF_ALT));
                                 }
                             }
 
@@ -2218,18 +2221,24 @@ namespace FullTrustProcess
                                     {
                                         Link.TargetPath = Package.LinkTargetPath;
                                         Link.WorkingDirectory = Package.WorkDirectory;
-                                        Link.ShowState = (FormWindowState)Package.WindowState;
+                                        Link.ShowState = Package.WindowState switch
+                                        {
+                                            WindowState.Normal => ShowWindowCommand.SW_SHOWNORMAL,
+                                            WindowState.Minimized => ShowWindowCommand.SW_SHOWMINIMIZED,
+                                            WindowState.Maximized => ShowWindowCommand.SW_SHOWMAXIMIZED,
+                                            _ => throw new NotSupportedException()
+                                        };
                                         Link.RunAsAdministrator = Package.NeedRunAsAdmin;
                                         Link.Description = Package.Comment;
                                         Link.Arguments = Arguments;
 
                                         if (Package.HotKey > 0)
                                         {
-                                            Link.HotKey = ((Package.HotKey >= 112 && Package.HotKey <= 135) || (Package.HotKey >= 96 && Package.HotKey <= 105) || (Package.HotKey >= 96 && Package.HotKey <= 105)) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                            Link.HotKey = ((Package.HotKey >= 112 && Package.HotKey <= 135) || (Package.HotKey >= 96 && Package.HotKey <= 105)) ? Package.HotKey : Macros.MAKEWORD(Package.HotKey, (byte)(User32.HOTKEYF.HOTKEYF_CONTROL | User32.HOTKEYF.HOTKEYF_ALT));
                                         }
                                         else
                                         {
-                                            Link.HotKey = Keys.None;
+                                            Link.HotKey = 0;
                                         }
                                     }
                                 }
@@ -2237,16 +2246,22 @@ namespace FullTrustProcess
                                 {
                                     using (ShellLink Link = new ShellLink(Package.LinkPath))
                                     {
-                                        Link.ShowState = (FormWindowState)Package.WindowState;
+                                        Link.ShowState = Package.WindowState switch
+                                        {
+                                            WindowState.Normal => ShowWindowCommand.SW_SHOWNORMAL,
+                                            WindowState.Minimized => ShowWindowCommand.SW_SHOWMINIMIZED,
+                                            WindowState.Maximized => ShowWindowCommand.SW_SHOWMAXIMIZED,
+                                            _ => throw new NotSupportedException()
+                                        };
                                         Link.Description = Package.Comment;
 
                                         if (Package.HotKey > 0)
                                         {
-                                            Link.HotKey = ((Package.HotKey >= 112 && Package.HotKey <= 135) || (Package.HotKey >= 96 && Package.HotKey <= 105)) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                            Link.HotKey = ((Package.HotKey >= 112 && Package.HotKey <= 135) || (Package.HotKey >= 96 && Package.HotKey <= 105)) ? Package.HotKey : Macros.MAKEWORD(Package.HotKey, (byte)(User32.HOTKEYF.HOTKEYF_CONTROL | User32.HOTKEYF.HOTKEYF_ALT));
                                         }
                                         else
                                         {
-                                            Link.HotKey = Keys.None;
+                                            Link.HotKey = 0;
                                         }
                                     }
                                 }
@@ -2350,11 +2365,11 @@ namespace FullTrustProcess
                                         string DefaultProgramPath = ExtensionAssociation.GetDefaultProgramPathFromExtension(".html");
 
                                         using (ShellItem DefaultProgramItem = new ShellItem(DefaultProgramPath))
-                                        using (Image IconImage = DefaultProgramItem.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.IconOnly))
+                                        using (Gdi32.SafeHBITMAP IconRawPtr = DefaultProgramItem.GetImage(new SIZE(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.IconOnly))
                                         using (MemoryStream IconStream = new MemoryStream())
-                                        using (Bitmap TempBitmap = new Bitmap(IconImage))
+                                        using (Bitmap TempBitmap = Image.FromHbitmap(IconRawPtr.DangerousGetHandle()))
                                         {
-                                            TempBitmap.MakeTransparent();
+                                            TempBitmap.MakeTransparent(Color.Black);
                                             TempBitmap.Save(IconStream, ImageFormat.Png);
 
                                             Package.IconData = IconStream.ToArray();
@@ -2411,11 +2426,11 @@ namespace FullTrustProcess
                                         try
                                         {
                                             using (ShellItem Item = new ShellItem(ActualPath))
-                                            using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
+                                            using (Gdi32.SafeHBITMAP IconRawPtr = Item.GetImage(new SIZE(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
                                             using (MemoryStream IconStream = new MemoryStream())
-                                            using (Bitmap TempBitmap = new Bitmap(IconImage))
+                                            using (Bitmap TempBitmap = Image.FromHbitmap(IconRawPtr.DangerousGetHandle()))
                                             {
-                                                TempBitmap.MakeTransparent();
+                                                TempBitmap.MakeTransparent(Color.Black);
                                                 TempBitmap.Save(IconStream, ImageFormat.Png);
 
                                                 Package.IconData = IconStream.ToArray();
@@ -2442,8 +2457,13 @@ namespace FullTrustProcess
                                         {
                                             LinkPath = ExecutePath,
                                             WorkDirectory = Link.WorkingDirectory,
-                                            WindowState = Enum.Parse<WindowState>(Enum.GetName(typeof(FormWindowState), Link.ShowState)),
-                                            HotKey = (int)Link.HotKey,
+                                            WindowState = Link.ShowState switch
+                                            {
+                                                ShowWindowCommand.SW_MINIMIZE or ShowWindowCommand.SW_SHOWMINIMIZED => WindowState.Minimized,
+                                                ShowWindowCommand.SW_MAXIMIZE or ShowWindowCommand.SW_SHOWMAXIMIZED => WindowState.Maximized,
+                                                _ => WindowState.Normal
+                                            },
+                                            HotKey = Macros.LOBYTE(Link.HotKey),
                                             NeedRunAsAdmin = Link.RunAsAdministrator,
                                             Comment = Link.Description,
                                             Arguments = Regex.Matches(Link.Arguments, "[^ \"]+|\"[^\"]*\"").Cast<Match>().Select((Mat) => Mat.Value).ToArray()
@@ -2476,11 +2496,11 @@ namespace FullTrustProcess
 
                                             try
                                             {
-                                                using (Image IconImage = Link.GetImage(new Size(120, 120), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ScaleUp))
+                                                using (Gdi32.SafeHBITMAP IconRawPtr = Link.GetImage(new SIZE(120, 120), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ScaleUp))
                                                 using (MemoryStream IconStream = new MemoryStream())
-                                                using (Bitmap TempBitmap = new Bitmap(IconImage))
+                                                using (Bitmap TempBitmap = Image.FromHbitmap(IconRawPtr.DangerousGetHandle()))
                                                 {
-                                                    TempBitmap.MakeTransparent();
+                                                    TempBitmap.MakeTransparent(Color.Black);
                                                     TempBitmap.Save(IconStream, ImageFormat.Png);
 
                                                     Package.IconData = IconStream.ToArray();
@@ -4142,65 +4162,56 @@ namespace FullTrustProcess
 
                             await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
-                                if (Clipboard.GetDataObject() is IDataObject RawData)
+                                IReadOnlyList<RemoteClipboardDataPackage> RemoteDataArray = RemoteDataObject.GetRemoteClipboardData();
+
+                                foreach (RemoteClipboardDataPackage Package in RemoteDataArray)
                                 {
-                                    RemoteDataObject Rdo = new RemoteDataObject(RawData);
-
-                                    RemoteClipboardDataPackage[] RemoteDataArray = Rdo.GetRemoteData().ToArray();
-
-                                    foreach (RemoteClipboardDataPackage Package in RemoteDataArray)
+                                    try
                                     {
-                                        try
+                                        switch (Package.ItemType)
                                         {
-                                            switch (Package.ItemType)
-                                            {
-                                                case RemoteClipboardStorageType.File:
+                                            case RemoteClipboardStorageType.File:
+                                                {
+                                                    string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                                                    if (!Directory.Exists(DirectoryPath))
                                                     {
-                                                        string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                                                        if (!Directory.Exists(DirectoryPath))
-                                                        {
-                                                            Directory.CreateDirectory(DirectoryPath);
-                                                        }
-
-                                                        string UniqueName = Helper.StorageGenerateUniquePath(System.IO.Path.Combine(Path, Package.Name), CreateType.File);
-
-                                                        using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
-                                                        {
-                                                            Package.ContentStream.CopyTo(Stream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
-                                                            {
-                                                                PipeProgressWriterController?.SendData(Convert.ToString(Math.Max(0, Math.Min(100, Math.Ceiling(e.ProgressPercentage / Convert.ToDouble(RemoteDataArray.Length))))));
-                                                            });
-                                                        }
-
-                                                        break;
+                                                        Directory.CreateDirectory(DirectoryPath);
                                                     }
-                                                case RemoteClipboardStorageType.Folder:
+
+                                                    string UniqueName = Helper.StorageGenerateUniquePath(System.IO.Path.Combine(Path, Package.Name), CreateType.File);
+
+                                                    using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
                                                     {
-                                                        string DirectoryPath = System.IO.Path.Combine(Path, Package.Name);
-
-                                                        if (!Directory.Exists(DirectoryPath))
+                                                        Package.ContentStream.CopyTo(Stream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                                         {
-                                                            Directory.CreateDirectory(DirectoryPath);
-                                                        }
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Max(0, Math.Min(100, Math.Ceiling(e.ProgressPercentage / Convert.ToDouble(RemoteDataArray.Count))))));
+                                                        });
+                                                    }
 
-                                                        break;
-                                                    }
-                                                default:
+                                                    break;
+                                                }
+                                            case RemoteClipboardStorageType.Folder:
+                                                {
+                                                    string DirectoryPath = System.IO.Path.Combine(Path, Package.Name);
+
+                                                    if (!Directory.Exists(DirectoryPath))
                                                     {
-                                                        throw new NotSupportedException();
+                                                        Directory.CreateDirectory(DirectoryPath);
                                                     }
-                                            }
-                                        }
-                                        finally
-                                        {
-                                            Package.Dispose();
+
+                                                    break;
+                                                }
+                                            default:
+                                                {
+                                                    throw new NotSupportedException();
+                                                }
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    throw new Exception("Could not get the data from clipboard");
+                                    finally
+                                    {
+                                        Package.Dispose();
+                                    }
                                 }
                             });
 
@@ -4210,7 +4221,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetThumbnailOverlay:
                         {
-                            Value.Add("Success", JsonSerializer.Serialize(StorageItemController.GetThumbnailOverlay(CommandValue["Path"])));
+                            Value.Add("Success", JsonSerializer.Serialize(Helper.GetThumbnailOverlay(CommandValue["Path"])));
 
                             break;
                         }

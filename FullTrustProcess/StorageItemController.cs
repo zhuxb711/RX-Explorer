@@ -3,15 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
-using System.Text.RegularExpressions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
 
@@ -340,7 +337,7 @@ namespace FullTrustProcess
                     bool InheritedAllow = false;
 
                     foreach (FileSystemAccessRule Rule in Security.GetAccessRules(true, true, typeof(SecurityIdentifier)).Cast<FileSystemAccessRule>()
-                                                                                                                         .Where((Rule) => CurrentUser.User.Equals(Rule.IdentityReference) 
+                                                                                                                         .Where((Rule) => CurrentUser.User.Equals(Rule.IdentityReference)
                                                                                                                                           || CurrentPrincipal.IsInRole((SecurityIdentifier)Rule.IdentityReference)))
                     {
                         switch (Rule.AccessControlType)
@@ -751,45 +748,6 @@ namespace FullTrustProcess
             {
                 Progress?.Invoke(null, new ProgressChangedEventArgs(100, null));
             }
-        }
-
-        public static byte[] GetThumbnailOverlay(string Path)
-        {
-            Shell32.SHFILEINFO Shfi = new Shell32.SHFILEINFO();
-
-            IntPtr Result = Shell32.SHGetFileInfo(Path, 0, ref Shfi, Shell32.SHFILEINFO.Size, Shell32.SHGFI.SHGFI_OVERLAYINDEX | Shell32.SHGFI.SHGFI_ICON | Shell32.SHGFI.SHGFI_SYSICONINDEX | Shell32.SHGFI.SHGFI_ICONLOCATION);
-
-            if (Result.CheckIfValidPtr())
-            {
-                User32.DestroyIcon(Shfi.hIcon);
-
-                if (Shell32.SHGetImageList(Shell32.SHIL.SHIL_LARGE, typeof(ComCtl32.IImageList).GUID, out ComCtl32.IImageList IIL).Succeeded)
-                {
-                    using ComCtl32.SafeHIMAGELIST ImageList = ComCtl32.SafeHIMAGELIST.FromIImageList(IIL);
-
-                    if (!ImageList.IsNull && !ImageList.IsInvalid)
-                    {
-                        int OverlayIndex = Shfi.iIcon >> 24;
-
-                        if (OverlayIndex != 0)
-                        {
-                            int OverlayImage = ImageList.Interface.GetOverlayImage(OverlayIndex);
-
-                            using User32.SafeHICON OverlayIcon = ImageList.Interface.GetIcon(OverlayImage, ComCtl32.IMAGELISTDRAWFLAGS.ILD_TRANSPARENT);
-
-                            if (!OverlayIcon.IsNull && !OverlayIcon.IsInvalid)
-                            {
-                                using Bitmap Bmap = OverlayIcon.ToIcon().ToBitmap();
-                                using MemoryStream MStream = new MemoryStream();
-                                Bmap.Save(MStream, ImageFormat.Png);
-                                return MStream.ToArray();
-                            }
-                        }
-                    }
-                }
-            }
-
-            return Array.Empty<byte>();
         }
     }
 }

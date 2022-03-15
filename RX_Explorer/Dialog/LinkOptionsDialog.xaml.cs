@@ -21,7 +21,7 @@ namespace RX_Explorer.Dialog
 
         public string WorkDirectory { get; private set; }
 
-        public int HotKey { get; private set; }
+        public byte HotKey { get; private set; }
 
         public bool RunAsAdmin { get; private set; }
 
@@ -80,7 +80,7 @@ namespace RX_Explorer.Dialog
                 Path = TargetPath.Text;
                 WindowState = (WindowState)WindowStateComboBox.SelectedIndex;
                 WorkDirectory = LinkWorkDirectory.Text;
-                HotKey = (int)Enum.Parse<VirtualKey>(HotKeyInput.Text.Replace("Ctrl + Alt + ", string.Empty));
+                HotKey = (byte)Enum.Parse<VirtualKey>(HotKeyInput.Text.Replace("Ctrl + Alt + ", string.Empty));
 
                 if (!string.IsNullOrWhiteSpace(LinkArgument.Text))
                 {

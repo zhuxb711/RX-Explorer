@@ -1,100 +1,82 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using System.Windows.Forms;
 using Vanara.PInvoke;
-using STATSTG = System.Runtime.InteropServices.ComTypes.STATSTG;
+using Vanara.Windows.Shell;
 
 namespace FullTrustProcess
 {
-    public class RemoteDataObject
+    public static class RemoteDataObject
     {
-        private readonly System.Windows.Forms.IDataObject UnderlyingDataObject;
-        private readonly System.Runtime.InteropServices.ComTypes.IDataObject ComUnderlyingDataObject;
-        private readonly System.Windows.Forms.IDataObject OleUnderlyingDataObject;
-        private readonly MethodInfo GetDataFromHGLOBALMethod;
-
-        public RemoteDataObject(System.Windows.Forms.IDataObject Data)
+        public static IReadOnlyList<RemoteClipboardDataPackage> GetRemoteClipboardData()
         {
-            //get the underlying dataobject and its ComType IDataObject interface to it
-            UnderlyingDataObject = Data;
-            ComUnderlyingDataObject = (System.Runtime.InteropServices.ComTypes.IDataObject)Data;
+            List<RemoteClipboardDataPackage> Result = new List<RemoteClipboardDataPackage>();
 
-            //get the internal ole dataobject and its GetDataFromHGLOBAL so it can be called later
-            FieldInfo innerDataField = Data.GetType().GetField("innerData", BindingFlags.NonPublic | BindingFlags.Instance);
-            OleUnderlyingDataObject = (System.Windows.Forms.IDataObject)innerDataField.GetValue(Data);
-            GetDataFromHGLOBALMethod = OleUnderlyingDataObject.GetType().GetMethod("GetDataFromHGLOBAL", BindingFlags.NonPublic | BindingFlags.Instance);
-        }
+            uint FILEDESCRIPTIONWID = NativeClipboard.RegisterFormat(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW);
+            uint FILEDESCRIPTIONAID = NativeClipboard.RegisterFormat(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORA);
+            uint FILECONTENTSID = NativeClipboard.RegisterFormat(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS);
 
-        public IEnumerable<RemoteClipboardDataPackage> GetRemoteData()
-        {
-            string FormatName = string.Empty;
+            uint FormatId;
 
-            if (GetDataPresent(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW))
+            if (NativeClipboard.IsFormatAvailable(FILEDESCRIPTIONWID))
             {
-                FormatName = Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW;
+                FormatId = FILEDESCRIPTIONWID;
             }
-            else if (GetDataPresent(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORA))
+            else if (NativeClipboard.IsFormatAvailable(FILEDESCRIPTIONAID))
             {
-                FormatName = Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORA;
-            }
-
-            if (string.IsNullOrEmpty(FormatName))
-            {
-                yield break;
+                FormatId = FILEDESCRIPTIONAID;
             }
             else
             {
-                if (UnderlyingDataObject.GetData(FormatName, true) is MemoryStream FileGroupDescriptorStream)
+                return Result;
+            }
+
+            if (NativeClipboard.GetData(FormatId) is MemoryStream FileGroupDescriptorStream)
+            {
+                try
                 {
+                    byte[] FileGroupDescriptorBytes = FileGroupDescriptorStream.ToArray();
+
+                    IntPtr FileGroupDescriptorAPointer = Marshal.AllocCoTaskMem(FileGroupDescriptorBytes.Length);
+
                     try
                     {
-                        byte[] FileGroupDescriptorBytes = FileGroupDescriptorStream.ToArray();
+                        Marshal.Copy(FileGroupDescriptorBytes, 0, FileGroupDescriptorAPointer, FileGroupDescriptorBytes.Length);
 
-                        IntPtr FileGroupDescriptorAPointer = Marshal.AllocCoTaskMem(FileGroupDescriptorBytes.Length);
+                        int ItemCount = Marshal.ReadInt32(FileGroupDescriptorAPointer);
 
-                        try
+                        IntPtr FileDescriptorPointer = (IntPtr)(FileGroupDescriptorAPointer.ToInt64() + Marshal.SizeOf(ItemCount));
+
+                        for (int FileDescriptorIndex = 0; FileDescriptorIndex < ItemCount; FileDescriptorIndex++)
                         {
-                            Marshal.Copy(FileGroupDescriptorBytes, 0, FileGroupDescriptorAPointer, FileGroupDescriptorBytes.Length);
+                            Shell32.FILEDESCRIPTOR FileDescriptor = Marshal.PtrToStructure<Shell32.FILEDESCRIPTOR>(FileDescriptorPointer);
 
-                            int ItemCount = Marshal.ReadInt32(FileGroupDescriptorAPointer);
-
-                            IntPtr FileDescriptorPointer = (IntPtr)(FileGroupDescriptorAPointer.ToInt64() + Marshal.SizeOf(ItemCount));
-
-                            for (int FileDescriptorIndex = 0; FileDescriptorIndex < ItemCount; FileDescriptorIndex++)
+                            if (FileDescriptor.dwFileAttributes.HasFlag(FileFlagsAndAttributes.FILE_ATTRIBUTE_DIRECTORY))
                             {
-                                Shell32.FILEDESCRIPTOR FileDescriptor = Marshal.PtrToStructure<Shell32.FILEDESCRIPTOR>(FileDescriptorPointer);
-
-                                if (FileDescriptor.dwFileAttributes.HasFlag(FileFlagsAndAttributes.FILE_ATTRIBUTE_DIRECTORY))
-                                {
-                                    yield return new RemoteClipboardDataPackage(FileDescriptor.cFileName, RemoteClipboardStorageType.Folder, null);
-                                }
-                                else
-                                {
-                                    yield return new RemoteClipboardDataPackage(FileDescriptor.cFileName, RemoteClipboardStorageType.File, GetContentData(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS, FileDescriptorIndex));
-                                }
-
-                                FileDescriptorPointer = (IntPtr)(FileDescriptorPointer.ToInt64() + Marshal.SizeOf(FileDescriptor));
+                                Result.Add(new RemoteClipboardDataPackage(FileDescriptor.cFileName, RemoteClipboardStorageType.Folder, null));
                             }
-                        }
-                        finally
-                        {
-                            Marshal.FreeCoTaskMem(FileGroupDescriptorAPointer);
+                            else
+                            {
+                                Result.Add(new RemoteClipboardDataPackage(FileDescriptor.cFileName, RemoteClipboardStorageType.File, GetContentData(FILECONTENTSID, FileDescriptorIndex)));
+                            }
+
+                            FileDescriptorPointer = (IntPtr)(FileDescriptorPointer.ToInt64() + Marshal.SizeOf(FileDescriptor));
                         }
                     }
                     finally
                     {
-                        FileGroupDescriptorStream.Dispose();
+                        Marshal.FreeCoTaskMem(FileGroupDescriptorAPointer);
                     }
                 }
-                else
+                finally
                 {
-                    yield break;
+                    FileGroupDescriptorStream.Dispose();
                 }
             }
+
+            return Result;
         }
 
         /// <summary>
@@ -105,96 +87,62 @@ namespace FullTrustProcess
         /// <returns>
         /// A <see cref="MemoryStream"/> containing the raw data for the specified data format at the specified index.
         /// </returns>
-        private MemoryStream GetContentData(string Format, int Index)
+        private static MemoryStream GetContentData(uint FormatId, int Index)
         {
-            //create a FORMATETC struct to request the data with
-            FORMATETC Formatetc = new FORMATETC
+            switch (NativeClipboard.GetData(FormatId, DVASPECT.DVASPECT_CONTENT, Index))
             {
-                cfFormat = (short)DataFormats.GetFormat(Format).Id,
-                dwAspect = DVASPECT.DVASPECT_CONTENT,
-                lindex = Index,
-                ptd = IntPtr.Zero,
-                tymed = TYMED.TYMED_ISTREAM | TYMED.TYMED_ISTORAGE | TYMED.TYMED_HGLOBAL
-            };
-
-            //using the Com IDataObject interface get the data using the defined FORMATETC
-            ComUnderlyingDataObject.GetData(ref Formatetc, out STGMEDIUM Medium);
-
-            //retrieve the data depending on the returned store type
-            switch (Medium.tymed)
-            {
-                case TYMED.TYMED_ISTORAGE:
+                case Ole32.IStorage IStorageObject:
                     {
-                        //to handle a IStorage it needs to be written into a second unmanaged
-                        //memory mapped storage and then the data can be read from memory into
-                        //a managed byte and returned as a MemoryStream
-
                         try
                         {
-                            //marshal the returned pointer to a IStorage object
-                            Ole32.IStorage IStorageObject = (Ole32.IStorage)Marshal.GetObjectForIUnknown(Medium.unionmember);
+                            //create a ILockBytes (unmanaged byte array) and then create a IStorage using the byte array as a backing store
+                            Ole32.CreateILockBytesOnHGlobal(IntPtr.Zero, true, out Ole32.ILockBytes LockBytes);
+                            Ole32.StgCreateDocfileOnILockBytes(LockBytes, STGM.STGM_READWRITE | STGM.STGM_SHARE_EXCLUSIVE | STGM.STGM_CREATE, ppstgOpen: out Ole32.IStorage IStorageObjectCopy);
 
                             try
                             {
-                                //create a ILockBytes (unmanaged byte array) and then create a IStorage using the byte array as a backing store
-                                Ole32.CreateILockBytesOnHGlobal(IntPtr.Zero, true, out Ole32.ILockBytes LockBytes);
-                                Ole32.StgCreateDocfileOnILockBytes(LockBytes, STGM.STGM_READWRITE | STGM.STGM_SHARE_EXCLUSIVE | STGM.STGM_CREATE, ppstgOpen: out Ole32.IStorage IStorageObjectCopy);
+                                //copy the returned IStorage into the new IStorage
+                                IStorageObject.CopyTo(snbExclude: IntPtr.Zero, pstgDest: IStorageObjectCopy);
+                                LockBytes.Flush();
+                                IStorageObjectCopy.Commit(Ole32.STGC.STGC_DEFAULT);
+
+                                //get the STATSTG of the LockBytes to determine how many bytes were written to it
+                                LockBytes.Stat(out STATSTG LockBytesStat, Ole32.STATFLAG.STATFLAG_NONAME);
+
+                                int CbSize = Convert.ToInt32(LockBytesStat.cbSize);
+
+                                IntPtr LockBytesContentPtr = Marshal.AllocCoTaskMem(CbSize);
 
                                 try
                                 {
-                                    //copy the returned IStorage into the new IStorage
-                                    IStorageObject.CopyTo(snbExclude: IntPtr.Zero, pstgDest: IStorageObjectCopy);
-                                    LockBytes.Flush();
-                                    IStorageObjectCopy.Commit(Ole32.STGC.STGC_DEFAULT);
+                                    LockBytes.ReadAt(0, LockBytesContentPtr, Convert.ToUInt32(LockBytesStat.cbSize), out _);
 
-                                    //get the STATSTG of the LockBytes to determine how many bytes were written to it
-                                    LockBytes.Stat(out STATSTG LockBytesStat, Ole32.STATFLAG.STATFLAG_NONAME);
+                                    byte[] LockBytesContent = new byte[CbSize];
 
-                                    int CbSize = Convert.ToInt32(LockBytesStat.cbSize);
+                                    Marshal.Copy(LockBytesContentPtr, LockBytesContent, 0, LockBytesContent.Length);
 
-                                    IntPtr LockBytesContentPtr = Marshal.AllocCoTaskMem(CbSize);
-
-                                    try
-                                    {
-                                        LockBytes.ReadAt(0, LockBytesContentPtr, Convert.ToUInt32(LockBytesStat.cbSize), out _);
-
-                                        byte[] LockBytesContent = new byte[CbSize];
-
-                                        Marshal.Copy(LockBytesContentPtr, LockBytesContent, 0, LockBytesContent.Length);
-
-                                        return new MemoryStream(LockBytesContent);
-                                    }
-                                    finally
-                                    {
-                                        Marshal.FreeCoTaskMem(LockBytesContentPtr);
-                                    }
+                                    return new MemoryStream(LockBytesContent);
                                 }
                                 finally
                                 {
-                                    Marshal.ReleaseComObject(IStorageObjectCopy);
-                                    Marshal.ReleaseComObject(LockBytes);
+                                    Marshal.FreeCoTaskMem(LockBytesContentPtr);
                                 }
                             }
                             finally
                             {
-                                Marshal.ReleaseComObject(IStorageObject);
+                                Marshal.ReleaseComObject(IStorageObjectCopy);
+                                Marshal.ReleaseComObject(LockBytes);
                             }
                         }
                         finally
                         {
-                            Marshal.Release(Medium.unionmember);
+                            Marshal.ReleaseComObject(IStorageObject);
                         }
                     }
-                case TYMED.TYMED_ISTREAM:
+                case IStream IStreamObject:
                     {
-                        //to handle a IStream it needs to be read into a managed byte and
-                        //returned as a MemoryStream
-
-                        IStream IStreamObject = (IStream)Marshal.GetObjectForIUnknown(Medium.unionmember);
-
                         try
                         {
-                            //get the STATSTG of the IStream to determine how many bytes are in it
                             IStreamObject.Stat(out STATSTG iStreamStat, 0);
 
                             byte[] IStreamContent = new byte[(Convert.ToInt32(iStreamStat.cbSize))];
@@ -205,41 +153,18 @@ namespace FullTrustProcess
                         }
                         finally
                         {
-                            Marshal.Release(Medium.unionmember);
                             Marshal.ReleaseComObject(IStreamObject);
                         }
                     }
-                case TYMED.TYMED_HGLOBAL:
+                case MemoryStream Stream:
                     {
-                        //to handle a HGlobal the exisitng "GetDataFromHGLOBAL" method is invoked via
-                        //reflection
-
-                        try
-                        {
-                            return (MemoryStream)GetDataFromHGLOBALMethod.Invoke(OleUnderlyingDataObject, new object[] { DataFormats.GetFormat(Formatetc.cfFormat).Name, Medium.unionmember });
-                        }
-                        finally
-                        {
-                            Marshal.Release(Medium.unionmember);
-                        }
+                        return Stream;
                     }
                 default:
                     {
                         return null;
                     }
             }
-        }
-
-        /// <summary>
-        /// Determines whether data stored in this instance is associated with, or can be converted to, the specified format.
-        /// </summary>
-        /// <param name="format">The format for which to check. See <see cref="T:System.Windows.DataFormats"></see> for predefined formats.</param>
-        /// <returns>
-        /// true if data stored in this instance is associated with, or can be converted to, the specified format; otherwise false.
-        /// </returns>
-        public bool GetDataPresent(string format)
-        {
-            return UnderlyingDataObject.GetDataPresent(format);
         }
     }
 }

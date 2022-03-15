@@ -1,6 +1,5 @@
 ﻿using RX_Explorer.Class;
 using ShareClassLibrary;
-using System.Threading.Tasks;
 
 namespace RX_Explorer.Interface
 {
@@ -17,8 +16,8 @@ namespace RX_Explorer.Interface
         public string Comment { get; }
 
         public WindowState WindowState { get; }
-        
-        public int HotKey { get; }
+
+        public byte HotKey { get; }
 
         public bool NeedRunAsAdmin { get; }
     }

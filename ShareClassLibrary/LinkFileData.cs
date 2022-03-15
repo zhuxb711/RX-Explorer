@@ -16,7 +16,7 @@ namespace ShareClassLibrary
         
         public WindowState WindowState { get; set; }
 
-        public int HotKey { get; set; }
+        public byte HotKey { get; set; }
 
         public bool NeedRunAsAdmin { get; set; }
 

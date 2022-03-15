@@ -99,7 +99,7 @@ namespace FullTrustProcess
                             {
                                 if (ParentFolders.Skip(1).All((Folder) => Folder == ParentFolders[0]))
                                 {
-                                    Context = ParentFolders[0].GetChildrenUIObjects<Shell32.IContextMenu>(null, Items);
+                                    Context = ParentFolders[0].GetChildrenUIObjects<Shell32.IContextMenu>(HWND.NULL, Items);
                                 }
                                 else
                                 {
@@ -129,7 +129,7 @@ namespace FullTrustProcess
                                     {
                                         try
                                         {
-                                            Context = ParentFolder.GetChildrenUIObjects<Shell32.IContextMenu>(null, Item);
+                                            Context = ParentFolder.GetChildrenUIObjects<Shell32.IContextMenu>(HWND.NULL, Item);
                                         }
                                         finally
                                         {
@@ -230,7 +230,7 @@ namespace FullTrustProcess
 
                                         if (Info.hbmpItem.DangerousGetHandle().CheckIfValidPtr())
                                         {
-                                            using (Bitmap OriginBitmap = Info.hbmpItem.ToBitmap())
+                                            using (Bitmap OriginBitmap = Image.FromHbitmap(Info.hbmpItem.DangerousGetHandle()))
                                             {
                                                 BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
 

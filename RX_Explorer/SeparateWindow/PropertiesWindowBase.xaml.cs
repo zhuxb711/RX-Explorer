@@ -470,23 +470,27 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                             {
                                 case LinkStorageFile:
                                     {
-                                        string[] TargetSplit = ShortcutTargetContent.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                                        Match LinkTargetMatch = Regex.Match(ShortcutTargetContent.Text, "(?<=\")[\\s\\S]+(?=\")");
+                                        Match LinkWorkDirectoryMatch = Regex.Match(ShortcutStartInContent.Text, "(?<=\")[\\s\\S]+(?=\")");
+
+                                        string LinkTargetPath = LinkTargetMatch.Success ? LinkTargetMatch.Value : ShortcutTargetContent.Text;
+                                        string LinkWorkDirectory = LinkWorkDirectoryMatch.Success ? LinkWorkDirectoryMatch.Value : ShortcutStartInContent.Text;
 
                                         await Exclusive.Controller.UpdateLinkAsync(new LinkFileData
                                         {
                                             LinkPath = StorageItem.Path,
-                                            LinkTargetPath = TargetSplit.FirstOrDefault(),
-                                            Arguments = TargetSplit.Skip(1).ToArray(),
-                                            WorkDirectory = ShortcutStartInContent.Text,
+                                            LinkTargetPath = LinkTargetPath,
+                                            Arguments = ShortcutTargetContent.Text.Remove(0, LinkTargetPath.Length + 2).Trim(' ').Split(' ', StringSplitOptions.RemoveEmptyEntries),
+                                            WorkDirectory = LinkWorkDirectory,
                                             WindowState = (WindowState)ShortcutWindowsStateContent.SelectedIndex,
-                                            HotKey = ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (int)VirtualKey.None : (int)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
+                                            HotKey = ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (byte)VirtualKey.None : (byte)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
                                             Comment = ShortcutCommentContent.Text,
                                             NeedRunAsAdmin = RunAsAdmin.IsChecked.GetValueOrDefault()
                                         });
 
                                         break;
                                     }
-                                case UrlStorageFile:
+                                case UrlStorageFile UrlFile:
                                     {
                                         await Exclusive.Controller.UpdateUrlAsync(new UrlFileData
                                         {
@@ -656,7 +660,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                             }
                             else
                             {
-                                ShortcutKeyContent.Text = "Ctrl + Alt + " + Enum.GetName(typeof(VirtualKey), (VirtualKey)(LinkFile.HotKey - 393216)) ?? Globalization.GetString("ShortcutHotKey_None");
+                                ShortcutKeyContent.Text = "Ctrl + Alt + " + Enum.GetName(typeof(VirtualKey), (VirtualKey)LinkFile.HotKey) ?? Globalization.GetString("ShortcutHotKey_None");
                             }
                         }
                         else
@@ -667,8 +671,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         if (LinkFile.LinkType == ShellLinkType.Normal)
                         {
                             ShortcutTargetLocationContent.Text = Path.GetFileName(Path.GetDirectoryName(LinkFile.LinkTargetPath));
-                            ShortcutTargetContent.Text = $"{LinkFile.LinkTargetPath} {string.Join(" ", LinkFile.Arguments)}";
-                            ShortcutStartInContent.Text = LinkFile.WorkDirectory;
+                            ShortcutTargetContent.Text = $"\"{LinkFile.LinkTargetPath}\" {string.Join(" ", LinkFile.Arguments)}";
+                            ShortcutStartInContent.Text = $"\"{LinkFile.WorkDirectory}\"";
                             RunAsAdmin.IsChecked = LinkFile.NeedRunAsAdmin;
 
                             if (await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath) is FileSystemStorageItemBase TargetItem)
@@ -697,7 +701,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         {
                             ShortcutTargetTypeContent.Text = LinkFile.LinkTargetPath;
                             ShortcutTargetLocationContent.Text = Globalization.GetString("ShortcutTargetApplicationType");
-                            ShortcutTargetContent.Text = LinkFile.LinkTargetPath;
+                            ShortcutTargetContent.Text = $"\"{LinkFile.LinkTargetPath}\"";
                             ShortcutTargetContent.IsEnabled = false;
                             ShortcutStartInContent.IsEnabled = false;
                             OpenLocation.IsEnabled = false;
