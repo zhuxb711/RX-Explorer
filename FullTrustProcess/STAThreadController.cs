@@ -91,7 +91,7 @@ namespace FullTrustProcess
                     catch (Exception ex)
                     {
                         CompletionSourceObject.GetType()
-                                              .GetMethod("SetException")
+                                              .GetMethod("SetException", new Type[] {typeof(Exception)})
                                               .Invoke(CompletionSourceObject, new object[] { ex });
                     }
                 }

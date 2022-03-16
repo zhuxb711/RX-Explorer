@@ -516,6 +516,27 @@ namespace FullTrustProcess
                 }
                 else
                 {
+#if !DEBUG
+                    try
+                    {
+                        string SecretFilePath = Path.Combine(Package.Current.InstalledPath, "/Assets/AppCenterSecret.txt");
+
+                        if (File.Exists(SecretFilePath))
+                        {
+                            string SecretText = File.ReadAllText(SecretFilePath);
+
+                            if (!string.IsNullOrWhiteSpace(SecretText))
+                            {
+                                Microsoft.AppCenter.AppCenter.Start(SecretText, typeof(Microsoft.AppCenter.Crashes.Crashes));
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not start the app center component");
+                    }
+#endif
+
                     PipeCommunicationBaseController = new NamedPipeReadController("Explorer_NamedPipe_CommunicationBase");
                     PipeCommunicationBaseController.OnDataReceived += PipeCommunicationBaseController_OnDataReceived;
 

@@ -195,10 +195,25 @@ namespace RX_Explorer.Class
                                         .AppendLine();
 
                 LogInternal(Builder.ToString());
+
+#if !DEBUG
+                Microsoft.AppCenter.Crashes.Crashes.TrackError(Ex, new System.Collections.Generic.Dictionary<string, string>(1) { { "AdditionalComment", AdditionalComment ?? "-----<Empty>-----" } });
+#endif
             }
             catch (Exception ex)
             {
+#if DEBUG
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
+
                 Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
+#endif
             }
         }
 
@@ -246,7 +261,18 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
+#if DEBUG
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
+
                 Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
+#endif
             }
         }
 

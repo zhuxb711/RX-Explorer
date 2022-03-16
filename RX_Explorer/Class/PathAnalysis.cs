@@ -41,31 +41,51 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(FullPath), "FullPath could not be null or empty");
             }
 
-            this.FullPath = FullPath.TrimEnd('\\');
-            this.CurrentPath = CurrentPath.TrimEnd('\\') ?? string.Empty;
-
-            if (string.IsNullOrEmpty(this.CurrentPath))
+            if (!FullPath.StartsWith(@"\\") && Path.GetPathRoot(FullPath).Equals(FullPath, StringComparison.OrdinalIgnoreCase))
             {
+                this.FullPath = FullPath;
+            }
+            else
+            {
+                this.FullPath = FullPath.TrimEnd('\\');
+            }
+
+            if (string.IsNullOrEmpty(CurrentPath))
+            {
+                this.CurrentPath = string.Empty;
+
                 string[] Split = this.FullPath.Split("\\", StringSplitOptions.RemoveEmptyEntries);
 
-                if (this.FullPath.StartsWith(@"\\?\") && Split.Length > 0)
+                if (Split.Length > 0)
                 {
-                    Split[0] = $@"\\?\{Split[1]}\";
-                }
-                else if (this.FullPath.StartsWith(@"\\") && Split.Length > 0)
-                {
-                    Split[0] = $@"\\{Split[0]}\";
-                }
-                else
-                {
-                    Split[0] = $@"{Split[0]}\";
+                    if (this.FullPath.StartsWith(@"\\?\"))
+                    {
+                        Split[0] = $@"\\?\{Split[1]}\";
+                    }
+                    else if (this.FullPath.StartsWith(@"\\"))
+                    {
+                        Split[0] = $@"\\{Split[0]}\";
+                    }
+                    else
+                    {
+                        Split[0] = $@"{Split[0]}\";
+                    }
                 }
 
                 PathQueue = new Queue<string>(Split);
             }
             else
             {
-                if (this.FullPath.TrimEnd('\\').Equals(this.CurrentPath.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase))
+                if (!CurrentPath.StartsWith(@"\\") && Path.GetPathRoot(CurrentPath).Equals(CurrentPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    this.CurrentPath = CurrentPath;
+                }
+                else
+                {
+                    this.CurrentPath = CurrentPath.TrimEnd('\\');
+                }
+
+                if (this.FullPath.Equals(this.CurrentPath, StringComparison.OrdinalIgnoreCase))
                 {
                     PathQueue = new Queue<string>(0);
                 }

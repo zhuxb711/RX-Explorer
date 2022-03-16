@@ -925,7 +925,7 @@ namespace RX_Explorer.Class
 
             string NextPathLevel = Analysis.NextFullPath();
 
-            if (NextPathLevel == Analysis.FullPath)
+            if (NextPathLevel.Equals(Analysis.FullPath, StringComparison.OrdinalIgnoreCase))
             {
                 if ((Node.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase))
                 {
@@ -938,10 +938,6 @@ namespace RX_Explorer.Class
                         if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                         {
                             return TargetNode;
-                        }
-                        else
-                        {
-                            return null;
                         }
                     }
                     else
@@ -957,8 +953,6 @@ namespace RX_Explorer.Class
                                 await Task.Delay(300);
                             }
                         }
-
-                        return null;
                     }
                 }
             }
@@ -976,10 +970,6 @@ namespace RX_Explorer.Class
                         {
                             return await GetNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching);
                         }
-                        else
-                        {
-                            return null;
-                        }
                     }
                     else
                     {
@@ -994,11 +984,11 @@ namespace RX_Explorer.Class
                                 await Task.Delay(300);
                             }
                         }
-
-                        return null;
                     }
                 }
             }
+
+            return null;
         }
 
         /// <summary>

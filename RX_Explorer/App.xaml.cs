@@ -57,13 +57,31 @@ namespace RX_Explorer
             SendActivateToast();
         }
 
-        protected override void OnWindowCreated(WindowCreatedEventArgs args)
+        protected async override void OnWindowCreated(WindowCreatedEventArgs args)
         {
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
             TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+
+#if DEBUG
+            await Task.CompletedTask;
+#else
+            try
+            {
+                string SecretText = await Windows.Storage.PathIO.ReadTextAsync(System.IO.Path.Combine(Package.Current.InstalledPath, "/Assets/AppCenterSecret.txt"));
+
+                if (!string.IsNullOrWhiteSpace(SecretText))
+                {
+                    Microsoft.AppCenter.AppCenter.Start(SecretText, typeof(Microsoft.AppCenter.Crashes.Crashes));
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not start the app center component");
+            }
+#endif
         }
 
         private void SendActivateToast()
@@ -104,19 +122,13 @@ namespace RX_Explorer
 
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
-            SuspendingDeferral Deferral = e.SuspendingOperation.GetDeferral();
-
             try
             {
-                LogTracer.MakeSureLogIsFlushed(Math.Min((int)((e.SuspendingOperation.Deadline - DateTimeOffset.Now).TotalMilliseconds - 500), 3000));
+                LogTracer.MakeSureLogIsFlushed(2000);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"A exception was threw when suspending, message: {ex}");
-            }
-            finally
-            {
-                Deferral.Complete();
+                Debug.WriteLine($"A exception was threw when suspending, message: {ex.Message}");
             }
         }
 
