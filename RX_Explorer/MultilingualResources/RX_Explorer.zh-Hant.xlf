@@ -4609,6 +4609,10 @@ Invalid names include
           <source>This file type is not supported</source>
           <target state="translated">不支持此文件類型</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_RenameFailForNotExist_Content" translate="yes" xml:space="preserve">
+          <source>File do not exist and cannot be renamed</source>
+          <target state="translated">文件不存在，無法重命名</target>
+        </trans-unit>
       </group>
     </body>
   </file>

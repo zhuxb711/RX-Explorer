@@ -3470,4 +3470,7 @@ Inkorrekte Namen sind
   <data name="QueueDialog_NotSupportedFile_Content" xml:space="preserve">
     <value>Dieser Dateityp wird nicht unterstützt</value>
   </data>
+  <data name="QueueDialog_RenameFailForNotExist_Content" xml:space="preserve">
+    <value>Datei existiert nicht und kann nicht umbenannt werden</value>
+  </data>
 </root>

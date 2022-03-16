@@ -37,7 +37,7 @@ namespace RX_Explorer.View
             {
                 await LoadTextFromFileWithEncoding(TextFile, EncodingDialog.UserSelectedEncoding, CancelToken);
             }
-            else
+            else if (Frame.CanGoBack)
             {
                 Frame.GoBack();
             }
@@ -136,7 +136,10 @@ namespace RX_Explorer.View
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 }.ShowAsync();
 
-                Frame.GoBack();
+                if (Frame.CanGoBack)
+                {
+                    Frame.GoBack();
+                }
             }
         }
 
@@ -173,13 +176,19 @@ namespace RX_Explorer.View
             }
             finally
             {
-                Frame.GoBack();
+                if (Frame.CanGoBack)
+                {
+                    Frame.GoBack();
+                }
             }
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            Frame.GoBack();
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
         }
 
         private void EditText_PreviewKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)

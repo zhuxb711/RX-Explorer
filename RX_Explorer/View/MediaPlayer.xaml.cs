@@ -170,7 +170,10 @@ namespace RX_Explorer.View
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 }.ShowAsync();
 
-                Frame.GoBack();
+                if (Frame.CanGoBack)
+                {
+                    Frame.GoBack();
+                }
             }
         }
 

@@ -1252,17 +1252,18 @@ namespace RX_Explorer.Class
                             }
                     }
 
-                    await Task.WhenAny(GetThumbnailTask, Task.Delay(3000));
-
-                    if (GetThumbnailTask.IsCompleted)
+                    if (await Task.WhenAny(GetThumbnailTask, Task.Delay(3000)) == GetThumbnailTask)
                     {
                         using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
                         {
-                            BitmapImage Bitmap = new BitmapImage();
+                            if (Thumbnail != null && Thumbnail.Size > 0)
+                            {
+                                BitmapImage Bitmap = new BitmapImage();
 
-                            await Bitmap.SetSourceAsync(Thumbnail);
+                                await Bitmap.SetSourceAsync(Thumbnail);
 
-                            return Bitmap;
+                                return Bitmap;
+                            }
                         }
                     }
                     else

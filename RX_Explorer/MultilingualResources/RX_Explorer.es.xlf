@@ -4607,6 +4607,10 @@ Las denominaciones no válidas son:
           <source>This file type is not supported</source>
           <target state="translated">Este tipo de archivo no es compatible</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_RenameFailForNotExist_Content" translate="yes" xml:space="preserve">
+          <source>File do not exist and cannot be renamed</source>
+          <target state="translated">El archivo no existe y no se puede renombrar</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -3470,4 +3470,7 @@
   <data name="QueueDialog_NotSupportedFile_Content" xml:space="preserve">
     <value>该文件类型不受支持</value>
   </data>
+  <data name="QueueDialog_RenameFailForNotExist_Content" xml:space="preserve">
+    <value>文件不存在，无法重命名</value>
+  </data>
 </root>

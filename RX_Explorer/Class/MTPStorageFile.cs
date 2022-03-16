@@ -157,29 +157,36 @@ namespace RX_Explorer.Class
 
         public override async Task<IStorageItem> GetStorageItemAsync()
         {
-            if (StorageItem != null)
+            try
             {
-                return StorageItem;
-            }
-            else
-            {
-                if (ParentFolder != null)
+                if (StorageItem != null)
                 {
-                    if (await ParentFolder.GetStorageItemAsync() is StorageFolder Folder)
+                    return StorageItem;
+                }
+                else
+                {
+                    if (ParentFolder != null)
                     {
-                        if (await Folder.TryGetItemAsync(Name) is StorageFile Item)
+                        if (await ParentFolder.GetStorageItemAsync() is StorageFolder Folder)
                         {
-                            return StorageItem = Item;
+                            if (await Folder.TryGetItemAsync(Name) is StorageFile Item)
+                            {
+                                return StorageItem = Item;
+                            }
                         }
                     }
+                    else if (await Task.Run(() => StorageDevice.FromId(DeviceId)) is StorageFolder RootFolder)
+                    {
+                        return StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFile>(new PathAnalysis(Path, DeviceId));
+                    }
                 }
-                else if (await Task.Run(() => StorageDevice.FromId(DeviceId)) is StorageFolder RootFolder)
-                {
-                    return StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFile>(new PathAnalysis(Path, DeviceId));
-                }
-
-                return null;
             }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not get StorageFile, Path: {Path}");
+            }
+
+            return null;
         }
 
         public async Task<MTPFileData> GetRawDataAsync()

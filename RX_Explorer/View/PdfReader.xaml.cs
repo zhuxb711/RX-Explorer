@@ -139,7 +139,11 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                Frame.GoBack();
+                                if (Frame.CanGoBack)
+                                {
+                                    Frame.GoBack();
+                                }
+
                                 return;
                             }
                         }
@@ -175,7 +179,10 @@ namespace RX_Explorer.View
                     CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
                 }.ShowAsync();
 
-                Frame.GoBack();
+                if (Frame.CanGoBack)
+                {
+                    Frame.GoBack();
+                }
             }
         }
 

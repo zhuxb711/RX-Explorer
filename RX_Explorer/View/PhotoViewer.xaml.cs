@@ -142,7 +142,10 @@ namespace RX_Explorer.View
                                         CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
                                     }.ShowAsync();
 
-                                    Frame.GoBack();
+                                    if (Frame.CanGoBack)
+                                    {
+                                        Frame.GoBack();
+                                    }
                                 }
                             }
                             finally
@@ -170,7 +173,10 @@ namespace RX_Explorer.View
                     CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
                 }.ShowAsync();
 
-                Frame.GoBack();
+                if (Frame.CanGoBack)
+                {
+                    Frame.GoBack();
+                }
             }
         }
 

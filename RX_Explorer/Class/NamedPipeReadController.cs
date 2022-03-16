@@ -4,12 +4,14 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
     public class NamedPipeReadController : NamedPipeControllerBase
     {
         private readonly Thread ProcessThread;
+        private readonly TaskCompletionSource<bool> ConnectionSet;
         public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
 
         protected override int MaxAllowedConnection => 1;
@@ -20,8 +22,17 @@ namespace RX_Explorer.Class
             {
                 if (!IsConnected)
                 {
-                    PipeStream.WaitForConnection();
+                    try
+                    {
+                        PipeStream.WaitForConnection();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not read pipeline data because unknown exception");
+                    }
                 }
+
+                ConnectionSet.SetResult(IsConnected);
 
                 while (IsConnected)
                 {
@@ -58,6 +69,18 @@ namespace RX_Explorer.Class
             }
         }
 
+        public override async Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds)
+        {
+            if (await Task.WhenAny(ConnectionSet.Task, Task.Delay(TimeoutMilliseconds)) == ConnectionSet.Task)
+            {
+                return ConnectionSet.Task.Result;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public NamedPipeReadController() : this($"Explorer_NamedPipe_Read_{Guid.NewGuid():D}")
         {
 
@@ -65,6 +88,8 @@ namespace RX_Explorer.Class
 
         protected NamedPipeReadController(string Id) : base(Id)
         {
+            ConnectionSet = new TaskCompletionSource<bool>();
+
             ProcessThread = new Thread(ReadProcess)
             {
                 Priority = ThreadPriority.Normal,

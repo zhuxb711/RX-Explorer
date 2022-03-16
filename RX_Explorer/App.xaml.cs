@@ -57,15 +57,13 @@ namespace RX_Explorer
             SendActivateToast();
         }
 
-        protected async override void OnWindowCreated(WindowCreatedEventArgs args)
+        protected override void OnWindowCreated(WindowCreatedEventArgs args)
         {
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
             TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-
-            await FullTrustProcessController.SetExpectedControllerNumAsync(1);
         }
 
         private void SendActivateToast()
@@ -203,6 +201,8 @@ namespace RX_Explorer
             Globalization.Initialize();
             FontFamilyController.Initialize();
             SystemInformation.Instance.TrackAppUse(args);
+
+            await FullTrustProcessController.InitializeAsync();
 
             switch (args)
             {

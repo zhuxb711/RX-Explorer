@@ -3470,4 +3470,7 @@ Les noms non valides incluent
   <data name="QueueDialog_NotSupportedFile_Content" xml:space="preserve">
     <value>Ce type de fichier n'est pas pris en charge</value>
   </data>
+  <data name="QueueDialog_RenameFailForNotExist_Content" xml:space="preserve">
+    <value>Le fichier n'existe pas et ne peut pas être renommé</value>
+  </data>
 </root>

@@ -179,6 +179,8 @@ namespace RX_Explorer.Class
                             CancelButtonVisibility = Visibility.Collapsed;
                             SpeedAndTimeVisibility = Visibility.Collapsed;
                             ActionButtonAreaVisibility = Visibility.Collapsed;
+
+                            ActionButtonSource.TrySetResult(-1);
                             break;
                         }
                     case OperationStatus.Completed:
@@ -220,7 +222,7 @@ namespace RX_Explorer.Class
         }
 
         private string Message;
-        private short ActionButtonIndex = -1;
+        private TaskCompletionSource<short> ActionButtonSource;
         private ProgressCalculator Calculator;
 
         public async Task PrepareSizeDataAsync(CancellationToken Token)
@@ -265,20 +267,20 @@ namespace RX_Explorer.Class
 
         public void ActionButton1(object sender, RoutedEventArgs args)
         {
-            ActionButtonIndex = 0;
+            ActionButtonSource.TrySetResult(0);
         }
 
         public void ActionButton2(object sender, RoutedEventArgs args)
         {
-            ActionButtonIndex = 1;
+            ActionButtonSource.TrySetResult(1);
         }
 
         public void ActionButton3(object sender, RoutedEventArgs args)
         {
-            ActionButtonIndex = 2;
+            ActionButtonSource.TrySetResult(2);
         }
 
-        public short WaitForButtonAction()
+        public async Task<short> WaitForButtonActionAsync()
         {
             try
             {
@@ -287,16 +289,11 @@ namespace RX_Explorer.Class
                     throw new ArgumentException("Status is not correct", nameof(Status));
                 }
 
-                while (ActionButtonIndex < 0 && Status != OperationStatus.Cancelled)
-                {
-                    Thread.Sleep(500);
-                }
-
-                return ActionButtonIndex;
+                return await ActionButtonSource.Task;
             }
             finally
             {
-                ActionButtonIndex = -1;
+                ActionButtonSource = new TaskCompletionSource<short>();
             }
         }
 
@@ -313,6 +310,8 @@ namespace RX_Explorer.Class
             RemoveButtonVisibility = Visibility.Collapsed;
             ActionButtonAreaVisibility = Visibility.Collapsed;
             SpeedAndTimeVisibility = Visibility.Collapsed;
+
+            ActionButtonSource = new TaskCompletionSource<short>();
 
             if (CanBeCancelled)
             {

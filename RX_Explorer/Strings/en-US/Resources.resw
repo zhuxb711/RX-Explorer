@@ -3575,4 +3575,7 @@ Invalid names include
   <data name="QueueDialog_NotSupportedFile_Content" xml:space="preserve">
     <value>This file type is not supported</value>
   </data>
+  <data name="QueueDialog_RenameFailForNotExist_Content" xml:space="preserve">
+    <value>File do not exist and cannot be renamed</value>
+  </data>
 </root>

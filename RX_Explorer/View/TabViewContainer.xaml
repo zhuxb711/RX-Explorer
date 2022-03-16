@@ -14,16 +14,6 @@
         <Cls:InverseConverter x:Key="InverseConverter" />
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
-        <DataTemplate x:Name="TabViewItemHeaderTemplate">
-            <StackPanel HorizontalAlignment="Stretch"
-                        VerticalAlignment="Center">
-                <TextBlock Text="{Binding}"
-                           FontFamily="{StaticResource ContentControlThemeFontFamily}"
-                           TextTrimming="CharacterEllipsis"
-                           TextWrapping="NoWrap" />
-            </StackPanel>
-        </DataTemplate>
-
         <muxc:CommandBarFlyout x:Name="TabCommandFlyout"
                                ShouldConstrainToRootBounds="False">
             <muxc:CommandBarFlyout.SecondaryCommands>

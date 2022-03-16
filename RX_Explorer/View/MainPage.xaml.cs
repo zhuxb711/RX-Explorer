@@ -331,79 +331,80 @@ namespace RX_Explorer.View
 
             try
             {
-                Frame CurrentFrame = TabViewContainer.CurrentTabRenderer.RendererFrame;
-
-                if (CurrentFrame.Content is not (FileControl or SearchPage))
+                if (TabViewContainer.CurrentTabRenderer.RendererFrame is Frame CurrentFrame)
                 {
-                    if (ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] is bool IsAlwaysCloseApp)
+                    if (CurrentFrame.Content is not (FileControl or SearchPage))
                     {
-                        if (!IsAlwaysCloseApp)
+                        if (ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] is bool IsAlwaysCloseApp)
                         {
-                            e.Handled = true;
-
-                            while (CurrentFrame.CanGoBack)
+                            if (!IsAlwaysCloseApp)
                             {
-                                CurrentFrame.GoBack();
-                            }
+                                e.Handled = true;
 
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        StackPanel Panel = new StackPanel
-                        {
-                            MinWidth = 300,
-                            HorizontalAlignment = HorizontalAlignment.Stretch
-                        };
+                                while (CurrentFrame.CanGoBack)
+                                {
+                                    CurrentFrame.GoBack();
+                                }
 
-                        TextBlock Text = new TextBlock
-                        {
-                            Text = Globalization.GetString("QueueDialog_CloseOnInnerViewer_Content"),
-                            TextWrapping = TextWrapping.WrapWholeWords
-                        };
-
-                        CheckBox Box = new CheckBox
-                        {
-                            Content = Globalization.GetString("QueueDialog_CloseOnInnerViewerRemember_Content"),
-                            Margin = new Thickness(0, 10, 0, 0)
-                        };
-
-                        Panel.Children.Add(Text);
-                        Panel.Children.Add(Box);
-
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                            Content = Panel,
-                            PrimaryButtonText = Globalization.GetString("QueueDialog_CloseOnInnerViewer_PrimaryButton"),
-                            CloseButtonText = Globalization.GetString("QueueDialog_CloseOnInnerViewer_SencondaryButton")
-                        };
-
-                        ContentDialogResult Result = await Dialog.ShowAsync();
-
-                        if (Box.IsChecked.GetValueOrDefault())
-                        {
-                            if (Result == ContentDialogResult.Primary)
-                            {
-                                ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] = true;
-                            }
-                            else
-                            {
-                                ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] = false;
+                                return;
                             }
                         }
-
-                        if (Result != ContentDialogResult.Primary)
+                        else
                         {
-                            e.Handled = true;
-
-                            while (CurrentFrame.CanGoBack)
+                            StackPanel Panel = new StackPanel
                             {
-                                CurrentFrame.GoBack();
+                                MinWidth = 300,
+                                HorizontalAlignment = HorizontalAlignment.Stretch
+                            };
+
+                            TextBlock Text = new TextBlock
+                            {
+                                Text = Globalization.GetString("QueueDialog_CloseOnInnerViewer_Content"),
+                                TextWrapping = TextWrapping.WrapWholeWords
+                            };
+
+                            CheckBox Box = new CheckBox
+                            {
+                                Content = Globalization.GetString("QueueDialog_CloseOnInnerViewerRemember_Content"),
+                                Margin = new Thickness(0, 10, 0, 0)
+                            };
+
+                            Panel.Children.Add(Text);
+                            Panel.Children.Add(Box);
+
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                Content = Panel,
+                                PrimaryButtonText = Globalization.GetString("QueueDialog_CloseOnInnerViewer_PrimaryButton"),
+                                CloseButtonText = Globalization.GetString("QueueDialog_CloseOnInnerViewer_SencondaryButton")
+                            };
+
+                            ContentDialogResult Result = await Dialog.ShowAsync();
+
+                            if (Box.IsChecked.GetValueOrDefault())
+                            {
+                                if (Result == ContentDialogResult.Primary)
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] = true;
+                                }
+                                else
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] = false;
+                                }
                             }
 
-                            return;
+                            if (Result != ContentDialogResult.Primary)
+                            {
+                                e.Handled = true;
+
+                                while (CurrentFrame.CanGoBack)
+                                {
+                                    CurrentFrame.GoBack();
+                                }
+
+                                return;
+                            }
                         }
                     }
                 }

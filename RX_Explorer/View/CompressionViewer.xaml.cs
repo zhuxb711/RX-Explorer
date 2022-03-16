@@ -368,7 +368,7 @@ namespace RX_Explorer.View
                 {
                     await InitializeAsync(File, Dialog.UserSelectedEncoding, InitCancellation.Token);
                 }
-                else
+                else if (Frame.CanGoBack)
                 {
                     Frame.GoBack();
                 }
@@ -476,7 +476,10 @@ namespace RX_Explorer.View
                     CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
                 }.ShowAsync();
 
-                Frame.GoBack();
+                if (Frame.CanGoBack)
+                {
+                    Frame.GoBack();
+                }
             }
         }
 

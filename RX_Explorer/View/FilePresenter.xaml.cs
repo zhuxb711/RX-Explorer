@@ -2730,7 +2730,10 @@ namespace RX_Explorer.View
 
             string FolderDisplayName = await CurrentFolder.GetStorageItemAsync() is StorageFolder CoreItem ? CoreItem.DisplayName : CurrentFolder.DisplayName;
 
-            Container.Renderer.TabItem.Header = FolderDisplayName;
+            if (Container.Renderer.TabItem.Header is TextBlock HeaderBlock)
+            {
+                HeaderBlock.Text = FolderDisplayName;
+            }
 
             TaskBarController.SetText(FolderDisplayName);
 
@@ -5708,8 +5711,6 @@ namespace RX_Explorer.View
                         {
                             if (input is CancellationToken Token && !Token.IsCancellationRequested)
                             {
-                                TooltipFlyout.Hide();
-
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
                                     TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
@@ -5724,6 +5725,8 @@ namespace RX_Explorer.View
                                         && !LinkFlyout.IsOpen)
                                     {
                                         PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
+
+                                        TooltipFlyout.Hide();
 
                                         TooltipFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
                                         {

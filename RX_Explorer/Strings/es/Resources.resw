@@ -3470,4 +3470,7 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_NotSupportedFile_Content" xml:space="preserve">
     <value>Este tipo de archivo no es compatible</value>
   </data>
+  <data name="QueueDialog_RenameFailForNotExist_Content" xml:space="preserve">
+    <value>El archivo no existe y no se puede renombrar</value>
+  </data>
 </root>

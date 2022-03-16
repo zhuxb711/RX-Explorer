@@ -258,7 +258,7 @@ namespace FullTrustProcess
                                                                 }
                                                                 else
                                                                 {
-                                                                    Value.Add("Error_Failure", "Error happened when create new");
+                                                                    Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                                                 }
                                                             }
                                                             else
@@ -306,12 +306,12 @@ namespace FullTrustProcess
                                                                     }
                                                                     else
                                                                     {
-                                                                        Value.Add("Error_Failure", "Error happened when copying files");
+                                                                        Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                                                     }
                                                                 }
                                                                 else
                                                                 {
-                                                                    Value.Add("Error_Capture", "Do not have enough permission");
+                                                                    Value.Add("Error_NoPermission", "Do not have enough permission");
                                                                 }
                                                             }
                                                             else
@@ -327,7 +327,7 @@ namespace FullTrustProcess
                                                             {
                                                                 if (MoveData.SourcePath.Keys.Any((Item) => StorageItemController.CheckCaptured(Item)))
                                                                 {
-                                                                    Value.Add("Error_Capture", "An error occurred while renaming the files");
+                                                                    Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
                                                                 }
                                                                 else
                                                                 {
@@ -363,7 +363,7 @@ namespace FullTrustProcess
                                                                             }
                                                                             else
                                                                             {
-                                                                                Value.Add("Error_Capture", "An error occurred while renaming the files");
+                                                                                Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
                                                                             }
                                                                         }
                                                                         else if (MoveData.SourcePath.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item))
@@ -374,12 +374,12 @@ namespace FullTrustProcess
                                                                         }
                                                                         else
                                                                         {
-                                                                            Value.Add("Error_Failure", "Error happened when moving files");
+                                                                            Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                                                         }
                                                                     }
                                                                     else
                                                                     {
-                                                                        Value.Add("Error_Capture", "Do not have enough permission");
+                                                                        Value.Add("Error_NoPermission", "Do not have enough permission");
                                                                     }
                                                                 }
                                                             }
@@ -396,7 +396,7 @@ namespace FullTrustProcess
                                                             {
                                                                 if (DeleteData.DeletePath.Any((Item) => StorageItemController.CheckCaptured(Item)))
                                                                 {
-                                                                    Value.Add("Error_Capture", "An error occurred while renaming the files");
+                                                                    Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
                                                                 }
                                                                 else
                                                                 {
@@ -424,7 +424,7 @@ namespace FullTrustProcess
                                                                             }
                                                                             else
                                                                             {
-                                                                                Value.Add("Error_Capture", "An error occurred while renaming the files");
+                                                                                Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
                                                                             }
                                                                         }
                                                                         else if (DeleteData.DeletePath.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
@@ -433,12 +433,12 @@ namespace FullTrustProcess
                                                                         }
                                                                         else
                                                                         {
-                                                                            Value.Add("Error_Failure", "The specified file could not be deleted");
+                                                                            Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                                                         }
                                                                     }
                                                                     else
                                                                     {
-                                                                        Value.Add("Error_Capture", "Do not have enough permission");
+                                                                        Value.Add("Error_NoPermission", "Do not have enough permission");
                                                                     }
                                                                 }
                                                             }
@@ -455,7 +455,7 @@ namespace FullTrustProcess
                                                             {
                                                                 if (StorageItemController.CheckCaptured(RenameData.Path))
                                                                 {
-                                                                    Value.Add("Error_Capture", "An error occurred while renaming the files");
+                                                                    Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
                                                                 }
                                                                 else
                                                                 {
@@ -472,7 +472,7 @@ namespace FullTrustProcess
                                                                         }
                                                                         else
                                                                         {
-                                                                            Value.Add("Error_Failure", "Error happened when renaming files");
+                                                                            Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                                                         }
                                                                     }
                                                                     else
@@ -519,7 +519,7 @@ namespace FullTrustProcess
                     PipeCommunicationBaseController = new NamedPipeReadController("Explorer_NamedPipe_CommunicationBase");
                     PipeCommunicationBaseController.OnDataReceived += PipeCommunicationBaseController_OnDataReceived;
 
-                    if (SpinWait.SpinUntil(() => PipeCommunicationBaseController.IsConnected, 5000))
+                    if (PipeCommunicationBaseController.WaitForConnectionAsync(5000).Result)
                     {
                         AliveCheckTimer.Start();
                     }
@@ -601,46 +601,38 @@ namespace FullTrustProcess
                         }
                     }
 
+                    if (PipeCommandReadController != null)
+                    {
+                        PipeCommandReadController.OnDataReceived -= PipeReadController_OnDataReceived;
+                    }
+
+                    if (PipeCancellationReadController != null)
+                    {
+                        PipeCancellationReadController.OnDataReceived -= PipeReadController_OnDataReceived;
+                    }
+
                     if (Package.TryGetValue("PipeCommandWriteId", out string PipeCommandWriteId))
                     {
-                        if (PipeCommandReadController != null)
-                        {
-                            PipeCommandReadController.Dispose();
-                            PipeCommandReadController.OnDataReceived -= PipeReadController_OnDataReceived;
-                        }
-
+                        PipeCommandReadController?.Dispose();
                         PipeCommandReadController = new NamedPipeReadController(PipeCommandWriteId);
                         PipeCommandReadController.OnDataReceived += PipeReadController_OnDataReceived;
                     }
 
                     if (Package.TryGetValue("PipeCommandReadId", out string PipeCommandReadId))
                     {
-                        if (PipeCommandWriteController != null)
-                        {
-                            PipeCommandWriteController.Dispose();
-                        }
-
+                        PipeCommandWriteController?.Dispose();
                         PipeCommandWriteController = new NamedPipeWriteController(PipeCommandReadId);
                     }
 
                     if (Package.TryGetValue("PipeProgressReadId", out string PipeProgressReadId))
                     {
-                        if (PipeProgressWriterController != null)
-                        {
-                            PipeProgressWriterController.Dispose();
-                        }
-
+                        PipeProgressWriterController?.Dispose();
                         PipeProgressWriterController = new NamedPipeWriteController(PipeProgressReadId);
                     }
 
                     if (Package.TryGetValue("PipeCancellationWriteId", out string PipeCancellationReadId))
                     {
-                        if (PipeCancellationReadController != null)
-                        {
-                            PipeCancellationReadController.Dispose();
-                            PipeCancellationReadController.OnDataReceived -= PipeReadController_OnDataReceived;
-                        }
-
+                        PipeCancellationReadController?.Dispose();
                         PipeCancellationReadController = new NamedPipeReadController(PipeCancellationReadId);
                         PipeCancellationReadController.OnDataReceived += PipeCancellationController_OnDataReceived;
                     }
@@ -2045,7 +2037,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    Value.Add("Error_Failure", "Error happened when create a new file or directory");
+                                    Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                 }
                             }
                             else
@@ -2091,7 +2083,7 @@ namespace FullTrustProcess
                             {
                                 if (StorageItemController.CheckCaptured(ExecutePath))
                                 {
-                                    Value.Add("Error_Capture", "An error occurred while renaming the files");
+                                    Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
                                 }
                                 else
                                 {
@@ -2117,7 +2109,7 @@ namespace FullTrustProcess
                                         }
                                         else
                                         {
-                                            Value.Add("Error_Failure", "Error happened when rename");
+                                            Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                         }
                                     }
                                     else
@@ -3060,7 +3052,7 @@ namespace FullTrustProcess
                                     }
                                     catch (Exception ex)
                                     {
-                                        Value.Add("Error_Failure", $"Unoccupied failed, reason: {ex.Message}");
+                                        Value.Add("Error_Failure", $"Unlock failed because {ex.Message}");
                                     }
                                     finally
                                     {
@@ -3425,7 +3417,7 @@ namespace FullTrustProcess
                                             }
                                             else if (!Value.ContainsKey("Error_UserCancel"))
                                             {
-                                                Value.Add("Error_Failure", "An error occurred while copying the files");
+                                                Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                             }
                                         }
                                         catch (COMException ex) when (ex.ErrorCode == HRESULT.E_ABORT)
@@ -3752,7 +3744,7 @@ namespace FullTrustProcess
 
                                     if (SourcePathList.Keys.Any((Item) => StorageItemController.CheckCaptured(Item)))
                                     {
-                                        Value.Add("Error_Capture", "An error occurred while moving the folder");
+                                        Value.Add("Error_Capture", "One of these files was captured and could not be moved");
                                     }
                                     else
                                     {
@@ -3797,7 +3789,7 @@ namespace FullTrustProcess
                                                         }
                                                         else
                                                         {
-                                                            Value.Add("Error_Capture", "An error occurred while moving the files");
+                                                            Value.Add("Error_Capture", "One of these files was captured and could not be moved");
                                                         }
                                                     }
                                                 }
@@ -3812,7 +3804,7 @@ namespace FullTrustProcess
                                                 }
                                                 else if (!Value.ContainsKey("Error_UserCancel"))
                                                 {
-                                                    Value.Add("Error_Failure", "An error occurred while moving the files");
+                                                    Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                                 }
                                             }
                                             catch (COMException ex) when (ex.ErrorCode == HRESULT.E_ABORT)
@@ -3940,7 +3932,7 @@ namespace FullTrustProcess
                                                 }
                                                 else
                                                 {
-                                                    Value.Add("Error_Failure", "The specified file could not be deleted");
+                                                    Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                                 }
                                             }
                                             catch (COMException ex) when (ex.ErrorCode == HRESULT.E_ABORT)

@@ -332,7 +332,7 @@ namespace RX_Explorer.Class
                                                     CModel.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
                                                 }).AsTask().Wait();
 
-                                                switch (CModel.WaitForButtonAction())
+                                                switch (CModel.WaitForButtonActionAsync().Result)
                                                 {
                                                     case 0:
                                                         {
@@ -514,7 +514,7 @@ namespace RX_Explorer.Class
                                                     MModel.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
                                                 }).AsTask().Wait();
 
-                                                switch (MModel.WaitForButtonAction())
+                                                switch (MModel.WaitForButtonActionAsync().Result)
                                                 {
                                                     case 0:
                                                         {
@@ -610,6 +610,20 @@ namespace RX_Explorer.Class
                                         {
                                             ExtraParameter = Exclusive.Controller.RenameAsync(RenameModel.RenameFrom, Path.GetFileName(RenameModel.RenameTo)).Result;
                                         }
+                                    }
+                                    catch (Exception Ae) when (Ae.InnerException is FileNotFoundException)
+                                    {
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            RenameModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_RenameFailForNotExist_Content"));
+                                        }).AsTask().Wait();
+                                    }
+                                    catch (Exception Ae) when (Ae.InnerException is FileCaputureException)
+                                    {
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            RenameModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_Item_Captured_Content"));
+                                        }).AsTask().Wait();
                                     }
                                     catch (Exception Ae) when (Ae.InnerException is FileLoadException)
                                     {

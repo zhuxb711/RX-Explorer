@@ -107,7 +107,10 @@ namespace RX_Explorer.View
                         GoBackRecord.IsEnabled = !value.BackNavigationStack.IsEmpty;
                         GoForwardRecord.IsEnabled = !value.ForwardNavigationStack.IsEmpty;
 
-                        Renderer.TabItem.Header = string.IsNullOrEmpty(Folder.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : Folder.DisplayName;
+                        if (Renderer.TabItem.Header is TextBlock HeaderBlock)
+                        {
+                            HeaderBlock.Text = string.IsNullOrEmpty(Folder.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : Folder.DisplayName;
+                        }
                     }
 
                     TaskBarController.SetText(value?.CurrentFolder?.DisplayName);
@@ -888,18 +891,21 @@ namespace RX_Explorer.View
                 Renderer.TabItem.IconSource = new FontIconSource { FontFamily = new FontFamily("Segoe MDL2 Assets"), Glyph = "\uE8A1" };
             }
 
-            Renderer.TabItem.Header = e.Content switch
+            if (Renderer.TabItem.Header is TextBlock HeaderBlock)
             {
-                PhotoViewer => Globalization.GetString("BuildIn_PhotoViewer_Description"),
-                PdfReader => Globalization.GetString("BuildIn_PdfReader_Description"),
-                MediaPlayer => Globalization.GetString("BuildIn_MediaPlayer_Description"),
-                TextViewer => Globalization.GetString("BuildIn_TextViewer_Description"),
-                CropperPage => Globalization.GetString("BuildIn_CropperPage_Description"),
-                SearchPage => Globalization.GetString("BuildIn_SearchPage_Description"),
-                CompressionViewer => Globalization.GetString("BuildIn_CompressionViewer_Description"),
-                FileControl => CurrentPresenter.CurrentFolder?.DisplayName ?? $"<{Globalization.GetString("UnknownText")}>",
-                _ => $"<{Globalization.GetString("UnknownText")}>"
-            };
+                HeaderBlock.Text = e.Content switch
+                {
+                    PhotoViewer => Globalization.GetString("BuildIn_PhotoViewer_Description"),
+                    PdfReader => Globalization.GetString("BuildIn_PdfReader_Description"),
+                    MediaPlayer => Globalization.GetString("BuildIn_MediaPlayer_Description"),
+                    TextViewer => Globalization.GetString("BuildIn_TextViewer_Description"),
+                    CropperPage => Globalization.GetString("BuildIn_CropperPage_Description"),
+                    SearchPage => Globalization.GetString("BuildIn_SearchPage_Description"),
+                    CompressionViewer => Globalization.GetString("BuildIn_CompressionViewer_Description"),
+                    FileControl => CurrentPresenter.CurrentFolder?.DisplayName ?? $"<{Globalization.GetString("UnknownText")}>",
+                    _ => $"<{Globalization.GetString("UnknownText")}>"
+                };
+            }
         }
 
         /// <summary>

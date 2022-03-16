@@ -810,10 +810,10 @@
                                           HorizontalAlignment="Stretch">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"
-                                                              MinWidth="80"/>
+                                                              MinWidth="120"/>
                                             <ColumnDefinition Width="2*"/>
                                             <ColumnDefinition Width="*"
-                                                              MinWidth="80"/>
+                                                              MinWidth="120"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Name="RootDriveDescriptionLabel"
                                                    Grid.Column="1"

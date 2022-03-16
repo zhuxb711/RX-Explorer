@@ -162,12 +162,16 @@ namespace RX_Explorer.View
             {
                 Item.Dispose();
             }
+
             FilterCollection.Clear();
         }
 
         private void OptionCancel_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            Frame.GoBack();
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
         }
 
         private async void SaveAs_Click(SplitButton sender, SplitButtonClickEventArgs args)
@@ -214,7 +218,10 @@ namespace RX_Explorer.View
                 await Task.Delay(1000);
                 LoadingControl.IsLoading = false;
 
-                Frame.GoBack();
+                if (Frame.CanGoBack)
+                {
+                    Frame.GoBack();
+                }
             }
         }
 
@@ -332,7 +339,10 @@ namespace RX_Explorer.View
 
             LoadingControl.IsLoading = false;
 
-            Frame.GoBack();
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
         }
 
         private void RotationButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)

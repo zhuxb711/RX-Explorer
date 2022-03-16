@@ -3,12 +3,14 @@ using System.Collections.Concurrent;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace FullTrustProcess
 {
     public sealed class NamedPipeWriteController : NamedPipeControllerBase
     {
         private readonly Thread ProcessThread;
+        private readonly TaskCompletionSource<bool> ConnectionSet;
         private readonly ConcurrentQueue<string> MessageQueue = new ConcurrentQueue<string>();
         private readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
 
@@ -31,9 +33,18 @@ namespace FullTrustProcess
             {
                 if (!IsConnected)
                 {
-                    PipeStream.Connect(2000);
-                    PipeStream.ReadMode = PipeTransmissionMode.Message;
+                    try
+                    {
+                        PipeStream.Connect(2000);
+                        PipeStream.ReadMode = PipeTransmissionMode.Message;
+                    }
+                    catch (TimeoutException)
+                    {
+                        LogTracer.Log("Could not send pipeline data because connection timeout");
+                    }
                 }
+
+                ConnectionSet.SetResult(IsConnected);
 
                 while (IsConnected)
                 {
@@ -72,8 +83,22 @@ namespace FullTrustProcess
             base.Dispose();
         }
 
+        public override async Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds)
+        {
+            if (await Task.WhenAny(ConnectionSet.Task, Task.Delay(TimeoutMilliseconds)) == ConnectionSet.Task)
+            {
+                return ConnectionSet.Task.Result;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public NamedPipeWriteController(string PipeId) : base(PipeId)
         {
+            ConnectionSet = new TaskCompletionSource<bool>();
+
             ProcessThread = new Thread(WriteProcess)
             {
                 Priority = ThreadPriority.Normal,

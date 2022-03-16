@@ -25,6 +25,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
@@ -51,6 +52,7 @@ namespace RX_Explorer.View
         };
 
         public readonly LayoutModeController LayoutModeControl = new LayoutModeController();
+
         private CancellationTokenSource DelayPreviewCancel;
 
         public TabViewContainer()
@@ -680,13 +682,20 @@ namespace RX_Explorer.View
 
         private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)
         {
+            TextBlock Header = new TextBlock
+            {
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                TextWrapping = TextWrapping.NoWrap,
+                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily
+            };
+
             TabViewItem Tab = new TabViewItem
             {
                 IsTabStop = false,
                 AllowDrop = true,
                 IsDoubleTapEnabled = true,
                 IconSource = new SymbolIconSource { Symbol = Symbol.Document },
-                HeaderTemplate = TabViewItemHeaderTemplate
+                Header = Header
             };
             Tab.DragEnter += Tab_DragEnter;
             Tab.PointerEntered += Tab_PointerEntered;
@@ -695,20 +704,45 @@ namespace RX_Explorer.View
             Tab.PointerCanceled += Tab_PointerCanceled;
             Tab.DoubleTapped += Tab_DoubleTapped;
 
+            TextBlock HeaderTooltipText = new TextBlock();
+
+            HeaderTooltipText.SetBinding(TextBlock.TextProperty, new Binding
+            {
+                Source = Header,
+                Path = new PropertyPath("Text"),
+                Mode = BindingMode.OneWay
+            });
+
+            ToolTip HeaderTooltip = new ToolTip
+            {
+                Content = HeaderTooltipText
+            };
+
+            HeaderTooltip.SetBinding(VisibilityProperty, new Binding
+            {
+                Source = Header,
+                Path = new PropertyPath("IsTextTrimmed"),
+                Mode = BindingMode.OneWay
+            });
+
+            ToolTipService.SetToolTip(Tab, HeaderTooltip);
+
+            Style PreviewFlyoutStyle = new Style(typeof(FlyoutPresenter));
+            PreviewFlyoutStyle.Setters.Add(new Setter(MaxHeightProperty, 400));
+            PreviewFlyoutStyle.Setters.Add(new Setter(MaxWidthProperty, 600));
+            PreviewFlyoutStyle.Setters.Add(new Setter(PaddingProperty, 0));
+            PreviewFlyoutStyle.Setters.Add(new Setter(CornerRadiusProperty, (CornerRadius)Application.Current.Resources["CustomCornerRadius"]));
+
             Flyout PreviewFlyout = new Flyout
             {
-                FlyoutPresenterStyle = new Style(typeof(FlyoutPresenter)),
+                FlyoutPresenterStyle = PreviewFlyoutStyle,
                 Content = new Image
                 {
                     Stretch = Stretch.Uniform,
-                    Height = 300,
-                    Width = 500
+                    Height = 380,
+                    Width = 580
                 }
             };
-            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(MaxHeightProperty, 320));
-            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(MaxWidthProperty, 520));
-            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(PaddingProperty, 0));
-            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(CornerRadiusProperty, (CornerRadius)Application.Current.Resources["CustomCornerRadius"]));
 
             FlyoutBase.SetAttachedFlyout(Tab, PreviewFlyout);
 
@@ -732,42 +766,45 @@ namespace RX_Explorer.View
                 }
             }
 
-            switch (ValidPathArray.Count)
+            if (Tab.Header is TextBlock HeaderBlock)
             {
-                case 0:
-                    {
-                        Tab.Header = RootStorageFolder.Instance.DisplayName;
-                        break;
-                    }
-                case 1:
-                    {
-                        string Path = ValidPathArray.First();
-
-                        if (RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                switch (ValidPathArray.Count)
+                {
+                    case 0:
                         {
-                            Tab.Header = RootStorageFolder.Instance.DisplayName;
+                            HeaderBlock.Text = RootStorageFolder.Instance.DisplayName;
+                            break;
                         }
-                        else
+                    case 1:
                         {
-                            string HeaderText = System.IO.Path.GetFileName(Path);
+                            string Path = ValidPathArray.First();
 
-                            if (string.IsNullOrEmpty(HeaderText))
+                            if (RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                Tab.Header = $"<{Globalization.GetString("UnknownText")}>";
+                                HeaderBlock.Text = RootStorageFolder.Instance.DisplayName;
                             }
                             else
                             {
-                                Tab.Header = HeaderText;
-                            }
-                        }
+                                string HeaderText = System.IO.Path.GetFileName(Path);
 
-                        break;
-                    }
-                default:
-                    {
-                        Tab.Header = string.Join(" | ", ValidPathArray.Select((Path) => RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase) ? RootStorageFolder.Instance.DisplayName : System.IO.Path.GetFileName(Path)));
-                        break;
-                    }
+                                if (string.IsNullOrEmpty(HeaderText))
+                                {
+                                    HeaderBlock.Text = $"<{Globalization.GetString("UnknownText")}>";
+                                }
+                                else
+                                {
+                                    HeaderBlock.Text = HeaderText;
+                                }
+                            }
+
+                            break;
+                        }
+                    default:
+                        {
+                            HeaderBlock.Text = string.Join(" | ", ValidPathArray.Select((Path) => RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase) ? RootStorageFolder.Instance.DisplayName : System.IO.Path.GetFileName(Path)));
+                            break;
+                        }
+                }
             }
 
             Tab.Content = new Frame { Content = new TabItemContentRenderer(Tab, ValidPathArray.ToArray()) };
@@ -814,7 +851,7 @@ namespace RX_Explorer.View
 
         private void Tab_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (SettingPage.IsTabPreviewEnabled)
+            if (sender is TabViewItem Item && SettingPage.IsTabPreviewEnabled)
             {
                 DelayPreviewCancel?.Cancel();
                 DelayPreviewCancel?.Dispose();
@@ -824,9 +861,9 @@ namespace RX_Explorer.View
                 {
                     try
                     {
-                        if (input is (CancellationTokenSource CancelSource, TabViewItem Item))
+                        if (input is (CancellationToken CancelToken, TabViewItem Item))
                         {
-                            if (!CancelSource.IsCancellationRequested)
+                            if (!CancelToken.IsCancellationRequested)
                             {
                                 if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
                                 {
@@ -846,7 +883,7 @@ namespace RX_Explorer.View
                     {
                         LogTracer.Log(ex, "Could not render a preview image");
                     }
-                }, (DelayPreviewCancel, (TabViewItem)sender), TaskScheduler.FromCurrentSynchronizationContext());
+                }, (DelayPreviewCancel.Token, Item), TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -871,11 +908,14 @@ namespace RX_Explorer.View
 
         private void TabViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (TabViewControl.SelectedItem is TabViewItem Item)
+            if (TabViewControl.SelectedItem is TabViewItem Tab)
             {
-                TaskBarController.SetText(Convert.ToString(Item.Header));
+                if (Tab.Header is TextBlock HeaderBlock)
+                {
+                    TaskBarController.SetText(HeaderBlock.Text);
+                }
 
-                if (Item.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
+                if (Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
                 {
                     CurrentTabRenderer = Renderer;
 

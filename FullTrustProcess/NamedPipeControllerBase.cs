@@ -2,20 +2,23 @@
 using System.Diagnostics;
 using System.IO.Pipes;
 using System.Linq;
+using System.Threading.Tasks;
 using Vanara.PInvoke;
 using Windows.ApplicationModel;
 
 namespace FullTrustProcess
 {
-    public class NamedPipeControllerBase : IDisposable
+    public abstract class NamedPipeControllerBase : IDisposable
     {
-        protected NamedPipeClientStream PipeStream { get; }
+        public string PipeId { get; }
 
         public bool IsConnected => (PipeStream?.IsConnected).GetValueOrDefault() && !IsDisposed;
 
-        public string PipeId { get; }
-
         protected bool IsDisposed { get; private set; }
+
+        protected NamedPipeClientStream PipeStream { get; }
+
+        public abstract Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds);
 
         private string GetActualNamedPipeStringFromUWP(string PipeId)
         {

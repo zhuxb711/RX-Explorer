@@ -58,33 +58,40 @@ namespace RX_Explorer.Class
 
         public override async Task<IStorageItem> GetStorageItemAsync()
         {
-            if (StorageItem != null)
+            try
             {
-                return StorageItem;
-            }
-            else
-            {
-                if (Path.Equals(DeviceId, StringComparison.OrdinalIgnoreCase))
+                if (StorageItem != null)
                 {
-                    return StorageItem = await Task.Run(() => StorageDevice.FromId(DeviceId));
+                    return StorageItem;
                 }
-                else if (ParentFolder != null)
+                else
                 {
-                    if (await ParentFolder.GetStorageItemAsync() is StorageFolder Folder)
+                    if (Path.Equals(DeviceId, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (await Folder.TryGetItemAsync(Name) is StorageFolder Item)
+                        return StorageItem = await Task.Run(() => StorageDevice.FromId(DeviceId));
+                    }
+                    else if (ParentFolder != null)
+                    {
+                        if (await ParentFolder.GetStorageItemAsync() is StorageFolder Folder)
                         {
-                            return StorageItem = Item;
+                            if (await Folder.TryGetItemAsync(Name) is StorageFolder Item)
+                            {
+                                return StorageItem = Item;
+                            }
                         }
                     }
+                    else if (await Task.Run(() => StorageDevice.FromId(DeviceId)) is StorageFolder RootFolder)
+                    {
+                        return StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFolder>(new PathAnalysis(Path, DeviceId));
+                    }
                 }
-                else if (await Task.Run(() => StorageDevice.FromId(DeviceId)) is StorageFolder RootFolder)
-                {
-                    return StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFolder>(new PathAnalysis(Path, DeviceId));
-                }
-
-                return null;
             }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not get StorageFile, Path: {Path}");
+            }
+
+            return null;
         }
 
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)

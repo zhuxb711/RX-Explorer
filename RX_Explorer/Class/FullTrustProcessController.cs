@@ -48,9 +48,9 @@ namespace RX_Explorer.Class
 
         private NamedPipeWriteController PipeCancellationWriteController;
 
-        private readonly ConcurrentQueue<Command> CommandQueue = new ConcurrentQueue<Command>();
+        private NamedPipeCommunicationBaseController PipeCommunicationBaseController;
 
-        private readonly NamedPipeCommunicationBaseController PipeCommunicationBaseController;
+        private readonly ConcurrentQueue<Command> CommandQueue = new ConcurrentQueue<Command>();
 
         private static readonly SynchronizedCollection<FullTrustProcessController> AllControllerList = new SynchronizedCollection<FullTrustProcessController>();
 
@@ -66,8 +66,6 @@ namespace RX_Explorer.Class
 
         private static readonly SemaphoreSlim ResizeTaskLocker = new SemaphoreSlim(1, 1);
 
-        private readonly int CurrentProcessId;
-
         private int CurrentControllerExecutingCommandNum;
 
         private bool IsDisposed;
@@ -79,17 +77,7 @@ namespace RX_Explorer.Class
 
         private FullTrustProcessController()
         {
-            using (Process CurrentProcess = Process.GetCurrentProcess())
-            {
-                CurrentProcessId = CurrentProcess.Id;
-            }
-
             AllControllerList.Add(this);
-
-            if (NamedPipeControllerBase.TryCreateNamedPipe(out NamedPipeCommunicationBaseController CommunicationController))
-            {
-                PipeCommunicationBaseController = CommunicationController;
-            }
         }
 
         private static void DispatcherCore()
@@ -171,6 +159,11 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static Task InitializeAsync()
+        {
+            return SetExpectedControllerNumAsync(1);
+        }
+
         public static async Task SetExpectedControllerNumAsync(int ExpectedNum)
         {
             await ResizeTaskLocker.WaitAsync();
@@ -246,7 +239,7 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not create FullTrustProcess properly");
-                Controller?.Dispose();
+                Controller.Dispose();
                 return null;
             }
         }
@@ -268,15 +261,13 @@ namespace RX_Explorer.Class
                     return true;
                 }
 
-                if (await Task.Run(() => SpinWait.SpinUntil(() => (PipeCommunicationBaseController?.IsConnected).GetValueOrDefault(), 10000)))
+                PipeCommunicationBaseController?.Dispose();
+                PipeCommunicationBaseController = new NamedPipeCommunicationBaseController();
+
+                if (await PipeCommunicationBaseController.WaitForConnectionAsync(10000))
                 {
                     for (int RetryCount = 1; RetryCount <= 3; RetryCount++)
                     {
-                        PipeCommandWriteController?.Dispose();
-                        PipeCommandReadController?.Dispose();
-                        PipeProgressReadController?.Dispose();
-                        PipeCancellationWriteController?.Dispose();
-
                         if (PipeCommandReadController != null)
                         {
                             PipeCommandReadController.OnDataReceived -= PipeCommandReadController_OnDataReceived;
@@ -287,37 +278,32 @@ namespace RX_Explorer.Class
                             PipeProgressReadController.OnDataReceived -= PipeProgressReadController_OnDataReceived;
                         }
 
+                        PipeCommandWriteController?.Dispose();
+                        PipeCommandReadController?.Dispose();
+                        PipeProgressReadController?.Dispose();
+                        PipeCancellationWriteController?.Dispose();
+
+                        PipeCommandReadController = new NamedPipeReadController();
+                        PipeProgressReadController = new NamedPipeReadController();
+                        PipeCommandWriteController = new NamedPipeWriteController();
+                        PipeCancellationWriteController = new NamedPipeWriteController();
+
                         Dictionary<string, string> Command = new Dictionary<string, string>
                         {
-                            { "ProcessId", Convert.ToString(CurrentProcessId) }
+                            { "ProcessId", Convert.ToString(Process.GetCurrentProcess().Id) },
+                            { "PipeCommandReadId", PipeCommandReadController.PipeId },
+                            { "PipeCommandWriteId", PipeCommandWriteController.PipeId },
+                            { "PipeProgressReadId", PipeProgressReadController.PipeId },
+                            { "PipeCancellationWriteId", PipeCancellationWriteController.PipeId }
                         };
-
-                        if (NamedPipeControllerBase.TryCreateNamedPipe(out PipeCommandReadController))
-                        {
-                            Command.Add("PipeCommandReadId", PipeCommandReadController.PipeId);
-                        }
-
-                        if (NamedPipeControllerBase.TryCreateNamedPipe(out PipeProgressReadController))
-                        {
-                            Command.Add("PipeProgressReadId", PipeProgressReadController.PipeId);
-                        }
-
-                        if (NamedPipeControllerBase.TryCreateNamedPipe(out PipeCommandWriteController))
-                        {
-                            Command.Add("PipeCommandWriteId", PipeCommandWriteController.PipeId);
-                        }
-
-                        if (NamedPipeControllerBase.TryCreateNamedPipe(out PipeCancellationWriteController))
-                        {
-                            Command.Add("PipeCancellationWriteId", PipeCancellationWriteController.PipeId);
-                        }
 
                         PipeCommunicationBaseController.SendData(JsonSerializer.Serialize(Command));
 
-                        if (await Task.Run(() => SpinWait.SpinUntil(() => (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
-                                                                           && (PipeCommandReadController?.IsConnected).GetValueOrDefault()
-                                                                           && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
-                                                                           && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault(), 3000)))
+                        if ((await Task.WhenAll(PipeCommandWriteController.WaitForConnectionAsync(5000),
+                                                PipeCommandReadController.WaitForConnectionAsync(5000),
+                                                PipeProgressReadController.WaitForConnectionAsync(5000),
+                                                PipeCancellationWriteController.WaitForConnectionAsync(5000)))
+                                       .All((Connected) => Connected))
                         {
                             PipeCommandReadController.OnDataReceived += PipeCommandReadController_OnDataReceived;
                             PipeProgressReadController.OnDataReceived += PipeProgressReadController_OnDataReceived;
@@ -1548,17 +1534,22 @@ namespace RX_Explorer.Class
                 else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage2}");
-                    throw new InvalidOperationException();
+                    throw new Exception();
                 }
                 else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage3))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage3}");
                     throw new InvalidOperationException();
                 }
-                else if (Response.TryGetValue("Error", out string ErrorMessage4))
+                else if(Response.TryGetValue("Error_NotFound", out string ErrorMessage4))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage4}");
-                    throw new InvalidOperationException();
+                    throw new FileNotFoundException();
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage5))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage5}");
+                    throw new Exception();
                 }
                 else
                 {
@@ -1889,7 +1880,6 @@ namespace RX_Explorer.Class
                 if (Response.TryGetValue("Error_Failure", out string ErrorMessage1))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage1}");
-                    return false;
                 }
                 else if (Response.TryGetValue("Error_NotOccupy", out string ErrorMessage2))
                 {
@@ -1904,13 +1894,13 @@ namespace RX_Explorer.Class
                 else if (Response.TryGetValue("Error", out string ErrorMessage4))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage4}");
-                    return false;
                 }
                 else
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}");
-                    return false;
                 }
+
+                return false;
             }
             else
             {
@@ -1952,7 +1942,7 @@ namespace RX_Explorer.Class
                     else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage2}");
-                        throw new InvalidOperationException("Fail to delete item");
+                        throw new Exception();
                     }
                     else if (Response.TryGetValue("Error_Capture", out string ErrorMessage3))
                     {
@@ -1967,7 +1957,7 @@ namespace RX_Explorer.Class
                     else if (Response.TryGetValue("Error", out string ErrorMessage5))
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage5}");
-                        throw new Exception("Unknown reason");
+                        throw new Exception();
                     }
                     else if (Response.ContainsKey("Error_Cancelled"))
                     {
@@ -1977,7 +1967,7 @@ namespace RX_Explorer.Class
                     else
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}");
-                        throw new Exception("Unknown reason");
+                        throw new Exception();
                     }
                 }
                 else
@@ -1993,9 +1983,9 @@ namespace RX_Explorer.Class
                                 CancellationToken CancelToken = default,
                                 ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (Source == null)
+            if (string.IsNullOrEmpty(Source))
             {
-                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
+                throw new ArgumentNullException(nameof(Source), "Parameter could not be empty or null");
             }
 
             return DeleteAsync(new string[1] { Source }, PermanentDelete, SkipOperationRecord, CancelToken, ProgressHandler);
@@ -2056,7 +2046,7 @@ namespace RX_Explorer.Class
                     else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage2}");
-                        throw new InvalidOperationException();
+                        throw new Exception();
                     }
                     else if (Response.TryGetValue("Error_Capture", out string ErrorMessage3))
                     {
@@ -2188,7 +2178,7 @@ namespace RX_Explorer.Class
                     else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage2}");
-                        throw new InvalidOperationException();
+                        throw new Exception();
                     }
                     else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage3))
                     {
@@ -2213,7 +2203,7 @@ namespace RX_Explorer.Class
                     else
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}");
-                        throw new Exception("Unknown reason");
+                        throw new Exception();
                     }
                 }
                 else

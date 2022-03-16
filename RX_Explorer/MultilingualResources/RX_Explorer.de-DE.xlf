@@ -4607,6 +4607,10 @@ Inkorrekte Namen sind
           <source>This file type is not supported</source>
           <target state="translated">Dieser Dateityp wird nicht unterstützt</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_RenameFailForNotExist_Content" translate="yes" xml:space="preserve">
+          <source>File do not exist and cannot be renamed</source>
+          <target state="translated">Datei existiert nicht und kann nicht umbenannt werden</target>
+        </trans-unit>
       </group>
     </body>
   </file>

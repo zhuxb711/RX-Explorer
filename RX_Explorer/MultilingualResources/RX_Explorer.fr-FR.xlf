@@ -4609,6 +4609,10 @@ Les noms non valides incluent
           <source>This file type is not supported</source>
           <target state="translated">Ce type de fichier n'est pas pris en charge</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_RenameFailForNotExist_Content" translate="yes" xml:space="preserve">
+          <source>File do not exist and cannot be renamed</source>
+          <target state="translated">Le fichier n'existe pas et ne peut pas être renommé</target>
+        </trans-unit>
       </group>
     </body>
   </file>
