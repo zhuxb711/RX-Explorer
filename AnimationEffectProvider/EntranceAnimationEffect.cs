@@ -36,7 +36,7 @@ namespace AnimationEffectProvider
             SurfaceLoader.Initialize(ElementCompositionPreview.GetElementVisual(BasePage).Compositor);
         }
 
-        public async Task PrepareEntranceEffect()
+        public async Task PrepareEntranceEffectAsync()
         {
             try
             {
@@ -81,7 +81,18 @@ namespace AnimationEffectProvider
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in PrepareEntranceEffect, message:{ex.Message}");
+#if DEBUG
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
+
+                Debug.WriteLine($"An exception was threw in {nameof(PrepareEntranceEffectAsync)}, message:{ex.Message}");
+#endif
             }
         }
 
@@ -129,7 +140,18 @@ namespace AnimationEffectProvider
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in StartEntranceEffect, message:{ex.Message}");
+#if DEBUG
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
+
+                Debug.WriteLine($"An exception was threw in {nameof(StartEntranceEffect)}, message:{ex.Message}");
+#endif
             }
         }
     }

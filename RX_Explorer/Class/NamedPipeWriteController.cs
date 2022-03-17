@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace RX_Explorer.Class
     {
         private readonly Thread ProcessThread;
         private readonly TaskCompletionSource<bool> ConnectionSet;
+        private CancellationTokenSource Cancellation;
         private readonly ConcurrentQueue<string> MessageQueue = new ConcurrentQueue<string>();
         private readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
 
@@ -21,13 +23,28 @@ namespace RX_Explorer.Class
             {
                 if (!IsConnected)
                 {
+                    Cancellation = new CancellationTokenSource();
+
                     try
                     {
-                        PipeStream.WaitForConnection();
+                        PipeStream.WaitForConnectionAsync(Cancellation.Token).Wait();
+                    }
+                    catch (IOException)
+                    {
+                        LogTracer.Log("Could not write pipeline data because the pipeline is closed");
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        LogTracer.Log("Could not write pipeline data because connection timeout");
                     }
                     catch (Exception ex)
                     {
-                        LogTracer.Log(ex, "Could not read pipeline data because unknown exception");
+                        LogTracer.Log(ex, "Could not write pipeline data because unknown exception");
+                    }
+                    finally
+                    {
+                        Cancellation?.Dispose();
+                        Cancellation = null;
                     }
                 }
 
@@ -78,6 +95,8 @@ namespace RX_Explorer.Class
             {
                 ProcessSleepLocker.Dispose();
                 MessageQueue.Clear();
+                Cancellation?.Dispose();
+                Cancellation = null;
             }
 
             base.Dispose();
@@ -85,14 +104,23 @@ namespace RX_Explorer.Class
 
         public override async Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds)
         {
-            if (await Task.WhenAny(ConnectionSet.Task, Task.Delay(TimeoutMilliseconds)) == ConnectionSet.Task)
+            if (ConnectionSet.Task.IsCompleted)
             {
-                return ConnectionSet.Task.Result;
+                return true;
             }
             else
             {
-                return false;
+                if (await Task.WhenAny(ConnectionSet.Task, Task.Delay(TimeoutMilliseconds)) == ConnectionSet.Task)
+                {
+                    return ConnectionSet.Task.Result;
+                }
+                else
+                {
+                    Cancellation?.Cancel();
+                }
             }
+
+            return false;
         }
 
         public NamedPipeWriteController() : this($"Explorer_NamedPipe_Write_{Guid.NewGuid():D}")

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
@@ -35,12 +36,16 @@ namespace FullTrustProcess
                 {
                     try
                     {
-                        PipeStream.Connect(2000);
+                        PipeStream.Connect(5000);
                         PipeStream.ReadMode = PipeTransmissionMode.Message;
+                    }
+                    catch (IOException)
+                    {
+                        LogTracer.Log("Could not write pipeline data because the pipeline is closed");
                     }
                     catch (TimeoutException)
                     {
-                        LogTracer.Log("Could not send pipeline data because connection timeout");
+                        LogTracer.Log("Could not write pipeline data because connection timeout");
                     }
                 }
 

@@ -70,11 +70,16 @@ namespace RX_Explorer
 #else
             try
             {
-                string SecretText = await Windows.Storage.PathIO.ReadTextAsync(System.IO.Path.Combine(Package.Current.InstalledPath, "/Assets/AppCenterSecret.txt"));
+                string SecretText = await Windows.Storage.PathIO.ReadTextAsync(System.IO.Path.Combine(Package.Current.InstalledPath, @"Assets\AppCenterSecret.txt"));
 
                 if (!string.IsNullOrWhiteSpace(SecretText))
                 {
                     Microsoft.AppCenter.AppCenter.Start(SecretText, typeof(Microsoft.AppCenter.Crashes.Crashes));
+
+                    if (!await Microsoft.AppCenter.AppCenter.IsEnabledAsync())
+                    {
+                        await Microsoft.AppCenter.AppCenter.SetEnabledAsync(true);
+                    }
                 }
             }
             catch (Exception ex)
@@ -128,7 +133,18 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
+#if DEBUG
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
+
                 Debug.WriteLine($"A exception was threw when suspending, message: {ex.Message}");
+#endif
             }
         }
 

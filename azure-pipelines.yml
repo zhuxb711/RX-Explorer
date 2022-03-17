@@ -54,6 +54,18 @@ jobs:
             $store.Add($cert)
             $store.Close()
 
+      - task: PowerShell@2
+        displayName: 'Adding AppCenter Secret Value'
+        inputs:
+          targetType: 'inline'
+          script: |
+            Write-Host "Start adding AppCenter Secret Value."
+
+            $secret = '$(appCenter.secret)'
+            $outputPath = '$(Build.SourcesDirectory)\RX_Explorer\Assets\AppCenterSecret.txt'
+
+            $secret | Out-File -Encoding utf8 -FilePath $outputPath
+
       # UseDotNet@2 task to install .Net 6 environment because Azure Pipeline would not prepare the SDK we needed.
       # Maybe we could remove this task once Azure Pipeline install .Net 6 SDK by default.
       - task: UseDotNet@2
@@ -112,6 +124,18 @@ jobs:
             $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
             $store.Add($cert)
             $store.Close()
+            
+      - task: PowerShell@2
+        displayName: 'Adding AppCenter Secret Value'
+        inputs:
+          targetType: 'inline'
+          script: |
+            Write-Host "Start adding AppCenter Secret Value."
+
+            $secret = '$(appCenter.secret)'
+            $outputPath = '$(Build.SourcesDirectory)\RX_Explorer\Assets\AppCenterSecret.txt'
+            
+            $secret | Out-File -Encoding utf8 -FilePath $outputPath
 
       # UseDotNet@2 task to install .Net 6 environment because Azure Pipeline would not prepare the SDK we needed.
       # Maybe we could remove this task once Azure Pipeline install .Net 6 SDK by default.

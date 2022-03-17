@@ -113,7 +113,7 @@ namespace RX_Explorer.View
             if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
             {
                 EntranceEffectProvider = new EntranceAnimationEffect(this, NavView, Parameter);
-                EntranceAnimationPreloadTask = EntranceEffectProvider.PrepareEntranceEffect();
+                EntranceAnimationPreloadTask = EntranceEffectProvider.PrepareEntranceEffectAsync();
             }
         }
 

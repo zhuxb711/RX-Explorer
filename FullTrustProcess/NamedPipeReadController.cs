@@ -23,8 +23,12 @@ namespace FullTrustProcess
                 {
                     try
                     {
-                        PipeStream.Connect(2000);
+                        PipeStream.Connect(5000);
                         PipeStream.ReadMode = PipeTransmissionMode.Message;
+                    }
+                    catch (IOException)
+                    {
+                        LogTracer.Log("Could not read pipeline data because the pipeline is closed");
                     }
                     catch (TimeoutException)
                     {
