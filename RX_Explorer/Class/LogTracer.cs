@@ -38,32 +38,6 @@ namespace RX_Explorer.Class
             BackgroundProcessThread.Start();
         }
 
-        public static async Task ExportLogAsync(StorageFile ExportFile)
-        {
-            try
-            {
-                if (await ApplicationData.Current.TemporaryFolder.TryGetItemAsync(UniqueName) is StorageFile InnerFile)
-                {
-                    await InnerFile.CopyAndReplaceAsync(ExportFile);
-                }
-            }
-            catch (Exception ex)
-            {
-#if DEBUG
-                if (Debugger.IsAttached)
-                {
-                    Debugger.Break();
-                }
-                else
-                {
-                    Debugger.Launch();
-                }
-
-                Debug.WriteLine($"An error was threw in {nameof(ExportLogAsync)}, message: {ex.Message}");
-#endif
-            }
-        }
-
         public static async Task<bool> CheckHasAnyLogAvailableAsync()
         {
             try
@@ -72,7 +46,7 @@ namespace RX_Explorer.Class
                 {
                     IndexerOption = IndexerOption.DoNotUseIndexer,
                     FolderDepth = FolderDepth.Shallow,
-                    ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\" AND System.Size:>0"
+                    ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\" AND System.Size:>10"
                 });
 
                 return await Query.GetItemCountAsync() > 0;
@@ -100,37 +74,42 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using Stream ExportStream = await ExportFile.OpenStreamForWriteAsync();
-
-                StorageFileQueryResult Query = ApplicationData.Current.TemporaryFolder.CreateFileQueryWithOptions(new QueryOptions(CommonFileQuery.DefaultQuery, new string[] { ".txt" })
+                using (Stream ExportStream = await ExportFile.OpenStreamForWriteAsync())
                 {
-                    IndexerOption = IndexerOption.DoNotUseIndexer,
-                    FolderDepth = FolderDepth.Shallow,
-                    ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\" AND System.Size:>0"
-                });
+                    ExportStream.SetLength(0);
 
-                foreach ((DateTime LogDate, StorageFile LogFile) in from StorageFile File in await Query.GetFilesAsync()
-                                                                    let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
-                                                                    where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime Date)
-                                                                    let LogDate = DateTime.ParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal)
-                                                                    orderby LogDate ascending
-                                                                    select (LogDate, File))
-                {
-                    ExportStream.Seek(0, SeekOrigin.End);
-
-                    using (Stream LogFileStream = await LogFile.OpenStreamForReadAsync())
+                    StorageFileQueryResult Query = ApplicationData.Current.TemporaryFolder.CreateFileQueryWithOptions(new QueryOptions(CommonFileQuery.DefaultQuery, new string[] { ".txt" })
                     {
-                        if (LogFileStream.Length > 0)
-                        {
-                            using (StreamWriter Writer = new StreamWriter(ExportStream, Encoding.Unicode, 1024, true))
-                            {
-                                Writer.WriteLine();
-                                Writer.WriteLine("*************************");
-                                Writer.WriteLine($"LogDate: {LogDate:G}");
-                                Writer.WriteLine("*************************");
-                            }
+                        IndexerOption = IndexerOption.DoNotUseIndexer,
+                        FolderDepth = FolderDepth.Shallow,
+                        ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\" AND System.Size:>10"
+                    });
 
-                            await LogFileStream.CopyToAsync(ExportStream);
+                    using (StreamWriter Writer = new StreamWriter(ExportStream, Encoding.Unicode, 1024, true))
+                    {
+                        foreach ((DateTime LogDate, StorageFile LogFile) in from StorageFile File in await Query.GetFilesAsync()
+                                                                            let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
+                                                                            where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime Date)
+                                                                            let LogDate = DateTime.ParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal)
+                                                                            orderby LogDate ascending
+                                                                            select (LogDate, File))
+                        {
+                            using (Stream LogFileStream = await LogFile.OpenStreamForReadAsync())
+                            using (StreamReader Reader = new StreamReader(LogFileStream, Encoding.Unicode, true, 1024, true))
+                            {
+                                string LogText = await Reader.ReadToEndAsync();
+
+                                if (!string.IsNullOrWhiteSpace(LogText))
+                                {
+                                    StringBuilder Builder = new StringBuilder()
+                                                            .AppendLine("*************************")
+                                                            .AppendLine($"LogDate: {LogDate:G}")
+                                                            .AppendLine("*************************")
+                                                            .Append(LogText);
+
+                                    await Writer.WriteAsync(Builder.ToString());
+                                }
+                            }
                         }
                     }
                 }
@@ -228,8 +207,7 @@ namespace RX_Explorer.Class
                                         .AppendLine($"        CallerMemberName: {MemberName}")
                                         .AppendLine($"        CallerFilePath: {SourceFilePath}")
                                         .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
-                                        .AppendLine("------------------------------------")
-                                        .AppendLine();
+                                        .AppendLine("------------------------------------");
 
                 LogInternal(Builder.ToString());
 
@@ -294,8 +272,7 @@ namespace RX_Explorer.Class
                                         .AppendLine($"        CallerMemberName: {MemberName}")
                                         .AppendLine($"        CallerFilePath: {SourceFilePath}")
                                         .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
-                                        .AppendLine("------------------------------------")
-                                        .AppendLine();
+                                        .AppendLine("------------------------------------");
 
                 LogInternal(Builder.ToString());
             }

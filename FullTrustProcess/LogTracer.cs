@@ -103,8 +103,7 @@ namespace FullTrustProcess
                                         .AppendLine($"        CallerMemberName: {MemberName}")
                                         .AppendLine($"        CallerFilePath: {SourceFilePath}")
                                         .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
-                                        .AppendLine("------------------------------------")
-                                        .AppendLine();
+                                        .AppendLine("------------------------------------");
 
                 LogInternal(Builder.ToString());
             }
@@ -160,8 +159,7 @@ namespace FullTrustProcess
                                         .AppendLine($"        CallerMemberName: {MemberName}")
                                         .AppendLine($"        CallerFilePath: {SourceFilePath}")
                                         .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
-                                        .AppendLine("------------------------------------")
-                                        .AppendLine();
+                                        .AppendLine("------------------------------------");
 
                 LogInternal(Builder.ToString());
             }

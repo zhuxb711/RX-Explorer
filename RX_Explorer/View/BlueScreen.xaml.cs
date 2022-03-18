@@ -36,14 +36,14 @@ namespace RX_Explorer.View
         {
             FileSavePicker Picker = new FileSavePicker
             {
-                SuggestedFileName = "Export_Error_Log.txt",
+                SuggestedFileName = "Export_All_Error_Log.txt",
                 SuggestedStartLocation = PickerLocationId.Desktop
             };
             Picker.FileTypeChoices.Add(Globalization.GetString("File_Type_TXT_Description"), new List<string> { ".txt" });
 
             if (await Picker.PickSaveFileAsync() is StorageFile PickedFile)
             {
-                await LogTracer.ExportLogAsync(PickedFile).ConfigureAwait(false);
+                await LogTracer.ExportAllLogAsync(PickedFile).ConfigureAwait(false);
             }
         }
     }
