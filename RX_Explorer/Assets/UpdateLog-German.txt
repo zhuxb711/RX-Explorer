@@ -1,53 +1,27 @@
-﻿###Was ist neu in Ver.7.5.5.0
+﻿###Was ist neu in Ver.7.5.7.0
 
-#####Funktion aktualisiert
+#####Leistungsoptimierung
 
->#####Unterstützung für MTP-Geräte (Smartphones, SD-Karten usw.) hinzugefügt
+>#####Verbesserung des Planungsmechanismus für Hilfsprozesse
 
->>#####Die Dateiänderungsüberwachungsfunktion wird auf solchen Geräten nicht unterstützt und unterstützt keine gleichzeitigen Dateioperationen
-
->>#####Je nach Gerät unterstützen einige Geräte möglicherweise einen oder mehrere Vorgänge nicht, wie z. B.: Verschieben/Kopieren/Löschen/Umbenennen, nicht unterstützte Vorgänge schlagen fehl
+>#####Performance des Loggers verbessert
 
 #####UI aktualisiert
 
->#####Verbesserung des Stils einiger Benutzeroberflächen auf der "Startseite"
+>#####Tabs haben jetzt größere Vorschaubilder
 
->#####Unteroptionen werden automatisch angezeigt, wenn Sie den UI-Modus in den Einstellungen wechseln
-
->#####"Aufgabenliste" wurde als Teil des Inhalts jeder Registerkarte eingebettet, um zu vermeiden, dass Schaltflächen für einige Schlüsselfunktionen verdeckt werden
-
->#####Der eingebaute Bildbetrachter verwendet jetzt direkt das Originalbild für die Vorschau, wenn keine Miniaturansicht vorhanden ist
-
->#####Ein Fortschrittsbalken wird angezeigt, wenn das Laden eines Ordners zu lange dauert, um anzuzeigen, dass der Ladevorgang noch läuft
-
->#####Verbesserte Sortierung von Dateinamen, wird nun konsistent mit dem Windows Explorer sein
+>#####Tab-Titeltipp erscheint jetzt nur noch, wenn er nicht vollständig angezeigt wird
 
 #####Fehler behoben
 
->#####Einige UI-Probleme auf der Einstellungsseite beim Wechseln von Themen behoben
+>#####Problem behoben, bei dem USB-Geräte nicht angezeigt werden konnten
 
->#####Es wurde ein Problem behoben, bei dem ein schlecht angeschlossenes USB-Gerät dazu führen konnte, dass die Benutzeroberfläche einfrierte
+>#####Es wurde ein Problem behoben, das dazu führen konnte, dass die Verknüpfung beschädigt wurde, wenn eine Verknüpfung mit Leerzeichen im Zielpfad über das Eigenschaftenfenster angezeigt wurde
 
->#####Problem behoben, bei dem der integrierte Viewer .jpg-Dateien, aber keine .jpeg-Dateien unterstützt
+>#####Es wurde ein Problem behoben, bei dem die Fehlermeldung für „Aufgabe umbenennen“ ihren Status möglicherweise nicht korrekt widerspiegelt
 
->#####Das Problem, dass einige Textinhalte in den Laufwerkseigenschaften andere Elemente verdecken können, wenn der Inhalt zu lang ist, wurde behoben
+>#####Das Problem, dass die Root-Verzeichnisdatei in einigen Fällen abstürzt, wenn sie geändert wird, wurde behoben
 
->#####Es wurde ein Problem behoben, bei dem die aktuelle Fenstergröße nicht gespeichert wurde, wenn das Eigenschaftenfenster mit der Schaltfläche „Schließen“ in der oberen rechten Ecke geschlossen wurde
+>#####Es wurde ein Problem behoben, bei dem ein minimiertes Fenster einen Absturz verursachen konnte
 
->#####Das Problem, dass die Dateierweiterung verloren gehen kann, wenn die Umbenennungsfunktion verwendet wird, nachdem „Dateierweiterung anzeigen“ deaktiviert wurde, wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem der Einfügevorgang nach dem Kopieren bestimmter Dateitypen nicht mehrmals durchgeführt werden konnte
-
->#####Es wurde ein Problem behoben, bei dem der Dateiname einiger Dateien möglicherweise leer war, wenn „Dateierweiterung anzeigen“ deaktiviert war
-
->#####Es wurde ein Problem behoben, bei dem der Befehl „Senden an“ versehentlich im Stammverzeichnis des Laufwerks verwendet werden konnte
-
->#####Ein Problem wurde behoben, bei dem in seltenen Fällen ein Menüpunkt angezeigt werden konnte, der möglicherweise nicht mit dem aktuellen Dateityp übereinstimmt
-
->#####Es wurde ein Problem behoben, bei dem das Umbenennen eines Knotens in der Dateiverzeichnisstruktur, der nicht der aktuelle Ordner ist, möglicherweise nicht korrekt aktualisiert wird
-
->#####Das Problem, dass bei identischer Standard-App und empfohlener App möglicherweise doppelte Elemente im Popup-Menü der Schaltfläche „Öffnen mit“ vorhanden sind, wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem der integrierte Archivbetrachter beim Navigieren zu einem leeren Ordner keine „Leer“-Eingabeaufforderung anzeigte
-
->#####Das Problem, dass das Vorschaubild im Modus "Benutzerdefiniertes Hintergrundbild" in einigen Fällen doppelt vorhanden sein konnte, wurde behoben
+>#####Einige Probleme behoben, die zu Abstürzen führen konnten

@@ -54,17 +54,25 @@ namespace RX_Explorer.Class
                 {
                     using (MemoryStream MStream = new MemoryStream())
                     {
-                        byte[] ReadBuffer = new byte[1024];
-
-                        do
+                        try
                         {
-                            int BytesRead = PipeStream.Read(ReadBuffer, 0, ReadBuffer.Length);
+                            byte[] ReadBuffer = new byte[1024];
 
-                            if (BytesRead > 0)
+                            do
                             {
-                                MStream.Write(ReadBuffer, 0, BytesRead);
-                            }
-                        } while (!PipeStream.IsMessageComplete);
+                                int BytesRead = PipeStream.Read(ReadBuffer, 0, ReadBuffer.Length);
+
+                                if (BytesRead > 0)
+                                {
+                                    MStream.Write(ReadBuffer, 0, BytesRead);
+                                }
+                            } while (!PipeStream.IsMessageComplete);
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            //No need to handle this exception which raised when Dispose() is called
+                            break;
+                        }
 
                         string ReadText = Encoding.Unicode.GetString(MStream.ToArray());
 

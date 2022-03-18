@@ -17,11 +17,11 @@ using Windows.Storage.Search;
 namespace RX_Explorer.Class
 {
     /// <summary>
-    /// 提供对错误的捕获和记录，以及蓝屏的导向
+    /// 提供对错误的捕获和记录
     /// </summary>
     public static class LogTracer
     {
-        private static readonly string UniqueName = $"Log_GeneratedTime[{DateTime.Now:yyyy-MM-dd HH-mm-ss.fff}].txt";
+        private static readonly string UniqueName = $"Log_GeneratedTime_{Guid.NewGuid():N}_[{DateTime.Now:yyyy-MM-dd HH-mm-ss.fff}].txt";
 
         private static readonly ConcurrentQueue<string> LogQueue = new ConcurrentQueue<string>();
 
@@ -116,20 +116,23 @@ namespace RX_Explorer.Class
                                                                     orderby LogDate ascending
                                                                     select (LogDate, File))
                 {
-                    using (StreamWriter Writer = new StreamWriter(ExportStream, Encoding.Unicode, 1024, true))
-                    {
-                        Writer.WriteLine();
-                        Writer.WriteLine("*************************");
-                        Writer.WriteLine($"LogDate: {LogDate:G}");
-                        Writer.WriteLine("*************************");
-                    }
+                    ExportStream.Seek(0, SeekOrigin.End);
 
                     using (Stream LogFileStream = await LogFile.OpenStreamForReadAsync())
                     {
-                        await LogFileStream.CopyToAsync(ExportStream);
-                    }
+                        if (LogFileStream.Length > 0)
+                        {
+                            using (StreamWriter Writer = new StreamWriter(ExportStream, Encoding.Unicode, 1024, true))
+                            {
+                                Writer.WriteLine();
+                                Writer.WriteLine("*************************");
+                                Writer.WriteLine($"LogDate: {LogDate:G}");
+                                Writer.WriteLine("*************************");
+                            }
 
-                    ExportStream.Seek(0, SeekOrigin.End);
+                            await LogFileStream.CopyToAsync(ExportStream);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -326,18 +329,18 @@ namespace RX_Explorer.Class
 
         private static void LogProcessThread()
         {
-            while (true)
+            try
             {
-                ProcessSleepLocker.WaitOne();
-
-                try
+                if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), StorageItemTypes.File, CreateOption.OpenIfExist).Result is FileSystemStorageFile LogFile)
                 {
-                    if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), StorageItemTypes.File, CreateOption.OpenIfExist).Result is FileSystemStorageFile LogFile)
+                    using (Stream LogStream = LogFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.RandomAccess).Result)
+                    using (StreamWriter Writer = new StreamWriter(LogStream, Encoding.Unicode, 1024, true))
                     {
-                        using (Stream LogStream = LogFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.RandomAccess).Result)
-                        using (StreamWriter Writer = new StreamWriter(LogStream, Encoding.Unicode, 1024, true))
+                        LogStream.Seek(0, SeekOrigin.End);
+
+                        while (true)
                         {
-                            LogStream.Seek(0, SeekOrigin.End);
+                            ProcessSleepLocker.WaitOne();
 
                             while (LogQueue.TryDequeue(out string LogItem))
                             {
@@ -351,26 +354,26 @@ namespace RX_Explorer.Class
                             Writer.Flush();
                         }
                     }
-                    else
-                    {
-                        throw new IOException("Could not create log file");
-                    }
                 }
-                catch (Exception ex)
+                else
                 {
-#if DEBUG
-                    if (Debugger.IsAttached)
-                    {
-                        Debugger.Break();
-                    }
-                    else
-                    {
-                        Debugger.Launch();
-                    }
-
-                    Debug.WriteLine($"An exception was threw in writing log file: {ex.Message}");
-#endif
+                    throw new IOException("Could not create log file");
                 }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
+
+                Debug.WriteLine($"An exception was threw in writing log file: {ex.Message}");
+#endif
             }
         }
 

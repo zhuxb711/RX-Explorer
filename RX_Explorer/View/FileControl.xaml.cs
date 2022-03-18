@@ -1494,323 +1494,326 @@ namespace RX_Explorer.View
 
         private async void AddressBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            string QueryText = args.ChosenSuggestion is AddressSuggestionItem SuggestItem ? SuggestItem.Path.TrimEnd('\\').Replace('/', '\\').Trim() : args.QueryText.TrimEnd('\\').Replace('/', '\\').Trim();
-
-            if (string.IsNullOrWhiteSpace(QueryText) || QueryText.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(CurrentPresenter?.CurrentFolder?.Path))
             {
-                return;
-            }
+                string QueryText = args.ChosenSuggestion is AddressSuggestionItem SuggestItem ? SuggestItem.Path.TrimEnd('\\').Replace('/', '\\').Trim() : args.QueryText.TrimEnd('\\').Replace('/', '\\').Trim();
 
-            try
-            {
-                string StartupLocation = CurrentPresenter.CurrentFolder switch
+                if (string.IsNullOrWhiteSpace(QueryText) || QueryText.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                 {
-                    RootStorageFolder => Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                    FileSystemStorageFolder Folder => Folder.Path,
-                    _ => null
-                };
-
-                if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        if (string.IsNullOrEmpty(StartupLocation))
-                        {
-                            if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: " - NoExit"))
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog.ShowAsync();
-                            }
-                        }
-                        else
-                        {
-                            if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: new string[] { "-NoExit", "-Command", "Set-Location", StartupLocation }))
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog.ShowAsync();
-                            }
-                        }
-                    }
-
                     return;
                 }
 
-                if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
+                try
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    string StartupLocation = CurrentPresenter.CurrentFolder switch
                     {
-                        if (string.IsNullOrEmpty(StartupLocation))
+                        RootStorageFolder => Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                        FileSystemStorageFolder Folder => Folder.Path,
+                        _ => null
+                    };
+
+                    if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            if (!await Exclusive.Controller.RunAsync("cmd.exe", RunAsAdmin: true))
+                            if (string.IsNullOrEmpty(StartupLocation))
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: " - NoExit"))
                                 {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog.ShowAsync();
-                            }
-                        }
-                        else
-                        {
-                            if (!await Exclusive.Controller.RunAsync("cmd.exe", RunAsAdmin: true, Parameters: new string[] { "/k", "cd", "/d", StartupLocation }))
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog.ShowAsync();
-                            }
-                        }
-                    }
-
-                    return;
-                }
-
-                if (string.Equals(QueryText, "Wt", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Wt.exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
-                    {
-                        case LaunchQuerySupportStatus.Available:
-                        case LaunchQuerySupportStatus.NotSupported:
-                            {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                {
-                                    if (string.IsNullOrEmpty(StartupLocation))
-                                    {
-                                        if (!await Exclusive.Controller.RunAsync("wt.exe", RunAsAdmin: true))
-                                        {
-                                            QueueContentDialog Dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            await Dialog.ShowAsync();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (!await Exclusive.Controller.RunAsync("wt.exe", RunAsAdmin: true, Parameters: new string[] { "/d", StartupLocation }))
-                                        {
-                                            QueueContentDialog Dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            await Dialog.ShowAsync();
-                                        }
-                                    }
-                                }
-
-                                break;
-                            }
-                    }
-
-                    return;
-                }
-
-                string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText);
-                string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
-                string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
-
-                if (ProtentialPath1 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath1))
-                {
-                    await CurrentPresenter.OpenSelectedItemAsync(ProtentialPath1);
-                }
-                else if (ProtentialPath2 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath2))
-                {
-                    await CurrentPresenter.OpenSelectedItemAsync(ProtentialPath2);
-                }
-                else if (ProtentialPath3 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath3))
-                {
-                    await CurrentPresenter.OpenSelectedItemAsync(ProtentialPath3);
-                }
-                else
-                {
-                    if (EnvironmentVariables.CheckIfContainsVariable(QueryText))
-                    {
-                        QueryText = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(QueryText);
-                    }
-
-                    if (await FileSystemStorageItemBase.CheckExistsAsync(QueryText))
-                    {
-                        if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.TrimEnd('\\').Equals(Path.GetPathRoot(QueryText).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive && Drive is LockedDriveData LockedDrive)
-                        {
-                        Retry:
-                            BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
-
-                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                if (!await LockedDrive.UnlockAsync(Dialog.Password))
-                                {
-                                    QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                    QueueContentDialog Dialog = new QueueContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
-                                    if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        goto Retry;
-                                    }
-                                    else
-                                    {
-                                        return;
-                                    }
-                                }
-
-                                DriveDataBase NewDrive = await DriveDataBase.CreateAsync(Drive.DriveType, await StorageFolder.GetFolderFromPathAsync(Drive.Path));
-
-                                if (NewDrive is LockedDriveData)
-                                {
-                                    QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
-
-                                    if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        goto Retry;
-                                    }
-                                    else
-                                    {
-                                        return;
-                                    }
-                                }
-                                else
-                                {
-                                    int Index = CommonAccessCollection.DriveList.IndexOf(Drive);
-
-                                    if (Index >= 0)
-                                    {
-                                        CommonAccessCollection.DriveList.Remove(LockedDrive);
-                                        CommonAccessCollection.DriveList.Insert(Index, NewDrive);
-                                    }
-                                    else
-                                    {
-                                        CommonAccessCollection.DriveList.Add(NewDrive);
-                                    }
+                                    await Dialog.ShowAsync();
                                 }
                             }
                             else
                             {
-                                return;
+                                if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: new string[] { "-NoExit", "-Command", "Set-Location", StartupLocation }))
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    await Dialog.ShowAsync();
+                                }
                             }
                         }
 
+                        return;
+                    }
+
+                    if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
+                    {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            QueryText = await Exclusive.Controller.ConvertShortPathToLongPathAsync(QueryText);
+                            if (string.IsNullOrEmpty(StartupLocation))
+                            {
+                                if (!await Exclusive.Controller.RunAsync("cmd.exe", RunAsAdmin: true))
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    await Dialog.ShowAsync();
+                                }
+                            }
+                            else
+                            {
+                                if (!await Exclusive.Controller.RunAsync("cmd.exe", RunAsAdmin: true, Parameters: new string[] { "/k", "cd", "/d", StartupLocation }))
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    await Dialog.ShowAsync();
+                                }
+                            }
                         }
 
-                        switch (await FileSystemStorageItemBase.OpenAsync(QueryText))
+                        return;
+                    }
+
+                    if (string.Equals(QueryText, "Wt", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Wt.exe", StringComparison.OrdinalIgnoreCase))
+                    {
+                        switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
                         {
-                            case FileSystemStorageFile File:
+                            case LaunchQuerySupportStatus.Available:
+                            case LaunchQuerySupportStatus.NotSupported:
                                 {
-                                    await CurrentPresenter.OpenSelectedItemAsync(File);
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    {
+                                        if (string.IsNullOrEmpty(StartupLocation))
+                                        {
+                                            if (!await Exclusive.Controller.RunAsync("wt.exe", RunAsAdmin: true))
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                await Dialog.ShowAsync();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!await Exclusive.Controller.RunAsync("wt.exe", RunAsAdmin: true, Parameters: new string[] { "/d", StartupLocation }))
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                await Dialog.ShowAsync();
+                                            }
+                                        }
+                                    }
+
                                     break;
                                 }
-                            case FileSystemStorageFolder Folder:
-                                {
-                                    string TargetRootPath = Path.GetPathRoot(Folder.Path);
-                                    string CurrentRootPath = Path.GetPathRoot(CurrentPresenter.CurrentFolder.Path);
+                        }
 
-                                    if (!CurrentRootPath.Equals(TargetRootPath, StringComparison.OrdinalIgnoreCase))
+                        return;
+                    }
+
+                    string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText);
+                    string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
+                    string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
+
+                    if (ProtentialPath1 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath1))
+                    {
+                        await CurrentPresenter.OpenSelectedItemAsync(ProtentialPath1);
+                    }
+                    else if (ProtentialPath2 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath2))
+                    {
+                        await CurrentPresenter.OpenSelectedItemAsync(ProtentialPath2);
+                    }
+                    else if (ProtentialPath3 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath3))
+                    {
+                        await CurrentPresenter.OpenSelectedItemAsync(ProtentialPath3);
+                    }
+                    else
+                    {
+                        if (EnvironmentVariables.CheckIfContainsVariable(QueryText))
+                        {
+                            QueryText = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(QueryText);
+                        }
+
+                        if (await FileSystemStorageItemBase.CheckExistsAsync(QueryText))
+                        {
+                            if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.TrimEnd('\\').Equals(Path.GetPathRoot(QueryText).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive && Drive is LockedDriveData LockedDrive)
+                            {
+                            Retry:
+                                BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
+
+                                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    if (!await LockedDrive.UnlockAsync(Dialog.Password))
                                     {
-                                        if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(TargetRootPath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetRootNode)
+                                        QueueContentDialog UnlockFailedDialog = new QueueContentDialog
                                         {
-                                            FolderTree.SelectNodeAndScrollToVertical(TargetRootNode);
-                                            TargetRootNode.IsExpanded = true;
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                        };
+
+                                        if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                        {
+                                            goto Retry;
+                                        }
+                                        else
+                                        {
+                                            return;
                                         }
                                     }
 
-                                    if (await CurrentPresenter.DisplayItemsInFolder(Folder))
-                                    {
-                                        if (SettingPage.IsPathHistoryEnabled)
-                                        {
-                                            SQLite.Current.SetPathHistory(Folder.Path);
-                                        }
+                                    DriveDataBase NewDrive = await DriveDataBase.CreateAsync(Drive.DriveType, await StorageFolder.GetFolderFromPathAsync(Drive.Path));
 
-                                        await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
+                                    if (NewDrive is LockedDriveData)
+                                    {
+                                        QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                        };
+
+                                        if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                        {
+                                            goto Retry;
+                                        }
+                                        else
+                                        {
+                                            return;
+                                        }
                                     }
                                     else
+                                    {
+                                        int Index = CommonAccessCollection.DriveList.IndexOf(Drive);
+
+                                        if (Index >= 0)
+                                        {
+                                            CommonAccessCollection.DriveList.Remove(LockedDrive);
+                                            CommonAccessCollection.DriveList.Insert(Index, NewDrive);
+                                        }
+                                        else
+                                        {
+                                            CommonAccessCollection.DriveList.Add(NewDrive);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    return;
+                                }
+                            }
+
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            {
+                                QueryText = await Exclusive.Controller.ConvertShortPathToLongPathAsync(QueryText);
+                            }
+
+                            switch (await FileSystemStorageItemBase.OpenAsync(QueryText))
+                            {
+                                case FileSystemStorageFile File:
+                                    {
+                                        await CurrentPresenter.OpenSelectedItemAsync(File);
+                                        break;
+                                    }
+                                case FileSystemStorageFolder Folder:
+                                    {
+                                        string TargetRootPath = Path.GetPathRoot(Folder.Path);
+                                        string CurrentRootPath = Path.GetPathRoot(CurrentPresenter.CurrentFolder.Path);
+
+                                        if (!CurrentRootPath.Equals(TargetRootPath, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(TargetRootPath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetRootNode)
+                                            {
+                                                FolderTree.SelectNodeAndScrollToVertical(TargetRootNode);
+                                                TargetRootNode.IsExpanded = true;
+                                            }
+                                        }
+
+                                        if (await CurrentPresenter.DisplayItemsInFolder(Folder))
+                                        {
+                                            if (SettingPage.IsPathHistoryEnabled)
+                                            {
+                                                SQLite.Current.SetPathHistory(Folder.Path);
+                                            }
+
+                                            await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
+                                        }
+                                        else
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                                            };
+
+                                            await Dialog.ShowAsync();
+                                        }
+
+                                        break;
+                                    }
+                                default:
                                     {
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                                         };
 
                                         await Dialog.ShowAsync();
+
+                                        break;
                                     }
+                            }
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                            };
 
-                                    break;
-                                }
-                            default:
-                                {
-                                    QueueContentDialog dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                                    };
-
-                                    await dialog.ShowAsync();
-
-                                    break;
-                                }
+                            await Dialog.ShowAsync();
                         }
                     }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                        };
-
-                        await dialog.ShowAsync();
-                    }
                 }
-            }
-            catch (Exception)
-            {
-                QueueContentDialog dialog = new QueueContentDialog
+                catch (Exception)
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                };
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                    };
 
-                await dialog.ShowAsync();
+                    await Dialog.ShowAsync();
+                }
             }
         }
 
@@ -1986,21 +1989,21 @@ namespace RX_Explorer.View
         {
             Button Btn = sender as Button;
 
-            if (Btn.DataContext is AddressBlock Block && !Block.Path.Equals(CurrentPresenter.CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
+            if (Btn.DataContext is AddressBlock Block
+                && !string.IsNullOrEmpty(CurrentPresenter?.CurrentFolder?.Path)
+                && !Block.Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase) 
+                && (Block.Path.StartsWith(@"\\?\") || !Block.Path.StartsWith(@"\") || Block.Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).Length > 1))
             {
-                if (!Block.Path.StartsWith(@"\") || Block.Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).Length > 1)
+                if (!await CurrentPresenter.DisplayItemsInFolder(Block.Path))
                 {
-                    if (!await CurrentPresenter.DisplayItemsInFolder(Block.Path))
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Block.Path}\"",
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                        };
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Block.Path}\"",
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                    };
 
-                        await dialog.ShowAsync();
-                    }
+                    await Dialog.ShowAsync();
                 }
             }
         }
@@ -2633,6 +2636,8 @@ namespace RX_Explorer.View
 
                     BladeViewer.Items.Add(Blade);
 
+                    CurrentPresenter = Presenter;
+
                     if (RootStorageFolder.Instance.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase))
                     {
                         await Presenter.DisplayItemsInFolder(RootStorageFolder.Instance);
@@ -2697,8 +2702,6 @@ namespace RX_Explorer.View
                                 }
                         }
                     }
-
-                    CurrentPresenter = Presenter;
                 }
                 catch (Exception ex)
                 {

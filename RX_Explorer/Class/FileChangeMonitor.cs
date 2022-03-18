@@ -43,7 +43,7 @@ namespace RX_Explorer.Class
 
         public async Task StartMonitorAsync(string Path)
         {
-            await StopMonitorAsync();
+            StopMonitor();
 
             if (!string.IsNullOrWhiteSpace(Path))
             {
@@ -75,10 +75,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task StopMonitorAsync()
+        public void StopMonitor()
         {
             CancelMonitorCore(false);
-            return Task.CompletedTask;
         }
 
         private void CancelMonitorCore(bool IsDisposing)

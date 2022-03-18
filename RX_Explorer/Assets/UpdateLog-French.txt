@@ -1,53 +1,27 @@
-﻿###Quoi de neuf dans la version 7.5.5.0
+﻿###Quoi de neuf dans la version 7.5.7.0
 
-#####Fonctionnalité mise à jour
+#####Optimisation des performances
 
->#####Ajout de la prise en charge des appareils MTP (Smartphones, cartes SD, etc.)
+>#####Améliorer le mécanisme de planification des processus auxiliaires
 
->>#####La fonction de surveillance des modifications de fichiers n'est pas prise en charge sur ces appareils et ne prend pas en charge les opérations de fichiers simultanées
-
->>#####Selon l'appareil, certains appareils peuvent ne pas prendre en charge une ou plusieurs opérations, telles que : Déplacer/Copier/Supprimer/Renommer, les opérations non prises en charge échoueront
+>#####Amélioration des performances de l'enregistreur
 
 #####UI mise à jour
 
->#####Amélioration du style de certaines interfaces utilisateur dans la "page d'accueil"
+>#####Les onglets ont maintenant des images d'aperçu plus grandes
 
-> ##### Les sous-options apparaîtront automatiquement lors du changement de mode d'interface utilisateur dans les paramètres
-
->#####"Liste des tâches" a été intégrée dans le contenu de chaque onglet pour éviter d'obscurcir les boutons de certaines fonctions clés
-
->#####La visionneuse d'images intégrée utilisera désormais directement l'image d'origine pour l'aperçu en l'absence de vignette
-
->#####Une barre de progression s'affiche lorsqu'un dossier met trop de temps à se charger pour indiquer que le chargement est toujours en cours
-
->#####Amélioration du tri des noms de fichiers, sera désormais compatible avec l'Explorateur Windows
+>#####L'astuce du titre de l'onglet n'apparaît désormais que lorsqu'elle n'est pas entièrement affichée
 
 #####Bug réparé
 
->##### Correction de certains problèmes d'interface utilisateur sur la page des paramètres lors du changement de thème
+>#####Correction d'un problème où les périphériques USB ne pouvaient pas être affichés
 
->#####Correction d'un problème où un périphérique USB mal connecté pouvait provoquer le gel de l'interface utilisateur
+>#####Correction d'un problème qui pouvait entraîner la corruption du raccourci lors de l'affichage d'un raccourci avec des espaces dans le chemin cible via la fenêtre des propriétés
 
->#####Correction d'un problème où la visionneuse intégrée prend en charge les fichiers .jpg mais pas les fichiers .jpeg
+>#####Correction d'un problème où le message d'erreur pour "Renommer la tâche" pouvait ne pas refléter correctement son état
 
->#####Correction du problème selon lequel certains contenus textuels dans les propriétés du lecteur peuvent masquer d'autres éléments lorsque le contenu est trop long
+>#####Correction du problème de plantage du fichier du répertoire racine lorsqu'il est modifié dans certains cas
 
->#####Correction d'un problème où la taille de la fenêtre actuelle n'était pas mémorisée lors de la fermeture de la fenêtre des propriétés à l'aide du bouton de fermeture dans le coin supérieur droit
+>#####Correction d'un problème où la fenêtre est minimisée pouvant provoquer un plantage
 
->#####Correction du problème de perte de l'extension de fichier lors de l'utilisation de la fonction de renommage après la désactivation de "Afficher l'extension de fichier"
-
->#####Correction d'un problème où l'opération de collage ne pouvait pas être effectuée plusieurs fois après avoir copié certains types de fichiers
-
->#####Correction d'un problème où le nom de fichier de certains fichiers pouvait être vide lorsque "Afficher l'extension de fichier" est désactivé
-
->#####Correction d'un problème où la commande "Envoyer vers" était accidentellement utilisable à la racine du lecteur
-
->#####Correction d'un problème où un élément de menu qui pourrait ne pas correspondre au type de fichier actuel pouvait être affiché dans de rares cas
-
->#####Correction d'un problème où renommer un nœud dans l'arborescence du répertoire de fichiers qui n'est pas le dossier actuel peut ne pas être mis à jour correctement
-
->#####Correction d'un problème selon lequel lorsque l'application par défaut et l'application recommandée sont identiques, il peut y avoir des éléments en double dans le menu contextuel du bouton "Ouvrir avec"
-
->#####Correction d'un problème où la visionneuse d'archives intégrée n'affichait pas d'invite "Vide" lors de la navigation vers un dossier vide
-
->#####Correction d'un problème selon lequel l'image d'aperçu dans le mode "Image d'arrière-plan personnalisée" peut avoir des doublons dans certains cas
+>#####Correction de certains problèmes pouvant provoquer des plantages

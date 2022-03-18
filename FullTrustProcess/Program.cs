@@ -63,13 +63,6 @@ namespace FullTrustProcess
 
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-                AliveCheckTimer = new Timer(5000)
-                {
-                    AutoReset = true,
-                    Enabled = true
-                };
-                AliveCheckTimer.Elapsed += AliveCheckTimer_Elapsed;
-
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
                 if (args.FirstOrDefault() == "/ExecuteAdminOperation")
@@ -516,20 +509,25 @@ namespace FullTrustProcess
                 }
                 else
                 {
+                    AliveCheckTimer = new Timer(10000)
+                    {
+                        AutoReset = true,
+                        Enabled = true
+                    };
+                    AliveCheckTimer.Elapsed += AliveCheckTimer_Elapsed;
+
                     PipeCommunicationBaseController = new NamedPipeReadController("Explorer_NamedPipe_CommunicationBase");
                     PipeCommunicationBaseController.OnDataReceived += PipeCommunicationBaseController_OnDataReceived;
 
-                    if (PipeCommunicationBaseController.WaitForConnectionAsync(5000).Result)
+                    if (PipeCommunicationBaseController.WaitForConnectionAsync(10000).Result)
                     {
                         AliveCheckTimer.Start();
+                        ExitLocker.WaitOne();
                     }
                     else
                     {
-                        LogTracer.Log($"Could not connect to the explorer. CommunicationBaseController connect timeout. Exiting...");
-                        ExitLocker.Set();
+                        LogTracer.Log($"Could not connect to the explorer. PipeCommunicationBaseController connect timeout. Exiting...");
                     }
-
-                    ExitLocker.WaitOne();
                 }
             }
             catch (Exception ex)
@@ -598,6 +596,8 @@ namespace FullTrustProcess
                         if ((ExplorerProcess?.Id).GetValueOrDefault() != Convert.ToInt32(ProcessId))
                         {
                             ExplorerProcess = Process.GetProcessById(Convert.ToInt32(ProcessId));
+                            ExplorerProcess.EnableRaisingEvents = true;
+                            ExplorerProcess.Exited += ExplorerProcess_Exited;
                         }
                     }
 
@@ -645,6 +645,18 @@ namespace FullTrustProcess
                 {
                     Deferral.Complete();
                 }
+            }
+        }
+
+        private static void ExplorerProcess_Exited(object sender, EventArgs e)
+        {
+            try
+            {
+                ExitLocker.Set();
+            }
+            catch (Exception)
+            {
+                //No need to handle this exception
             }
         }
 
@@ -698,6 +710,8 @@ namespace FullTrustProcess
                 PipeProgressWriterController?.Dispose();
                 PipeCancellationReadController?.Dispose();
                 PipeCommunicationBaseController?.Dispose();
+
+                MTPDeviceList.ForEach((Item) => Item.Dispose());
             }
         }
 

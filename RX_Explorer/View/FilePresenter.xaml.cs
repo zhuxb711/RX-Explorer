@@ -2613,11 +2613,14 @@ namespace RX_Explorer.View
                         TabViewContainer.Current.LayoutModeControl.IsEnabled = false;
                         FileCollection.Clear();
                         GroupCollection.Clear();
+                        AreaWatcher.StopMonitor();
 
-                        await Task.WhenAll(AreaWatcher.StopMonitorAsync(), SetExtraInformationOnCurrentFolder());
+                        await SetExtraInformationOnCurrentFolder();
                     }
                     else if (await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
                     {
+                        CurrentFolder = Folder;
+
                         //If target is network path and the user had already mapped it as drive, then we should remap the network path to the drive path if possible.
                         //Use drive path could get more benefit from loading speed and directory monitor
                         if (Folder.Path.StartsWith(@"\\"))
@@ -2634,8 +2637,6 @@ namespace RX_Explorer.View
                                 }
                             }
                         }
-
-                        CurrentFolder = Folder;
 
                         if (Container.FolderTree.SelectedNode == null
                             && Container.FolderTree.RootNodes.FirstOrDefault((Node) => Path.GetPathRoot(Folder.Path).Equals((Node.Content as TreeViewNodeContent)?.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
@@ -2822,22 +2823,9 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void Current_Suspending(object sender, SuspendingEventArgs e)
+        private void Current_Suspending(object sender, SuspendingEventArgs e)
         {
-            SuspendingDeferral Deferral = e.SuspendingOperation.GetDeferral();
-
-            try
-            {
-                await AreaWatcher.StopMonitorAsync();
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-            }
-            finally
-            {
-                Deferral.Complete();
-            }
+            AreaWatcher.StopMonitor();
         }
 
         private void NavigateToStorageItem(VirtualKey Key)

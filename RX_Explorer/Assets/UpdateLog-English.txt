@@ -1,53 +1,27 @@
-﻿###What's new in Ver.7.5.5.0
+﻿###What's new in Ver.7.5.7.0
 
-#####Feature updated
+#####Performance optimization
 
->#####Added support for MTP devices (Smartphones, SD cards, etc.)
+>#####Improve the auxiliary process scheduling mechanism
 
->>#####The file change monitoring function is not supported on such devices, and do not support concurrent file operations
-
->>#####Depending on the device, some devices may not support one or more operations, such as: Move/Copy/Delete/Rename, unsupported operations will fail
+>#####Improved the performance of logger
 
 #####UI updated
 
->#####Improved the style of some UI in the "Home Page"
+>#####Tabs now have larger preview images
 
->#####Sub-options will pop up automatically when switching UI mode in settings
-
->#####"Task List" has been embedded as part of each tab's content to avoid obscuring buttons for some key functions
-
->#####Built-in picture viewer will now directly use the original picture for preview in the absence of a thumbnail
-
->#####A progress bar will be displayed when a folder takes too much time on loading to indicate that loading is still in progress
-
->#####Improved sorting of file names, will now be consistent with the Windows Explorer
+>#####Tab title tip now only pops up when it doesn't fully displayed
 
 #####Bug Fixed
 
->#####Fixed some UI issues on the settings page when switching themes
+>#####Fixed an issue where USB devices could not be displayed
 
->#####Fixed an issue where a poorly connected USB device could cause the UI to freeze
+>#####Fixed an issue that could cause the shortcut to be corrupted when viewing a shortcut with spaces in the target path through the properties window
 
->#####Fixed an issue where the built-in viewer supports .jpg files but not .jpeg files
+>#####Fixed an issue where the error message for "Rename Task" might not reflect its status correctly
 
->#####Fixed the problem that some text content in the drive properties may obscure other elements when the content is too long
+>#####Fixed the problem that the root directory file will crash when changed in some cases
 
->#####Fixed an issue where the current window size would not be remembered when closing the properties window using the close button in the upper right corner
+>#####Fixed an issue where window is minimized could cause a crash
 
->#####Fixed the problem that the file extension may be lost when using the rename function after "Show file extension" is disabled
-
->#####Fixed an issue where the paste operation could not be performed multiple times after copying certain types of files
-
->#####Fixed an issue where the filename of some files might be empty when "Show file extension" is disabled
-
->#####Fixed an issue where the "Send to" command was accidentally usable on the root of the drive
-
->#####Fixed an issue where a menu item that might not match the current file type could be displayed in rare cases
-
->#####Fixed an issue where renaming a node in the file directory tree that is not the current folder might not update correctly
-
->#####Fixed the problem that when the default app and recommended app are the same, there may be duplicate items in the pop-up menu of the "Open With" button
-
->#####Fixed an issue where the built-in archive viewer would not display a "Empty" prompt when navigating to an empty folder
-
->#####Fixed the problem that the preview picture in the "Custom Background Picture" mode may have duplicates in some cases
+>#####Fixed some issues that could cause crashes

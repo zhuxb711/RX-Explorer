@@ -12,7 +12,7 @@ namespace FullTrustProcess
 {
     public static class LogTracer
     {
-        private static readonly string UniqueName = $"Log_GeneratedTime[{DateTime.Now:yyyy-MM-dd HH-mm-ss.fff}].txt";
+        private static readonly string UniqueName = $"Log_GeneratedTime_{Guid.NewGuid():N}_[{DateTime.Now:yyyy-MM-dd HH-mm-ss.fff}].txt";
 
         private static readonly ConcurrentQueue<string> LogQueue = new ConcurrentQueue<string>();
 
@@ -195,49 +195,44 @@ namespace FullTrustProcess
 
         private static void LogProcessThread()
         {
-            while (true)
+            try
             {
-                try
+                using (FileStream LogFileStream = File.Open(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
+                using (StreamWriter Writer = new StreamWriter(LogFileStream, Encoding.Unicode, 1024, true))
                 {
-                    if (LogQueue.IsEmpty)
+                    LogFileStream.Seek(0, SeekOrigin.End);
+
+                    while (true)
                     {
                         ProcessSleepLocker.WaitOne();
-                    }
 
-                    using (FileStream LogFileStream = File.Open(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
-                    {
-                        LogFileStream.Seek(0, SeekOrigin.End);
-
-                        using (StreamWriter Writer = new StreamWriter(LogFileStream, Encoding.Unicode, 1024, true))
+                        while (LogQueue.TryDequeue(out string LogItem))
                         {
-                            while (LogQueue.TryDequeue(out string LogItem))
-                            {
-                                Writer.WriteLine(LogItem);
+                            Writer.WriteLine(LogItem);
 
 #if DEBUG
-                                Debug.WriteLine(LogItem);
+                            Debug.WriteLine(LogItem);
 #endif
-                            }
-
-                            Writer.Flush();
                         }
-                    }
-                }
-                catch (Exception ex)
-                {
-#if DEBUG
-                    if (Debugger.IsAttached)
-                    {
-                        Debugger.Break();
-                    }
-                    else
-                    {
-                        Debugger.Launch();
-                    }
 
-                    Debug.WriteLine($"An exception was threw in writing log file: {ex.Message}");
-#endif                
+                        Writer.Flush();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
+
+                Debug.WriteLine($"An exception was threw in writing log file: {ex.Message}");
+#endif
             }
         }
 

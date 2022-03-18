@@ -1663,7 +1663,7 @@ namespace RX_Explorer.View
                 PreventFallBack.IsChecked = null;
                 GetBingPhotoState.Visibility = Visibility.Visible;
 
-                bool DetectBrightnessNeeded = await BingPictureDownloader.CheckIfNeedToUpdate();
+                bool DetectBrightnessNeeded = await BingPictureDownloader.CheckIfNeedToUpdateAsync();
 
                 if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile File)
                 {
