@@ -197,7 +197,6 @@ namespace RX_Explorer.View
 
             this.Container = Container;
 
-
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
             ListViewDetailHeader.Filter.RefreshListRequested += Filter_RefreshListRequested;
 

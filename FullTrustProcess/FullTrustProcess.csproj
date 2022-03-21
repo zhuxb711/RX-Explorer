@@ -7,16 +7,15 @@
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <SelfContained>true</SelfContained>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+	<SelfContained>true</SelfContained>
+	<PublishSingleFile>true</PublishSingleFile>
 	<TieredCompilation>true</TieredCompilation>
-    <PublishSingleFile>true</PublishSingleFile>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM64'">
-    <SelfContained>true</SelfContained>
-	<TieredCompilation>true</TieredCompilation>
-    <PublishSingleFile>true</PublishSingleFile>
+  <PropertyGroup Condition="'$(Platform)' == 'x64'">
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)' == 'ARM64'">
 	<RuntimeIdentifier>win-arm64</RuntimeIdentifier>
   </PropertyGroup>
   <PropertyGroup>
@@ -26,28 +25,10 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="RegFiles\Intercept_Folder.reg" />
-    <None Remove="RegFiles\Intercept_WIN_E.reg" />
-    <None Remove="RegFiles\Restore_Folder.reg" />
-    <None Remove="RegFiles\Restore_WIN_E.reg" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
     </None>
 	<Content Include="Everything64.dll">
-	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	</Content>
-	<Content Include="RegFiles\Intercept_Folder.reg">
-	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	</Content>
-	<Content Include="RegFiles\Intercept_WIN_E.reg">
-	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	</Content>
-	<Content Include="RegFiles\Restore_Folder.reg">
-	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	</Content>
-	<Content Include="RegFiles\Restore_WIN_E.reg">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</Content>
   </ItemGroup>

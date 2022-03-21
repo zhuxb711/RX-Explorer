@@ -127,6 +127,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FullTrustProcess\FullTrustProcess.csproj" />
     <ProjectReference Include="..\RX_Explorer\RX_Explorer.csproj" />
+    <ProjectReference Include="..\SystemLaunchHelper\SystemLaunchHelper.csproj" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
 </Project>

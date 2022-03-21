@@ -3,12 +3,50 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace FullTrustProcess
 {
     public static class Extension
     {
+        public static Task<string> GetHashAsync(this HashAlgorithm Algorithm, Stream InputStream, CancellationToken Token = default, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                int CurrentProgressValue = 0;
+                byte[] Buffer = new byte[4096];
+
+                do
+                {
+                    int CurrentReadCount = InputStream.Read(Buffer, 0, Buffer.Length);
+                    int NewProgressValue = Convert.ToInt32(Math.Round(InputStream.Position * 100d / InputStream.Length, MidpointRounding.AwayFromZero));
+
+                    if (NewProgressValue > CurrentProgressValue)
+                    {
+                        CurrentProgressValue = NewProgressValue;
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(NewProgressValue, null));
+                    }
+
+                    if (CurrentReadCount < Buffer.Length)
+                    {
+                        Algorithm.TransformFinalBlock(Buffer, 0, CurrentReadCount);
+                        break;
+                    }
+                    else
+                    {
+                        Algorithm.TransformBlock(Buffer, 0, CurrentReadCount, Buffer, 0);
+                    }
+                } while (!Token.IsCancellationRequested);
+
+                Token.ThrowIfCancellationRequested();
+
+                return string.Concat(Algorithm.Hash.Select((Byte) => Byte.ToString("x2")));
+            }, Token, (InputStream.Length >> 30) >= 1 ? TaskCreationOptions.LongRunning : TaskCreationOptions.None, TaskScheduler.Default);
+        }
+
         public static void DownloadFile(this MediaDevice Device, string Source, string Destination, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Device.FileExists(Source))

@@ -26,6 +26,36 @@ namespace FullTrustProcess
 {
     public static class Helper
     {
+        public static void CopyTo(string From, string To)
+        {
+            if (File.Exists(From))
+            {
+                File.Copy(From, To, true);
+            }
+            else if (Directory.Exists(From))
+            {
+                Directory.CreateDirectory(To);
+
+                foreach (string Path in Directory.EnumerateDirectories(From, "*", SearchOption.AllDirectories).Concat(Directory.EnumerateFiles(From, "*", SearchOption.AllDirectories)))
+                {
+                    string TargetPath = System.IO.Path.Combine(To, System.IO.Path.GetRelativePath(From, Path));
+
+                    if (File.Exists(Path))
+                    {
+                        File.Copy(Path, TargetPath, true);
+                    }
+                    else if (Directory.Exists(Path))
+                    {
+                        Directory.CreateDirectory(TargetPath);
+                    }
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException(From);
+            }
+        }
+
         public static byte[] GetThumbnailOverlay(string Path)
         {
             Shell32.SHFILEINFO Shfi = new Shell32.SHFILEINFO();

@@ -1,6 +1,5 @@
 ﻿using MediaDevices;
 using Microsoft.Toolkit.Deferred;
-using Microsoft.Win32;
 using ShareClassLibrary;
 using System;
 using System.Collections;
@@ -15,6 +14,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.AccessControl;
+using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
@@ -2532,415 +2532,254 @@ namespace FullTrustProcess
                         }
                     case CommandType.InterceptFolder:
                         {
-                            string AliasLocation = null;
+                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
+                            string SystemLaunchHelperTargetExecutePath = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
+                            string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
+                            string SystemLaunchHelperOriginExecutePath = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
 
-                            try
+                            if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
                             {
-                                using (Process Pro = Process.Start(new ProcessStartInfo
+                                using (FileStream TargetFileStream = File.Open(SystemLaunchHelperTargetExecutePath, FileMode.Open, FileAccess.Read))
+                                using (FileStream OriginFileStream = File.Open(SystemLaunchHelperOriginExecutePath, FileMode.Open, FileAccess.Read))
+                                using (MD5 MD5Alg1 = MD5.Create())
+                                using (MD5 MD5Alg2 = MD5.Create())
                                 {
-                                    FileName = "powershell.exe",
-                                    Arguments = "-Command \"Get-Command RX-Explorer | Format-List -Property Source\"",
-                                    CreateNoWindow = true,
-                                    RedirectStandardOutput = true,
-                                    UseShellExecute = false
-                                }))
-                                {
-                                    try
+                                    if (await MD5Alg1.GetHashAsync(OriginFileStream) != await MD5Alg2.GetHashAsync(TargetFileStream))
                                     {
-                                        string OutputString = Pro.StandardOutput.ReadToEnd();
-
-                                        if (!string.IsNullOrWhiteSpace(OutputString))
-                                        {
-                                            string Path = OutputString.Replace(Environment.NewLine, string.Empty).Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
-
-                                            if (File.Exists(Path))
-                                            {
-                                                AliasLocation = Path;
-                                            }
-                                        }
+                                        Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
                                     }
-                                    finally
-                                    {
-                                        if (!Pro.WaitForExit(1000))
-                                        {
-                                            Pro.Kill();
-                                        }
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, "Could not get alias location by Powershell");
-                            }
-
-                            if (string.IsNullOrEmpty(AliasLocation))
-                            {
-                                string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User)
-                                                                           .Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
-                                                                           .Concat(Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine)
-                                                                                              .Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
-                                                                           .Distinct()
-                                                                           .ToArray();
-
-                                if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string Location)
-                                {
-                                    AliasLocation = Location;
-                                }
-                                else
-                                {
-                                    string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-                                    if (!string.IsNullOrEmpty(AppDataPath) && Directory.Exists(AppDataPath))
-                                    {
-                                        string WindowsAppsPath = Path.Combine(AppDataPath, "Microsoft", "WindowsApps");
-
-                                        if (Directory.Exists(WindowsAppsPath))
-                                        {
-                                            string RXPath = Path.Combine(WindowsAppsPath, "RX-Explorer.exe");
-
-                                            if (File.Exists(RXPath))
-                                            {
-                                                AliasLocation = RXPath;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (!string.IsNullOrEmpty(AliasLocation))
-                            {
-                                string TempFilePath = Path.Combine(Path.GetTempPath(), @$"{Guid.NewGuid()}.reg");
-
-                                try
-                                {
-                                    using (FileStream TempFileStream = File.Open(TempFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
-                                    using (FileStream RegStream = File.Open(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Intercept_Folder.reg"), FileMode.Open, FileAccess.Read, FileShare.Read))
-                                    using (StreamReader Reader = new StreamReader(RegStream))
-                                    {
-                                        string Content = Reader.ReadToEnd();
-
-                                        using (StreamWriter Writer = new StreamWriter(TempFileStream, Encoding.Unicode))
-                                        {
-                                            Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
-                                        }
-                                    }
-
-                                    using (Process RegisterProcess = Process.Start(new ProcessStartInfo
-                                    {
-                                        FileName = "regedit.exe",
-                                        Verb = "runas",
-                                        CreateNoWindow = true,
-                                        UseShellExecute = true,
-                                        Arguments = $"/s \"{TempFilePath}\"",
-                                    }))
-                                    {
-                                        RegisterProcess.WaitForExit();
-                                    }
-                                }
-                                finally
-                                {
-                                    if (File.Exists(TempFilePath))
-                                    {
-                                        File.Delete(TempFilePath);
-                                    }
-                                }
-
-                                bool IsRegistryCheckingSuccess = true;
-
-                                try
-                                {
-                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Directory", false)?.OpenSubKey("shell", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
-                                    {
-                                        if (Key != null)
-                                        {
-                                            if (!Convert.ToString(Key.GetValue(string.Empty)).Equals($"{AliasLocation} %1", StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                IsRegistryCheckingSuccess = false;
-                                            }
-                                        }
-                                    }
-
-                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Drive", false)?.OpenSubKey("shell", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
-                                    {
-                                        if (Key != null)
-                                        {
-                                            if (!Convert.ToString(Key.GetValue(string.Empty)).Equals($"{AliasLocation} %1", StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                IsRegistryCheckingSuccess = false;
-                                            }
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex, "Registry checking failed");
-                                }
-
-
-                                if (IsRegistryCheckingSuccess)
-                                {
-                                    Value.Add("Success", string.Empty);
-                                }
-                                else
-                                {
-                                    Value.Add("Error", "Registry checking failed");
                                 }
                             }
                             else
                             {
-                                Value.Add("Error", "Alias file is not exists");
+                                Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+                            }
+
+                            using (Process HelperProcess = Process.Start(new ProcessStartInfo
+                            {
+                                FileName = SystemLaunchHelperTargetExecutePath,
+                                UseShellExecute = false,
+                                Arguments = "-Command InterceptFolder",
+                            }))
+                            {
+                                HelperProcess.WaitForExit();
+
+                                switch (HelperProcess.ExitCode)
+                                {
+                                    case 0:
+                                        {
+                                            Value.Add("Success", string.Empty);
+                                            break;
+                                        }
+                                    case 1:
+                                        {
+                                            Value.Add("Error", "Alias file is not exists");
+                                            break;
+                                        }
+                                    case 2:
+                                        {
+                                            Value.Add("Error", "Registry checking failed");
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            Value.Add("Error", "Unknown exception was threw");
+                                            break;
+                                        }
+                                }
                             }
 
                             break;
                         }
                     case CommandType.InterceptWinE:
                         {
-                            string AliasLocation = null;
+                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
+                            string SystemLaunchHelperTargetExecutePath = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
+                            string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
+                            string SystemLaunchHelperOriginExecutePath = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
 
-                            try
+                            if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
                             {
-                                using (Process Pro = Process.Start(new ProcessStartInfo
+                                using (FileStream TargetFileStream = File.Open(SystemLaunchHelperTargetExecutePath, FileMode.Open, FileAccess.Read))
+                                using (FileStream OriginFileStream = File.Open(SystemLaunchHelperOriginExecutePath, FileMode.Open, FileAccess.Read))
+                                using (MD5 MD5Alg1 = MD5.Create())
+                                using (MD5 MD5Alg2 = MD5.Create())
                                 {
-                                    FileName = "powershell.exe",
-                                    Arguments = "-Command \"Get-Command RX-Explorer | Format-List -Property Source\"",
-                                    CreateNoWindow = true,
-                                    RedirectStandardOutput = true,
-                                    UseShellExecute = false
-                                }))
-                                {
-                                    try
+                                    if (await MD5Alg1.GetHashAsync(OriginFileStream) != await MD5Alg2.GetHashAsync(TargetFileStream))
                                     {
-                                        string OutputString = Pro.StandardOutput.ReadToEnd();
-
-                                        if (!string.IsNullOrWhiteSpace(OutputString))
-                                        {
-                                            string Path = OutputString.Replace(Environment.NewLine, string.Empty).Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
-
-                                            if (File.Exists(Path))
-                                            {
-                                                AliasLocation = Path;
-                                            }
-                                        }
+                                        Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
                                     }
-                                    finally
-                                    {
-                                        if (!Pro.WaitForExit(1000))
-                                        {
-                                            Pro.Kill();
-                                        }
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, "Could not get alias location by Powershell");
-                            }
-
-                            if (string.IsNullOrEmpty(AliasLocation))
-                            {
-                                string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User)
-                                                                           .Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
-                                                                           .Concat(Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine)
-                                                                                              .Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
-                                                                           .Distinct()
-                                                                           .ToArray();
-
-                                if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string Location)
-                                {
-                                    AliasLocation = Location;
-                                }
-                                else
-                                {
-                                    string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-                                    if (!string.IsNullOrEmpty(AppDataPath) && Directory.Exists(AppDataPath))
-                                    {
-                                        string WindowsAppsPath = Path.Combine(AppDataPath, "Microsoft", "WindowsApps");
-
-                                        if (Directory.Exists(WindowsAppsPath))
-                                        {
-                                            string RXPath = Path.Combine(WindowsAppsPath, "RX-Explorer.exe");
-
-                                            if (File.Exists(RXPath))
-                                            {
-                                                AliasLocation = RXPath;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (!string.IsNullOrEmpty(AliasLocation))
-                            {
-                                string TempFilePath = Path.Combine(Path.GetTempPath(), @$"{Guid.NewGuid()}.reg");
-
-                                try
-                                {
-                                    using (FileStream TempFileStream = File.Open(TempFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
-                                    using (FileStream RegStream = File.Open(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Intercept_WIN_E.reg"), FileMode.Open, FileAccess.Read, FileShare.Read))
-                                    using (StreamReader Reader = new StreamReader(RegStream))
-                                    {
-                                        string Content = Reader.ReadToEnd();
-
-                                        using (StreamWriter Writer = new StreamWriter(TempFileStream, Encoding.Unicode))
-                                        {
-                                            Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
-                                        }
-                                    }
-
-                                    using (Process RegisterProcess = Process.Start(new ProcessStartInfo
-                                    {
-                                        FileName = "regedit.exe",
-                                        Verb = "runas",
-                                        CreateNoWindow = true,
-                                        UseShellExecute = true,
-                                        Arguments = $"/s \"{TempFilePath}\"",
-                                    }))
-                                    {
-                                        RegisterProcess.WaitForExit();
-                                    }
-                                }
-                                finally
-                                {
-                                    if (File.Exists(TempFilePath))
-                                    {
-                                        File.Delete(TempFilePath);
-                                    }
-                                }
-
-                                bool IsRegistryCheckingSuccess = true;
-
-                                try
-                                {
-                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false))
-                                    {
-                                        if (Key != null)
-                                        {
-                                            if (!Convert.ToString(Key.GetValue(string.Empty)).Equals($"{AliasLocation} %1", StringComparison.OrdinalIgnoreCase) || Key.GetValue("DelegateExecute") != null)
-                                            {
-                                                IsRegistryCheckingSuccess = false;
-                                            }
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex, "Registry checking failed");
-                                }
-
-                                if (IsRegistryCheckingSuccess)
-                                {
-                                    Value.Add("Success", string.Empty);
-                                }
-                                else
-                                {
-                                    Value.Add("Error", "Registry checking failed");
                                 }
                             }
                             else
                             {
-                                Value.Add("Error", "Alias file is not exists");
+                                Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+                            }
+
+                            using (Process HelperProcess = Process.Start(new ProcessStartInfo
+                            {
+                                FileName = SystemLaunchHelperTargetExecutePath,
+                                UseShellExecute = false,
+                                Arguments = "-Command InterceptWinE",
+                            }))
+                            {
+                                HelperProcess.WaitForExit();
+
+                                switch (HelperProcess.ExitCode)
+                                {
+                                    case 0:
+                                        {
+                                            Value.Add("Success", string.Empty);
+                                            break;
+                                        }
+                                    case 1:
+                                        {
+                                            Value.Add("Error", "Alias file is not exists");
+                                            break;
+                                        }
+                                    case 2:
+                                        {
+                                            Value.Add("Error", "Registry checking failed");
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            Value.Add("Error", "Unknown exception was threw");
+                                            break;
+                                        }
+                                }
                             }
 
                             break;
                         }
                     case CommandType.RestoreFolderInterception:
                         {
-                            using (Process RegisterProcess = Process.Start(new ProcessStartInfo
-                            {
-                                FileName = "regedit.exe",
-                                Verb = "runas",
-                                CreateNoWindow = true,
-                                UseShellExecute = true,
-                                Arguments = $"/s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Restore_Folder.reg")}\"",
-                            }))
-                            {
-                                RegisterProcess.WaitForExit();
-                            }
+                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
+                            string SystemLaunchHelperTargetExecutePath = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
+                            string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
+                            string SystemLaunchHelperOriginExecutePath = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
 
-                            bool IsRegistryCheckingSuccess = true;
-
-                            try
+                            if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
                             {
-                                using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("Directory", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                using (FileStream TargetFileStream = File.Open(SystemLaunchHelperTargetExecutePath, FileMode.Open, FileAccess.Read))
+                                using (FileStream OriginFileStream = File.Open(SystemLaunchHelperOriginExecutePath, FileMode.Open, FileAccess.Read))
+                                using (MD5 MD5Alg1 = MD5.Create())
+                                using (MD5 MD5Alg2 = MD5.Create())
                                 {
-                                    if (Key != null)
+                                    if (await MD5Alg1.GetHashAsync(OriginFileStream) != await MD5Alg2.GetHashAsync(TargetFileStream))
                                     {
-                                        if (Convert.ToString(Key.GetValue("DelegateExecute")) != "{11dbb47c-a525-400b-9e80-a54615a090c0}" || !string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
-                                        {
-                                            IsRegistryCheckingSuccess = false;
-                                        }
+                                        Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
                                     }
                                 }
-
-                                using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Drive", false)?.OpenSubKey("shell", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
-                                {
-                                    if (Key != null)
-                                    {
-                                        if (!string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
-                                        {
-                                            IsRegistryCheckingSuccess = false;
-                                        }
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, "Registry checking failed");
-                            }
-
-                            if (IsRegistryCheckingSuccess)
-                            {
-                                Value.Add("Success", string.Empty);
                             }
                             else
                             {
-                                Value.Add("Error", "Registry checking failed");
+                                Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+                            }
+
+                            using (Process HelperProcess = Process.Start(new ProcessStartInfo
+                            {
+                                FileName = SystemLaunchHelperTargetExecutePath,
+                                UseShellExecute = false,
+                                Arguments = "-Command RestoreFolder",
+                            }))
+                            {
+                                HelperProcess.WaitForExit();
+
+                                switch (HelperProcess.ExitCode)
+                                {
+                                    case 0:
+                                        {
+                                            if (Windows.Storage.ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsInterceptedWinE && !IsInterceptedWinE)
+                                            {
+                                                Directory.Delete(SystemLaunchHelperTargetBaseFolder, true);
+                                            }
+
+                                            Value.Add("Success", string.Empty);
+                                            break;
+                                        }
+                                    case 1:
+                                        {
+                                            Value.Add("Error", "Alias file is not exists");
+                                            break;
+                                        }
+                                    case 2:
+                                        {
+                                            Value.Add("Error", "Registry checking failed");
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            Value.Add("Error", "Unknown exception was threw");
+                                            break;
+                                        }
+                                }
                             }
 
                             break;
                         }
                     case CommandType.RestoreWinEInterception:
                         {
-                            using (Process RegisterProcess = Process.Start(new ProcessStartInfo
-                            {
-                                FileName = "regedit.exe",
-                                Verb = "runas",
-                                CreateNoWindow = true,
-                                UseShellExecute = true,
-                                Arguments = $"/s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Restore_WIN_E.reg")}\"",
-                            }))
-                            {
-                                RegisterProcess.WaitForExit();
-                            }
+                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
+                            string SystemLaunchHelperTargetExecutePath = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
+                            string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
+                            string SystemLaunchHelperOriginExecutePath = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
 
-                            bool IsRegistryCheckingSuccess = true;
-
-                            try
+                            if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
                             {
-                                using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false))
+                                using (FileStream TargetFileStream = File.Open(SystemLaunchHelperTargetExecutePath, FileMode.Open, FileAccess.Read))
+                                using (FileStream OriginFileStream = File.Open(SystemLaunchHelperOriginExecutePath, FileMode.Open, FileAccess.Read))
+                                using (MD5 MD5Alg1 = MD5.Create())
+                                using (MD5 MD5Alg2 = MD5.Create())
                                 {
-                                    if (Key != null)
+                                    if (await MD5Alg1.GetHashAsync(OriginFileStream) != await MD5Alg2.GetHashAsync(TargetFileStream))
                                     {
-                                        if (Convert.ToString(Key.GetValue("DelegateExecute")) != "{11dbb47c-a525-400b-9e80-a54615a090c0}" || !string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
-                                        {
-                                            IsRegistryCheckingSuccess = false;
-                                        }
+                                        Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
                                     }
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, "Registry checking failed");
-                            }
-
-                            if (IsRegistryCheckingSuccess)
-                            {
-                                Value.Add("Success", string.Empty);
-                            }
                             else
                             {
-                                Value.Add("Error", "Registry checking failed");
+                                Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+                            }
+
+                            using (Process HelperProcess = Process.Start(new ProcessStartInfo
+                            {
+                                FileName = SystemLaunchHelperTargetExecutePath,
+                                UseShellExecute = false,
+                                Arguments = "-Command RestoreWinE",
+                            }))
+                            {
+                                HelperProcess.WaitForExit();
+
+                                switch (HelperProcess.ExitCode)
+                                {
+                                    case 0:
+                                        {
+                                            if (Windows.Storage.ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"] is bool IsInterceptedDesktopFolder && !IsInterceptedDesktopFolder)
+                                            {
+                                                Directory.Delete(SystemLaunchHelperTargetBaseFolder, true);
+                                            }
+
+                                            Value.Add("Success", string.Empty);
+                                            break;
+                                        }
+                                    case 1:
+                                        {
+                                            Value.Add("Error", "Alias file is not exists");
+                                            break;
+                                        }
+                                    case 2:
+                                        {
+                                            Value.Add("Error", "Registry checking failed");
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            Value.Add("Error", "Unknown exception was threw");
+                                            break;
+                                        }
+                                }
                             }
 
                             break;
