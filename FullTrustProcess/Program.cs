@@ -2533,31 +2533,13 @@ namespace FullTrustProcess
                     case CommandType.InterceptFolder:
                         {
                             string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
-                            string SystemLaunchHelperTargetExecutePath = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
-                            string SystemLaunchHelperOriginExecutePath = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
 
-                            if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
-                            {
-                                using (FileStream TargetFileStream = File.Open(SystemLaunchHelperTargetExecutePath, FileMode.Open, FileAccess.Read))
-                                using (FileStream OriginFileStream = File.Open(SystemLaunchHelperOriginExecutePath, FileMode.Open, FileAccess.Read))
-                                using (MD5 MD5Alg1 = MD5.Create())
-                                using (MD5 MD5Alg2 = MD5.Create())
-                                {
-                                    if (await MD5Alg1.GetHashAsync(OriginFileStream) != await MD5Alg2.GetHashAsync(TargetFileStream))
-                                    {
-                                        Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-                            }
+                            Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {
-                                FileName = SystemLaunchHelperTargetExecutePath,
+                                FileName = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe"),
                                 UseShellExecute = false,
                                 Arguments = "-Command InterceptFolder",
                             }))
@@ -2572,11 +2554,6 @@ namespace FullTrustProcess
                                             break;
                                         }
                                     case 1:
-                                        {
-                                            Value.Add("Error", "Alias file is not exists");
-                                            break;
-                                        }
-                                    case 2:
                                         {
                                             Value.Add("Error", "Registry checking failed");
                                             break;
@@ -2594,31 +2571,13 @@ namespace FullTrustProcess
                     case CommandType.InterceptWinE:
                         {
                             string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
-                            string SystemLaunchHelperTargetExecutePath = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
-                            string SystemLaunchHelperOriginExecutePath = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
 
-                            if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
-                            {
-                                using (FileStream TargetFileStream = File.Open(SystemLaunchHelperTargetExecutePath, FileMode.Open, FileAccess.Read))
-                                using (FileStream OriginFileStream = File.Open(SystemLaunchHelperOriginExecutePath, FileMode.Open, FileAccess.Read))
-                                using (MD5 MD5Alg1 = MD5.Create())
-                                using (MD5 MD5Alg2 = MD5.Create())
-                                {
-                                    if (await MD5Alg1.GetHashAsync(OriginFileStream) != await MD5Alg2.GetHashAsync(TargetFileStream))
-                                    {
-                                        Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-                            }
+                            Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {
-                                FileName = SystemLaunchHelperTargetExecutePath,
+                                FileName = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe"),
                                 UseShellExecute = false,
                                 Arguments = "-Command InterceptWinE",
                             }))
@@ -2633,11 +2592,6 @@ namespace FullTrustProcess
                                             break;
                                         }
                                     case 1:
-                                        {
-                                            Value.Add("Error", "Alias file is not exists");
-                                            break;
-                                        }
-                                    case 2:
                                         {
                                             Value.Add("Error", "Registry checking failed");
                                             break;
@@ -2655,31 +2609,13 @@ namespace FullTrustProcess
                     case CommandType.RestoreFolderInterception:
                         {
                             string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
-                            string SystemLaunchHelperTargetExecutePath = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
-                            string SystemLaunchHelperOriginExecutePath = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
 
-                            if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
-                            {
-                                using (FileStream TargetFileStream = File.Open(SystemLaunchHelperTargetExecutePath, FileMode.Open, FileAccess.Read))
-                                using (FileStream OriginFileStream = File.Open(SystemLaunchHelperOriginExecutePath, FileMode.Open, FileAccess.Read))
-                                using (MD5 MD5Alg1 = MD5.Create())
-                                using (MD5 MD5Alg2 = MD5.Create())
-                                {
-                                    if (await MD5Alg1.GetHashAsync(OriginFileStream) != await MD5Alg2.GetHashAsync(TargetFileStream))
-                                    {
-                                        Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-                            }
+                            Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {
-                                FileName = SystemLaunchHelperTargetExecutePath,
+                                FileName = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe"),
                                 UseShellExecute = false,
                                 Arguments = "-Command RestoreFolder",
                             }))
@@ -2690,7 +2626,7 @@ namespace FullTrustProcess
                                 {
                                     case 0:
                                         {
-                                            if (Windows.Storage.ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsInterceptedWinE && !IsInterceptedWinE)
+                                            if (!Convert.ToBoolean(Windows.Storage.ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"]))
                                             {
                                                 Directory.Delete(SystemLaunchHelperTargetBaseFolder, true);
                                             }
@@ -2699,11 +2635,6 @@ namespace FullTrustProcess
                                             break;
                                         }
                                     case 1:
-                                        {
-                                            Value.Add("Error", "Alias file is not exists");
-                                            break;
-                                        }
-                                    case 2:
                                         {
                                             Value.Add("Error", "Registry checking failed");
                                             break;
@@ -2721,31 +2652,13 @@ namespace FullTrustProcess
                     case CommandType.RestoreWinEInterception:
                         {
                             string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
-                            string SystemLaunchHelperTargetExecutePath = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
-                            string SystemLaunchHelperOriginExecutePath = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
 
-                            if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
-                            {
-                                using (FileStream TargetFileStream = File.Open(SystemLaunchHelperTargetExecutePath, FileMode.Open, FileAccess.Read))
-                                using (FileStream OriginFileStream = File.Open(SystemLaunchHelperOriginExecutePath, FileMode.Open, FileAccess.Read))
-                                using (MD5 MD5Alg1 = MD5.Create())
-                                using (MD5 MD5Alg2 = MD5.Create())
-                                {
-                                    if (await MD5Alg1.GetHashAsync(OriginFileStream) != await MD5Alg2.GetHashAsync(TargetFileStream))
-                                    {
-                                        Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-                            }
+                            Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {
-                                FileName = SystemLaunchHelperTargetExecutePath,
+                                FileName = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe"),
                                 UseShellExecute = false,
                                 Arguments = "-Command RestoreWinE",
                             }))
@@ -2756,7 +2669,7 @@ namespace FullTrustProcess
                                 {
                                     case 0:
                                         {
-                                            if (Windows.Storage.ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"] is bool IsInterceptedDesktopFolder && !IsInterceptedDesktopFolder)
+                                            if (!Convert.ToBoolean(Windows.Storage.ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"]))
                                             {
                                                 Directory.Delete(SystemLaunchHelperTargetBaseFolder, true);
                                             }
@@ -2765,11 +2678,6 @@ namespace FullTrustProcess
                                             break;
                                         }
                                     case 1:
-                                        {
-                                            Value.Add("Error", "Alias file is not exists");
-                                            break;
-                                        }
-                                    case 2:
                                         {
                                             Value.Add("Error", "Registry checking failed");
                                             break;

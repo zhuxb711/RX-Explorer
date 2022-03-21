@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaintenanceTask", "Maintena
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShareClassLibrary", "ShareClassLibrary\ShareClassLibrary.csproj", "{57848D87-5F61-4150-B6DC-56A87AC0AEAE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SystemLaunchHelper", "SystemLaunchHelper\SystemLaunchHelper.csproj", "{6AD954E1-16B6-478D-8D93-986150277977}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemLaunchHelper", "SystemLaunchHelper\SystemLaunchHelper.csproj", "{4B1C673C-DEC8-471E-8E08-E9C21F83EB71}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,14 +117,14 @@ Global
 		{57848D87-5F61-4150-B6DC-56A87AC0AEAE}.Release|ARM64.Build.0 = Release|Any CPU
 		{57848D87-5F61-4150-B6DC-56A87AC0AEAE}.Release|x64.ActiveCfg = Release|Any CPU
 		{57848D87-5F61-4150-B6DC-56A87AC0AEAE}.Release|x64.Build.0 = Release|Any CPU
-		{6AD954E1-16B6-478D-8D93-986150277977}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{6AD954E1-16B6-478D-8D93-986150277977}.Debug|ARM64.Build.0 = Debug|ARM64
-		{6AD954E1-16B6-478D-8D93-986150277977}.Debug|x64.ActiveCfg = Debug|x64
-		{6AD954E1-16B6-478D-8D93-986150277977}.Debug|x64.Build.0 = Debug|x64
-		{6AD954E1-16B6-478D-8D93-986150277977}.Release|ARM64.ActiveCfg = Release|ARM64
-		{6AD954E1-16B6-478D-8D93-986150277977}.Release|ARM64.Build.0 = Release|ARM64
-		{6AD954E1-16B6-478D-8D93-986150277977}.Release|x64.ActiveCfg = Release|x64
-		{6AD954E1-16B6-478D-8D93-986150277977}.Release|x64.Build.0 = Release|x64
+		{4B1C673C-DEC8-471E-8E08-E9C21F83EB71}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{4B1C673C-DEC8-471E-8E08-E9C21F83EB71}.Debug|ARM64.Build.0 = Debug|ARM64
+		{4B1C673C-DEC8-471E-8E08-E9C21F83EB71}.Debug|x64.ActiveCfg = Debug|x64
+		{4B1C673C-DEC8-471E-8E08-E9C21F83EB71}.Debug|x64.Build.0 = Debug|x64
+		{4B1C673C-DEC8-471E-8E08-E9C21F83EB71}.Release|ARM64.ActiveCfg = Release|ARM64
+		{4B1C673C-DEC8-471E-8E08-E9C21F83EB71}.Release|ARM64.Build.0 = Release|ARM64
+		{4B1C673C-DEC8-471E-8E08-E9C21F83EB71}.Release|x64.ActiveCfg = Release|x64
+		{4B1C673C-DEC8-471E-8E08-E9C21F83EB71}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

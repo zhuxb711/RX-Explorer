@@ -30,7 +30,14 @@ namespace FullTrustProcess
         {
             if (File.Exists(From))
             {
-                File.Copy(From, To, true);
+                if (File.Exists(To))
+                {
+                    File.Copy(From, To, true);
+                }
+                else
+                {
+                    throw new FileNotFoundException(To);
+                }
             }
             else if (Directory.Exists(From))
             {
