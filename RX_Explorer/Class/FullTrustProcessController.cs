@@ -233,15 +233,20 @@ namespace RX_Explorer.Class
             try
             {
                 await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-                await Controller.ConnectRemoteAsync();
-                return Controller;
+
+                if (await Controller.ConnectRemoteAsync())
+                {
+                    return Controller;
+                }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not create FullTrustProcess properly");
-                Controller.Dispose();
-                return null;
             }
+
+            Controller.Dispose();
+
+            return null;
         }
 
         private async Task<bool> ConnectRemoteAsync()

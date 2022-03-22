@@ -2524,7 +2524,7 @@ Les noms non valides incluent
           <source>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</source>
           <target state="translated">Le fait de cocher cette option peut empêcher Windows de désactiver l'effet acrylique lorsque vous n'utilisez pas cette application. Dans ce mode, seule la transmittance Acrylique peut être ajustée et la transparence de la couleur Acrylique n'est pas disponible. Remarque: l'activation de cette option peut réduire la durée de vie de la batterie et le calcul de la lumière continue augmentera la charge sur le processeur.</target>
         </trans-unit>
-        <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="ExtendedSplashLoadingBingText" translate="yes" xml:space="preserve">
           <source>Fetching Bing Image</source>
           <target state="translated">Récupérer l'image Bing</target>
         </trans-unit>
@@ -4616,6 +4616,10 @@ Les noms non valides incluent
         <trans-unit id="BlueScreenExportLog" translate="yes" xml:space="preserve">
           <source>Export the log</source>
           <target state="translated">Exporter le journal</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplashLoadingFullTrustText" translate="yes" xml:space="preserve">
+          <source>Starting auxiliary process</source>
+          <target state="translated">Démarrage du processus auxiliaire</target>
         </trans-unit>
       </group>
     </body>

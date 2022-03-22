@@ -238,8 +238,6 @@ namespace RX_Explorer
             FontFamilyController.Initialize();
             SystemInformation.Instance.TrackAppUse(args);
 
-            await FullTrustProcessController.InitializeAsync();
-
             switch (args)
             {
                 case LaunchActivatedEventArgs LaunchArgs:

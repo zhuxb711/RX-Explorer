@@ -4,6 +4,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:Cls="using:RX_Explorer.Class"
       NavigationCacheMode="Disabled"
       xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
       xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
@@ -18,13 +19,14 @@
         </Grid.RowDefinitions>
 
         <Canvas Grid.RowSpan="2">
-            <Image Name="extendedSplashImage"
+            <Image Name="Logo"
                    Source="ms-appx:///Assets/SplashScreen.png" />
             
             <StackPanel Name="PermissionArea"
                         Visibility="Collapsed"
                         Width="400">
                 <TextBlock Name="Display"
+                           Text="{x:Bind Cls:Globalization.GetString('ExtendedSplash_Access_Tips')}"
                            TextAlignment="Center" />
                 <StackPanel Orientation="Horizontal"
                             Margin="0,10,0,0"
@@ -43,7 +45,7 @@
                 </StackPanel>
             </StackPanel>
             
-            <StackPanel Name="LoadingBingArea"
+            <StackPanel Name="LoadingArea"
                         Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Center">
@@ -52,9 +54,8 @@
                                        Width="15"
                                        VerticalAlignment="Center"
                                        Foreground="{ThemeResource SystemBaseMediumHighColor}" />
-                    <TextBlock Text="正在更新必应壁纸..."
-                               FontSize="15"
-                               x:Uid="ExtendedSplashLoadingBingText"
+                    <TextBlock FontSize="16"
+                               Name="LoadingText"
                                Margin="10,0,0,0"
                                VerticalAlignment="Center" />
                 </StackPanel>

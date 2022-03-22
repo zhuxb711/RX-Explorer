@@ -2524,7 +2524,7 @@ Invalid names include
           <source>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</source>
           <target state="translated">选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担</target>
         </trans-unit>
-        <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="ExtendedSplashLoadingBingText" translate="yes" xml:space="preserve">
           <source>Fetching Bing Image</source>
           <target state="translated">正在获取必应图片...</target>
         </trans-unit>
@@ -4616,6 +4616,10 @@ Invalid names include
         <trans-unit id="BlueScreenExportLog" translate="yes" xml:space="preserve">
           <source>Export the log</source>
           <target state="translated">导出日志文件</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplashLoadingFullTrustText" translate="yes" xml:space="preserve">
+          <source>Starting auxiliary process</source>
+          <target state="translated">正在启动辅助进程</target>
         </trans-unit>
       </group>
     </body>

@@ -17,28 +17,21 @@ namespace RX_Explorer.View
 {
     public sealed partial class ExtendedSplash : Page
     {
-        private SplashScreen Splash;
+        private readonly SplashScreen Splash;
 
-        private List<string[]> Parameter;
+        private readonly List<string[]> Parameter;
 
-        public ExtendedSplash(SplashScreen Screen, List<string[]> Parameter)
+        public ExtendedSplash(SplashScreen Screen, List<string[]> Parameter) : this(Screen)
         {
             this.Parameter = Parameter;
-            Initialize(Screen);
         }
 
-        public ExtendedSplash(SplashScreen Screen, string[] Parameter)
+        public ExtendedSplash(SplashScreen Screen, string[] Parameter) : this(Screen)
         {
             this.Parameter = Parameter.Select((Item) => new string[] { Item }).ToList();
-            Initialize(Screen);
         }
 
         public ExtendedSplash(SplashScreen Screen)
-        {
-            Initialize(Screen);
-        }
-
-        private void Initialize(SplashScreen Screen)
         {
             InitializeComponent();
 
@@ -51,7 +44,6 @@ namespace RX_Explorer.View
             Splash = Screen ?? throw new ArgumentNullException(nameof(Screen), "Parameter could not be null");
 
             Splash.Dismissed += Screen_Dismissed;
-
             Loaded += ExtendedSplash_Loaded;
             Unloaded += ExtendedSplash_Unloaded;
         }
@@ -69,20 +61,29 @@ namespace RX_Explorer.View
 
         private void SetControlsPosition()
         {
-            double HorizonLocation = Splash.ImageLocation.X + (Splash.ImageLocation.Width * 0.5);
-            double VerticalLocation = Splash.ImageLocation.Y + (Splash.ImageLocation.Height * 0.7);
+            if (Splash != null)
+            {
+                double HorizonLocation = Splash.ImageLocation.X + (Splash.ImageLocation.Width * 0.5);
+                double VerticalLocation = Splash.ImageLocation.Y + (Splash.ImageLocation.Height * 0.7);
 
-            PermissionArea.SetValue(Canvas.LeftProperty, HorizonLocation - (PermissionArea.ActualWidth * 0.5));
-            PermissionArea.SetValue(Canvas.TopProperty, VerticalLocation + 15);
+                if (PermissionArea.Visibility == Visibility.Visible)
+                {
+                    PermissionArea.SetValue(Canvas.LeftProperty, HorizonLocation - (PermissionArea.ActualWidth * 0.5));
+                    PermissionArea.SetValue(Canvas.TopProperty, VerticalLocation + 15);
+                }
 
-            LoadingBingArea.SetValue(Canvas.LeftProperty, HorizonLocation - (LoadingBingArea.ActualWidth * 0.5));
-            LoadingBingArea.SetValue(Canvas.TopProperty, VerticalLocation + 15);
+                if (LoadingArea.Visibility == Visibility.Visible)
+                {
+                    LoadingArea.SetValue(Canvas.LeftProperty, HorizonLocation - (LoadingArea.ActualWidth * 0.5));
+                    LoadingArea.SetValue(Canvas.TopProperty, VerticalLocation + 15);
+                }
 
-            extendedSplashImage.SetValue(Canvas.LeftProperty, Splash.ImageLocation.X);
-            extendedSplashImage.SetValue(Canvas.TopProperty, Splash.ImageLocation.Y);
+                Logo.SetValue(Canvas.LeftProperty, Splash.ImageLocation.X);
+                Logo.SetValue(Canvas.TopProperty, Splash.ImageLocation.Y);
 
-            extendedSplashImage.Height = Splash.ImageLocation.Height;
-            extendedSplashImage.Width = Splash.ImageLocation.Width;
+                Logo.Height = Splash.ImageLocation.Height;
+                Logo.Width = Splash.ImageLocation.Width;
+            }
         }
 
         private async Task DismissExtendedSplashAsync()
@@ -91,31 +92,44 @@ namespace RX_Explorer.View
             {
                 try
                 {
-                    if (BackgroundController.Current.CurrentType == BackgroundBrushType.BingPicture)
+                    Task BackgroundInitializeTask = BackgroundController.Current.InitializeAsync();
+                    Task FullTrustProcessInitializeTask = FullTrustProcessController.InitializeAsync();
+
+                    if (await Task.WhenAny(FullTrustProcessInitializeTask, Task.Delay(2000)) != FullTrustProcessInitializeTask)
                     {
-                        LoadingBingArea.Visibility = Visibility.Visible;
-                        LoadingBingArea.UpdateLayout();
+                        LoadingText.Text = Globalization.GetString("ExtendedSplashLoadingFullTrustText");
+                        LoadingArea.Visibility = Visibility.Visible;
+                        LoadingArea.UpdateLayout();
                         SetControlsPosition();
+
+                        await FullTrustProcessInitializeTask;
+
+                        LoadingArea.Visibility = Visibility.Collapsed;
                     }
 
-                    await BackgroundController.Current.InitializeAsync();
-
-                    Frame RootFrame = new Frame();
-
-                    if ((Parameter?.Count).GetValueOrDefault() == 0)
+                    if (await Task.WhenAny(BackgroundInitializeTask, Task.Delay(1000)) != BackgroundInitializeTask)
                     {
-                        RootFrame.Content = new MainPage(Splash.ImageLocation);
-                    }
-                    else
-                    {
-                        RootFrame.Content = new MainPage(Splash.ImageLocation, Parameter);
+                        if (BackgroundController.Current.CurrentType == BackgroundBrushType.BingPicture)
+                        {
+                            LoadingText.Text = Globalization.GetString("ExtendedSplashLoadingBingText");
+                            LoadingArea.Visibility = Visibility.Visible;
+                            LoadingArea.UpdateLayout();
+                            SetControlsPosition();
+                        }
+
+                        await BackgroundInitializeTask;
+
+                        LoadingArea.Visibility = Visibility.Collapsed;
                     }
 
-                    Window.Current.Content = RootFrame;
+                    Window.Current.Content = new Frame
+                    {
+                        Content = (Parameter?.Any()).GetValueOrDefault() ? new MainPage(Splash.ImageLocation, Parameter) : new MainPage(Splash.ImageLocation)
+                    };
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "An error was threw when dismissing extendedsplash ");
+                    LogTracer.Log(ex, $"An error was threw in {nameof(DismissExtendedSplashAsync)}");
                 }
             });
         }
@@ -124,9 +138,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                bool IsFileAccessible = await CheckAccessAuthorityAsync();
-
-                if (IsFileAccessible)
+                if (await CheckAccessAuthorityAsync())
                 {
                     await DismissExtendedSplashAsync();
                 }
@@ -134,11 +146,9 @@ namespace RX_Explorer.View
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
-                        Display.Text = Globalization.GetString("ExtendedSplash_Access_Tips");
+                        LoadingArea.Visibility = Visibility.Collapsed;
                         PermissionArea.Visibility = Visibility.Visible;
-                        LoadingBingArea.Visibility = Visibility.Collapsed;
                         PermissionArea.UpdateLayout();
-                        LoadingBingArea.UpdateLayout();
                         SetControlsPosition();
                     });
                 }
@@ -153,13 +163,14 @@ namespace RX_Explorer.View
         {
             try
             {
-                await StorageFolder.GetFolderFromPathAsync(Environment.GetLogicalDrives().FirstOrDefault());
-                return true;
+                await StorageFolder.GetFolderFromPathAsync(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
             }
-            catch
+            catch (UnauthorizedAccessException)
             {
                 return false;
             }
+
+            return true;
         }
 
         private async void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -194,10 +205,7 @@ namespace RX_Explorer.View
 
         private void Current_SizeChanged(object sender, WindowSizeChangedEventArgs e)
         {
-            if (Splash != null)
-            {
-                SetControlsPosition();
-            }
+            SetControlsPosition();
         }
     }
 }

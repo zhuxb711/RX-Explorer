@@ -1905,7 +1905,7 @@ Les noms non valides incluent
   <data name="PreventFallbackTipContent.Text" xml:space="preserve">
     <value>Le fait de cocher cette option peut empêcher Windows de désactiver l'effet acrylique lorsque vous n'utilisez pas cette application. Dans ce mode, seule la transmittance Acrylique peut être ajustée et la transparence de la couleur Acrylique n'est pas disponible. Remarque: l'activation de cette option peut réduire la durée de vie de la batterie et le calcul de la lumière continue augmentera la charge sur le processeur.</value>
   </data>
-  <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
+  <data name="ExtendedSplashLoadingBingText" xml:space="preserve">
     <value>Récupérer l'image Bing</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
@@ -3475,5 +3475,8 @@ Les noms non valides incluent
   </data>
   <data name="BlueScreenExportLog" xml:space="preserve">
     <value>Exporter le journal</value>
+  </data>
+  <data name="ExtendedSplashLoadingFullTrustText" xml:space="preserve">
+    <value>Démarrage du processus auxiliaire</value>
   </data>
 </root>

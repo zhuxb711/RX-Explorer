@@ -1905,7 +1905,7 @@
   <data name="PreventFallbackTipContent.Text" xml:space="preserve">
     <value>不使用此應用程序時，選中此選項可以防止Windows關閉亞克力效果。 在此模式下，僅允許調整丙烯酸透射率，而丙烯酸顏色透明度不可用。 注意：打開此選項可能會縮短電池壽命，並且連續的光線計算會增加CPU的負擔</value>
   </data>
-  <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
+  <data name="ExtendedSplashLoadingBingText" xml:space="preserve">
     <value>正在取得Bing圖片</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
@@ -3475,5 +3475,8 @@
   </data>
   <data name="BlueScreenExportLog" xml:space="preserve">
     <value>導出日誌文件</value>
+  </data>
+  <data name="ExtendedSplashLoadingFullTrustText" xml:space="preserve">
+    <value>正在啟動輔助進程</value>
   </data>
 </root>

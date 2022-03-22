@@ -1954,7 +1954,7 @@ Inkorrekte Namen sind
   <data name="PreventFallbackTipContent.Text" xml:space="preserve">
     <value>Wenn Sie diese Option aktivieren, kann verhindert werden, dass Windows den Acryleffekt ausschaltet, wenn Sie diese Anwendung nicht verwenden. In diesem Modus darf nur die Acryl-Übertragung angepasst werden, und die Acrylfarbtransparenz ist nicht verfügbar. Hinweis: Das Aktivieren dieser Option kann die Akkulaufzeit verkürzen, und die kontinuierliche Lichtberechnung erhöht die Belastung der CPU.</value>
   </data>
-  <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
+  <data name="ExtendedSplashLoadingBingText" xml:space="preserve">
     <value>Bing-Bild wird abgerufen</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
@@ -3475,5 +3475,8 @@ Inkorrekte Namen sind
   </data>
   <data name="BlueScreenExportLog" xml:space="preserve">
     <value>Exportieren Sie das Protokoll</value>
+  </data>
+  <data name="ExtendedSplashLoadingFullTrustText" xml:space="preserve">
+    <value>Hilfsprozess starten</value>
   </data>
 </root>

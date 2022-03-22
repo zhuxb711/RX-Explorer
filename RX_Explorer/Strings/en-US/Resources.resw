@@ -2068,7 +2068,7 @@ Invalid names include
   <data name="PreventFallbackTipContent.Text" xml:space="preserve">
     <value>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</value>
   </data>
-  <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
+  <data name="ExtendedSplashLoadingBingText" xml:space="preserve">
     <value>Fetching Bing Image</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
@@ -3580,5 +3580,8 @@ Invalid names include
   </data>
   <data name="BlueScreenExportLog" xml:space="preserve">
     <value>Export the log</value>
+  </data>
+  <data name="ExtendedSplashLoadingFullTrustText" xml:space="preserve">
+    <value>Starting auxiliary process</value>
   </data>
 </root>

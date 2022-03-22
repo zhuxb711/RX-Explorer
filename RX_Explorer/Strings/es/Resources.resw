@@ -1951,7 +1951,7 @@ Las denominaciones no válidas son:
   <data name="PreventFallbackTipContent.Text" xml:space="preserve">
     <value>Marcar esta opción puede evitar que Windows desactive el efecto acrílico mientras no se usa esta aplicación. En este modo, solo se permite ajustar la transmitancia acrílica y la transparencia de color acrílico no está disponible. Nota: Activar esta opción puede acortar la vida de la batería y el cálculo continuo de luz sobrecargará la CPU.</value>
   </data>
-  <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
+  <data name="ExtendedSplashLoadingBingText" xml:space="preserve">
     <value>Obteniendo imágenes de Bing</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
@@ -3475,5 +3475,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="BlueScreenExportLog" xml:space="preserve">
     <value>Exportar el registro</value>
+  </data>
+  <data name="ExtendedSplashLoadingFullTrustText" xml:space="preserve">
+    <value>Iniciando proceso auxiliar</value>
   </data>
 </root>

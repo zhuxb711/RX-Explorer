@@ -29,11 +29,11 @@ namespace RX_Explorer.Class
                     {
                         PipeStream.WaitForConnectionAsync(Cancellation.Token).Wait();
                     }
-                    catch (IOException)
+                    catch (AggregateException ex) when (ex.InnerException is IOException)
                     {
                         LogTracer.Log("Could not write pipeline data because the pipeline is closed");
                     }
-                    catch (OperationCanceledException)
+                    catch (AggregateException ex) when (ex.InnerException is TaskCanceledException or OperationCanceledException)
                     {
                         LogTracer.Log("Could not write pipeline data because connection timeout");
                     }

@@ -1905,7 +1905,7 @@
   <data name="PreventFallbackTipContent.Text" xml:space="preserve">
     <value>选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担</value>
   </data>
-  <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
+  <data name="ExtendedSplashLoadingBingText" xml:space="preserve">
     <value>正在获取必应图片...</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
@@ -3475,5 +3475,8 @@
   </data>
   <data name="BlueScreenExportLog" xml:space="preserve">
     <value>导出日志文件</value>
+  </data>
+  <data name="ExtendedSplashLoadingFullTrustText" xml:space="preserve">
+    <value>正在启动辅助进程</value>
   </data>
 </root>
