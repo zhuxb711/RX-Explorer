@@ -57,44 +57,13 @@ namespace RX_Explorer
             SendActivateToast();
         }
 
-        protected async override void OnWindowCreated(WindowCreatedEventArgs args)
+        protected override void OnWindowCreated(WindowCreatedEventArgs args)
         {
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
             TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-
-#if DEBUG
-            await Task.CompletedTask;
-#else
-            try
-            {
-                string SecretText = await Windows.Storage.PathIO.ReadTextAsync(System.IO.Path.Combine(Package.Current.InstalledPath, @"Assets\AppCenterSecret.txt"));
-
-                if (string.IsNullOrWhiteSpace(SecretText))
-                {
-                    LogTracer.Log("The secret of appCenter was not found and AppCenter can not be initialized");
-                }
-                else
-                {
-                    LogTracer.Log("The secret of appCenter was found and AppCenter is initializing");
-
-                    Microsoft.AppCenter.AppCenter.Start(SecretText, typeof(Microsoft.AppCenter.Crashes.Crashes));
-
-                    if (!await Microsoft.AppCenter.AppCenter.IsEnabledAsync())
-                    {
-                        await Microsoft.AppCenter.AppCenter.SetEnabledAsync(true);
-                    }
-
-                    LogTracer.Log("AppCenter is initialized successfully");
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not start the app center component");
-            }
-#endif
         }
 
         private void SendActivateToast()

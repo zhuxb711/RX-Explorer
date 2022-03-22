@@ -7,6 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Interop;
+using Windows.UI.Popups;
+using WinRT.Interop;
 using Path = System.IO.Path;
 
 namespace SystemLaunchHelper
@@ -410,54 +413,129 @@ namespace SystemLaunchHelper
 
                     if (string.IsNullOrEmpty(AliasLocation))
                     {
-                        string TipText = CultureInfo.CurrentCulture.Name switch
+                        if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notification.lock")))
                         {
-                            "zh-Hans" => "检测到RX文件管理器已被卸载，但卸载前已启用与系统集成相关功能，这可能导致Windows文件管理器无法正常使用，您是否希望还原为默认设置?",
-                            "zh-Hant" => "檢測到RX档案總管已卸載，但卸載前已啟用系統集成相關功能，可能會破壞Windows資源管理器。 您想恢復到默認設置嗎?",
-                            "fr-FR" => "Il est détecté que le RX-Explorer a été désinstallé, mais les fonctions liées à l'intégration du système ont été activées avant la désinstallation, ce qui peut casser l'Explorateur Windows. Voulez-vous restaurer les paramètres par défaut?",
-                            "es" => "Se detecta que el RX-Explorer se ha desinstalado, pero las funciones relacionadas con la integración del sistema se han habilitado antes de la desinstalación, lo que puede dañar el Explorador de Windows. ¿Desea restaurar la configuración predeterminada?",
-                            "de-DE" => "Es wurde festgestellt, dass der RX-Explorer deinstalliert wurde, aber die systemintegrationsbezogenen Funktionen vor der Deinstallation aktiviert wurden, was den Windows Explorer beschädigen kann. Möchten Sie die Standardeinstellungen wiederherstellen?",
-                            _ => "It is detected that the RX-Explorer has been uninstalled, but the system integration-related functions have been enabled before uninstalling, which may broken the Windows Explorer. Do you want to restore to the default settings?"
-                        };
-
-                        string TipHeader = CultureInfo.CurrentCulture.Name switch
-                        {
-                            "zh-Hans" => "警告",
-                            "zh-Hant" => "警告",
-                            "fr-FR" => "Avertissement",
-                            "es" => "Advertencia",
-                            "de-DE" => "Warnung",
-                            _ => "Warning"
-                        };
-
-                        if (MessageBox.Show(TipText, TipHeader, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes) == MessageBoxResult.Yes)
-                        {
-                            using (Process RegisterProcess = Process.Start(new ProcessStartInfo
-                            {
-                                FileName = "regedit.exe",
-                                Verb = "runas",
-                                CreateNoWindow = true,
-                                UseShellExecute = true,
-                                Arguments = $"/s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\RestoreAll.reg")}\"",
-                            }))
-                            {
-                                RegisterProcess.WaitForExit();
-                            }
-
-                            Process.Start(new ProcessStartInfo
-                            {
-                                FileName = "powershell.exe",
-                                Arguments = $"-Command \"Start-Sleep -Seconds 5;Remove-Item -Path '{AppDomain.CurrentDomain.BaseDirectory}' -Recurse -Force\"",
-                                CreateNoWindow = true,
-                                UseShellExecute = false
-                            }).Dispose();
+                            Process.Start("explorer.exe", $"\"{TargetPath}\"").Dispose();
                         }
+                        else
+                        {
+                            string CurrentCultureCode = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.ToLower();
 
-                        Process.Start("explorer.exe", $"\"{TargetPath}\"").Dispose();
+                            string TipText = CurrentCultureCode switch
+                            {
+                                "zh" => "检测到RX文件管理器已被卸载，但卸载前已启用与系统集成相关功能，这可能导致Windows文件管理器无法正常使用，您是否希望还原为默认设置?",
+                                "fr" => "Il est détecté que le RX-Explorer a été désinstallé, mais les fonctions liées à l'intégration du système ont été activées avant la désinstallation, ce qui peut casser l'Explorateur Windows. Voulez-vous restaurer les paramètres par défaut?",
+                                "es" => "Se detecta que el RX-Explorer se ha desinstalado, pero las funciones relacionadas con la integración del sistema se han habilitado antes de la desinstalación, lo que puede dañar el Explorador de Windows. ¿Desea restaurar la configuración predeterminada?",
+                                "de" => "Es wurde festgestellt, dass der RX-Explorer deinstalliert wurde, aber die systemintegrationsbezogenen Funktionen vor der Deinstallation aktiviert wurden, was den Windows Explorer beschädigen kann. Möchten Sie die Standardeinstellungen wiederherstellen?",
+                                _ => "It is detected that the RX-Explorer has been uninstalled, but the system integration-related functions have been enabled before uninstalling, which may broken the Windows Explorer. Do you want to restore to the default settings?"
+                            };
+
+                            string TipHeader = CurrentCultureCode switch
+                            {
+                                "zh" => "警告",
+                                "fr" => "Avertissement",
+                                "es" => "Advertencia",
+                                "de" => "Warnung",
+                                _ => "Warning"
+                            };
+
+                            string FirstButtonText = CurrentCultureCode switch
+                            {
+                                "zh" => "确认",
+                                "fr" => "Confirmer",
+                                "es" => "Confirmar",
+                                "de" => "Bestätigen Sie",
+                                _ => "Confirm"
+                            };
+
+                            string SecondButtonText = CurrentCultureCode switch
+                            {
+                                "zh" => "取消",
+                                "fr" => "Annuler",
+                                "es" => "Cancelar",
+                                "de" => "Stornieren",
+                                _ => "Cancel"
+                            };
+
+                            string ThirdButtonText = CurrentCultureCode switch
+                            {
+                                "zh" => "不再提示",
+                                "fr" => "Ne rappelle pas",
+                                "es" => "No recordar",
+                                "de" => "Erinner dich nicht",
+                                _ => "Do not remind"
+                            };
+
+                            MessageDialog Dialog = new MessageDialog(TipText, TipHeader)
+                            {
+                                DefaultCommandIndex = 0,
+                                CancelCommandIndex = 1
+                            };
+                            Dialog.Commands.Add(new UICommand(FirstButtonText, null, 0));
+                            Dialog.Commands.Add(new UICommand(SecondButtonText, null, 1));
+                            Dialog.Commands.Add(new UICommand(ThirdButtonText, null, 2));
+
+                            WindowInteropHelper Helper = new WindowInteropHelper(this);
+                            InitializeWithWindow.Initialize(Dialog, Helper.EnsureHandle());
+
+                            switch (Dialog.ShowAsync().AsTask().Result.Id)
+                            {
+                                case 0:
+                                    {
+                                        using (Process RegisterProcess = Process.Start(new ProcessStartInfo
+                                        {
+                                            FileName = "regedit.exe",
+                                            Verb = "runas",
+                                            CreateNoWindow = true,
+                                            UseShellExecute = true,
+                                            Arguments = $"/s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\RestoreAll.reg")}\"",
+                                        }))
+                                        {
+                                            RegisterProcess.WaitForExit();
+                                        }
+
+                                        Process.Start(new ProcessStartInfo
+                                        {
+                                            FileName = "powershell.exe",
+                                            Arguments = $"-Command \"Start-Sleep -Seconds 10;Remove-Item -Path '{AppDomain.CurrentDomain.BaseDirectory}' -Recurse -Force\"",
+                                            CreateNoWindow = true,
+                                            UseShellExecute = false
+                                        }).Dispose();
+
+                                        goto case 1;
+                                    }
+                                case 1:
+                                    {
+                                        if (string.IsNullOrEmpty(TargetPath))
+                                        {
+                                            Process.Start("explorer.exe").Dispose();
+                                        }
+                                        else
+                                        {
+                                            Process.Start("explorer.exe", $"\"{TargetPath}\"").Dispose();
+                                        }
+
+                                        break;
+                                    }
+                                case 2:
+                                    {
+                                        File.Create(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notification.lock")).Dispose();
+
+                                        goto case 1;
+                                    }
+                            }
+                        }
                     }
                     else
                     {
-                        Process.Start(AliasLocation, $"\"{TargetPath}\"").Dispose();
+                        if (string.IsNullOrEmpty(TargetPath))
+                        {
+                            Process.Start(AliasLocation).Dispose();
+                        }
+                        else
+                        {
+                            Process.Start(AliasLocation, $"\"{TargetPath}\"").Dispose();
+                        }
                     }
                 }
             }

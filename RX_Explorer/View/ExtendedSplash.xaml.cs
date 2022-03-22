@@ -88,24 +88,41 @@ namespace RX_Explorer.View
 
         private async Task DismissExtendedSplashAsync()
         {
+#if !DEBUG
+            try
+            {
+                string SecretText = await Windows.Storage.PathIO.ReadTextAsync(System.IO.Path.Combine(Windows.ApplicationModel.Package.Current.InstalledPath, @"Assets\AppCenterSecret.txt"));
+
+                if (string.IsNullOrWhiteSpace(SecretText))
+                {
+                    LogTracer.Log("The secret of appCenter was not found and AppCenter can not be initialized");
+                }
+                else
+                {
+                    LogTracer.Log("The secret of appCenter was found and AppCenter is initializing");
+
+                    Microsoft.AppCenter.AppCenter.Start(SecretText, typeof(Microsoft.AppCenter.Crashes.Crashes));
+
+                    if (!await Microsoft.AppCenter.AppCenter.IsEnabledAsync())
+                    {
+                        await Microsoft.AppCenter.AppCenter.SetEnabledAsync(true);
+                    }
+
+                    LogTracer.Log("AppCenter is initialized successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not start the app center component");
+            }
+#endif
+
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 try
                 {
                     Task BackgroundInitializeTask = BackgroundController.Current.InitializeAsync();
                     Task FullTrustProcessInitializeTask = FullTrustProcessController.InitializeAsync();
-
-                    if (await Task.WhenAny(FullTrustProcessInitializeTask, Task.Delay(2000)) != FullTrustProcessInitializeTask)
-                    {
-                        LoadingText.Text = Globalization.GetString("ExtendedSplashLoadingFullTrustText");
-                        LoadingArea.Visibility = Visibility.Visible;
-                        LoadingArea.UpdateLayout();
-                        SetControlsPosition();
-
-                        await FullTrustProcessInitializeTask;
-
-                        LoadingArea.Visibility = Visibility.Collapsed;
-                    }
 
                     if (await Task.WhenAny(BackgroundInitializeTask, Task.Delay(1000)) != BackgroundInitializeTask)
                     {
@@ -118,6 +135,18 @@ namespace RX_Explorer.View
                         }
 
                         await BackgroundInitializeTask;
+
+                        LoadingArea.Visibility = Visibility.Collapsed;
+                    }
+
+                    if (await Task.WhenAny(FullTrustProcessInitializeTask, Task.Delay(2000)) != FullTrustProcessInitializeTask)
+                    {
+                        LoadingText.Text = Globalization.GetString("ExtendedSplashLoadingFullTrustText");
+                        LoadingArea.Visibility = Visibility.Visible;
+                        LoadingArea.UpdateLayout();
+                        SetControlsPosition();
+
+                        await FullTrustProcessInitializeTask;
 
                         LoadingArea.Visibility = Visibility.Collapsed;
                     }

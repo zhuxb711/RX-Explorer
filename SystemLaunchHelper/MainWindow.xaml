@@ -7,9 +7,11 @@
         Title="MainWindow"
         Height="450"
         Width="800"
-        WindowState="Minimized"
-        Visibility="Hidden"
-        ShowInTaskbar="False">
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterScreen"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        Background="Transparent">
     <Grid>
 
     </Grid>
