@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,7 +21,6 @@ namespace SystemLaunchHelper
 
         private void ExecutionCoreFunction()
         {
-            Debugger.Launch();
             int ExitCode = 0;
 
             try
@@ -410,7 +410,27 @@ namespace SystemLaunchHelper
 
                     if (string.IsNullOrEmpty(AliasLocation))
                     {
-                        if (MessageBox.Show("TTTTTTTTTTTTTTT", "Header", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes) == MessageBoxResult.Yes)
+                        string TipText = CultureInfo.CurrentCulture.Name switch
+                        {
+                            "zh-Hans" => "检测到RX文件管理器已被卸载，但卸载前已启用与系统集成相关功能，这可能导致Windows文件管理器无法正常使用，您是否希望还原为默认设置?",
+                            "zh-Hant" => "檢測到RX档案總管已卸載，但卸載前已啟用系統集成相關功能，可能會破壞Windows資源管理器。 您想恢復到默認設置嗎?",
+                            "fr-FR" => "Il est détecté que le RX-Explorer a été désinstallé, mais les fonctions liées à l'intégration du système ont été activées avant la désinstallation, ce qui peut casser l'Explorateur Windows. Voulez-vous restaurer les paramètres par défaut?",
+                            "es" => "Se detecta que el RX-Explorer se ha desinstalado, pero las funciones relacionadas con la integración del sistema se han habilitado antes de la desinstalación, lo que puede dañar el Explorador de Windows. ¿Desea restaurar la configuración predeterminada?",
+                            "de-DE" => "Es wurde festgestellt, dass der RX-Explorer deinstalliert wurde, aber die systemintegrationsbezogenen Funktionen vor der Deinstallation aktiviert wurden, was den Windows Explorer beschädigen kann. Möchten Sie die Standardeinstellungen wiederherstellen?",
+                            _ => "It is detected that the RX-Explorer has been uninstalled, but the system integration-related functions have been enabled before uninstalling, which may broken the Windows Explorer. Do you want to restore to the default settings?"
+                        };
+
+                        string TipHeader = CultureInfo.CurrentCulture.Name switch
+                        {
+                            "zh-Hans" => "警告",
+                            "zh-Hant" => "警告",
+                            "fr-FR" => "Avertissement",
+                            "es" => "Advertencia",
+                            "de-DE" => "Warnung",
+                            _ => "Warning"
+                        };
+
+                        if (MessageBox.Show(TipText, TipHeader, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes) == MessageBoxResult.Yes)
                         {
                             using (Process RegisterProcess = Process.Start(new ProcessStartInfo
                             {

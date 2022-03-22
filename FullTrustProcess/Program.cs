@@ -2532,10 +2532,12 @@ namespace FullTrustProcess
                         }
                     case CommandType.InterceptFolder:
                         {
-                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
+                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".systemLaunchHelper");
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
 
                             Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+
+                            File.SetAttributes(SystemLaunchHelperTargetBaseFolder, File.GetAttributes(SystemLaunchHelperTargetBaseFolder) | FileAttributes.Hidden);
 
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {
@@ -2570,10 +2572,12 @@ namespace FullTrustProcess
                         }
                     case CommandType.InterceptWinE:
                         {
-                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
+                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".systemLaunchHelper");
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
 
                             Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+
+                            File.SetAttributes(SystemLaunchHelperTargetBaseFolder, File.GetAttributes(SystemLaunchHelperTargetBaseFolder) | FileAttributes.Hidden);
 
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {
@@ -2608,10 +2612,12 @@ namespace FullTrustProcess
                         }
                     case CommandType.RestoreFolderInterception:
                         {
-                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
+                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".systemLaunchHelper");
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
 
                             Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+
+                            File.SetAttributes(SystemLaunchHelperTargetBaseFolder, File.GetAttributes(SystemLaunchHelperTargetBaseFolder) | FileAttributes.Hidden);
 
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {
@@ -2651,10 +2657,12 @@ namespace FullTrustProcess
                         }
                     case CommandType.RestoreWinEInterception:
                         {
-                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "RX_Explorer_SystemLaunchHelper");
+                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".systemLaunchHelper");
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
 
                             Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+
+                            File.SetAttributes(SystemLaunchHelperTargetBaseFolder, File.GetAttributes(SystemLaunchHelperTargetBaseFolder) | FileAttributes.Hidden);
 
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {

@@ -17,10 +17,10 @@
   <Identity
     Name="36186RuoFan.USB"
     Publisher="CN=4FF1CB23-04BD-4F9C-A86A-B4A43196FE02"
-    Version="7.5.7.0" />
+    Version="7.5.8.0" />
 
   <Properties>
-    <DisplayName>ms-resource:App_Display_Name</DisplayName>
+    <DisplayName>ms-resource:AppDisplayName</DisplayName>
     <PublisherDisplayName>Ruo_Fan</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
@@ -36,6 +36,7 @@
     <Resource Language="fr-FR"/>
     <Resource Language="zh-Hant"/>
     <Resource Language="es"/>
+	<Resource Language="de-DE"/>
   </Resources>
 
   <Applications>
@@ -46,8 +47,8 @@
       iot2:SupportsMultipleInstances="true">
 
       <uap:VisualElements
-        DisplayName="ms-resource:App_Display_Name"
-        Description="ms-resource:App_Display_Name"
+        DisplayName="ms-resource:AppDisplayName"
+        Description="ms-resource:AppDisplayName"
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
         Square44x44Logo="Images\Square44x44Logo.png">
@@ -105,6 +106,7 @@
     <rescap:Capability Name="confirmAppClose"/>
     <rescap:Capability Name="runFullTrust" />
     <rescap:Capability Name="broadFileSystemAccess" />
+	<rescap:Capability Name="unvirtualizedResources"/>
     <Capability Name="internetClientServer"/>
     <Capability Name="privateNetworkClientServer" />
     <uap:Capability Name="removableStorage"/>
