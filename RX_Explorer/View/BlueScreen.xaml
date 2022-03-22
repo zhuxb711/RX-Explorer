@@ -51,20 +51,25 @@
                            TextWrapping="WrapWholeWords" />
             </ScrollViewer>
 
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Grid.Row="2">
+            <Grid HorizontalAlignment="Right"
+                  VerticalAlignment="Bottom"
+                  Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
                 <Button Content="报告给开发者"
                         x:Uid="BlueScreenReport"
+                        Margin="0,0,5,0"
                         Name="Report"
                         Click="Report_Click" />
-                <Button Content="导出错误日志"
+                <Button Content="导出日志文件"
                         Margin="5,0,0,0"
-                        x:Uid="ExportLog"
+                        Grid.Column="1"
+                        x:Uid="BlueScreenExportLog"
                         Name="ExportLog"
                         Click="ExportLog_Click" />
-            </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
 </Page>

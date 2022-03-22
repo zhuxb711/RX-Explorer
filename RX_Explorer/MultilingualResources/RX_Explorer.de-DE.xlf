@@ -4611,6 +4611,10 @@ Inkorrekte Namen sind
           <source>File do not exist and cannot be renamed</source>
           <target state="translated">Datei existiert nicht und kann nicht umbenannt werden</target>
         </trans-unit>
+        <trans-unit id="BlueScreenExportLog" translate="yes" xml:space="preserve">
+          <source>Export the log</source>
+          <target state="translated">Exportieren Sie das Protokoll</target>
+        </trans-unit>
       </group>
     </body>
   </file>

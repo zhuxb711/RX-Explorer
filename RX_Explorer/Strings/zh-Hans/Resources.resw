@@ -3473,4 +3473,7 @@
   <data name="QueueDialog_RenameFailForNotExist_Content" xml:space="preserve">
     <value>文件不存在，无法重命名</value>
   </data>
+  <data name="BlueScreenExportLog" xml:space="preserve">
+    <value>导出日志文件</value>
+  </data>
 </root>

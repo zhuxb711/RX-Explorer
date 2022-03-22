@@ -3473,4 +3473,7 @@ Inkorrekte Namen sind
   <data name="QueueDialog_RenameFailForNotExist_Content" xml:space="preserve">
     <value>Datei existiert nicht und kann nicht umbenannt werden</value>
   </data>
+  <data name="BlueScreenExportLog" xml:space="preserve">
+    <value>Exportieren Sie das Protokoll</value>
+  </data>
 </root>

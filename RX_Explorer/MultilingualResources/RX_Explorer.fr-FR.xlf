@@ -4613,6 +4613,10 @@ Les noms non valides incluent
           <source>File do not exist and cannot be renamed</source>
           <target state="translated">Le fichier n'existe pas et ne peut pas être renommé</target>
         </trans-unit>
+        <trans-unit id="BlueScreenExportLog" translate="yes" xml:space="preserve">
+          <source>Export the log</source>
+          <target state="translated">Exporter le journal</target>
+        </trans-unit>
       </group>
     </body>
   </file>

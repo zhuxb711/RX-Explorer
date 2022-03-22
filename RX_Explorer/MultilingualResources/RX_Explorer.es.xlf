@@ -4611,6 +4611,10 @@ Las denominaciones no válidas son:
           <source>File do not exist and cannot be renamed</source>
           <target state="translated">El archivo no existe y no se puede renombrar</target>
         </trans-unit>
+        <trans-unit id="BlueScreenExportLog" translate="yes" xml:space="preserve">
+          <source>Export the log</source>
+          <target state="translated">Exportar el registro</target>
+        </trans-unit>
       </group>
     </body>
   </file>

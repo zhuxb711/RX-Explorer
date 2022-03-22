@@ -3578,4 +3578,7 @@ Invalid names include
   <data name="QueueDialog_RenameFailForNotExist_Content" xml:space="preserve">
     <value>File do not exist and cannot be renamed</value>
   </data>
+  <data name="BlueScreenExportLog" xml:space="preserve">
+    <value>Export the log</value>
+  </data>
 </root>

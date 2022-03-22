@@ -4613,6 +4613,10 @@ Invalid names include
           <source>File do not exist and cannot be renamed</source>
           <target state="translated">文件不存在，无法重命名</target>
         </trans-unit>
+        <trans-unit id="BlueScreenExportLog" translate="yes" xml:space="preserve">
+          <source>Export the log</source>
+          <target state="translated">导出日志文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>
