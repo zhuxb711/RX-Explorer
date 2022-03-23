@@ -15,7 +15,11 @@ namespace RX_Explorer.Class
 
         public override string DisplayName => Name;
 
+        public override string DisplayType => (StorageItem?.DisplayType) ?? (string.IsNullOrEmpty(InnerDisplayType) ? Type : InnerDisplayType);
+
         public override string Type => (StorageItem?.FileType) ?? System.IO.Path.GetExtension(OriginPath).ToUpper();
+
+        private string InnerDisplayType;
 
         public override string ModifiedTimeDescription
         {
@@ -30,6 +34,29 @@ namespace RX_Explorer.Class
                     return ModifiedTime.ToString("G");
                 }
             }
+        }
+
+        protected override async Task LoadCoreAsync(bool ForceUpdate)
+        {
+            if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
+            {
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+                {
+                    if (ControllerRef != null)
+                    {
+                        InnerDisplayType = await ControllerRef.Value.Controller.GetFriendlyTypeNameAsync(Type);
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
+                        }
+                    }
+                }
+            }
+
+            await base.LoadCoreAsync(ForceUpdate);
         }
 
         public override Task<IStorageItem> GetStorageItemAsync()

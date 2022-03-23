@@ -2537,8 +2537,6 @@ namespace FullTrustProcess
 
                             Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
-                            File.SetAttributes(SystemLaunchHelperTargetBaseFolder, File.GetAttributes(SystemLaunchHelperTargetBaseFolder) | FileAttributes.Hidden);
-
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {
                                 FileName = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe"),
@@ -2577,8 +2575,6 @@ namespace FullTrustProcess
 
                             Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
-                            File.SetAttributes(SystemLaunchHelperTargetBaseFolder, File.GetAttributes(SystemLaunchHelperTargetBaseFolder) | FileAttributes.Hidden);
-
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {
                                 FileName = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe"),
@@ -2616,8 +2612,6 @@ namespace FullTrustProcess
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
 
                             Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-
-                            File.SetAttributes(SystemLaunchHelperTargetBaseFolder, File.GetAttributes(SystemLaunchHelperTargetBaseFolder) | FileAttributes.Hidden);
 
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {
@@ -2661,8 +2655,6 @@ namespace FullTrustProcess
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
 
                             Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-
-                            File.SetAttributes(SystemLaunchHelperTargetBaseFolder, File.GetAttributes(SystemLaunchHelperTargetBaseFolder) | FileAttributes.Hidden);
 
                             using (Process HelperProcess = Process.Start(new ProcessStartInfo
                             {

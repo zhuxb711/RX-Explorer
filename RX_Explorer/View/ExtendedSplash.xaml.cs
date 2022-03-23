@@ -101,7 +101,7 @@ namespace RX_Explorer.View
                 {
                     LogTracer.Log("The secret of appCenter was found and AppCenter is initializing");
 
-                    Microsoft.AppCenter.AppCenter.Start(SecretText, typeof(Microsoft.AppCenter.Crashes.Crashes));
+                    Microsoft.AppCenter.AppCenter.Start(SecretText.Replace(Environment.NewLine, string.Empty), typeof(Microsoft.AppCenter.Crashes.Crashes));
 
                     if (!await Microsoft.AppCenter.AppCenter.IsEnabledAsync())
                     {
@@ -121,23 +121,7 @@ namespace RX_Explorer.View
             {
                 try
                 {
-                    Task BackgroundInitializeTask = BackgroundController.Current.InitializeAsync();
                     Task FullTrustProcessInitializeTask = FullTrustProcessController.InitializeAsync();
-
-                    if (await Task.WhenAny(BackgroundInitializeTask, Task.Delay(1000)) != BackgroundInitializeTask)
-                    {
-                        if (BackgroundController.Current.CurrentType == BackgroundBrushType.BingPicture)
-                        {
-                            LoadingText.Text = Globalization.GetString("ExtendedSplashLoadingBingText");
-                            LoadingArea.Visibility = Visibility.Visible;
-                            LoadingArea.UpdateLayout();
-                            SetControlsPosition();
-                        }
-
-                        await BackgroundInitializeTask;
-
-                        LoadingArea.Visibility = Visibility.Collapsed;
-                    }
 
                     if (await Task.WhenAny(FullTrustProcessInitializeTask, Task.Delay(2000)) != FullTrustProcessInitializeTask)
                     {
@@ -149,6 +133,27 @@ namespace RX_Explorer.View
                         await FullTrustProcessInitializeTask;
 
                         LoadingArea.Visibility = Visibility.Collapsed;
+                    }
+
+                    Task BackgroundInitializeTask = BackgroundController.Current.InitializeAsync();
+
+                    if (BackgroundController.Current.CurrentType == BackgroundBrushType.BingPicture)
+                    {
+                        if (await Task.WhenAny(BackgroundInitializeTask, Task.Delay(1000)) != BackgroundInitializeTask)
+                        {
+                            LoadingText.Text = Globalization.GetString("ExtendedSplashLoadingBingText");
+                            LoadingArea.Visibility = Visibility.Visible;
+                            LoadingArea.UpdateLayout();
+                            SetControlsPosition();
+
+                            await BackgroundInitializeTask;
+
+                            LoadingArea.Visibility = Visibility.Collapsed;
+                        }
+                    }
+                    else
+                    {
+                        await BackgroundInitializeTask;
                     }
 
                     Window.Current.Content = new Frame

@@ -26,7 +26,9 @@ namespace MaintenanceTask
                         Cancellation.Cancel();
                     };
 
-                    await Task.WhenAll(UpdateSQLiteAsync(Cancellation.Token), ClearTemporaryFolderAsync(Cancellation.Token));
+                    await Task.WhenAll(UpdateSystemLaunchHelperAsync(Cancellation.Token),
+                                       UpdateSQLiteAsync(Cancellation.Token),
+                                       ClearTemporaryFolderAsync(Cancellation.Token));
                 }
             }
             catch (Exception ex)
@@ -42,11 +44,58 @@ namespace MaintenanceTask
                 }
 #endif
 
-                Debug.WriteLine($"An exception threw in {nameof(MaintenanceTask)}, message: {ex.Message}");
+                Debug.WriteLine($"An exception threw in {nameof(MaintenanceTask.Run)}, message: {ex.Message}");
             }
             finally
             {
                 Deferral.Complete();
+            }
+        }
+
+        private async Task UpdateSystemLaunchHelperAsync(CancellationToken CancelToken = default)
+        {
+#if DEBUG
+            await Task.CompletedTask;
+#else
+            StorageFolder SourceFolder = await StorageFolder.GetFolderFromPathAsync(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledPath, "SystemLaunchHelper"));
+            StorageFolder UserProfileFolder = await StorageFolder.GetFolderFromPathAsync(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
+            StorageFolder TargetFolder = await UserProfileFolder.CreateFolderAsync(".systemLaunchHelper", CreationCollisionOption.ReplaceExisting);
+
+            if (!CancelToken.IsCancellationRequested)
+            {
+                await CopyFolderAsync(SourceFolder, TargetFolder, CancelToken);
+            }
+#endif
+        }
+
+        private async Task CopyFolderAsync(StorageFolder From, StorageFolder To, CancellationToken CancelToken = default)
+        {
+            StorageItemQueryResult Query = From.CreateItemQueryWithOptions(new QueryOptions
+            {
+                FolderDepth = FolderDepth.Shallow,
+                IndexerOption = IndexerOption.DoNotUseIndexer
+            });
+
+            foreach (IStorageItem Item in await Query.GetItemsAsync())
+            {
+                if (CancelToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                switch (Item)
+                {
+                    case StorageFolder SubFolder:
+                        {
+                            await CopyFolderAsync(SubFolder, await To.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.ReplaceExisting));
+                            break;
+                        }
+                    case StorageFile SubFile:
+                        {
+                            await SubFile.CopyAsync(To, SubFile.Name, NameCollisionOption.ReplaceExisting);
+                            break;
+                        }
+                }
             }
         }
 

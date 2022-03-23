@@ -597,126 +597,140 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async Task LoadDataForSecurityPage()
         {
-            string SecurityObjectPath = string.Empty;
-
-            switch ((StorageItems?.Length).GetValueOrDefault())
+            try
             {
-                case > 1:
-                    {
-                        break;
-                    }
-                case 1:
-                    {
-                        SecurityObjectPath = StorageItems.First().Path;
-                        break;
-                    }
-                default:
-                    {
-                        SecurityObjectPath = RootDrive.Path;
-                        break;
-                    }
-            }
+                string SecurityObjectPath = string.Empty;
 
-            if (string.IsNullOrEmpty(SecurityObjectPath))
-            {
-                PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Security_Tab")));
-            }
-            else
-            {
-                SecurityObjectNameContent.Text = SecurityObjectPath;
-
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                switch ((StorageItems?.Length).GetValueOrDefault())
                 {
-                    foreach (PermissionDataPackage Data in await Exclusive.Controller.GetPermissionsAsync(SecurityObjectPath))
-                    {
-                        SecurityAccountList.Items.Add(new SecurityAccount(Data.AccountName, Data.AccountType, Data.AccountPermissions));
-                    }
+                    case > 1:
+                        {
+                            break;
+                        }
+                    case 1:
+                        {
+                            SecurityObjectPath = StorageItems.First().Path;
+                            break;
+                        }
+                    default:
+                        {
+                            SecurityObjectPath = RootDrive.Path;
+                            break;
+                        }
                 }
 
-                SecurityAccountList.SelectedIndex = 0;
+                if (string.IsNullOrEmpty(SecurityObjectPath))
+                {
+                    PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Security_Tab")));
+                }
+                else
+                {
+                    SecurityObjectNameContent.Text = SecurityObjectPath;
+
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        foreach (PermissionDataPackage Data in await Exclusive.Controller.GetPermissionsAsync(SecurityObjectPath))
+                        {
+                            SecurityAccountList.Items.Add(new SecurityAccount(Data.AccountName, Data.AccountType, Data.AccountPermissions));
+                        }
+                    }
+
+                    SecurityAccountList.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not generate the security page in property window");
             }
         }
 
         private async Task LoadDataForShortCutPage()
         {
-            FileSystemStorageItemBase StorageItem = StorageItems.First();
-
-            ShortcutThumbnail.Source = StorageItem.Thumbnail;
-            ShortcutItemName.Text = Path.GetFileNameWithoutExtension(StorageItem.Name);
-
-            switch (StorageItem)
+            try
             {
-                case LinkStorageFile LinkFile:
-                    {
-                        ShortcutPanelSwitcher.Value = "Link";
-                        ShortcutCommentContent.Text = LinkFile.Comment;
-                        ShortcutWindowsStateContent.SelectedIndex = (int)LinkFile.WindowState;
+                FileSystemStorageItemBase StorageItem = StorageItems.First();
 
-                        if (LinkFile.HotKey > 0)
+                ShortcutThumbnail.Source = StorageItem.Thumbnail;
+                ShortcutItemName.Text = Path.GetFileNameWithoutExtension(StorageItem.Name);
+
+                switch (StorageItem)
+                {
+                    case LinkStorageFile LinkFile:
                         {
-                            if (LinkFile.HotKey >= 112 && LinkFile.HotKey <= 135)
+                            ShortcutPanelSwitcher.Value = "Link";
+                            ShortcutCommentContent.Text = LinkFile.Comment;
+                            ShortcutWindowsStateContent.SelectedIndex = (int)LinkFile.WindowState;
+
+                            if (LinkFile.HotKey > 0)
                             {
-                                ShortcutKeyContent.Text = Enum.GetName(typeof(VirtualKey), (VirtualKey)LinkFile.HotKey) ?? Globalization.GetString("ShortcutHotKey_None");
+                                if (LinkFile.HotKey >= 112 && LinkFile.HotKey <= 135)
+                                {
+                                    ShortcutKeyContent.Text = Enum.GetName(typeof(VirtualKey), (VirtualKey)LinkFile.HotKey) ?? Globalization.GetString("ShortcutHotKey_None");
+                                }
+                                else
+                                {
+                                    ShortcutKeyContent.Text = "Ctrl + Alt + " + Enum.GetName(typeof(VirtualKey), (VirtualKey)LinkFile.HotKey) ?? Globalization.GetString("ShortcutHotKey_None");
+                                }
                             }
                             else
                             {
-                                ShortcutKeyContent.Text = "Ctrl + Alt + " + Enum.GetName(typeof(VirtualKey), (VirtualKey)LinkFile.HotKey) ?? Globalization.GetString("ShortcutHotKey_None");
+                                ShortcutKeyContent.Text = Globalization.GetString("ShortcutHotKey_None");
                             }
-                        }
-                        else
-                        {
-                            ShortcutKeyContent.Text = Globalization.GetString("ShortcutHotKey_None");
-                        }
 
-                        if (LinkFile.LinkType == ShellLinkType.Normal)
-                        {
-                            ShortcutTargetLocationContent.Text = Path.GetFileName(Path.GetDirectoryName(LinkFile.LinkTargetPath));
-                            ShortcutTargetContent.Text = $"\"{LinkFile.LinkTargetPath}\" {string.Join(" ", LinkFile.Arguments)}";
-                            ShortcutStartInContent.Text = $"\"{LinkFile.WorkDirectory}\"";
-                            RunAsAdmin.IsChecked = LinkFile.NeedRunAsAdmin;
-
-                            if (await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath) is FileSystemStorageItemBase TargetItem)
+                            if (LinkFile.LinkType == ShellLinkType.Normal)
                             {
-                                switch (await TargetItem.GetStorageItemAsync())
+                                ShortcutTargetLocationContent.Text = Path.GetFileName(Path.GetDirectoryName(LinkFile.LinkTargetPath));
+                                ShortcutTargetContent.Text = $"\"{LinkFile.LinkTargetPath}\" {string.Join(" ", LinkFile.Arguments)}";
+                                ShortcutStartInContent.Text = $"\"{LinkFile.WorkDirectory}\"";
+                                RunAsAdmin.IsChecked = LinkFile.NeedRunAsAdmin;
+
+                                if (await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath) is FileSystemStorageItemBase TargetItem)
                                 {
-                                    case StorageFile File:
-                                        {
-                                            ShortcutTargetTypeContent.Text = File.DisplayType;
-                                            break;
-                                        }
-                                    case StorageFolder Folder:
-                                        {
-                                            ShortcutTargetTypeContent.Text = Folder.DisplayType;
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            ShortcutTargetTypeContent.Text = TargetItem.DisplayType;
-                                            break;
-                                        }
+                                    switch (await TargetItem.GetStorageItemAsync())
+                                    {
+                                        case StorageFile File:
+                                            {
+                                                ShortcutTargetTypeContent.Text = File.DisplayType;
+                                                break;
+                                            }
+                                        case StorageFolder Folder:
+                                            {
+                                                ShortcutTargetTypeContent.Text = Folder.DisplayType;
+                                                break;
+                                            }
+                                        default:
+                                            {
+                                                ShortcutTargetTypeContent.Text = TargetItem.DisplayType;
+                                                break;
+                                            }
+                                    }
                                 }
                             }
+                            else
+                            {
+                                ShortcutTargetTypeContent.Text = LinkFile.LinkTargetPath;
+                                ShortcutTargetLocationContent.Text = Globalization.GetString("ShortcutTargetApplicationType");
+                                ShortcutTargetContent.Text = $"\"{LinkFile.LinkTargetPath}\"";
+                                ShortcutTargetContent.IsEnabled = false;
+                                ShortcutStartInContent.IsEnabled = false;
+                                OpenLocation.IsEnabled = false;
+                                RunAsAdmin.IsEnabled = false;
+                            }
+
+                            break;
                         }
-                        else
+
+                    case UrlStorageFile UrlFile:
                         {
-                            ShortcutTargetTypeContent.Text = LinkFile.LinkTargetPath;
-                            ShortcutTargetLocationContent.Text = Globalization.GetString("ShortcutTargetApplicationType");
-                            ShortcutTargetContent.Text = $"\"{LinkFile.LinkTargetPath}\"";
-                            ShortcutTargetContent.IsEnabled = false;
-                            ShortcutStartInContent.IsEnabled = false;
-                            OpenLocation.IsEnabled = false;
-                            RunAsAdmin.IsEnabled = false;
+                            ShortcutPanelSwitcher.Value = "Url";
+                            ShortcutUrlContent.Text = UrlFile.UrlTargetPath;
+                            break;
                         }
-
-                        break;
-                    }
-
-                case UrlStorageFile UrlFile:
-                    {
-                        ShortcutPanelSwitcher.Value = "Url";
-                        ShortcutUrlContent.Text = UrlFile.UrlTargetPath;
-                        break;
-                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not generate the shortcut page in property window");
             }
         }
 
