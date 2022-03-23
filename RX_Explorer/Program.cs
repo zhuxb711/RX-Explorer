@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Class;
 using RX_Explorer.View;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -13,14 +14,12 @@ namespace RX_Explorer
     {
         static void Main(string[] args)
         {
-            IActivatedEventArgs activatedArgs = AppInstance.GetActivatedEventArgs();
-
             if (AppInstance.GetInstances().Count == 0)
             {
                 AppInstanceIdContainer.ClearAll();
             }
 
-            switch (activatedArgs)
+            switch (AppInstance.GetActivatedEventArgs())
             {
                 case ToastNotificationActivatedEventArgs ToastActivate:
                     {

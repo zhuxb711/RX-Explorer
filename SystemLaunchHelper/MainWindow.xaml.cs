@@ -5,9 +5,12 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Windows;
 using System.Windows.Interop;
+using Windows.ApplicationModel;
+using Windows.Management.Deployment;
 using Windows.UI.Popups;
 using WinRT.Interop;
 using Path = System.IO.Path;
@@ -59,7 +62,6 @@ namespace SystemLaunchHelper
                                         {
                                             FileName = "regedit.exe",
                                             Verb = "runas",
-                                            CreateNoWindow = true,
                                             UseShellExecute = true,
                                             Arguments = $"/s \"{TempFilePath}\"",
                                         }))
@@ -139,7 +141,6 @@ namespace SystemLaunchHelper
                                         {
                                             FileName = "regedit.exe",
                                             Verb = "runas",
-                                            CreateNoWindow = true,
                                             UseShellExecute = true,
                                             Arguments = $"/s \"{TempFilePath}\"",
                                         }))
@@ -211,7 +212,6 @@ namespace SystemLaunchHelper
                                 {
                                     FileName = "regedit.exe",
                                     Verb = "runas",
-                                    CreateNoWindow = true,
                                     UseShellExecute = true,
                                     Arguments = $"/s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Restore_WIN_E.reg")}\"",
                                 }))
@@ -263,7 +263,6 @@ namespace SystemLaunchHelper
                                 {
                                     FileName = "regedit.exe",
                                     Verb = "runas",
-                                    CreateNoWindow = true,
                                     UseShellExecute = true,
                                     Arguments = $"/s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Restore_Folder.reg")}\"",
                                 }))
@@ -324,98 +323,41 @@ namespace SystemLaunchHelper
                 }
                 else
                 {
-                    string AliasLocation = string.Empty;
                     string TargetPath = ActivationArgs.FirstOrDefault() ?? string.Empty;
 
-                    try
+                    PackageManager Manager = new PackageManager();
+
+                    if (Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), "36186RuoFan.USB_q3e6crc0w375t", PackageTypes.Main).FirstOrDefault() is Package Pack)
                     {
-                        using (Process Pro = Process.Start(new ProcessStartInfo
+                        Process.Start(new ProcessStartInfo
                         {
                             FileName = "powershell.exe",
-                            Arguments = "-Command \"Get-Command RX-Explorer | Format-List -Property Source\"",
+                            Arguments = $"-Command \"RX-Explorer.exe '{TargetPath}'\"",
                             CreateNoWindow = true,
-                            RedirectStandardOutput = true,
                             UseShellExecute = false
-                        }))
-                        {
-                            try
-                            {
-                                string OutputString = Pro.StandardOutput.ReadToEnd();
-
-                                if (!string.IsNullOrWhiteSpace(OutputString))
-                                {
-                                    string Path = OutputString.Replace(Environment.NewLine, string.Empty).Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
-
-                                    if (File.Exists(Path))
-                                    {
-                                        AliasLocation = Path;
-                                    }
-                                }
-                            }
-                            finally
-                            {
-                                if (!Pro.WaitForExit(5000))
-                                {
-                                    Pro.Kill();
-                                }
-                            }
-                        }
+                        }).Dispose();
                     }
-                    catch (Exception ex)
-                    {
-#if DEBUG
-                        if (Debugger.IsAttached)
-                        {
-                            Debugger.Break();
-                        }
-                        else
-                        {
-                            Debugger.Launch();
-                        }
-
-                        Debug.WriteLine($"Could not get alias location by Powershell, message: {ex.Message}");
-#endif
-                    }
-
-                    if (string.IsNullOrEmpty(AliasLocation))
-                    {
-                        string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User)
-                                                                   .Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
-                                                                   .Concat(Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine)
-                                                                                      .Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
-                                                                   .Distinct()
-                                                                   .ToArray();
-
-                        if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string Location)
-                        {
-                            AliasLocation = Location;
-                        }
-                        else
-                        {
-                            string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-                            if (!string.IsNullOrEmpty(AppDataPath) && Directory.Exists(AppDataPath))
-                            {
-                                string WindowsAppsPath = Path.Combine(AppDataPath, "Microsoft", "WindowsApps");
-
-                                if (Directory.Exists(WindowsAppsPath))
-                                {
-                                    string RXPath = Path.Combine(WindowsAppsPath, "RX-Explorer.exe");
-
-                                    if (File.Exists(RXPath))
-                                    {
-                                        AliasLocation = RXPath;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (string.IsNullOrEmpty(AliasLocation))
+                    else
                     {
                         if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notification.lock")))
                         {
-                            Process.Start("explorer.exe", $"\"{TargetPath}\"").Dispose();
+                            if (string.IsNullOrEmpty(TargetPath))
+                            {
+                                Process.Start(new ProcessStartInfo
+                                {
+                                    FileName = "explorer.exe",
+                                    UseShellExecute = false
+                                }).Dispose();
+                            }
+                            else
+                            {
+                                Process.Start(new ProcessStartInfo
+                                {
+                                    FileName = "explorer.exe",
+                                    Arguments = $"\"{TargetPath}\"",
+                                    UseShellExecute = false
+                                }).Dispose();
+                            }
                         }
                         else
                         {
@@ -486,7 +428,6 @@ namespace SystemLaunchHelper
                                         {
                                             FileName = "regedit.exe",
                                             Verb = "runas",
-                                            CreateNoWindow = true,
                                             UseShellExecute = true,
                                             Arguments = $"/s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\RestoreAll.reg")}\"",
                                         }))
@@ -508,11 +449,20 @@ namespace SystemLaunchHelper
                                     {
                                         if (string.IsNullOrEmpty(TargetPath))
                                         {
-                                            Process.Start("explorer.exe").Dispose();
+                                            Process.Start(new ProcessStartInfo
+                                            {
+                                                FileName = "explorer.exe",
+                                                UseShellExecute = false
+                                            }).Dispose();
                                         }
                                         else
                                         {
-                                            Process.Start("explorer.exe", $"\"{TargetPath}\"").Dispose();
+                                            Process.Start(new ProcessStartInfo
+                                            {
+                                                FileName = "explorer.exe",
+                                                Arguments = $"\"{TargetPath}\"",
+                                                UseShellExecute = false
+                                            }).Dispose();
                                         }
 
                                         break;
@@ -524,17 +474,6 @@ namespace SystemLaunchHelper
                                         goto case 1;
                                     }
                             }
-                        }
-                    }
-                    else
-                    {
-                        if (string.IsNullOrEmpty(TargetPath))
-                        {
-                            Process.Start(AliasLocation).Dispose();
-                        }
-                        else
-                        {
-                            Process.Start(AliasLocation, $"\"{TargetPath}\"").Dispose();
                         }
                     }
                 }
