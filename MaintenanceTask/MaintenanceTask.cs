@@ -54,12 +54,12 @@ namespace MaintenanceTask
 
         private async Task UpdateSystemLaunchHelperAsync(CancellationToken CancelToken = default)
         {
-#if DEBUG
+#if !DEBUG
             await Task.CompletedTask;
 #else
             StorageFolder SourceFolder = await StorageFolder.GetFolderFromPathAsync(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledPath, "SystemLaunchHelper"));
-            StorageFolder UserProfileFolder = await StorageFolder.GetFolderFromPathAsync(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
-            StorageFolder TargetFolder = await UserProfileFolder.CreateFolderAsync(".systemLaunchHelper", CreationCollisionOption.ReplaceExisting);
+            StorageFolder LocalAppDataFolder = await StorageFolder.GetFolderFromPathAsync(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+            StorageFolder TargetFolder = await LocalAppDataFolder.CreateFolderAsync("RX-Explorer_Launch_Helper", CreationCollisionOption.ReplaceExisting);
 
             if (!CancelToken.IsCancellationRequested)
             {

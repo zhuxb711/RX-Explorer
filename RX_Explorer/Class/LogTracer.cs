@@ -204,8 +204,8 @@ namespace RX_Explorer.Class
                                         .AppendLine(StackTraceSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
                                         .AppendLine()
                                         .AppendLine("Extra info: ")
+                                        .AppendLine($"        CallerFileName: {Path.GetFileName(SourceFilePath)}")
                                         .AppendLine($"        CallerMemberName: {MemberName}")
-                                        .AppendLine($"        CallerFilePath: {SourceFilePath}")
                                         .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
                                         .AppendLine("------------------------------------");
 
@@ -269,8 +269,8 @@ namespace RX_Explorer.Class
                                         .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
                                         .AppendLine()
                                         .AppendLine("Extra info: ")
+                                        .AppendLine($"        CallerFileName: {Path.GetFileName(SourceFilePath)}")
                                         .AppendLine($"        CallerMemberName: {MemberName}")
-                                        .AppendLine($"        CallerFilePath: {SourceFilePath}")
                                         .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
                                         .AppendLine("------------------------------------");
 

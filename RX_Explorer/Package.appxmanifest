@@ -9,10 +9,11 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
   xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
+  xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
   xmlns:iot2="http://schemas.microsoft.com/appx/manifest/iot/windows10/2"  
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"  
   xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"  
-  IgnorableNamespaces="uap mp desktop uap5 rescap desktop4 iot2 uap3">
+  IgnorableNamespaces="uap mp desktop uap5 rescap desktop5 desktop6 desktop4 iot2 uap3">
 
   <Identity
     Name="36186RuoFan.USB"
@@ -25,6 +26,8 @@
     <DisplayName>ms-resource:AppDisplayName</DisplayName>
     <PublisherDisplayName>Ruo_Fan</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
+	<desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
+	<desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization>
   </Properties>
 
   <Dependencies>
