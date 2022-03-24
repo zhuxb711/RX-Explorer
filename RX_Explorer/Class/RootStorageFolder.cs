@@ -12,16 +12,17 @@ namespace RX_Explorer.Class
 {
     public sealed class RootStorageFolder : FileSystemStorageFolder
     {
-        private static RootStorageFolder instance;
+        private static RootStorageFolder Instance;
+        private static readonly BitmapImage InnerThumbnail = new BitmapImage(new Uri("ms-appx:///Assets/ThisPC.png"));
         private static readonly object Locker = new object();
 
-        public static RootStorageFolder Instance
+        public static RootStorageFolder Current
         {
             get
             {
                 lock (Locker)
                 {
-                    return instance ??= new RootStorageFolder();
+                    return Instance ??= new RootStorageFolder();
                 }
             }
         }
@@ -29,6 +30,8 @@ namespace RX_Explorer.Class
         public override string Name => Globalization.GetString("RootStorageFolderDisplayName");
 
         public override string DisplayName => Name;
+
+        public override BitmapImage Thumbnail => InnerThumbnail;
 
         protected override Task LoadCoreAsync(bool ForceUpdate)
         {

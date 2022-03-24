@@ -209,7 +209,7 @@ namespace RX_Explorer.View
 
                             PropertiesWindowBase NewWindow = null;
 
-                            if (Control.CurrentPresenter.CurrentFolder == RootStorageFolder.Instance)
+                            if (Control.CurrentPresenter.CurrentFolder == RootStorageFolder.Current)
                             {
                                 Home HomeControl = Control.CurrentPresenter.RootFolderControl;
 
@@ -754,7 +754,7 @@ namespace RX_Explorer.View
                 {
                     foreach (string Path in PathForNewTab.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
                     {
-                        if (RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                        if (RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
                         {
                             ValidPathArray.Add(Path);
                         }
@@ -772,16 +772,16 @@ namespace RX_Explorer.View
                 {
                     case 0:
                         {
-                            HeaderBlock.Text = RootStorageFolder.Instance.DisplayName;
+                            HeaderBlock.Text = RootStorageFolder.Current.DisplayName;
                             break;
                         }
                     case 1:
                         {
                             string Path = ValidPathArray.First();
 
-                            if (RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                            if (RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                HeaderBlock.Text = RootStorageFolder.Instance.DisplayName;
+                                HeaderBlock.Text = RootStorageFolder.Current.DisplayName;
                             }
                             else
                             {
@@ -801,7 +801,7 @@ namespace RX_Explorer.View
                         }
                     default:
                         {
-                            HeaderBlock.Text = string.Join(" | ", ValidPathArray.Select((Path) => RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase) ? RootStorageFolder.Instance.DisplayName : System.IO.Path.GetFileName(Path)));
+                            HeaderBlock.Text = string.Join(" | ", ValidPathArray.Select((Path) => RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase) ? RootStorageFolder.Current.DisplayName : System.IO.Path.GetFileName(Path)));
                             break;
                         }
                 }

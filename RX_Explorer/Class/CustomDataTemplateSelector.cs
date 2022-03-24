@@ -30,7 +30,7 @@ namespace RX_Explorer.Class
 
         protected override DataTemplate SelectTemplateCore(object Item)
         {
-            if (Item is NavigationRecordDisplay Record && RootStorageFolder.Instance.Path.Equals(Record.Path, StringComparison.OrdinalIgnoreCase))
+            if (Item is NavigationRecordDisplay Record && RootStorageFolder.Current.Path.Equals(Record.Path, StringComparison.OrdinalIgnoreCase))
             {
                 return RootTemplate;
             }

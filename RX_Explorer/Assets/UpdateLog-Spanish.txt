@@ -1,27 +1,21 @@
-﻿###Novedades de la versión 7.5.7.0
+﻿###Novedades de la versión 7.6.0.0
 
-#####Optimización del rendimiento
+#####Característica actualizada
 
->#####Mejorar el mecanismo de programación de procesos auxiliares
+>#####"Integración con los componentes del sistema" se ha mejorado aún más para garantizar que los usuarios no desinstalen accidentalmente la aplicación sin causar excepciones en el sistema
 
->#####Mejoró el rendimiento del registrador
+>#####El menú de la página de búsqueda admite elementos de menú de terceros ahora
 
 #####IU actualizada
 
->#####Las pestañas ahora tienen imágenes de vista previa más grandes
+>#####Agregue el mensaje "Iniciando proceso auxiliar", espere a que se inicien todos los procesos auxiliares antes de ingresar a la página principal
 
->#####La sugerencia del título de la pestaña ahora solo aparece cuando no se muestra por completo
+#####Corrección de errores
 
-#####Error corregido
+>#####Se solucionó un problema que podría resultar en una cantidad incorrecta de procesos auxiliares en algunos casos
 
->#####Se solucionó un problema por el que no se podían mostrar los dispositivos USB
-
->#####Se solucionó un problema que podía causar que el atajo se dañara al ver un atajo con espacios en la ruta de destino a través de la ventana de propiedades
-
->#####Se solucionó un problema por el cual el mensaje de error para "Renombrar tarea" podría no reflejar su estado correctamente
-
->#####Se solucionó el problema de que el archivo del directorio raíz fallaba cuando se cambiaba en algunos casos
-
->#####Se solucionó un problema en el que la ventana se minimizaba y podía provocar un bloqueo
+>#####Se solucionó un problema por el cual los archivos .lnk y .url en la Papelera de reciclaje no podían mostrar el tipo de archivo correctamente
 
 >#####Se corrigieron algunos problemas que podrían causar fallas
+
+>#####Se corrigieron algunos problemas de traducción

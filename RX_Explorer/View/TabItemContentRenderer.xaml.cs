@@ -36,7 +36,7 @@ namespace RX_Explorer.View
             InitializeComponent();
 
             this.TabItem = TabItem;
-            this.InitializePaths = InitializePathArray.Length > 0 ? InitializePathArray : new string[] { RootStorageFolder.Instance.Path };
+            this.InitializePaths = InitializePathArray.Length > 0 ? InitializePathArray : new string[] { RootStorageFolder.Current.Path };
 
             Loaded += TabItemContentRenderer_Loaded;
             Loaded += TabItemContentRenderer_Loaded1;

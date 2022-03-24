@@ -1,27 +1,21 @@
-﻿###What's new in Ver.7.5.7.0
+﻿###What's new in Ver.7.6.0.0
 
-#####Performance optimization
+#####Feature updated
 
->#####Improve the auxiliary process scheduling mechanism
+>#####"Integration with system components" has been further improved to ensure that users do not accidentally uninstall the app without causing system exceptions
 
->#####Improved the performance of logger
+>#####Search page's menu supports third-party menu items now
 
 #####UI updated
 
->#####Tabs now have larger preview images
+>#####Add "Starting auxiliary process" prompt, wait for all auxiliary processes to start before entering the main page
 
->#####Tab title tip now only pops up when it doesn't fully displayed
+#####Bug Fixes
 
-#####Bug Fixed
+>#####Fixed an issue that could result in an incorrect number of auxiliary processes in some cases
 
->#####Fixed an issue where USB devices could not be displayed
-
->#####Fixed an issue that could cause the shortcut to be corrupted when viewing a shortcut with spaces in the target path through the properties window
-
->#####Fixed an issue where the error message for "Rename Task" might not reflect its status correctly
-
->#####Fixed the problem that the root directory file will crash when changed in some cases
-
->#####Fixed an issue where window is minimized could cause a crash
+>#####Fixed an issue where .lnk and .url files in the Recycle Bin could not display file type correctly
 
 >#####Fixed some issues that could cause crashes
+
+>#####Fixed some translation issues

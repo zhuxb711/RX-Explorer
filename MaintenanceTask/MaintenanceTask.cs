@@ -54,18 +54,22 @@ namespace MaintenanceTask
 
         private async Task UpdateSystemLaunchHelperAsync(CancellationToken CancelToken = default)
         {
-#if !DEBUG
-            await Task.CompletedTask;
-#else
-            StorageFolder SourceFolder = await StorageFolder.GetFolderFromPathAsync(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledPath, "SystemLaunchHelper"));
-            StorageFolder LocalAppDataFolder = await StorageFolder.GetFolderFromPathAsync(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
-            StorageFolder TargetFolder = await LocalAppDataFolder.CreateFolderAsync("RX-Explorer_Launch_Helper", CreationCollisionOption.ReplaceExisting);
-
-            if (!CancelToken.IsCancellationRequested)
+            if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"])
+                || Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"]))
             {
-                await CopyFolderAsync(SourceFolder, TargetFolder, CancelToken);
-            }
+#if DEBUG
+                await Task.CompletedTask;
+#else
+                StorageFolder SourceFolder = await StorageFolder.GetFolderFromPathAsync(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledPath, "SystemLaunchHelper"));
+                StorageFolder LocalAppDataFolder = await StorageFolder.GetFolderFromPathAsync(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+                StorageFolder TargetFolder = await LocalAppDataFolder.CreateFolderAsync("RX-Explorer_Launch_Helper", CreationCollisionOption.ReplaceExisting);
+
+                if (!CancelToken.IsCancellationRequested)
+                {
+                    await CopyFolderAsync(SourceFolder, TargetFolder, CancelToken);
+                }
 #endif
+            }
         }
 
         private async Task CopyFolderAsync(StorageFolder From, StorageFolder To, CancellationToken CancelToken = default)

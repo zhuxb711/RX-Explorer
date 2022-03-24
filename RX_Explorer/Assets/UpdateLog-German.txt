@@ -1,27 +1,21 @@
-﻿###Was ist neu in Ver.7.5.7.0
+﻿###Was ist neu in Ver.7.6.0.0
 
-#####Leistungsoptimierung
+#####Funktion aktualisiert
 
->#####Verbesserung des Planungsmechanismus für Hilfsprozesse
+>#####„Integration mit Systemkomponenten“ wurde weiter verbessert, um sicherzustellen, dass Benutzer die App nicht versehentlich deinstallieren, ohne Systemausnahmen zu verursachen
 
->#####Performance des Loggers verbessert
+>#####Das Menü der Suchseite unterstützt jetzt Menüpunkte von Drittanbietern
 
 #####UI aktualisiert
 
->#####Tabs haben jetzt größere Vorschaubilder
+>#####Fügen Sie die Eingabeaufforderung „Hilfsprozess starten“ hinzu, warten Sie, bis alle Hilfsprozesse gestartet sind, bevor Sie die Hauptseite aufrufen
 
->#####Tab-Titeltipp erscheint jetzt nur noch, wenn er nicht vollständig angezeigt wird
+#####Fehlerbehebung
 
-#####Fehler behoben
+>#####Ein Problem wurde behoben, das in einigen Fällen zu einer falschen Anzahl von Hilfsprozessen führen konnte
 
->#####Problem behoben, bei dem USB-Geräte nicht angezeigt werden konnten
-
->#####Es wurde ein Problem behoben, das dazu führen konnte, dass die Verknüpfung beschädigt wurde, wenn eine Verknüpfung mit Leerzeichen im Zielpfad über das Eigenschaftenfenster angezeigt wurde
-
->#####Es wurde ein Problem behoben, bei dem die Fehlermeldung für „Aufgabe umbenennen“ ihren Status möglicherweise nicht korrekt widerspiegelt
-
->#####Das Problem, dass die Root-Verzeichnisdatei in einigen Fällen abstürzt, wenn sie geändert wird, wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem ein minimiertes Fenster einen Absturz verursachen konnte
+>#####Es wurde ein Problem behoben, bei dem .lnk- und .url-Dateien im Papierkorb den Dateityp nicht korrekt anzeigen konnten
 
 >#####Einige Probleme behoben, die zu Abstürzen führen konnten
+
+>#####Einige Übersetzungsprobleme behoben

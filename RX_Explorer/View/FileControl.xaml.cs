@@ -441,7 +441,7 @@ namespace RX_Explorer.View
                     {
                         if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
                         {
-                            AddressButtonList.Add(new AddressBlock(RootStorageFolder.Instance.Path, RootStorageFolder.Instance.DisplayName));
+                            AddressButtonList.Add(new AddressBlock(RootStorageFolder.Current.Path, RootStorageFolder.Current.DisplayName));
                         }
 
                         if (!string.IsNullOrEmpty(RootPath))
@@ -456,8 +456,8 @@ namespace RX_Explorer.View
                             }
                         }
                     }
-                    else if (Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase)
-                             && AddressButtonList.First().Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                    else if (Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase)
+                             && AddressButtonList.First().Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
                     {
                         foreach (AddressBlock Block in AddressButtonList.Skip(1))
                         {
@@ -529,7 +529,7 @@ namespace RX_Explorer.View
                                             }
                                         }
                                     }
-                                    else if (LastPath.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                                    else if (LastPath.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
                                     {
                                         foreach (AddressBlock GrayBlock in AddressButtonList.Skip(1).Take(CurrentSplit.Length))
                                         {
@@ -575,7 +575,7 @@ namespace RX_Explorer.View
 
                             if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
                             {
-                                AddressButtonList.Add(new AddressBlock(RootStorageFolder.Instance.Path, RootStorageFolder.Instance.DisplayName));
+                                AddressButtonList.Add(new AddressBlock(RootStorageFolder.Current.Path, RootStorageFolder.Current.DisplayName));
                             }
 
                             if (!string.IsNullOrEmpty(RootPath))
@@ -598,7 +598,7 @@ namespace RX_Explorer.View
                             {
                                 int LimitIndex = IntersectList.Count;
 
-                                if (AddressButtonList.Any((Block) => Block.Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase)))
+                                if (AddressButtonList.Any((Block) => Block.Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase)))
                                 {
                                     LimitIndex += 1;
                                 }
@@ -609,7 +609,7 @@ namespace RX_Explorer.View
                                 }
                             }
 
-                            if (!Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                            if (!Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 string BaseString = IntersectList.Count > 1 ? string.Join('\\', CurrentSplit.Take(IntersectList.Count)) : $"{CurrentSplit.First()}\\";
 
@@ -1898,7 +1898,7 @@ namespace RX_Explorer.View
 
                 if (string.IsNullOrEmpty(DirectoryPath) && !CurrentFolderPath.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase))
                 {
-                    DirectoryPath = RootStorageFolder.Instance.Path;
+                    DirectoryPath = RootStorageFolder.Current.Path;
                 }
 
                 if (await CurrentPresenter.DisplayItemsInFolder(DirectoryPath))
@@ -2016,7 +2016,7 @@ namespace RX_Explorer.View
 
             if (Btn.DataContext is AddressBlock Block)
             {
-                if (Block.Path.Equals(RootStorageFolder.Instance.Path))
+                if (Block.Path.Equals(RootStorageFolder.Current.Path))
                 {
                     AddressExtensionList.AddRange(CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder));
                 }
@@ -2076,7 +2076,7 @@ namespace RX_Explorer.View
         {
             Button Btn = sender as Button;
 
-            if (Btn.DataContext is AddressBlock Block && !Block.Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+            if (Btn.DataContext is AddressBlock Block && !Block.Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
             {
                 DragOperationDeferral Deferral = e.GetDeferral();
 
@@ -2143,7 +2143,7 @@ namespace RX_Explorer.View
                         || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
                         || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
                     {
-                        if (!Block.Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                        if (!Block.Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
                         {
                             if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                             {
@@ -2594,7 +2594,7 @@ namespace RX_Explorer.View
                     {
                         Content = Presenter,
                         IsExpanded = true,
-                        Header = RootStorageFolder.Instance.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase) ? RootStorageFolder.Instance.DisplayName : Path.GetFileName(ItemPath),
+                        Header = RootStorageFolder.Current.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase) ? RootStorageFolder.Current.DisplayName : Path.GetFileName(ItemPath),
                         Background = new SolidColorBrush(Colors.Transparent),
                         TitleBarBackground = new SolidColorBrush(Colors.Transparent),
                         TitleBarVisibility = Visibility.Visible,
@@ -2638,9 +2638,9 @@ namespace RX_Explorer.View
 
                     CurrentPresenter = Presenter;
 
-                    if (RootStorageFolder.Instance.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase))
+                    if (RootStorageFolder.Current.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase))
                     {
-                        await Presenter.DisplayItemsInFolder(RootStorageFolder.Instance);
+                        await Presenter.DisplayItemsInFolder(RootStorageFolder.Current);
                     }
                     else
                     {
@@ -2738,7 +2738,7 @@ namespace RX_Explorer.View
 
                 if (!string.IsNullOrEmpty(Path))
                 {
-                    if (Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                    if (Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
                     {
                         TabViewContainer.Current.LayoutModeControl.IsEnabled = false;
                     }
@@ -2904,7 +2904,7 @@ namespace RX_Explorer.View
 
         private async void GoHome_Click(object sender, RoutedEventArgs e)
         {
-            await CurrentPresenter.DisplayItemsInFolder(RootStorageFolder.Instance);
+            await CurrentPresenter.DisplayItemsInFolder(RootStorageFolder.Current);
         }
 
         private void SearchSelectionDelete_PointerPressed(object sender, PointerRoutedEventArgs e)

@@ -1,27 +1,21 @@
-﻿###Quoi de neuf dans la version 7.5.7.0
+﻿###Quoi de neuf dans la version 7.6.0.0
 
-#####Optimisation des performances
+#####Fonctionnalité mise à jour
 
->#####Améliorer le mécanisme de planification des processus auxiliaires
+>#####"L'intégration avec les composants système" a été encore améliorée pour garantir que les utilisateurs ne désinstallent pas accidentellement l'application sans provoquer d'exceptions système
 
->#####Amélioration des performances de l'enregistreur
+>#####Le menu de la page de recherche prend désormais en charge les éléments de menu tiers
 
 #####UI mise à jour
 
->#####Les onglets ont maintenant des images d'aperçu plus grandes
+>#####Ajouter l'invite "Démarrage du processus auxiliaire", attendez que tous les processus auxiliaires démarrent avant d'accéder à la page principale
 
->#####L'astuce du titre de l'onglet n'apparaît désormais que lorsqu'elle n'est pas entièrement affichée
+#####Corrections de bogues
 
-#####Bug réparé
+>#####Correction d'un problème pouvant entraîner un nombre incorrect de processus auxiliaires dans certains cas
 
->#####Correction d'un problème où les périphériques USB ne pouvaient pas être affichés
-
->#####Correction d'un problème qui pouvait entraîner la corruption du raccourci lors de l'affichage d'un raccourci avec des espaces dans le chemin cible via la fenêtre des propriétés
-
->#####Correction d'un problème où le message d'erreur pour "Renommer la tâche" pouvait ne pas refléter correctement son état
-
->#####Correction du problème de plantage du fichier du répertoire racine lorsqu'il est modifié dans certains cas
-
->#####Correction d'un problème où la fenêtre est minimisée pouvant provoquer un plantage
+>#####Correction d'un problème où les fichiers .lnk et .url dans la corbeille ne pouvaient pas afficher correctement le type de fichier
 
 >#####Correction de certains problèmes pouvant provoquer des plantages
+
+>#####Correction de quelques problèmes de traduction

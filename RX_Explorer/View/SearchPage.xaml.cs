@@ -36,6 +36,7 @@ namespace RX_Explorer.View
         private CancellationTokenSource DelayDragCancellation;
         private CancellationTokenSource DelaySelectionCancellation;
         private CancellationTokenSource DelayTooltipCancellation;
+        private CancellationTokenSource ContextMenuCancellation;
 
         private ListViewBaseSelectionExtension SelectionExtension;
         private readonly PointerEventHandler PointerPressedEventHandler;
@@ -617,7 +618,9 @@ namespace RX_Explorer.View
                                     TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
 
                                     if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
-                                        && !Token.IsCancellationRequested)
+                                        && !Token.IsCancellationRequested
+                                        && !MixCommandFlyout.IsOpen
+                                        && !SingleCommandFlyout.IsOpen)
                                     {
                                         PointerPoint Point = e.GetCurrentPoint(SearchResultList);
 
@@ -1277,38 +1280,43 @@ namespace RX_Explorer.View
             }
         }
 
-        private void SearchResultList_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        private async void SearchResultList_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
-            if (args.TryGetPosition(sender, out Point Position))
+            args.Handled = true;
+
+            if ((args.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
             {
-                args.Handled = true;
-
-                if (!SettingPage.IsDoubleClickEnabled)
+                if (args.TryGetPosition(sender, out Point Position))
                 {
-                    DelaySelectionCancellation?.Cancel();
-                }
+                    if (!SettingPage.IsDoubleClickEnabled)
+                    {
+                        DelaySelectionCancellation?.Cancel();
+                    }
 
-                if ((args.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
-                {
+                    ContextMenuCancellation?.Cancel();
+                    ContextMenuCancellation?.Dispose();
+                    ContextMenuCancellation = new CancellationTokenSource();
+
                     if (SearchResultList.SelectedItems.Count > 1 && SearchResultList.SelectedItems.Contains(Context))
                     {
-                        MixCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
+                        string[] SelectedItemPaths = SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
+
+                        if (SelectedItemPaths.Skip(1).All((Item) => Path.GetDirectoryName(Item).Equals(Path.GetDirectoryName(SelectedItemPaths[0]))))
                         {
-                            Position = Position,
-                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
-                            ShowMode = FlyoutShowMode.Standard
-                        });
+                            await MixCommandFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(SearchResultList,
+                                                                                                 Position,
+                                                                                                 ContextMenuCancellation.Token,
+                                                                                                 SelectedItemPaths);
+                        }
                     }
                     else
                     {
                         SearchResultList.SelectedItem = Context;
 
-                        SingleCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
-                        {
-                            Position = Position,
-                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
-                            ShowMode = FlyoutShowMode.Standard
-                        });
+                        await SingleCommandFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(SearchResultList,
+                                                                                                Position,
+                                                                                                ContextMenuCancellation.Token,
+                                                                                                Context.Path);
                     }
                 }
             }

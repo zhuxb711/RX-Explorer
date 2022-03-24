@@ -41,6 +41,11 @@ namespace FullTrustProcess
             }
             else if (Directory.Exists(From))
             {
+                if (Directory.Exists(To))
+                {
+                    Directory.Delete(To, true);
+                }
+
                 Directory.CreateDirectory(To);
 
                 foreach (string Path in Directory.EnumerateDirectories(From, "*", SearchOption.AllDirectories).Concat(Directory.EnumerateFiles(From, "*", SearchOption.AllDirectories)))

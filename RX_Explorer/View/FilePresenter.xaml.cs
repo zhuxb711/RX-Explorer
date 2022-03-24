@@ -124,9 +124,17 @@ namespace RX_Explorer.View
 
                     PageSwitcher.Value = value.Path;
                 }
-                else
+
+                TaskBarController.SetText(value?.DisplayName);
+
+                if (Container.Renderer.TabItem.Header is TextBlock HeaderBlock)
                 {
-                    TaskBarController.SetText(null);
+                    HeaderBlock.Text = value?.DisplayName;
+                }
+
+                if (this.FindParentOfType<BladeItem>() is BladeItem ParentBlade)
+                {
+                    ParentBlade.Header = value?.DisplayName;
                 }
 
                 currentFolder = value;
@@ -2579,7 +2587,7 @@ namespace RX_Explorer.View
 
             try
             {
-                if (ForceRefresh || !Folder.Path.Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
+                if (ForceRefresh || CurrentFolder != Folder)
                 {
                     if (!SkipNavigationRecord && !ForceRefresh)
                     {
@@ -2608,18 +2616,18 @@ namespace RX_Explorer.View
 
                     if (Folder is RootStorageFolder)
                     {
-                        CurrentFolder = RootStorageFolder.Instance;
-                        TabViewContainer.Current.LayoutModeControl.IsEnabled = false;
+                        CurrentFolder = Folder;
+
                         FileCollection.Clear();
                         GroupCollection.Clear();
                         AreaWatcher.StopMonitor();
 
-                        await SetExtraInformationOnCurrentFolder();
+                        TabViewContainer.Current.LayoutModeControl.IsEnabled = false;
+
+                        await SetExtraInformationOnCurrentFolderAsync();
                     }
                     else if (await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
                     {
-                        CurrentFolder = Folder;
-
                         //If target is network path and the user had already mapped it as drive, then we should remap the network path to the drive path if possible.
                         //Use drive path could get more benefit from loading speed and directory monitor
                         if (Folder.Path.StartsWith(@"\\"))
@@ -2642,6 +2650,8 @@ namespace RX_Explorer.View
                         {
                             Container.FolderTree.SelectNodeAndScrollToVertical(RootNode);
                         }
+
+                        CurrentFolder = Folder;
 
                         FileCollection.Clear();
                         GroupCollection.Clear();
@@ -2701,7 +2711,7 @@ namespace RX_Explorer.View
                         StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
                         ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
-                        await Task.WhenAll(AreaWatcher.StartMonitorAsync(Folder.Path), ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection), SetExtraInformationOnCurrentFolder());
+                        await Task.WhenAll(AreaWatcher.StartMonitorAsync(Folder.Path), ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection), SetExtraInformationOnCurrentFolderAsync());
                     }
                     else
                     {
@@ -2715,7 +2725,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private async Task SetExtraInformationOnCurrentFolder()
+        private async Task SetExtraInformationOnCurrentFolderAsync()
         {
             BitmapImage TabIconImage = await CurrentFolder.GetThumbnailAsync(ThumbnailMode.ListView);
 
@@ -2728,18 +2738,21 @@ namespace RX_Explorer.View
                 Container.Renderer.TabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
             }
 
-            string FolderDisplayName = await CurrentFolder.GetStorageItemAsync() is StorageFolder CoreItem ? CoreItem.DisplayName : CurrentFolder.DisplayName;
-
-            if (Container.Renderer.TabItem.Header is TextBlock HeaderBlock)
+            if (await CurrentFolder.GetStorageItemAsync() is StorageFolder CoreItem && CoreItem.Name != CoreItem.DisplayName)
             {
-                HeaderBlock.Text = FolderDisplayName;
-            }
+                TaskBarController.SetText(CoreItem.DisplayName);
 
-            TaskBarController.SetText(FolderDisplayName);
+                Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {CoreItem.DisplayName}";
 
-            if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
-            {
-                Parent.Header = FolderDisplayName;
+                if (Container.Renderer.TabItem.Header is TextBlock HeaderBlock)
+                {
+                    HeaderBlock.Text = CoreItem.DisplayName;
+                }
+
+                if (this.FindParentOfType<BladeItem>() is BladeItem ParentBlade)
+                {
+                    ParentBlade.Header = CoreItem.DisplayName;
+                }
             }
         }
 
@@ -2765,9 +2778,9 @@ namespace RX_Explorer.View
 
         public async Task<bool> DisplayItemsInFolder(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
         {
-            if (RootStorageFolder.Instance.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+            if (RootStorageFolder.Current.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
             {
-                await DisplayItemsInFolderCore(RootStorageFolder.Instance, ForceRefresh, SkipNavigationRecord);
+                await DisplayItemsInFolderCore(RootStorageFolder.Current, ForceRefresh, SkipNavigationRecord);
                 return true;
             }
             else
@@ -4026,7 +4039,7 @@ namespace RX_Explorer.View
                 {
                     if (Path.GetPathRoot(CurrentFolder?.Path).Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
                     {
-                        await DisplayItemsInFolder(RootStorageFolder.Instance);
+                        await DisplayItemsInFolder(RootStorageFolder.Current);
                     }
                     else if (Container.GoParentFolder.IsEnabled)
                     {
@@ -4038,7 +4051,7 @@ namespace RX_Explorer.View
 
                             if (string.IsNullOrEmpty(DirectoryPath) && !CurrentFolderPath.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase))
                             {
-                                DirectoryPath = RootStorageFolder.Instance.Path;
+                                DirectoryPath = RootStorageFolder.Current.Path;
                             }
 
                             if (await DisplayItemsInFolder(DirectoryPath))
@@ -4592,9 +4605,9 @@ namespace RX_Explorer.View
 
         public async Task OpenSelectedItemAsync(string Path, bool RunAsAdministrator = false)
         {
-            if (RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+            if (RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
             {
-                await OpenSelectedItemAsync(RootStorageFolder.Instance, RunAsAdministrator);
+                await OpenSelectedItemAsync(RootStorageFolder.Current, RunAsAdministrator);
             }
             else if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase Item)
             {
@@ -7182,7 +7195,7 @@ namespace RX_Explorer.View
         {
             if (Path.GetPathRoot(CurrentFolder?.Path).Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
             {
-                await DisplayItemsInFolder(RootStorageFolder.Instance);
+                await DisplayItemsInFolder(RootStorageFolder.Current);
             }
             else if (Container.GoParentFolder.IsEnabled)
             {
@@ -7194,7 +7207,7 @@ namespace RX_Explorer.View
 
                     if (string.IsNullOrEmpty(DirectoryPath) && !CurrentFolderPath.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase))
                     {
-                        DirectoryPath = RootStorageFolder.Instance.Path;
+                        DirectoryPath = RootStorageFolder.Current.Path;
                     }
 
                     if (await DisplayItemsInFolder(DirectoryPath))

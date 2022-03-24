@@ -107,7 +107,7 @@
 
     <Grid>
         <controls:SwitchPresenter Name="PageSwitcher" >
-            <controls:Case Value="{x:Bind Cls:RootStorageFolder.Instance.Path}">
+            <controls:Case Value="{x:Bind Cls:RootStorageFolder.Current.Path}">
                 <local:Home HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             x:Name="RootFolderControl"

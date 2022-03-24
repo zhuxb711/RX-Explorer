@@ -66,12 +66,12 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
-                              MinWidth="200"
+                              Width="320"
                               x:Name="Open"
                               Click="Open_Click" />
                 <AppBarButton x:Name="Location"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_OpenLocation')}"
-                              MinWidth="250"
+                              Width="320"
                               Click="Location_Click">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="L"
@@ -85,7 +85,7 @@
                 </AppBarButton>
                 <AppBarButton x:Name="CopyPath"
                               Label="复制完整路径"
-                              MinWidth="200"
+                              Width="320"
                               x:Uid="SearchCopyPath"
                               Click="CopyPath_Click">
                     <AppBarButton.Icon>
@@ -97,13 +97,22 @@
                 <AppBarButton Icon="Tag"
                               x:Uid="SearchProperties"
                               Label="属性"
-                              MinWidth="200"
+                              Width="320"
                               Click="Attribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="MixCommandFlyout"
                                ShouldConstrainToRootBounds="False"
                                AlwaysExpanded="True">
+            <AppBarButton Icon="Copy"
+                          ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
+                          Click="Copy_Click" />
+            <AppBarButton Icon="Cut"
+                          ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Cut')}"
+                          Click="Cut_Click" />
+            <AppBarButton Icon="Delete"
+                          ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
+                          Click="Delete_Click" />
             <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
                           Click="MultiSelect_Click">
                 <AppBarButton.Icon>
@@ -111,40 +120,6 @@
                               Glyph="&#xE762;" />
                 </AppBarButton.Icon>
             </AppBarButton>
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Copy"
-                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
-                              MinWidth="200"
-                              Click="Copy_Click">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="C"
-                                             Modifiers="Control"
-                                             IsEnabled="False" />
-                    </AppBarButton.KeyboardAccelerators>
-                </AppBarButton>
-                <AppBarButton Icon="Cut"
-                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Cut')}"
-                              MinWidth="200"
-                              Click="Cut_Click">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="X"
-                                             Modifiers="Control"
-                                             IsEnabled="False" />
-                    </AppBarButton.KeyboardAccelerators>
-                </AppBarButton>
-                <AppBarButton Icon="Delete"
-                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
-                              MinWidth="200"
-                              Click="Delete_Click">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="D"
-                                             Modifiers="Control"
-                                             IsEnabled="False" />
-                        <KeyboardAccelerator Key="Delete"
-                                             IsEnabled="False" />
-                    </AppBarButton.KeyboardAccelerators>
-                </AppBarButton>
-            </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
     </Page.Resources>
 

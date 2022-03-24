@@ -2626,7 +2626,7 @@ namespace FullTrustProcess
                                 {
                                     case 0:
                                         {
-                                            if (!Convert.ToBoolean(Windows.Storage.ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"]))
+                                            if (!Convert.ToBoolean(Windows.Storage.ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"]))
                                             {
                                                 Directory.Delete(SystemLaunchHelperTargetBaseFolder, true);
                                             }
