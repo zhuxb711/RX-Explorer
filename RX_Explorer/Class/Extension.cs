@@ -293,7 +293,7 @@ namespace RX_Explorer.Class
 
                         if (TotalBytesLength > 1024 * 1024)
                         {
-                            int LatestValue = Math.Min(100, Math.Max(100, Convert.ToInt32(Math.Ceiling(TotalBytesRead * 100d / TotalBytesLength))));
+                            int LatestValue = Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(TotalBytesRead * 100d / TotalBytesLength))));
 
                             if (LatestValue > ProgressValue)
                             {

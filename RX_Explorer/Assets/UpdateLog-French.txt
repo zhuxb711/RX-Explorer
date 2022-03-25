@@ -1,4 +1,4 @@
-﻿###Quoi de neuf dans la version 7.6.0.0
+﻿###Quoi de neuf dans la version 7.6.1.0
 
 #####Fonctionnalité mise à jour
 
@@ -17,5 +17,11 @@
 >#####Correction d'un problème où les fichiers .lnk et .url dans la corbeille ne pouvaient pas afficher correctement le type de fichier
 
 >#####Correction de certains problèmes pouvant provoquer des plantages
+
+>#####Correction d'un problème où double-cliquer sur le bouton pour fermer la page des paramètres faisait disparaître l'animation immédiatement
+
+>#####Correction du problème selon lequel la barre de progression de certains types de tâches dans la liste des tâches ne pouvait pas afficher correctement l'état
+
+>#####Correction d'un problème où tout le contenu de l'onglet n'était pas automatiquement actualisé après avoir changé le mode de chargement des vignettes
 
 >#####Correction de quelques problèmes de traduction

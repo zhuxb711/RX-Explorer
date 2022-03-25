@@ -1,4 +1,4 @@
-﻿###Was ist neu in Ver.7.6.0.0
+﻿###Was ist neu in Ver.7.6.1.0
 
 #####Funktion aktualisiert
 
@@ -17,5 +17,11 @@
 >#####Es wurde ein Problem behoben, bei dem .lnk- und .url-Dateien im Papierkorb den Dateityp nicht korrekt anzeigen konnten
 
 >#####Einige Probleme behoben, die zu Abstürzen führen konnten
+
+>#####Es wurde ein Problem behoben, bei dem das Doppelklicken auf die Schaltfläche zum Schließen der Einstellungsseite dazu führte, dass die Animation sofort verschwand
+
+>#####Das Problem, dass der Fortschrittsbalken einiger Aufgabentypen in der Aufgabenliste den Status nicht korrekt anzeigen konnte, wurde behoben
+
+>#####Es wurde ein Problem behoben, bei dem der gesamte Inhalt der Registerkarte nicht automatisch aktualisiert wurde, nachdem der Lademodus für Miniaturansichten geändert wurde
 
 >#####Einige Übersetzungsprobleme behoben

@@ -39,7 +39,6 @@ using AnimationController = RX_Explorer.Class.AnimationController;
 using AnimationDirection = Windows.UI.Composition.AnimationDirection;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
-using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer.View
 {
@@ -47,6 +46,7 @@ namespace RX_Explorer.View
     {
         private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
         private readonly ObservableCollection<TerminalProfile> TerminalList = new ObservableCollection<TerminalProfile>();
+        private int AnimationLocker = 0;
 
         public static bool AllowTaskParalledExecution
         {
@@ -613,39 +613,53 @@ namespace RX_Explorer.View
 
         public async Task ShowAsync()
         {
-            try
+            if (Interlocked.CompareExchange(ref AnimationLocker, 1, 0) == 0)
             {
-                IsOpened = true;
-                Visibility = Visibility.Visible;
-
-                if (AnimationController.Current.IsEnableAnimation)
+                try
                 {
-                    await Task.WhenAll(ActivateAnimation(RootGrid, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, false),
-                                       ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 350, false));
+                    IsOpened = true;
+                    Visibility = Visibility.Visible;
+
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        await Task.WhenAll(ActivateAnimation(RootGrid, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, false),
+                                           ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 350, false));
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(ShowAsync)}");
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref AnimationLocker, 0);
+                }
             }
         }
 
         public async Task HideAsync()
         {
-            try
+            if (Interlocked.CompareExchange(ref AnimationLocker, 1, 0) == 0)
             {
-                if (AnimationController.Current.IsEnableAnimation)
+                try
                 {
-                    await Task.WhenAll(ActivateAnimation(RootGrid, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, true),
-                                       ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 350, true));
-                }
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        await Task.WhenAll(ActivateAnimation(RootGrid, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, true),
+                                           ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 350, true));
+                    }
 
-                IsOpened = false;
-                Visibility = Visibility.Collapsed;
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
+                    IsOpened = false;
+                    Visibility = Visibility.Collapsed;
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(HideAsync)}");
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref AnimationLocker, 0);
+                }
             }
         }
 
@@ -662,7 +676,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, "An exception was threw in initialize the setting page");
             }
         }
 
@@ -1298,45 +1312,12 @@ namespace RX_Explorer.View
             {
                 ApplicationData.Current.LocalSettings.Values["FileLoadMode"] = FileLoadMode.SelectedIndex;
 
-                foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Item) => Item.Tag).OfType<FileControl>())
+                foreach (TabItemContentRenderer Renderer in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                  .Cast<Frame>()
+                                                                                                  .Select((Frame) => Frame.Content)
+                                                                                                  .Cast<TabItemContentRenderer>())
                 {
-                    Control.FolderTree.RootNodes.Clear();
-
-                    Control.FolderTree.RootNodes.Add(new TreeViewNode
-                    {
-                        Content = TreeViewNodeContent.QuickAccessNode,
-                        IsExpanded = false,
-                        HasUnrealizedChildren = true
-                    });
-
-                    foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
-                    {
-                        TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
-
-                        TreeViewNode RootNode = new TreeViewNode
-                        {
-                            IsExpanded = false,
-                            Content = Content,
-                            HasUnrealizedChildren = Content.HasChildren
-                        };
-
-                        Control.FolderTree.RootNodes.Add(RootNode);
-
-                        if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
-                        {
-                            if (Content.HasChildren)
-                            {
-                                RootNode.IsExpanded = true;
-                            }
-
-                            Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
-                        }
-                    }
-
-                    if (Control.CurrentPresenter.CurrentFolder != null)
-                    {
-                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
-                    }
+                    await Task.WhenAll(Renderer.ClearAndRebuildTreeViewAsync(), Renderer.RefreshPresentersAsync());
                 }
             }
             catch (Exception ex)

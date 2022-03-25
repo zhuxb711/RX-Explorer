@@ -1909,7 +1909,7 @@ Les noms non valides incluent
     <value>Récupérer l'image Bing</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
-    <value>Mode de chargement des icônes</value>
+    <value>Mode miniature</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
     <value>Charger les icônes pour les dossiers et les fichiers (Plus lent)</value>

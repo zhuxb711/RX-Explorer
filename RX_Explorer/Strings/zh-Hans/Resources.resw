@@ -1909,7 +1909,7 @@
     <value>正在获取必应图片...</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
-    <value>图标加载模式</value>
+    <value>缩略图模式</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
     <value>加载文件夹和文件的图标(较慢)</value>

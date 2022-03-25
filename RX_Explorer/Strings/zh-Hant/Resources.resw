@@ -1909,7 +1909,7 @@
     <value>正在取得Bing圖片</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
-    <value>圖標加載方式</value>
+    <value>縮略圖模式</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
     <value>加載文件夾和文件的圖標(較慢)</value>

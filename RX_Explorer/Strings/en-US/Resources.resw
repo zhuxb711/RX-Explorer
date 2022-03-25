@@ -2072,7 +2072,7 @@ Invalid names include
     <value>Fetching Bing Image</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
-    <value>Icon loading mode</value>
+    <value>Thumbnail mode</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
     <value>Load icons for folders and files (Slower)</value>

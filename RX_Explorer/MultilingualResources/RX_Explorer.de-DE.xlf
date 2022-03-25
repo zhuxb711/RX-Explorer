@@ -2592,8 +2592,8 @@ Inkorrekte Namen sind
           <target state="translated">Bing-Bild wird abgerufen</target>
         </trans-unit>
         <trans-unit id="FileLoadModeLabel.Text" translate="yes" xml:space="preserve">
-          <source>Icon loading mode</source>
-          <target state="translated">Symbol-Lademodus</target>
+          <source>Thumbnail mode</source>
+          <target state="translated">Miniaturbildmodus</target>
         </trans-unit>
         <trans-unit id="LoadMode_FileAndFolder_Text" translate="yes" xml:space="preserve">
           <source>Load icons for folders and files (Slower)</source>

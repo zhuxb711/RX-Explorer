@@ -1955,7 +1955,7 @@ Las denominaciones no válidas son:
     <value>Obteniendo imágenes de Bing</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
-    <value>Modo de carga de icono</value>
+    <value>Modo miniatura</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
     <value>Cargar iconos para carpetas y archivos (más lento)</value>

@@ -2588,8 +2588,8 @@ Las denominaciones no válidas son:
           <target state="translated">Obteniendo imágenes de Bing</target>
         </trans-unit>
         <trans-unit id="FileLoadModeLabel.Text" translate="yes" xml:space="preserve">
-          <source>Icon loading mode</source>
-          <target state="translated">Modo de carga de icono</target>
+          <source>Thumbnail mode</source>
+          <target state="translated">Modo miniatura</target>
         </trans-unit>
         <trans-unit id="LoadMode_FileAndFolder_Text" translate="yes" xml:space="preserve">
           <source>Load icons for folders and files (Slower)</source>

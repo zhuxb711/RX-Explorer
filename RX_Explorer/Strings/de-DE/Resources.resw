@@ -1958,7 +1958,7 @@ Inkorrekte Namen sind
     <value>Bing-Bild wird abgerufen</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
-    <value>Symbol-Lademodus</value>
+    <value>Miniaturbildmodus</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
     <value>Symbole für Ordner und Dateien laden (langsamer)</value>

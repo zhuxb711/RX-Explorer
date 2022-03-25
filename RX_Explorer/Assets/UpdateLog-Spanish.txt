@@ -1,4 +1,4 @@
-﻿###Novedades de la versión 7.6.0.0
+﻿###Novedades de la versión 7.6.1.0
 
 #####Característica actualizada
 
@@ -17,5 +17,11 @@
 >#####Se solucionó un problema por el cual los archivos .lnk y .url en la Papelera de reciclaje no podían mostrar el tipo de archivo correctamente
 
 >#####Se corrigieron algunos problemas que podrían causar fallas
+
+>#####Se solucionó un problema por el que hacer doble clic en el botón para cerrar la página de configuración hacía que la animación desapareciera inmediatamente
+
+>#####Se solucionó el problema de que la barra de progreso de algunos tipos de tareas en la lista de tareas no podía mostrar el estado correctamente
+
+>#####Se solucionó un problema por el cual el contenido de todas las pestañas no se actualizaba automáticamente después de cambiar el modo de carga de miniaturas
 
 >#####Se corrigieron algunos problemas de traducción

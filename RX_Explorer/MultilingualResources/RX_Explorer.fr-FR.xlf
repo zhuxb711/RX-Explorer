@@ -2529,8 +2529,8 @@ Les noms non valides incluent
           <target state="translated">Récupérer l'image Bing</target>
         </trans-unit>
         <trans-unit id="FileLoadModeLabel.Text" translate="yes" xml:space="preserve">
-          <source>Icon loading mode</source>
-          <target state="translated">Mode de chargement des icônes</target>
+          <source>Thumbnail mode</source>
+          <target state="translated">Mode miniature</target>
         </trans-unit>
         <trans-unit id="LoadMode_FileAndFolder_Text" translate="yes" xml:space="preserve">
           <source>Load icons for folders and files (Slower)</source>

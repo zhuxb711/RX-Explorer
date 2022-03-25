@@ -2529,8 +2529,8 @@ Invalid names include
           <target state="translated">正在获取必应图片...</target>
         </trans-unit>
         <trans-unit id="FileLoadModeLabel.Text" translate="yes" xml:space="preserve">
-          <source>Icon loading mode</source>
-          <target state="translated">图标加载模式</target>
+          <source>Thumbnail mode</source>
+          <target state="translated">缩略图模式</target>
         </trans-unit>
         <trans-unit id="LoadMode_FileAndFolder_Text" translate="yes" xml:space="preserve">
           <source>Load icons for folders and files (Slower)</source>

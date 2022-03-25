@@ -31,12 +31,14 @@ namespace RX_Explorer.View
 
         private FileControl BaseControl;
 
-        public TabItemContentRenderer(TabViewItem TabItem, params string[] InitializePathArray)
+        public TabItemContentRenderer(TabViewItem TabItem, params string[] InitializePaths)
         {
             InitializeComponent();
 
             this.TabItem = TabItem;
-            this.InitializePaths = InitializePathArray.Length > 0 ? InitializePathArray : new string[] { RootStorageFolder.Current.Path };
+            this.InitializePaths = InitializePaths.Length > 0 ? InitializePaths : new string[] { RootStorageFolder.Current.Path };
+
+            EmptyTip.Visibility = QueueTaskController.ListItemSource.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
 
             Loaded += TabItemContentRenderer_Loaded;
             Loaded += TabItemContentRenderer_Loaded1;
@@ -123,6 +125,30 @@ namespace RX_Explorer.View
                         }
                     }
                 }
+            }
+        }
+
+        public async Task ClearAndRebuildTreeViewAsync()
+        {
+            BaseControl.FolderTree.RootNodes.Clear();
+
+            BaseControl.FolderTree.RootNodes.Add(new TreeViewNode
+            {
+                Content = TreeViewNodeContent.QuickAccessNode,
+                IsExpanded = false,
+                HasUnrealizedChildren = true
+            });
+
+            foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
+            {
+                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
+
+                BaseControl.FolderTree.RootNodes.Add(new TreeViewNode
+                {
+                    IsExpanded = false,
+                    Content = Content,
+                    HasUnrealizedChildren = Content.HasChildren
+                });
             }
         }
 

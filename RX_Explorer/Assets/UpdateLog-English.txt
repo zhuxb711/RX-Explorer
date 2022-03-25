@@ -1,4 +1,4 @@
-﻿###What's new in Ver.7.6.0.0
+﻿###What's new in Ver.7.6.1.0
 
 #####Feature updated
 
@@ -17,5 +17,11 @@
 >#####Fixed an issue where .lnk and .url files in the Recycle Bin could not display file type correctly
 
 >#####Fixed some issues that could cause crashes
+
+>#####Fixed an issue where double-clicking the button to close the settings page would cause the animation disappear immediately
+
+>#####Fixed the problem that the progress bar of some task types in the task list could not display the status correctly
+
+>#####Fixed an issue where all tab content was not automatically refreshed after changing the thumbnail loading mode
 
 >#####Fixed some translation issues
