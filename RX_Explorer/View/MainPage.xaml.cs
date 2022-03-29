@@ -331,7 +331,7 @@ namespace RX_Explorer.View
 
             try
             {
-                if (TabViewContainer.CurrentTabRenderer.RendererFrame is Frame CurrentFrame)
+                if (TabViewContainer.CurrentTabRenderer?.RendererFrame is Frame CurrentFrame)
                 {
                     if (CurrentFrame.Content is not (FileControl or SearchPage))
                     {
