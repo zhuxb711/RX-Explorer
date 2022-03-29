@@ -43,7 +43,7 @@
           <target state="translated">删除</target>
         </trans-unit>
         <trans-unit id="AppDisplayName" translate="yes" xml:space="preserve">
-          <source>RX Explorer</source>
+          <source>RX-Explorer</source>
           <target state="translated">RX文件管理器</target>
         </trans-unit>
         <trans-unit id="AppEdit.Label" translate="yes" xml:space="preserve">
@@ -995,10 +995,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         <trans-unit id="QuicklookTipContent.Text" translate="yes" xml:space="preserve">
           <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
           <target state="translated">QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook</target>
-        </trans-unit>
-        <trans-unit id="AppName.Text" translate="yes" xml:space="preserve">
-          <source>RX Explorer</source>
-          <target state="translated">RX文件管理器</target>
         </trans-unit>
         <trans-unit id="SettingPersonalize.Text" translate="yes" xml:space="preserve">
           <source>Personalize</source>

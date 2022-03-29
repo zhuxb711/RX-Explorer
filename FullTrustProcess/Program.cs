@@ -14,7 +14,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.AccessControl;
-using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
@@ -728,6 +727,39 @@ namespace FullTrustProcess
 
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.GetSizeOnDisk:
+                        {
+                            string Path = CommandValue["Path"];
+
+                            if (Kernel32.GetDiskFreeSpace(System.IO.Path.GetPathRoot(Path.TrimEnd('\\')), out uint SectorsPerCluster, out uint BytesPerSector, out _, out _))
+                            {
+                                ulong ClusterSize = Convert.ToUInt64(SectorsPerCluster) * Convert.ToUInt64(BytesPerSector);
+
+                                if (ClusterSize > 0)
+                                {
+                                    ulong CompressedSize = Helper.GetAllocationSize(Path);
+
+                                    if (CompressedSize % ClusterSize > 0)
+                                    {
+                                        Value.Add("Success", Convert.ToString(CompressedSize + ClusterSize - CompressedSize % ClusterSize));
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Success", Convert.ToString(CompressedSize));
+                                    }
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "ClusterSize is equal to zero");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                            }
+
+                            break;
+                        }
                     case CommandType.OrderByNaturalStringSortAlgorithm:
                         {
                             Value.Add("Success", JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<StringNaturalAlgorithmData>>(CommandValue["InputList"]).OrderBy((Item) => Item.Value, Comparer<string>.Create((a, b) => ShlwApi.StrCmpLogicalW(a, b)))));
@@ -1871,7 +1903,25 @@ namespace FullTrustProcess
                                 {
                                     using (ShellItem Item = new ShellItem(Path))
                                     {
-                                        Value.Add("Success", Item.GetToolTip(ShellItemToolTipOptions.AllowDelay));
+                                        Task<string> ToolTipTask = Task.Run(() => Item.GetToolTip(ShellItemToolTipOptions.AllowDelay));
+
+                                        while (!ToolTipTask.IsCompleted && !CancelToken.IsCancellationRequested)
+                                        {
+                                            await Task.Delay(300);
+                                        }
+
+                                        if (CancelToken.IsCancellationRequested)
+                                        {
+                                            Value.Add("Success", string.Empty);
+                                        }
+                                        else if (ToolTipTask.IsCompletedSuccessfully)
+                                        {
+                                            Value.Add("Success", ToolTipTask.Result);
+                                        }
+                                        else
+                                        {
+                                            throw ToolTipTask.Exception;
+                                        }
                                     }
                                 }
                                 catch (Exception)

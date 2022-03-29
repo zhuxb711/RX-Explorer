@@ -1176,51 +1176,58 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-            FolderPicker Picker = new FolderPicker
+            try
             {
-                SuggestedStartLocation = PickerLocationId.ComputerFolder,
-                ViewMode = PickerViewMode.Thumbnail
-            };
-            Picker.FileTypeFilter.Add("*");
-
-            StorageFolder DriveFolder = await Picker.PickSingleFolderAsync();
-
-            if (DriveFolder != null)
-            {
-                if (DriveInfo.GetDrives().Where((Drive) => Drive.DriveType is DriveType.Fixed or DriveType.Removable or DriveType.Network or DriveType.CDRom)
-                                         .Any((Item) => Item.RootDirectory.FullName.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                FolderPicker Picker = new FolderPicker
                 {
-                    if (CommonAccessCollection.DriveList.Any((Item) => Item.Path.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                    SuggestedStartLocation = PickerLocationId.ComputerFolder,
+                    ViewMode = PickerViewMode.Thumbnail
+                };
+                Picker.FileTypeFilter.Add("*");
+
+                StorageFolder DriveFolder = await Picker.PickSingleFolderAsync();
+
+                if (DriveFolder != null)
+                {
+                    if (DriveInfo.GetDrives().Where((Drive) => Drive.DriveType is DriveType.Fixed or DriveType.Removable or DriveType.Network or DriveType.CDRom)
+                                             .Any((Item) => Item.RootDirectory.FullName.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        LogTracer.Log("Could not add the drive to DriveList because it already exist in DriveList");
+                        if (CommonAccessCollection.DriveList.Any((Item) => Item.Path.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            LogTracer.Log("Could not add the drive to DriveList because it already exist in DriveList");
+
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                Content = Globalization.GetString("QueueDialog_DeviceExist_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await Dialog.ShowAsync();
+                        }
+                        else
+                        {
+                            CommonAccessCollection.DriveList.Add(await DriveDataBase.CreateAsync(new DriveInfo(DriveFolder.Path).DriveType, DriveFolder));
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log("Could not add the drive to the list because it is not in system drive list");
 
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_DeviceExist_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            Content = Globalization.GetString("QueueDialog_DeviceSelectError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_TipTitle")
                         };
 
                         await Dialog.ShowAsync();
                     }
-                    else
-                    {
-                        CommonAccessCollection.DriveList.Add(await DriveDataBase.CreateAsync(new DriveInfo(DriveFolder.Path).DriveType, DriveFolder));
-                    }
                 }
-                else
-                {
-                    LogTracer.Log("Could not add the drive to DriveList because it is not in system drive list");
-
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_DeviceSelectError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_TipTitle")
-                    };
-
-                    await Dialog.ShowAsync();
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw when adding to the drive list");
             }
         }
 

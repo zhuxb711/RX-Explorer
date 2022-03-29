@@ -471,6 +471,23 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<ulong> GetSizeOnDiskAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.GetSizeOnDisk, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return Convert.ToUInt64(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetSizeOnDiskAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return 0;
+        }
+
         public async Task<IEnumerable<T>> OrderByNaturalStringSortAlgorithmAsync<T>(IEnumerable<T> InputList, Func<T, string> StringSelector, SortDirection Direction)
         {
             Dictionary<string, T> MapDictionary = InputList.ToDictionary((Item) => Guid.NewGuid().ToString("N"));
@@ -1078,19 +1095,28 @@ namespace RX_Explorer.Class
             return string.Empty;
         }
 
-        public async Task<string> GetTooltipTextAsync(string Path)
+        public async Task<string> GetTooltipTextAsync(string Path, CancellationToken CancelToken = default)
         {
-            if (await SendCommandAsync(CommandType.GetTooltipText, ("Path", Path)) is IDictionary<string, string> Response)
+            using (CancelToken.Register(() =>
             {
-                if (Response.TryGetValue("Success", out string Tooltip))
+                if (!TryCancelCurrentOperation())
                 {
-                    return Tooltip;
+                    LogTracer.Log($"Could not cancel the operation in {nameof(GetTooltipTextAsync)}");
                 }
-                else
+            }))
+            {
+                if (await SendCommandAsync(CommandType.GetTooltipText, ("Path", Path)) is IDictionary<string, string> Response)
                 {
-                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    if (Response.TryGetValue("Success", out string Tooltip))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetTooltipTextAsync)}, message: {ErrorMessage}");
+                        return Tooltip;
+                    }
+                    else
+                    {
+                        if (Response.TryGetValue("Error", out string ErrorMessage))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(GetTooltipTextAsync)}, message: {ErrorMessage}");
+                        }
                     }
                 }
             }

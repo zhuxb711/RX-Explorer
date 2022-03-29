@@ -689,7 +689,7 @@ namespace RX_Explorer.Class
                                     }
                                     catch (Exception ex)
                                     {
-                                        LogTracer.Log(ex, "Delete failed for unexpected error");
+                                        LogTracer.Log(ex, "An exception was threw when deleting the file");
 
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {

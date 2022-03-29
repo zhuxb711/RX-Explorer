@@ -40,7 +40,7 @@
     <value>Supprimer</value>
   </data>
   <data name="AppDisplayName" xml:space="preserve">
-    <value>RX Explorateur</value>
+    <value>RX-Explorer</value>
   </data>
   <data name="AppEdit.Label" xml:space="preserve">
     <value>Editer</value>
@@ -753,9 +753,6 @@
   </data>
   <data name="QuicklookTipContent.Text" xml:space="preserve">
     <value>QuickLook est un logiciel auxiliaire qui permet de visualiser rapidement et facilement le contenu des fichiers. Pour activer cette fonction, vous devez installer QuickLook à l'avance et vous assurer que QuickLook fonctionne correctement. Vous pouvez cliquer sur n'importe quel fichier dans RX Explorateur et appuyer sur la barre d'espace pour activer QuickLook</value>
-  </data>
-  <data name="AppName.Text" xml:space="preserve">
-    <value>RX Explorateur</value>
   </data>
   <data name="SettingPersonalize.Text" xml:space="preserve">
     <value>Personnalisé</value>

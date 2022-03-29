@@ -134,5 +134,6 @@
         MTPDownloadAndGetPath,
         MTPReplaceWithNewFile,
         OrderByNaturalStringSortAlgorithm,
+        GetSizeOnDisk
     }
 }

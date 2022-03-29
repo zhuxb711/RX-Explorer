@@ -66,11 +66,10 @@
                 Background="Transparent"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch">
-            <TextBlock x:Uid="AppName"
-                       Margin="10,0,0,0"
+            <TextBlock Margin="10,0,0,0"
                        FontSize="13"
                        VerticalAlignment="Center"
-                       Text="RX文件管理器"
+                       Text="{x:Bind Cls:Globalization.GetString('AppDisplayName')}"
                        Name="AppName" />
         </Border>
     </Grid>

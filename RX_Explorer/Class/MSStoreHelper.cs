@@ -150,21 +150,14 @@ namespace RX_Explorer.Class
 
                             return Result.Status;
                         }
-                        else
-                        {
-                            return StorePurchaseStatus.NetworkError;
-                        }
-                    }
-                    else
-                    {
-                        return StorePurchaseStatus.NetworkError;
                     }
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, $"{nameof(PurchaseAsync)} threw an exception");
-                    return StorePurchaseStatus.NetworkError;
                 }
+
+                return StorePurchaseStatus.NetworkError;
             });
         }
 

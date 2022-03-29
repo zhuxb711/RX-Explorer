@@ -233,8 +233,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen, new List<string[]> { new string[] { LaunchArgs.Arguments } });
-                                Window.Current.Content = extendedSplash;
+                                Window.Current.Content = new ExtendedSplash(LaunchArgs.SplashScreen, new List<string[]> { new string[] { LaunchArgs.Arguments } });
                             }
                         }
 
@@ -279,8 +278,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen, new List<string[]> { new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path } });
-                                    Window.Current.Content = extendedSplash;
+                                    Window.Current.Content = new ExtendedSplash(CmdArgs.SplashScreen, new List<string[]> { new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path } });
                                 }
                             }
                             else
@@ -295,23 +293,22 @@ namespace RX_Explorer
                     {
                         if (string.IsNullOrWhiteSpace(ProtocalArgs.Uri.AbsolutePath))
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen);
-                            Window.Current.Content = extendedSplash;
+                            Window.Current.Content = new ExtendedSplash(ProtocalArgs.SplashScreen);
                         }
                         else
                         {
-                            string StartupArgument = Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath);
-                            ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen, JsonSerializer.Deserialize<List<string[]>>(StartupArgument));
-                            Window.Current.Content = extendedSplash;
+                            Window.Current.Content = new ExtendedSplash(ProtocalArgs.SplashScreen, JsonSerializer.Deserialize<List<string[]>>(Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath)));
                         }
 
                         break;
                     }
-                case not ToastNotificationActivatedEventArgs:
+                case ToastNotificationActivatedEventArgs:
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
-                        Window.Current.Content = extendedSplash;
-
+                        break;
+                    }
+                default:
+                    {
+                        Window.Current.Content = new ExtendedSplash(args.SplashScreen);
                         break;
                     }
             }
@@ -325,8 +322,7 @@ namespace RX_Explorer
             {
                 case StartupMode.CreateNewTab:
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen);
-                        Window.Current.Content = extendedSplash;
+                        Window.Current.Content = new ExtendedSplash(LaunchArgs.SplashScreen);
                         break;
                     }
                 case StartupMode.LastOpenedTab:
@@ -335,13 +331,11 @@ namespace RX_Explorer
 
                         if (LastOpenedPathArray.Count > 0)
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen, LastOpenedPathArray);
-                            Window.Current.Content = extendedSplash;
+                            Window.Current.Content = new ExtendedSplash(LaunchArgs.SplashScreen, LastOpenedPathArray);
                         }
                         else
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen);
-                            Window.Current.Content = extendedSplash;
+                            Window.Current.Content = new ExtendedSplash(LaunchArgs.SplashScreen);
                         }
 
                         break;
@@ -354,13 +348,11 @@ namespace RX_Explorer
 
                         if (SpecificPathArray.Length > 0)
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen, SpecificPathArray);
-                            Window.Current.Content = extendedSplash;
+                            Window.Current.Content = new ExtendedSplash(LaunchArgs.SplashScreen, SpecificPathArray);
                         }
                         else
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen);
-                            Window.Current.Content = extendedSplash;
+                            Window.Current.Content = new ExtendedSplash(LaunchArgs.SplashScreen);
                         }
 
                         break;

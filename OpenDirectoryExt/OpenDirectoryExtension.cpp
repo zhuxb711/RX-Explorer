@@ -28,27 +28,24 @@ HRESULT OpenTerminalHere::Invoke(IShellItemArray* psiItemArray,
     wil::unique_cotaskmem_string pszName;
     RETURN_IF_FAILED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszName));
 
-    {
-        wil::unique_process_information _piClient;
-        STARTUPINFOEX siEx{ 0 };
-        siEx.StartupInfo.cb = sizeof(STARTUPINFOEX);
+    wil::unique_process_information _piClient;
+    STARTUPINFOEX siEx{ 0 };
+    siEx.StartupInfo.cb = sizeof(STARTUPINFOEX);
 
-        // Append a "\." to the given path, so that this will work in "C:\"
-        std::wstring cmdline = L"RX-Explorer.exe ";
-        cmdline.append(pszName.get());
-        RETURN_IF_WIN32_BOOL_FALSE(CreateProcessW(
-            nullptr, //lpApplicationName
-            cmdline.data(), //lpCommandLine
-            nullptr, // lpProcessAttributes
-            nullptr, // lpThreadAttributes
-            false, // bInheritHandles
-            EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT, // dwCreationFlags
-            nullptr, // lpEnvironment
-            nullptr, //lpCurrentDictionary
-            &siEx.StartupInfo, // lpStartupInfo
-            &_piClient // lpProcessInformation
-        ));
-    }
+    std::wstring cmdline = L"RX-Explorer.exe " + std::wstring(pszName.get());
+
+    RETURN_IF_WIN32_BOOL_FALSE(CreateProcessW(
+        nullptr, //lpApplicationName
+        cmdline.data(), //lpCommandLine
+        nullptr, // lpProcessAttributes
+        nullptr, // lpThreadAttributes
+        false, // bInheritHandles
+        EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT, // dwCreationFlags
+        nullptr, // lpEnvironment
+        nullptr, //lpCurrentDictionary
+        &siEx.StartupInfo, // lpStartupInfo
+        &_piClient // lpProcessInformation
+    ));
 
     return S_OK;
 }
@@ -56,16 +53,15 @@ HRESULT OpenTerminalHere::Invoke(IShellItemArray* psiItemArray,
 HRESULT OpenTerminalHere::GetToolTip(IShellItemArray* /*psiItemArray*/,
     LPWSTR* ppszInfoTip)
 {
-    // tooltip provided here, in this case none is provided
-    *ppszInfoTip = nullptr;
-    return E_NOTIMPL;
+    winrt::hstring DisplayName = winrt::unbox_value_or<winrt::hstring>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"GlobalizationStringForContextMenu"), DefaultDisplayName);
+    return SHStrDupW(DisplayName.data(), ppszInfoTip);
 }
 
 HRESULT OpenTerminalHere::GetTitle(IShellItemArray* /*psiItemArray*/,
     LPWSTR* ppszName)
 {
     winrt::hstring DisplayName = winrt::unbox_value_or<winrt::hstring>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"GlobalizationStringForContextMenu"), DefaultDisplayName);
-    return SHStrDup(DisplayName.data(), ppszName);
+    return SHStrDupW(DisplayName.data(), ppszName);
 }
 
 HRESULT OpenTerminalHere::GetState(IShellItemArray* /*psiItemArray*/,
@@ -86,8 +82,9 @@ HRESULT OpenTerminalHere::GetState(IShellItemArray* /*psiItemArray*/,
 
 STDMETHODIMP_(HRESULT __stdcall) OpenTerminalHere::GetIcon(IShellItemArray* psiItemArray, LPWSTR* ppszIcon)
 {
-    *ppszIcon = nullptr;
-    return E_NOTIMPL;
+    winrt::hstring BasePath = winrt::Windows::ApplicationModel::Package::Current().InstalledPath();
+    std::wstring LogoPath = std::wstring(BasePath.data(), BasePath.size()) + L"\\Assets\\StoreLogo.scale-125.png";
+    return SHStrDupW(LogoPath.data(), ppszIcon);
 }
 
 HRESULT OpenTerminalHere::GetFlags(EXPCMDFLAGS* pFlags)

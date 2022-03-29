@@ -105,12 +105,59 @@ namespace RX_Explorer.Class
 
         public virtual async Task<ulong> GetSizeOnDiskAsync()
         {
-            using (SafeFileHandle Handle = await GetNativeHandleAsync(AccessMode.Read, OptimizeOption.None))
+            async Task<ulong> GetSizeOnDiskCoreAsync()
             {
-                if (!Handle.IsInvalid)
+                using (SafeFileHandle Handle = await GetNativeHandleAsync(AccessMode.Read, OptimizeOption.None))
                 {
-                    return NativeWin32API.GetSizeOnDisk(Path, Handle.DangerousGetHandle());
+                    if (!Handle.IsInvalid)
+                    {
+                        string PathRoot = System.IO.Path.GetPathRoot(Path);
+
+                        if (!string.IsNullOrEmpty(PathRoot))
+                        {
+                            if (NativeWin32API.GetDiskFreeSpace(PathRoot.TrimEnd('\\'), out uint SectorsPerCluster, out uint BytesPerSector, out _, out _))
+                            {
+                                ulong ClusterSize = Convert.ToUInt64(SectorsPerCluster) * Convert.ToUInt64(BytesPerSector);
+                                ulong CompressedSize = NativeWin32API.GetAllocationSizeFromHandle(Handle.DangerousGetHandle());
+
+                                if (ClusterSize > 0)
+                                {
+                                    if (CompressedSize % ClusterSize > 0)
+                                    {
+                                        return CompressedSize + ClusterSize - CompressedSize % ClusterSize;
+                                    }
+                                    else
+                                    {
+                                        return CompressedSize;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
+
+                return 0;
+            }
+
+            try
+            {
+                ulong SizeOnDisk = await GetSizeOnDiskCoreAsync();
+
+                if (SizeOnDisk > 0)
+                {
+                    return SizeOnDisk;
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exlusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        return await Exlusive.Controller.GetSizeOnDiskAsync(Path);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the size on disk");
             }
 
             return 0;
@@ -160,11 +207,20 @@ namespace RX_Explorer.Class
             {
                 return StorageItem ??= await StorageFile.GetFileFromPathAsync(Path);
             }
+            catch (FileNotFoundException)
+            {
+                LogTracer.Log($"Could not get StorageFile because file is not found, path: {Path}");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                LogTracer.Log($"Could not get StorageFile because do not have enough permission to access this file, path: {Path}");
+            }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Could not get StorageFile, Path: {Path}");
-                return null;
+                LogTracer.Log(ex, $"Could not get StorageFile, path: {Path}");
             }
+
+            return null;
         }
 
         public static explicit operator StorageFile(FileSystemStorageFile File)

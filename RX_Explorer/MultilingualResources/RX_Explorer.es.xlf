@@ -43,8 +43,8 @@
           <target state="translated">Eliminar</target>
         </trans-unit>
         <trans-unit id="AppDisplayName" translate="yes" xml:space="preserve">
-          <source>RX Explorer</source>
-          <target state="translated">RX Explorer</target>
+          <source>RX-Explorer</source>
+          <target state="translated">RX-Explorer</target>
         </trans-unit>
         <trans-unit id="AppEdit.Label" translate="yes" xml:space="preserve">
           <source>Edit</source>
@@ -1052,10 +1052,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
         <trans-unit id="QuicklookTipContent.Text" translate="yes" xml:space="preserve">
           <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
           <target state="translated">QuickLook es un programa auxiliar para poder ver de manera rápida y práctica el contenido de archivos. Para habilitar esta función, debes instalar antes QuickLook y asegurarte de que funciona correctamente. Puedes seleccionar cualquier archivo dentro de RX Explorer y pulsar la barra espaciadora para activar QuickLook.</target>
-        </trans-unit>
-        <trans-unit id="AppName.Text" translate="yes" xml:space="preserve">
-          <source>RX Explorer</source>
-          <target state="translated">RX Explorer</target>
         </trans-unit>
         <trans-unit id="SettingPersonalize.Text" translate="yes" xml:space="preserve">
           <source>Personalize</source>

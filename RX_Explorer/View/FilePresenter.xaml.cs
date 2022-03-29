@@ -4637,6 +4637,7 @@ namespace RX_Explorer.View
                                             case ".msc":
                                             case ".lnk":
                                             case ".url":
+                                            case ".cmd":
                                                 {
                                                     throw new NotSupportedException();
                                                 }
@@ -4732,6 +4733,7 @@ namespace RX_Explorer.View
                                             case ".exe":
                                             case ".bat":
                                             case ".msi":
+                                            case ".cmd":
                                                 {
                                                     if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), RunAsAdmin: RunAsAdministrator))
                                                     {
@@ -4971,6 +4973,7 @@ namespace RX_Explorer.View
                                 case ".bat":
                                 case ".msi":
                                 case ".msc":
+                                case ".cmd":
                                 case ".lnk":
                                 case ".url":
                                     {
@@ -5286,26 +5289,31 @@ namespace RX_Explorer.View
 
                                 if ((ItemPresenter.ContainerFromItem(TargetItem) as SelectorItem)?.ContentTemplateRoot is FrameworkElement Element)
                                 {
+                                    Container.ShouldNotAcceptShortcutKeyInput = true;
+
                                     if (Element.FindChildOfName<TextBox>("NameEditBox") is TextBox EditBox)
                                     {
                                         EditBox.BeforeTextChanging += EditBox_BeforeTextChanging;
                                         EditBox.PreviewKeyDown += EditBox_PreviewKeyDown;
                                         EditBox.LostFocus += EditBox_LostFocus;
-                                        EditBox.Text = TargetItem.Name;
                                         EditBox.Visibility = Visibility.Visible;
                                         EditBox.Focus(FocusState.Programmatic);
-                                        EditBox.SelectAll();
-                                    }
 
-                                    Container.ShouldNotAcceptShortcutKeyInput = true;
+                                        if (TargetItem is FileSystemStorageFile)
+                                        {
+                                            EditBox.Select(0, (Path.GetFileNameWithoutExtension(EditBox.Text)?.Length).GetValueOrDefault(EditBox.Text.Length));
+                                        }
+                                        else
+                                        {
+                                            EditBox.SelectAll();
+                                        }
+                                    }
                                 }
 
                                 break;
                             }
-                            else
-                            {
-                                await Task.Delay(500);
-                            }
+
+                            await Task.Delay(500);
                         }
                     }
                     else
@@ -5713,7 +5721,7 @@ namespace RX_Explorer.View
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
-                                    TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
+                                    TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path, Token);
 
                                     if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
                                         && !Token.IsCancellationRequested
@@ -6017,6 +6025,8 @@ namespace RX_Explorer.View
                         {
                             if (input is CancellationToken Token && !Token.IsCancellationRequested)
                             {
+                                Container.ShouldNotAcceptShortcutKeyInput = true;
+
                                 if ((NameLabel.Parent as FrameworkElement)?.FindChildOfName<TextBox>("NameEditBox") is TextBox EditBox)
                                 {
                                     EditBox.BeforeTextChanging += EditBox_BeforeTextChanging;
@@ -6024,9 +6034,16 @@ namespace RX_Explorer.View
                                     EditBox.LostFocus += EditBox_LostFocus;
                                     EditBox.Visibility = Visibility.Visible;
                                     EditBox.Focus(FocusState.Programmatic);
-                                }
 
-                                Container.ShouldNotAcceptShortcutKeyInput = true;
+                                    if (SelectedItem is FileSystemStorageFile)
+                                    {
+                                        EditBox.Select(0, (Path.GetFileNameWithoutExtension(EditBox.Text)?.Length).GetValueOrDefault(EditBox.Text.Length));
+                                    }
+                                    else
+                                    {
+                                        EditBox.SelectAll();
+                                    }
+                                }
                             }
                         }, DelayRenameCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                     }
@@ -7457,6 +7474,7 @@ namespace RX_Explorer.View
                                     }
                                 case ".exe":
                                 case ".bat":
+                                case ".cmd":
                                     {
                                         ChooseOtherAppButton.Visibility = Visibility.Collapsed;
                                         RunAsAdminButton.Visibility = Visibility.Visible;

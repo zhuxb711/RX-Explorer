@@ -1,4 +1,5 @@
 ﻿using MediaDevices;
+using Microsoft.Win32.SafeHandles;
 using MimeTypes;
 using ShareClassLibrary;
 using System;
@@ -26,6 +27,30 @@ namespace FullTrustProcess
 {
     public static class Helper
     {
+        public static ulong GetAllocationSize(string Path)
+        {
+            try
+            {
+                using (SafeFileHandle Handle = File.OpenHandle(Path))
+                {
+                    try
+                    {
+                        return Convert.ToUInt64(Math.Max(Kernel32.GetFileInformationByHandleEx<Kernel32.FILE_COMPRESSION_INFO>(Handle, Kernel32.FILE_INFO_BY_HANDLE_CLASS.FileCompressionInfo).CompressedFileSize, 0));
+                    }
+                    catch (Exception)
+                    {
+                        return Convert.ToUInt64(Math.Max(Kernel32.GetFileInformationByHandleEx<Kernel32.FILE_STANDARD_INFO>(Handle, Kernel32.FILE_INFO_BY_HANDLE_CLASS.FileStandardInfo).AllocationSize, 0));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the size from GetFileInformationByHandleEx so we could not calculate the size on disk");
+            }
+
+            return 0;
+        }
+
         public static void CopyTo(string From, string To)
         {
             if (File.Exists(From))

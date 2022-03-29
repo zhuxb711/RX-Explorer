@@ -76,7 +76,7 @@ namespace RX_Explorer.Class
                                                                 uint dwBufferSize);
 
         [DllImport("api-ms-win-core-file-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        private static extern bool GetDiskFreeSpace(string lpRootPathName,
+        public static extern bool GetDiskFreeSpace(string lpRootPathName,
                                                     out uint lpSectorsPerCluster,
                                                     out uint lpBytesPerSector,
                                                     out uint lpNumberOfFreeClusters,
@@ -354,37 +354,46 @@ namespace RX_Explorer.Class
 
         public static FileStream CreateStreamFromFile(string Path, AccessMode AccessMode, OptimizeOption Option)
         {
-            FILE_ATTRIBUTE_FLAG Flags = FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | Option switch
+            try
             {
-                OptimizeOption.None => FILE_ATTRIBUTE_FLAG.File_Attribute_Normal,
-                OptimizeOption.Sequential => FILE_ATTRIBUTE_FLAG.File_Flag_Sequential_Scan,
-                OptimizeOption.RandomAccess => FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access,
-                _ => throw new NotSupportedException()
-            };
+                FILE_ATTRIBUTE_FLAG Flags = FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | Option switch
+                {
+                    OptimizeOption.None => FILE_ATTRIBUTE_FLAG.File_Attribute_Normal,
+                    OptimizeOption.Sequential => FILE_ATTRIBUTE_FLAG.File_Flag_Sequential_Scan,
+                    OptimizeOption.RandomAccess => FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access,
+                    _ => throw new NotSupportedException()
+                };
 
-            SafeFileHandle Handle = AccessMode switch
-            {
-                AccessMode.Read => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
-                AccessMode.ReadWrite => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.Read, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
-                AccessMode.Write => CreateFileFromApp(Path, FILE_ACCESS.Generic_Write, FILE_SHARE.Read, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
-                AccessMode.Exclusive => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.None, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
-                _ => throw new NotSupportedException()
-            };
+                SafeFileHandle Handle = AccessMode switch
+                {
+                    AccessMode.Read => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                    AccessMode.ReadWrite => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.Read, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                    AccessMode.Write => CreateFileFromApp(Path, FILE_ACCESS.Generic_Write, FILE_SHARE.Read, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                    AccessMode.Exclusive => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.None, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                    _ => throw new NotSupportedException()
+                };
 
-            if (Handle.IsInvalid)
+                if (Handle.IsInvalid)
+                {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+
+                FileAccess Access = AccessMode switch
+                {
+                    AccessMode.Read => FileAccess.Read,
+                    AccessMode.ReadWrite or AccessMode.Exclusive => FileAccess.ReadWrite,
+                    AccessMode.Write => FileAccess.Write,
+                    _ => throw new NotSupportedException()
+                };
+
+                return new FileStream(Handle, Access, 4096, true);
+            }
+            catch (Exception ex)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                LogTracer.Log(ex, $"Could not create filestream from file, path: {Path}");
             }
 
-            FileAccess Access = AccessMode switch
-            {
-                AccessMode.Read => FileAccess.Read,
-                AccessMode.ReadWrite or AccessMode.Exclusive => FileAccess.ReadWrite,
-                AccessMode.Write => FileAccess.Write,
-                _ => throw new NotSupportedException()
-            };
-
-            return new FileStream(Handle, Access, 4096, true);
+            return null;
         }
 
         public static bool CreateDirectoryFromPath(string Path, CreateOption Option, out string NewFolderPath)
@@ -1006,85 +1015,50 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static ulong GetSizeOnDisk(string Path, IntPtr Handle)
+        public static ulong GetAllocationSizeFromHandle(IntPtr Handle)
         {
-            static ulong GetAllocationSize(IntPtr Handle)
+            int CompressionInfoStructSize = Marshal.SizeOf<FILE_COMPRESSION_INFO>();
+
+            IntPtr CompressionInfoStructPtr = Marshal.AllocCoTaskMem(CompressionInfoStructSize);
+
+            try
             {
-                int CompressionInfoStructSize = Marshal.SizeOf<FILE_COMPRESSION_INFO>();
-
-                IntPtr CompressionInfoStructPtr = Marshal.AllocCoTaskMem(CompressionInfoStructSize);
-
-                try
+                if (GetFileInformationByHandleEx(Handle, FILE_INFO_BY_HANDLE_CLASS.FileCompressionInfo, CompressionInfoStructPtr, Convert.ToUInt32(CompressionInfoStructSize)))
                 {
-                    if (GetFileInformationByHandleEx(Handle, FILE_INFO_BY_HANDLE_CLASS.FileCompressionInfo, CompressionInfoStructPtr, Convert.ToUInt32(CompressionInfoStructSize)))
+                    FILE_COMPRESSION_INFO CompressionInfo = Marshal.PtrToStructure<FILE_COMPRESSION_INFO>(CompressionInfoStructPtr);
+
+                    if (CompressionInfo.CompressedFileSize > 0)
                     {
-                        FILE_COMPRESSION_INFO CompressionInfo = Marshal.PtrToStructure<FILE_COMPRESSION_INFO>(CompressionInfoStructPtr);
-
-                        if (CompressionInfo.CompressedFileSize > 0)
-                        {
-                            return Convert.ToUInt64(CompressionInfo.CompressedFileSize);
-                        }
-                        else
-                        {
-                            int StandardStructSize = Marshal.SizeOf<FILE_STANDARD_INFO>();
-
-                            IntPtr StandardInfoStructPtr = Marshal.AllocCoTaskMem(StandardStructSize);
-
-                            try
-                            {
-                                if (GetFileInformationByHandleEx(Handle, FILE_INFO_BY_HANDLE_CLASS.FileStandardInfo, StandardInfoStructPtr, Convert.ToUInt32(StandardStructSize)))
-                                {
-                                    FILE_STANDARD_INFO StandardInfo = Marshal.PtrToStructure<FILE_STANDARD_INFO>(StandardInfoStructPtr);
-                                    return Convert.ToUInt64(Math.Max(StandardInfo.AllocationSize, 0));
-                                }
-                            }
-                            finally
-                            {
-                                Marshal.FreeCoTaskMem(StandardInfoStructPtr);
-                            }
-                        }
+                        return Convert.ToUInt64(CompressionInfo.CompressedFileSize);
                     }
                     else
                     {
-                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not size from GetFileInformationByHandleEx so we could not calculate the size on disk");
+                        int StandardStructSize = Marshal.SizeOf<FILE_STANDARD_INFO>();
+
+                        IntPtr StandardInfoStructPtr = Marshal.AllocCoTaskMem(StandardStructSize);
+
+                        try
+                        {
+                            if (GetFileInformationByHandleEx(Handle, FILE_INFO_BY_HANDLE_CLASS.FileStandardInfo, StandardInfoStructPtr, Convert.ToUInt32(StandardStructSize)))
+                            {
+                                FILE_STANDARD_INFO StandardInfo = Marshal.PtrToStructure<FILE_STANDARD_INFO>(StandardInfoStructPtr);
+                                return Convert.ToUInt64(Math.Max(StandardInfo.AllocationSize, 0));
+                            }
+                        }
+                        finally
+                        {
+                            Marshal.FreeCoTaskMem(StandardInfoStructPtr);
+                        }
                     }
                 }
-                finally
+                else
                 {
-                    Marshal.FreeCoTaskMem(CompressionInfoStructPtr);
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not size from GetFileInformationByHandleEx so we could not calculate the size on disk");
                 }
-
-                return 0;
             }
-
-            if (Handle.CheckIfValidPtr())
+            finally
             {
-                string PathRoot = System.IO.Path.GetPathRoot(Path);
-
-                if (!string.IsNullOrEmpty(PathRoot))
-                {
-                    if (GetDiskFreeSpace(PathRoot.TrimEnd('\\'), out uint SectorsPerCluster, out uint BytesPerSector, out _, out _))
-                    {
-                        ulong ClusterSize = Convert.ToUInt64(SectorsPerCluster) * Convert.ToUInt64(BytesPerSector);
-                        ulong CompressedSize = GetAllocationSize(Handle);
-
-                        if (ClusterSize > 0)
-                        {
-                            if (CompressedSize % ClusterSize > 0)
-                            {
-                                return CompressedSize + ClusterSize - CompressedSize % ClusterSize;
-                            }
-                            else
-                            {
-                                return CompressedSize;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not get disk freespace so we could not calculate the size on disk");
-                    }
-                }
+                Marshal.FreeCoTaskMem(CompressionInfoStructPtr);
             }
 
             return 0;

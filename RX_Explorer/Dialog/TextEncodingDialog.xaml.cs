@@ -1,7 +1,9 @@
 ﻿using RX_Explorer.Class;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -73,9 +75,12 @@ namespace RX_Explorer.Dialog
             {
                 try
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    if (TextFile.Size > 0)
                     {
-                        return await Exclusive.Controller.DetectEncodingAsync(TextFile.Path);
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            return await Exclusive.Controller.DetectEncodingAsync(TextFile.Path);
+                        }
                     }
                 }
                 catch (Exception ex)

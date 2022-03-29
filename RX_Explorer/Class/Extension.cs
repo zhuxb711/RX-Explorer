@@ -350,9 +350,29 @@ namespace RX_Explorer.Class
                 StorageHandleAccess.Create(Access, Share, Optimize, IntPtr.Zero, out IntPtr Handle);
                 return new SafeFileHandle(Handle, true);
             }
+            catch (FileLoadException)
+            {
+                LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because file is used by anther process, path: \"{Item.Path}\"");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because directory is not found, path: \"{Item.Path}\"");
+            }
+            catch (FileNotFoundException)
+            {
+                LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because file is not found, path: \"{Item.Path}\"");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because do not have enough permission, path: \"{Item.Path}\"");
+            }
+            catch (BadImageFormatException)
+            {
+                LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because the file is damaged, path: \"{Item.Path}\"");
+            }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Could not get file handle from COMInterface, path: \"{Item.Path}\"");
+                LogTracer.Log(ex, $"Could not get handle from {nameof(IStorageItemHandleAccess)}, path: \"{Item.Path}\"");
             }
 
             return new SafeFileHandle(IntPtr.Zero, true);
@@ -560,9 +580,10 @@ namespace RX_Explorer.Class
                                 if (!string.IsNullOrEmpty(DefaultProgramPath)
                                     && !ProgramPickerItem.InnerViewer.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase)
                                     && OpenWithFlyout.Items.OfType<FrameworkElement>()
-                                                           .Select((Item) => ((string, ProgramPickerItem))Item.Tag)
-                                                           .Select((Item) => Item.Item2)
-                                                           .All((Item) => !Item.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase)))
+                                                           .Select((Item) => Item.Tag)
+                                                           .OfType<(string Path, ProgramPickerItem PickerItem)>()
+                                                           .Select((Data) => Data.PickerItem)
+                                                           .All((PickerItem) => !DefaultProgramPath.Equals(PickerItem.Path, StringComparison.OrdinalIgnoreCase)))
                                 {
                                     OpenWithFlyout.Items.Insert(0, await GenerateOpenWithItemAsync(DefaultProgramPath));
                                 }
@@ -653,7 +674,6 @@ namespace RX_Explorer.Class
                                         {
                                             Flyout.SecondaryCommands.Insert(Index, AddItem);
                                         }
-
 
                                         Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
                                     }
@@ -1242,7 +1262,7 @@ namespace RX_Explorer.Class
                             }
                     }
 
-                    if (await Task.WhenAny(GetThumbnailTask, Task.Delay(3000)) == GetThumbnailTask)
+                    if (await Task.WhenAny(GetThumbnailTask, Task.Delay(4000)) == GetThumbnailTask)
                     {
                         using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
                         {

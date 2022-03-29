@@ -169,7 +169,7 @@ namespace RX_Explorer.Class
                             {
                                 StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
 
-                                if (await Folder.TryGetItemAsync(System.IO.Path.GetFileName(Path)) is IStorageItem)
+                                if (await Folder.TryGetItemAsync(System.IO.Path.GetFileName(Path)) != null)
                                 {
                                     return true;
                                 }
@@ -179,7 +179,7 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "CheckExist threw an exception");
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(CheckExistsAsync)}, path: {Path}");
                 }
             }
 

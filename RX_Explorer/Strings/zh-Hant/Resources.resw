@@ -763,9 +763,6 @@
   <data name="QuicklookTipContent.Text" xml:space="preserve">
     <value>QuickLook是一個輔助軟體，可方便快捷地查看檔案內容。若要啟用此功能，必須預先安裝QuickLook並確保QuickLook正常執行。 您可以在RX 檔案總管中單擊任意檔案，然後按空格鍵以使用QuickLook</value>
   </data>
-  <data name="AppName.Text" xml:space="preserve">
-    <value>RX 檔案總管</value>
-  </data>
   <data name="SettingPersonalize.Text" xml:space="preserve">
     <value>個人化</value>
   </data>

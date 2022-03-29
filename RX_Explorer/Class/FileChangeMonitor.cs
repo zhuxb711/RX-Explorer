@@ -51,7 +51,7 @@ namespace RX_Explorer.Class
 
                 if (MonitorPointer.IsInvalid)
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a monitor on directory from native api, fallback to fulltrust process");
+                    LogTracer.Log($"Could not create the monitor on directory from native api, fallback to fulltrust process, path: {Path}");
 
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
@@ -61,7 +61,7 @@ namespace RX_Explorer.Class
 
                 if ((MonitorPointer?.IsInvalid).GetValueOrDefault(true))
                 {
-                    LogTracer.Log($"Could not create a monitor on directory. Path: \"{Path}\"");
+                    LogTracer.Log($"Could not create the monitor on directory, path: \"{Path}\"");
                 }
                 else
                 {

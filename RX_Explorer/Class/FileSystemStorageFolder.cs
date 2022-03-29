@@ -549,11 +549,20 @@ namespace RX_Explorer.Class
             {
                 return StorageItem ??= await StorageFolder.GetFolderFromPathAsync(Path);
             }
+            catch (FileNotFoundException)
+            {
+                LogTracer.Log($"Could not get StorageFolder because directory is not found, path: {Path}");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                LogTracer.Log($"Could not get StorageFolder because do not have enough permission to access this directory, path: {Path}");
+            }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Could not get StorageFolder, Path: {Path}");
-                return null;
+                LogTracer.Log(ex, $"Could not get StorageFolder, path: {Path}");
             }
+
+            return null;
         }
 
         public static explicit operator StorageFolder(FileSystemStorageFolder File)

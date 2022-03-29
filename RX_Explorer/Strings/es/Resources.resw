@@ -40,7 +40,7 @@
     <value>Eliminar</value>
   </data>
   <data name="AppDisplayName" xml:space="preserve">
-    <value>RX Explorer</value>
+    <value>RX-Explorer</value>
   </data>
   <data name="AppEdit.Label" xml:space="preserve">
     <value>Editar</value>
@@ -796,9 +796,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QuicklookTipContent.Text" xml:space="preserve">
     <value>QuickLook es un programa auxiliar para poder ver de manera rápida y práctica el contenido de archivos. Para habilitar esta función, debes instalar antes QuickLook y asegurarte de que funciona correctamente. Puedes seleccionar cualquier archivo dentro de RX Explorer y pulsar la barra espaciadora para activar QuickLook.</value>
-  </data>
-  <data name="AppName.Text" xml:space="preserve">
-    <value>RX Explorer</value>
   </data>
   <data name="SettingPersonalize.Text" xml:space="preserve">
     <value>Personalizar</value>

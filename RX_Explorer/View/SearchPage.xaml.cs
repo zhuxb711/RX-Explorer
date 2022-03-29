@@ -615,7 +615,7 @@ namespace RX_Explorer.View
 
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
-                                    TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
+                                    TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path, Token);
 
                                     if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
                                         && !Token.IsCancellationRequested
@@ -830,6 +830,7 @@ namespace RX_Explorer.View
                                     case ".exe":
                                     case ".bat":
                                     case ".msi":
+                                    case ".cmd":
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {

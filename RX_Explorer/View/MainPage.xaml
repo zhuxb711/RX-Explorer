@@ -467,10 +467,9 @@
                 Background="Transparent"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Top">
-            <TextBlock x:Uid="AppName"
-                       VerticalAlignment="Center"
+            <TextBlock VerticalAlignment="Center"
                        HorizontalAlignment="Left"
-                       Text="RX文件管理器"
+                       Text="{x:Bind Cls:Globalization.GetString('AppDisplayName')}"
                        FontSize="13"
                        Name="AppName"
                        Margin="10,0,0,0">
