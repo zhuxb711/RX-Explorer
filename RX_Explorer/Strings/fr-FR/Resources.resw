@@ -3476,4 +3476,28 @@ Les noms non valides incluent
   <data name="ExtendedSplashLoadingFullTrustText" xml:space="preserve">
     <value>Démarrage du processus auxiliaire</value>
   </data>
+  <data name="LoadWSLOnStartup.OffContent" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="LoadWSLOnStartup.OnContent" xml:space="preserve">
+    <value>Autorisé</value>
+  </data>
+  <data name="LoadWSLOnStartupDescription.Text" xml:space="preserve">
+    <value>L'activation de cette option chargera le dossier WSL au démarrage. Remarque : Le chargement du dossier WSL entraînera un certain degré de perte de performances. Lors de la connexion au dossier WSL, nous devons démarrer la machine virtuelle WSL correspondante en même temps</value>
+  </data>
+  <data name="LoadWSLOnStartupLabel.Text" xml:space="preserve">
+    <value>Charger le dossier WSL au démarrage</value>
+  </data>
+  <data name="SettingShareData.OffContent" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="SettingShareData.OnContent" xml:space="preserve">
+    <value>Autorisé</value>
+  </data>
+  <data name="SettingShareDataDescription.Text" xml:space="preserve">
+    <value>L'activation de cette option partagera automatiquement les données pour analyser et améliorer l'application. Le contenu partagé comprend des journaux liés aux principales exceptions et plantages. Les données peuvent contenir des informations connexes telles que des chemins ou des noms de fichiers. Si ces informations sont très sensibles et importantes pour vous, vous pouvez utiliser cette option pour fermer en toute sécurité le partage de données</value>
+  </data>
+  <data name="SettingShareDataLabel.Text" xml:space="preserve">
+    <value>Partager des données pour améliorer cette application</value>
+  </data>
 </root>

@@ -727,6 +727,27 @@ namespace FullTrustProcess
 
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.GetAvailableWslDrivePathList:
+                        {
+                            using (Process PowershellProcess = Process.Start(new ProcessStartInfo
+                            {
+                                CreateNoWindow = true,
+                                UseShellExecute = false,
+                                RedirectStandardOutput = true,
+                                FileName = "powershell.exe",
+                                Arguments = $"-Command \"wsl --list --quiet\""
+                            }))
+                            {
+                                Value.Add("Success", JsonSerializer.Serialize(PowershellProcess.StandardOutput.ReadToEnd().Replace("\0", string.Empty).Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Name) => $@"\\wsl$\{Name}").Where((Path) => Directory.Exists(Path))));
+
+                                if (!PowershellProcess.WaitForExit(2000))
+                                {
+                                    PowershellProcess.Kill();
+                                }
+                            }
+
+                            break;
+                        }
                     case CommandType.GetSizeOnDisk:
                         {
                             string Path = CommandValue["Path"];

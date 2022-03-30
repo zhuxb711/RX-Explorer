@@ -207,18 +207,18 @@ namespace RX_Explorer.Class
 
         private static async Task<DriveDataBase> CreateAsync(DriveType DriveType, FileSystemStorageFolder DriveFolder, string DriveId = null)
         {
-            IReadOnlyDictionary<string, string> PropertiesRetrieve = await DriveFolder.GetPropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
             if (DriveFolder.Path.StartsWith(@"\\wsl", StringComparison.OrdinalIgnoreCase))
             {
-                return new WslDriveData(DriveFolder, PropertiesRetrieve, DriveId);
+                return new WslDriveData(DriveFolder, DriveId);
             }
             else if (DriveFolder.Path.TrimEnd('\\').Equals(DriveId, StringComparison.OrdinalIgnoreCase))
             {
-                return new MTPDriveData(DriveFolder, PropertiesRetrieve, DriveId);
+                return new MTPDriveData(DriveFolder, DriveId);
             }
             else
             {
+                IReadOnlyDictionary<string, string> PropertiesRetrieve = await DriveFolder.GetPropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
                 if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out string BitlockerStateRaw) && !string.IsNullOrEmpty(BitlockerStateRaw))
                 {
                     if (Convert.ToInt32(BitlockerStateRaw) == 6)
@@ -226,9 +226,9 @@ namespace RX_Explorer.Class
                         return new LockedDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
                     }
                 }
-            }
 
-            return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
+                return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
+            }
         }
 
         public async Task LoadAsync()
@@ -280,7 +280,7 @@ namespace RX_Explorer.Class
                 {
                     case -1:
                         {
-                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 Thumbnail = new BitmapImage(SystemDriveIconUri);
                             }
@@ -303,7 +303,7 @@ namespace RX_Explorer.Class
                     case 3:
                     case 2:
                         {
-                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 Thumbnail = new BitmapImage(SystemDriveIconUri);
                             }
@@ -316,7 +316,7 @@ namespace RX_Explorer.Class
                         }
                     default:
                         {
-                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 Thumbnail = new BitmapImage(SystemDriveUnLockedIconUri);
                             }
@@ -452,18 +452,15 @@ namespace RX_Explorer.Class
             }
         }
 
-        /// <summary>
-        /// 初始化DriveDataBase对象
-        /// </summary>
-        /// <param name="DriveFolder">驱动器文件夹</param>
-        /// <param name="Thumbnail">缩略图</param>
-        /// <param name="PropertiesRetrieve">额外信息</param>
-        protected DriveDataBase(FileSystemStorageFolder DriveFolder, IReadOnlyDictionary<string, string> PropertiesRetrieve, DriveType DriveType, string DriveId = null)
+        protected DriveDataBase(FileSystemStorageFolder DriveFolder, DriveType DriveType, string DriveId = null)
         {
-            this.DriveFolder = DriveFolder ?? throw new FileNotFoundException();
+            this.DriveFolder = DriveFolder ?? throw new ArgumentNullException(nameof(DriveFolder), "Argument could not be null");
             this.DriveType = DriveType;
             this.DriveId = DriveId;
+        }
 
+        protected DriveDataBase(FileSystemStorageFolder DriveFolder, IReadOnlyDictionary<string, string> PropertiesRetrieve, DriveType DriveType, string DriveId = null) : this(DriveFolder, DriveType, DriveId)
+        {
             if (PropertiesRetrieve != null)
             {
                 if (PropertiesRetrieve.TryGetValue("System.Capacity", out string TotalByteRaw) && !string.IsNullOrEmpty(TotalByteRaw))

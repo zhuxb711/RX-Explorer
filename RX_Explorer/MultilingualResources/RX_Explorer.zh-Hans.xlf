@@ -4617,6 +4617,38 @@ Invalid names include
           <source>Starting auxiliary process</source>
           <target state="translated">正在启动辅助进程</target>
         </trans-unit>
+        <trans-unit id="LoadWSLOnStartup.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="LoadWSLOnStartup.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">启用</target>
+        </trans-unit>
+        <trans-unit id="LoadWSLOnStartupDescription.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will load the WSL folder on startup. Note: Loading the WSL folder will cause a certain degree of performance loss. When connecting to the WSL folder, we need to start the corresponding WSL virtual machine at the same time</source>
+          <target state="translated">启用此选项后将在启动时加载WSL文件夹。注意：加载WSL文件夹将导致一定程度的性能损耗，连接至WSL文件夹时需要同时启动对应的WSL虚拟机</target>
+        </trans-unit>
+        <trans-unit id="LoadWSLOnStartupLabel.Text" translate="yes" xml:space="preserve">
+          <source>Load WSL folder at startup</source>
+          <target state="translated">启动时加载WSL文件夹</target>
+        </trans-unit>
+        <trans-unit id="SettingShareData.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="SettingShareData.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">启用</target>
+        </trans-unit>
+        <trans-unit id="SettingShareDataDescription.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will automatically share data to analyze and improve the app. The shared content includes logs related to key exceptions and crashes. The data may contain related information such as paths or file names. If this information is very sensitive and important to you, you can use this option to safely close data sharing</source>
+          <target state="translated">启用此选项后将自动共享数据以分析并改进本应用程序。共享的内容包括关键异常和崩溃相关的日志，数据中可能包含路径或文件名称等相关信息，若这些信息对您非常敏感和重要，则可以使用此选项安全的关闭数据共享</target>
+        </trans-unit>
+        <trans-unit id="SettingShareDataLabel.Text" translate="yes" xml:space="preserve">
+          <source>Share data to improve this application</source>
+          <target state="translated">共享数据以改进本应用</target>
+        </trans-unit>
       </group>
     </body>
   </file>

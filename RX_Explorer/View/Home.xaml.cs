@@ -958,7 +958,6 @@ namespace RX_Explorer.View
 
                         break;
                     }
-                case WslDriveData:
                 case NormalDriveData:
                     {
                         OpenTargetFolder(string.IsNullOrEmpty(Drive.Path) ? Drive.DriveId : Drive.Path);

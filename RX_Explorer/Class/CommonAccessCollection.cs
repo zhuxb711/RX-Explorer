@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Deferred;
+using RX_Explorer.View;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,7 +13,6 @@ using System.Timers;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Storage;
-using Windows.Storage.Search;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Core;
@@ -255,23 +255,26 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    foreach (StorageFolder WslFolder in await GetWslDriveAsync())
+                    if (SettingPage.LoadWSLFolderOnStartupEnabled)
                     {
-                        Task LoadTask = DriveDataBase.CreateAsync(DriveType.Network, WslFolder).ContinueWith((PreviousTask) =>
+                        foreach (StorageFolder WslFolder in await GetAvailableWslDriveAsync())
                         {
-                            if (PreviousTask.Exception is Exception Ex)
+                            Task LoadTask = DriveDataBase.CreateAsync(DriveType.Network, WslFolder).ContinueWith((PreviousTask) =>
                             {
-                                LogTracer.Log(Ex, $"Ignore the drive \"{WslFolder.Path}\" because we could not get details from this drive");
-                            }
-                            else if (!DriveList.Contains(PreviousTask.Result))
-                            {
-                                DriveList.Add(PreviousTask.Result);
-                            }
-                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                                if (PreviousTask.Exception is Exception Ex)
+                                {
+                                    LogTracer.Log(Ex, $"Ignore the drive \"{WslFolder.Path}\" because we could not get details from this drive");
+                                }
+                                else if (!DriveList.Contains(PreviousTask.Result))
+                                {
+                                    DriveList.Add(PreviousTask.Result);
+                                }
+                            }, TaskScheduler.FromCurrentSynchronizationContext());
 
-                        if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
-                        {
-                            LongRunningTaskList.Add(LoadTask);
+                            if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
+                            {
+                                LongRunningTaskList.Add(LoadTask);
+                            }
                         }
                     }
 
@@ -388,24 +391,26 @@ namespace RX_Explorer.Class
             }
         }
 
-        private async static Task<IReadOnlyList<StorageFolder>> GetWslDriveAsync()
+        private async static Task<IReadOnlyList<StorageFolder>> GetAvailableWslDriveAsync()
         {
+            List<StorageFolder> AvailableWslFolderList = new List<StorageFolder>();
+
             try
             {
-                StorageFolder WslBaseFolder = await StorageFolder.GetFolderFromPathAsync(@"\\wsl$");
-
-                StorageFolderQueryResult Query = WslBaseFolder.CreateFolderQueryWithOptions(new QueryOptions
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    FolderDepth = FolderDepth.Shallow,
-                    IndexerOption = IndexerOption.DoNotUseIndexer
-                });
-
-                return await Query.GetFoldersAsync();
+                    foreach (string WslPath in await Exclusive.Controller.GetAvailableWslDrivePathListAsync())
+                    {
+                        AvailableWslFolderList.Add(await StorageFolder.GetFolderFromPathAsync(WslPath));
+                    }
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return new List<StorageFolder>(0);
+                LogTracer.Log(ex, "Could not get the storage folder for WSL");
             }
+
+            return AvailableWslFolderList;
         }
 
         private async static void NetworkDriveCheckTimer_Tick(object sender, ElapsedEventArgs e)
@@ -413,7 +418,7 @@ namespace RX_Explorer.Class
             NetworkDriveCheckTimer.Enabled = false;
 
             DriveInfo[] NewNetworkDrive = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Network).ToArray();
-            DriveDataBase[] ExistNetworkDrive = DriveList.OfType<NormalDriveData>().Where((ExistDrive) => ExistDrive.DriveType == DriveType.Network).ToArray();
+            DriveDataBase[] ExistNetworkDrive = DriveList.Where((ExistDrive) => ExistDrive is not WslDriveData && ExistDrive.DriveType == DriveType.Network).ToArray();
 
             IEnumerable<DriveInfo> AddList = NewNetworkDrive.Where((NewDrive) => ExistNetworkDrive.All((ExistDrive) => !ExistDrive.Path.Equals(NewDrive.Name, StringComparison.OrdinalIgnoreCase)));
             IEnumerable<DriveDataBase> RemoveList = ExistNetworkDrive.Where((ExistDrive) => NewNetworkDrive.All((NewDrive) => !ExistDrive.Path.Equals(NewDrive.Name, StringComparison.OrdinalIgnoreCase)));

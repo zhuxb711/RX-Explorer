@@ -11,6 +11,11 @@ namespace RX_Explorer.Class
 
         }
 
+        public NormalDriveData(FileSystemStorageFolder Drive, DriveType DriveType, string DriveId = null) : base(Drive, DriveType, DriveId)
+        {
+
+        }
+
         protected override Task LoadCoreAsync()
         {
             return Task.CompletedTask;

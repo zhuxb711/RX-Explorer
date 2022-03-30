@@ -1,18 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
     public class WslDriveData : DriveDataBase
     {
-        public WslDriveData(FileSystemStorageFolder Drive, IReadOnlyDictionary<string, string> PropertiesRetrieve, string DriveId = null) : base(Drive, PropertiesRetrieve, System.IO.DriveType.Network, DriveId)
-        {
-
-        }
-
         protected override Task LoadCoreAsync()
         {
             return Task.CompletedTask;
+        }
+
+        public WslDriveData(FileSystemStorageFolder Drive, string DriveId = null) : base(Drive, System.IO.DriveType.Network, DriveId)
+        {
+
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using ShareClassLibrary;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -24,7 +23,7 @@ namespace RX_Explorer.Class
 
         private MTPDriveVolumnData RawData;
 
-        public MTPDriveData(FileSystemStorageFolder Drive, IReadOnlyDictionary<string, string> PropertiesRetrieve, string DriveId = null) : base(Drive, PropertiesRetrieve, DriveType.Removable, DriveId)
+        public MTPDriveData(FileSystemStorageFolder Drive, string DriveId = null) : base(Drive, DriveType.Removable, DriveId)
         {
 
         }

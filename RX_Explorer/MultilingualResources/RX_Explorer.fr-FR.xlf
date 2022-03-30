@@ -4617,6 +4617,38 @@ Les noms non valides incluent
           <source>Starting auxiliary process</source>
           <target state="translated">Démarrage du processus auxiliaire</target>
         </trans-unit>
+        <trans-unit id="LoadWSLOnStartup.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Désactivé</target>
+        </trans-unit>
+        <trans-unit id="LoadWSLOnStartup.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Autorisé</target>
+        </trans-unit>
+        <trans-unit id="LoadWSLOnStartupDescription.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will load the WSL folder on startup. Note: Loading the WSL folder will cause a certain degree of performance loss. When connecting to the WSL folder, we need to start the corresponding WSL virtual machine at the same time</source>
+          <target state="translated">L'activation de cette option chargera le dossier WSL au démarrage. Remarque : Le chargement du dossier WSL entraînera un certain degré de perte de performances. Lors de la connexion au dossier WSL, nous devons démarrer la machine virtuelle WSL correspondante en même temps</target>
+        </trans-unit>
+        <trans-unit id="LoadWSLOnStartupLabel.Text" translate="yes" xml:space="preserve">
+          <source>Load WSL folder at startup</source>
+          <target state="translated">Charger le dossier WSL au démarrage</target>
+        </trans-unit>
+        <trans-unit id="SettingShareData.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Désactivé</target>
+        </trans-unit>
+        <trans-unit id="SettingShareData.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Autorisé</target>
+        </trans-unit>
+        <trans-unit id="SettingShareDataDescription.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will automatically share data to analyze and improve the app. The shared content includes logs related to key exceptions and crashes. The data may contain related information such as paths or file names. If this information is very sensitive and important to you, you can use this option to safely close data sharing</source>
+          <target state="translated">L'activation de cette option partagera automatiquement les données pour analyser et améliorer l'application. Le contenu partagé comprend des journaux liés aux principales exceptions et plantages. Les données peuvent contenir des informations connexes telles que des chemins ou des noms de fichiers. Si ces informations sont très sensibles et importantes pour vous, vous pouvez utiliser cette option pour fermer en toute sécurité le partage de données</target>
+        </trans-unit>
+        <trans-unit id="SettingShareDataLabel.Text" translate="yes" xml:space="preserve">
+          <source>Share data to improve this application</source>
+          <target state="translated">Partager des données pour améliorer cette application</target>
+        </trans-unit>
       </group>
     </body>
   </file>

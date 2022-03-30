@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
-    public class LockedDriveData : NormalDriveData
+    public class LockedDriveData : DriveDataBase
     {
         public async Task<bool> UnlockAsync(string Password)
         {
@@ -13,6 +13,11 @@ namespace RX_Explorer.Class
             {
                 return await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{DriveFolder.Path}' -Password $BitlockerSecureString");
             }
+        }
+
+        protected override Task LoadCoreAsync()
+        {
+            return Task.CompletedTask;
         }
 
         public LockedDriveData(FileSystemStorageFolder Drive, IReadOnlyDictionary<string, string> PropertiesRetrieve, DriveType DriveType, string DriveId = null) : base(Drive, PropertiesRetrieve, DriveType, DriveId)

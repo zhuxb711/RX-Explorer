@@ -3581,4 +3581,28 @@ Invalid names include
   <data name="ExtendedSplashLoadingFullTrustText" xml:space="preserve">
     <value>Starting auxiliary process</value>
   </data>
+  <data name="LoadWSLOnStartup.OffContent" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="LoadWSLOnStartup.OnContent" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="LoadWSLOnStartupDescription.Text" xml:space="preserve">
+    <value>Enabling this option will load the WSL folder on startup. Note: Loading the WSL folder will cause a certain degree of performance loss. When connecting to the WSL folder, we need to start the corresponding WSL virtual machine at the same time</value>
+  </data>
+  <data name="LoadWSLOnStartupLabel.Text" xml:space="preserve">
+    <value>Load WSL folder at startup</value>
+  </data>
+  <data name="SettingShareData.OffContent" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="SettingShareData.OnContent" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="SettingShareDataDescription.Text" xml:space="preserve">
+    <value>Enabling this option will automatically share data to analyze and improve the app. The shared content includes logs related to key exceptions and crashes. The data may contain related information such as paths or file names. If this information is very sensitive and important to you, you can use this option to safely close data sharing</value>
+  </data>
+  <data name="SettingShareDataLabel.Text" xml:space="preserve">
+    <value>Share data to improve this application</value>
+  </data>
 </root>

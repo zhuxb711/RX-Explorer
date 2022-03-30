@@ -471,6 +471,23 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<IReadOnlyList<string>> GetAvailableWslDrivePathListAsync()
+        {
+            if (await SendCommandAsync(CommandType.GetAvailableWslDrivePathList) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return JsonSerializer.Deserialize<IReadOnlyList<string>>(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetAvailableWslDrivePathListAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return new List<string>(0);
+        }
+
         public async Task<ulong> GetSizeOnDiskAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetSizeOnDisk, ("Path", Path)) is IDictionary<string, string> Response)

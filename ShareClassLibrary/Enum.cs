@@ -134,6 +134,7 @@
         MTPDownloadAndGetPath,
         MTPReplaceWithNewFile,
         OrderByNaturalStringSortAlgorithm,
-        GetSizeOnDisk
+        GetSizeOnDisk,
+        GetAvailableWslDrivePathList
     }
 }

@@ -31,6 +31,7 @@ using Windows.UI;
 using Windows.UI.Composition;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
@@ -535,6 +536,23 @@ namespace RX_Explorer.View
             }
         }
 
+        public static bool LoadWSLFolderOnStartupEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["LoadWSLFolderOnStartupEnabled"] is bool IsEnabled)
+                {
+                    return IsEnabled;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["LoadWSLFolderOnStartupEnabled"] = value;
+        }
+
+
         public static bool IsOpened { get; private set; }
 
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
@@ -1006,6 +1024,14 @@ namespace RX_Explorer.View
             ContextMenuExtSwitch.IsOn = ContextMenuExtensionEnabled;
             FileExtensionSwitch.IsOn = IsShowFileExtensionsEnabled;
             ShowContextMenuWhenLoading.IsChecked = !IsParallelShowContextMenu;
+            LoadWSLOnStartup.IsOn = LoadWSLFolderOnStartupEnabled;
+
+#if DEBUG
+            SettingShareData.IsOn = false;
+            SettingShareData.IsEnabled = false;
+#else
+            SettingShareData.IsOn = await Microsoft.AppCenter.AppCenter.IsEnabledAsync();
+#endif
 
             UIMode.SelectedIndex = BackgroundController.Current.CurrentType switch
             {
@@ -1440,7 +1466,7 @@ namespace RX_Explorer.View
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(ClearUp_Click)}");
                 }
             }
         }
@@ -1529,7 +1555,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Error in {nameof(UIMode_SelectionChanged)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(UIMode_SelectionChanged)}");
             }
         }
 
@@ -1568,7 +1594,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Error in {nameof(AcrylicMode_Checked)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(AcrylicMode_Checked)}");
             }
             finally
             {
@@ -3279,7 +3305,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void CommonSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        private void CommonSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
         {
             ApplicationData.Current.SignalDataChanged();
         }
@@ -3364,7 +3390,7 @@ namespace RX_Explorer.View
             ApplicationData.Current.SignalDataChanged();
         }
 
-        private async void PictureModeExpander_Expanding(Microsoft.UI.Xaml.Controls.Expander sender, ExpanderExpandingEventArgs args)
+        private async void PictureModeExpander_Expanding(Expander sender, ExpanderExpandingEventArgs args)
         {
             if (PictureGirdView.SelectedIndex >= 0)
             {
@@ -3377,6 +3403,21 @@ namespace RX_Explorer.View
                     PictureGirdView.ScrollIntoView(PictureGirdView.SelectedItem, ScrollIntoViewAlignment.Leading);
                 }
             }
+        }
+
+        private void LoadWSLOnStartup_Toggled(object sender, RoutedEventArgs e)
+        {
+            LoadWSLFolderOnStartupEnabled = LoadWSLOnStartup.IsOn;
+            ApplicationData.Current.SignalDataChanged();
+        }
+
+        private async void SettingShareData_Toggled(object sender, RoutedEventArgs e)
+        {
+#if DEBUG
+            await Task.CompletedTask;
+#else
+            await Microsoft.AppCenter.AppCenter.SetEnabledAsync(SettingShareData.IsOn);
+#endif
         }
     }
 }

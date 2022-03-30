@@ -3476,4 +3476,28 @@ Inkorrekte Namen sind
   <data name="ExtendedSplashLoadingFullTrustText" xml:space="preserve">
     <value>Hilfsprozess starten</value>
   </data>
+  <data name="LoadWSLOnStartup.OffContent" xml:space="preserve">
+    <value>Deaktiviert</value>
+  </data>
+  <data name="LoadWSLOnStartup.OnContent" xml:space="preserve">
+    <value>Aktiviert</value>
+  </data>
+  <data name="LoadWSLOnStartupDescription.Text" xml:space="preserve">
+    <value>Durch Aktivieren dieser Option wird der WSL-Ordner beim Start geladen. Hinweis: Das Laden des WSL-Ordners führt zu einem gewissen Leistungsverlust. Beim Verbinden mit dem WSL-Ordner müssen wir gleichzeitig die entsprechende virtuelle WSL-Maschine starten</value>
+  </data>
+  <data name="LoadWSLOnStartupLabel.Text" xml:space="preserve">
+    <value>WSL-Ordner beim Start laden</value>
+  </data>
+  <data name="SettingShareData.OffContent" xml:space="preserve">
+    <value>Deaktiviert</value>
+  </data>
+  <data name="SettingShareData.OnContent" xml:space="preserve">
+    <value>Aktiviert</value>
+  </data>
+  <data name="SettingShareDataDescription.Text" xml:space="preserve">
+    <value>Wenn Sie diese Option aktivieren, werden automatisch Daten geteilt, um die App zu analysieren und zu verbessern. Der freigegebene Inhalt enthält Protokolle zu wichtigen Ausnahmen und Abstürzen. Die Daten können zugehörige Informationen wie Pfade oder Dateinamen enthalten. Wenn diese Informationen sehr sensibel und wichtig für Sie sind, können Sie diese Option verwenden, um die Datenfreigabe sicher zu beenden</value>
+  </data>
+  <data name="SettingShareDataLabel.Text" xml:space="preserve">
+    <value>Teilen Sie Daten, um diese Anwendung zu verbessern</value>
+  </data>
 </root>

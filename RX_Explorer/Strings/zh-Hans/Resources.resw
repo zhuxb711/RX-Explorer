@@ -3476,4 +3476,28 @@
   <data name="ExtendedSplashLoadingFullTrustText" xml:space="preserve">
     <value>正在启动辅助进程</value>
   </data>
+  <data name="LoadWSLOnStartup.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="LoadWSLOnStartup.OnContent" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="LoadWSLOnStartupDescription.Text" xml:space="preserve">
+    <value>启用此选项后将在启动时加载WSL文件夹。注意：加载WSL文件夹将导致一定程度的性能损耗，连接至WSL文件夹时需要同时启动对应的WSL虚拟机</value>
+  </data>
+  <data name="LoadWSLOnStartupLabel.Text" xml:space="preserve">
+    <value>启动时加载WSL文件夹</value>
+  </data>
+  <data name="SettingShareData.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="SettingShareData.OnContent" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="SettingShareDataDescription.Text" xml:space="preserve">
+    <value>启用此选项后将自动共享数据以分析并改进本应用程序。共享的内容包括关键异常和崩溃相关的日志，数据中可能包含路径或文件名称等相关信息，若这些信息对您非常敏感和重要，则可以使用此选项安全的关闭数据共享</value>
+  </data>
+  <data name="SettingShareDataLabel.Text" xml:space="preserve">
+    <value>共享数据以改进本应用</value>
+  </data>
 </root>

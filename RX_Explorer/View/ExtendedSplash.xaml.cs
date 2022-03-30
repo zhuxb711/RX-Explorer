@@ -95,20 +95,22 @@ namespace RX_Explorer.View
 
                 if (string.IsNullOrWhiteSpace(SecretText))
                 {
-                    LogTracer.Log("The secret of appCenter was not found and AppCenter can not be initialized");
+                    LogTracer.Log("The secret of AppCenter was not found and AppCenter can not be initialized");
                 }
                 else
                 {
-                    LogTracer.Log("The secret of appCenter was found and AppCenter is initializing");
+                    LogTracer.Log("The secret of AppCenter was found and AppCenter is initializing");
 
                     Microsoft.AppCenter.AppCenter.Start(SecretText.Replace(Environment.NewLine, string.Empty), typeof(Microsoft.AppCenter.Crashes.Crashes));
 
-                    if (!await Microsoft.AppCenter.AppCenter.IsEnabledAsync())
+                    if (await Microsoft.AppCenter.AppCenter.IsEnabledAsync())
                     {
-                        await Microsoft.AppCenter.AppCenter.SetEnabledAsync(true);
+                        LogTracer.Log("AppCenter is initialized successfully and was enabled");
                     }
-
-                    LogTracer.Log("AppCenter is initialized successfully");
+                    else
+                    {
+                        LogTracer.Log("AppCenter is initialized successfully and was disabled");
+                    }
                 }
             }
             catch (Exception ex)
