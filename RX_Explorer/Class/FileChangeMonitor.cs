@@ -84,8 +84,8 @@ namespace RX_Explorer.Class
         {
             if (Interlocked.Exchange(ref Cancellation, IsDisposing ? null : new CancellationTokenSource()) is CancellationTokenSource PreviousCancellation)
             {
-                PreviousCancellation?.Cancel();
-                PreviousCancellation?.Dispose();
+                PreviousCancellation.Cancel();
+                PreviousCancellation.Dispose();
             }
         }
 
@@ -214,19 +214,16 @@ namespace RX_Explorer.Class
 
             public SafeFileHandle Handle { get; }
 
-            public CancellationToken CancelToken { get; }
-
             private readonly CancellationTokenRegistration Registration;
 
             public FileChangeMonitorInternalData(string Path, SafeFileHandle Handle, CancellationToken CancelToken)
             {
                 this.Path = Path;
                 this.Handle = Handle;
-                this.CancelToken = CancelToken;
 
-                Registration = this.CancelToken.Register((Paramter) =>
+                Registration = CancelToken.Register((Paramter) =>
                 {
-                    if (Paramter is IntPtr RawHandle && RawHandle.CheckIfValidPtr())
+                    if (Paramter is IntPtr RawHandle)
                     {
                         try
                         {
@@ -245,8 +242,8 @@ namespace RX_Explorer.Class
 
             public void Dispose()
             {
-                Handle.Dispose();
                 Registration.Dispose();
+                Handle.Dispose();
 
                 GC.SuppressFinalize(this);
             }

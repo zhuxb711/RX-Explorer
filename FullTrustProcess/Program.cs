@@ -2626,12 +2626,12 @@ namespace FullTrustProcess
                                         }
                                     case 1:
                                         {
-                                            Value.Add("Error", "Registry checking failed");
+                                            Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                             break;
                                         }
                                     default:
                                         {
-                                            Value.Add("Error", "Unknown exception was threw");
+                                            Value.Add("Error", "Unknown exception was threw in SystemLaunchHelper");
                                             break;
                                         }
                                 }
@@ -2664,12 +2664,12 @@ namespace FullTrustProcess
                                         }
                                     case 1:
                                         {
-                                            Value.Add("Error", "Registry checking failed");
+                                            Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                             break;
                                         }
                                     default:
                                         {
-                                            Value.Add("Error", "Unknown exception was threw");
+                                            Value.Add("Error", "Unknown exception was threw in SystemLaunchHelper");
                                             break;
                                         }
                                 }
@@ -2707,12 +2707,12 @@ namespace FullTrustProcess
                                         }
                                     case 1:
                                         {
-                                            Value.Add("Error", "Registry checking failed");
+                                            Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                             break;
                                         }
                                     default:
                                         {
-                                            Value.Add("Error", "Unknown exception was threw");
+                                            Value.Add("Error", "Unknown exception was threw in SystemLaunchHelper");
                                             break;
                                         }
                                 }
@@ -2750,12 +2750,12 @@ namespace FullTrustProcess
                                         }
                                     case 1:
                                         {
-                                            Value.Add("Error", "Registry checking failed");
+                                            Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                             break;
                                         }
                                     default:
                                         {
-                                            Value.Add("Error", "Unknown exception was threw");
+                                            Value.Add("Error", "Unknown exception was threw in SystemLaunchHelper");
                                             break;
                                         }
                                 }

@@ -32,9 +32,9 @@ namespace RX_Explorer.Class
         private int ActualLoaded;
         private int ThumbnailLoaded;
 
-        public PhotoDisplayItem(FileSystemStorageFile Item) : this()
+        public PhotoDisplayItem(FileSystemStorageFile PhotoFile) : this()
         {
-            PhotoFile = Item;
+            this.PhotoFile = PhotoFile;
         }
 
         public PhotoDisplayItem(BitmapImage Image) : this()

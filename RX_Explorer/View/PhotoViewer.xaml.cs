@@ -118,13 +118,11 @@ namespace RX_Explorer.View
                                         MTPEndOfShare = await FileSystemStorageItemBase.SetBulkAccessSharedControllerAsync(SearchResult);
                                     }
 
-                                    Pips.NumberOfPages = SearchResult.Count;
-
                                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(Path.GetDirectoryName(File.Path));
-                                    List<FileSystemStorageFile> PictureFileList = new List<FileSystemStorageFile>(await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult.Cast<FileSystemStorageFile>(), Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
 
-                                    PhotoCollection.AddRange(PictureFileList.Select((Item) => new PhotoDisplayItem(Item)));
-                                    PhotoFlip.SelectedIndex = Math.Max(0, PictureFileList.IndexOf(File));
+                                    PhotoCollection.AddRange((await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult.Cast<FileSystemStorageFile>(), Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())).Select((Item) => new PhotoDisplayItem(Item)));
+                                    PhotoFlip.SelectedItem = PhotoCollection.FirstOrDefault((Item) => Item.PhotoFile == File);
+                                    Pips.NumberOfPages = PhotoCollection.Count;
 
                                     if (PhotoFlip.SelectedIndex == 0)
                                     {
@@ -522,7 +520,7 @@ namespace RX_Explorer.View
 
         private void Pips_SelectedIndexChanged(Microsoft.UI.Xaml.Controls.PipsPager sender, Microsoft.UI.Xaml.Controls.PipsPagerSelectedIndexChangedEventArgs args)
         {
-            if (sender.SelectedPageIndex >= 0)
+            if (sender.SelectedPageIndex >= 0 && sender.SelectedPageIndex < PhotoCollection.Count)
             {
                 PhotoFlip.SelectedIndex = sender.SelectedPageIndex;
             }

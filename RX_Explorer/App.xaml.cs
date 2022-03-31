@@ -241,24 +241,15 @@ namespace RX_Explorer
                     }
                 case CommandLineActivatedEventArgs CmdArgs:
                     {
-                        string[] Arguments = CmdArgs.Operation.Arguments.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                        IEnumerable<string> ActualStartupArguments = Regex.Matches(CmdArgs.Operation.Arguments, @"[\""].+?[\""]|[^ ]+").Select((Match) => Match.Value.Trim('"')).Skip(1).ToArray();
 
-                        if (Window.Current.Content is Frame frame)
+                        if (Window.Current.Content is Frame Frame)
                         {
-                            if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
+                            if (Frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
                             {
-                                if (Arguments.Length > 1)
+                                if (ActualStartupArguments.Any() && ActualStartupArguments.All((Path) => !Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase)))
                                 {
-                                    string Path = string.Join(" ", Arguments.Skip(1));
-
-                                    if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
-                                    {
-                                        await TabContainer.CreateNewTabAsync();
-                                    }
-                                    else
-                                    {
-                                        await TabContainer.CreateNewTabAsync(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path);
-                                    }
+                                    await TabContainer.CreateNewTabAsync(ActualStartupArguments.Select((Path) => new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path }).ToList());
                                 }
                                 else
                                 {
@@ -268,18 +259,9 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            string Path = string.Join(" ", Arguments.Skip(1));
-
-                            if (Arguments.Length > 1)
+                            if (ActualStartupArguments.Any() && ActualStartupArguments.All((Path) => !Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase)))
                             {
-                                if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
-                                {
-                                    await LaunchWithStartupMode(CmdArgs);
-                                }
-                                else
-                                {
-                                    Window.Current.Content = new ExtendedSplash(CmdArgs.SplashScreen, new List<string[]> { new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path } });
-                                }
+                                Window.Current.Content = new ExtendedSplash(CmdArgs.SplashScreen, ActualStartupArguments.Select((Path) => new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path }).ToList());
                             }
                             else
                             {

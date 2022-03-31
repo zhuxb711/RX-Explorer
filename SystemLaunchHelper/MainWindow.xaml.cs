@@ -9,7 +9,6 @@ using System.Security.Principal;
 using System.Text;
 using System.Windows;
 using System.Windows.Interop;
-using Windows.ApplicationModel;
 using Windows.Management.Deployment;
 using Windows.UI.Popups;
 using WinRT.Interop;
@@ -54,7 +53,7 @@ namespace SystemLaunchHelper
 
                                             using (StreamWriter Writer = new StreamWriter(TempFileStream, Encoding.Unicode))
                                             {
-                                                Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"{CurrentPath.Replace(@"\", @"\\")} %1"));
+                                                Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"{CurrentPath.Replace(@"\", @"\\")} \\\"%L\\\""));
                                             }
                                         }
 
@@ -85,7 +84,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Key != null)
                                             {
-                                                if (!Convert.ToString(Key.GetValue(string.Empty)).Equals($"{CurrentPath} %1", StringComparison.OrdinalIgnoreCase) || Key.GetValue("DelegateExecute") != null)
+                                                if (!Convert.ToString(Key.GetValue(string.Empty)).StartsWith(CurrentPath, StringComparison.OrdinalIgnoreCase) || Key.GetValue("DelegateExecute") != null)
                                                 {
                                                     IsRegistryCheckingSuccess = false;
                                                 }
@@ -110,7 +109,7 @@ namespace SystemLaunchHelper
 
                                     if (!IsRegistryCheckingSuccess)
                                     {
-                                        ExitCode = 2;
+                                        ExitCode = 1;
                                     }
                                 }
 
@@ -133,7 +132,7 @@ namespace SystemLaunchHelper
 
                                             using (StreamWriter Writer = new StreamWriter(TempFileStream, Encoding.Unicode))
                                             {
-                                                Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"{CurrentPath.Replace(@"\", @"\\")} %1"));
+                                                Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"{CurrentPath.Replace(@"\", @"\\")} \\\"%L\\\""));
                                             }
                                         }
 
@@ -164,7 +163,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Key != null)
                                             {
-                                                if (!Convert.ToString(Key.GetValue(string.Empty)).Equals($"{CurrentPath} %1", StringComparison.OrdinalIgnoreCase))
+                                                if (!Convert.ToString(Key.GetValue(string.Empty)).StartsWith(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     IsRegistryCheckingSuccess = false;
                                                 }
@@ -175,7 +174,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Key != null)
                                             {
-                                                if (!Convert.ToString(Key.GetValue(string.Empty)).Equals($"{CurrentPath} %1", StringComparison.OrdinalIgnoreCase))
+                                                if (!Convert.ToString(Key.GetValue(string.Empty)).StartsWith(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     IsRegistryCheckingSuccess = false;
                                                 }
@@ -323,17 +322,16 @@ namespace SystemLaunchHelper
                 }
                 else
                 {
-                    string TargetPath = ActivationArgs.FirstOrDefault() ?? string.Empty;
+                    string StartupArguments = $"{string.Join(' ', ActivationArgs.Select((Item) => $"\"{Item}\""))}";
 
                     PackageManager Manager = new PackageManager();
 
-                    if (Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), "36186RuoFan.USB_q3e6crc0w375t", PackageTypes.Main).FirstOrDefault() is Package Pack)
+                    if (Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), "36186RuoFan.USB_q3e6crc0w375t", PackageTypes.Main).FirstOrDefault() != null)
                     {
                         Process.Start(new ProcessStartInfo
                         {
-                            FileName = "powershell.exe",
-                            Arguments = $"-Command \"RX-Explorer.exe '{TargetPath}'\"",
-                            CreateNoWindow = true,
+                            FileName = "RX-Explorer.exe",
+                            Arguments = StartupArguments,
                             UseShellExecute = false
                         }).Dispose();
                     }
@@ -341,7 +339,7 @@ namespace SystemLaunchHelper
                     {
                         if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notification.lock")))
                         {
-                            if (string.IsNullOrEmpty(TargetPath))
+                            if (string.IsNullOrEmpty(StartupArguments))
                             {
                                 Process.Start(new ProcessStartInfo
                                 {
@@ -354,7 +352,7 @@ namespace SystemLaunchHelper
                                 Process.Start(new ProcessStartInfo
                                 {
                                     FileName = "explorer.exe",
-                                    Arguments = $"\"{TargetPath}\"",
+                                    Arguments = $"\"{StartupArguments}\"",
                                     UseShellExecute = false
                                 }).Dispose();
                             }
@@ -447,7 +445,7 @@ namespace SystemLaunchHelper
                                     }
                                 case 1:
                                     {
-                                        if (string.IsNullOrEmpty(TargetPath))
+                                        if (string.IsNullOrEmpty(StartupArguments))
                                         {
                                             Process.Start(new ProcessStartInfo
                                             {
@@ -460,7 +458,7 @@ namespace SystemLaunchHelper
                                             Process.Start(new ProcessStartInfo
                                             {
                                                 FileName = "explorer.exe",
-                                                Arguments = $"\"{TargetPath}\"",
+                                                Arguments = $"\"{StartupArguments}\"",
                                                 UseShellExecute = false
                                             }).Dispose();
                                         }

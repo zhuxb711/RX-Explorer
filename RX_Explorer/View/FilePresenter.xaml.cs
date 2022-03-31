@@ -1989,17 +1989,25 @@ namespace RX_Explorer.View
                                                 {
                                                     if (FileCollection.Any())
                                                     {
-                                                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
-                                                        int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                        if (Index >= 0)
+                                                        if (NewItem is FileSystemStorageFolder
+                                                            && FileCollection.OfType<FileSystemStorageFile>().FirstOrDefault((Item) => Path.GetFileNameWithoutExtension(Item.Name) == NewItem.Name) is FileSystemStorageFile RelatedFile)
                                                         {
-                                                            FileCollection.Insert(Index, NewItem);
+                                                            FileCollection.Insert(FileCollection.IndexOf(RelatedFile) + 1, NewItem);
                                                         }
                                                         else
                                                         {
-                                                            FileCollection.Add(NewItem);
+                                                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+                                                            int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                                            if (Index >= 0)
+                                                            {
+                                                                FileCollection.Insert(Index, NewItem);
+                                                            }
+                                                            else
+                                                            {
+                                                                FileCollection.Add(NewItem);
+                                                            }
                                                         }
                                                     }
                                                     else

@@ -748,21 +748,12 @@ namespace RX_Explorer.View
 
             List<string> ValidPathArray = new List<string>(PathForNewTab.Length);
 
-            if (PathForNewTab.Length > 0)
+            foreach (string Path in PathForNewTab.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                if (RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)
+                    || await FileSystemStorageItemBase.CheckExistsAsync(Path))
                 {
-                    foreach (string Path in PathForNewTab.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
-                    {
-                        if (RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
-                        {
-                            ValidPathArray.Add(Path);
-                        }
-                        else if (await FileSystemStorageItemBase.CheckExistsAsync(Path))
-                        {
-                            ValidPathArray.Add(await Exclusive.Controller.ConvertShortPathToLongPathAsync(Path));
-                        }
-                    }
+                    ValidPathArray.Add(Path);
                 }
             }
 

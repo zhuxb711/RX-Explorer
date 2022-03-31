@@ -1028,7 +1028,6 @@ namespace RX_Explorer.View
 
 #if DEBUG
             SettingShareData.IsOn = false;
-            SettingShareData.IsEnabled = false;
 #else
             SettingShareData.IsOn = await Microsoft.AppCenter.AppCenter.IsEnabledAsync();
 #endif

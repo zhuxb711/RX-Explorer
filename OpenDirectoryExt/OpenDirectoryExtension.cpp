@@ -32,7 +32,7 @@ HRESULT OpenTerminalHere::Invoke(IShellItemArray* psiItemArray,
     STARTUPINFOEX siEx{ 0 };
     siEx.StartupInfo.cb = sizeof(STARTUPINFOEX);
 
-    std::wstring cmdline = L"RX-Explorer.exe " + std::wstring(pszName.get());
+    std::wstring cmdline = L"RX-Explorer.exe \"" + std::wstring(pszName.get()) + L"\"";
 
     RETURN_IF_WIN32_BOOL_FALSE(CreateProcessW(
         nullptr, //lpApplicationName
