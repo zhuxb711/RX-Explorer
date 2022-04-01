@@ -1991,7 +1991,7 @@ namespace RX_Explorer.View
 
             if (Btn.DataContext is AddressBlock Block
                 && !string.IsNullOrEmpty(CurrentPresenter?.CurrentFolder?.Path)
-                && !Block.Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase) 
+                && !Block.Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)
                 && (Block.Path.StartsWith(@"\\?\") || !Block.Path.StartsWith(@"\") || Block.Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).Length > 1))
             {
                 if (!await CurrentPresenter.DisplayItemsInFolder(Block.Path))
@@ -2109,7 +2109,7 @@ namespace RX_Explorer.View
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "Could not get the content of clipboard");
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(AddressButton_Drop)}");
 
                     QueueContentDialog dialog = new QueueContentDialog
                     {

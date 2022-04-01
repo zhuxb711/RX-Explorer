@@ -4647,6 +4647,10 @@ Las denominaciones no válidas son:
           <source>Share data to improve this application</source>
           <target state="translated">Comparte datos para mejorar esta aplicación</target>
         </trans-unit>
+        <trans-unit id="TaskList_OperationKind_RemoteCopy" translate="yes" xml:space="preserve">
+          <source>Remote copy task</source>
+          <target state="translated">Tarea de copia remota</target>
+        </trans-unit>
       </group>
     </body>
   </file>

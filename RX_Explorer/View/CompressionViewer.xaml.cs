@@ -1188,7 +1188,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ListViewControl_DragOver)}");
             }
             finally
             {
@@ -1254,14 +1254,14 @@ namespace RX_Explorer.View
                         {
                             LogTracer.Log(ex, "Could not add a new file to the compressed file");
 
-                            QueueContentDialog dialog = new QueueContentDialog
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_CouldNotProcess_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            await dialog.ShowAsync();
+                            await Dialog.ShowAsync();
                         }
                         finally
                         {
@@ -1271,7 +1271,7 @@ namespace RX_Explorer.View
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex);
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(ListViewControl_Drop)}");
                 }
                 finally
                 {

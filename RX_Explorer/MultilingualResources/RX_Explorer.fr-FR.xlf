@@ -4649,6 +4649,10 @@ Les noms non valides incluent
           <source>Share data to improve this application</source>
           <target state="translated">Partager des données pour améliorer cette application</target>
         </trans-unit>
+        <trans-unit id="TaskList_OperationKind_RemoteCopy" translate="yes" xml:space="preserve">
+          <source>Remote copy task</source>
+          <target state="translated">Tâche de copie à distance</target>
+        </trans-unit>
       </group>
     </body>
   </file>

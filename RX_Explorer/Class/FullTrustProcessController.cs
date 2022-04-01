@@ -343,7 +343,18 @@ namespace RX_Explorer.Class
             {
                 if (e.ExtraException == null)
                 {
-                    CommandObject.ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
+                    if (int.TryParse(e.Data, out int IntResult))
+                    {
+                        CommandObject.ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, IntResult)), null));
+                    }
+                    else if (double.TryParse(e.Data, out double DoubleResult))
+                    {
+                        CommandObject.ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(DoubleResult)))), null));
+                    }
+                    else
+                    {
+                        throw new InvalidDataException();
+                    }
                 }
             }
         }
@@ -469,6 +480,23 @@ namespace RX_Explorer.Class
             }
 
             return false;
+        }
+
+        public async Task<RemoteClipboardRelatedData> GetRemoteClipboardRelatedDataAsync()
+        {
+            if (await SendCommandAsync(CommandType.GetRemoteClipboardRelatedData) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return JsonSerializer.Deserialize<RemoteClipboardRelatedData>(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetAvailableWslDrivePathListAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return null;
         }
 
         public async Task<IReadOnlyList<string>> GetAvailableWslDrivePathListAsync()
@@ -1589,7 +1617,7 @@ namespace RX_Explorer.Class
                     LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage3}");
                     throw new InvalidOperationException();
                 }
-                else if(Response.TryGetValue("Error_NotFound", out string ErrorMessage4))
+                else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage4))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage4}");
                     throw new FileNotFoundException();
@@ -2306,24 +2334,28 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<bool> PasteRemoteFile(string DestinationPath, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task PasteRemoteFile(string DestinationPath, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await SendCommandAndReportProgressAsync(CommandType.PasteRemoteFile, ProgressHandler, ("Path", DestinationPath)) is IDictionary<string, string> Response)
+            using (CancelToken.Register(() =>
             {
-                if (Response.ContainsKey("Success"))
+                if (!TryCancelCurrentOperation())
                 {
-                    return true;
+                    LogTracer.Log($"Could not cancel the operation in {nameof(PasteRemoteFile)}");
                 }
-                else
+            }))
+            {
+                if (await SendCommandAndReportProgressAsync(CommandType.PasteRemoteFile, ProgressHandler, ("Path", DestinationPath)) is IDictionary<string, string> Response)
                 {
-                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    if (Response.ContainsKey("Cancel"))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(PasteRemoteFile)}, message: {ErrorMessage}");
+                        throw new OperationCanceledException();
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        throw new Exception(ErrorMessage);
                     }
                 }
             }
-
-            return false;
         }
 
         public async Task<bool> DeleteItemInRecycleBinAsync(string Path)

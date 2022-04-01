@@ -3605,4 +3605,7 @@ Invalid names include
   <data name="SettingShareDataLabel.Text" xml:space="preserve">
     <value>Share data to improve this application</value>
   </data>
+  <data name="TaskList_OperationKind_RemoteCopy" xml:space="preserve">
+    <value>Remote copy task</value>
+  </data>
 </root>

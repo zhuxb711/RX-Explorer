@@ -3500,4 +3500,7 @@ Las denominaciones no válidas son:
   <data name="SettingShareDataLabel.Text" xml:space="preserve">
     <value>Comparte datos para mejorar esta aplicación</value>
   </data>
+  <data name="TaskList_OperationKind_RemoteCopy" xml:space="preserve">
+    <value>Tarea de copia remota</value>
+  </data>
 </root>

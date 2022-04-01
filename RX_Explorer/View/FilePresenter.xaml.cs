@@ -3443,7 +3443,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not paste the item");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Paste_Click)}");
 
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -5482,8 +5482,10 @@ namespace RX_Explorer.View
                     QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Item.Path));
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ItemContainer_Drop)}");
+
                 QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -5888,8 +5890,10 @@ namespace RX_Explorer.View
             {
                 QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(CurrentFolder.Path));
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ViewControl_Drop)}");
+
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),

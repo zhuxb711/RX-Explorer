@@ -3500,4 +3500,7 @@
   <data name="SettingShareDataLabel.Text" xml:space="preserve">
     <value>共享數據以改進此應用程序</value>
   </data>
+  <data name="TaskList_OperationKind_RemoteCopy" xml:space="preserve">
+    <value>远程拷贝任务</value>
+  </data>
 </root>

@@ -4647,6 +4647,10 @@ Inkorrekte Namen sind
           <source>Share data to improve this application</source>
           <target state="translated">Teilen Sie Daten, um diese Anwendung zu verbessern</target>
         </trans-unit>
+        <trans-unit id="TaskList_OperationKind_RemoteCopy" translate="yes" xml:space="preserve">
+          <source>Remote copy task</source>
+          <target state="translated">Remote-Kopieraufgabe</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -208,14 +208,27 @@ namespace RX_Explorer.Class
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
                                     {
-                                        if (!Exclusive.Controller.PasteRemoteFile(RModel.CopyTo, (s, e) =>
+                                        try
                                         {
-                                            Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                            Exclusive.Controller.PasteRemoteFile(RModel.CopyTo, CancelToken, (s, e) =>
                                             {
-                                                RModel.UpdateProgress(e.ProgressPercentage);
-                                            }).AsTask(), ProgressChangedCoreAsync());
-                                        }).Result)
+                                                Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                {
+                                                    RModel.UpdateProgress(e.ProgressPercentage);
+                                                }).AsTask(), ProgressChangedCoreAsync());
+                                            }).Wait();
+                                        }
+                                        catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
                                         {
+                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                            {
+                                                RModel.UpdateStatus(OperationStatus.Cancelled);
+                                            }).AsTask().Wait();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogTracer.Log(ex is AggregateException ? ex.InnerException : ex, $"An exception was threw in {nameof(OperationListRemoteModel)}");
+
                                             CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {
                                                 RModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"));

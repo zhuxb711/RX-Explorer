@@ -55,53 +55,64 @@ namespace FullTrustProcess
                     ProcessSleepLocker.WaitOne();
                 }
 
-                while (TaskQueue.TryDequeue(out STATaskData Core))
+                Ole32.OleInitialize();
+
+                try
                 {
-                    object CompletionSourceObject = Core.GetType()
-                                                        .GetProperty("CompletionSource")
-                                                        .GetValue(Core);
-
-                    try
+                    while (TaskQueue.TryDequeue(out STATaskData Core))
                     {
-                        object ExecuterResult = ((Delegate)Core.GetType()
-                                                               .GetProperty("Executer")
-                                                               .GetValue(Core)).DynamicInvoke();
+                        object CompletionSourceObject = Core.GetType()
+                                                            .GetProperty("CompletionSource")
+                                                            .GetValue(Core);
 
-                        MethodInfo SetResultMethod = CompletionSourceObject.GetType()
-                                                                           .GetMethod("SetResult");
-
-                        if (ExecuterResult != null)
+                        try
                         {
-                            SetResultMethod.Invoke(CompletionSourceObject, new object[] { ExecuterResult });
-                        }
-                        else
-                        {
-                            Type ParameterType = SetResultMethod.GetParameters()[0].ParameterType;
+                            object ExecuterResult = ((Delegate)Core.GetType()
+                                                                   .GetProperty("Executer")
+                                                                   .GetValue(Core)).DynamicInvoke();
 
-                            if (ParameterType.IsValueType)
+                            MethodInfo SetResultMethod = CompletionSourceObject.GetType()
+                                                                               .GetMethod("SetResult");
+
+                            if (ExecuterResult != null)
                             {
-                                SetResultMethod.Invoke(CompletionSourceObject, new object[] { Activator.CreateInstance(ParameterType) });
+                                SetResultMethod.Invoke(CompletionSourceObject, new object[] { ExecuterResult });
                             }
                             else
                             {
-                                SetResultMethod.Invoke(CompletionSourceObject, new object[] { null });
+                                Type ParameterType = SetResultMethod.GetParameters()[0].ParameterType;
+
+                                if (ParameterType.IsValueType)
+                                {
+                                    SetResultMethod.Invoke(CompletionSourceObject, new object[] { Activator.CreateInstance(ParameterType) });
+                                }
+                                else
+                                {
+                                    SetResultMethod.Invoke(CompletionSourceObject, new object[] { null });
+                                }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            CompletionSourceObject.GetType()
+                                                  .GetMethod("SetException", new Type[] { typeof(Exception) })
+                                                  .Invoke(CompletionSourceObject, new object[] { ex.InnerException ?? ex });
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        CompletionSourceObject.GetType()
-                                              .GetMethod("SetException", new Type[] {typeof(Exception)})
-                                              .Invoke(CompletionSourceObject, new object[] { ex });
-                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Unexpected exception was threw in the thread of {nameof(STAThreadController)}");
+                }
+                finally
+                {
+                    Ole32.OleUninitialize();
                 }
             }
         }
 
         private STAThreadController()
         {
-            Ole32.OleInitialize();
-
             ProcessSleepLocker = new AutoResetEvent(false);
             TaskQueue = new ConcurrentQueue<STATaskData>();
 
@@ -112,11 +123,6 @@ namespace FullTrustProcess
             };
             STAThread.SetApartmentState(ApartmentState.STA);
             STAThread.Start();
-        }
-
-        ~STAThreadController()
-        {
-            Ole32.OleUninitialize();
         }
     }
 }

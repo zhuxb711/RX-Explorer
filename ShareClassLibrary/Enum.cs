@@ -135,6 +135,7 @@
         MTPReplaceWithNewFile,
         OrderByNaturalStringSortAlgorithm,
         GetSizeOnDisk,
-        GetAvailableWslDrivePathList
+        GetAvailableWslDrivePathList,
+        GetRemoteClipboardRelatedData
     }
 }

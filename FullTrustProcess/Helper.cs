@@ -422,6 +422,7 @@ namespace FullTrustProcess
             }
             else
             {
+                Executer();
                 return Task.CompletedTask;
             }
         }

@@ -3500,4 +3500,7 @@ Les noms non valides incluent
   <data name="SettingShareDataLabel.Text" xml:space="preserve">
     <value>Partager des données pour améliorer cette application</value>
   </data>
+  <data name="TaskList_OperationKind_RemoteCopy" xml:space="preserve">
+    <value>Tâche de copie à distance</value>
+  </data>
 </root>

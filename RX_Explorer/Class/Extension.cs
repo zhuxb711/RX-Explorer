@@ -100,91 +100,84 @@ namespace RX_Explorer.Class
         {
             List<string> PathList = new List<string>();
 
-            try
+            if (View.Contains(StandardDataFormats.StorageItems))
             {
-                if (View.Contains(StandardDataFormats.StorageItems))
+                IReadOnlyList<IStorageItem> StorageItems = await View.GetStorageItemsAsync();
+
+                if (StorageItems.Count > 0)
                 {
-                    IReadOnlyList<IStorageItem> StorageItems = await View.GetStorageItemsAsync();
+                    IEnumerable<IStorageItem> EmptyPathList = StorageItems.OfType<StorageFile>().Where((Item) => string.IsNullOrWhiteSpace(Item.Path));
 
-                    if (StorageItems.Count > 0)
+                    if (EmptyPathList.Any())
                     {
-                        IEnumerable<IStorageItem> EmptyPathList = StorageItems.OfType<StorageFile>().Where((Item) => string.IsNullOrWhiteSpace(Item.Path));
-
-                        if (EmptyPathList.Any())
+                        foreach (StorageFile File in EmptyPathList)
                         {
-                            foreach (StorageFile File in EmptyPathList)
+                            try
                             {
-                                try
+                                if (File.Name.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    if (File.Name.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                    StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, Guid.NewGuid().ToString(), NameCollisionOption.GenerateUniqueName);
+
+                                    try
                                     {
-                                        StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, Guid.NewGuid().ToString(), NameCollisionOption.GenerateUniqueName);
-
-                                        try
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                         {
-                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                            {
-                                                string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFile.Path);
+                                            string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFile.Path);
 
-                                                if (!string.IsNullOrWhiteSpace(UrlTarget))
-                                                {
-                                                    PathList.Add(UrlTarget);
-                                                }
+                                            if (!string.IsNullOrWhiteSpace(UrlTarget))
+                                            {
+                                                PathList.Add(UrlTarget);
                                             }
                                         }
-                                        finally
-                                        {
-                                            await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                        }
                                     }
-                                    else if (!string.IsNullOrWhiteSpace(File.Name))
+                                    finally
                                     {
-                                        StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-                                        PathList.Add(TempFile.Path);
+                                        await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                                     }
                                 }
-                                catch (Exception ex)
+                                else if (!string.IsNullOrWhiteSpace(File.Name))
                                 {
-                                    LogTracer.Log(ex, "Could not analysis the file in clipboard");
+                                    StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                                    PathList.Add(TempFile.Path);
                                 }
                             }
-                        }
-                        else
-                        {
-                            PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
-                        }
-                    }
-                }
-
-                if (View.Contains(ExtendedDataFormats.NotSupportedStorageItem))
-                {
-                    if (await View.GetDataAsync(ExtendedDataFormats.NotSupportedStorageItem) is IRandomAccessStream RandomStream)
-                    {
-                        RandomStream.Seek(0);
-
-                        using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
-                        {
-                            PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Could not analysis the file in clipboard");
+                            }
                         }
                     }
-                }
-
-                if (View.Contains(ExtendedDataFormats.CompressionItems))
-                {
-                    if (await View.GetDataAsync(ExtendedDataFormats.CompressionItems) is IRandomAccessStream RandomStream)
+                    else
                     {
-                        RandomStream.Seek(0);
-
-                        using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
-                        {
-                            PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
-                        }
+                        PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
                     }
                 }
             }
-            catch (Exception ex)
+
+            if (View.Contains(ExtendedDataFormats.NotSupportedStorageItem))
             {
-                LogTracer.Log(ex, "Could not check the clipboard data");
+                if (await View.GetDataAsync(ExtendedDataFormats.NotSupportedStorageItem) is IRandomAccessStream RandomStream)
+                {
+                    RandomStream.Seek(0);
+
+                    using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
+                    {
+                        PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
+                    }
+                }
+            }
+
+            if (View.Contains(ExtendedDataFormats.CompressionItems))
+            {
+                if (await View.GetDataAsync(ExtendedDataFormats.CompressionItems) is IRandomAccessStream RandomStream)
+                {
+                    RandomStream.Seek(0);
+
+                    using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
+                    {
+                        PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
+                    }
+                }
             }
 
             return PathList;

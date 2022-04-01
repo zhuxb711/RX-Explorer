@@ -1924,7 +1924,17 @@ namespace FullTrustProcess
                                 {
                                     using (ShellItem Item = new ShellItem(Path))
                                     {
-                                        Task<string> ToolTipTask = Task.Run(() => Item.GetToolTip(ShellItemToolTipOptions.AllowDelay));
+                                        Task<string> ToolTipTask = Task.Run(() =>
+                                        {
+                                            try
+                                            {
+                                                return Item.GetToolTip(ShellItemToolTipOptions.AllowDelay);
+                                            }
+                                            catch (Exception)
+                                            {
+                                                return string.Empty;
+                                            }
+                                        });
 
                                         while (!ToolTipTask.IsCompleted && !CancelToken.IsCancellationRequested)
                                         {
@@ -3980,66 +3990,103 @@ namespace FullTrustProcess
 
                             break;
                         }
+                    case CommandType.GetRemoteClipboardRelatedData:
+                        {
+                            RemoteClipboardRelatedData RelatedData = await Helper.ExecuteOnSTAThreadAsync(() => RemoteDataObject.GetRemoteClipboardRelatedData());
+
+                            if (RelatedData != null)
+                            {
+                                Value.Add("Success", JsonSerializer.Serialize(RelatedData));
+                            }
+                            else
+                            {
+                                Value.Add("Error", "No remote data object is available");
+                            }
+
+                            break;
+                        }
                     case CommandType.PasteRemoteFile:
                         {
                             string Path = CommandValue["Path"];
 
                             await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
-                                IReadOnlyList<RemoteClipboardDataPackage> RemoteDataArray = RemoteDataObject.GetRemoteClipboardData();
+                                RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
 
-                                foreach (RemoteClipboardDataPackage Package in RemoteDataArray)
+                                if (RelatedData.ItemsCount > 0)
                                 {
-                                    try
+                                    ulong CurrentPosition = 0;
+
+                                    foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(CancelToken))
                                     {
-                                        switch (Package.ItemType)
+                                        try
                                         {
-                                            case RemoteClipboardStorageType.File:
-                                                {
-                                                    string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                                                    if (!Directory.Exists(DirectoryPath))
+                                            switch (Package)
+                                            {
+                                                case RemoteClipboardFileData FileData:
                                                     {
-                                                        Directory.CreateDirectory(DirectoryPath);
-                                                    }
+                                                        string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
-                                                    string UniqueName = Helper.StorageGenerateUniquePath(System.IO.Path.Combine(Path, Package.Name), CreateType.File);
-
-                                                    using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
-                                                    {
-                                                        Package.ContentStream.CopyTo(Stream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
+                                                        if (!Directory.Exists(DirectoryPath))
                                                         {
-                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Max(0, Math.Min(100, Math.Ceiling(e.ProgressPercentage / Convert.ToDouble(RemoteDataArray.Count))))));
-                                                        });
+                                                            Directory.CreateDirectory(DirectoryPath);
+                                                        }
+
+                                                        string UniqueName = Helper.StorageGenerateUniquePath(System.IO.Path.Combine(Path, Package.Name), CreateType.File);
+
+                                                        using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
+                                                        {
+                                                            FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), CancelToken, (s, e) =>
+                                                            {
+                                                                PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
+                                                            });
+                                                        }
+
+                                                        CurrentPosition += FileData.Size;
+
+                                                        break;
                                                     }
-
-                                                    break;
-                                                }
-                                            case RemoteClipboardStorageType.Folder:
-                                                {
-                                                    string DirectoryPath = System.IO.Path.Combine(Path, Package.Name);
-
-                                                    if (!Directory.Exists(DirectoryPath))
+                                                case RemoteClipboardFolderData:
                                                     {
-                                                        Directory.CreateDirectory(DirectoryPath);
-                                                    }
+                                                        string DirectoryPath = System.IO.Path.Combine(Path, Package.Name);
 
-                                                    break;
-                                                }
-                                            default:
-                                                {
-                                                    throw new NotSupportedException();
-                                                }
+                                                        if (!Directory.Exists(DirectoryPath))
+                                                        {
+                                                            Directory.CreateDirectory(DirectoryPath);
+                                                        }
+
+                                                        break;
+                                                    }
+                                                default:
+                                                    {
+                                                        throw new NotSupportedException();
+                                                    }
+                                            }
+                                        }
+                                        catch (Exception ex) when (ex is OperationCanceledException)
+                                        {
+                                            //No need to handle this exception
+                                        }
+                                        finally
+                                        {
+                                            Package.Dispose();
                                         }
                                     }
-                                    finally
-                                    {
-                                        Package.Dispose();
-                                    }
+                                }
+                                else
+                                {
+                                    throw new InvalidOperationException("No remote data object is available");
                                 }
                             });
 
-                            Value.Add("Success", string.Empty);
+                            if (CancelToken.IsCancellationRequested)
+                            {
+                                Value.Add("Cancel", string.Empty);
+                            }
+                            else
+                            {
+                                Value.Add("Success", string.Empty);
+                            }
 
                             break;
                         }

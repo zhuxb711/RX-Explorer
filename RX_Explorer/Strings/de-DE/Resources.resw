@@ -3500,4 +3500,7 @@ Inkorrekte Namen sind
   <data name="SettingShareDataLabel.Text" xml:space="preserve">
     <value>Teilen Sie Daten, um diese Anwendung zu verbessern</value>
   </data>
+  <data name="TaskList_OperationKind_RemoteCopy" xml:space="preserve">
+    <value>Remote-Kopieraufgabe</value>
+  </data>
 </root>

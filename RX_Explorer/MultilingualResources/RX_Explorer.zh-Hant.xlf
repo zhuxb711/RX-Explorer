@@ -4649,6 +4649,10 @@ Invalid names include
           <source>Share data to improve this application</source>
           <target state="translated">共享數據以改進此應用程序</target>
         </trans-unit>
+        <trans-unit id="TaskList_OperationKind_RemoteCopy" translate="yes" xml:space="preserve">
+          <source>Remote copy task</source>
+          <target state="translated">远程拷贝任务</target>
+        </trans-unit>
       </group>
     </body>
   </file>

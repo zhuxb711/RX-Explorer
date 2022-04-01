@@ -774,7 +774,7 @@ namespace RX_Explorer.View
 
                 if (PathList.Count > 0)
                 {
-                    switch ((sender as SelectorItem).Content)
+                    switch ((sender as SelectorItem)?.Content)
                     {
                         case LibraryStorageFolder Lib:
                             {
@@ -807,14 +807,23 @@ namespace RX_Explorer.View
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
+                switch ((sender as SelectorItem)?.Content)
                 {
-                    QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Item.Path));
+                    case LibraryStorageFolder Lib:
+                        {
+                            QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Lib.Path));
+                            break;
+                        }
+                    case DriveDataBase Drive when Drive is not LockedDriveData:
+                        {
+                            QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Drive.Path));
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not get the content of clipboard");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ItemContainer_Drop)}");
 
                 QueueContentDialog dialog = new QueueContentDialog
                 {
