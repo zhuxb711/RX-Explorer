@@ -1,27 +1,33 @@
-﻿###Novedades de la versión 7.6.1.0
-
-#####Característica actualizada
-
->#####"Integración con los componentes del sistema" se ha mejorado aún más para garantizar que los usuarios no desinstalen accidentalmente la aplicación sin causar excepciones en el sistema
-
->#####El menú de la página de búsqueda admite elementos de menú de terceros ahora
+﻿###Novedades de la versión 7.6.3.0
 
 #####IU actualizada
 
->#####Agregue el mensaje "Iniciando proceso auxiliar", espere a que se inicien todos los procesos auxiliares antes de ingresar a la página principal
+>#####Agregado soporte para archivos ".cmd"
+
+>#####Configuraciones agregadas relacionadas con "Datos compartidos" y "Cargar carpeta WSL"
+
+>#####Cuando se crea, copia o mueve un directorio a un directorio con un archivo del mismo nombre, la intercalación se cambiará temporalmente para adaptarse a los hábitos del usuario
 
 #####Corrección de errores
 
->#####Se solucionó un problema que podría resultar en una cantidad incorrecta de procesos auxiliares en algunos casos
+>#####Se corrigieron algunos problemas con el mecanismo de manejo de excepciones
 
->#####Se solucionó un problema por el cual los archivos .lnk y .url en la Papelera de reciclaje no podían mostrar el tipo de archivo correctamente
+>#####Se solucionó un problema que podía causar que los procesos auxiliares dejaran de responder después de pasar lentamente por varias carpetas grandes
 
->#####Se corrigieron algunos problemas que podrían causar fallas
+>#####Se solucionó el problema del ícono faltante para el elemento de menú "Abrir con RX-Explorer" en el menú contextual del sistema
 
->#####Se solucionó un problema por el que hacer doble clic en el botón para cerrar la página de configuración hacía que la animación desapareciera inmediatamente
+>#####Se solucionó un problema por el cual el nombre del archivo podría no seleccionarse correctamente al cambiar el nombre
 
->#####Se solucionó el problema de que la barra de progreso de algunos tipos de tareas en la lista de tareas no podía mostrar el estado correctamente
+>#####Arranque lento fijo si la carpeta WSL está presente
 
->#####Se solucionó un problema por el cual el contenido de todas las pestañas no se actualizaba automáticamente después de cambiar el modo de carga de miniaturas
+>#####Se solucionó un problema por el cual el comportamiento cuando se activaba a través de la línea de comando no estaba controlado por la configuración relacionada con el comportamiento del tiempo de activación
 
->#####Se corrigieron algunos problemas de traducción
+>#####Se solucionó un problema por el cual se podían analizar argumentos incorrectos al activar a través de la línea de comando
+
+>#####Se solucionó un problema por el cual no se podían copiar archivos y carpetas en máquinas virtuales remotas
+
+>#####Se solucionó el problema de que la tarea de copia remota carece de información como el progreso, la velocidad, el tiempo, etc.
+
+>#####Se solucionó un problema por el cual las tareas de copia remota no se podían cancelar
+
+>#####Se corrigieron algunos otros problemas

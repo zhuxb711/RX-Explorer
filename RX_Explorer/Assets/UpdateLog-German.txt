@@ -1,27 +1,33 @@
-﻿###Was ist neu in Ver.7.6.1.0
-
-#####Funktion aktualisiert
-
->#####„Integration mit Systemkomponenten“ wurde weiter verbessert, um sicherzustellen, dass Benutzer die App nicht versehentlich deinstallieren, ohne Systemausnahmen zu verursachen
-
->#####Das Menü der Suchseite unterstützt jetzt Menüpunkte von Drittanbietern
+﻿###Was ist neu in Ver.7.6.3.0
 
 #####UI aktualisiert
 
->#####Fügen Sie die Eingabeaufforderung „Hilfsprozess starten“ hinzu, warten Sie, bis alle Hilfsprozesse gestartet sind, bevor Sie die Hauptseite aufrufen
+>#####Unterstützung für ".cmd"-Dateien hinzugefügt
+
+>#####Einstellungen in Bezug auf „Gemeinsame Daten“ und „WSL-Ordner laden“ hinzugefügt
+
+>#####Wenn ein Verzeichnis erstellt, kopiert oder in ein Verzeichnis mit einer gleichnamigen Datei verschoben wird, wird die Sortierung vorübergehend an die Benutzergewohnheiten angepasst
 
 #####Fehlerbehebung
 
->#####Ein Problem wurde behoben, das in einigen Fällen zu einer falschen Anzahl von Hilfsprozessen führen konnte
+>#####Einige Probleme mit dem Ausnahmebehandlungsmechanismus wurden behoben
 
->#####Es wurde ein Problem behoben, bei dem .lnk- und .url-Dateien im Papierkorb den Dateityp nicht korrekt anzeigen konnten
+>#####Es wurde ein Problem behoben, das dazu führen konnte, dass Hilfsprozesse nicht mehr reagierten, nachdem sie langsam durch mehrere große Ordner gewischt wurden
 
->#####Einige Probleme behoben, die zu Abstürzen führen konnten
+>#####Das Problem des fehlenden Symbols für den Menüpunkt „Öffnen mit RX-Explorer“ im System-Kontextmenü wurde behoben
 
->#####Es wurde ein Problem behoben, bei dem das Doppelklicken auf die Schaltfläche zum Schließen der Einstellungsseite dazu führte, dass die Animation sofort verschwand
+>#####Es wurde ein Problem behoben, bei dem der Dateiname beim Umbenennen möglicherweise nicht richtig ausgewählt wurde
 
->#####Das Problem, dass der Fortschrittsbalken einiger Aufgabentypen in der Aufgabenliste den Status nicht korrekt anzeigen konnte, wurde behoben
+>#####Langsamer Start behoben, wenn WSL-Ordner vorhanden ist
 
->#####Es wurde ein Problem behoben, bei dem der gesamte Inhalt der Registerkarte nicht automatisch aktualisiert wurde, nachdem der Lademodus für Miniaturansichten geändert wurde
+>#####Es wurde ein Problem behoben, bei dem das Verhalten bei Aktivierung über die Befehlszeile nicht durch die Einstellungen im Zusammenhang mit dem Aktivierungszeitverhalten gesteuert wurde
 
->#####Einige Übersetzungsprobleme behoben
+>#####Ein Problem wurde behoben, bei dem falsche Argumente bei der Aktivierung über die Befehlszeile analysiert werden konnten
+
+>#####Es wurde ein Problem behoben, bei dem Dateien und Ordner in virtuellen Remote-Maschinen nicht kopiert werden konnten
+
+>#####Das Problem, dass der Fernkopieraufgabe Informationen wie Fortschritt, Geschwindigkeit, Zeit usw. fehlen, wurde behoben.
+
+>#####Es wurde ein Problem behoben, bei dem Remote-Kopieraufgaben nicht wirklich abgebrochen werden konnten
+
+>#####Einige andere Probleme wurden behoben

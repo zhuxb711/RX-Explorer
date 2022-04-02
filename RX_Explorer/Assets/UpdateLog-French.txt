@@ -1,27 +1,33 @@
-﻿###Quoi de neuf dans la version 7.6.1.0
-
-#####Fonctionnalité mise à jour
-
->#####"L'intégration avec les composants système" a été encore améliorée pour garantir que les utilisateurs ne désinstallent pas accidentellement l'application sans provoquer d'exceptions système
-
->#####Le menu de la page de recherche prend désormais en charge les éléments de menu tiers
+﻿###Quoi de neuf dans la version 7.6.3.0
 
 #####UI mise à jour
 
->#####Ajouter l'invite "Démarrage du processus auxiliaire", attendez que tous les processus auxiliaires démarrent avant d'accéder à la page principale
+>#####Ajout de la prise en charge des fichiers ".cmd"
+
+>#####Ajout de paramètres liés aux "Données partagées" et "Charger le dossier WSL"
+
+>#####Lorsqu'un répertoire est créé, copié ou déplacé dans un répertoire avec un fichier du même nom, le classement sera temporairement modifié pour correspondre aux habitudes de l'utilisateur
 
 #####Corrections de bogues
 
->#####Correction d'un problème pouvant entraîner un nombre incorrect de processus auxiliaires dans certains cas
+>#####Correction de quelques problèmes avec le mécanisme de gestion des exceptions
 
->#####Correction d'un problème où les fichiers .lnk et .url dans la corbeille ne pouvaient pas afficher correctement le type de fichier
+>#####Correction d'un problème qui pouvait empêcher les processus auxiliaires de répondre après avoir parcouru lentement plusieurs dossiers volumineux
 
->#####Correction de certains problèmes pouvant provoquer des plantages
+>#####Correction du problème de l'icône manquante pour l'élément de menu "Ouvrir avec RX-Explorer" dans le menu contextuel du système
 
->#####Correction d'un problème où double-cliquer sur le bouton pour fermer la page des paramètres faisait disparaître l'animation immédiatement
+>#####Correction d'un problème où le nom du fichier pouvait ne pas être sélectionné correctement lors du changement de nom
 
->#####Correction du problème selon lequel la barre de progression de certains types de tâches dans la liste des tâches ne pouvait pas afficher correctement l'état
+>#####Démarrage lent fixe si le dossier WSL est présent
 
->#####Correction d'un problème où tout le contenu de l'onglet n'était pas automatiquement actualisé après avoir changé le mode de chargement des vignettes
+>#####Correction d'un problème où le comportement lors de l'activation via la ligne de commande n'était pas contrôlé par les paramètres liés au comportement de l'heure d'activation
 
->#####Correction de quelques problèmes de traduction
+>#####Correction d'un problème où des arguments incorrects pouvaient être analysés lors de l'activation via la ligne de commande
+
+>#####Correction d'un problème où les fichiers et les dossiers des machines virtuelles distantes ne pouvaient pas être copiés
+
+>#####Correction du problème selon lequel la tâche de copie à distance manque d'informations telles que la progression, la vitesse, le temps, etc.
+
+>#####Correction d'un problème où les tâches de copie à distance ne pouvaient pas être annulées
+
+>#####Résolution d'autres problèmes

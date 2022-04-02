@@ -1,27 +1,33 @@
-﻿###What's new in Ver.7.6.1.0
-
-#####Feature updated
-
->#####"Integration with system components" has been further improved to ensure that users do not accidentally uninstall the app without causing system exceptions
-
->#####Search page's menu supports third-party menu items now
+﻿###What's new in Ver.7.6.3.0
 
 #####UI updated
 
->#####Add "Starting auxiliary process" prompt, wait for all auxiliary processes to start before entering the main page
+>#####Added support for ".cmd" files
+
+>#####Added settings related to "Shared Data" and "Load WSL Folder"
+
+>#####When a directory is created, copied or moved into a directory with a file of the same name, the collation will be temporarily changed to match user habits
 
 #####Bug Fixes
 
->#####Fixed an issue that could result in an incorrect number of auxiliary processes in some cases
+>#####Fixed some issues with exception handling mechanism
 
->#####Fixed an issue where .lnk and .url files in the Recycle Bin could not display file type correctly
+>#####Fixed an issue that could cause auxiliary processes to become unresponsive after slowly swiping through several large folders
 
->#####Fixed some issues that could cause crashes
+>#####Fixed the issue of missing icon for the menu item "Open with RX-Explorer" in the system context menu
 
->#####Fixed an issue where double-clicking the button to close the settings page would cause the animation disappear immediately
+>#####Fixed an issue that file name might not be selected correctly when renaming
 
->#####Fixed the problem that the progress bar of some task types in the task list could not display the status correctly
+>#####Fixed slow startup if WSL folder is present
 
->#####Fixed an issue where all tab content was not automatically refreshed after changing the thumbnail loading mode
+>#####Fixed an issue where the behavior when activated via the command line was not controlled by the settings related to activation-time behavior
 
->#####Fixed some translation issues
+>#####Fixed an issue where incorrect arguments could be parsed when activating via the command line
+
+>#####Fixed an issue where files and folders in remote virtual machines could not be copied
+
+>#####Fixed the problem that the remote copy task lacks information such as progress, speed, time, etc.
+
+>#####Fixed an issue where remote copy tasks could not actually be canceled
+
+>#####Fixed some other issues

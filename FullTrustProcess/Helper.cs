@@ -14,7 +14,6 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -402,31 +401,6 @@ namespace FullTrustProcess
             return Info;
         }
 
-        public static Task<T> ExecuteOnSTAThreadAsync<T>(Func<T> Executer)
-        {
-            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-            {
-                return STAThreadController.Current.RunAsync(Executer);
-            }
-            else
-            {
-                return Task.FromResult(Executer());
-            }
-        }
-
-        public static Task ExecuteOnSTAThreadAsync(Action Executer)
-        {
-            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-            {
-                return STAThreadController.Current.RunAsync(Executer);
-            }
-            else
-            {
-                Executer();
-                return Task.CompletedTask;
-            }
-        }
-
         public static string GetPackageFamilyNameFromUWPShellLink(string LinkPath)
         {
             using (ShellItem LinkItem = new ShellItem(LinkPath))
@@ -483,7 +457,7 @@ namespace FullTrustProcess
 
         public static Task<bool> LaunchApplicationFromAUMIDAsync(string AppUserModelId, params string[] PathArray)
         {
-            return ExecuteOnSTAThreadAsync(() =>
+            return STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
             {
                 try
                 {

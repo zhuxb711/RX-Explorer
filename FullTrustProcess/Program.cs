@@ -547,6 +547,8 @@ namespace FullTrustProcess
                 MTPDeviceList.ForEach((Item) => Item.Dispose());
 
                 LogTracer.MakeSureLogIsFlushed(2000);
+
+                STAThreadController.Current.CleanUp();
             }
         }
 
@@ -2020,7 +2022,7 @@ namespace FullTrustProcess
                         {
                             string[] ExecutePath = JsonSerializer.Deserialize<string[]>(CommandValue["ExecutePath"]);
 
-                            Value.Add("Success", await Helper.ExecuteOnSTAThreadAsync(() => JsonSerializer.Serialize(ContextMenu.Current.GetContextMenuItems(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"])))));
+                            Value.Add("Success", await STAThreadController.Current.ExecuteOnSTAThreadAsync(() => JsonSerializer.Serialize(ContextMenu.Current.GetContextMenuItems(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"])))));
 
                             break;
                         }
@@ -2028,7 +2030,7 @@ namespace FullTrustProcess
                         {
                             ContextMenuPackage Package = JsonSerializer.Deserialize<ContextMenuPackage>(CommandValue["DataPackage"]);
 
-                            if (await Helper.ExecuteOnSTAThreadAsync(() => ContextMenu.Current.InvokeVerb(Package)))
+                            if (await STAThreadController.Current.ExecuteOnSTAThreadAsync(() => ContextMenu.Current.InvokeVerb(Package)))
                             {
                                 Value.Add("Success", string.Empty);
                             }
@@ -2834,7 +2836,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.EmptyRecycleBin:
                         {
-                            Value.Add("RecycleBinItems_Clear_Result", await Helper.ExecuteOnSTAThreadAsync(() => Convert.ToString(RecycleBinController.EmptyRecycleBin())));
+                            Value.Add("RecycleBinItems_Clear_Result", await STAThreadController.Current.ExecuteOnSTAThreadAsync(() => Convert.ToString(RecycleBinController.EmptyRecycleBin())));
 
                             break;
                         }
@@ -3822,7 +3824,7 @@ namespace FullTrustProcess
                                 {
                                     try
                                     {
-                                        await Helper.ExecuteOnSTAThreadAsync(() =>
+                                        await STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
                                         {
                                             ShowWindowCommand WindowCommand;
 
@@ -3992,7 +3994,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetRemoteClipboardRelatedData:
                         {
-                            RemoteClipboardRelatedData RelatedData = await Helper.ExecuteOnSTAThreadAsync(() => RemoteDataObject.GetRemoteClipboardRelatedData());
+                            RemoteClipboardRelatedData RelatedData = await STAThreadController.Current.ExecuteOnSTAThreadAsync(() => RemoteDataObject.GetRemoteClipboardRelatedData());
 
                             if (RelatedData != null)
                             {
@@ -4009,7 +4011,7 @@ namespace FullTrustProcess
                         {
                             string Path = CommandValue["Path"];
 
-                            await Helper.ExecuteOnSTAThreadAsync(() =>
+                            await STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
                             {
                                 RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
 
