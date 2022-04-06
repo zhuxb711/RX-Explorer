@@ -3,7 +3,6 @@ using RX_Explorer.Interface;
 using RX_Explorer.View;
 using ShareClassLibrary;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -52,10 +51,9 @@ namespace RX_Explorer.Class
         }
 
         private int IsContentLoaded;
-        private int IsThubmnalModeChanged;
         private RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerSharedRef;
 
-        public double ThumbnailOpacity { get; protected set; } = 1d;
+        public double ThumbnailOpacity { get; private set; } = 1;
 
         public virtual ulong Size { get; protected set; }
 
@@ -109,12 +107,12 @@ namespace RX_Explorer.Class
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
 
-        public static Task<EndOfShareNotification> SetBulkAccessSharedControllerAsync<T>(T Item) where T : FileSystemStorageItemBase
+        public static Task<EndUsageNotification> SetBulkAccessSharedControllerAsync<T>(T Item) where T : FileSystemStorageItemBase
         {
             return SetBulkAccessSharedControllerAsync(new T[] { Item });
         }
 
-        public static async Task<EndOfShareNotification> SetBulkAccessSharedControllerAsync<T>(IEnumerable<T> Items) where T : FileSystemStorageItemBase
+        public static async Task<EndUsageNotification> SetBulkAccessSharedControllerAsync<T>(IEnumerable<T> Items) where T : FileSystemStorageItemBase
         {
             RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRef = new RefSharedRegion<FullTrustProcessController.ExclusiveUsage>(await FullTrustProcessController.GetAvailableControllerAsync());
 
@@ -123,7 +121,7 @@ namespace RX_Explorer.Class
                 Item.SetBulkAccessSharedControllerCore(SharedRef);
             }
 
-            return new EndOfShareNotification(() =>
+            return new EndUsageNotification(() =>
             {
                 SharedRef.Dispose();
             });
@@ -186,101 +184,20 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public static async Task<IReadOnlyList<FileSystemStorageItemBase>> OpenInBatchAsync(IEnumerable<string> PathArray)
+        public static async IAsyncEnumerable<FileSystemStorageItemBase> OpenInBatchAsync(IEnumerable<string> PathArray, [EnumeratorCancellation] CancellationToken CancelToken = default)
         {
-            ConcurrentBag<FileSystemStorageItemBase> Result = new ConcurrentBag<FileSystemStorageItemBase>();
-
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            foreach (string Path in PathArray)
             {
-                await Task.Factory.StartNew(() =>
+                if (CancelToken.IsCancellationRequested)
                 {
-                    Parallel.ForEach(PathArray, (Path) =>
-                    {
-                        try
-                        {
-                            if (Path.StartsWith(@"\\?\", StringComparison.OrdinalIgnoreCase))
-                            {
-                                if (Exclusive.Controller.GetMTPItemDataAsync(Path).Result is MTPFileData Data)
-                                {
-                                    if (Data.Attributes.HasFlag(System.IO.FileAttributes.Directory))
-                                    {
-                                        Result.Add(new MTPStorageFolder(Data));
-                                    }
-                                    else
-                                    {
-                                        Result.Add(new MTPStorageFile(Data));
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    if (NativeWin32API.GetStorageItem(Path) is FileSystemStorageItemBase Item)
-                                    {
-                                        Result.Add(Item);
-                                    }
-                                }
-                                catch (LocationNotAvailableException)
-                                {
-                                    try
-                                    {
-                                        string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+                    yield break;
+                }
 
-                                        if (string.IsNullOrEmpty(DirectoryPath))
-                                        {
-                                            Result.Add(new FileSystemStorageFolder(StorageFolder.GetFolderFromPathAsync(Path).AsTask().Result));
-                                        }
-                                        else
-                                        {
-                                            StorageFolder ParentFolder = StorageFolder.GetFolderFromPathAsync(DirectoryPath).AsTask().Result;
-
-                                            switch (ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)).AsTask().Result)
-                                            {
-                                                case StorageFolder Folder:
-                                                    {
-                                                        Result.Add(new FileSystemStorageFolder(Folder));
-                                                        break;
-                                                    }
-                                                case StorageFile File:
-                                                    {
-                                                        Result.Add(new FileSystemStorageFile(File));
-                                                        break;
-                                                    }
-                                            }
-                                        }
-                                    }
-                                    catch (Exception ex) when (ex is not (FileNotFoundException or DirectoryNotFoundException))
-                                    {
-                                        using (SafeFileHandle Handle = Exclusive.Controller.GetNativeHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None).Result)
-                                        {
-                                            if (Handle.IsInvalid)
-                                            {
-                                                LogTracer.Log($"Could not get native handle and failed to get the storage item, path: \"{Path}\"");
-                                            }
-                                            else
-                                            {
-                                                FileSystemStorageItemBase Item = NativeWin32API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
-
-                                                if (Item != null)
-                                                {
-                                                    Result.Add(Item);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"{nameof(OpenInBatchAsync)} failed and could not get the storage item, path:\"{Path}\"");
-                        }
-                    });
-                }, TaskCreationOptions.LongRunning);
+                if (await OpenAsync(Path) is FileSystemStorageItemBase Item)
+                {
+                    yield return Item;
+                }
             }
-
-            return Result.ToList();
         }
 
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
@@ -561,26 +478,18 @@ namespace RX_Explorer.Class
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
-        public virtual void SetThumbnailOpacity(ThumbnailStatus Status)
+        public virtual void SetThumbnailStatus(ThumbnailStatus Status)
         {
             switch (Status)
             {
                 case ThumbnailStatus.Normal:
                     {
-                        if (ThumbnailOpacity != 1d)
-                        {
-                            ThumbnailOpacity = 1d;
-                        }
-
+                        ThumbnailOpacity = 1;
                         break;
                     }
-                case ThumbnailStatus.ReducedOpacity:
+                case ThumbnailStatus.HalfOpacity:
                     {
-                        if (ThumbnailOpacity != 0.5)
-                        {
-                            ThumbnailOpacity = 0.5;
-                        }
-
+                        ThumbnailOpacity = 0.5;
                         break;
                     }
             }
@@ -589,45 +498,39 @@ namespace RX_Explorer.Class
         }
 
 
-        public void SetThumbnailMode(ThumbnailMode Mode)
+        public async Task SetThumbnailModeAsync(ThumbnailMode Mode)
         {
-            if (Mode != ThumbnailMode)
+            if (ThumbnailMode != Mode)
             {
                 ThumbnailMode = Mode;
-                Interlocked.CompareExchange(ref IsThubmnalModeChanged, 1, 0);
+
+                if (ShouldGenerateThumbnail)
+                {
+                    try
+                    {
+                        Thumbnail = await GetThumbnailCoreAsync(Mode);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                    }
+                    finally
+                    {
+                        OnPropertyChanged(nameof(Thumbnail));
+                    }
+                }
             }
         }
 
         public async Task LoadAsync()
         {
-            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) > 0)
-            {
-                if (Interlocked.CompareExchange(ref IsThubmnalModeChanged, 0, 1) > 0)
-                {
-                    if (ShouldGenerateThumbnail)
-                    {
-                        try
-                        {
-                            Thumbnail = await GetThumbnailCoreAsync(ThumbnailMode);
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
-                        }
-                        finally
-                        {
-                            OnPropertyChanged(nameof(Thumbnail));
-                        }
-                    }
-                }
-            }
-            else
+            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
             {
                 async Task LocalLoadAsync()
                 {
                     try
                     {
-                        using (EndOfShareNotification Disposable = await SetBulkAccessSharedControllerAsync(this))
+                        using (EndUsageNotification Disposable = await SetBulkAccessSharedControllerAsync(this))
                         {
                             await Task.WhenAll(LoadCoreAsync(false), GetStorageItemAsync(), GetThumbnailOverlayAsync());
 
@@ -658,9 +561,13 @@ namespace RX_Explorer.Class
                         OnPropertyChanged(nameof(SizeDescription));
                         OnPropertyChanged(nameof(DisplayType));
                         OnPropertyChanged(nameof(ModifiedTimeDescription));
-                        OnPropertyChanged(nameof(Thumbnail));
                         OnPropertyChanged(nameof(ThumbnailOverlay));
                         OnPropertyChanged(nameof(SyncStatus));
+
+                        if (ShouldGenerateThumbnail)
+                        {
+                            OnPropertyChanged(nameof(Thumbnail));
+                        }
                     }
                 };
 

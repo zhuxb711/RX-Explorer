@@ -4,6 +4,7 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -99,53 +100,48 @@ namespace RX_Explorer.Class
             return Task.FromResult<IReadOnlyDictionary<string, string>>(new Dictionary<string, string>(Properties.Select((Prop) => new KeyValuePair<string, string>(Prop, string.Empty))));
         }
 
-        public override async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems = false,
-                                                                                                bool IncludeSystemItems = false,
-                                                                                                bool IncludeAllSubItems = false,
-                                                                                                uint MaxNumLimit = uint.MaxValue,
-                                                                                                CancellationToken CancelToken = default,
-                                                                                                Func<string, bool> AdvanceFilter = null,
-                                                                                                BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
+        public override async IAsyncEnumerable<FileSystemStorageItemBase> GetChildItemsAsync(bool IncludeHiddenItems = false,
+                                                                                             bool IncludeSystemItems = false,
+                                                                                             bool IncludeAllSubItems = false,
+                                                                                             [EnumeratorCancellation] CancellationToken CancelToken = default,
+                                                                                             BasicFilters Filter = BasicFilters.File | BasicFilters.Folder,
+                                                                                             Func<string, bool> AdvanceFilter = null)
         {
-            List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
-
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                foreach (MTPFileData Data in await Exclusive.Controller.GetMTPChildItemsDataAsync(Path, IncludeHiddenItems, IncludeSystemItems, IncludeAllSubItems, MaxNumLimit, Filter, CancelToken))
+                foreach (MTPFileData Data in await Exclusive.Controller.GetMTPChildItemsDataAsync(Path, IncludeHiddenItems, IncludeSystemItems, IncludeAllSubItems, Filter, CancelToken))
                 {
                     if (Data.Attributes.HasFlag(System.IO.FileAttributes.Directory))
                     {
-                        Result.Add(new MTPStorageFolder(Data, this));
+                        yield return new MTPStorageFolder(Data, this);
                     }
                     else
                     {
-                        Result.Add(new MTPStorageFile(Data, this));
+                        yield return new MTPStorageFile(Data, this);
                     }
                 }
             }
-
-            return Result;
         }
 
-        public override async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord,
-                                                                                         bool SearchInSubFolders = false,
-                                                                                         bool IncludeHiddenItems = false,
-                                                                                         bool IncludeSystemItems = false,
-                                                                                         bool IsRegexExpression = false,
-                                                                                         bool IsAQSExpression = false,
-                                                                                         bool UseIndexerOnly = false,
-                                                                                         bool IgnoreCase = true,
-                                                                                         CancellationToken CancelToken = default)
+        public override IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord,
+                                                                                bool SearchInSubFolders = false,
+                                                                                bool IncludeHiddenItems = false,
+                                                                                bool IncludeSystemItems = false,
+                                                                                bool IsRegexExpression = false,
+                                                                                bool IsAQSExpression = false,
+                                                                                bool UseIndexerOnly = false,
+                                                                                bool IgnoreCase = true,
+                                                                                CancellationToken CancelToken = default)
         {
             if (IsAQSExpression)
             {
                 throw new ArgumentException($"{nameof(IsAQSExpression)} is not supported");
             }
 
-            IReadOnlyList<FileSystemStorageItemBase> Result = await GetChildItemsAsync(IncludeHiddenItems, IncludeSystemItems, SearchInSubFolders, CancelToken: CancelToken);
+            IAsyncEnumerable<FileSystemStorageItemBase> Result = GetChildItemsAsync(IncludeHiddenItems, IncludeSystemItems, SearchInSubFolders, CancelToken: CancelToken);
 
-            return IsRegexExpression ? Result.Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None)).ToList()
-                                     : Result.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).ToList();
+            return IsRegexExpression ? Result.Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                     : Result.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
         }
 
         public override async Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, StorageItemTypes ItemTypes, CreateOption Option)

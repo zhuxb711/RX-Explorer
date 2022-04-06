@@ -2682,7 +2682,7 @@ namespace RX_Explorer.View
 
                             try
                             {
-                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
+                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).ToListAsync();
 
                                 if (ChildItems.Count > 0)
                                 {
@@ -3313,8 +3313,6 @@ namespace RX_Explorer.View
                     await Package.SetStorageItemDataAsync(SelectedItems.ToArray());
 
                     Clipboard.SetContent(Package);
-
-                    FileCollection.ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
                 }
                 catch
                 {
@@ -3326,6 +3324,13 @@ namespace RX_Explorer.View
                     };
 
                     await Dialog.ShowAsync();
+                }
+                finally
+                {
+                    foreach (FileSystemStorageItemBase Item in FileCollection)
+                    {
+                        Item.SetThumbnailStatus(ThumbnailStatus.Normal);
+                    }
                 }
             }
         }
@@ -3373,9 +3378,7 @@ namespace RX_Explorer.View
 
                                                     if (MTPFolder == CurrentFolder)
                                                     {
-                                                        IEnumerable<FileSystemStorageItemBase> NewItems = await Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
-
-                                                        foreach (FileSystemStorageItemBase Item in NewItems.Except(Presenter.FileCollection))
+                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToAsyncEnumerable()))
                                                         {
                                                             await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                         }
@@ -3416,9 +3419,7 @@ namespace RX_Explorer.View
                                         {
                                             if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                             {
-                                                IEnumerable<FileSystemStorageItemBase> NewItems = await Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
-
-                                                foreach (FileSystemStorageItemBase Item in NewItems.Except(Presenter.FileCollection))
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToAsyncEnumerable()))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                 }
@@ -3456,7 +3457,10 @@ namespace RX_Explorer.View
             }
             finally
             {
-                FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
+                foreach (FileSystemStorageItemBase Item in FileCollection)
+                {
+                    Item.SetThumbnailStatus(ThumbnailStatus.Normal);
+                }
             }
         }
 
@@ -3478,9 +3482,6 @@ namespace RX_Explorer.View
                     await Package.SetStorageItemDataAsync(SelectedItems.ToArray());
 
                     Clipboard.SetContent(Package);
-
-                    FileCollection.ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
-                    SelectedItems.ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity));
                 }
                 catch
                 {
@@ -3492,6 +3493,18 @@ namespace RX_Explorer.View
                     };
 
                     await Dialog.ShowAsync();
+                }
+                finally
+                {
+                    foreach (FileSystemStorageItemBase Item in FileCollection)
+                    {
+                        Item.SetThumbnailStatus(ThumbnailStatus.Normal);
+                    }
+
+                    foreach (FileSystemStorageItemBase Item in SelectedItems)
+                    {
+                        Item.SetThumbnailStatus(ThumbnailStatus.HalfOpacity);
+                    }
                 }
             }
         }
@@ -5275,9 +5288,7 @@ namespace RX_Explorer.View
                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                             {
-                                IEnumerable<FileSystemStorageItemBase> NewItems = await Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
-
-                                foreach (FileSystemStorageItemBase NewItem in NewItems.Except(Presenter.FileCollection))
+                                await foreach (FileSystemStorageItemBase NewItem in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToAsyncEnumerable()))
                                 {
                                     await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(NewItem.Path));
                                 }
@@ -5551,12 +5562,12 @@ namespace RX_Explorer.View
                             case 1:
                             case 2:
                                 {
-                                    Item.SetThumbnailMode(ThumbnailMode.ListView);
+                                    await Item.SetThumbnailModeAsync(ThumbnailMode.ListView);
                                     break;
                                 }
                             default:
                                 {
-                                    Item.SetThumbnailMode(ThumbnailMode.SingleItem);
+                                    await Item.SetThumbnailModeAsync(ThumbnailMode.SingleItem);
                                     break;
                                 }
                         }
@@ -5822,9 +5833,7 @@ namespace RX_Explorer.View
 
                                                     if (MTPFolder == CurrentFolder)
                                                     {
-                                                        IEnumerable<FileSystemStorageItemBase> NewItems = await Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
-
-                                                        foreach (FileSystemStorageItemBase Item in NewItems.Except(Presenter.FileCollection))
+                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToAsyncEnumerable()))
                                                         {
                                                             await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                         }
@@ -5865,9 +5874,7 @@ namespace RX_Explorer.View
                                         {
                                             if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                             {
-                                                IEnumerable<FileSystemStorageItemBase> NewItems = await Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
-
-                                                foreach (FileSystemStorageItemBase Item in NewItems.Except(Presenter.FileCollection))
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToAsyncEnumerable()))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                 }

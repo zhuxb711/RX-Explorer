@@ -622,8 +622,7 @@ namespace RX_Explorer.Class
 
                     return false;
                 }
-                else if (Marshal.GetLastWin32Error() is 2 or 3
-                         && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                else if ((Marshal.GetLastWin32Error() is 2 or 3) && CheckItemTypeFromPath(FolderPath) == StorageItemTypes.None)
                 {
                     throw new DirectoryNotFoundException(FolderPath);
                 }
@@ -781,8 +780,7 @@ namespace RX_Explorer.Class
 
                     return SearchResult;
                 }
-                else if (Marshal.GetLastWin32Error() is 2 or 3
-                         && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                else if ((Marshal.GetLastWin32Error() is 2 or 3) && CheckItemTypeFromPath(FolderPath) == StorageItemTypes.None)
                 {
                     throw new DirectoryNotFoundException(FolderPath);
                 }
@@ -799,8 +797,7 @@ namespace RX_Explorer.Class
 
         public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItems(string FolderPath,
                                                                                bool IncludeHiddenItem = false,
-                                                                               bool IncludeSystemItem = false,
-                                                                               uint MaxNumLimit = uint.MaxValue)
+                                                                               bool IncludeSystemItem = false)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -858,12 +855,11 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-                    while (FindNextFile(Ptr, out Data) && Result.Count < MaxNumLimit);
+                    while (FindNextFile(Ptr, out Data));
 
                     return Result;
                 }
-                else if (Marshal.GetLastWin32Error() is 2 or 3
-                         && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                else if ((Marshal.GetLastWin32Error() is 2 or 3) && CheckItemTypeFromPath(FolderPath) == StorageItemTypes.None)
                 {
                     throw new DirectoryNotFoundException(FolderPath);
                 }
@@ -927,8 +923,7 @@ namespace RX_Explorer.Class
 
                     return null;
                 }
-                else if (Marshal.GetLastWin32Error() is 2 or 3
-                         && !Path.GetPathRoot(ItemPath).Equals(ItemPath, StringComparison.OrdinalIgnoreCase))
+                else if ((Marshal.GetLastWin32Error() is 2 or 3) && CheckItemTypeFromPath(ItemPath) == StorageItemTypes.None)
                 {
                     return null;
                 }

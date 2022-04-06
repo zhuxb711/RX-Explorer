@@ -740,7 +740,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             try
             {
-                using (EndOfShareNotification Disposable = await FileSystemStorageItemBase.SetBulkAccessSharedControllerAsync(StorageItem))
+                using (EndUsageNotification Disposable = await FileSystemStorageItemBase.SetBulkAccessSharedControllerAsync(StorageItem))
                 {
                     Dictionary<string, object> BasicPropertiesDictionary = new Dictionary<string, object>(10)
                     {
@@ -1166,7 +1166,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     {
                                         Interlocked.Increment(ref FolderCount);
 
-                                        IReadOnlyList<FileSystemStorageItemBase> Result = Folder.GetChildItemsAsync(true, true, true, CancelToken: SizeCalculateCancellation.Token).Result;
+                                        IReadOnlyList<FileSystemStorageItemBase> Result = Folder.GetChildItemsAsync(true, true, true, CancelToken: SizeCalculateCancellation.Token).ToEnumerable().ToList();
 
                                         if (!SizeCalculateCancellation.IsCancellationRequested)
                                         {
@@ -1599,7 +1599,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async Task<(ulong, ulong)> CalculateFolderAndFileCount(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)
         {
-            IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(true, true, true, CancelToken: CancelToken);
+            IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(true, true, true, CancelToken: CancelToken).ToListAsync();
 
             if (CancelToken.IsCancellationRequested)
             {

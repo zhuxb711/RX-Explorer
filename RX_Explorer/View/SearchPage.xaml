@@ -8,6 +8,7 @@
       xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
       xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
       xmlns:System="using:System"
+      xmlns:Custom="using:RX_Explorer.CustomControl"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
@@ -123,7 +124,7 @@
         </muxc:CommandBarFlyout>
     </Page.Resources>
 
-    <Grid>
+    <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
             <RowDefinition Height="*" />
@@ -697,17 +698,12 @@
                                    x:Phase="1"
                                    Source="{x:Bind ThumbnailOverlay, Mode=OneWay}"
                                    Stretch="Uniform" />
-                            <TextBlock VerticalAlignment="Center"
-                                       HorizontalAlignment="Left"
-                                       Grid.Column="1"
-                                       Name="NameLabel"
-                                       Text="{x:Bind DisplayName,Converter={StaticResource NameExtensionsConverter}}"
-                                       TextTrimming="CharacterEllipsis">
-                                 <ToolTipService.ToolTip>
-                                    <ToolTip Content="{x:Bind DisplayName,Converter={StaticResource NameExtensionsConverter}}"
-                                             Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
-                                 </ToolTipService.ToolTip>
-                            </TextBlock>
+                            <Custom:HightLightTextBlock Name="NameLabel"
+                                                              Grid.Column="1"
+                                                              HorizontalAlignment="Left"
+                                                              VerticalAlignment="Center"
+                                                              Text="{x:Bind DisplayName,Converter={StaticResource NameExtensionsConverter}}"
+                                                              HightLightText="{Binding ElementName=RootGrid,Path=DataContext.SearchText,Mode=OneWay}" />
                             <Border Grid.Column="2"
                                     CornerRadius="2"
                                     Margin="0,5"

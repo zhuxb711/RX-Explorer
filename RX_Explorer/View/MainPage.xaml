@@ -469,7 +469,6 @@
                 VerticalAlignment="Top">
             <TextBlock VerticalAlignment="Center"
                        HorizontalAlignment="Left"
-                       Text="{x:Bind Cls:Globalization.GetString('AppDisplayName')}"
                        FontSize="13"
                        Name="AppName"
                        Margin="10,0,0,0">

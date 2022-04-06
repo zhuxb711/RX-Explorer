@@ -43,13 +43,15 @@ namespace RX_Explorer.View
         private readonly PointerEventHandler PointerReleasedEventHandler;
         private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
         private readonly ObservableCollection<FileSystemStorageItemBase> SearchResult = new ObservableCollection<FileSystemStorageItemBase>();
-        private bool BlockKeyboardShortCutInput;
+        private readonly SignalContext SignalControl = new SignalContext();
 
         private SortTarget STarget;
         private SortDirection SDirection;
 
         private DateTimeOffset LastPressTime;
         private string LastPressString;
+        private bool BlockKeyboardShortCutInput;
+        private int HeaderClickLocker;
 
         public SearchPage()
         {
@@ -80,11 +82,12 @@ namespace RX_Explorer.View
                 SearchResultList.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
                 SearchResultList.AddHandler(PointerReleasedEvent, PointerReleasedEventHandler, true);
 
+                SearchCancellation = new CancellationTokenSource();
                 SelectionExtension = new ListViewBaseSelectionExtension(SearchResultList, DrawRectangle);
 
                 if (e.NavigationMode == NavigationMode.New)
                 {
-                    await SearchAsync(Parameters).ConfigureAwait(false);
+                    await SearchAsync(Parameters, SearchCancellation.Token).ConfigureAwait(false);
                 }
             }
         }
@@ -241,7 +244,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private async Task SearchAsync(SearchOptions Options)
+        private async Task SearchAsync(SearchOptions Options, CancellationToken CancelToken)
         {
             STarget = SortTarget.Name;
             SDirection = SortDirection.Ascending;
@@ -252,12 +255,9 @@ namespace RX_Explorer.View
                 SQLite.Current.SetSearchHistory(Options.SearchText);
             }
 
-            CancellationTokenSource SearchCancellation = new CancellationTokenSource();
-
             try
             {
-                this.SearchCancellation = SearchCancellation;
-
+                RootGrid.DataContext = Options;
                 SearchStatus.Text = $"{Globalization.GetString("SearchProcessingText")} \"{Options.SearchText}\"";
                 SearchStatusBar.Visibility = Visibility.Visible;
 
@@ -265,33 +265,32 @@ namespace RX_Explorer.View
                 {
                     case SearchCategory.BuiltInEngine:
                         {
-                            IReadOnlyList<FileSystemStorageItemBase> Result = await Options.SearchFolder.SearchAsync(Options.SearchText,
-                                                                                                                     Options.DeepSearch,
-                                                                                                                     SettingPage.IsShowHiddenFilesEnabled,
-                                                                                                                     SettingPage.IsDisplayProtectedSystemItems,
-                                                                                                                     Options.UseRegexExpression,
-                                                                                                                     Options.UseAQSExpression,
-                                                                                                                     Options.UseIndexerOnly,
-                                                                                                                     Options.IgnoreCase,
-                                                                                                                     SearchCancellation.Token);
+                            await foreach (FileSystemStorageItemBase Item in Options.SearchFolder.SearchAsync(Options.SearchText,
+                                                                                                              Options.DeepSearch,
+                                                                                                              SettingPage.IsShowHiddenFilesEnabled,
+                                                                                                              SettingPage.IsDisplayProtectedSystemItems,
+                                                                                                              Options.UseRegexExpression,
+                                                                                                              Options.UseAQSExpression,
+                                                                                                              Options.UseIndexerOnly,
+                                                                                                              Options.IgnoreCase,
+                                                                                                              CancelToken))
+                            {
+                                await SignalControl.TrapOnSignalAsync();
 
-                            if (Result.Count == 0)
-                            {
-                                HasItem.Visibility = Visibility.Visible;
-                            }
-                            else
-                            {
-                                foreach (FileSystemStorageItemBase Item in await SortCollectionGenerator.GetSortedCollectionAsync(Result, SortTarget.Name, SortDirection.Ascending))
+                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection);
+
+                                if (Index >= 0)
                                 {
-                                    if (SearchCancellation.IsCancellationRequested)
-                                    {
-                                        HasItem.Visibility = Visibility.Visible;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        SearchResult.Add(Item);
-                                    }
+                                    SearchResult.Insert(Index, Item);
+                                }
+                                else
+                                {
+                                    SearchResult.Add(Item);
+                                }
+
+                                if (SearchResult.Count % 50 == 0)
+                                {
+                                    await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
                                 }
                             }
 
@@ -299,20 +298,34 @@ namespace RX_Explorer.View
                         }
                     case SearchCategory.EverythingEngine:
                         {
+                            IReadOnlyList<string> SearchItems;
+
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
-                                IReadOnlyList<FileSystemStorageItemBase> SearchItems = await Exclusive.Controller.SearchByEverythingAsync(Options.DeepSearch ? string.Empty : Options.SearchFolder.Path,
-                                                                                                                                          Options.SearchText,
-                                                                                                                                          Options.UseRegexExpression,
-                                                                                                                                          Options.IgnoreCase);
+                                SearchItems = await Exclusive.Controller.SearchByEverythingAsync(Options.DeepSearch ? string.Empty : Options.SearchFolder.Path,
+                                                                                                 Options.SearchText,
+                                                                                                 Options.UseRegexExpression,
+                                                                                                 Options.IgnoreCase);
+                            }
 
-                                if (SearchItems.Count == 0)
+                            await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(SearchItems, CancelToken))
+                            {
+                                await SignalControl.TrapOnSignalAsync();
+
+                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection);
+
+                                if (Index >= 0)
                                 {
-                                    HasItem.Visibility = Visibility.Visible;
+                                    SearchResult.Insert(Index, Item);
                                 }
                                 else
                                 {
-                                    SearchResult.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(SearchItems, SortTarget.Name, SortDirection.Ascending));
+                                    SearchResult.Add(Item);
+                                }
+
+                                if (SearchResult.Count % 50 == 0)
+                                {
+                                    await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
                                 }
                             }
 
@@ -320,10 +333,17 @@ namespace RX_Explorer.View
                         }
                 }
 
-                await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
+                if (CancelToken.IsCancellationRequested)
+                {
+                    SearchResult.Clear();
+                }
 
-                SearchStatusBar.Visibility = Visibility.Collapsed;
-                SearchStatus.Text = $"{Globalization.GetString("SearchCompletedText")} ({SearchResult.Count} {Globalization.GetString("Items_Description")})";
+                if (SearchResult.Count == 0)
+                {
+                    HasItem.Visibility = Visibility.Visible;
+                }
+
+                await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
             }
             catch (Exception ex)
             {
@@ -331,12 +351,9 @@ namespace RX_Explorer.View
             }
             finally
             {
-                SearchCancellation.Dispose();
-
-                if (this.SearchCancellation == SearchCancellation)
-                {
-                    this.SearchCancellation = null;
-                }
+                SignalControl.SetCompleted();
+                SearchStatusBar.Visibility = Visibility.Collapsed;
+                SearchStatus.Text = $"{Globalization.GetString("SearchCompletedText")} ({SearchResult.Count} {Globalization.GetString("Items_Description")})";
             }
         }
 
@@ -348,6 +365,8 @@ namespace RX_Explorer.View
             SearchResultList.RemoveHandler(PointerReleasedEvent, PointerReleasedEventHandler);
 
             SearchCancellation?.Cancel();
+            SearchCancellation?.Dispose();
+
             SelectionExtension.Dispose();
             SelectionExtension = null;
 
@@ -735,37 +754,50 @@ namespace RX_Explorer.View
 
         private async void ListHeader_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button Btn)
+            if (Interlocked.Exchange(ref HeaderClickLocker, 1) == 0)
             {
-                SortTarget CTarget = Btn.Name switch
+                try
                 {
-                    "ListHeaderName" => SortTarget.Name,
-                    "ListHeaderModifiedTime" => SortTarget.ModifiedTime,
-                    "ListHeaderType" => SortTarget.Type,
-                    "ListHeaderPath" => SortTarget.Path,
-                    "ListHeaderSize" => SortTarget.Size,
-                    _ => throw new NotSupportedException()
-                };
+                    if (sender is Button Btn)
+                    {
+                        using (EndUsageNotification Disposable = await SignalControl.SignalAndWaitTrappedAsync())
+                        {
+                            SortTarget CTarget = Btn.Name switch
+                            {
+                                "ListHeaderName" => SortTarget.Name,
+                                "ListHeaderModifiedTime" => SortTarget.ModifiedTime,
+                                "ListHeaderType" => SortTarget.Type,
+                                "ListHeaderPath" => SortTarget.Path,
+                                "ListHeaderSize" => SortTarget.Size,
+                                _ => throw new NotSupportedException()
+                            };
 
-                if (STarget == CTarget)
-                {
-                    SDirection = SDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
+                            if (STarget == CTarget)
+                            {
+                                SDirection = SDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
+                            }
+                            else
+                            {
+                                STarget = CTarget;
+                                SDirection = SortDirection.Ascending;
+                            }
+
+                            ListViewDetailHeader.Indicator.SetIndicatorStatus(STarget, SDirection);
+
+                            IReadOnlyList<FileSystemStorageItemBase> SortResult = (await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult, STarget, SDirection)).ToList();
+
+                            SearchResult.Clear();
+                            SearchResult.AddRange(SortResult);
+                        }
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    STarget = CTarget;
-                    SDirection = SortDirection.Ascending;
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(ListHeader_Click)}");
                 }
-
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(STarget, SDirection);
-
-                IReadOnlyList<FileSystemStorageItemBase> SortResult = new List<FileSystemStorageItemBase>(await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult, STarget, SDirection));
-
-                SearchResult.Clear();
-
-                foreach (FileSystemStorageItemBase Item in SortResult)
+                finally
                 {
-                    SearchResult.Add(Item);
+                    Interlocked.Exchange(ref HeaderClickLocker, 0);
                 }
             }
         }

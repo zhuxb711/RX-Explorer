@@ -59,15 +59,14 @@ namespace RX_Explorer.Class
             return await ThumbnailFile.OpenAsync(FileAccessMode.Read);
         }
 
-        public override Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems = false,
-                                                                                          bool IncludeSystemItems = false,
-                                                                                          bool IncludeAllSubItems = false,
-                                                                                          uint MaxNumLimit = uint.MaxValue,
-                                                                                          CancellationToken CancelToken = default,
-                                                                                          Func<string, bool> AdvanceFilter = null,
-                                                                                          BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
+        public override IAsyncEnumerable<FileSystemStorageItemBase> GetChildItemsAsync(bool IncludeHiddenItems = false,
+                                                                                       bool IncludeSystemItems = false,
+                                                                                       bool IncludeAllSubItems = false,
+                                                                                       CancellationToken CancelToken = default,
+                                                                                       BasicFilters Filter = BasicFilters.File | BasicFilters.Folder,
+                                                                                       Func<string, bool> AdvanceFilter = null)
         {
-            return Task.FromResult<IReadOnlyList<FileSystemStorageItemBase>>(new List<FileSystemStorageItemBase>(0));
+            return AsyncEnumerable.Empty<FileSystemStorageItemBase>();
         }
 
         public override Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
@@ -75,24 +74,17 @@ namespace RX_Explorer.Class
             return Task.FromResult(false);
         }
 
-        public override async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord,
-                                                                                         bool SearchInSubFolders = false,
-                                                                                         bool IncludeHiddenItems = false,
-                                                                                         bool IncludeSystemItems = false,
-                                                                                         bool IsRegexExpression = false,
-                                                                                         bool IsAQSExpression = false,
-                                                                                         bool UseIndexerOnly = false,
-                                                                                         bool IgnoreCase = true,
-                                                                                         CancellationToken CancelToken = default)
+        public override IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord,
+                                                                                bool SearchInSubFolders = false,
+                                                                                bool IncludeHiddenItems = false,
+                                                                                bool IncludeSystemItems = false,
+                                                                                bool IsRegexExpression = false,
+                                                                                bool IsAQSExpression = false,
+                                                                                bool UseIndexerOnly = false,
+                                                                                bool IgnoreCase = true,
+                                                                                CancellationToken CancelToken = default)
         {
-            List<Task<IReadOnlyList<FileSystemStorageItemBase>>> ParallelTask = new List<Task<IReadOnlyList<FileSystemStorageItemBase>>>(CommonAccessCollection.DriveList.Count);
-
-            foreach (FileSystemStorageFolder Drive in CommonAccessCollection.DriveList.Select((Item) => Item.DriveFolder))
-            {
-                ParallelTask.Add(Drive.SearchAsync(SearchWord, SearchInSubFolders, IncludeHiddenItems, IncludeSystemItems, IsRegexExpression, IsAQSExpression, UseIndexerOnly, IgnoreCase, CancelToken));
-            }
-
-            return new List<FileSystemStorageItemBase>((await Task.WhenAll(ParallelTask)).SelectMany((Array) => Array));
+            return CommonAccessCollection.DriveList.Select((Item) => Item.DriveFolder.SearchAsync(SearchWord, SearchInSubFolders, IncludeHiddenItems, IncludeSystemItems, IsRegexExpression, IsAQSExpression, UseIndexerOnly, IgnoreCase, CancelToken)).Merge();
         }
 
         private RootStorageFolder() : base(new NativeFileData("RootFolderUniquePath", default))

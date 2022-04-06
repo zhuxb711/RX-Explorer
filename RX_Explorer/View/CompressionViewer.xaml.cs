@@ -1151,7 +1151,7 @@ namespace RX_Explorer.View
 
                     if (PathList.Count > 0)
                     {
-                        if ((await FileSystemStorageItemBase.OpenInBatchAsync(PathList)).All((Item) => Item is FileSystemStorageFile))
+                        if (await FileSystemStorageItemBase.OpenInBatchAsync(PathList).AllAsync((Item) => Item is FileSystemStorageFile))
                         {
                             string Name = CurrentPath.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
 
@@ -1224,7 +1224,7 @@ namespace RX_Explorer.View
                                 {
                                     ZipObj.BeginUpdate();
 
-                                    foreach (FileSystemStorageFile Item in FileSystemStorageItemBase.OpenInBatchAsync(PathList).Result.OfType<FileSystemStorageFile>())
+                                    foreach (FileSystemStorageFile Item in FileSystemStorageItemBase.OpenInBatchAsync(PathList).OfType<FileSystemStorageFile>().ToEnumerable())
                                     {
                                         if (Token.IsCancellationRequested)
                                         {
@@ -1411,15 +1411,12 @@ namespace RX_Explorer.View
                                     });
                                 });
 
-                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await ExtractionFolder.GetChildItemsAsync(true, true, CancelToken: CancelToken);
+                                IReadOnlyList<string> ChildItemsPath = await ExtractionFolder.GetChildItemsAsync(true, true, CancelToken: CancelToken).Select((Item) => Item.Path).ToListAsync();
 
-                                if (CancelToken.IsCancellationRequested)
+                                if (ChildItemsPath.Count > 0)
                                 {
                                     CancelToken.ThrowIfCancellationRequested();
-                                }
-                                else if (ChildItems.Count > 0)
-                                {
-                                    Request.SetData(new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(ChildItems.Select((Item) => Item.Path)))).AsRandomAccessStream());
+                                    Request.SetData(new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(ChildItemsPath))).AsRandomAccessStream());
                                     return;
                                 }
                             }

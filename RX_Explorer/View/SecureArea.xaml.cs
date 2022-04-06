@@ -285,7 +285,7 @@ namespace RX_Explorer.View
 
                 SelectionExtension = new ListViewBaseSelectionExtension(SecureGridView, DrawRectangle);
 
-                await LoadSecureFile();
+                await LoadSecureFileAsync();
             }
         }
 
@@ -314,7 +314,7 @@ namespace RX_Explorer.View
             return await new SecureAreaVerifyDialog(UnlockPassword).ShowAsync() is ContentDialogResult.Primary;
         }
 
-        private async Task LoadSecureFile()
+        private async Task LoadSecureFileAsync()
         {
             IsNewStart = false;
 
@@ -347,7 +347,11 @@ namespace RX_Explorer.View
             if (SItem is FileSystemStorageFolder SFolder)
             {
                 SecureFolder = SFolder;
-                SecureCollection.AddRange((await SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File, AdvanceFilter: (Name) => Path.GetExtension(Name).Equals(".sle", StringComparison.OrdinalIgnoreCase))).Cast<FileSystemStorageFile>());
+
+                await foreach (FileSystemStorageFile SFile in SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File, AdvanceFilter: (Name) => Path.GetExtension(Name).Equals(".sle", StringComparison.OrdinalIgnoreCase)))
+                {
+                    SecureCollection.Add(SFile);
+                }
 
                 if (SecureCollection.Count == 0)
                 {
@@ -1059,7 +1063,7 @@ namespace RX_Explorer.View
                         });
                     }
 
-                    await LoadSecureFile();
+                    await LoadSecureFileAsync();
                 }
                 catch (Exception ex)
                 {

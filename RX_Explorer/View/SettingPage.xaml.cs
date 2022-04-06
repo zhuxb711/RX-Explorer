@@ -1379,7 +1379,7 @@ namespace RX_Explorer.View
                     {
                         try
                         {
-                            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File))
+                            await foreach (FileSystemStorageFile Item in SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File))
                             {
                                 string DecryptedFilePath = Path.Combine(Dialog.ExportFolder.Path, Path.GetRandomFileName());
 

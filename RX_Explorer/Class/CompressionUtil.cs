@@ -174,72 +174,67 @@ namespace RX_Explorer.Class
                                                 CancellationToken CancelToken = default,
                                                 ByteReadChangedEventHandler ByteReadHandler = null)
         {
-            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken);
+            ulong CurrentPosition = 0;
+            ulong ChildItemNumber = 0;
 
-            if (ItemList.Count == 0)
+            await foreach (FileSystemStorageItemBase Item in Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken))
             {
-                if (!string.IsNullOrEmpty(BaseFolderName))
-                {
-                    ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/")
-                    {
-                        DateTime = DateTime.Now
-                    };
+                ChildItemNumber++;
+                CancelToken.ThrowIfCancellationRequested();
 
-                    OutputStream.PutNextEntry(NewEntry);
-                    OutputStream.CloseEntry();
+                switch (Item)
+                {
+                    case FileSystemStorageFolder InnerFolder:
+                        {
+                            ulong InnerFolderSize = 0;
+
+                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{Item.Name}", Algorithm, CancelToken, (ByteRead) =>
+                            {
+                                InnerFolderSize = ByteRead;
+                                ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
+                            });
+
+                            ByteReadHandler?.Invoke(CurrentPosition += InnerFolderSize);
+
+                            break;
+                        }
+                    case FileSystemStorageFile InnerFile:
+                        {
+                            using (Stream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            {
+                                ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{Item.Name}")
+                                {
+                                    DateTime = DateTime.Now,
+                                    CompressionMethod = Algorithm == CompressionAlgorithm.None ? CompressionMethod.Stored : Enum.Parse<CompressionMethod>(Enum.GetName(typeof(CompressionAlgorithm), Algorithm)),
+                                    Size = FileStream.Length
+                                };
+
+                                OutputStream.PutNextEntry(NewEntry);
+
+                                await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
+                                {
+                                    ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.Size));
+                                });
+                            }
+
+                            OutputStream.CloseEntry();
+
+                            ByteReadHandler?.Invoke(CurrentPosition += Item.Size);
+
+                            break;
+                        }
                 }
             }
-            else
+
+            if (ChildItemNumber == 0 && !string.IsNullOrEmpty(BaseFolderName))
             {
-                ulong CurrentPosition = 0;
-
-                foreach (FileSystemStorageItemBase Item in ItemList)
+                ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/")
                 {
-                    CancelToken.ThrowIfCancellationRequested();
+                    DateTime = DateTime.Now
+                };
 
-                    switch (Item)
-                    {
-                        case FileSystemStorageFolder InnerFolder:
-                            {
-                                ulong InnerFolderSize = 0;
-
-                                await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{Item.Name}", Algorithm, CancelToken, (ByteRead) =>
-                                {
-                                    InnerFolderSize = ByteRead;
-                                    ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
-                                });
-
-                                ByteReadHandler?.Invoke(CurrentPosition += InnerFolderSize);
-
-                                break;
-                            }
-                        case FileSystemStorageFile InnerFile:
-                            {
-                                using (Stream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                {
-                                    ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{Item.Name}")
-                                    {
-                                        DateTime = DateTime.Now,
-                                        CompressionMethod = Algorithm == CompressionAlgorithm.None ? CompressionMethod.Stored : Enum.Parse<CompressionMethod>(Enum.GetName(typeof(CompressionAlgorithm), Algorithm)),
-                                        Size = FileStream.Length
-                                    };
-
-                                    OutputStream.PutNextEntry(NewEntry);
-
-                                    await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
-                                    {
-                                        ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.Size));
-                                    });
-                                }
-
-                                OutputStream.CloseEntry();
-
-                                ByteReadHandler?.Invoke(CurrentPosition += Item.Size);
-
-                                break;
-                            }
-                    }
-                }
+                OutputStream.PutNextEntry(NewEntry);
+                OutputStream.CloseEntry();
             }
         }
 
@@ -765,65 +760,60 @@ namespace RX_Explorer.Class
                                                 CancellationToken CancelToken = default,
                                                 ByteReadChangedEventHandler ByteReadHandler = null)
         {
-            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken);
+            ulong CurrentPosition = 0;
+            ulong ChildItemNumber = 0;
 
-            if (ItemList.Count == 0)
+            await foreach (FileSystemStorageItemBase Item in Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken))
             {
-                if (!string.IsNullOrEmpty(BaseFolderName))
+                ChildItemNumber++;
+                CancelToken.ThrowIfCancellationRequested();
+
+                switch (Item)
                 {
-                    TarEntry NewEntry = TarEntry.CreateTarEntry($"{BaseFolderName}/");
-                    OutputStream.PutNextEntry(NewEntry);
-                    OutputStream.CloseEntry();
+                    case FileSystemStorageFolder InnerFolder:
+                        {
+                            ulong InnerFolderSize = 0;
+
+                            await TarFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", CancelToken, (ByteRead) =>
+                            {
+                                InnerFolderSize = ByteRead;
+                                ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
+                            });
+
+                            ByteReadHandler?.Invoke(CurrentPosition += InnerFolderSize);
+
+                            break;
+                        }
+                    case FileSystemStorageFile InnerFile:
+                        {
+                            using (Stream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            {
+                                TarEntry NewEntry = TarEntry.CreateTarEntry($"{BaseFolderName}/{InnerFile.Name}");
+                                NewEntry.ModTime = DateTime.Now;
+                                NewEntry.Size = FileStream.Length;
+
+                                OutputStream.PutNextEntry(NewEntry);
+
+                                await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
+                                {
+                                    ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.Size));
+                                });
+                            }
+
+                            OutputStream.CloseEntry();
+
+                            ByteReadHandler?.Invoke(CurrentPosition += InnerFile.Size);
+
+                            break;
+                        }
                 }
             }
-            else
+
+            if (ChildItemNumber == 0 && !string.IsNullOrEmpty(BaseFolderName))
             {
-                ulong CurrentPosition = 0;
-
-                foreach (FileSystemStorageItemBase Item in ItemList)
-                {
-                    CancelToken.ThrowIfCancellationRequested();
-
-                    switch (Item)
-                    {
-                        case FileSystemStorageFolder InnerFolder:
-                            {
-                                ulong InnerFolderSize = 0;
-
-                                await TarFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", CancelToken, (ByteRead) =>
-                                {
-                                    InnerFolderSize = ByteRead;
-                                    ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
-                                });
-
-                                ByteReadHandler?.Invoke(CurrentPosition += InnerFolderSize);
-
-                                break;
-                            }
-                        case FileSystemStorageFile InnerFile:
-                            {
-                                using (Stream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                {
-                                    TarEntry NewEntry = TarEntry.CreateTarEntry($"{BaseFolderName}/{InnerFile.Name}");
-                                    NewEntry.ModTime = DateTime.Now;
-                                    NewEntry.Size = FileStream.Length;
-
-                                    OutputStream.PutNextEntry(NewEntry);
-
-                                    await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
-                                    {
-                                        ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.Size));
-                                    });
-                                }
-
-                                OutputStream.CloseEntry();
-
-                                ByteReadHandler?.Invoke(CurrentPosition += InnerFile.Size);
-
-                                break;
-                            }
-                    }
-                }
+                TarEntry NewEntry = TarEntry.CreateTarEntry($"{BaseFolderName}/");
+                OutputStream.PutNextEntry(NewEntry);
+                OutputStream.CloseEntry();
             }
         }
 

@@ -1282,7 +1282,6 @@ namespace FullTrustProcess
                             bool IncludeHiddenItems = Convert.ToBoolean(CommandValue["IncludeHiddenItems"]);
                             bool IncludeSystemItems = Convert.ToBoolean(CommandValue["IncludeSystemItems"]);
                             bool IncludeAllSubItems = Convert.ToBoolean(CommandValue["IncludeAllSubItems"]);
-                            uint MaxNumLimit = Convert.ToUInt32(CommandValue["MaxNumLimit"]);
 
                             MTPPathAnalysis PathAnalysis = Helper.AnalysisMTPPath(Path);
 
@@ -1332,7 +1331,7 @@ namespace FullTrustProcess
                                     {
                                         Result.Add(new MTPFileData(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), new DateTimeOffset(Item.CreationTime.GetValueOrDefault().ToLocalTime()), new DateTimeOffset(Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
 
-                                        if (Result.Count >= MaxNumLimit || CancelToken.IsCancellationRequested)
+                                        if (CancelToken.IsCancellationRequested)
                                         {
                                             break;
                                         }

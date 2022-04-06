@@ -222,7 +222,7 @@ namespace RX_Explorer.Class
     public enum ThumbnailStatus
     {
         Normal = 0,
-        ReducedOpacity = 1
+        HalfOpacity = 1
     }
 
     public enum GroupDirection

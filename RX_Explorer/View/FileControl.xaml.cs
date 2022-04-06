@@ -1006,22 +1006,22 @@ namespace RX_Explorer.View
             {
                 if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder Folder)
                 {
-                    IReadOnlyList<FileSystemStorageItemBase> StorageItemPath = await Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder);
-
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
-                        for (int i = 0; i < StorageItemPath.Count && Node.IsExpanded && Node.CanTraceToRootNode(FolderTree.RootNodes.ToArray()); i++)
+                        await foreach (FileSystemStorageFolder StorageItem in Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder).Cast<FileSystemStorageFolder>())
                         {
-                            if (StorageItemPath[i] is FileSystemStorageFolder DeviceFolder)
+                            if (!Node.IsExpanded || !Node.CanTraceToRootNode(FolderTree.RootNodes.ToArray()))
                             {
-                                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DeviceFolder);
-
-                                Node.Children.Add(new TreeViewNode
-                                {
-                                    Content = Content,
-                                    HasUnrealizedChildren = Content.HasChildren
-                                });
+                                break;
                             }
+
+                            TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(StorageItem);
+
+                            Node.Children.Add(new TreeViewNode
+                            {
+                                Content = Content,
+                                HasUnrealizedChildren = Content.HasChildren
+                            });
                         }
                     });
                 }
@@ -1845,9 +1845,9 @@ namespace RX_Explorer.View
 
                                 if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder ParentFolder)
                                 {
-                                    IReadOnlyList<FileSystemStorageItemBase> Result = string.IsNullOrEmpty(FileName)
-                                                                                      ? await ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, MaxNumLimit: 20)
-                                                                                      : await ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, MaxNumLimit: 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
+                                    IAsyncEnumerable<FileSystemStorageItemBase> Result = (string.IsNullOrEmpty(FileName)
+                                                                                          ? ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems)
+                                                                                          : ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase))).Take(20);
 
                                     if (args.CheckCurrent())
                                     {
@@ -1855,11 +1855,18 @@ namespace RX_Explorer.View
                                         {
                                             string Variable = EnvironmentVariables.GetVariableInPath(InputPath);
                                             string VariableMapPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(Variable);
-                                            AddressSuggestionList.AddRange(Result.Select((Item) => new AddressSuggestionItem(Item.Path.Replace(VariableMapPath, Variable), Visibility.Collapsed)));
+
+                                            await foreach (AddressSuggestionItem Item in Result.Select((Item) => new AddressSuggestionItem(Item.Path.Replace(VariableMapPath, Variable), Visibility.Collapsed)))
+                                            {
+                                                AddressSuggestionList.Add(Item);
+                                            }
                                         }
                                         else
                                         {
-                                            AddressSuggestionList.AddRange(Result.Select((Item) => new AddressSuggestionItem(Item.Path, Visibility.Collapsed)));
+                                            await foreach (AddressSuggestionItem Item in Result.Select((Item) => new AddressSuggestionItem(Item.Path, Visibility.Collapsed)))
+                                            {
+                                                AddressSuggestionList.Add(Item);
+                                            }
                                         }
                                     }
                                 }
@@ -1878,7 +1885,7 @@ namespace RX_Explorer.View
                     catch (Exception ex)
                     {
                         AddressSuggestionList.Clear();
-                        LogTracer.Log(ex, "Could not load address history");
+                        LogTracer.Log(ex, "Could not generate the suggestion list of address box");
                     }
                     finally
                     {
@@ -2020,11 +2027,11 @@ namespace RX_Explorer.View
                 {
                     AddressExtensionList.AddRange(CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder));
                 }
-                else
+                else if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is FileSystemStorageFolder Folder)
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is FileSystemStorageFolder Folder)
+                    await foreach (FileSystemStorageFolder SubFolder in Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder).Cast<FileSystemStorageFolder>())
                     {
-                        AddressExtensionList.AddRange((await Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder)).Cast<FileSystemStorageFolder>());
+                        AddressExtensionList.Add(SubFolder);
                     }
                 }
 
@@ -2321,7 +2328,7 @@ namespace RX_Explorer.View
                     IgnoreCase = BuiltInEngineIgnoreCase.IsChecked.GetValueOrDefault(),
                     UseRegexExpression = BuiltInEngineIncludeRegex.IsChecked.GetValueOrDefault(),
                     UseAQSExpression = BuiltInEngineIncludeAQS.IsChecked.GetValueOrDefault(),
-                    DeepSearch = BuiltInSearchAllSubFolders.IsChecked.GetValueOrDefault(),
+                    DeepSearch = BuiltInSearchAllSubFolders.IsChecked.GetValueOrDefault() || CurrentPresenter.CurrentFolder is RootStorageFolder,
                     SearchText = GlobeSearch.Text,
                     EngineCategory = SearchCategory.BuiltInEngine
                 }, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
@@ -2333,7 +2340,7 @@ namespace RX_Explorer.View
                     SearchFolder = CurrentPresenter.CurrentFolder,
                     IgnoreCase = EverythingEngineIgnoreCase.IsChecked.GetValueOrDefault(),
                     UseRegexExpression = EverythingEngineIncludeRegex.IsChecked.GetValueOrDefault(),
-                    DeepSearch = EverythingEngineSearchGloble.IsChecked.GetValueOrDefault(),
+                    DeepSearch = EverythingEngineSearchGloble.IsChecked.GetValueOrDefault() || CurrentPresenter.CurrentFolder is RootStorageFolder,
                     SearchText = GlobeSearch.Text,
                     EngineCategory = SearchCategory.EverythingEngine
                 }, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());

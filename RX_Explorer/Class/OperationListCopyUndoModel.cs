@@ -32,13 +32,8 @@ namespace RX_Explorer.Class
         {
             ulong TotalSize = 0;
 
-            foreach (FileSystemStorageItemBase Item in await FileSystemStorageItemBase.OpenInBatchAsync(UndoFrom))
+            await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(UndoFrom, Token))
             {
-                if (Token.IsCancellationRequested)
-                {
-                    break;
-                }
-
                 switch (Item)
                 {
                     case FileSystemStorageFolder Folder:
@@ -54,7 +49,14 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return new ProgressCalculator(TotalSize);
+            if (Token.IsCancellationRequested)
+            {
+                return null;
+            }
+            else
+            {
+                return new ProgressCalculator(TotalSize);
+            }
         }
 
         public OperationListCopyUndoModel(string[] UndoFrom)

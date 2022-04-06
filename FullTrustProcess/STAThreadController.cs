@@ -63,16 +63,11 @@ namespace FullTrustProcess
 
             try
             {
-                while (true)
+                while (!IsCleanUp)
                 {
                     if (TaskQueue.IsEmpty)
                     {
                         ProcessSleepLocker.WaitOne();
-                    }
-
-                    if (IsCleanUp)
-                    {
-                        break;
                     }
 
                     try

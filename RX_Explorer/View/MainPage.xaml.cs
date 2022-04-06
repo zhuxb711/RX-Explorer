@@ -90,7 +90,9 @@ namespace RX_Explorer.View
             BackgroundController.Current.SetAcrylicEffectPresenter(CompositorAcrylicBackground);
 
 #if DEBUG
-            AppName.Text += $" ({Globalization.GetString("Development_Version")})";
+            AppName.Text = $"{Globalization.GetString("AppDisplayName")} ({Globalization.GetString("Development_Version")})";
+#else
+            AppName.Text = Globalization.GetString("AppDisplayName");
 #endif
 
             NavView.RegisterPropertyChangedCallback(NavigationView.PaneDisplayModeProperty, new DependencyPropertyChangedCallback(OnPaneDisplayModeChanged));

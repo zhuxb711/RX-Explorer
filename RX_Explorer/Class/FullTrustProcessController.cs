@@ -754,7 +754,6 @@ namespace RX_Explorer.Class
                                                                                   bool IncludeHiddenItems,
                                                                                   bool IncludeSystemItems,
                                                                                   bool IncludeAllSubItems,
-                                                                                  uint MaxNumLimit,
                                                                                   BasicFilters Filters,
                                                                                   CancellationToken CancelToken = default)
         {
@@ -789,7 +788,6 @@ namespace RX_Explorer.Class
                                            ("IncludeHiddenItems", Convert.ToString(IncludeHiddenItems)),
                                            ("IncludeSystemItems", Convert.ToString(IncludeSystemItems)),
                                            ("IncludeAllSubItems", Convert.ToString(IncludeAllSubItems)),
-                                           ("MaxNumLimit", Convert.ToString(MaxNumLimit)),
                                            ("Type", ConvertFilterToText(Filters))) is IDictionary<string, string> Response)
                 {
                     if (Response.TryGetValue("Success", out string RawText))
@@ -1288,18 +1286,13 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex, bool IgnoreCase)
+        public async Task<IReadOnlyList<string>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex, bool IgnoreCase)
         {
             if (await SendCommandAsync(CommandType.SearchByEverything, ("BaseLocation", BaseLocation), ("SearchWord", SearchWord), ("SearchAsRegex", Convert.ToString(SearchAsRegex)), ("IgnoreCase", Convert.ToString(IgnoreCase))) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    string[] SearchResult = JsonSerializer.Deserialize<string[]>(Result);
-
-                    if (SearchResult.Length > 0)
-                    {
-                        return await FileSystemStorageItemBase.OpenInBatchAsync(SearchResult);
-                    }
+                    return JsonSerializer.Deserialize<IReadOnlyList<string>>(Result);
                 }
                 else
                 {
@@ -1310,7 +1303,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return new List<FileSystemStorageItemBase>(0);
+            return new List<string>(0);
         }
 
         public async Task<bool> LaunchUWPFromAUMIDAsync(string AppUserModelId, params string[] PathArray)

@@ -43,13 +43,8 @@ namespace RX_Explorer.Class
         {
             ulong TotalSize = 0;
 
-            foreach (FileSystemStorageItemBase Item in await FileSystemStorageItemBase.OpenInBatchAsync(MoveFrom))
+            await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(MoveFrom, Token))
             {
-                if (Token.IsCancellationRequested)
-                {
-                    break;
-                }
-
                 switch (Item)
                 {
                     case FileSystemStorageFolder Folder:
@@ -65,7 +60,14 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return new ProgressCalculator(TotalSize);
+            if (Token.IsCancellationRequested)
+            {
+                return null;
+            }
+            else
+            {
+                return new ProgressCalculator(TotalSize);
+            }
         }
 
         public OperationListMoveModel(string[] MoveFrom, string MoveTo)

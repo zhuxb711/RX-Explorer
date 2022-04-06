@@ -59,10 +59,9 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        public override void SetThumbnailOpacity(ThumbnailStatus Status)
+        public override void SetThumbnailStatus(ThumbnailStatus Status)
         {
-            ThumbnailOpacity = 0.5;
-            OnPropertyChanged(nameof(ThumbnailOpacity));
+            base.SetThumbnailStatus(ThumbnailStatus.HalfOpacity);
         }
 
         public override Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
@@ -109,7 +108,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Data));
             }
 
-            base.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity);
+            base.SetThumbnailStatus(ThumbnailStatus.HalfOpacity);
         }
     }
 }

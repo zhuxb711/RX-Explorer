@@ -136,7 +136,7 @@
     <Compile Include="Class\CustomDataTemplateSelector.cs" />
     <Compile Include="Class\CustomStaticDataSource.cs" />
     <Compile Include="Class\CustomStyleSelector.cs" />
-    <Compile Include="Class\EndOfShareNotification.cs" />
+    <Compile Include="Class\EndUsageNotification.cs" />
     <Compile Include="Class\DisposableObservableCollection.cs" />
     <Compile Include="Class\DriveChangedDeferredEventArgs.cs" />
     <Compile Include="Class\Enum.cs" />
@@ -197,6 +197,7 @@
     <Compile Include="Class\SearchSuggestionItem.cs" />
     <Compile Include="Class\SecurityAccount.cs" />
     <Compile Include="Class\SecurityAccountPermissions.cs" />
+    <Compile Include="Class\SignalContext.cs" />
     <Compile Include="Class\SLEHeader.cs" />
     <Compile Include="Class\SLEInputStream.cs" />
     <Compile Include="Class\SLEOutputStream.cs" />
@@ -208,6 +209,9 @@
     <Compile Include="Class\NativeFileData.cs" />
     <Compile Include="Class\WindowSizeConfiguration.cs" />
     <Compile Include="Class\WslDriveData.cs" />
+    <Compile Include="CustomControl\HightLightTextBlock.xaml.cs">
+      <DependentUpon>HightLightTextBlock.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\AQSGuide.xaml.cs">
       <DependentUpon>AQSGuide.xaml</DependentUpon>
     </Compile>
@@ -581,6 +585,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="CustomControl\HightLightTextBlock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialog\AQSGuide.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

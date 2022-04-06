@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -107,61 +108,66 @@ namespace RX_Explorer.Class
 
         public virtual async Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
         {
-            IReadOnlyList<FileSystemStorageItemBase> Result = await GetChildItemsAsync(true, true, true, Filter: BasicFilters.File, CancelToken: CancelToken);
-            return Convert.ToUInt64(Result.Cast<FileSystemStorageFile>().Sum((Item) => Convert.ToInt64(Item.Size)));
+            return Convert.ToUInt64(await GetChildItemsAsync(true, true, true, Filter: BasicFilters.File, CancelToken: CancelToken).Cast<FileSystemStorageFile>().SumAsync((Item) => Convert.ToInt64(Item.Size)));
         }
 
-        public virtual Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord,
-                                                                                  bool SearchInSubFolders = false,
-                                                                                  bool IncludeHiddenItems = false,
-                                                                                  bool IncludeSystemItems = false,
-                                                                                  bool IsRegexExpression = false,
-                                                                                  bool IsAQSExpression = false,
-                                                                                  bool UseIndexerOnly = false,
-                                                                                  bool IgnoreCase = true,
-                                                                                  CancellationToken CancelToken = default)
+        public virtual IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord,
+                                                                               bool SearchInSubFolders = false,
+                                                                               bool IncludeHiddenItems = false,
+                                                                               bool IncludeSystemItems = false,
+                                                                               bool IsRegexExpression = false,
+                                                                               bool IsAQSExpression = false,
+                                                                               bool UseIndexerOnly = false,
+                                                                               bool IgnoreCase = true,
+                                                                               CancellationToken CancelToken = default)
         {
             if (IsRegexExpression && IsAQSExpression)
             {
                 throw new ArgumentException($"{nameof(IsRegexExpression)} and {nameof(IsAQSExpression)} could not be true at the same time");
             }
 
-            async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchInUwpApiAsync(string Path, bool SearchInSubFolders)
+            async IAsyncEnumerable<FileSystemStorageItemBase> SearchInUwpApiAsync(string Path,
+                                                                                  bool SearchInSubFolders,
+                                                                                  bool IsRegexExpression,
+                                                                                  bool IsAQSExpression,
+                                                                                  bool UseIndexerOnly,
+                                                                                  bool IgnoreCase,
+                                                                                  [EnumeratorCancellation] CancellationToken CancelToken)
             {
-                List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
-
-                try
+                if (await OpenAsync(Path) is FileSystemStorageFolder ParentFolder)
                 {
-                    if (await OpenAsync(Path) is FileSystemStorageFolder ParentFolder)
+                    if (await ParentFolder.GetStorageItemAsync() is StorageFolder Folder)
                     {
-                        if (await ParentFolder.GetStorageItemAsync() is StorageFolder Folder)
+                        TaskCompletionSource<IReadOnlyList<IStorageItem>> CancelCompletionSource = new TaskCompletionSource<IReadOnlyList<IStorageItem>>();
+
+                        using (CancelToken.Register(() => CancelCompletionSource.TrySetResult(new List<IStorageItem>(0))))
                         {
-                            TaskCompletionSource<IReadOnlyList<IStorageItem>> CancelCompletionSource = new TaskCompletionSource<IReadOnlyList<IStorageItem>>();
-
-                            using (CancelToken.Register(() => CancelCompletionSource.TrySetResult(new List<IStorageItem>(0))))
+                            QueryOptions Options = new QueryOptions
                             {
-                                QueryOptions Options = new QueryOptions
-                                {
-                                    FolderDepth = SearchInSubFolders ? FolderDepth.Deep : FolderDepth.Shallow,
-                                    IndexerOption = UseIndexerOnly ? IndexerOption.OnlyUseIndexer : IndexerOption.DoNotUseIndexer
-                                };
-                                Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
-                                Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated", "System.ParsingPath" });
+                                FolderDepth = SearchInSubFolders ? FolderDepth.Deep : FolderDepth.Shallow,
+                                IndexerOption = UseIndexerOnly ? IndexerOption.OnlyUseIndexer : IndexerOption.DoNotUseIndexer
+                            };
+                            Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
+                            Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated", "System.ParsingPath" });
 
-                                if (IsAQSExpression)
-                                {
-                                    Options.UserSearchFilter = SearchWord;
-                                }
-                                else if (!IsRegexExpression)
-                                {
-                                    Options.ApplicationSearchFilter = $"System.FileName:~~\"{SearchWord}\"";
-                                }
+                            if (IsAQSExpression)
+                            {
+                                Options.UserSearchFilter = SearchWord;
+                            }
+                            else if (!IsRegexExpression)
+                            {
+                                Options.ApplicationSearchFilter = $"System.FileName:~~\"{SearchWord}\"";
+                            }
 
-                                StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
+                            StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
 
-                                for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 50)
+                            for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 50)
+                            {
+                                Task<IReadOnlyList<IStorageItem>> SearchTask = Query.GetItemsAsync(Index, 50).AsTask();
+
+                                if (await Task.WhenAny(SearchTask, CancelCompletionSource.Task) != CancelCompletionSource.Task)
                                 {
-                                    IReadOnlyList<IStorageItem> ReadOnlyItemList = await await Task.WhenAny(Query.GetItemsAsync(Index, 50).AsTask(), CancelCompletionSource.Task);
+                                    IReadOnlyList<IStorageItem> ReadOnlyItemList = await SearchTask;
 
                                     if (ReadOnlyItemList.Count > 0)
                                     {
@@ -171,19 +177,19 @@ namespace RX_Explorer.Class
                                         {
                                             if (CancelToken.IsCancellationRequested)
                                             {
-                                                break;
+                                                yield break;
                                             }
 
                                             switch (Item)
                                             {
                                                 case StorageFolder SubFolder:
                                                     {
-                                                        Result.Add(new FileSystemStorageFolder(SubFolder));
+                                                        yield return new FileSystemStorageFolder(SubFolder);
                                                         break;
                                                     }
                                                 case StorageFile SubFile:
                                                     {
-                                                        Result.Add(new FileSystemStorageFile(SubFile));
+                                                        yield return new FileSystemStorageFile(SubFile);
                                                         break;
                                                     }
                                             }
@@ -191,87 +197,84 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        break;
+                                        yield break;
                                     }
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"UWP Search API could not search the folder: \"{Path}\"");
-                }
-
-                return Result;
-            }
-
-            async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchCoreAsync(string Path)
-            {
-                List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
-
-                try
-                {
-                    Result.AddRange(await Task.Run(() => NativeWin32API.Search(Path,
-                                                                               SearchWord,
-                                                                               IncludeHiddenItems,
-                                                                               IncludeSystemItems,
-                                                                               IsRegexExpression,
-                                                                               IgnoreCase,
-                                                                               CancelToken)).ContinueWith((PreviousTask) =>
-                                                                               {
-                                                                                   if (PreviousTask.IsFaulted)
-                                                                                   {
-                                                                                       if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is LocationNotAvailableException))
-                                                                                       {
-                                                                                           return SearchInUwpApiAsync(Path, false).Result;
-                                                                                       }
-                                                                                       else if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is DirectoryNotFoundException))
-                                                                                       {
-                                                                                           LogTracer.Log(PreviousTask.Exception.InnerExceptions.FirstOrDefault() ?? new Exception(), $"Path not found");
-                                                                                       }
-
-                                                                                       return new List<FileSystemStorageItemBase>(0);
-                                                                                   }
-                                                                                   else
-                                                                                   {
-                                                                                       return PreviousTask.Result;
-                                                                                   }
-                                                                               }));
-
-                    if (SearchInSubFolders)
-                    {
-                        if (await OpenAsync(Path) is FileSystemStorageFolder Folder)
-                        {
-                            foreach (FileSystemStorageFolder Item in await Folder.GetChildItemsAsync(IncludeHiddenItems, IncludeSystemItems, Filter: BasicFilters.Folder))
-                            {
-                                if (CancelToken.IsCancellationRequested)
-                                {
-                                    break;
                                 }
                                 else
                                 {
-                                    Result.AddRange(await SearchCoreAsync(Item.Path));
+                                    yield break;
                                 }
                             }
                         }
                     }
                 }
-                catch (Exception ex)
+            }
+
+            async IAsyncEnumerable<FileSystemStorageItemBase> SearchCoreAsync(string Path,
+                                                                              bool SearchInSubFolders,
+                                                                              bool IncludeHiddenItems,
+                                                                              bool IncludeSystemItems,
+                                                                              bool IsRegexExpression,
+                                                                              bool IsAQSExpression,
+                                                                              bool UseIndexerOnly,
+                                                                              bool IgnoreCase,
+                                                                              [EnumeratorCancellation] CancellationToken CancelToken)
+            {
+                IReadOnlyList<FileSystemStorageItemBase> CurrentFolderItems;
+
+                try
                 {
-                    LogTracer.Log(ex, $"Mixed Search API could not search the folder: \"{Path}\"");
+                    CurrentFolderItems = new List<FileSystemStorageItemBase>(await Task.Run(() => NativeWin32API.Search(Path,
+                                                                                                                        SearchWord,
+                                                                                                                        IncludeHiddenItems,
+                                                                                                                        IncludeSystemItems,
+                                                                                                                        IsRegexExpression,
+                                                                                                                        IgnoreCase,
+                                                                                                                        CancelToken)));
+                }
+                catch (LocationNotAvailableException)
+                {
+                    CurrentFolderItems = await SearchInUwpApiAsync(Path, false, IsRegexExpression, IsAQSExpression, UseIndexerOnly, IgnoreCase, CancelToken).ToListAsync();
+                }
+                catch (Exception)
+                {
+                    CurrentFolderItems = new List<FileSystemStorageItemBase>(0);
                 }
 
-                return Result;
+                foreach (FileSystemStorageItemBase Item in CurrentFolderItems)
+                {
+                    yield return Item;
+                }
+
+                if (SearchInSubFolders)
+                {
+                    if (await OpenAsync(Path) is FileSystemStorageFolder Folder)
+                    {
+                        await foreach (FileSystemStorageFolder Item in Folder.GetChildItemsAsync(IncludeHiddenItems, IncludeSystemItems, Filter: BasicFilters.Folder))
+                        {
+                            if (CancelToken.IsCancellationRequested)
+                            {
+                                yield break;
+                            }
+                            else
+                            {
+                                await foreach (FileSystemStorageItemBase SubItem in SearchCoreAsync(Item.Path, SearchInSubFolders, IncludeHiddenItems, IncludeSystemItems, IsRegexExpression, IsAQSExpression, UseIndexerOnly, IgnoreCase, CancelToken))
+                                {
+                                    yield return SubItem;
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             if (IsAQSExpression)
             {
-                return SearchInUwpApiAsync(Path, true);
+                return SearchInUwpApiAsync(Path, true, IsRegexExpression, IsAQSExpression, UseIndexerOnly, IgnoreCase, CancelToken);
             }
             else
             {
-                return SearchCoreAsync(Path);
+                return SearchCoreAsync(Path, SearchInSubFolders, IncludeHiddenItems, IncludeSystemItems, IsRegexExpression, IsAQSExpression, UseIndexerOnly, IgnoreCase, CancelToken);
             }
         }
 
@@ -396,127 +399,107 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public virtual Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems = false,
-                                                                                         bool IncludeSystemItems = false,
-                                                                                         bool IncludeAllSubItems = false,
-                                                                                         uint MaxNumLimit = uint.MaxValue,
-                                                                                         CancellationToken CancelToken = default,
-                                                                                         Func<string, bool> AdvanceFilter = null,
-                                                                                         BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
+        public virtual IAsyncEnumerable<FileSystemStorageItemBase> GetChildItemsAsync(bool IncludeHiddenItems = false,
+                                                                                      bool IncludeSystemItems = false,
+                                                                                      bool IncludeAllSubItems = false,
+                                                                                      CancellationToken CancelToken = default,
+                                                                                      BasicFilters Filter = BasicFilters.File | BasicFilters.Folder,
+                                                                                      Func<string, bool> AdvanceFilter = null)
         {
-            async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsInUwpApiAsync(string Path)
+            async IAsyncEnumerable<FileSystemStorageItemBase> GetChildItemsInUwpApiAsync(string Path,
+                                                                                         [EnumeratorCancellation] CancellationToken CancelToken)
             {
-                List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
-
-                try
+                if (await GetStorageItemAsync() is StorageFolder Folder)
                 {
-                    if (await GetStorageItemAsync() is StorageFolder Folder)
+                    QueryOptions Options = new QueryOptions
                     {
-                        QueryOptions Options = new QueryOptions
+                        FolderDepth = FolderDepth.Shallow,
+                        IndexerOption = IndexerOption.DoNotUseIndexer
+                    };
+                    Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
+                    Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated", "System.ParsingPath" });
+
+                    StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
+
+                    for (uint i = 0; !CancelToken.IsCancellationRequested; i += 25)
+                    {
+                        IReadOnlyList<IStorageItem> ReadOnlyItemList = await Query.GetItemsAsync(i, 25);
+
+                        if (ReadOnlyItemList.Count > 0)
                         {
-                            FolderDepth = FolderDepth.Shallow,
-                            IndexerOption = IndexerOption.DoNotUseIndexer
-                        };
-                        Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
-                        Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated", "System.ParsingPath" });
-
-                        StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
-
-                        for (uint i = 0; !CancelToken.IsCancellationRequested; i += 25)
-                        {
-                            IReadOnlyList<IStorageItem> ReadOnlyItemList = await Query.GetItemsAsync(i, 25);
-
-                            if (ReadOnlyItemList.Count > 0)
+                            foreach (IStorageItem Item in ReadOnlyItemList)
                             {
-                                foreach (IStorageItem Item in ReadOnlyItemList)
+                                if (Item is StorageFolder SubFolder)
                                 {
-                                    if (Result.Count >= MaxNumLimit)
-                                    {
-                                        goto BACK;
-                                    }
-
-                                    if (Item is StorageFolder SubFolder)
-                                    {
-                                        Result.Add(new FileSystemStorageFolder(SubFolder));
-                                    }
-                                    else if (Item is StorageFile SubFile)
-                                    {
-                                        Result.Add(new FileSystemStorageFile(SubFile));
-                                    }
+                                    yield return new FileSystemStorageFolder(SubFolder);
+                                }
+                                else if (Item is StorageFile SubFile)
+                                {
+                                    yield return new FileSystemStorageFile(SubFile);
                                 }
                             }
-                            else
-                            {
-                                break;
-                            }
+                        }
+                        else
+                        {
+                            yield break;
                         }
                     }
-                    else
-                    {
-                        LogTracer.Log($"Uwp API in {nameof(GetChildItemsAsync)} failed to get the storage item, path:\"{Path}\"");
-                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    LogTracer.Log(ex, $"{nameof(GetChildItemsAsync)} threw an exception, path:\"{Path}\"");
+                    LogTracer.Log($"Uwp API in {nameof(GetChildItemsAsync)} failed to get the storage item, path:\"{Path}\"");
                 }
-
-            BACK:
-                return Result;
             }
 
-            async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsCoreAsync(string Path)
+            async IAsyncEnumerable<FileSystemStorageItemBase> GetChildItemsCoreAsync(string Path,
+                                                                                     bool IncludeHiddenItems,
+                                                                                     bool IncludeSystemItems,
+                                                                                     bool IncludeAllSubItems,
+                                                                                     [EnumeratorCancellation] CancellationToken CancelToken,
+                                                                                     BasicFilters Filter,
+                                                                                     Func<string, bool> AdvanceFilter)
             {
-                List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
+                IReadOnlyList<FileSystemStorageItemBase> SubItems;
 
                 try
                 {
-                    IReadOnlyList<FileSystemStorageItemBase> SubItems;
+                    SubItems = await Task.Run(() => NativeWin32API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems));
+                }
+                catch (LocationNotAvailableException)
+                {
+                    SubItems = await GetChildItemsInUwpApiAsync(Path, CancelToken).ToListAsync();
+                }
+                catch (Exception ex) when (ex is not DirectoryNotFoundException)
+                {
+                    SubItems = new List<FileSystemStorageItemBase>(0);
+                }
 
-                    try
-                    {
-                        SubItems = await Task.Run(() => NativeWin32API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems, MaxNumLimit));
-                    }
-                    catch (LocationNotAvailableException)
-                    {
-                        SubItems = await GetChildItemsInUwpApiAsync(Path);
-                    }
-                    catch (DirectoryNotFoundException)
-                    {
-                        throw;
-                    }
-                    catch (Exception)
-                    {
-                        SubItems = new List<FileSystemStorageItemBase>(0);
-                    }
+                foreach (FileSystemStorageItemBase Item in SubItems.Where((Item) => (Item is FileSystemStorageFolder && Filter.HasFlag(BasicFilters.Folder)) || (Item is FileSystemStorageFile && Filter.HasFlag(BasicFilters.File)))
+                                                                   .Where((Item) => (AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true)))
+                {
+                    yield return Item;
+                }
 
-                    Result.AddRange(SubItems.Where((Item) => (Item is FileSystemStorageFolder && Filter.HasFlag(BasicFilters.Folder)) || (Item is FileSystemStorageFile && Filter.HasFlag(BasicFilters.File)))
-                                            .Where((Item) => (AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true)));
-
-                    if (IncludeAllSubItems)
+                if (IncludeAllSubItems)
+                {
+                    foreach (FileSystemStorageFolder Item in SubItems.OfType<FileSystemStorageFolder>())
                     {
-                        foreach (FileSystemStorageFolder Item in SubItems.OfType<FileSystemStorageFolder>())
+                        if (CancelToken.IsCancellationRequested)
                         {
-                            if (CancelToken.IsCancellationRequested)
+                            yield break;
+                        }
+                        else
+                        {
+                            await foreach (FileSystemStorageFolder SubItem in GetChildItemsCoreAsync(Item.Path, IncludeHiddenItems, IncludeSystemItems, IncludeAllSubItems, CancelToken, Filter, AdvanceFilter))
                             {
-                                break;
-                            }
-                            else
-                            {
-                                Result.AddRange(await GetChildItemsCoreAsync(Item.Path));
+                                yield return SubItem;
                             }
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{nameof(GetChildItemsAsync)} threw an exception, path:\"{Path}\"");
-                }
-
-                return Result;
             }
 
-            return GetChildItemsCoreAsync(Path);
+            return GetChildItemsCoreAsync(Path, IncludeHiddenItems, IncludeSystemItems, IncludeAllSubItems, CancelToken, Filter, AdvanceFilter);
         }
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)

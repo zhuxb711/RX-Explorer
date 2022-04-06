@@ -34,7 +34,7 @@ namespace RX_Explorer.View
         private double OriginHorizonOffset;
         private double OriginVerticalOffset;
         private Point OriginMousePosition;
-        private EndOfShareNotification MTPEndOfShare;
+        private EndUsageNotification MTPEndOfShare;
         private CancellationTokenSource Cancellation;
 
         public PhotoViewer()
@@ -105,7 +105,7 @@ namespace RX_Explorer.View
 
                     if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(File.Path)) is FileSystemStorageFolder Item)
                     {
-                        IReadOnlyList<FileSystemStorageItemBase> SearchResult = await Item.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, CancelToken: CancelToken, AdvanceFilter: (Name) => Regex.IsMatch(Path.GetExtension(Name), @"\.(png|bmp|jpg|jpeg)$", RegexOptions.IgnoreCase));
+                        IReadOnlyList<FileSystemStorageFile> SearchResult = await Item.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, CancelToken: CancelToken, AdvanceFilter: (Name) => Regex.IsMatch(Path.GetExtension(Name), @"\.(png|bmp|jpg|jpeg)$", RegexOptions.IgnoreCase)).Cast<FileSystemStorageFile>().ToListAsync();
 
                         if (!CancelToken.IsCancellationRequested)
                         {
@@ -120,7 +120,7 @@ namespace RX_Explorer.View
 
                                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(Path.GetDirectoryName(File.Path));
 
-                                    PhotoCollection.AddRange((await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult.Cast<FileSystemStorageFile>(), Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())).Select((Item) => new PhotoDisplayItem(Item)));
+                                    PhotoCollection.AddRange((await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())).Select((Item) => new PhotoDisplayItem(Item)));
                                     PhotoFlip.SelectedItem = PhotoCollection.FirstOrDefault((Item) => Item.PhotoFile == File);
                                     Pips.NumberOfPages = PhotoCollection.Count;
 

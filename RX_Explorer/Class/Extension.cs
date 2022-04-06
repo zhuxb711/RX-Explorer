@@ -16,7 +16,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
@@ -864,58 +863,52 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Node), "Node could not be null");
             }
 
-            if (await FileSystemStorageItemBase.OpenAsync((Node.Content as TreeViewNodeContent).Path) is FileSystemStorageFolder ParentFolder)
+            try
             {
-                if (Node.Children.Count > 0)
+                if (await FileSystemStorageItemBase.OpenAsync((Node.Content as TreeViewNodeContent).Path) is FileSystemStorageFolder ParentFolder)
                 {
-                    IReadOnlyList<FileSystemStorageItemBase> FolderList = await ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder);
-                    IEnumerable<string> FolderPathList = FolderList.Select((Item) => Item.Path);
-                    IEnumerable<string> CurrentPathList = Node.Children.Select((Item) => Item.Content).OfType<TreeViewNodeContent>().Select((Content) => Content.Path);
-                    IReadOnlyList<string> AddList = FolderPathList.Except(CurrentPathList).ToList();
-                    IReadOnlyList<string> RemoveList = CurrentPathList.Except(FolderPathList).ToList();
-
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                    if (Node.Children.Count > 0)
                     {
-                        try
+                        IEnumerable<string> FolderPathList = await ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder).Select((Item) => Item.Path).ToArrayAsync();
+                        IEnumerable<string> CurrentPathList = Node.Children.Select((Item) => Item.Content).OfType<TreeViewNodeContent>().Select((Content) => Content.Path).ToArray();
+
+                        foreach (string AddPath in FolderPathList.Except(CurrentPathList))
                         {
-                            foreach (string AddPath in AddList)
+                            if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
                             {
-                                if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
-                                {
-                                    TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
+                                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
 
-                                    Node.Children.Add(new TreeViewNode
-                                    {
-                                        Content = Content,
-                                        HasUnrealizedChildren = Content.HasChildren,
-                                        IsExpanded = false
-                                    });
-                                }
-                            }
-
-                            foreach (string RemovePath in RemoveList)
-                            {
-                                if (Node.Children.Where((Item) => Item.Content is TreeViewNodeContent).FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RemoveNode)
+                                Node.Children.Add(new TreeViewNode
                                 {
-                                    Node.Children.Remove(RemoveNode);
-                                }
+                                    Content = Content,
+                                    HasUnrealizedChildren = Content.HasChildren,
+                                    IsExpanded = false
+                                });
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, "Could not refresh the treeview node");
-                        }
-                    });
 
-                    foreach (TreeViewNode SubNode in Node.Children)
+                        foreach (string RemovePath in CurrentPathList.Except(FolderPathList))
+                        {
+                            if (Node.Children.Where((Item) => Item.Content is TreeViewNodeContent).FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RemoveNode)
+                            {
+                                Node.Children.Remove(RemoveNode);
+                            }
+                        }
+
+                        foreach (TreeViewNode SubNode in Node.Children)
+                        {
+                            await SubNode.UpdateAllSubNodeAsync();
+                        }
+                    }
+                    else
                     {
-                        await SubNode.UpdateAllSubNodeAsync();
+                        Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder);
                     }
                 }
-                else
-                {
-                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not refresh the treeview node");
             }
         }
 

@@ -84,10 +84,9 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public override void SetThumbnailOpacity(ThumbnailStatus Status)
+        public override void SetThumbnailStatus(ThumbnailStatus Status)
         {
-            ThumbnailOpacity = 0.5;
-            OnPropertyChanged(nameof(ThumbnailOpacity));
+            base.SetThumbnailStatus(ThumbnailStatus.HalfOpacity);
         }
 
         public HiddenStorageFolder(NativeFileData Data) : base(Data)
@@ -97,7 +96,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Data));
             }
 
-            base.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity);
+            base.SetThumbnailStatus(ThumbnailStatus.HalfOpacity);
         }
     }
 }
