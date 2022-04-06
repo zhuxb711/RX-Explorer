@@ -177,6 +177,10 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
+                catch (ArgumentException)
+                {
+                    //No need to handle this exception
+                }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, $"An exception was threw in {nameof(CheckExistsAsync)}, path: {Path}");

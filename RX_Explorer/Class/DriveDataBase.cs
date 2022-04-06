@@ -3,10 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -164,20 +166,20 @@ namespace RX_Explorer.Class
 
         private int IsContentLoaded;
 
-        public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, string DriveId)
+        public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, DeviceInformation DeviceInfo)
         {
-            StorageFolder DriveFolder = await Task.Run(() => StorageDevice.FromId(DriveId));
+            StorageFolder DriveFolder = await Task.Run(() => StorageDevice.FromId(DeviceInfo.Id));
 
             if (string.IsNullOrEmpty(DriveFolder.Path))
             {
-                if (await FileSystemStorageItemBase.OpenAsync(DriveId) is FileSystemStorageFolder Folder)
+                if (await FileSystemStorageItemBase.OpenAsync(DeviceInfo.Id) is FileSystemStorageFolder Folder)
                 {
-                    return await CreateAsync(DriveType, Folder, DriveId);
+                    return await CreateAsync(DriveType, Folder, DeviceInfo);
                 }
             }
             else if (System.IO.Path.IsPathRooted(DriveFolder.Path))
             {
-                return await CreateAsync(DriveType, new FileSystemStorageFolder(DriveFolder), DriveId);
+                return await CreateAsync(DriveType, new FileSystemStorageFolder(DriveFolder), DeviceInfo);
             }
 
             return null;
@@ -205,29 +207,44 @@ namespace RX_Explorer.Class
             return await CreateAsync(DriveType, new FileSystemStorageFolder(DriveFolder));
         }
 
-        private static async Task<DriveDataBase> CreateAsync(DriveType DriveType, FileSystemStorageFolder DriveFolder, string DriveId = null)
+        private static async Task<DriveDataBase> CreateAsync(DriveType DriveType, FileSystemStorageFolder DriveFolder, DeviceInformation DeviceInfo = null)
         {
             if (DriveFolder.Path.StartsWith(@"\\wsl", StringComparison.OrdinalIgnoreCase))
             {
-                return new WslDriveData(DriveFolder, DriveId);
+                return new WslDriveData(DriveFolder, DeviceInfo?.Id);
             }
-            else if (DriveFolder.Path.TrimEnd('\\').Equals(DriveId, StringComparison.OrdinalIgnoreCase))
+            else if (DriveFolder.Path.TrimEnd('\\').Equals(DeviceInfo?.Id, StringComparison.OrdinalIgnoreCase))
             {
-                return new MTPDriveData(DriveFolder, DriveId);
+                return new MTPDriveData(DriveFolder, DeviceInfo?.Id);
             }
             else
             {
-                IReadOnlyDictionary<string, string> PropertiesRetrieve = await DriveFolder.GetPropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+                string[] Properties = new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" };
 
-                if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out string BitlockerStateRaw) && !string.IsNullOrEmpty(BitlockerStateRaw))
+                Dictionary<string, string> DeviceProperties = new Dictionary<string, string>();
+
+                if (DeviceInfo != null)
                 {
-                    if (Convert.ToInt32(BitlockerStateRaw) == 6)
+                    foreach (string Property in Properties)
                     {
-                        return new LockedDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
+                        if (DeviceInfo.Properties.TryGetValue(Property, out object Value) && !string.IsNullOrEmpty(Convert.ToString(Value)))
+                        {
+                            DeviceProperties.Add(Property, Convert.ToString(Value));
+                        }
                     }
                 }
 
-                return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
+                DeviceProperties.AddRange(await DriveFolder.GetPropertiesAsync(Properties.Except(DeviceProperties.Keys)));
+
+                if (DeviceProperties.TryGetValue("System.Volume.BitLockerProtection", out string BitlockerStateRaw) && !string.IsNullOrEmpty(BitlockerStateRaw))
+                {
+                    if (Convert.ToInt32(BitlockerStateRaw) == 6)
+                    {
+                        return new LockedDriveData(DriveFolder, DeviceProperties, DriveType, DeviceInfo?.Id);
+                    }
+                }
+
+                return new NormalDriveData(DriveFolder, DeviceProperties, DriveType, DeviceInfo?.Id);
             }
         }
 
