@@ -30,7 +30,7 @@ namespace RX_Explorer.Class
 
         private static readonly List<FileSystemStorageFolder> DriveCache = new List<FileSystemStorageFolder>();
 
-        private static readonly DeviceWatcher PortalDriveWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
+        private static readonly DeviceWatcher PortalDriveWatcher = DeviceInformation.CreateWatcher(DeviceInformation.GetAqsFilterFromDeviceClass(DeviceClass.PortableStorageDevice), new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
 
         private static readonly Timer NetworkDriveCheckTimer = new Timer(5000)
         {
@@ -235,23 +235,26 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    foreach (DeviceInformation Drive in await DeviceInformation.FindAllAsync(DeviceInformation.GetAqsFilterFromDeviceClass(DeviceClass.PortableStorageDevice)))
+                    foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(DeviceInformation.GetAqsFilterFromDeviceClass(DeviceClass.PortableStorageDevice), new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" }))
                     {
-                        Task LoadTask = DriveDataBase.CreateAsync(DriveType.Removable, Drive.Id).ContinueWith((PreviousTask) =>
+                        if (Device.IsEnabled)
                         {
-                            if (PreviousTask.Exception is Exception Ex)
+                            Task LoadTask = DriveDataBase.CreateAsync(DriveType.Removable, Device).ContinueWith((PreviousTask) =>
                             {
-                                LogTracer.Log(Ex, $"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
-                            }
-                            else if (PreviousTask.Result != null && !DriveList.Contains(PreviousTask.Result))
-                            {
-                                DriveList.Add(PreviousTask.Result);
-                            }
-                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                                if (PreviousTask.Exception is Exception Ex)
+                                {
+                                    LogTracer.Log(Ex, $"Ignore the drive \"{Device.Name}\" because we could not get details from this drive");
+                                }
+                                else if (PreviousTask.Result != null && !DriveList.Contains(PreviousTask.Result))
+                                {
+                                    DriveList.Add(PreviousTask.Result);
+                                }
+                            }, TaskScheduler.FromCurrentSynchronizationContext());
 
-                        if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
-                        {
-                            LongRunningTaskList.Add(LoadTask);
+                            if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
+                            {
+                                LongRunningTaskList.Add(LoadTask);
+                            }
                         }
                     }
 
@@ -318,24 +321,25 @@ namespace RX_Explorer.Class
 
         private static async void PortalDriveWatcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
-            try
+            if (args.IsEnabled)
             {
-                DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DriveType.Removable, args.Id);
-
-                if (NewDrive != null)
+                try
                 {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                    if (await DriveDataBase.CreateAsync(DriveType.Removable, args) is DriveDataBase NewDrive)
                     {
                         if (!DriveList.Contains(NewDrive))
                         {
-                            DriveList.Add(NewDrive);
+                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                DriveList.Add(NewDrive);
+                            });
                         }
-                    });
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(PortalDriveWatcher_Added)}");
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(PortalDriveWatcher_Added)}");
+                }
             }
         }
 

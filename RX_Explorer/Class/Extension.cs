@@ -613,39 +613,31 @@ namespace RX_Explorer.Class
                                     }
                                 }
 
-                                short ShowExtNum = 0;
+                                IReadOnlyList<AppBarButton> AvailableButton = Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).ToList();
 
-                                if (Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Any((Item) => Item.Name == "Decompression"))
-                                {
-                                    ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count(), 0));
-                                }
-                                else
-                                {
-                                    ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count() + 1, 0));
-                                }
+                                int FirstSeparatorIndex = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.FirstOrDefault((Item) => Item is AppBarSeparator)) + 1;
+                                int FreeExtMenuItemCount = AvailableButton.Any((Item) => Item.Name == "Decompression") ? Math.Max(8 - AvailableButton.Count, 0) : Math.Max(9 - AvailableButton.Count, 0);
 
-                                int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
-
-                                if (ExtraMenuItems.Count > ShowExtNum + 1)
+                                if (ExtraMenuItems.Count > FreeExtMenuItemCount)
                                 {
-                                    IEnumerable<AppBarButton> ShowExtItem = await Task.WhenAll(ExtraMenuItems.Take(ShowExtNum).Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
-                                    IEnumerable<MenuFlyoutItemBase> FlyoutItems = await ContextMenuItem.GenerateSubMenuItemsAsync(ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler);
+                                    IEnumerable<AppBarButton> ExtMenuItem = await Task.WhenAll(ExtraMenuItems.Take(FreeExtMenuItemCount).Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
+                                    IEnumerable<MenuFlyoutItemBase> FlyoutItems = await ContextMenuItem.GenerateSubMenuItemsAsync(ExtraMenuItems.Skip(FreeExtMenuItemCount).ToArray(), ClickHandler);
 
                                     if (!CancelToken.IsCancellationRequested)
                                     {
                                         CleanUpContextMenuExtensionItems();
 
-                                        Flyout.SecondaryCommands.Insert(Index, new AppBarSeparator { Name = "CustomSep" });
+                                        Flyout.SecondaryCommands.Insert(FirstSeparatorIndex, new AppBarSeparator { Name = "CustomSep" });
 
-                                        foreach (AppBarButton AddItem in ShowExtItem)
+                                        foreach (AppBarButton AddItem in ExtMenuItem)
                                         {
-                                            Flyout.SecondaryCommands.Insert(Index, AddItem);
+                                            Flyout.SecondaryCommands.Insert(FirstSeparatorIndex, AddItem);
                                         }
 
                                         MenuFlyout MoreFlyout = new MenuFlyout();
                                         MoreFlyout.Items.AddRange(FlyoutItems);
 
-                                        Flyout.SecondaryCommands.Insert(Index + ShowExtNum, new AppBarButton
+                                        Flyout.SecondaryCommands.Insert(FirstSeparatorIndex + FreeExtMenuItemCount, new AppBarButton
                                         {
                                             Label = Globalization.GetString("CommandBarFlyout_More_Item"),
                                             Icon = new SymbolIcon(Symbol.More),
@@ -664,10 +656,10 @@ namespace RX_Explorer.Class
                                     {
                                         foreach (AppBarButton AddItem in ShowExtItem)
                                         {
-                                            Flyout.SecondaryCommands.Insert(Index, AddItem);
+                                            Flyout.SecondaryCommands.Insert(FirstSeparatorIndex, AddItem);
                                         }
 
-                                        Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
+                                        Flyout.SecondaryCommands.Insert(FirstSeparatorIndex + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
                                     }
                                 }
                             }
@@ -1192,7 +1184,7 @@ namespace RX_Explorer.Class
                     {
                         case StorageFolder Folder:
                             {
-                                GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
+                                GetThumbnailTask = Folder.GetThumbnailAsync(Mode, 96, ThumbnailOptions.UseCurrentScale)
                                                          .AsTask()
                                                          .ContinueWith((PreviousTask) =>
                                                          {
@@ -1218,7 +1210,7 @@ namespace RX_Explorer.Class
                             }
                         case StorageFile File:
                             {
-                                GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
+                                GetThumbnailTask = File.GetThumbnailAsync(Mode, 96, ThumbnailOptions.UseCurrentScale)
                                                        .AsTask()
                                                        .ContinueWith((PreviousTask) =>
                                                        {
@@ -1248,7 +1240,7 @@ namespace RX_Explorer.Class
                             }
                     }
 
-                    if (await Task.WhenAny(GetThumbnailTask, Task.Delay(4000)) == GetThumbnailTask)
+                    if (await Task.WhenAny(GetThumbnailTask, Task.Delay(5000)) == GetThumbnailTask)
                     {
                         using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
                         {
