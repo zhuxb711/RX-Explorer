@@ -23,11 +23,11 @@ namespace RX_Explorer.Class
             {
                 StringBuilder Builder = new StringBuilder();
 
-                using (StreamReader Reader = new StreamReader(BaseFileStream, Encoding.UTF8, true, 256, true))
+                using (StreamReader Reader = new StreamReader(BaseFileStream, Encoding.UTF8, true, 512, true))
                 {
                     for (int Count = 0; Reader.Peek() >= 0; Count++)
                     {
-                        if (Count > 256)
+                        if (Count > 512)
                         {
                             throw new FileDamagedException("File damaged, could not be decrypted");
                         }

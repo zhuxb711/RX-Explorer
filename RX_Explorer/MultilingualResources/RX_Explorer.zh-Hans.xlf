@@ -2529,16 +2529,16 @@ Invalid names include
           <target state="translated">缩略图模式</target>
         </trans-unit>
         <trans-unit id="LoadMode_FileAndFolder_Text" translate="yes" xml:space="preserve">
-          <source>Load icons for folders and files (Slower)</source>
-          <target state="translated">加载文件夹和文件的图标(较慢)</target>
+          <source>Load thumbnails for folders and files (Slower)</source>
+          <target state="translated">加载文件夹和文件的缩略图 (较慢)</target>
         </trans-unit>
         <trans-unit id="LoadMode_None_Text" translate="yes" xml:space="preserve">
-          <source>Do not load any icons (Faster)</source>
-          <target state="translated">不加载任何图标(较快)</target>
+          <source>Do not load any thumbnails (Faster)</source>
+          <target state="translated">不加载任何缩略图 (较快)</target>
         </trans-unit>
         <trans-unit id="LoadMode_OnlyFile_Text" translate="yes" xml:space="preserve">
-          <source>Load file icon only (Balance)</source>
-          <target state="translated">仅加载文件图标(平衡)</target>
+          <source>Load thumbnails for files only (Balance)</source>
+          <target state="translated">仅加载文件的缩略图 (平衡)</target>
         </trans-unit>
         <trans-unit id="VideoEditDialogText2.Header" translate="yes" xml:space="preserve">
           <source>Output encoding config</source>
@@ -4652,6 +4652,10 @@ Invalid names include
         <trans-unit id="TaskList_OperationKind_RemoteCopy" translate="yes" xml:space="preserve">
           <source>Remote copy task</source>
           <target state="translated">远程复制任务</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnexpectedException_Content" translate="yes" xml:space="preserve">
+          <source>The operation could not be completed due to an unknown error</source>
+          <target state="translated">由于出现未知错误，此操作未能完成</target>
         </trans-unit>
       </group>
     </body>

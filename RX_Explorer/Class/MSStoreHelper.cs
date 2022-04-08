@@ -34,7 +34,7 @@ namespace RX_Explorer.Class
 
         public Task<bool> CheckPurchaseStatusAsync()
         {
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState) && Convert.ToBoolean(GrantState))
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("LicenseGrant"))
             {
                 return Task.FromResult(true);
             }
@@ -60,7 +60,6 @@ namespace RX_Explorer.Class
                         LogTracer.Log(ex, $"{nameof(CheckPurchaseStatusAsync)} threw an exception");
                     }
 
-                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
                     return false;
                 });
             }

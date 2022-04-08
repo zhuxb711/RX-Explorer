@@ -490,7 +490,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            await foreach (FileSystemStorageFolder SubItem in GetChildItemsCoreAsync(Item.Path, IncludeHiddenItems, IncludeSystemItems, IncludeAllSubItems, CancelToken, Filter, AdvanceFilter))
+                            await foreach (FileSystemStorageItemBase SubItem in GetChildItemsCoreAsync(Item.Path, IncludeHiddenItems, IncludeSystemItems, IncludeAllSubItems, CancelToken, Filter, AdvanceFilter))
                             {
                                 yield return SubItem;
                             }

@@ -13,6 +13,8 @@ namespace RX_Explorer.Class
 
         public override BitmapImage Thumbnail => new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
 
+        public override string Type => string.IsNullOrEmpty(base.Type) ? Globalization.GetString("File_Admin_DisplayType") : base.Type;
+
         public override string DisplayType => string.IsNullOrEmpty(base.DisplayType) ? Type : base.DisplayType;
 
         public CompressionFile(ZipEntry Entry) : base(Entry)

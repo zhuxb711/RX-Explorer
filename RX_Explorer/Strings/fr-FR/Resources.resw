@@ -1909,13 +1909,13 @@ Les noms non valides incluent
     <value>Mode miniature</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
-    <value>Charger les icônes pour les dossiers et les fichiers (Plus lent)</value>
+    <value>Charger les vignettes des dossiers et des fichiers (Plus lent)</value>
   </data>
   <data name="LoadMode_None_Text" xml:space="preserve">
-    <value>Ne chargez aucune icône (Plus rapidement)</value>
+    <value>Ne chargez aucune vignette (Plus rapidement)</value>
   </data>
   <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
-    <value>Icône de chargement de fichier uniquement (Équilibre)</value>
+    <value>Charger les vignettes des fichiers uniquement (Équilibre)</value>
   </data>
   <data name="VideoEditDialogText2.Header" xml:space="preserve">
     <value>Config d'encodage de sortie</value>
@@ -3502,5 +3502,8 @@ Les noms non valides incluent
   </data>
   <data name="TaskList_OperationKind_RemoteCopy" xml:space="preserve">
     <value>Tâche de copie à distance</value>
+  </data>
+  <data name="QueueDialog_UnexpectedException_Content" xml:space="preserve">
+    <value>L'opération n'a pas pu être terminée en raison d'une erreur inconnue</value>
   </data>
 </root>

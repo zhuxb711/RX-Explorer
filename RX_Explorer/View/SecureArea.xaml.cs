@@ -78,9 +78,12 @@ namespace RX_Explorer.View
             if (!IsNavigatedFromInnerViewer)
             {
                 ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = true;
-                SelectionExtension?.Dispose();
                 EmptyTips.Visibility = Visibility.Collapsed;
                 SecureCollection.Clear();
+                SelectionExtension?.Dispose();
+                SelectionExtension = null;
+                Cancellation?.Dispose();
+                Cancellation = null;
             }
         }
 
@@ -394,11 +397,12 @@ namespace RX_Explorer.View
             {
                 ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Importing"));
 
+                Cancellation?.Dispose();
                 Cancellation = new CancellationTokenSource();
 
                 try
                 {
-                    IReadOnlyList<FileSystemStorageFile> NewFileList = new List<FileSystemStorageFile>(FileList.Select((Item) => new FileSystemStorageFile(Item)));
+                    IReadOnlyList<FileSystemStorageFile> NewFileList = FileList.Select((Item) => new FileSystemStorageFile(Item)).ToList();
 
                     ulong CurrentPosition = 0;
                     ulong TotalSize = Convert.ToUInt64(NewFileList.Sum((Item) => Convert.ToInt64(Item.Size)));
@@ -437,7 +441,7 @@ namespace RX_Explorer.View
                                         await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
                                             ProBar.IsIndeterminate = false;
-                                            ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize);
+                                            ProBar.Value = Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize));
                                         });
                                     });
 
@@ -447,7 +451,7 @@ namespace RX_Explorer.View
 
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
+                                        ProBar.Value = Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize));
                                     });
                                 }
                             }
@@ -479,9 +483,6 @@ namespace RX_Explorer.View
                 }
                 finally
                 {
-                    Cancellation.Dispose();
-                    Cancellation = null;
-
                     ActivateLoading(false);
                 }
             }
@@ -507,7 +508,7 @@ namespace RX_Explorer.View
                 {
                     IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
 
-                    if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.Folder)))
+                    if (Items.OfType<StorageFolder>().Any())
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -651,16 +652,34 @@ namespace RX_Explorer.View
         {
             if (SecureGridView.SelectedItem is FileSystemStorageFile File)
             {
-                if (!await TryOpenInternally(File))
+                try
+                {
+                    if (!await TryOpenInternally(File))
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_OpenFailedNotSupported_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
+                }
+                catch (FileDamagedException)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_OpenFailedNotSupported_Content"),
+                        Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
                     await Dialog.ShowAsync();
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not open the SLE file");
                 }
             }
         }
@@ -679,17 +698,13 @@ namespace RX_Explorer.View
             {
                 ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Exporting"));
 
+                Cancellation?.Dispose();
                 Cancellation = new CancellationTokenSource();
 
                 try
                 {
-                    ulong TotalSize = 0;
                     ulong CurrentPosition = 0;
-
-                    foreach (FileSystemStorageFile ExportFile in SecureGridView.SelectedItems)
-                    {
-                        TotalSize += ExportFile.Size;
-                    }
+                    ulong TotalSize = Convert.ToUInt64(SecureGridView.SelectedItems.Cast<FileSystemStorageFile>().Sum((Item) => Convert.ToInt64(Item.Size)));
 
                     foreach (FileSystemStorageFile OriginFile in SecureGridView.SelectedItems.ToArray())
                     {
@@ -781,9 +796,6 @@ namespace RX_Explorer.View
                 }
                 finally
                 {
-                    Cancellation.Dispose();
-                    Cancellation = null;
-
                     ActivateLoading(false);
                 }
             }
@@ -815,10 +827,30 @@ namespace RX_Explorer.View
 
         private async void Property_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageFile File)
+            if (SecureGridView.SelectedItem is FileSystemStorageFile SFile)
             {
-                SecureFilePropertyDialog Dialog = new SecureFilePropertyDialog(File);
-                await Dialog.ShowAsync();
+                try
+                {
+                    using (Stream FStream = await SFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    {
+                        await new SecureFilePropertyDialog(SFile, SLEHeader.GetHeader(FStream)).ShowAsync();
+                    }
+                }
+                catch (FileDamagedException)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not open the property window for SLE file");
+                }
             }
         }
 
@@ -828,17 +860,17 @@ namespace RX_Explorer.View
             {
                 if (SecureGridView.SelectedItem is FileSystemStorageFile RenameItem)
                 {
-                    RenameDialog dialog = new RenameDialog(RenameItem);
+                    RenameDialog Dialog = new RenameDialog(RenameItem);
 
-                    if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
                         string OriginName = RenameItem.Name;
-                        string NewName = dialog.DesireNameMap[OriginName];
+                        string NewName = Dialog.DesireNameMap[OriginName];
 
                         if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
                             && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(SecureFolder.Path, NewName)))
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            QueueContentDialog Dialog1 = new QueueContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
@@ -846,7 +878,7 @@ namespace RX_Explorer.View
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                             };
 
-                            if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
+                            if (await Dialog1.ShowAsync() != ContentDialogResult.Primary)
                             {
                                 return;
                             }
@@ -1105,23 +1137,41 @@ namespace RX_Explorer.View
         {
             if ((e.OriginalSource as FrameworkElement).DataContext is FileSystemStorageFile File)
             {
-                if (!await TryOpenInternally(File))
+                try
+                {
+                    if (!await TryOpenInternally(File))
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_OpenFailedNotSupported_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
+                }
+                catch (FileDamagedException)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_OpenFailedNotSupported_Content"),
+                        Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
                     await Dialog.ShowAsync();
                 }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not open the SLE file");
+                }
             }
         }
 
-        private async Task<bool> TryOpenInternally(FileSystemStorageFile File)
+        private async Task<bool> TryOpenInternally(FileSystemStorageFile SFile)
         {
-            using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+            using (Stream Stream = await SFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
             {
                 SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -1145,19 +1195,13 @@ namespace RX_Explorer.View
                                                                         ? new DrillInNavigationTransitionInfo()
                                                                         : new SuppressNavigationTransitionInfo();
 
-                        Frame.Navigate(InternalType, File, NavigationTransition);
+                        Frame.Navigate(InternalType, SFile, NavigationTransition);
 
                         return true;
                     }
-                    else
-                    {
-                        return false;
-                    }
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
         }
 

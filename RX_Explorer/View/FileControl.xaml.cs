@@ -906,6 +906,13 @@ namespace RX_Explorer.View
                     _ => $"<{Globalization.GetString("UnknownText")}>"
                 };
             }
+
+            TabViewContainer.Current.LayoutModeControl.IsEnabled = e.Content is FileControl;
+
+            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+            {
+                TabViewContainer.Current.VerticalSplitViewButton.IsEnabled = e.Content is FileControl;
+            }
         }
 
         /// <summary>
@@ -1496,7 +1503,7 @@ namespace RX_Explorer.View
         {
             if (!string.IsNullOrEmpty(CurrentPresenter?.CurrentFolder?.Path))
             {
-                string QueryText = args.ChosenSuggestion is AddressSuggestionItem SuggestItem ? SuggestItem.Path.TrimEnd('\\').Replace('/', '\\').Trim() : args.QueryText.TrimEnd('\\').Replace('/', '\\').Trim();
+                string QueryText = (args.ChosenSuggestion is AddressSuggestionItem SuggestItem ? SuggestItem.Path : args.QueryText).TrimEnd('\\').Replace('/', '\\').Trim();
 
                 if (string.IsNullOrWhiteSpace(QueryText) || QueryText.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                 {
@@ -1823,17 +1830,18 @@ namespace RX_Explorer.View
             {
                 if (Interlocked.Exchange(ref AddressTextChangeLockResource, 1) == 0)
                 {
+                    AddressSuggestionList.Clear();
+
                     try
                     {
-                        AddressSuggestionList.Clear();
+                        string InputPath = sender.Text.TrimEnd('\\').Replace('/', '\\').Trim();
 
-                        if (string.IsNullOrWhiteSpace(sender.Text))
+                        if (string.IsNullOrWhiteSpace(InputPath))
                         {
                             AddressSuggestionList.AddRange(SQLite.Current.GetRelatedPathHistory().Select((Path) => new AddressSuggestionItem(Path, Visibility.Visible)));
                         }
                         else
                         {
-                            string InputPath = sender.Text.Replace('/', '\\');
                             string ActualPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(InputPath);
 
                             if (await FileSystemStorageItemBase.CheckExistsAsync(ActualPath))
@@ -1884,7 +1892,6 @@ namespace RX_Explorer.View
                     }
                     catch (Exception ex)
                     {
-                        AddressSuggestionList.Clear();
                         LogTracer.Log(ex, "Could not generate the suggestion list of address box");
                     }
                     finally

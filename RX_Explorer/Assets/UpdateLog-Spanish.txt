@@ -1,33 +1,23 @@
-﻿###Novedades de la versión 7.6.3.0
+﻿###Novedades de la versión 7.6.4.0
 
-#####IU actualizada
+#####Característica actualizada
 
->#####Agregado soporte para archivos ".cmd"
+>#####La página de búsqueda ahora admite las palabras clave de búsqueda resaltadas
 
->#####Configuraciones agregadas relacionadas con "Datos compartidos" y "Cargar carpeta WSL"
+#####Optimización del rendimiento
 
->#####Cuando se crea, copia o mueve un directorio a un directorio con un archivo del mismo nombre, la intercalación se cambiará temporalmente para adaptarse a los hábitos del usuario
+>#####Lógica de página de búsqueda mejorada para acelerar la representación de resultados de búsqueda
+
+>#####Rendimiento de enumeración de carpetas mejorado en algunos casos
+
+>#####Mejoró el rendimiento del algoritmo de clasificación
 
 #####Corrección de errores
 
->#####Se corrigieron algunos problemas con el mecanismo de manejo de excepciones
+>#####Se solucionó un problema por el cual el visor de archivos integrado no mostraba el nombre de tipo correcto en los archivos que carecen de una extensión
 
->#####Se solucionó un problema que podía causar que los procesos auxiliares dejaran de responder después de pasar lentamente por varias carpetas grandes
+>#####Se solucionó un problema por el cual los botones "Crear nueva ventana dividida verticalmente" y "Modo de diseño" no se deshabilitaban automáticamente en el visor incorporado
 
->#####Se solucionó el problema del ícono faltante para el elemento de menú "Abrir con RX-Explorer" en el menú contextual del sistema
-
->#####Se solucionó un problema por el cual el nombre del archivo podría no seleccionarse correctamente al cambiar el nombre
-
->#####Arranque lento fijo si la carpeta WSL está presente
-
->#####Se solucionó un problema por el cual el comportamiento cuando se activaba a través de la línea de comando no estaba controlado por la configuración relacionada con el comportamiento del tiempo de activación
-
->#####Se solucionó un problema por el cual se podían analizar argumentos incorrectos al activar a través de la línea de comando
-
->#####Se solucionó un problema por el cual no se podían copiar archivos y carpetas en máquinas virtuales remotas
-
->#####Se solucionó el problema de que la tarea de copia remota carece de información como el progreso, la velocidad, el tiempo, etc.
-
->#####Se solucionó un problema por el cual las tareas de copia remota no se podían cancelar
+>#####Se solucionó un problema por el cual los detalles de un archivo aún podían aparecer inesperadamente al usar la selección de cuadro
 
 >#####Se corrigieron algunos otros problemas

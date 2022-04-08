@@ -468,7 +468,7 @@ namespace RX_Explorer.Class
 
                                             if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFile File)
                                             {
-                                                TabViewContainer.CurrentTabRenderer.RendererFrame.Navigate(InnerViewerType, File, NavigationTransition);
+                                                TabViewContainer.Current.CurrentTabRenderer.RendererFrame.Navigate(InnerViewerType, File, NavigationTransition);
                                             }
                                         }
                                     }

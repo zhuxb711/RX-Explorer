@@ -1958,13 +1958,13 @@ Inkorrekte Namen sind
     <value>Miniaturbildmodus</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
-    <value>Symbole für Ordner und Dateien laden (langsamer)</value>
+    <value>Miniaturansichten für Ordner und Dateien laden (Langsamer)</value>
   </data>
   <data name="LoadMode_None_Text" xml:space="preserve">
-    <value>Keine symbole laden (schneller)</value>
+    <value>Keine Thumbnails laden (Schneller)</value>
   </data>
   <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
-    <value>Nur Dateisymbole laden (ausbanciert)</value>
+    <value>Miniaturansichten nur für Dateien laden (Balance)</value>
   </data>
   <data name="RunningInAdminModeTip" xml:space="preserve">
     <value>Administrator-Modus</value>
@@ -3502,5 +3502,8 @@ Inkorrekte Namen sind
   </data>
   <data name="TaskList_OperationKind_RemoteCopy" xml:space="preserve">
     <value>Remote-Kopieraufgabe</value>
+  </data>
+  <data name="QueueDialog_UnexpectedException_Content" xml:space="preserve">
+    <value>Der Vorgang konnte aufgrund eines unbekannten Fehlers nicht abgeschlossen werden</value>
   </data>
 </root>

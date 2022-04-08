@@ -86,7 +86,7 @@ namespace RX_Explorer.View
 
         private async Task InitializeAsync(FileSystemStorageFile PdfFile, CancellationToken CancelToken)
         {
-            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
             try
             {
@@ -164,7 +164,7 @@ namespace RX_Explorer.View
                     }
                     finally
                     {
-                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                        TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                     }
                 }
             }
@@ -188,7 +188,7 @@ namespace RX_Explorer.View
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
 
             RemoveHandler(PointerWheelChangedEvent, PointerWheelChangedEventHandler);
 
@@ -436,11 +436,11 @@ namespace RX_Explorer.View
                 {
                     if (PageNum != Flip.SelectedIndex + 1)
                     {
-                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+                        TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
                         await Task.WhenAll(JumpToPageIndexAsync(PageNum - 1), Task.Delay(1000));
 
-                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                        TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                     }
                 }
                 else

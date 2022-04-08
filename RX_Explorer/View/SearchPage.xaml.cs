@@ -439,6 +439,7 @@ namespace RX_Explorer.View
                                     case ListViewItemPresenter:
                                         {
                                             SelectionExtension.Enable();
+                                            DelayTooltipCancellation?.Cancel();
                                             break;
                                         }
                                     default:

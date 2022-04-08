@@ -168,18 +168,25 @@ namespace RX_Explorer.Class
 
         public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, DeviceInformation DeviceInfo)
         {
-            StorageFolder DriveFolder = await Task.Run(() => StorageDevice.FromId(DeviceInfo.Id));
-
-            if (string.IsNullOrEmpty(DriveFolder.Path))
+            try
             {
-                if (await FileSystemStorageItemBase.OpenAsync(DeviceInfo.Id) is FileSystemStorageFolder Folder)
+                StorageFolder DriveFolder = await Task.Run(() => StorageDevice.FromId(DeviceInfo.Id));
+
+                if (string.IsNullOrEmpty(DriveFolder.Path))
                 {
-                    return await CreateAsync(DriveType, Folder, DeviceInfo);
+                    if (await FileSystemStorageItemBase.OpenAsync(DeviceInfo.Id) is FileSystemStorageFolder Folder)
+                    {
+                        return await CreateAsync(DriveType, Folder, DeviceInfo);
+                    }
+                }
+                else if (System.IO.Path.IsPathRooted(DriveFolder.Path))
+                {
+                    return await CreateAsync(DriveType, new FileSystemStorageFolder(DriveFolder), DeviceInfo);
                 }
             }
-            else if (System.IO.Path.IsPathRooted(DriveFolder.Path))
+            catch (Exception ex)
             {
-                return await CreateAsync(DriveType, new FileSystemStorageFolder(DriveFolder), DeviceInfo);
+                LogTracer.Log(ex, $"Could not create {nameof(DriveDataBase)} from {nameof(DeviceInformation)}");
             }
 
             return null;
@@ -191,10 +198,8 @@ namespace RX_Explorer.Class
             {
                 return await CreateAsync(Info.DriveType, Folder);
             }
-            else
-            {
-                throw new DirectoryNotFoundException();
-            }
+
+            return null;
         }
 
         public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, StorageFolder DriveFolder)

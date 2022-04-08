@@ -2592,16 +2592,16 @@ Inkorrekte Namen sind
           <target state="translated">Miniaturbildmodus</target>
         </trans-unit>
         <trans-unit id="LoadMode_FileAndFolder_Text" translate="yes" xml:space="preserve">
-          <source>Load icons for folders and files (Slower)</source>
-          <target state="translated">Symbole für Ordner und Dateien laden (langsamer)</target>
+          <source>Load thumbnails for folders and files (Slower)</source>
+          <target state="translated">Miniaturansichten für Ordner und Dateien laden (Langsamer)</target>
         </trans-unit>
         <trans-unit id="LoadMode_None_Text" translate="yes" xml:space="preserve">
-          <source>Do not load any icons (Faster)</source>
-          <target state="translated">Keine symbole laden (schneller)</target>
+          <source>Do not load any thumbnails (Faster)</source>
+          <target state="translated">Keine Thumbnails laden (Schneller)</target>
         </trans-unit>
         <trans-unit id="LoadMode_OnlyFile_Text" translate="yes" xml:space="preserve">
-          <source>Load file icon only (Balance)</source>
-          <target state="translated">Nur Dateisymbole laden (ausbanciert)</target>
+          <source>Load thumbnails for files only (Balance)</source>
+          <target state="translated">Miniaturansichten nur für Dateien laden (Balance)</target>
         </trans-unit>
         <trans-unit id="RunningInAdminModeTip" translate="yes" xml:space="preserve">
           <source>Administrator mode</source>
@@ -4650,6 +4650,10 @@ Inkorrekte Namen sind
         <trans-unit id="TaskList_OperationKind_RemoteCopy" translate="yes" xml:space="preserve">
           <source>Remote copy task</source>
           <target state="translated">Remote-Kopieraufgabe</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnexpectedException_Content" translate="yes" xml:space="preserve">
+          <source>The operation could not be completed due to an unknown error</source>
+          <target state="translated">Der Vorgang konnte aufgrund eines unbekannten Fehlers nicht abgeschlossen werden</target>
         </trans-unit>
       </group>
     </body>

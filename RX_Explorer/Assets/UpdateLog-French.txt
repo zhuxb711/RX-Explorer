@@ -1,33 +1,23 @@
-﻿###Quoi de neuf dans la version 7.6.3.0
+﻿###Quoi de neuf dans la version 7.6.4.0
 
-#####UI mise à jour
+#####Fonctionnalité mise à jour
 
->#####Ajout de la prise en charge des fichiers ".cmd"
+>#####La page de recherche prend désormais en charge les mots-clés de recherche en surbrillance
 
->#####Ajout de paramètres liés aux "Données partagées" et "Charger le dossier WSL"
+#####Optimisation des performances
 
->#####Lorsqu'un répertoire est créé, copié ou déplacé dans un répertoire avec un fichier du même nom, le classement sera temporairement modifié pour correspondre aux habitudes de l'utilisateur
+>#####Amélioration de la logique de la page de recherche pour accélérer le rendu des résultats de recherche
+
+>#####Amélioration des performances d'énumération des dossiers dans certains cas
+
+>#####Amélioration des performances de l'algorithme de tri
 
 #####Corrections de bogues
 
->#####Correction de quelques problèmes avec le mécanisme de gestion des exceptions
+>#####Correction d'un problème où la visionneuse d'archives intégrée n'affichait pas le nom de type correct sur les fichiers sans extension
 
->#####Correction d'un problème qui pouvait empêcher les processus auxiliaires de répondre après avoir parcouru lentement plusieurs dossiers volumineux
+>#####Correction d'un problème où les boutons "Créer une nouvelle fenêtre fractionnée verticalement" et "Mode de mise en page" n'étaient pas automatiquement désactivés dans la visionneuse intégrée
 
->#####Correction du problème de l'icône manquante pour l'élément de menu "Ouvrir avec RX-Explorer" dans le menu contextuel du système
-
->#####Correction d'un problème où le nom du fichier pouvait ne pas être sélectionné correctement lors du changement de nom
-
->#####Démarrage lent fixe si le dossier WSL est présent
-
->#####Correction d'un problème où le comportement lors de l'activation via la ligne de commande n'était pas contrôlé par les paramètres liés au comportement de l'heure d'activation
-
->#####Correction d'un problème où des arguments incorrects pouvaient être analysés lors de l'activation via la ligne de commande
-
->#####Correction d'un problème où les fichiers et les dossiers des machines virtuelles distantes ne pouvaient pas être copiés
-
->#####Correction du problème selon lequel la tâche de copie à distance manque d'informations telles que la progression, la vitesse, le temps, etc.
-
->#####Correction d'un problème où les tâches de copie à distance ne pouvaient pas être annulées
+>#####Correction d'un problème où les détails d'un fichier peuvent toujours apparaître de manière inattendue lors de l'utilisation de la sélection de la boîte
 
 >#####Résolution d'autres problèmes

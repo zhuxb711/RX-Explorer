@@ -156,8 +156,8 @@
                             Value="{StaticResource CustomCornerRadius}" />
                 </Style>
             </Flyout.FlyoutPresenterStyle>
-            <ListView MaxHeight="400"
-                      Width="240"
+            <ListView MaxHeight="450"
+                      Width="250"
                       SelectionMode="None"
                       IsItemClickEnabled="True"
                       Name="AddressExtensionSubFolderList"

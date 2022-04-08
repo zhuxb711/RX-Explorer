@@ -1,33 +1,23 @@
-﻿###Was ist neu in Ver.7.6.3.0
+﻿###Was ist neu in Ver.7.6.4.0
 
-#####UI aktualisiert
+#####Funktion aktualisiert
 
->#####Unterstützung für ".cmd"-Dateien hinzugefügt
+>#####Die Suchseite unterstützt jetzt die Hervorhebung der Suchschlüsselwörter
 
->#####Einstellungen in Bezug auf „Gemeinsame Daten“ und „WSL-Ordner laden“ hinzugefügt
+#####Leistungsoptimierung
 
->#####Wenn ein Verzeichnis erstellt, kopiert oder in ein Verzeichnis mit einer gleichnamigen Datei verschoben wird, wird die Sortierung vorübergehend an die Benutzergewohnheiten angepasst
+>#####Suchseitenlogik verbessert, um das Rendern von Suchergebnissen zu beschleunigen
+
+>#####Verbesserte Ordneraufzählungsleistung in einigen Fällen
+
+>#####Die Leistung des Sortieralgorithmus wurde verbessert
 
 #####Fehlerbehebung
 
->#####Einige Probleme mit dem Ausnahmebehandlungsmechanismus wurden behoben
+>#####Es wurde ein Problem behoben, bei dem der integrierte Archivbetrachter nicht den korrekten Typnamen für Dateien ohne Erweiterung anzeigte
 
->#####Es wurde ein Problem behoben, das dazu führen konnte, dass Hilfsprozesse nicht mehr reagierten, nachdem sie langsam durch mehrere große Ordner gewischt wurden
+>#####Es wurde ein Problem behoben, bei dem die Schaltflächen „Neues vertikal geteiltes Fenster erstellen“ und „Layoutmodus“ im integrierten Viewer nicht automatisch deaktiviert wurden
 
->#####Das Problem des fehlenden Symbols für den Menüpunkt „Öffnen mit RX-Explorer“ im System-Kontextmenü wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem der Dateiname beim Umbenennen möglicherweise nicht richtig ausgewählt wurde
-
->#####Langsamer Start behoben, wenn WSL-Ordner vorhanden ist
-
->#####Es wurde ein Problem behoben, bei dem das Verhalten bei Aktivierung über die Befehlszeile nicht durch die Einstellungen im Zusammenhang mit dem Aktivierungszeitverhalten gesteuert wurde
-
->#####Ein Problem wurde behoben, bei dem falsche Argumente bei der Aktivierung über die Befehlszeile analysiert werden konnten
-
->#####Es wurde ein Problem behoben, bei dem Dateien und Ordner in virtuellen Remote-Maschinen nicht kopiert werden konnten
-
->#####Das Problem, dass der Fernkopieraufgabe Informationen wie Fortschritt, Geschwindigkeit, Zeit usw. fehlen, wurde behoben.
-
->#####Es wurde ein Problem behoben, bei dem Remote-Kopieraufgaben nicht wirklich abgebrochen werden konnten
+>#####Es wurde ein Problem behoben, bei dem die Details einer Datei bei Verwendung der Auswahlbox immer noch unerwartet erscheinen
 
 >#####Einige andere Probleme wurden behoben

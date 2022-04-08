@@ -117,7 +117,7 @@ namespace RX_Explorer.Class
 
             if (SettingPage.OpenPanelWhenTaskIsCreated)
             {
-                TabViewContainer.CurrentTabRenderer.SetPanelOpenStatus(true);
+                TabViewContainer.Current.CurrentTabRenderer.SetPanelOpenStatus(true);
             }
 
             ProcessSleepLocker.Set();
@@ -1004,6 +1004,11 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An exception was threw when executing a task in TaskList");
+
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                {
+                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnexpectedException_Content"));
+                }).AsTask().Wait();
             }
             finally
             {

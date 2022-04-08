@@ -1,33 +1,23 @@
-﻿###What's new in Ver.7.6.3.0
+﻿###What's new in Ver.7.6.4.0
 
-#####UI updated
+#####Feature updated
 
->#####Added support for ".cmd" files
+>#####Search page now supports highlighted the search keywords
 
->#####Added settings related to "Shared Data" and "Load WSL Folder"
+#####Performance optimization
 
->#####When a directory is created, copied or moved into a directory with a file of the same name, the collation will be temporarily changed to match user habits
+>#####Improved search page logic to speed up the rendering of search results
+
+>#####Improved folder enumeration performance in some cases
+
+>#####Improved the performance of the sorting algorithm
 
 #####Bug Fixes
 
->#####Fixed some issues with exception handling mechanism
+>#####Fixed an issue where the built-in archive viewer would not display the correct type name on files that lack an extension
 
->#####Fixed an issue that could cause auxiliary processes to become unresponsive after slowly swiping through several large folders
+>#####Fixed an issue where the "Create new vertical split window" and "Layout Mode" buttons would not be automatically disabled in the built-in viewer
 
->#####Fixed the issue of missing icon for the menu item "Open with RX-Explorer" in the system context menu
-
->#####Fixed an issue that file name might not be selected correctly when renaming
-
->#####Fixed slow startup if WSL folder is present
-
->#####Fixed an issue where the behavior when activated via the command line was not controlled by the settings related to activation-time behavior
-
->#####Fixed an issue where incorrect arguments could be parsed when activating via the command line
-
->#####Fixed an issue where files and folders in remote virtual machines could not be copied
-
->#####Fixed the problem that the remote copy task lacks information such as progress, speed, time, etc.
-
->#####Fixed an issue where remote copy tasks could not actually be canceled
+>#####Fixed an issue where the details of a file may still pop up unexpectedly when using the box selection
 
 >#####Fixed some other issues

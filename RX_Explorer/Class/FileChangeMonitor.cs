@@ -1,6 +1,5 @@
 ﻿using Microsoft.Toolkit.Deferred;
 using Microsoft.Win32.SafeHandles;
-using ShareClassLibrary;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -216,28 +215,30 @@ namespace RX_Explorer.Class
 
             private readonly CancellationTokenRegistration Registration;
 
+            private void OnCancelled(object Parameter)
+            {
+                if (Parameter is IntPtr RawHandle)
+                {
+                    try
+                    {
+                        if (!NativeWin32API.CloseDirectoryMonitorHandle(RawHandle))
+                        {
+                            throw new Win32Exception(Marshal.GetLastWin32Error());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not close the directory monitor handle as expected");
+                    }
+                }
+            }
+
             public FileChangeMonitorInternalData(string Path, SafeFileHandle Handle, CancellationToken CancelToken)
             {
                 this.Path = Path;
                 this.Handle = Handle;
 
-                Registration = CancelToken.Register((Paramter) =>
-                {
-                    if (Paramter is IntPtr RawHandle)
-                    {
-                        try
-                        {
-                            if (!NativeWin32API.CloseDirectoryMonitorHandle(RawHandle))
-                            {
-                                throw new Win32Exception(Marshal.GetLastWin32Error());
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, "Could not close the directory monitor handle normally");
-                        }
-                    }
-                }, Handle.DangerousGetHandle());
+                Registration = CancelToken.Register(OnCancelled, Handle.DangerousGetHandle());
             }
 
             public void Dispose()

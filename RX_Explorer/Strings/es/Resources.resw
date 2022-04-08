@@ -1955,13 +1955,13 @@ Las denominaciones no válidas son:
     <value>Modo miniatura</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
-    <value>Cargar iconos para carpetas y archivos (más lento)</value>
+    <value>Charger les vignettes des dossiers et des fichiers(Más lento)</value>
   </data>
   <data name="LoadMode_None_Text" xml:space="preserve">
-    <value>No cargar ningún icono (más rápido)</value>
+    <value>Ne chargez aucune vignette (Más rápido)</value>
   </data>
   <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
-    <value>Cargar solo icono de archivo (equilibrado)</value>
+    <value>Charger les vignettes des fichiers uniquement (Equilibrado)</value>
   </data>
   <data name="RunningInAdminModeTip" xml:space="preserve">
     <value>Modo de administrador</value>
@@ -3502,5 +3502,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="TaskList_OperationKind_RemoteCopy" xml:space="preserve">
     <value>Tarea de copia remota</value>
+  </data>
+  <data name="QueueDialog_UnexpectedException_Content" xml:space="preserve">
+    <value>No se pudo completar la operación debido a un error desconocido</value>
   </data>
 </root>

@@ -377,7 +377,7 @@ namespace RX_Explorer.View
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
 
             ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
 
@@ -407,7 +407,7 @@ namespace RX_Explorer.View
 
         private async Task InitializeAsync(FileSystemStorageFile File, Encoding Encoding, CancellationToken CancelToken)
         {
-            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
             try
             {
@@ -461,7 +461,7 @@ namespace RX_Explorer.View
                     }
                     finally
                     {
-                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                        TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                     }
                 }
             }

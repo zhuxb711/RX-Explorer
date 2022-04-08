@@ -87,6 +87,7 @@
                             x:Name="VerticalSplitViewButton"
                             x:Uid="VerticalSplitViewButton"
                             ToolTipService.ToolTip="创建新的垂直拆分视图"
+                            x:FieldModifier="public"
                             Style="{StaticResource CustomTabViewStripButtonStyle}">
                         <Viewbox VerticalAlignment="Center"
                                  HorizontalAlignment="Center"

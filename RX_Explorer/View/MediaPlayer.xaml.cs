@@ -54,7 +54,7 @@ namespace RX_Explorer.View
 
         private async Task InitializeAsync(FileSystemStorageFile MediaFile, CancellationToken CancelToken)
         {
-            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
             try
             {
@@ -155,7 +155,7 @@ namespace RX_Explorer.View
                     }
                     finally
                     {
-                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                        TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                     }
                 }
             }
@@ -323,7 +323,7 @@ namespace RX_Explorer.View
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
 
             Cancellation?.Cancel();
             Cancellation?.Dispose();

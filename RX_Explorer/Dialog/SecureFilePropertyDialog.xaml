@@ -26,31 +26,48 @@
                            x:Uid="AttributeSecureLevel"
                            Margin="0,15,0,0" />
             </StackPanel>
-            <StackPanel Margin="25,0,0,0">
-                <TextBlock Text="{x:Bind FileName,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind FileName,Mode=OneWay}"
-                           TextTrimming="CharacterEllipsis"
-                           Width="200" />
-                <TextBlock Text="{x:Bind FileType,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind FileType,Mode=OneWay}"
+            <StackPanel Margin="25,0,0,0"
+                        MaxWidth="300"
+                        MinWidth="200">
+                <TextBlock x:Name="FileNameLabel"
+                           TextTrimming="CharacterEllipsis">
+                    <ToolTipService.ToolTip>
+                        <ToolTip Content="{x:Bind FileNameLabel.Text}"
+                                 Visibility="{x:Bind FileNameLabel.IsTextTrimmed,Mode=OneWay}" />
+                    </ToolTipService.ToolTip>
+                </TextBlock>
+                <TextBlock x:Name="FileTypeLabel"
                            Margin="0,15,0,0"
-                           TextTrimming="CharacterEllipsis"
-                           Width="200" />
-                <TextBlock Text="{x:Bind FileSize,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind FileSize,Mode=OneWay}"
+                           TextTrimming="CharacterEllipsis">
+                    <ToolTipService.ToolTip>
+                        <ToolTip Content="{x:Bind FileTypeLabel.Text}"
+                                 Visibility="{x:Bind FileTypeLabel.IsTextTrimmed,Mode=OneWay}" />
+                    </ToolTipService.ToolTip>                
+                </TextBlock>
+                <TextBlock x:Name="FileSizeLabel"
                            Margin="0,15,0,0"
-                           TextTrimming="CharacterEllipsis"
-                           Width="200" />
-                <TextBlock Text="{x:Bind Version,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind Version,Mode=OneWay}"
+                           TextTrimming="CharacterEllipsis">
+                    <ToolTipService.ToolTip>
+                        <ToolTip Content="{x:Bind FileSizeLabel.Text}"
+                                 Visibility="{x:Bind FileSizeLabel.IsTextTrimmed,Mode=OneWay}" />
+                    </ToolTipService.ToolTip>
+                </TextBlock>
+                <TextBlock x:Name="VersionLabel"
                            Margin="0,15,0,0"
-                           TextTrimming="CharacterEllipsis"
-                           Width="200" />
-                <TextBlock Text="{x:Bind Level,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind Level,Mode=OneWay}"
+                           TextTrimming="CharacterEllipsis">
+                    <ToolTipService.ToolTip>
+                        <ToolTip Content="{x:Bind VersionLabel.Text}"
+                                 Visibility="{x:Bind VersionLabel.IsTextTrimmed,Mode=OneWay}" />
+                    </ToolTipService.ToolTip>                
+                </TextBlock>
+                <TextBlock x:Name="LevelLabel"
                            Margin="0,15,0,0"
-                           TextTrimming="CharacterEllipsis"
-                           Width="200" />
+                           TextTrimming="CharacterEllipsis">
+                    <ToolTipService.ToolTip>
+                        <ToolTip Content="{x:Bind LevelLabel.Text}"
+                                 Visibility="{x:Bind LevelLabel.IsTextTrimmed,Mode=OneWay}" />
+                    </ToolTipService.ToolTip>
+                </TextBlock>
             </StackPanel>
         </StackPanel>
     </Grid>

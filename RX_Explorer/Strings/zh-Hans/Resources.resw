@@ -1909,13 +1909,13 @@
     <value>缩略图模式</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
-    <value>加载文件夹和文件的图标(较慢)</value>
+    <value>加载文件夹和文件的缩略图 (较慢)</value>
   </data>
   <data name="LoadMode_None_Text" xml:space="preserve">
-    <value>不加载任何图标(较快)</value>
+    <value>不加载任何缩略图 (较快)</value>
   </data>
   <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
-    <value>仅加载文件图标(平衡)</value>
+    <value>仅加载文件的缩略图 (平衡)</value>
   </data>
   <data name="VideoEditDialogText2.Header" xml:space="preserve">
     <value>输出编码配置</value>
@@ -3502,5 +3502,8 @@
   </data>
   <data name="TaskList_OperationKind_RemoteCopy" xml:space="preserve">
     <value>远程复制任务</value>
+  </data>
+  <data name="QueueDialog_UnexpectedException_Content" xml:space="preserve">
+    <value>由于出现未知错误，此操作未能完成</value>
   </data>
 </root>

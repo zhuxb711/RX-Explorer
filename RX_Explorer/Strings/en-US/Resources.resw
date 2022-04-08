@@ -2072,13 +2072,13 @@ Invalid names include
     <value>Thumbnail mode</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
-    <value>Load icons for folders and files (Slower)</value>
+    <value>Load thumbnails for folders and files (Slower)</value>
   </data>
   <data name="LoadMode_None_Text" xml:space="preserve">
-    <value>Do not load any icons (Faster)</value>
+    <value>Do not load any thumbnails (Faster)</value>
   </data>
   <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
-    <value>Load file icon only (Balance)</value>
+    <value>Load thumbnails for files only (Balance)</value>
   </data>
   <data name="RunningInAdminModeTip" xml:space="preserve">
     <value>Administrator mode</value>
@@ -3607,5 +3607,8 @@ Invalid names include
   </data>
   <data name="TaskList_OperationKind_RemoteCopy" xml:space="preserve">
     <value>Remote copy task</value>
+  </data>
+  <data name="QueueDialog_UnexpectedException_Content" xml:space="preserve">
+    <value>The operation could not be completed due to an unknown error</value>
   </data>
 </root>

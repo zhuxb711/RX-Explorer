@@ -8,13 +8,15 @@
              d:DesignWidth="150">
 
     <RichTextBlock x:Name="ResultTextBlock"
+                   IsTextSelectionEnabled="False"
+                   TextWrapping="NoWrap"
                    TextTrimming="CharacterEllipsis">
         <Paragraph>
             <Run Text="{x:Bind Text,Mode=OneWay}" />
         </Paragraph>
         <ToolTipService.ToolTip>
             <ToolTip Content="{x:Bind Text,Mode=OneWay}"
-                     Visibility="{x:Bind ResultTextBlock.IsTextTrimmed}" />
+                     Visibility="{x:Bind ResultTextBlock.IsTextTrimmed,Mode=OneWay}" />
         </ToolTipService.ToolTip>
     </RichTextBlock>
 </UserControl>

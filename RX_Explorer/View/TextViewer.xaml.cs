@@ -55,7 +55,7 @@ namespace RX_Explorer.View
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
 
             Cancellation?.Cancel();
             Cancellation?.Dispose();
@@ -65,7 +65,7 @@ namespace RX_Explorer.View
 
         private async Task LoadTextFromFileWithEncoding(FileSystemStorageFile File, Encoding TextEncoding, CancellationToken CancelToken)
         {
-            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
             try
             {
@@ -121,7 +121,7 @@ namespace RX_Explorer.View
                     }
                     finally
                     {
-                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                        TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                     }
                 }
             }

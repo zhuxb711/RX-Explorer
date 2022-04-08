@@ -2296,7 +2296,7 @@ namespace RX_Explorer.View
                 if (Container.CurrentPresenter == this
                     && CurrentFolder is not RootStorageFolder
                     && Container.Frame.Content is FileControl
-                    && Container.Renderer == TabViewContainer.CurrentTabRenderer
+                    && Container.Renderer == TabViewContainer.Current.CurrentTabRenderer
                     && !Container.ShouldNotAcceptShortcutKeyInput
                     && !QueueContentDialog.IsRunningOrWaiting
                     && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
@@ -3933,6 +3933,7 @@ namespace RX_Explorer.View
                                         case ListViewItemPresenter:
                                             {
                                                 SelectionExtension.Enable();
+                                                DelayTooltipCancellation?.Cancel();
                                                 break;
                                             }
                                         default:
@@ -4670,7 +4671,7 @@ namespace RX_Explorer.View
                                                     {
                                                         if (!TryOpenInternally(File))
                                                         {
-                                                            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+                                                            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
                                                             try
                                                             {
@@ -4692,7 +4693,7 @@ namespace RX_Explorer.View
                                                             }
                                                             finally
                                                             {
-                                                                TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                                                                TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                                                             }
                                                         }
                                                     }
@@ -4711,7 +4712,7 @@ namespace RX_Explorer.View
                                                         {
                                                             if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is AppInfo Info)
                                                             {
-                                                                TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+                                                                TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
                                                                 try
                                                                 {
@@ -4733,7 +4734,7 @@ namespace RX_Explorer.View
                                                                 }
                                                                 finally
                                                                 {
-                                                                    TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                                                                    TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                                                                 }
                                                             }
                                                             else
@@ -5002,7 +5003,7 @@ namespace RX_Explorer.View
                                     }
                                 default:
                                     {
-                                        TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+                                        TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
                                         try
                                         {
@@ -5020,7 +5021,7 @@ namespace RX_Explorer.View
                                         }
                                         finally
                                         {
-                                            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                                            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                                         }
 
                                         break;

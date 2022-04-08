@@ -57,7 +57,7 @@ namespace RX_Explorer.View
 
         private async Task InitializeAsync(FileSystemStorageFile File, CancellationToken CancelToken)
         {
-            TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
             try
             {
@@ -93,7 +93,7 @@ namespace RX_Explorer.View
                             }
                             finally
                             {
-                                TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                                TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                             }
                         }
                     }
@@ -148,7 +148,7 @@ namespace RX_Explorer.View
                             }
                             finally
                             {
-                                TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                                TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                             }
                         }
                     }
@@ -182,13 +182,14 @@ namespace RX_Explorer.View
         {
             if (e.NavigationMode == NavigationMode.Back)
             {
-                TabViewContainer.CurrentTabRenderer?.SetLoadingTipsStatus(false);
-
                 Cancellation?.Cancel();
                 Cancellation?.Dispose();
                 PhotoCollection.Clear();
                 MTPEndOfShare?.Dispose();
                 MTPEndOfShare = null;
+                Cancellation = null;
+
+                TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
             }
         }
 

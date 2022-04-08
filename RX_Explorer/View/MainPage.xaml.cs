@@ -333,7 +333,7 @@ namespace RX_Explorer.View
 
             try
             {
-                if (TabViewContainer.CurrentTabRenderer?.RendererFrame is Frame CurrentFrame)
+                if (TabViewContainer.Current.CurrentTabRenderer?.RendererFrame is Frame CurrentFrame)
                 {
                     if (CurrentFrame.Content is not (FileControl or SearchPage))
                     {
@@ -699,7 +699,7 @@ namespace RX_Explorer.View
 
             if (PageDictionary[e.SourcePageType] == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
-                NavView.IsBackEnabled = (TabViewContainer.CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault();
+                NavView.IsBackEnabled = (TabViewContainer.Current.CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault();
             }
             else if (PageDictionary[e.SourcePageType] == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
             {
@@ -1018,9 +1018,9 @@ namespace RX_Explorer.View
             {
                 if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
                 {
-                    if (TabViewContainer.CurrentTabRenderer.RendererFrame.CanGoBack)
+                    if ((TabViewContainer.Current.CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault())
                     {
-                        TabViewContainer.CurrentTabRenderer.RendererFrame.GoBack();
+                        TabViewContainer.Current.CurrentTabRenderer.RendererFrame.GoBack();
                     }
                 }
                 else if (Nav.CurrentSourcePageType == typeof(SecureAreaContainer))

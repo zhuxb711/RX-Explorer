@@ -1000,7 +1000,7 @@
                                                          RelativePanel.AlignLeftWithPanel="True"
                                                          RelativePanel.LeftOf="FileLoadMode"
                                                          Margin="0,0,20,0">
-                                                <TextBlock Text="图标加载模式"
+                                                <TextBlock Text="缩略图加载模式"
                                                            TextTrimming="CharacterEllipsis"
                                                            x:Uid="FileLoadModeLabel" />
                                                 <TextBlock FontSize="12"

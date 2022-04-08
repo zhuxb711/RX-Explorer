@@ -462,6 +462,8 @@ namespace RX_Explorer.Class
 
         public static bool CreateFileFromPath(string Path, CreateOption Option, out string NewPath)
         {
+            NewPath = string.Empty;
+
             try
             {
                 switch (Option)
@@ -477,7 +479,6 @@ namespace RX_Explorer.Class
                                     if (!Handle.IsInvalid)
                                     {
                                         NewPath = UniquePath;
-                                        return true;
                                     }
                                 }
                             }
@@ -488,12 +489,11 @@ namespace RX_Explorer.Class
                                     if (!Handle.IsInvalid)
                                     {
                                         NewPath = Path;
-                                        return true;
                                     }
                                 }
                             }
 
-                            throw new InvalidOperationException();
+                            break;
                         }
                     case CreateOption.OpenIfExist:
                         {
@@ -502,11 +502,10 @@ namespace RX_Explorer.Class
                                 if (!Handle.IsInvalid)
                                 {
                                     NewPath = Path;
-                                    return true;
                                 }
                             }
 
-                            throw new InvalidOperationException();
+                            break;
                         }
                     case CreateOption.ReplaceExisting:
                         {
@@ -515,25 +514,28 @@ namespace RX_Explorer.Class
                                 if (!Handle.IsInvalid)
                                 {
                                     NewPath = Path;
-                                    return true;
                                 }
                             }
 
-                            throw new InvalidOperationException();
+                            break;
                         }
-                    default:
-                        {
-                            NewPath = string.Empty;
-                            return false;
-                        }
+                }
+
+                if (string.IsNullOrEmpty(NewPath))
+                {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+                else
+                {
+                    return true;
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Could not create a new file, Path: \"{Path}\"");
-                NewPath = string.Empty;
-                return false;
             }
+
+            return false;
         }
 
         private static string GenerateUniquePath(string Path, StorageItemTypes ItemType)

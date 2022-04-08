@@ -39,9 +39,11 @@ namespace RX_Explorer.View
 {
     public sealed partial class TabViewContainer : Page
     {
-        public static TabItemContentRenderer CurrentTabRenderer { get; private set; }
-
         public static TabViewContainer Current { get; private set; }
+
+        public TabItemContentRenderer CurrentTabRenderer { get; private set; }
+
+        public LayoutModeController LayoutModeControl { get; } = new LayoutModeController();
 
         public ObservableCollection<TabViewItem> TabCollection { get; } = new ObservableCollection<TabViewItem>();
 
@@ -50,8 +52,6 @@ namespace RX_Explorer.View
             AutoReset = true,
             Enabled = true
         };
-
-        public readonly LayoutModeController LayoutModeControl = new LayoutModeController();
 
         private CancellationTokenSource DelayPreviewCancel;
 

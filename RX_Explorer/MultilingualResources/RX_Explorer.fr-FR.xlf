@@ -2529,16 +2529,16 @@ Les noms non valides incluent
           <target state="translated">Mode miniature</target>
         </trans-unit>
         <trans-unit id="LoadMode_FileAndFolder_Text" translate="yes" xml:space="preserve">
-          <source>Load icons for folders and files (Slower)</source>
-          <target state="translated">Charger les icônes pour les dossiers et les fichiers (Plus lent)</target>
+          <source>Load thumbnails for folders and files (Slower)</source>
+          <target state="translated">Charger les vignettes des dossiers et des fichiers (Plus lent)</target>
         </trans-unit>
         <trans-unit id="LoadMode_None_Text" translate="yes" xml:space="preserve">
-          <source>Do not load any icons (Faster)</source>
-          <target state="translated">Ne chargez aucune icône (Plus rapidement)</target>
+          <source>Do not load any thumbnails (Faster)</source>
+          <target state="translated">Ne chargez aucune vignette (Plus rapidement)</target>
         </trans-unit>
         <trans-unit id="LoadMode_OnlyFile_Text" translate="yes" xml:space="preserve">
-          <source>Load file icon only (Balance)</source>
-          <target state="translated">Icône de chargement de fichier uniquement (Équilibre)</target>
+          <source>Load thumbnails for files only (Balance)</source>
+          <target state="translated">Charger les vignettes des fichiers uniquement (Équilibre)</target>
         </trans-unit>
         <trans-unit id="VideoEditDialogText2.Header" translate="yes" xml:space="preserve">
           <source>Output encoding config</source>
@@ -4652,6 +4652,10 @@ Les noms non valides incluent
         <trans-unit id="TaskList_OperationKind_RemoteCopy" translate="yes" xml:space="preserve">
           <source>Remote copy task</source>
           <target state="translated">Tâche de copie à distance</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnexpectedException_Content" translate="yes" xml:space="preserve">
+          <source>The operation could not be completed due to an unknown error</source>
+          <target state="translated">L'opération n'a pas pu être terminée en raison d'une erreur inconnue</target>
         </trans-unit>
       </group>
     </body>
