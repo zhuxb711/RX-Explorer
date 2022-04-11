@@ -1975,9 +1975,8 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">No se ha podido analizar este archivo PDF; no se ha podido abrir el PDF.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_PinFolderNotFound_Content" translate="yes" xml:space="preserve">
-          <source>Some of the fixed folders are no longer found and will be automatically removed\r\rIncluding：\r</source>
-          <target state="translated">Algunas de las carpetas fijadas ya no se pueden encontrar y se eliminará automáticamente.\r\rIncluyendo: \r</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>Unable to find some pinned folders, would you like to remove them automatically? Including:</source>
+          <target state="translated">No se pueden encontrar algunas carpetas ancladas, ¿le gustaría eliminarlas automáticamente? Incluido:</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RestartFail_Content" translate="yes" xml:space="preserve">
           <source>There was a problem during the automatic restart, please restart the RX Explorer manually</source>
@@ -2656,8 +2655,8 @@ Las denominaciones no válidas son:
           <target state="translated">Usar motor de búsqueda Everything (más rápido)</target>
         </trans-unit>
         <trans-unit id="Operate_Text_UnlockBitlocker" translate="yes" xml:space="preserve">
-          <source>Unlock</source>
-          <target state="translated">Desbloquear</target>
+          <source>Unlock the drive</source>
+          <target state="translated">Desbloquear la unidad</target>
         </trans-unit>
         <trans-unit id="EverythingQuestionSubtitle" translate="yes" xml:space="preserve">
           <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything\r  2. Purchase this software to unlock this feature</source>

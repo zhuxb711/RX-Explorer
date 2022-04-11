@@ -1451,8 +1451,7 @@
     <value>無法解析此PDF文件，無法打開PDF</value>
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
-    <value>某些釘選的資料夾已不存在，將被自動刪除\r\r包括：\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>無法找到一些釘選的資料夾，您想自動刪除它們嗎? 包含:</value>
   </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>自動重啟過程中出現問題，請手動重啟RX 檔案總管</value>
@@ -1972,7 +1971,7 @@
     <value>使用Everything搜索引擎 (更快)</value>
   </data>
   <data name="Operate_Text_UnlockBitlocker" xml:space="preserve">
-    <value>開鎖</value>
+    <value>開鎖驅動器</value>
   </data>
   <data name="EverythingQuestion.Title" xml:space="preserve">
     <value>Everything搜索引擎</value>

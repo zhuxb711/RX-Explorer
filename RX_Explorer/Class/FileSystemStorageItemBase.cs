@@ -152,7 +152,7 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            return NativeWin32API.CheckExists(Path);
+                            return await Task.Run(() => NativeWin32API.CheckExists(Path));
                         }
                         catch (LocationNotAvailableException)
                         {
@@ -227,7 +227,7 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            return NativeWin32API.GetStorageItem(Path);
+                            return await Task.Run(() => NativeWin32API.GetStorageItem(Path));
                         }
                         catch (LocationNotAvailableException)
                         {
@@ -804,7 +804,7 @@ namespace RX_Explorer.Class
 
         public virtual async Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
         {
-            async Task<IReadOnlyDictionary<string, string>> GetPropertiesTask(IEnumerable<string> Properties)
+            async Task<IReadOnlyDictionary<string, string>> GetPropertiesCoreAsync(IEnumerable<string> Properties)
             {
                 using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
                 {
@@ -855,19 +855,19 @@ namespace RX_Explorer.Class
 
                     if (MissingKeys.Count > 0)
                     {
-                        Result.AddRange(await GetPropertiesTask(MissingKeys));
+                        Result.AddRange(await GetPropertiesCoreAsync(MissingKeys));
                     }
 
                     return Result;
                 }
                 catch
                 {
-                    return await GetPropertiesTask(DistinctProperties);
+                    return await GetPropertiesCoreAsync(DistinctProperties);
                 }
             }
             else
             {
-                return await GetPropertiesTask(DistinctProperties);
+                return await GetPropertiesCoreAsync(DistinctProperties);
             }
         }
 

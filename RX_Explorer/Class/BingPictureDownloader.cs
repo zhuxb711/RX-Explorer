@@ -1,4 +1,5 @@
-﻿using ShareClassLibrary;
+﻿using Microsoft.Toolkit.Uwp.Connectivity;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -22,21 +23,24 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
+                    if (NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable)
                     {
-                        Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess);
-
-                        HttpWebRequest Request = WebRequest.CreateHttp(new Uri(DownloadPath));
-                        Request.Timeout = 10000;
-                        Request.ReadWriteTimeout = 10000;
-
-                        using (WebResponse Response = await Request.GetResponseAsync())
-                        using (Stream ResponseStream = Response.GetResponseStream())
+                        if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
                         {
-                            await ResponseStream.CopyToAsync(TempFileStream);
-                        }
+                            Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess);
 
-                        return TempFileStream;
+                            HttpWebRequest Request = WebRequest.CreateHttp(new Uri(DownloadPath));
+                            Request.Timeout = 10000;
+                            Request.ReadWriteTimeout = 10000;
+
+                            using (WebResponse Response = await Request.GetResponseAsync())
+                            using (Stream ResponseStream = Response.GetResponseStream())
+                            {
+                                await ResponseStream.CopyToAsync(TempFileStream);
+                            }
+
+                            return TempFileStream;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -53,7 +57,7 @@ namespace RX_Explorer.Class
                 {
                     if (await CheckIfNeedToUpdateAsync())
                     {
-                        string DownloadPath = await GetDailyPhotoPathAsync().ConfigureAwait(false);
+                        string DownloadPath = await GetDailyPicturePathAsync().ConfigureAwait(false);
 
                         if (!string.IsNullOrWhiteSpace(DownloadPath))
                         {
@@ -99,7 +103,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    string DownloadPath = await GetDailyPhotoPathAsync().ConfigureAwait(false);
+                    string DownloadPath = await GetDailyPicturePathAsync().ConfigureAwait(false);
 
                     if (!string.IsNullOrWhiteSpace(DownloadPath))
                     {
@@ -132,32 +136,35 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static async Task<string> GetDailyPhotoPathAsync()
+        private static async Task<string> GetDailyPicturePathAsync()
         {
             try
             {
-                HttpWebRequest Request = WebRequest.CreateHttp(new Uri("http://cn.bing.com/HPImageArchive.aspx?idx=0&n=1"));
-                Request.Timeout = 10000;
-                Request.ReadWriteTimeout = 10000;
-
-                using (WebResponse Response = await Request.GetResponseAsync())
-                using (Stream ResponseStream = Response.GetResponseStream())
-                using (StreamReader Reader = new StreamReader(ResponseStream))
+                if (NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable)
                 {
-                    string XmlString = await Reader.ReadToEndAsync();
+                    HttpWebRequest Request = WebRequest.CreateHttp(new Uri("http://cn.bing.com/HPImageArchive.aspx?idx=0&n=1"));
+                    Request.Timeout = 10000;
+                    Request.ReadWriteTimeout = 10000;
 
-                    XmlDocument Document = new XmlDocument();
-                    Document.LoadXml(XmlString);
-
-                    if (Document.SelectSingleNode("/images/image/url") is IXmlNode Node)
+                    using (WebResponse Response = await Request.GetResponseAsync())
+                    using (Stream ResponseStream = Response.GetResponseStream())
+                    using (StreamReader Reader = new StreamReader(ResponseStream))
                     {
-                        return $"https://www.bing.com{Node.InnerText}";
+                        string XmlString = await Reader.ReadToEndAsync();
+
+                        XmlDocument Document = new XmlDocument();
+                        Document.LoadXml(XmlString);
+
+                        if (Document.SelectSingleNode("/images/image/url") is IXmlNode Node)
+                        {
+                            return $"https://www.bing.com{Node.InnerText}";
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(GetDailyPhotoPathAsync)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(GetDailyPicturePathAsync)}");
             }
 
             return string.Empty;

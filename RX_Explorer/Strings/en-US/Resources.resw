@@ -1611,8 +1611,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Unable to parse this PDF file, failed to open PDF</value>
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
-    <value>Some of the fixed folders are no longer found and will be automatically removed\r\rIncluding：\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Unable to find some pinned folders, would you like to remove them automatically? Including:</value>
   </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>There was a problem during the automatic restart, please restart the RX Explorer manually</value>
@@ -2123,7 +2122,7 @@ Invalid names include
     <value>Use Everything search engine (Faster)</value>
   </data>
   <data name="Operate_Text_UnlockBitlocker" xml:space="preserve">
-    <value>Unlock</value>
+    <value>Unlock the drive</value>
   </data>
   <data name="EverythingQuestionSubtitle" xml:space="preserve">
     <value>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything\r  2. Purchase this software to unlock this feature</value>

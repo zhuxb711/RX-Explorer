@@ -309,6 +309,12 @@ namespace RX_Explorer.View
                 Width = 320,
                 Label = Globalization.GetString("Operate_Text_Property")
             };
+            PropertyButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Menu,
+                Key = VirtualKey.Enter,
+                IsEnabled = false
+            });
             PropertyButton.Click += FolderProperty_Click;
 
             Flyout.SecondaryCommands.Add(PropertyButton);
@@ -1525,7 +1531,7 @@ namespace RX_Explorer.View
                         {
                             if (string.IsNullOrEmpty(StartupLocation))
                             {
-                                if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: " - NoExit"))
+                                if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: "-NoExit"))
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
@@ -1667,69 +1673,66 @@ namespace RX_Explorer.View
                             if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.TrimEnd('\\').Equals(Path.GetPathRoot(QueryText).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive && Drive is LockedDriveData LockedDrive)
                             {
                             Retry:
-                                BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
-
-                                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                try
                                 {
-                                    if (!await LockedDrive.UnlockAsync(Dialog.Password))
-                                    {
-                                        QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                        };
+                                    BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
 
-                                        if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        if (!await LockedDrive.UnlockAsync(Dialog.Password))
                                         {
-                                            goto Retry;
+                                            throw new UnlockDriveFailedException();
+                                        }
+
+                                        if (await DriveDataBase.CreateAsync(Drive) is DriveDataBase RefreshedDrive)
+                                        {
+                                            if (RefreshedDrive is LockedDriveData)
+                                            {
+                                                throw new UnlockDriveFailedException();
+                                            }
+                                            else
+                                            {
+                                                int Index = CommonAccessCollection.DriveList.IndexOf(Drive);
+
+                                                if (Index >= 0)
+                                                {
+                                                    CommonAccessCollection.DriveList.Remove(LockedDrive);
+                                                    CommonAccessCollection.DriveList.Insert(Index, RefreshedDrive);
+                                                }
+                                                else
+                                                {
+                                                    CommonAccessCollection.DriveList.Add(RefreshedDrive);
+                                                }
+                                            }
                                         }
                                         else
                                         {
-                                            return;
-                                        }
-                                    }
-
-                                    DriveDataBase NewDrive = await DriveDataBase.CreateAsync(Drive.DriveType, await StorageFolder.GetFolderFromPathAsync(Drive.Path));
-
-                                    if (NewDrive is LockedDriveData)
-                                    {
-                                        QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                        };
-
-                                        if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                        {
-                                            goto Retry;
-                                        }
-                                        else
-                                        {
-                                            return;
+                                            throw new UnauthorizedAccessException(Drive.Path);
                                         }
                                     }
                                     else
                                     {
-                                        int Index = CommonAccessCollection.DriveList.IndexOf(Drive);
-
-                                        if (Index >= 0)
-                                        {
-                                            CommonAccessCollection.DriveList.Remove(LockedDrive);
-                                            CommonAccessCollection.DriveList.Insert(Index, NewDrive);
-                                        }
-                                        else
-                                        {
-                                            CommonAccessCollection.DriveList.Add(NewDrive);
-                                        }
+                                        return;
                                     }
                                 }
-                                else
+                                catch (UnlockDriveFailedException)
                                 {
-                                    return;
+                                    QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
+
+                                    if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        goto Retry;
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
                                 }
                             }
 

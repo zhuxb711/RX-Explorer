@@ -2,6 +2,21 @@
 
 namespace RX_Explorer.Class
 {
+    public sealed class UnlockDriveFailedException : Exception
+    {
+        public UnlockDriveFailedException(string ErrorMessage) : base(ErrorMessage)
+        {
+        }
+
+        public UnlockDriveFailedException() : base()
+        {
+        }
+
+        public UnlockDriveFailedException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
     public sealed class LocationNotAvailableException : Exception
     {
         public LocationNotAvailableException(string ErrorMessage) : base(ErrorMessage)
@@ -83,17 +98,17 @@ namespace RX_Explorer.Class
         }
     }
 
-    public sealed class UnlockException : Exception
+    public sealed class UnlockFileFailedException : Exception
     {
-        public UnlockException(string ErrorMessage) : base(ErrorMessage)
+        public UnlockFileFailedException(string ErrorMessage) : base(ErrorMessage)
         {
         }
 
-        public UnlockException() : base()
+        public UnlockFileFailedException() : base()
         {
         }
 
-        public UnlockException(string message, Exception innerException) : base(message, innerException)
+        public UnlockFileFailedException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

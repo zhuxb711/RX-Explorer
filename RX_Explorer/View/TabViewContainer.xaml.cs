@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Deferred;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using System;
 using System.Collections.Generic;
@@ -157,21 +158,21 @@ namespace RX_Explorer.View
 
         private async void CommonAccessCollection_LibraryNotFound(object sender, IEnumerable<string> ErrorList)
         {
-            StringBuilder Builder = new StringBuilder();
-
-            foreach (string Message in ErrorList)
-            {
-                Builder.AppendLine($"   {Message}");
-            }
-
             QueueContentDialog Dialog = new QueueContentDialog
             {
                 Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                Content = Globalization.GetString("QueueDialog_PinFolderNotFound_Content") + Builder.ToString(),
-                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                Content = Globalization.GetString("QueueDialog_PinFolderNotFound_Content") + Environment.NewLine + string.Join(Environment.NewLine, ErrorList),
+                PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
+                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
             };
 
-            await Dialog.ShowAsync();
+            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                foreach (string ErrorPath in ErrorList)
+                {
+                    SQLite.Current.DeleteLibraryFolder(ErrorPath);
+                }
+            }
         }
 
         private async void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
@@ -209,7 +210,7 @@ namespace RX_Explorer.View
 
                             PropertiesWindowBase NewWindow = null;
 
-                            if (Control.CurrentPresenter.CurrentFolder == RootStorageFolder.Current)
+                            if (Control.CurrentPresenter.CurrentFolder is RootStorageFolder)
                             {
                                 Home HomeControl = Control.CurrentPresenter.RootFolderControl;
 
@@ -222,12 +223,9 @@ namespace RX_Explorer.View
                                     NewWindow = await PropertiesWindowBase.CreateAsync(Drive);
                                 }
                             }
-                            else if (Control.CurrentPresenter.SelectedItems.Count == 1)
+                            else if (Control.CurrentPresenter.SelectedItems.Count > 0)
                             {
-                                if (Control.CurrentPresenter.SelectedItem is FileSystemStorageItemBase Item)
-                                {
-                                    NewWindow = await PropertiesWindowBase.CreateAsync(Item);
-                                }
+                                NewWindow = await PropertiesWindowBase.CreateAsync(Control.CurrentPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray());
                             }
 
                             if (NewWindow != null)
@@ -328,6 +326,72 @@ namespace RX_Explorer.View
 
                                     switch (args.VirtualKey)
                                     {
+                                        case VirtualKey.U when CtrlDown:
+                                            {
+                                                if (HomeControl.DriveGrid.SelectedItem is LockedDriveData LockedDrive)
+                                                {
+                                                Retry:
+                                                    try
+                                                    {
+                                                        BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
+
+                                                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                                        {
+                                                            if (!await LockedDrive.UnlockAsync(Dialog.Password))
+                                                            {
+                                                                throw new UnlockDriveFailedException();
+                                                            }
+
+                                                            if (await DriveDataBase.CreateAsync(LockedDrive) is DriveDataBase RefreshedDrive)
+                                                            {
+                                                                if (RefreshedDrive is LockedDriveData)
+                                                                {
+                                                                    throw new UnlockDriveFailedException();
+                                                                }
+                                                                else
+                                                                {
+                                                                    int Index = CommonAccessCollection.DriveList.IndexOf(LockedDrive);
+
+                                                                    if (Index >= 0)
+                                                                    {
+                                                                        CommonAccessCollection.DriveList.Remove(LockedDrive);
+                                                                        CommonAccessCollection.DriveList.Insert(Index, RefreshedDrive);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        CommonAccessCollection.DriveList.Add(RefreshedDrive);
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                throw new UnauthorizedAccessException(LockedDrive.Path);
+                                                            }
+                                                        }
+                                                    }
+                                                    catch (UnlockDriveFailedException)
+                                                    {
+                                                        QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                                        };
+
+                                                        if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                                        {
+                                                            goto Retry;
+                                                        }
+                                                        else
+                                                        {
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+
+                                                break;
+                                            }
                                         case VirtualKey.Space when SettingPage.IsQuicklookEnabled && !SettingPage.IsOpened:
                                             {
                                                 args.Handled = true;
@@ -496,7 +560,7 @@ namespace RX_Explorer.View
                                                 {
                                                     args.Handled = true;
 
-                                                    HomeControl.OpenTargetFolder(string.IsNullOrEmpty(Drive.Path) ? Drive.DriveId : Drive.Path);
+                                                    HomeControl.OpenTargetFolder(string.IsNullOrEmpty(Drive.Path) ? Drive.DeviceId : Drive.Path);
                                                 }
                                                 else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library)
                                                 {

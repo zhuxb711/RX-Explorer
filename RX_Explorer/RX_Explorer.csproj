@@ -122,7 +122,7 @@
     <Compile Include="Class\AppInstanceIdContainer.cs" />
     <Compile Include="Class\BackgroundController.cs" />
     <Compile Include="Class\BackgroundPicture.cs" />
-    <Compile Include="Class\BingPhotoDownloader.cs" />
+    <Compile Include="Class\BingPictureDownloader.cs" />
     <Compile Include="Class\BluetoothAudioDeviceData.cs" />
     <Compile Include="Class\BluetoothDeivceData.cs" />
     <Compile Include="Class\AppThemeController.cs" />

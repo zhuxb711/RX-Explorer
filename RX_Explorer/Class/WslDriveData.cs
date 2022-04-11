@@ -9,7 +9,7 @@ namespace RX_Explorer.Class
             return Task.CompletedTask;
         }
 
-        public WslDriveData(FileSystemStorageFolder Drive, string DriveId = null) : base(Drive, System.IO.DriveType.Network, DriveId)
+        public WslDriveData(FileSystemStorageFolder Drive, string DeviceId = null) : base(Drive, System.IO.DriveType.Network, DeviceId)
         {
 
         }

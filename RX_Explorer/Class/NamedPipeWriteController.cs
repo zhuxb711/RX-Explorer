@@ -33,7 +33,7 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log("Could not write pipeline data because the pipeline is closed");
                     }
-                    catch (AggregateException ex) when (ex.InnerException is TaskCanceledException or OperationCanceledException)
+                    catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
                     {
                         LogTracer.Log("Could not write pipeline data because connection timeout");
                     }

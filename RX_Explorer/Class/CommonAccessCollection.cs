@@ -187,11 +187,6 @@ namespace RX_Explorer.Class
 
                     if (!ErrorList.IsEmpty)
                     {
-                        foreach (string ErrorPath in ErrorList)
-                        {
-                            SQLite.Current.DeleteLibraryFolder(ErrorPath);
-                        }
-
                         LibraryNotFound?.Invoke(null, ErrorList);
                     }
                 }
@@ -208,10 +203,7 @@ namespace RX_Explorer.Class
             {
                 if (Interlocked.CompareExchange(ref IsDriveLoaded, 1, 0) == 0 || IsRefresh)
                 {
-                    await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        DriveList.Clear();
-                    });
+                    DriveList.Clear();
 
                     List<Task> LongRunningTaskList = new List<Task>();
 
@@ -223,13 +215,25 @@ namespace RX_Explorer.Class
                             {
                                 LogTracer.Log(Ex, $"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
                             }
-                            else if (!DriveList.Contains(PreviousTask.Result))
+                            else
                             {
-                                DriveList.Add(PreviousTask.Result);
+                                if (PreviousTask.Result != null)
+                                {
+                                    if (DriveList.Contains(PreviousTask.Result))
+                                    {
+                                        DriveList.Remove(PreviousTask.Result);
+                                    }
+
+                                    DriveList.Add(PreviousTask.Result);
+                                }
+                                else
+                                {
+                                    LogTracer.Log($"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
+                                }
                             }
                         }, TaskScheduler.FromCurrentSynchronizationContext());
 
-                        if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
+                        if (await Task.WhenAny(LoadTask, Task.Delay(1000)) != LoadTask)
                         {
                             LongRunningTaskList.Add(LoadTask);
                         }
@@ -245,13 +249,25 @@ namespace RX_Explorer.Class
                                 {
                                     LogTracer.Log(Ex, $"Ignore the drive \"{Device.Name}\" because we could not get details from this drive");
                                 }
-                                else if (PreviousTask.Result != null && !DriveList.Contains(PreviousTask.Result))
+                                else
                                 {
-                                    DriveList.Add(PreviousTask.Result);
+                                    if (PreviousTask.Result != null)
+                                    {
+                                        if (DriveList.Contains(PreviousTask.Result))
+                                        {
+                                            DriveList.Remove(PreviousTask.Result);
+                                        }
+
+                                        DriveList.Add(PreviousTask.Result);
+                                    }
+                                    else
+                                    {
+                                        LogTracer.Log($"Ignore the drive \"{Device.Name}\" because we could not get details from this drive");
+                                    }
                                 }
                             }, TaskScheduler.FromCurrentSynchronizationContext());
 
-                            if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
+                            if (await Task.WhenAny(LoadTask, Task.Delay(1000)) != LoadTask)
                             {
                                 LongRunningTaskList.Add(LoadTask);
                             }
@@ -262,19 +278,29 @@ namespace RX_Explorer.Class
                     {
                         foreach (StorageFolder WslFolder in await GetAvailableWslDriveAsync())
                         {
-                            Task LoadTask = DriveDataBase.CreateAsync(DriveType.Network, WslFolder).ContinueWith((PreviousTask) =>
+                            Task LoadTask = DriveDataBase.CreateAsync(DriveType.Network, new FileSystemStorageFolder(WslFolder)).ContinueWith((PreviousTask) =>
                             {
                                 if (PreviousTask.Exception is Exception Ex)
                                 {
                                     LogTracer.Log(Ex, $"Ignore the drive \"{WslFolder.Path}\" because we could not get details from this drive");
                                 }
-                                else if (!DriveList.Contains(PreviousTask.Result))
+                                else
                                 {
-                                    DriveList.Add(PreviousTask.Result);
+                                    if (PreviousTask.Result != null)
+                                    {
+                                        if (!DriveList.Contains(PreviousTask.Result))
+                                        {
+                                            DriveList.Add(PreviousTask.Result);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        LogTracer.Log($"Ignore the drive \"{WslFolder.Path}\" because we could not get details from this drive");
+                                    }
                                 }
                             }, TaskScheduler.FromCurrentSynchronizationContext());
 
-                            if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
+                            if (await Task.WhenAny(LoadTask, Task.Delay(1000)) != LoadTask)
                             {
                                 LongRunningTaskList.Add(LoadTask);
                             }
@@ -305,17 +331,21 @@ namespace RX_Explorer.Class
         {
             try
             {
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                if (DriveList.FirstOrDefault((Drive) => Drive.DeviceId == args.Id) is DriveDataBase RemovedDrive)
                 {
-                    if (DriveList.FirstOrDefault((Drive) => Drive.DriveId == args.Id) is DriveDataBase RemovedDrive)
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {
                         DriveList.Remove(RemovedDrive);
-                    }
-                });
+                    });
+                }
+                else
+                {
+                    throw new Exception($"Device Id: {args.Id}, Device Kind: {Enum.GetName(typeof(DeviceInformationKind), args.Kind)}");
+                }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An exception was threw im {nameof(PortalDriveWatcher_Removed)}");
+                LogTracer.Log(ex, "Could not remove the drive because drive is not found in the drive list");
             }
         }
 
@@ -325,20 +355,27 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (await DriveDataBase.CreateAsync(DriveType.Removable, args) is DriveDataBase NewDrive)
+                    if (DriveList.All((Drive) => Drive.DeviceId != args.Id))
                     {
-                        if (!DriveList.Contains(NewDrive))
+                        if (await DriveDataBase.CreateAsync(DriveType.Removable, args) is DriveDataBase NewDrive)
                         {
-                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            if (!DriveList.Contains(NewDrive))
                             {
-                                DriveList.Add(NewDrive);
-                            });
+                                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    DriveList.Add(NewDrive);
+                                });
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception($"Device Id: {args.Id}, Device Name: {args.Name}, Device Kind: {Enum.GetName(typeof(DeviceInformationKind), args.Kind)}");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"An exception was threw in {nameof(PortalDriveWatcher_Added)}");
+                    LogTracer.Log(ex, $"Ignore the drive because we could not create {nameof(DriveDataBase)} from this drive");
                 }
             }
         }
@@ -439,15 +476,20 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    DriveDataBase NetworkDrive = await DriveDataBase.CreateAsync(Drive);
-
-                    await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                    if (await DriveDataBase.CreateAsync(Drive) is DriveDataBase NetworkDrive)
                     {
                         if (!DriveList.Contains(NetworkDrive))
                         {
-                            DriveList.Add(NetworkDrive);
+                            await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                DriveList.Add(NetworkDrive);
+                            });
                         }
-                    });
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
                 }
                 catch (Exception ex)
                 {

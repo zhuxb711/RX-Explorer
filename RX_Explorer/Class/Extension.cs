@@ -1201,7 +1201,7 @@ namespace RX_Explorer.Class
                                                              }
                                                              catch (Exception ex)
                                                              {
-                                                                 LogTracer.Log(ex, "Could not get thumbnail from UWP API");
+                                                                 LogTracer.Log(ex.InnerException ?? ex, "Could not get thumbnail from UWP API");
                                                              }
 
                                                              return null;
@@ -1227,7 +1227,7 @@ namespace RX_Explorer.Class
                                                            }
                                                            catch (Exception ex)
                                                            {
-                                                               LogTracer.Log(ex, "Could not get thumbnail from UWP API");
+                                                               LogTracer.Log(ex.InnerException ?? ex, "Could not get thumbnail from UWP API");
                                                            }
 
                                                            return null;

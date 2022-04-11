@@ -97,12 +97,13 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
         }
 
-        private CancellationTokenSource SizeCalculateCancellation;
         private CancellationTokenSource Md5Cancellation;
         private CancellationTokenSource SHA1Cancellation;
         private CancellationTokenSource SHA256Cancellation;
-        private CancellationTokenSource SavingCancellation;
+        private readonly CancellationTokenSource SavingCancellation = new CancellationTokenSource();
+        private readonly CancellationTokenSource SizeCalculateCancellation = new CancellationTokenSource();
 
+        private bool IsClosed;
         private int ActionButtonLockResource;
 
         private readonly PointerEventHandler PointerPressedHandler;
@@ -321,20 +322,33 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             if (SaveConfig)
             {
-                await SaveConfiguration();
+                await SaveConfigurationAsync(SavingCancellation.Token);
             }
 
-            await Window.CloseAsync();
+            if (!IsClosed)
+            {
+                await Window.CloseAsync();
+            }
         }
 
         private void Window_Closed(AppWindow sender, AppWindowClosedEventArgs args)
         {
             Window.Closed -= Window_Closed;
 
-            SizeCalculateCancellation?.Cancel();
             Md5Cancellation?.Cancel();
+            Md5Cancellation?.Dispose();
+
             SHA1Cancellation?.Cancel();
+            SHA1Cancellation?.Dispose();
+
             SHA256Cancellation?.Cancel();
+            SHA256Cancellation?.Dispose();
+
+            SizeCalculateCancellation?.Cancel();
+            SizeCalculateCancellation?.Dispose();
+
+            SavingCancellation.Cancel();
+            SavingCancellation.Dispose();
 
             switch ((StorageItems?.Length).GetValueOrDefault())
             {
@@ -386,13 +400,13 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     }
             }
 
+            IsClosed = true;
+
             WindowClosed?.Invoke(this, new EventArgs());
         }
 
-        private async Task SaveConfiguration()
+        private async Task SaveConfigurationAsync(CancellationToken CancelToken)
         {
-            SavingCancellation = new CancellationTokenSource();
-
             try
             {
                 _ = Task.Delay(2000).ContinueWith((_) =>
@@ -520,20 +534,14 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                             await RenameRequested?.InvokeAsync(this, new FileRenamedDeferredEventArgs(RootDrive.Path, RootDriveName.Text));
                         }
 
-                        try
+                        if (await DriveDataBase.CreateAsync(RootDrive) is DriveDataBase RefreshedDrive)
                         {
-                            DriveDataBase RefreshedDrive = await DriveDataBase.CreateAsync(RootDrive.DriveType, await StorageFolder.GetFolderFromPathAsync(RootDrive.Path));
-
                             int Index = CommonAccessCollection.DriveList.IndexOf(RootDrive);
 
                             if (CommonAccessCollection.DriveList.Remove(RootDrive))
                             {
                                 CommonAccessCollection.DriveList.Insert(Index, RefreshedDrive);
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, "Could not refresh the drive after renaming");
                         }
                     }
 
@@ -544,7 +552,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                             await Exclusive.Controller.SetDriveCompressionStatusAsync(RootDrive.Path,
                                                                                       CompressDrive.IsChecked.GetValueOrDefault(),
                                                                                       CompressDriveOptionApplySubItems.IsChecked.GetValueOrDefault() && !CompressDriveOptionApplyToRoot.IsChecked.GetValueOrDefault(),
-                                                                                      SavingCancellation.Token);
+                                                                                      CancelToken);
                         }
                     }
 
@@ -555,7 +563,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                             await Exclusive.Controller.SetDriveIndexStatusAsync(RootDrive.Path,
                                                                                 AllowIndex.IsChecked.GetValueOrDefault(),
                                                                                 AllowIndexOptionApplySubItems.IsChecked.GetValueOrDefault() && !AllowIndexOptionApplyToRoot.IsChecked.GetValueOrDefault(),
-                                                                                SavingCancellation.Token);
+                                                                                CancelToken);
                         }
                     }
                 }
@@ -563,10 +571,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not save the changes in property window");
-            }
-            finally
-            {
-                SavingCancellation.Dispose();
             }
         }
 
@@ -1150,8 +1154,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                         try
                         {
-                            SizeCalculateCancellation = new CancellationTokenSource();
-
                             long FileCount = 0;
                             long FolderCount = 0;
                             long TotalSize = 0;
@@ -1166,9 +1168,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     {
                                         Interlocked.Increment(ref FolderCount);
 
-                                        IReadOnlyList<FileSystemStorageItemBase> Result = Folder.GetChildItemsAsync(true, true, true, CancelToken: SizeCalculateCancellation.Token).ToEnumerable().ToList();
+                                        CancellationToken CancelToken = SizeCalculateCancellation.Token;
 
-                                        if (!SizeCalculateCancellation.IsCancellationRequested)
+                                        IReadOnlyList<FileSystemStorageItemBase> Result = Folder.GetChildItemsAsync(true, true, true, CancelToken: CancelToken).ToEnumerable().ToList();
+
+                                        if (!CancelToken.IsCancellationRequested)
                                         {
                                             Interlocked.Add(ref TotalSize, Result.OfType<FileSystemStorageFile>().Sum((SubFile) => Convert.ToInt64(SubFile.Size)));
                                             Interlocked.Add(ref FileCount, Result.OfType<FileSystemStorageFile>().LongCount());
@@ -1187,10 +1191,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                         SizeOnDiskTaskList.Add(File.GetSizeOnDiskAsync());
                                     }
                                 }
-                                catch (TaskCanceledException)
-                                {
-                                    //No need to handle this exception
-                                }
                                 catch (Exception ex)
                                 {
                                     LogTracer.Log(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception");
@@ -1207,11 +1207,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         catch (Exception ex)
                         {
                             LogTracer.Log(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception");
-                        }
-                        finally
-                        {
-                            SizeCalculateCancellation.Dispose();
-                            SizeCalculateCancellation = null;
                         }
 
                         break;
@@ -1236,33 +1231,27 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                     try
                                     {
-                                        SizeCalculateCancellation = new CancellationTokenSource();
+                                        CancellationToken CancelToken = SizeCalculateCancellation.Token;
 
-                                        Task CountTask = CalculateFolderAndFileCount(Folder, SizeCalculateCancellation.Token).ContinueWith((PreviousTask) =>
+                                        Task CountTask = CalculateFolderAndFileCount(Folder, CancelToken).ContinueWith((PreviousTask) =>
                                         {
                                             FolderContainsContent.Text = $"{PreviousTask.Result.Item1} {Globalization.GetString("FolderInfo_File_Count")} , {PreviousTask.Result.Item2} {Globalization.GetString("FolderInfo_Folder_Count")}";
                                         }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                                        Task SizeTask = CalculateFolderSize(Folder, SizeCalculateCancellation.Token).ContinueWith((PreviousTask) =>
+                                        Task SizeTask = CalculateFolderSize(Folder, CancelToken).ContinueWith((PreviousTask) =>
                                         {
                                             FolderSizeContent.Text = $"{PreviousTask.Result.GetSizeDescription()} ({PreviousTask.Result:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
-
                                         }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
                                         await Task.WhenAll(CountTask, SizeTask);
                                     }
-                                    catch (TaskCanceledException)
+                                    catch (OperationCanceledException)
                                     {
                                         //No need to handle this exception
                                     }
                                     catch (Exception ex)
                                     {
                                         LogTracer.Log(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception");
-                                    }
-                                    finally
-                                    {
-                                        SizeCalculateCancellation.Dispose();
-                                        SizeCalculateCancellation = null;
                                     }
 
                                     break;
@@ -1585,30 +1574,20 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async Task<ulong> CalculateFolderSize(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)
         {
-            ulong TotalSize = await Folder.GetFolderSizeAsync(CancelToken).ConfigureAwait(false);
+            ulong TotalSize = await Folder.GetFolderSizeAsync(CancelToken);
 
-            if (CancelToken.IsCancellationRequested)
-            {
-                throw new TaskCanceledException($"{nameof(CalculateFolderSize)} was canceled");
-            }
-            else
-            {
-                return TotalSize;
-            }
+            CancelToken.ThrowIfCancellationRequested();
+
+            return TotalSize;
         }
 
         private async Task<(ulong, ulong)> CalculateFolderAndFileCount(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)
         {
             IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(true, true, true, CancelToken: CancelToken).ToListAsync();
 
-            if (CancelToken.IsCancellationRequested)
-            {
-                throw new TaskCanceledException($"{nameof(CalculateFolderAndFileCount)} was canceled");
-            }
-            else
-            {
-                return (Convert.ToUInt64(Result.OfType<FileSystemStorageFile>().LongCount()), Convert.ToUInt64(Result.OfType<FileSystemStorageFolder>().LongCount()));
-            }
+            CancelToken.ThrowIfCancellationRequested();
+
+            return (Convert.ToUInt64(Result.OfType<FileSystemStorageFile>().LongCount()), Convert.ToUInt64(Result.OfType<FileSystemStorageFolder>().LongCount()));
         }
 
         private void ShortcutKeyContent_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -1684,10 +1663,13 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    MD5TextBox.IsEnabled = false;
-                    CalculateMd5.IsEnabled = false;
                     MD5Progress.Value = 0;
+                    MD5TextBox.IsEnabled = false;
                     MD5TextBox.Text = Globalization.GetString("HashPlaceHolderText");
+                    CalculateMd5.IsEnabled = false;
+
+                    Md5Cancellation?.Cancel();
+                    Md5Cancellation?.Dispose();
                     Md5Cancellation = new CancellationTokenSource();
 
                     using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
@@ -1702,16 +1684,12 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         });
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     MD5TextBox.Text = Globalization.GetString("HashError");
-                    LogTracer.Log(ex, "Calculate MD5 failed");
                 }
                 finally
                 {
-                    Md5Cancellation?.Dispose();
-                    Md5Cancellation = null;
-
                     if ((DateTimeOffset.Now - StartTime).TotalMilliseconds < 500)
                     {
                         await Task.Delay(500);
@@ -1734,10 +1712,13 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    SHA1TextBox.IsEnabled = false;
-                    CalculateSHA1.IsEnabled = false;
                     SHA1Progress.Value = 0;
+                    SHA1TextBox.IsEnabled = false;
                     SHA1TextBox.Text = Globalization.GetString("HashPlaceHolderText");
+                    CalculateSHA1.IsEnabled = false;
+
+                    SHA1Cancellation?.Cancel();
+                    SHA1Cancellation?.Dispose();
                     SHA1Cancellation = new CancellationTokenSource();
 
                     using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
@@ -1752,16 +1733,12 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         });
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     SHA1TextBox.Text = Globalization.GetString("HashError");
-                    LogTracer.Log(ex, "Calculate SHA1 failed");
                 }
                 finally
                 {
-                    SHA1Cancellation?.Dispose();
-                    SHA1Cancellation = null;
-
                     if ((DateTimeOffset.Now - StartTime).TotalMilliseconds < 500)
                     {
                         await Task.Delay(500);
@@ -1784,10 +1761,13 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    SHA256TextBox.IsEnabled = false;
-                    CalculateSHA256.IsEnabled = false;
                     SHA256Progress.Value = 0;
+                    SHA256TextBox.IsEnabled = false;
                     SHA256TextBox.Text = Globalization.GetString("HashPlaceHolderText");
+                    CalculateSHA256.IsEnabled = false;
+
+                    SHA256Cancellation?.Cancel();
+                    SHA256Cancellation?.Dispose();
                     SHA256Cancellation = new CancellationTokenSource();
 
                     using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
@@ -1802,16 +1782,12 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         });
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     SHA256TextBox.Text = Globalization.GetString("HashError");
-                    LogTracer.Log(ex, "Calculate SHA256 failed");
                 }
                 finally
                 {
-                    SHA256Cancellation?.Dispose();
-                    SHA256Cancellation = null;
-
                     if ((DateTimeOffset.Now - StartTime).TotalMilliseconds < 500)
                     {
                         await Task.Delay(500);
@@ -1867,7 +1843,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     UnlockText.Text = Globalization.GetString("Properties_Tools_Unlock_FileNotFound");
                 }
-                catch (UnlockException)
+                catch (UnlockFileFailedException)
                 {
                     UnlockText.Text = Globalization.GetString("Properties_Tools_Unlock_NoLock");
                 }

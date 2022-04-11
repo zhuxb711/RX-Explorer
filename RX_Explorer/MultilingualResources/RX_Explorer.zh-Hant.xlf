@@ -1914,9 +1914,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">無法解析此PDF文件，無法打開PDF</target>
         </trans-unit>
         <trans-unit id="QueueDialog_PinFolderNotFound_Content" translate="yes" xml:space="preserve">
-          <source>Some of the fixed folders are no longer found and will be automatically removed\r\rIncluding：\r</source>
-          <target state="translated">某些釘選的資料夾已不存在，將被自動刪除\r\r包括：\r</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>Unable to find some pinned folders, would you like to remove them automatically? Including:</source>
+          <target state="translated">無法找到一些釘選的資料夾，您想自動刪除它們嗎? 包含:</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RestartFail_Content" translate="yes" xml:space="preserve">
           <source>There was a problem during the automatic restart, please restart the RX Explorer manually</source>
@@ -2613,8 +2612,8 @@ Invalid names include
           <target state="translated">使用Everything搜索引擎 (更快)</target>
         </trans-unit>
         <trans-unit id="Operate_Text_UnlockBitlocker" translate="yes" xml:space="preserve">
-          <source>Unlock</source>
-          <target state="translated">開鎖</target>
+          <source>Unlock the drive</source>
+          <target state="translated">開鎖驅動器</target>
         </trans-unit>
         <trans-unit id="EverythingQuestion.Title" translate="yes" xml:space="preserve">
           <source>Everything Search Engine</source>

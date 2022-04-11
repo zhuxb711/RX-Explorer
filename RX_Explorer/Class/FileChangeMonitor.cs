@@ -50,8 +50,6 @@ namespace RX_Explorer.Class
 
                 if (MonitorPointer.IsInvalid)
                 {
-                    LogTracer.Log($"Could not create the monitor on directory from native api, fallback to fulltrust process, path: {Path}");
-
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         MonitorPointer = await Exclusive.Controller.GetDirectoryMonitorHandleAsync(Path);

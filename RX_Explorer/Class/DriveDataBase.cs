@@ -137,7 +137,7 @@ namespace RX_Explorer.Class
 
         public DriveType DriveType { get; private set; }
 
-        public string DriveId { get; }
+        public string DeviceId { get; }
 
         /*
                  * | System.Volume.      | Control Panel                    | manage-bde conversion     | manage-bde     | Get-BitlockerVolume          | Get-BitlockerVolume |
@@ -202,55 +202,79 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, StorageFolder DriveFolder)
+        public static async Task<DriveDataBase> CreateAsync(DriveDataBase Drive)
         {
-            if (string.IsNullOrEmpty(DriveFolder.Path))
+            if (await FileSystemStorageItemBase.OpenAsync(Drive.Path) is FileSystemStorageFolder Folder)
             {
-                throw new ArgumentNullException(nameof(DriveFolder.Path), "Path is invalid and please use DriveId to create it instead");
+                return await CreateAsync(Drive.DriveType, Folder, string.IsNullOrEmpty(Drive.DeviceId) ? null : await DeviceInformation.CreateFromIdAsync(Drive.DeviceId));
             }
 
-            return await CreateAsync(DriveType, new FileSystemStorageFolder(DriveFolder));
+            return null;
         }
 
-        private static async Task<DriveDataBase> CreateAsync(DriveType DriveType, FileSystemStorageFolder DriveFolder, DeviceInformation DeviceInfo = null)
+        public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, string DeviceId)
         {
-            if (DriveFolder.Path.StartsWith(@"\\wsl", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(DeviceId))
             {
-                return new WslDriveData(DriveFolder, DeviceInfo?.Id);
+                throw new ArgumentNullException(nameof(DeviceId));
             }
-            else if (DriveFolder.Path.TrimEnd('\\').Equals(DeviceInfo?.Id, StringComparison.OrdinalIgnoreCase))
-            {
-                return new MTPDriveData(DriveFolder, DeviceInfo?.Id);
-            }
-            else
-            {
-                string[] Properties = new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" };
 
-                Dictionary<string, string> DeviceProperties = new Dictionary<string, string>();
+            return await CreateAsync(DriveType, await DeviceInformation.CreateFromIdAsync(DeviceId));
+        }
 
-                if (DeviceInfo != null)
+        public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, FileSystemStorageFolder DriveFolder)
+        {
+            return await CreateAsync(DriveType, DriveFolder, null);
+        }
+
+        private static async Task<DriveDataBase> CreateAsync(DriveType DriveType, FileSystemStorageFolder DriveFolder, DeviceInformation DeviceInfo)
+        {
+            try
+            {
+                if (DriveFolder.Path.StartsWith(@"\\wsl", StringComparison.OrdinalIgnoreCase))
                 {
-                    foreach (string Property in Properties)
+                    return new WslDriveData(DriveFolder, DeviceInfo?.Id);
+                }
+                else if (DriveFolder.Path.TrimEnd('\\').Equals(DeviceInfo?.Id, StringComparison.OrdinalIgnoreCase))
+                {
+                    return new MTPDriveData(DriveFolder, DeviceInfo?.Id);
+                }
+                else
+                {
+                    string[] Properties = new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" };
+
+                    Dictionary<string, string> DeviceProperties = new Dictionary<string, string>(Properties.Length);
+
+                    if (DeviceInfo != null)
                     {
-                        if (DeviceInfo.Properties.TryGetValue(Property, out object Value) && !string.IsNullOrEmpty(Convert.ToString(Value)))
+                        foreach (string Property in Properties)
                         {
-                            DeviceProperties.Add(Property, Convert.ToString(Value));
+                            if (DeviceInfo.Properties.TryGetValue(Property, out object Value) && !string.IsNullOrEmpty(Convert.ToString(Value)))
+                            {
+                                DeviceProperties.Add(Property, Convert.ToString(Value));
+                            }
                         }
                     }
-                }
 
-                DeviceProperties.AddRange(await DriveFolder.GetPropertiesAsync(Properties.Except(DeviceProperties.Keys)));
+                    DeviceProperties.AddRange(await DriveFolder.GetPropertiesAsync(Properties.Except(DeviceProperties.Keys)));
 
-                if (DeviceProperties.TryGetValue("System.Volume.BitLockerProtection", out string BitlockerStateRaw) && !string.IsNullOrEmpty(BitlockerStateRaw))
-                {
-                    if (Convert.ToInt32(BitlockerStateRaw) == 6)
+                    if (DeviceProperties.TryGetValue("System.Volume.BitLockerProtection", out string BitlockerStateRaw) && !string.IsNullOrEmpty(BitlockerStateRaw))
                     {
-                        return new LockedDriveData(DriveFolder, DeviceProperties, DriveType, DeviceInfo?.Id);
+                        if (Convert.ToInt32(BitlockerStateRaw) == 6)
+                        {
+                            return new LockedDriveData(DriveFolder, DeviceProperties, DriveType, DeviceInfo?.Id);
+                        }
                     }
-                }
 
-                return new NormalDriveData(DriveFolder, DeviceProperties, DriveType, DeviceInfo?.Id);
+                    return new NormalDriveData(DriveFolder, DeviceProperties, DriveType, DeviceInfo?.Id);
+                }
             }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not create the {nameof(DriveDataBase)} from {nameof(FileSystemStorageFolder)} and {nameof(DeviceInformation)}");
+            }
+
+            return null;
         }
 
         public async Task LoadAsync()
@@ -374,9 +398,9 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(DriveId) && !string.IsNullOrEmpty(other.DriveId))
+                    if (!string.IsNullOrEmpty(DeviceId) && !string.IsNullOrEmpty(other.DeviceId))
                     {
-                        return DriveId.Equals(other.DriveId, StringComparison.OrdinalIgnoreCase);
+                        return DeviceId.Equals(other.DeviceId, StringComparison.OrdinalIgnoreCase);
                     }
                     else
                     {
@@ -396,9 +420,9 @@ namespace RX_Explorer.Class
             {
                 if (obj is DriveDataBase Item)
                 {
-                    if (!string.IsNullOrEmpty(DriveId) && !string.IsNullOrEmpty(Item.DriveId))
+                    if (!string.IsNullOrEmpty(DeviceId) && !string.IsNullOrEmpty(Item.DeviceId))
                     {
-                        return DriveId.Equals(Item.DriveId, StringComparison.OrdinalIgnoreCase);
+                        return DeviceId.Equals(Item.DeviceId, StringComparison.OrdinalIgnoreCase);
                     }
                     else
                     {
@@ -419,7 +443,7 @@ namespace RX_Explorer.Class
 
         public override string ToString()
         {
-            return $"Path: {Path}, DriveId: {DriveId ?? "<None>"}";
+            return $"Path: {Path}, DriveId: {DeviceId ?? "<None>"}";
         }
 
         public static bool operator ==(DriveDataBase left, DriveDataBase right)
@@ -436,9 +460,9 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(left.DriveId) && !string.IsNullOrEmpty(right.DriveId))
+                    if (!string.IsNullOrEmpty(left.DeviceId) && !string.IsNullOrEmpty(right.DeviceId))
                     {
-                        return left.DriveId.Equals(right.DriveId, StringComparison.OrdinalIgnoreCase);
+                        return left.DeviceId.Equals(right.DeviceId, StringComparison.OrdinalIgnoreCase);
                     }
                     else
                     {
@@ -462,9 +486,9 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(left.DriveId) && !string.IsNullOrEmpty(right.DriveId))
+                    if (!string.IsNullOrEmpty(left.DeviceId) && !string.IsNullOrEmpty(right.DeviceId))
                     {
-                        return !left.DriveId.Equals(right.DriveId, StringComparison.OrdinalIgnoreCase);
+                        return !left.DeviceId.Equals(right.DeviceId, StringComparison.OrdinalIgnoreCase);
                     }
                     else
                     {
@@ -474,14 +498,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected DriveDataBase(FileSystemStorageFolder DriveFolder, DriveType DriveType, string DriveId = null)
+        protected DriveDataBase(FileSystemStorageFolder DriveFolder, DriveType DriveType, string DeviceId = null)
         {
             this.DriveFolder = DriveFolder ?? throw new ArgumentNullException(nameof(DriveFolder), "Argument could not be null");
             this.DriveType = DriveType;
-            this.DriveId = DriveId;
+            this.DeviceId = DeviceId;
         }
 
-        protected DriveDataBase(FileSystemStorageFolder DriveFolder, IReadOnlyDictionary<string, string> PropertiesRetrieve, DriveType DriveType, string DriveId = null) : this(DriveFolder, DriveType, DriveId)
+        protected DriveDataBase(FileSystemStorageFolder DriveFolder, IReadOnlyDictionary<string, string> PropertiesRetrieve, DriveType DriveType, string DeviceId = null) : this(DriveFolder, DriveType, DeviceId)
         {
             if (PropertiesRetrieve != null)
             {

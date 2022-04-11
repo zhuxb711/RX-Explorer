@@ -11,7 +11,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public NormalDriveData(FileSystemStorageFolder Drive, DriveType DriveType, string DriveId = null) : base(Drive, DriveType, DriveId)
+        public NormalDriveData(FileSystemStorageFolder Drive, DriveType DriveType, string DeviceId = null) : base(Drive, DriveType, DeviceId)
         {
 
         }

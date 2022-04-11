@@ -1497,8 +1497,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>PDF-Datei konnte nicht analysiert werden. PDF-Datei konnte nicht geöffnet werden.</value>
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
-    <value>Einige der fixierten Ordner können nicht mehr gefunden werden und werden automatisch entfernt.\r\rEinschließlich：\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Einige angeheftete Ordner können nicht gefunden werden. Möchten Sie sie automatisch entfernen? Einschließlich:</value>
   </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>Es ist ein Problem während des automatischen Neustarts aufgetreten. Bitte starten Sie RX-Explorer manuell neu.</value>
@@ -2009,7 +2008,7 @@ Inkorrekte Namen sind
     <value>Everything-Suchmaschine verwenden (schneller)</value>
   </data>
   <data name="Operate_Text_UnlockBitlocker" xml:space="preserve">
-    <value>Entsperren</value>
+    <value>Entsperren Sie das Laufwerk</value>
   </data>
   <data name="EverythingQuestionSubtitle" xml:space="preserve">
     <value>Die Everything-Suchmaschine bringt extrem schnelle Suchergebnisse. Wenn sie Everything verwenden möchten müssen Sie \r 1. Everything installieren und ausführen\r 2. Diese Software kaufen um diese Funktion zu entsperren</value>

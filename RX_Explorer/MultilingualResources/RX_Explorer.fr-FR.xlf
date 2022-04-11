@@ -1889,9 +1889,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Impossible de coller ce fichier PDF, l'ouverture a échoué</target>
         </trans-unit>
         <trans-unit id="QueueDialog_PinFolderNotFound_Content" translate="yes" xml:space="preserve">
-          <source>Some of the fixed folders are no longer found and will be automatically removed\r\rIncluding：\r</source>
-          <target state="translated">Certains des dossiers fixes ne sont plus trouvés et seront automatiquement supprimés\r\rDont：\r</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>Unable to find some pinned folders, would you like to remove them automatically? Including:</source>
+          <target state="translated">Impossible de trouver certains dossiers épinglés, souhaitez-vous les supprimer automatiquement ? Y compris:</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RestartFail_Content" translate="yes" xml:space="preserve">
           <source>There was a problem during the automatic restart, please restart the RX Explorer manually</source>
@@ -2613,8 +2612,8 @@ Les noms non valides incluent
           <target state="translated">Utilisez le moteur de recherche Everything (plus rapide)</target>
         </trans-unit>
         <trans-unit id="Operate_Text_UnlockBitlocker" translate="yes" xml:space="preserve">
-          <source>Unlock</source>
-          <target state="translated">Ouvrir</target>
+          <source>Unlock the drive</source>
+          <target state="translated">Déverrouiller le lecteur</target>
         </trans-unit>
         <trans-unit id="EverythingQuestion.Title" translate="yes" xml:space="preserve">
           <source>Everything Search Engine</source>

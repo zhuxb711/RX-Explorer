@@ -105,8 +105,7 @@ namespace RX_Explorer.View
             };
             OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
             {
-                Modifiers = VirtualKeyModifiers.Control,
-                Key = VirtualKey.G,
+                Key = VirtualKey.Enter,
                 IsEnabled = false
             });
             OpenButton.Click += OpenLibrary_Click;
@@ -207,6 +206,12 @@ namespace RX_Explorer.View
                 Width = 320,
                 Label = Globalization.GetString("Operate_Text_Property")
             };
+            PropertyButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Menu,
+                Key = VirtualKey.Enter,
+                IsEnabled = false
+            });
             PropertyButton.Click += LibraryProperties_Click;
 
             Flyout.SecondaryCommands.Add(PropertyButton);
@@ -225,17 +230,6 @@ namespace RX_Explorer.View
             Flyout.Closing += CommandBarFlyout_Closing;
 
             FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
-
-            #region PrimaryCommand -> StandBarContainer
-            AppBarButton RenameButton = new AppBarButton
-            {
-                Icon = new SymbolIcon { Symbol = Symbol.Rename }
-            };
-            ToolTipService.SetToolTip(RenameButton, Globalization.GetString("Operate_Text_Rename"));
-            RenameButton.Click += DriveRename_Click;
-
-            Flyout.PrimaryCommands.Add(RenameButton);
-            #endregion
 
             switch (Type)
             {
@@ -263,6 +257,17 @@ namespace RX_Explorer.View
                     {
                         Flyout.Opening += DriveFlyout_Opening;
 
+                        #region PrimaryCommand -> StandBarContainer
+                        AppBarButton RenameButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon { Symbol = Symbol.Rename }
+                        };
+                        ToolTipService.SetToolTip(RenameButton, Globalization.GetString("Operate_Text_Rename"));
+                        RenameButton.Click += DriveRename_Click;
+
+                        Flyout.PrimaryCommands.Add(RenameButton);
+                        #endregion
+
                         #region SecondaryCommand -> OpenButton
                         AppBarButton OpenButton = new AppBarButton
                         {
@@ -272,8 +277,7 @@ namespace RX_Explorer.View
                         };
                         OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
                         {
-                            Modifiers = VirtualKeyModifiers.Control,
-                            Key = VirtualKey.G,
+                            Key = VirtualKey.Enter,
                             IsEnabled = false
                         });
                         OpenButton.Click += OpenDrive_Click;
@@ -358,6 +362,12 @@ namespace RX_Explorer.View
                             Width = 320,
                             Label = Globalization.GetString("Operate_Text_Property")
                         };
+                        PropertyButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+                        {
+                            Modifiers = VirtualKeyModifiers.Menu,
+                            Key = VirtualKey.Enter,
+                            IsEnabled = false
+                        });
                         PropertyButton.Click += DriveProperties_Click;
 
                         Flyout.SecondaryCommands.Add(PropertyButton);
@@ -378,6 +388,12 @@ namespace RX_Explorer.View
                             Label = Globalization.GetString("Operate_Text_UnlockBitlocker"),
                             Width = 320
                         };
+                        UnlockBitlockerButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+                        {
+                            Modifiers = VirtualKeyModifiers.Control,
+                            Key = VirtualKey.U,
+                            IsEnabled = false
+                        });
                         UnlockBitlockerButton.Click += UnlockBitlocker_Click;
 
                         Flyout.SecondaryCommands.Add(UnlockBitlockerButton);
@@ -452,13 +468,18 @@ namespace RX_Explorer.View
                             {
                                 if (await Exclusive.Controller.SetDriveLabelAsync(RootDrive.Path, NewName))
                                 {
-                                    DriveDataBase RefreshedDrive = await DriveDataBase.CreateAsync(RootDrive.DriveType, await StorageFolder.GetFolderFromPathAsync(RootDrive.Path));
-
-                                    int Index = CommonAccessCollection.DriveList.IndexOf(RootDrive);
-
-                                    if (CommonAccessCollection.DriveList.Remove(RootDrive))
+                                    if (await DriveDataBase.CreateAsync(RootDrive) is DriveDataBase RefreshedDrive)
                                     {
-                                        CommonAccessCollection.DriveList.Insert(Index, RefreshedDrive);
+                                        int Index = CommonAccessCollection.DriveList.IndexOf(RootDrive);
+
+                                        if (CommonAccessCollection.DriveList.Remove(RootDrive))
+                                        {
+                                            CommonAccessCollection.DriveList.Insert(Index, RefreshedDrive);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new UnauthorizedAccessException(RootDrive.Path);
                                     }
                                 }
                                 else
@@ -903,16 +924,52 @@ namespace RX_Explorer.View
 
         public async Task OpenTargetDriveAsync(DriveDataBase Drive)
         {
-            switch (Drive)
+            try
             {
-                case LockedDriveData LockedDrive:
-                    {
-                    Retry:
-                        BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
-
-                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                switch (Drive)
+                {
+                    case LockedDriveData LockedDrive:
                         {
-                            if (!await LockedDrive.UnlockAsync(Dialog.Password))
+                        Retry:
+                            try
+                            {
+                                BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
+
+                                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    if (!await LockedDrive.UnlockAsync(Dialog.Password))
+                                    {
+                                        throw new UnlockDriveFailedException();
+                                    }
+
+                                    if (await DriveDataBase.CreateAsync(LockedDrive) is DriveDataBase RefreshedDrive)
+                                    {
+                                        if (RefreshedDrive is LockedDriveData)
+                                        {
+                                            throw new UnlockDriveFailedException();
+                                        }
+                                        else
+                                        {
+                                            int Index = CommonAccessCollection.DriveList.IndexOf(LockedDrive);
+
+                                            if (Index >= 0)
+                                            {
+                                                CommonAccessCollection.DriveList.Remove(LockedDrive);
+                                                CommonAccessCollection.DriveList.Insert(Index, RefreshedDrive);
+                                            }
+                                            else
+                                            {
+                                                CommonAccessCollection.DriveList.Add(RefreshedDrive);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new UnauthorizedAccessException(Drive.Path);
+                                    }
+                                }
+                            }
+                            catch (UnlockDriveFailedException)
                             {
                                 QueueContentDialog UnlockFailedDialog = new QueueContentDialog
                                 {
@@ -932,46 +989,25 @@ namespace RX_Explorer.View
                                 }
                             }
 
-                            DriveDataBase NewDrive = await DriveDataBase.CreateAsync(LockedDrive.DriveType, await StorageFolder.GetFolderFromPathAsync(LockedDrive.Path));
-
-                            if (NewDrive is LockedDriveData)
-                            {
-                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
-
-                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    goto Retry;
-                                }
-                            }
-                            else
-                            {
-                                int Index = CommonAccessCollection.DriveList.IndexOf(LockedDrive);
-
-                                if (Index >= 0)
-                                {
-                                    CommonAccessCollection.DriveList.Remove(LockedDrive);
-                                    CommonAccessCollection.DriveList.Insert(Index, NewDrive);
-                                }
-                                else
-                                {
-                                    CommonAccessCollection.DriveList.Add(NewDrive);
-                                }
-                            }
+                            break;
                         }
+                    case NormalDriveData:
+                        {
+                            OpenTargetFolder(string.IsNullOrEmpty(Drive.Path) ? Drive.DeviceId : Drive.Path);
+                            break;
+                        }
+                }
+            }
+            catch (Exception)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Drive.Path}\"",
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                };
 
-                        break;
-                    }
-                case NormalDriveData:
-                    {
-                        OpenTargetFolder(string.IsNullOrEmpty(Drive.Path) ? Drive.DriveId : Drive.Path);
-                        break;
-                    }
+                await Dialog.ShowAsync();
             }
         }
 
@@ -1215,7 +1251,7 @@ namespace RX_Explorer.View
                         }
                         else
                         {
-                            CommonAccessCollection.DriveList.Add(await DriveDataBase.CreateAsync(new DriveInfo(DriveFolder.Path).DriveType, DriveFolder));
+                            CommonAccessCollection.DriveList.Add(await DriveDataBase.CreateAsync(new DriveInfo(DriveFolder.Path)));
                         }
                     }
                     else
@@ -1791,9 +1827,7 @@ namespace RX_Explorer.View
                             await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid,
                                                                                               Position,
                                                                                               ContextMenuCancellation.Token,
-                                                                                              LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>()
-                                                                                                                       .Select((Lib) => Lib.Path)
-                                                                                                                       .ToArray());
+                                                                                              Context.Path);
                             break;
                         }
                         catch (Exception)
@@ -1838,65 +1872,68 @@ namespace RX_Explorer.View
                     ContextMenuCancellation?.Dispose();
                     ContextMenuCancellation = new CancellationTokenSource();
 
-                    if (Context is LockedDriveData)
+                    switch (Context)
                     {
-                        for (int RetryCount = 0; RetryCount < 3; RetryCount++)
-                        {
-                            try
+                        case LockedDriveData:
                             {
-                                await BitlockerDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
-                                                                                                         Position,
-                                                                                                         ContextMenuCancellation.Token,
-                                                                                                         DriveGrid.SelectedItems.Cast<DriveDataBase>()
-                                                                                                                                .Select((Lib) => Lib.Path)
-                                                                                                                                .ToArray());
+                                for (int RetryCount = 0; RetryCount < 3; RetryCount++)
+                                {
+                                    try
+                                    {
+                                        await BitlockerDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                                                                                                 Position,
+                                                                                                                 ContextMenuCancellation.Token,
+                                                                                                                 Context.Path);
+                                        break;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        BitlockerDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Locked);
+                                    }
+                                }
+
                                 break;
                             }
-                            catch (Exception)
+                        case NormalDriveData when Context.DriveType == DriveType.Removable:
                             {
-                                BitlockerDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Locked);
-                            }
-                        }
-                    }
-                    else if (Context.DriveType == DriveType.Removable)
-                    {
-                        for (int RetryCount = 0; RetryCount < 3; RetryCount++)
-                        {
-                            try
-                            {
-                                await PortableDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
-                                                                                                        Position,
-                                                                                                        ContextMenuCancellation.Token,
-                                                                                                        DriveGrid.SelectedItems.Cast<DriveDataBase>()
-                                                                                                                               .Select((Lib) => Lib.Path)
-                                                                                                                               .ToArray());
+                                for (int RetryCount = 0; RetryCount < 3; RetryCount++)
+                                {
+                                    try
+                                    {
+                                        await PortableDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                                                                                                Position,
+                                                                                                                ContextMenuCancellation.Token,
+                                                                                                                Context.Path);
+                                        break;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        PortableDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Portable);
+                                    }
+                                }
+
                                 break;
                             }
-                            catch (Exception)
+                        default:
                             {
-                                PortableDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Portable);
+                                for (int RetryCount = 0; RetryCount < 3; RetryCount++)
+                                {
+                                    try
+                                    {
+                                        await NormalDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                                                                                              Position,
+                                                                                                              ContextMenuCancellation.Token,
+                                                                                                              Context.Path);
+                                        break;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        NormalDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Normal);
+                                    }
+                                }
                             }
-                        }
-                    }
-                    else
-                    {
-                        for (int RetryCount = 0; RetryCount < 3; RetryCount++)
-                        {
-                            try
-                            {
-                                await NormalDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
-                                                                                                      Position,
-                                                                                                      ContextMenuCancellation.Token,
-                                                                                                      DriveGrid.SelectedItems.Cast<DriveDataBase>()
-                                                                                                                             .Select((Lib) => Lib.Path)
-                                                                                                                             .ToArray());
-                                break;
-                            }
-                            catch (Exception)
-                            {
-                                NormalDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Normal);
-                            }
-                        }
+
+                            break;
                     }
                 }
                 else

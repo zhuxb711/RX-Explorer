@@ -1975,9 +1975,8 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">PDF-Datei konnte nicht analysiert werden. PDF-Datei konnte nicht geöffnet werden.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_PinFolderNotFound_Content" translate="yes" xml:space="preserve">
-          <source>Some of the fixed folders are no longer found and will be automatically removed\r\rIncluding：\r</source>
-          <target state="translated">Einige der fixierten Ordner können nicht mehr gefunden werden und werden automatisch entfernt.\r\rEinschließlich：\r</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>Unable to find some pinned folders, would you like to remove them automatically? Including:</source>
+          <target state="translated">Einige angeheftete Ordner können nicht gefunden werden. Möchten Sie sie automatisch entfernen? Einschließlich:</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RestartFail_Content" translate="yes" xml:space="preserve">
           <source>There was a problem during the automatic restart, please restart the RX Explorer manually</source>
@@ -2660,8 +2659,8 @@ Inkorrekte Namen sind
           <target state="translated">Everything-Suchmaschine verwenden (schneller)</target>
         </trans-unit>
         <trans-unit id="Operate_Text_UnlockBitlocker" translate="yes" xml:space="preserve">
-          <source>Unlock</source>
-          <target state="translated">Entsperren</target>
+          <source>Unlock the drive</source>
+          <target state="translated">Entsperren Sie das Laufwerk</target>
         </trans-unit>
         <trans-unit id="EverythingQuestionSubtitle" translate="yes" xml:space="preserve">
           <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything\r  2. Purchase this software to unlock this feature</source>

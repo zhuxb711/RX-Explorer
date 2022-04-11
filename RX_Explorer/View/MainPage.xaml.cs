@@ -4,7 +4,6 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
-using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1244,7 +1243,7 @@ namespace RX_Explorer.View
                                             {
                                                 if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
                                                 {
-                                                    if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", Item.Protocol))
+                                                    if (!await Exclusive.Controller.RunAsync("powershell.exe", CreateNoWindow: true, Parameters: new string[] { "-Command", Item.Protocol }))
                                                     {
                                                         QueueContentDialog Dialog = new QueueContentDialog
                                                         {

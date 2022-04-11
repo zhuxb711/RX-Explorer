@@ -2,7 +2,6 @@
 using RX_Explorer.Class;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
-using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -879,7 +878,7 @@ namespace RX_Explorer.View
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
-                                                if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path))
+                                                if (!await Exclusive.Controller.RunAsync("powershell.exe", CreateNoWindow: true, Parameters: new string[] { "-Command", File.Path }))
                                                 {
                                                     throw new LaunchProgramException();
                                                 }

@@ -13,7 +13,7 @@ namespace RX_Explorer.Class
 
         public override string DisplayName => Name;
 
-        public override string Path => DriveId;
+        public override string Path => DeviceId;
 
         public override ulong TotalByte => (RawData?.TotalByte).GetValueOrDefault();
 

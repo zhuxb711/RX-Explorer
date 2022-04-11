@@ -1497,8 +1497,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>No se ha podido analizar este archivo PDF; no se ha podido abrir el PDF.</value>
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
-    <value>Algunas de las carpetas fijadas ya no se pueden encontrar y se eliminará automáticamente.\r\rIncluyendo: \r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>No se pueden encontrar algunas carpetas ancladas, ¿le gustaría eliminarlas automáticamente? Incluido:</value>
   </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>Se ha producido un problema durante el reinicio automático; por favor, reiniciar RX Explorer manualmente.</value>
@@ -2006,7 +2005,7 @@ Las denominaciones no válidas son:
     <value>Usar motor de búsqueda Everything (más rápido)</value>
   </data>
   <data name="Operate_Text_UnlockBitlocker" xml:space="preserve">
-    <value>Desbloquear</value>
+    <value>Desbloquear la unidad</value>
   </data>
   <data name="EverythingQuestionSubtitle" xml:space="preserve">
     <value>Everything puede proporcionar una experiencia de búsqueda extremadamente rápida. Si deseas usar Everything, debes \r  1. Instalar y ejecutar Everything\r  2. Comprar el programa para desbloquear esta función.</value>

@@ -429,8 +429,7 @@ namespace RX_Explorer.View
             };
             OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
             {
-                Modifiers = VirtualKeyModifiers.Control,
-                Key = VirtualKey.G,
+                Key = VirtualKey.Enter,
                 IsEnabled = false
             });
             OpenButton.Click += ItemOpen_Click;
@@ -706,6 +705,12 @@ namespace RX_Explorer.View
                 Width = 320,
                 Label = Globalization.GetString("Operate_Text_Property")
             };
+            PropertyButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Menu,
+                Key = VirtualKey.Enter,
+                IsEnabled = false
+            });
             PropertyButton.Click += ItemProperty_Click;
 
             Flyout.SecondaryCommands.Add(PropertyButton);
@@ -902,8 +907,7 @@ namespace RX_Explorer.View
             };
             OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
             {
-                Modifiers = VirtualKeyModifiers.Control,
-                Key = VirtualKey.G,
+                Key = VirtualKey.Enter,
                 IsEnabled = false
             });
             OpenButton.Click += ItemOpen_Click;
@@ -1036,6 +1040,12 @@ namespace RX_Explorer.View
                 Width = 320,
                 Label = Globalization.GetString("Operate_Text_Property")
             };
+            PropertyButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Menu,
+                Key = VirtualKey.Enter,
+                IsEnabled = false
+            });
             PropertyButton.Click += ItemProperty_Click;
 
             Flyout.SecondaryCommands.Add(PropertyButton);
@@ -1231,8 +1241,7 @@ namespace RX_Explorer.View
             };
             OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
             {
-                Modifiers = VirtualKeyModifiers.Control,
-                Key = VirtualKey.G,
+                Key = VirtualKey.Enter,
                 IsEnabled = false
             });
             OpenButton.Click += ItemOpen_Click;
@@ -1265,6 +1274,12 @@ namespace RX_Explorer.View
                 Width = 320,
                 Label = Globalization.GetString("Operate_Text_Property")
             };
+            PropertyButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Menu,
+                Key = VirtualKey.Enter,
+                IsEnabled = false
+            });
             PropertyButton.Click += ItemProperty_Click;
 
             Flyout.SecondaryCommands.Add(PropertyButton);
@@ -1461,8 +1476,7 @@ namespace RX_Explorer.View
             };
             OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
             {
-                Modifiers = VirtualKeyModifiers.Control,
-                Key = VirtualKey.G,
+                Key = VirtualKey.Enter,
                 IsEnabled = false
             });
             OpenButton.Click += MixOpen_Click;
@@ -1560,6 +1574,12 @@ namespace RX_Explorer.View
                 Width = 320,
                 Label = Globalization.GetString("Operate_Text_Property")
             };
+            PropertyButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Menu,
+                Key = VirtualKey.Enter,
+                IsEnabled = false
+            });
             PropertyButton.Click += MixedProperty_Click;
 
             Flyout.SecondaryCommands.Add(PropertyButton);
@@ -1901,6 +1921,12 @@ namespace RX_Explorer.View
                 Width = 320,
                 Label = Globalization.GetString("Operate_Text_Property")
             };
+            PropertyButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Menu,
+                Key = VirtualKey.Enter,
+                IsEnabled = false
+            });
             PropertyButton.Click += ParentProperty_Click;
 
             Flyout.SecondaryCommands.Add(PropertyButton);

@@ -1432,8 +1432,7 @@
     <value>无法解析此PDF文件，PDF打开失败</value>
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
-    <value>部分固定的文件夹已无法找到，将自动移除\r\r包括：\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>无法找到一些已固定的文件夹，是否希望自动移除这些文件夹? 包括:</value>
   </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>自动重新启动过程中出现问题，请手动重启RX文件管理器</value>
@@ -1972,7 +1971,7 @@
     <value>使用Everything搜索引擎 (更快)</value>
   </data>
   <data name="Operate_Text_UnlockBitlocker" xml:space="preserve">
-    <value>解锁</value>
+    <value>解锁此驱动器</value>
   </data>
   <data name="EverythingQuestion.Title" xml:space="preserve">
     <value>Everything搜索引擎</value>

@@ -1432,8 +1432,7 @@
     <value>Impossible de coller ce fichier PDF, l'ouverture a échoué</value>
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
-    <value>Certains des dossiers fixes ne sont plus trouvés et seront automatiquement supprimés\r\rDont：\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Impossible de trouver certains dossiers épinglés, souhaitez-vous les supprimer automatiquement ? Y compris:</value>
   </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>Il y a eu un problème pendant le redémarrage automatique, veuillez redémarrer RX Explorateur manuellement</value>
@@ -1972,7 +1971,7 @@ Les noms non valides incluent
     <value>Utilisez le moteur de recherche Everything (plus rapide)</value>
   </data>
   <data name="Operate_Text_UnlockBitlocker" xml:space="preserve">
-    <value>Ouvrir</value>
+    <value>Déverrouiller le lecteur</value>
   </data>
   <data name="EverythingQuestion.Title" xml:space="preserve">
     <value>Moteur de recherche Everything</value>

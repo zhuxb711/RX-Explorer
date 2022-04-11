@@ -492,7 +492,7 @@ namespace RX_Explorer.Class
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(GetAvailableWslDrivePathListAsync)}, message: {ErrorMessage}");
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetRemoteClipboardRelatedDataAsync)}, message: {ErrorMessage}");
                 }
             }
 
@@ -1090,7 +1090,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetNativeHandleAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetDirectoryMonitorHandleAsync)}, message: {ErrorMessage}");
                     }
                 }
             }
@@ -1130,7 +1130,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetMIMEContentTypeAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetUrlTargetPathAsync)}, message: {ErrorMessage}");
                     }
                 }
             }
@@ -1953,7 +1953,7 @@ namespace RX_Explorer.Class
                 else if (Response.TryGetValue("Error_NotOccupy", out string ErrorMessage2))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage2}");
-                    throw new UnlockException();
+                    throw new UnlockFileFailedException();
                 }
                 else if (Response.TryGetValue("Error_NotFoundOrNotFile", out string ErrorMessage3))
                 {

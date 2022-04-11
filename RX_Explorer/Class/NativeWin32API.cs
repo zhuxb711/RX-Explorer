@@ -1050,7 +1050,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not size from GetFileInformationByHandleEx so we could not calculate the size on disk");
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not size from {nameof(GetFileInformationByHandleEx)} so we could not calculate the size on disk");
                 }
             }
             finally
