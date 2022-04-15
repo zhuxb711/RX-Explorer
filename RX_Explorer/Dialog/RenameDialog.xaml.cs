@@ -19,7 +19,7 @@ namespace RX_Explorer.Dialog
 
         private SemaphoreSlim TextChangeLock = new SemaphoreSlim(1, 1);
 
-        public RenameDialog(DriveDataBase RootDrive) : this(new string[] { Regex.Replace(RootDrive.DisplayName, $@"\({RootDrive.Path.TrimEnd('\\')}\)$", string.Empty).Trim() })
+        public RenameDialog(DriveDataBase RootDrive) : this(new string[] { Regex.Replace(RootDrive.DisplayName, $@"\({Regex.Escape(RootDrive.Path.TrimEnd('\\'))}\)$", string.Empty).Trim() })
         {
 
         }

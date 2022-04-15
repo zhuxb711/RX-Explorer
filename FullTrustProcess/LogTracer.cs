@@ -44,6 +44,11 @@ namespace FullTrustProcess
 
             try
             {
+                if (Ex is AggregateException)
+                {
+                    Ex = Ex.InnerException ?? Ex;
+                }
+
                 string[] MessageSplit;
 
                 try

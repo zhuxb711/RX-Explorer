@@ -1,23 +1,21 @@
-﻿###Quoi de neuf dans la version 7.6.4.0
+﻿###Quoi de neuf dans la version 7.6.5.0
 
-#####Fonctionnalité mise à jour
+#####UI mise à jour
 
->#####La page de recherche prend désormais en charge les mots-clés de recherche en surbrillance
+>#####Les utilisateurs seront invités avant de supprimer les dossiers qui ne sont plus disponibles dans l'accès rapide
 
-#####Optimisation des performances
-
->#####Amélioration de la logique de la page de recherche pour accélérer le rendu des résultats de recherche
-
->#####Amélioration des performances d'énumération des dossiers dans certains cas
-
->#####Amélioration des performances de l'algorithme de tri
+>#####La page de recherche prend désormais en charge le changement de nom et de nouveaux éléments de menu ont été ajoutés
 
 #####Corrections de bogues
 
->#####Correction d'un problème où la visionneuse d'archives intégrée n'affichait pas le nom de type correct sur les fichiers sans extension
+>#####Résolution du problème selon lequel la boîte de dialogue d'échec de déverrouillage s'affiche toujours après le déverrouillage de Bitlocker
 
->#####Correction d'un problème où les boutons "Créer une nouvelle fenêtre fractionnée verticalement" et "Mode de mise en page" n'étaient pas automatiquement désactivés dans la visionneuse intégrée
+>#####Correction d'un problème où la fenêtre des propriétés pouvait planter dans certains cas
 
->#####Correction d'un problème où les détails d'un fichier peuvent toujours apparaître de manière inattendue lors de l'utilisation de la sélection de la boîte
+>#####Correction du problème suivant : après avoir ouvert plusieurs onglets en même temps, l'onglet qui reste sur la page de recherche peut répondre aux touches de raccourci d'autres onglets
 
->#####Résolution d'autres problèmes
+>#####Correction d'un problème qui pouvait entraîner des noms incorrects lors du changement de nom de plusieurs fichiers dans un périphérique MTP
+
+>#####Correction d'un problème qui pouvait provoquer un plantage lors du changement de nom d'un lecteur avec des symboles spéciaux
+
+>#####Correction d'autres problèmes pouvant provoquer des plantages

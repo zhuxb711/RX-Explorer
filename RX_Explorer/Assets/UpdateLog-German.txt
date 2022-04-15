@@ -1,23 +1,21 @@
-﻿###Was ist neu in Ver.7.6.4.0
+﻿###Was ist neu in Ver.7.6.5.0
 
-#####Funktion aktualisiert
+#####UI aktualisiert
 
->#####Die Suchseite unterstützt jetzt die Hervorhebung der Suchschlüsselwörter
+>#####Benutzer werden gefragt, bevor sie Ordner entfernen, die nicht mehr im Schnellzugriff verfügbar sind
 
-#####Leistungsoptimierung
-
->#####Suchseitenlogik verbessert, um das Rendern von Suchergebnissen zu beschleunigen
-
->#####Verbesserte Ordneraufzählungsleistung in einigen Fällen
-
->#####Die Leistung des Sortieralgorithmus wurde verbessert
+>#####Suchseite unterstützt jetzt Umbenennung und einige neue Menüpunkte wurden hinzugefügt
 
 #####Fehlerbehebung
 
->#####Es wurde ein Problem behoben, bei dem der integrierte Archivbetrachter nicht den korrekten Typnamen für Dateien ohne Erweiterung anzeigte
+>#####Das Problem, dass der Entsperrungsfehlerdialog immer noch angezeigt wird, nachdem der Bitlocker entsperrt wurde, wurde behoben
 
->#####Es wurde ein Problem behoben, bei dem die Schaltflächen „Neues vertikal geteiltes Fenster erstellen“ und „Layoutmodus“ im integrierten Viewer nicht automatisch deaktiviert wurden
+>#####Problem behoben, bei dem das Eigenschaftsfenster in manchen Fällen abstürzen konnte
 
->#####Es wurde ein Problem behoben, bei dem die Details einer Datei bei Verwendung der Auswahlbox immer noch unerwartet erscheinen
+>#####Das Problem wurde behoben, dass nach dem gleichzeitigen Öffnen mehrerer Registerkarten die Registerkarte, die auf der Suchseite verbleibt, möglicherweise auf die Tastenkombinationen anderer Registerkarten reagiert
 
->#####Einige andere Probleme wurden behoben
+>#####Ein Problem wurde behoben, das zu falschen Namen führen konnte, wenn mehrere Dateien in einem MTP-Gerät umbenannt wurden
+
+>#####Ein Problem wurde behoben, das beim Umbenennen eines Laufwerks mit einigen Sonderzeichen zu einem Absturz führen konnte
+
+>#####Einige andere Probleme behoben, die zu Abstürzen führen konnten

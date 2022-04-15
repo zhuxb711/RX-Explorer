@@ -15,19 +15,14 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (CopyFrom.All((Item) => !Path.GetDirectoryName(Item).StartsWith(ApplicationData.Current.TemporaryFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                string[] DisplayItems = CopyFrom.Where((Item) => !(Path.GetDirectoryName(Item)?.StartsWith(ApplicationData.Current.TemporaryFolder.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()).ToArray();
+
+                return DisplayItems.Length switch
                 {
-                    return CopyFrom.Length switch
-                    {
-                        > 5 => $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, CopyFrom.Take(5))}{Environment.NewLine}({CopyFrom.Length - 5} {Globalization.GetString("TaskList_More_Items")})...",
-                        > 0 => $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, CopyFrom)}",
-                        _ => string.Empty
-                    };
-                }
-                else
-                {
-                    return string.Empty;
-                }
+                    > 5 => $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, DisplayItems.Take(5))}{Environment.NewLine}({DisplayItems.Length - 5} {Globalization.GetString("TaskList_More_Items")})...",
+                    > 0 => $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, DisplayItems)}",
+                    _ => string.Empty
+                };
             }
         }
 

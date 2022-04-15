@@ -1199,9 +1199,9 @@ namespace RX_Explorer.Class
                                                                      return PreviousTask.Result;
                                                                  }
                                                              }
-                                                             catch (Exception ex)
+                                                             catch (Exception)
                                                              {
-                                                                 LogTracer.Log(ex.InnerException ?? ex, "Could not get thumbnail from UWP API");
+                                                                 //No need to handle this exception
                                                              }
 
                                                              return null;
@@ -1225,9 +1225,9 @@ namespace RX_Explorer.Class
                                                                    return PreviousTask.Result;
                                                                }
                                                            }
-                                                           catch (Exception ex)
+                                                           catch (Exception)
                                                            {
-                                                               LogTracer.Log(ex.InnerException ?? ex, "Could not get thumbnail from UWP API");
+                                                               //No need to handle this exception
                                                            }
 
                                                            return null;

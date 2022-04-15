@@ -146,6 +146,11 @@ namespace RX_Explorer.Class
 
             try
             {
+                if (Ex is AggregateException)
+                {
+                    Ex = Ex.InnerException ?? Ex;
+                }
+
                 string[] MessageSplit;
 
                 try

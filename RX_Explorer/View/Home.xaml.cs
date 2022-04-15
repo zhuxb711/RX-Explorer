@@ -457,7 +457,7 @@ namespace RX_Explorer.View
 
                 if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    string OriginName = Regex.Replace(RootDrive.DisplayName, $@"\({RootDrive.Path.TrimEnd('\\')}\)$", string.Empty).Trim();
+                    string OriginName = Regex.Replace(RootDrive.DisplayName, $@"\({Regex.Escape(RootDrive.Path.TrimEnd('\\'))}\)$", string.Empty).Trim();
                     string NewName = dialog.DesireNameMap[OriginName];
 
                     if (NewName != OriginName)

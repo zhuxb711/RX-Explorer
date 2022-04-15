@@ -1,23 +1,21 @@
-﻿###What's new in Ver.7.6.4.0
+﻿###What's new in Ver.7.6.5.0
 
-#####Feature updated
+#####UI updated
 
->#####Search page now supports highlighted the search keywords
+>#####Users will be asked before removing folders that no longer available in the Quick Access
 
-#####Performance optimization
-
->#####Improved search page logic to speed up the rendering of search results
-
->#####Improved folder enumeration performance in some cases
-
->#####Improved the performance of the sorting algorithm
+>#####Search page now supports renaming and some new menu items have been added
 
 #####Bug Fixes
 
->#####Fixed an issue where the built-in archive viewer would not display the correct type name on files that lack an extension
+>#####Fixed the problem that the unlocking failure dialog is still being pop up after the Bitlocker is unlocked
 
->#####Fixed an issue where the "Create new vertical split window" and "Layout Mode" buttons would not be automatically disabled in the built-in viewer
+>#####Fixed an issue where the properties window could crash in some cases
 
->#####Fixed an issue where the details of a file may still pop up unexpectedly when using the box selection
+>#####Fixed the issue that after opening multiple tabs at the same time, the tab that stays on the search page may respond to the shortcut keys of other tabs
 
->#####Fixed some other issues
+>#####Fixed an issue that could result in incorrect names when renaming multiple files in an MTP device
+
+>#####Fixed an issue that could cause a crash when renaming a drive with some special symbols
+
+>#####Fixed some other issues that could cause crashes

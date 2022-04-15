@@ -318,9 +318,8 @@ namespace RX_Explorer.View
 
         private void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
         {
-            NavView_BackRequested(null, null);
-
             e.Handled = true;
+            ExecuteGlobalGoBackAction();
         }
 
         private void Current_LeavingBackground(object sender, LeavingBackgroundEventArgs e)

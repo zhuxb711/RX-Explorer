@@ -1203,16 +1203,21 @@ namespace RX_Explorer.View
 
         private async void VerticalSplitViewButton_Click(object sender, RoutedEventArgs e)
         {
-            if (CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
+            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
             {
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                if (CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
                 {
-                    await Control.CreateNewBladeAsync(Control.CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
+                    string Path = Control.CurrentPresenter?.CurrentFolder?.Path;
+
+                    if (!string.IsNullOrEmpty(Path))
+                    {
+                        await Control.CreateNewBladeAsync(Path);
+                    }
                 }
-                else
-                {
-                    VerticalSplitTip.IsOpen = true;
-                }
+            }
+            else
+            {
+                VerticalSplitTip.IsOpen = true;
             }
         }
 

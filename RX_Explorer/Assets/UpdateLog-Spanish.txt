@@ -1,23 +1,21 @@
-﻿###Novedades de la versión 7.6.4.0
+﻿###Novedades de la versión 7.6.5.0
 
-#####Característica actualizada
+#####IU actualizada
 
->#####La página de búsqueda ahora admite las palabras clave de búsqueda resaltadas
+>#####Se preguntará a los usuarios antes de eliminar carpetas que ya no están disponibles en el acceso rápido
 
-#####Optimización del rendimiento
-
->#####Lógica de página de búsqueda mejorada para acelerar la representación de resultados de búsqueda
-
->#####Rendimiento de enumeración de carpetas mejorado en algunos casos
-
->#####Mejoró el rendimiento del algoritmo de clasificación
+>#####La página de búsqueda ahora admite el cambio de nombre y se han agregado algunos elementos de menú nuevos
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el cual el visor de archivos integrado no mostraba el nombre de tipo correcto en los archivos que carecen de una extensión
+>#####Se solucionó el problema de que el cuadro de diálogo de falla de desbloqueo seguía apareciendo después de desbloquear Bitlocker
 
->#####Se solucionó un problema por el cual los botones "Crear nueva ventana dividida verticalmente" y "Modo de diseño" no se deshabilitaban automáticamente en el visor incorporado
+>#####Se solucionó un problema por el cual la ventana de propiedades podía bloquearse en algunos casos
 
->#####Se solucionó un problema por el cual los detalles de un archivo aún podían aparecer inesperadamente al usar la selección de cuadro
+>#####Se solucionó el problema de que después de abrir varias pestañas al mismo tiempo, la pestaña que permanece en la página de búsqueda puede responder a las teclas de método abreviado de otras pestañas
 
->#####Se corrigieron algunos otros problemas
+>#####Se solucionó un problema que podía generar nombres incorrectos al cambiar el nombre de varios archivos en un dispositivo MTP
+
+>#####Se solucionó un problema que podía causar un bloqueo al cambiar el nombre de una unidad con algunos símbolos especiales
+
+>#####Se corrigieron algunos otros problemas que podrían causar fallas
