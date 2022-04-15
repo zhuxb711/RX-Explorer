@@ -82,6 +82,7 @@ namespace RX_Explorer.View
             SystemNavigationManager.GetForCurrentView().BackRequested += MainPage_BackRequested;
             AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
             FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
+            CoreApplication.MainView.CoreWindow.PointerPressed += MainPage_PointerPressed;
 
             MSStoreHelper.Current.PreLoadStoreData();
             InfoTipController.Current.SetInfoTipPanel(BannerPanel);
@@ -117,6 +118,49 @@ namespace RX_Explorer.View
                 EntranceAnimationPreloadTask = EntranceEffectProvider.PrepareEntranceEffectAsync();
             }
         }
+
+        private async void MainPage_PointerPressed(CoreWindow sender, PointerEventArgs args)
+        {
+            bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
+            bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
+
+            if (NavView.SelectedItem is NavigationViewItem NavItem)
+            {
+                args.Handled = true;
+
+                if (Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label") 
+                    && TabViewContainer.Current.CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
+                {
+                    if (BackButtonPressed)
+                    {
+                        if (!await Control.ExecuteGoBackActionIfAvailableAsync())
+                        {
+                            ExecuteGlobalGoBackAction();
+                        }
+                    }
+                    else if (ForwardButtonPressed)
+                    {
+                        await Control.ExecuteGoForwardActionIfAvailableAsync();
+                    }
+                    else
+                    {
+                        args.Handled = false;
+                    }
+                }
+                else
+                {
+                    if (BackButtonPressed)
+                    {
+                        ExecuteGlobalGoBackAction();
+                    }
+                    else if (!ForwardButtonPressed)
+                    {
+                        args.Handled = false;
+                    }
+                }
+            }
+        }
+
 
         private void SystemBar_IsVisibleChanged(CoreApplicationViewTitleBar sender, object args)
         {
@@ -1011,7 +1055,7 @@ namespace RX_Explorer.View
             }
         }
 
-        public void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        private void ExecuteGlobalGoBackAction()
         {
             try
             {
@@ -1039,6 +1083,11 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "An error was threw when navigate back");
             }
+        }
+
+        private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        {
+            ExecuteGlobalGoBackAction();
         }
 
         private void QuickStart_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)

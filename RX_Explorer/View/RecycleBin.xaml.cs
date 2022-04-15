@@ -138,6 +138,18 @@ namespace RX_Explorer.View
         {
             InitializeComponent();
             PointerPressedHandler = new PointerEventHandler(ListViewControl_PointerPressed);
+            Loaded += RecycleBin_Loaded;
+            Unloaded += RecycleBin_Unloaded;
+        }
+
+        private void RecycleBin_Unloaded(object sender, RoutedEventArgs e)
+        {
+            CoreApplication.MainView.CoreWindow.KeyDown -= RecycleBin_KeyDown;
+        }
+
+        private void RecycleBin_Loaded(object sender, RoutedEventArgs e)
+        {
+            CoreApplication.MainView.CoreWindow.KeyDown += RecycleBin_KeyDown;
         }
 
         private void RecycleBin_KeyDown(CoreWindow sender, KeyEventArgs args)
@@ -179,7 +191,6 @@ namespace RX_Explorer.View
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             ListViewControl.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
-            CoreApplication.MainView.CoreWindow.KeyDown += RecycleBin_KeyDown;
             SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
             CurrentSortTarget = SortTarget.Name;
             CurrentSortDirection = SortDirection.Ascending;
@@ -222,7 +233,6 @@ namespace RX_Explorer.View
             DelaySelectionCancellation?.Dispose();
             DelaySelectionCancellation = null;
 
-            CoreApplication.MainView.CoreWindow.KeyDown -= RecycleBin_KeyDown;
             ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
 
             FileCollection.Clear();

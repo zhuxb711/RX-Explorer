@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Deferred;
 using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using System;
@@ -60,6 +61,19 @@ namespace RX_Explorer.View
 
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
             PointerReleasedEventHandler = new PointerEventHandler(ViewControl_PointerReleased);
+
+            Loaded += SearchPage_Loaded;
+            Unloaded += SearchPage_Unloaded;
+        }
+
+        private void SearchPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            CoreApplication.MainView.CoreWindow.KeyDown -= SearchPage_KeyDown;
+        }
+
+        private void SearchPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            CoreApplication.MainView.CoreWindow.KeyDown += SearchPage_KeyDown;
         }
 
         private async void Filter_RefreshListRequested(object sender, RefreshRequestedEventArgs e)
@@ -76,8 +90,6 @@ namespace RX_Explorer.View
         {
             if (e.Parameter is SearchOptions Parameters)
             {
-                CoreApplication.MainView.CoreWindow.KeyDown += SearchPage_KeyDown;
-
                 SearchResultList.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
                 SearchResultList.AddHandler(PointerReleasedEvent, PointerReleasedEventHandler, true);
 
@@ -122,6 +134,11 @@ namespace RX_Explorer.View
 
                     switch (args.VirtualKey)
                     {
+                        case VirtualKey.Enter:
+                            {
+                                Open_Click(null, null);
+                                break;
+                            }
                         case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
                                 Location_Click(null, null);
@@ -358,8 +375,6 @@ namespace RX_Explorer.View
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            CoreApplication.MainView.CoreWindow.KeyDown -= SearchPage_KeyDown;
-
             SearchResultList.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
             SearchResultList.RemoveHandler(PointerReleasedEvent, PointerReleasedEventHandler);
 
@@ -527,9 +542,9 @@ namespace RX_Explorer.View
 
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
-            if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
+            if (SearchResultList.SelectedItems.Count > 0)
             {
-                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Item);
+                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray());
                 await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
             }
         }
@@ -1334,12 +1349,21 @@ namespace RX_Explorer.View
                     {
                         string[] SelectedItemPaths = SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
 
-                        if (SelectedItemPaths.Skip(1).All((Item) => Path.GetDirectoryName(Item).Equals(Path.GetDirectoryName(SelectedItemPaths[0]))))
+                        if (SelectedItemPaths.Skip(1).All((Item) => Path.GetDirectoryName(Item).Equals(Path.GetDirectoryName(SelectedItemPaths[0]), StringComparison.OrdinalIgnoreCase)))
                         {
                             await MixCommandFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(SearchResultList,
                                                                                                  Position,
                                                                                                  ContextMenuCancellation.Token,
                                                                                                  SelectedItemPaths);
+                        }
+                        else
+                        {
+                            DefaultCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
+                            {
+                                Position = Position,
+                                Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                ShowMode = FlyoutShowMode.Standard
+                            });
                         }
                     }
                     else
@@ -1358,6 +1382,140 @@ namespace RX_Explorer.View
         private void SearchResultList_ContextCanceled(UIElement sender, RoutedEventArgs args)
         {
             CloseAllFlyout();
+        }
+
+        private async void Rename_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
+
+            if (SelectedItemsCopy.Count > 0)
+            {
+                RenameDialog Dialog = new RenameDialog(SelectedItemsCopy);
+
+                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                {
+                    if (SelectedItemsCopy.Count == 1)
+                    {
+                        string OriginName = SelectedItemsCopy.First().Name;
+                        string NewName = Dialog.DesireNameMap[OriginName];
+                        string FolderPath = Path.GetDirectoryName(SelectedItemsCopy.First().Path);
+
+                        if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
+                            && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(FolderPath, NewName)))
+                        {
+                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            if (await Dialog1.ShowAsync() != ContentDialogResult.Primary)
+                            {
+                                return;
+                            }
+                        }
+
+                        OperationListRenameModel Model = new OperationListRenameModel(SelectedItemsCopy.First().Path, Path.Combine(FolderPath, NewName));
+
+                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                        {
+                            EventDeferral Deferral = e.GetDeferral();
+
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                            {
+                                try
+                                {
+                                    if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
+                                    {
+                                        if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(FolderPath, NewName)) is FileSystemStorageItemBase NewItem)
+                                        {
+                                            if (SearchResult.FirstOrDefault((Item) => Item.Name == OriginName) is FileSystemStorageItemBase OldItem)
+                                            {
+                                                int Index = SearchResult.IndexOf(OldItem);
+                                                SearchResult.Remove(OldItem);
+                                                SearchResult.Insert(Index, NewItem);
+                                            }
+                                        }
+
+                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                  .Cast<Frame>()
+                                                                                                                  .Select((Frame) => Frame.Content)
+                                                                                                                  .Cast<TabItemContentRenderer>()
+                                                                                                                  .SelectMany((Renderer) => Renderer.Presenters))
+                                        {
+                                            if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(SelectedItemsCopy.First().Path, NewName));
+                                            }
+                                        }
+                                    }
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
+                            });
+                        });
+
+                        QueueTaskController.EnqueueRenameOpeartion(Model);
+                    }
+                    else
+                    {
+                        foreach (FileSystemStorageItemBase OriginItem in SelectedItemsCopy)
+                        {
+                            string FolderPath = Path.GetDirectoryName(OriginItem.Path);
+
+                            OperationListRenameModel Model = new OperationListRenameModel(OriginItem.Path, Path.Combine(FolderPath, Dialog.DesireNameMap[OriginItem.Name]));
+
+                            QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                            {
+                                EventDeferral Deferral = e.GetDeferral();
+
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                {
+                                    try
+                                    {
+                                        if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
+                                        {
+                                            if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(FolderPath, NewName)) is FileSystemStorageItemBase NewItem)
+                                            {
+                                                if (SearchResult.FirstOrDefault((Item) => Item.Name == OriginItem.Name) is FileSystemStorageItemBase OldItem)
+                                                {
+                                                    int Index = SearchResult.IndexOf(OldItem);
+                                                    SearchResult.Remove(OldItem);
+                                                    SearchResult.Insert(Index, NewItem);
+                                                }
+                                            }
+
+                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                      .Cast<Frame>()
+                                                                                                                      .Select((Frame) => Frame.Content)
+                                                                                                                      .Cast<TabItemContentRenderer>()
+                                                                                                                      .SelectMany((Renderer) => Renderer.Presenters))
+                                            {
+                                                if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
+                                                }
+                                            }
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        Deferral.Complete();
+                                    }
+                                });
+                            });
+
+                            QueueTaskController.EnqueueRenameOpeartion(Model);
+                        }
+                    }
+                }
+            }
         }
     }
 }

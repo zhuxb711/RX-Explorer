@@ -3505,4 +3505,7 @@
   <data name="QueueDialog_UnexpectedException_Content" xml:space="preserve">
     <value>由於未知錯誤，操作無法完成</value>
   </data>
+  <data name="MultiProperty_DiffLocation_Text" xml:space="preserve">
+    <value>不同的文件夾</value>
+  </data>
 </root>

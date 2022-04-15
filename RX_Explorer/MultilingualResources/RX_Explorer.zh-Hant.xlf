@@ -4656,6 +4656,10 @@ Invalid names include
           <source>The operation could not be completed due to an unknown error</source>
           <target state="translated">由於未知錯誤，操作無法完成</target>
         </trans-unit>
+        <trans-unit id="MultiProperty_DiffLocation_Text" translate="yes" xml:space="preserve">
+          <source>Different folders</source>
+          <target state="translated">不同的文件夾</target>
+        </trans-unit>
       </group>
     </body>
   </file>

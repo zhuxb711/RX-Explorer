@@ -158,9 +158,7 @@ namespace RX_Explorer.View
 
                         Flip.ItemsSource = PdfCollection;
 
-                        await JumpToPageIndexAsync(0);
-
-                        await Task.Delay(1000);
+                        await Task.WhenAll(JumpToPageIndexAsync(0, Cancellation.Token), Task.Delay(1000));
                     }
                     finally
                     {
@@ -201,14 +199,14 @@ namespace RX_Explorer.View
             PdfStream?.Dispose();
         }
 
-        private async Task JumpToPageIndexAsync(uint Index)
+        private async Task JumpToPageIndexAsync(uint Index, CancellationToken CancelToken = default)
         {
             int IndexINT = Convert.ToInt32(Index);
 
             int LowIndex = Math.Max(IndexINT - 4, 0);
             int HighIndex = Math.Min(IndexINT + 4, Convert.ToInt32(Pdf.PageCount) - 1);
 
-            for (int LoadIndex = LowIndex; LoadIndex <= HighIndex && !Cancellation.IsCancellationRequested; LoadIndex++)
+            for (int LoadIndex = LowIndex; LoadIndex <= HighIndex && !CancelToken.IsCancellationRequested; LoadIndex++)
             {
                 if (LoadTable.Remove(LoadIndex))
                 {
@@ -221,13 +219,19 @@ namespace RX_Explorer.View
                             DestinationWidth = Convert.ToUInt32(Page.Size.Width * 1.5)
                         });
 
-                        await PdfCollection[Convert.ToInt32(LoadIndex)].SetSourceAsync(PageStream);
+                        if (PdfCollection.Count > LowIndex)
+                        {
+                            await PdfCollection[Convert.ToInt32(LoadIndex)].SetSourceAsync(PageStream);
+                        }
                     }
                 }
             }
 
-            LastPageIndex = IndexINT;
-            Flip.SelectedIndex = IndexINT;
+            if (!CancelToken.IsCancellationRequested)
+            {
+                LastPageIndex = IndexINT;
+                Flip.SelectedIndex = IndexINT;
+            }
         }
 
         private void Flip_SelectionChanged_TaskOne(object sender, SelectionChangedEventArgs e)
@@ -438,7 +442,7 @@ namespace RX_Explorer.View
                     {
                         TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
-                        await Task.WhenAll(JumpToPageIndexAsync(PageNum - 1), Task.Delay(1000));
+                        await Task.WhenAll(JumpToPageIndexAsync(PageNum - 1, Cancellation.Token), Task.Delay(1000));
 
                         TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                     }

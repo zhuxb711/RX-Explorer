@@ -220,6 +220,8 @@ namespace RX_Explorer.View
             EmptyFlyout = CreateNewEmptyContextMenu();
 
             RootFolderControl.EnterActionRequested += RootFolderControl_EnterActionRequested;
+
+            Loaded += FilePresenter_Loaded;
             Unloaded += FilePresenter_Unloaded;
 
             Application.Current.Suspending += Current_Suspending;
@@ -227,11 +229,17 @@ namespace RX_Explorer.View
             SortCollectionGenerator.SortConfigChanged += Current_SortConfigChanged;
             GroupCollectionGenerator.GroupStateChanged += GroupCollectionGenerator_GroupStateChanged;
             LayoutModeController.ViewModeChanged += Current_ViewModeChanged;
+        }
+
+        private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
+        {
             CoreApplication.MainView.CoreWindow.KeyDown += FilePresenter_KeyDown;
         }
 
         private void FilePresenter_Unloaded(object sender, RoutedEventArgs e)
         {
+            CoreApplication.MainView.CoreWindow.KeyDown -= FilePresenter_KeyDown;
+
             foreach (TextBox NameEditBox in SelectedItems.Select((Item) => ItemPresenter.ContainerFromItem(Item))
                                                          .OfType<SelectorItem>()
                                                          .Select((Item) => Item.ContentTemplateRoot.FindChildOfType<TextBox>())
@@ -2324,9 +2332,7 @@ namespace RX_Explorer.View
                     && Container.Frame.Content is FileControl
                     && Container.Renderer == TabViewContainer.Current.CurrentTabRenderer
                     && !Container.ShouldNotAcceptShortcutKeyInput
-                    && !QueueContentDialog.IsRunningOrWaiting
-                    && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
-                    && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
+                    && !QueueContentDialog.IsRunningOrWaiting)
                 {
                     bool CtrlDown = sender.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
                     bool ShiftDown = sender.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
@@ -2378,14 +2384,14 @@ namespace RX_Explorer.View
                             {
                                 args.Handled = true;
 
-                                await OpenSelectedItemAsync(Item).ConfigureAwait(false);
+                                await OpenSelectedItemAsync(Item);
                                 break;
                             }
-                        case VirtualKey.Back when Container.GoBackRecord.IsEnabled:
+                        case VirtualKey.Back:
                             {
                                 args.Handled = true;
 
-                                await Container.ExecuteGoBackActionIfAvailable();
+                                await Container.ExecuteGoBackActionIfAvailableAsync();
                                 break;
                             }
                         case VirtualKey.L when CtrlDown:
@@ -3755,7 +3761,7 @@ namespace RX_Explorer.View
                                             {
                                                 if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                                 {
-                                                    await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(SelectedItemsCopy.First().Path, NewName));
+                                                    await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
                                                 }
                                             }
                                         }
@@ -7754,7 +7760,6 @@ namespace RX_Explorer.View
             SortCollectionGenerator.SortConfigChanged -= Current_SortConfigChanged;
             GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
             LayoutModeController.ViewModeChanged -= Current_ViewModeChanged;
-            CoreApplication.MainView.CoreWindow.KeyDown -= FilePresenter_KeyDown;
         }
     }
 }

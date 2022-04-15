@@ -3610,4 +3610,7 @@ Invalid names include
   <data name="QueueDialog_UnexpectedException_Content" xml:space="preserve">
     <value>The operation could not be completed due to an unknown error</value>
   </data>
+  <data name="MultiProperty_DiffLocation_Text" xml:space="preserve">
+    <value>Different folders</value>
+  </data>
 </root>

@@ -21,6 +21,7 @@ using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage.Streams;
 using Windows.System;
+using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -63,15 +64,26 @@ namespace RX_Explorer.View
             Current = this;
 
             Loaded += TabViewContainer_Loaded;
+            Loaded += TabViewContainer_Loaded1;
+            Unloaded += TabViewContainer_Unloaded;
             PreviewTimer.Elapsed += PreviewTimer_Tick;
             TabCollection.CollectionChanged += TabCollection_CollectionChanged;
 
-            CoreApplication.MainView.CoreWindow.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
-            CoreApplication.MainView.CoreWindow.PointerPressed += TabViewContainer_PointerPressed;
-            CoreApplication.MainView.CoreWindow.KeyDown += TabViewContainer_KeyDown;
             CommonAccessCollection.LibraryNotFound += CommonAccessCollection_LibraryNotFound;
             QueueTaskController.ListItemSource.CollectionChanged += ListItemSource_CollectionChanged;
             QueueTaskController.ProgressChanged += QueueTaskController_ProgressChanged;
+        }
+
+        private void TabViewContainer_Unloaded(object sender, RoutedEventArgs e)
+        {
+            CoreApplication.MainView.CoreWindow.KeyDown -= TabViewContainer_KeyDown;
+            CoreApplication.MainView.CoreWindow.Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
+        }
+
+        private void TabViewContainer_Loaded1(object sender, RoutedEventArgs e)
+        {
+            CoreApplication.MainView.CoreWindow.KeyDown += TabViewContainer_KeyDown;
+            CoreApplication.MainView.CoreWindow.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
         }
 
         private async void TabCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -192,7 +204,7 @@ namespace RX_Explorer.View
                         {
                             args.Handled = true;
 
-                            await Control.ExecuteGoBackActionIfAvailable();
+                            await Control.ExecuteGoBackActionIfAvailableAsync();
 
                             break;
                         }
@@ -200,7 +212,7 @@ namespace RX_Explorer.View
                         {
                             args.Handled = true;
 
-                            await Control.ExecuteGoForwardActionIfAvailable();
+                            await Control.ExecuteGoForwardActionIfAvailableAsync();
 
                             break;
                         }
@@ -598,54 +610,6 @@ namespace RX_Explorer.View
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(TabViewContainer_KeyDown)}");
-            }
-        }
-
-        private async void TabViewContainer_PointerPressed(CoreWindow sender, PointerEventArgs args)
-        {
-            bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
-            bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
-
-            if (CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
-            {
-                if (BackButtonPressed)
-                {
-                    args.Handled = true;
-
-                    if (!QueueContentDialog.IsRunningOrWaiting)
-                    {
-                        if (Control.GoBackRecord.IsEnabled)
-                        {
-                            await Control.ExecuteGoBackActionIfAvailable();
-                        }
-                        else
-                        {
-                            MainPage.Current.NavView_BackRequested(null, null);
-                        }
-                    }
-                }
-                else if (ForwardButtonPressed)
-                {
-                    args.Handled = true;
-
-                    if (Control.GoForwardRecord.IsEnabled)
-                    {
-                        await Control.ExecuteGoForwardActionIfAvailable();
-                    }
-                }
-            }
-            else
-            {
-                if (BackButtonPressed)
-                {
-                    args.Handled = true;
-
-                    MainPage.Current.NavView_BackRequested(null, null);
-                }
-                else if (ForwardButtonPressed)
-                {
-                    args.Handled = true;
-                }
             }
         }
 
@@ -1335,6 +1299,20 @@ namespace RX_Explorer.View
             if (ViewModeFlyout.IsOpen)
             {
                 ViewModeFlyout.Hide();
+            }
+        }
+
+        private async void TabViewControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            for (int Retry = 0; Retry < 3; Retry++)
+            {
+                if (TabViewControl.FindChildOfName<ContentPresenter>("TabContentPresenter") is ContentPresenter Presenter)
+                {
+                    Presenter.Background = new SolidColorBrush(Colors.Transparent);
+                    break;
+                }
+
+                await Task.Delay(500);
             }
         }
     }

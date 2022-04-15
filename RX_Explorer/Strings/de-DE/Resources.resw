@@ -3505,4 +3505,7 @@ Inkorrekte Namen sind
   <data name="QueueDialog_UnexpectedException_Content" xml:space="preserve">
     <value>Der Vorgang konnte aufgrund eines unbekannten Fehlers nicht abgeschlossen werden</value>
   </data>
+  <data name="MultiProperty_DiffLocation_Text" xml:space="preserve">
+    <value>Verschiedene Ordner</value>
+  </data>
 </root>

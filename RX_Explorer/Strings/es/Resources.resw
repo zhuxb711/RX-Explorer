@@ -3505,4 +3505,7 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_UnexpectedException_Content" xml:space="preserve">
     <value>No se pudo completar la operación debido a un error desconocido</value>
   </data>
+  <data name="MultiProperty_DiffLocation_Text" xml:space="preserve">
+    <value>Diferentes carpetas</value>
+  </data>
 </root>

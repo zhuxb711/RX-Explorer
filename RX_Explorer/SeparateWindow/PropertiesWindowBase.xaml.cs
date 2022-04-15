@@ -1136,7 +1136,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         MultiStorageItemName.Text = Globalization.GetString("SizeProperty_Calculating_Text");
                         MultiSizeContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
                         MultiSizeOnDiskContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
-                        MultiLocationContent.Text = $"{Globalization.GetString("MultiProperty_Location_Text")} {Path.GetDirectoryName(StorageItems.First().Path) ?? StorageItems.First().Path}";
+                        MultiLocationContent.Text = StorageItems.Skip(1).All((Item) => Path.GetDirectoryName(Item.Path).Equals(Path.GetDirectoryName(StorageItems.First().Path), StringComparison.OrdinalIgnoreCase)) ? $"{Globalization.GetString("MultiProperty_Location_Text")} {Path.GetDirectoryName(StorageItems.First().Path) ?? StorageItems.First().Path}" : Globalization.GetString("MultiProperty_DiffLocation_Text");
                         MultiHiddenAttribute.IsChecked = StorageItems.All((Item) => Item is IHiddenStorageItem)
                                                                       ? true
                                                                       : (StorageItems.Any((Item) => Item is IHiddenStorageItem)

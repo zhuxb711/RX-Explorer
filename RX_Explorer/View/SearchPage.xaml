@@ -56,6 +56,10 @@
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
                           x:Name="Delete"
                           Click="Delete_Click" />
+            <AppBarButton Icon="Rename"
+                          ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Rename')}"
+                          x:Name="Rename"
+                          Click="Rename_Click"/>
             <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
                           Name="MultiSelect"
                           Click="MultiSelect_Click">
@@ -69,7 +73,12 @@
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
                               Width="320"
                               x:Name="Open"
-                              Click="Open_Click" />
+                              Click="Open_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Enter"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarButton x:Name="Location"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_OpenLocation')}"
                               Width="320"
@@ -99,7 +108,13 @@
                               x:Uid="SearchProperties"
                               Label="属性"
                               Width="320"
-                              Click="Attribute_Click" />
+                              Click="Attribute_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Enter"
+                                             Modifiers="Menu"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="MixCommandFlyout"
@@ -114,6 +129,9 @@
             <AppBarButton Icon="Delete"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
                           Click="Delete_Click" />
+            <AppBarButton Icon="Rename"
+                          ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Rename')}"
+                          Click="Rename_Click" />
             <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
                           Click="MultiSelect_Click">
                 <AppBarButton.Icon>
@@ -121,6 +139,84 @@
                               Glyph="&#xE762;" />
                 </AppBarButton.Icon>
             </AppBarButton>
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarSeparator />
+                <AppBarButton Icon="Tag"
+                              x:Uid="SearchProperties"
+                              Label="属性"
+                              Width="320"
+                              Click="Attribute_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Enter"
+                                             Modifiers="Menu"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+        <muxc:CommandBarFlyout x:Name="DefaultCommandFlyout"
+                               ShouldConstrainToRootBounds="False"
+                               AlwaysExpanded="True">
+            <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
+                          Click="MultiSelect_Click">
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                              Glyph="&#xE762;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Copy"
+                              Width="320"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
+                              Click="Copy_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="C"
+                                             Modifiers="Control"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton Icon="Cut"
+                              Width="320"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Cut')}"
+                              Click="Cut_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="X"
+                                             Modifiers="Control"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton Icon="Delete"
+                              Width="320"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
+                              Click="Delete_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="D"
+                                             Modifiers="Control"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton Icon="Rename"
+                              Width="320"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Rename')}"
+                              Click="Rename_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F2"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton Icon="Tag"
+                              x:Uid="SearchProperties"
+                              Label="属性"
+                              Width="320"
+                              Click="Attribute_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Enter"
+                                             Modifiers="Menu"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+            </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
     </Page.Resources>
 
