@@ -219,7 +219,7 @@
                                                             </ToolTipService.ToolTip>
                                                         </TextBlock>
                                                         <TextBox x:Name="NameEditBox"
-                                                                 Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
+                                                                 Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                  IsSpellCheckEnabled="False"
                                                                  Visibility="Collapsed"
                                                                  HorizontalAlignment="Stretch"
@@ -378,7 +378,7 @@
                                                     <TextBox VerticalAlignment="Center"
                                                              HorizontalAlignment="Stretch"
                                                              x:Name="NameEditBox"
-                                                             Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
+                                                             Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                              Grid.Column="2"
                                                              IsSpellCheckEnabled="False"
                                                              Visibility="Collapsed" />
@@ -516,7 +516,7 @@
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
-                                                                 Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
+                                                                 Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                  Grid.Column="1"
                                                                  IsSpellCheckEnabled="False"
                                                                  Visibility="Collapsed" />
@@ -655,7 +655,7 @@
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
-                                                                 Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
+                                                                 Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                  Grid.Column="1"
                                                                  IsSpellCheckEnabled="False"
                                                                  Visibility="Collapsed" />
@@ -794,7 +794,7 @@
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
-                                                                 Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
+                                                                 Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                  Grid.Column="1"
                                                                  IsSpellCheckEnabled="False"
                                                                  Visibility="Collapsed" />
@@ -936,7 +936,7 @@
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
-                                                                 Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
+                                                                 Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                  Grid.Column="1"
                                                                  Grid.ColumnSpan="2"
                                                                  IsSpellCheckEnabled="False"
