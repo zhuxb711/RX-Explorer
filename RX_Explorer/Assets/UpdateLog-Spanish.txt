@@ -1,21 +1,15 @@
-﻿###Novedades de la versión 7.6.5.0
-
-#####IU actualizada
-
->#####Se preguntará a los usuarios antes de eliminar carpetas que ya no están disponibles en el acceso rápido
-
->#####La página de búsqueda ahora admite el cambio de nombre y se han agregado algunos elementos de menú nuevos
+﻿###Novedades de la versión 7.6.6.0
 
 #####Corrección de errores
 
->#####Se solucionó el problema de que el cuadro de diálogo de falla de desbloqueo seguía apareciendo después de desbloquear Bitlocker
+>#####Se solucionó un problema por el cual, al cambiar el nombre de un solo archivo, se crearía una nueva tarea incluso si el nombre del archivo no ha cambiado
 
->#####Se solucionó un problema por el cual la ventana de propiedades podía bloquearse en algunos casos
+>#####Se corrigieron algunos problemas al cambiar el nombre de varios archivos y se actualizó la lógica de numeración automática
 
->#####Se solucionó el problema de que después de abrir varias pestañas al mismo tiempo, la pestaña que permanece en la página de búsqueda puede responder a las teclas de método abreviado de otras pestañas
+>#####Se solucionó un problema por el cual, al cambiar el nombre de una unidad, aparecía un mensaje emergente: El nombre contiene caracteres ilegales
 
->#####Se solucionó un problema que podía generar nombres incorrectos al cambiar el nombre de varios archivos en un dispositivo MTP
+>#####Se solucionó un problema que podía provocar errores de reconocimiento del nombre de la unidad o bloqueo de la aplicación al cambiar el nombre de la unidad que contenía ciertos caracteres especiales
 
->#####Se solucionó un problema que podía causar un bloqueo al cambiar el nombre de una unidad con algunos símbolos especiales
+>#####Se solucionó un problema por el cual no se podían mostrar archivos al ordenar por tipo de archivo
 
->#####Se corrigieron algunos otros problemas que podrían causar fallas
+>#####Se corrigió un problema que podía resultar en nombres de archivo incorrectos en el cuadro de cambio de nombre en algunos casos

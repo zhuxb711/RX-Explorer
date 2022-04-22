@@ -867,24 +867,27 @@ namespace RX_Explorer.View
                         string OriginName = RenameItem.Name;
                         string NewName = Dialog.DesireNameMap[OriginName];
 
-                        if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
-                            && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(SecureFolder.Path, NewName)))
+                        if (NewName != OriginName)
                         {
-                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
+                                && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(SecureFolder.Path, NewName)))
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
+                                QueueContentDialog Dialog1 = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
 
-                            if (await Dialog1.ShowAsync() != ContentDialogResult.Primary)
-                            {
-                                return;
+                                if (await Dialog1.ShowAsync() != ContentDialogResult.Primary)
+                                {
+                                    return;
+                                }
                             }
-                        }
 
-                        await RenameItem.RenameAsync(NewName);
+                            await RenameItem.RenameAsync(NewName);
+                        }
                     }
                 }
             }

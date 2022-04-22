@@ -46,7 +46,6 @@ using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
-using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using RefreshRequestedEventArgs = RX_Explorer.Class.RefreshRequestedEventArgs;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
@@ -3674,72 +3673,75 @@ namespace RX_Explorer.View
                         string OriginName = SelectedItemsCopy[0].Name;
                         string NewName = Dialog.DesireNameMap[OriginName];
 
-                        if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
-                            && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, NewName)))
+                        if (OriginName != NewName)
                         {
-                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
+                                && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, NewName)))
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
-
-                            if (await Dialog1.ShowAsync() != ContentDialogResult.Primary)
-                            {
-                                return;
-                            }
-                        }
-
-                        OperationListRenameModel Model = new OperationListRenameModel(SelectedItemsCopy.First().Path, Path.Combine(CurrentFolder.Path, NewName));
-
-                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
-                        {
-                            EventDeferral Deferral = e.GetDeferral();
-
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
-                            {
-                                try
+                                QueueContentDialog Dialog1 = new QueueContentDialog
                                 {
-                                    if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await Dialog1.ShowAsync() != ContentDialogResult.Primary)
+                                {
+                                    return;
+                                }
+                            }
+
+                            OperationListRenameModel Model = new OperationListRenameModel(SelectedItemsCopy.First().Path, Path.Combine(CurrentFolder.Path, NewName));
+
+                            QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                            {
+                                EventDeferral Deferral = e.GetDeferral();
+
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                {
+                                    try
                                     {
-                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
-                                                                                                                  .Cast<Frame>()
-                                                                                                                  .Select((Frame) => Frame.Content)
-                                                                                                                  .Cast<TabItemContentRenderer>()
-                                                                                                                  .SelectMany((Renderer) => Renderer.Presenters))
+                                        if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
                                         {
-                                            if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                      .Cast<Frame>()
+                                                                                                                      .Select((Frame) => Frame.Content)
+                                                                                                                      .Cast<TabItemContentRenderer>()
+                                                                                                                      .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(SelectedItemsCopy.First().Path, NewName));
-                                            }
-                                        }
-
-                                        for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
-                                        {
-                                            if (FileCollection.FirstOrDefault((Item) => Item.Name.Equals(NewName, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase TargetItem)
-                                            {
-                                                SelectedItem = TargetItem;
-                                                ItemPresenter.ScrollIntoView(TargetItem);
-                                                break;
+                                                if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                                {
+                                                    await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(SelectedItemsCopy.First().Path, NewName));
+                                                }
                                             }
 
-                                            await Task.Delay(500);
+                                            for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
+                                            {
+                                                if (FileCollection.FirstOrDefault((Item) => Item.Name.Equals(NewName, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase TargetItem)
+                                                {
+                                                    SelectedItem = TargetItem;
+                                                    ItemPresenter.ScrollIntoView(TargetItem);
+                                                    break;
+                                                }
+
+                                                await Task.Delay(500);
+                                            }
                                         }
                                     }
-                                }
-                                finally
-                                {
-                                    Deferral.Complete();
-                                }
+                                    finally
+                                    {
+                                        Deferral.Complete();
+                                    }
+                                });
                             });
-                        });
 
-                        QueueTaskController.EnqueueRenameOpeartion(Model);
+                            QueueTaskController.EnqueueRenameOpeartion(Model);
+                        }
                     }
                     else
                     {
-                        foreach (FileSystemStorageItemBase OriginItem in SelectedItemsCopy)
+                        foreach (FileSystemStorageItemBase OriginItem in SelectedItemsCopy.Where((Item) => Item.Name != Dialog.DesireNameMap[Item.Name]))
                         {
                             OperationListRenameModel Model = new OperationListRenameModel(OriginItem.Path, Path.Combine(CurrentFolder.Path, Dialog.DesireNameMap[OriginItem.Name]));
 

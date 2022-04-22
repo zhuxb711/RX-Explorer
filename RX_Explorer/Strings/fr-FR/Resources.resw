@@ -2021,7 +2021,7 @@ Les noms non valides incluent
   <data name="SizeFilterCheckBox4Text.Text" xml:space="preserve">
     <value>Énorme (≥1GB)</value>
   </data>
-  <data name="QueueDialog_CouldReadWriteFile_Content" xml:space="preserve">
+  <data name="QueueDialog_UnableReadWriteFile_Content" xml:space="preserve">
     <value>Impossible de lire ou d'écrire le fichier</value>
   </data>
   <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
@@ -3507,5 +3507,11 @@ Les noms non valides incluent
   </data>
   <data name="MultiProperty_DiffLocation_Text" xml:space="preserve">
     <value>Différents dossiers</value>
+  </data>
+  <data name="QueueDialog_NotSupportedImageFormat_Content" xml:space="preserve">
+    <value>Un format d'image non pris en charge a été spécifié</value>
+  </data>
+  <data name="QueueDialog_SaveFailed_Content" xml:space="preserve">
+    <value>Impossible d'enregistrer le fichier en raison d'une erreur inconnue</value>
   </data>
 </root>

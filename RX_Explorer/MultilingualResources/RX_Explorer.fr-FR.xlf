@@ -2679,7 +2679,7 @@ Les noms non valides incluent
           <source>Huge (≥1GB)</source>
           <target state="translated">Énorme (≥1GB)</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_CouldReadWriteFile_Content" translate="yes" xml:space="preserve">
+        <trans-unit id="QueueDialog_UnableReadWriteFile_Content" translate="yes" xml:space="preserve">
           <source>Cannot read or write file</source>
           <target state="translated">Impossible de lire ou d'écrire le fichier</target>
         </trans-unit>
@@ -4659,6 +4659,14 @@ Les noms non valides incluent
         <trans-unit id="MultiProperty_DiffLocation_Text" translate="yes" xml:space="preserve">
           <source>Different folders</source>
           <target state="translated">Différents dossiers</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NotSupportedImageFormat_Content" translate="yes" xml:space="preserve">
+          <source>An unsupported image format was specified</source>
+          <target state="translated">Un format d'image non pris en charge a été spécifié</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SaveFailed_Content" translate="yes" xml:space="preserve">
+          <source>Unable to save file due to unknown error</source>
+          <target state="translated">Impossible d'enregistrer le fichier en raison d'une erreur inconnue</target>
         </trans-unit>
       </group>
     </body>

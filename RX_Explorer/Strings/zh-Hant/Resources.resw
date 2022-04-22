@@ -2021,7 +2021,7 @@
   <data name="SizeFilterCheckBox4Text.Text" xml:space="preserve">
     <value>龐大 (≥1GB)</value>
   </data>
-  <data name="QueueDialog_CouldReadWriteFile_Content" xml:space="preserve">
+  <data name="QueueDialog_UnableReadWriteFile_Content" xml:space="preserve">
     <value>無法讀取或寫入文件</value>
   </data>
   <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
@@ -3507,5 +3507,11 @@
   </data>
   <data name="MultiProperty_DiffLocation_Text" xml:space="preserve">
     <value>不同的文件夾</value>
+  </data>
+  <data name="QueueDialog_NotSupportedImageFormat_Content" xml:space="preserve">
+    <value>指定了不受支持的圖像格式</value>
+  </data>
+  <data name="QueueDialog_SaveFailed_Content" xml:space="preserve">
+    <value>由於未知錯誤無法保存文件</value>
   </data>
 </root>

@@ -1,21 +1,15 @@
-﻿###Was ist neu in Ver.7.6.5.0
-
-#####UI aktualisiert
-
->#####Benutzer werden gefragt, bevor sie Ordner entfernen, die nicht mehr im Schnellzugriff verfügbar sind
-
->#####Suchseite unterstützt jetzt Umbenennung und einige neue Menüpunkte wurden hinzugefügt
+﻿###Was ist neu in Ver.7.6.6.0
 
 #####Fehlerbehebung
 
->#####Das Problem, dass der Entsperrungsfehlerdialog immer noch angezeigt wird, nachdem der Bitlocker entsperrt wurde, wurde behoben
+>#####Es wurde ein Problem behoben, bei dem beim Umbenennen einer einzelnen Datei eine neue Aufgabe erstellt wird, auch wenn sich der Dateiname nicht geändert hat
 
->#####Problem behoben, bei dem das Eigenschaftsfenster in manchen Fällen abstürzen konnte
+>#####Einige Probleme beim Umbenennen mehrerer Dateien behoben und die automatische Nummerierungslogik aktualisiert
 
->#####Das Problem wurde behoben, dass nach dem gleichzeitigen Öffnen mehrerer Registerkarten die Registerkarte, die auf der Suchseite verbleibt, möglicherweise auf die Tastenkombinationen anderer Registerkarten reagiert
+>#####Es wurde ein Problem behoben, bei dem beim Umbenennen eines Laufwerks eine Eingabeaufforderung angezeigt wurde: Der Name enthält ungültige Zeichen
 
->#####Ein Problem wurde behoben, das zu falschen Namen führen konnte, wenn mehrere Dateien in einem MTP-Gerät umbenannt wurden
+>#####Ein Problem wurde behoben, das beim Umbenennen von Laufwerksnamen, die bestimmte Sonderzeichen enthalten, zu Fehlern bei der Erkennung von Laufwerksnamen oder zum Absturz der Anwendung führen konnte
 
->#####Ein Problem wurde behoben, das beim Umbenennen eines Laufwerks mit einigen Sonderzeichen zu einem Absturz führen konnte
+>#####Problem behoben, bei dem beim Sortieren nach Dateityp keine Dateien angezeigt werden konnten
 
->#####Einige andere Probleme behoben, die zu Abstürzen führen konnten
+>#####Ein Problem wurde behoben, das in einigen Fällen zu falschen Dateinamen im Umbenennungsfeld führen konnte

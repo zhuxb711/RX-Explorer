@@ -60,7 +60,7 @@ namespace RX_Explorer.Class
                                                                              .Concat(FileList.OrderBy((Item) => Item.Type))
                                                                              .GroupBy((Item) => Item.Type))
                             {
-                                SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
+                                SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
                             }
                         }
                         else
@@ -69,7 +69,7 @@ namespace RX_Explorer.Class
                                                                              .Concat(FileList.OrderByDescending((Item) => Item.Type))
                                                                              .GroupBy((Item) => Item.Type))
                             {
-                                SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
+                                SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
                             }
                         }
 
@@ -204,7 +204,7 @@ namespace RX_Explorer.Class
                                                                                       .Concat(InputCollectionCopy.Where((Item) => Item is FileSystemStorageFile).OrderBy((Item) => Item.Type))
                                                                                       .GroupBy((Item) => Item.Type))
                             {
-                                SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
+                                SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
                             }
                         }
                         else
@@ -214,7 +214,7 @@ namespace RX_Explorer.Class
                                                                                       .Concat(InputCollectionCopy.Where((Item) => Item is FileSystemStorageFile).OrderByDescending((Item) => Item.Type))
                                                                                       .GroupBy((Item) => Item.Type))
                             {
-                                SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
+                                SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
                             }
                         }
 

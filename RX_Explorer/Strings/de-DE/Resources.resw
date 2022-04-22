@@ -2055,7 +2055,7 @@ Inkorrekte Namen sind
   <data name="SizeFilterCheckBox4Text.Text" xml:space="preserve">
     <value>Sehr groß (≥1GB)</value>
   </data>
-  <data name="QueueDialog_CouldReadWriteFile_Content" xml:space="preserve">
+  <data name="QueueDialog_UnableReadWriteFile_Content" xml:space="preserve">
     <value>Datei kann icht geschrieben oder gelesen werden</value>
   </data>
   <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
@@ -3507,5 +3507,11 @@ Inkorrekte Namen sind
   </data>
   <data name="MultiProperty_DiffLocation_Text" xml:space="preserve">
     <value>Verschiedene Ordner</value>
+  </data>
+  <data name="QueueDialog_NotSupportedImageFormat_Content" xml:space="preserve">
+    <value>Es wurde ein nicht unterstütztes Bildformat angegeben</value>
+  </data>
+  <data name="QueueDialog_SaveFailed_Content" xml:space="preserve">
+    <value>Datei kann aufgrund eines unbekannten Fehlers nicht gespeichert werden</value>
   </data>
 </root>

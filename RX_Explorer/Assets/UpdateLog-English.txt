@@ -1,21 +1,15 @@
-﻿###What's new in Ver.7.6.5.0
-
-#####UI updated
-
->#####Users will be asked before removing folders that no longer available in the Quick Access
-
->#####Search page now supports renaming and some new menu items have been added
+﻿###What's new in Ver.7.6.6.0
 
 #####Bug Fixes
 
->#####Fixed the problem that the unlocking failure dialog is still being pop up after the Bitlocker is unlocked
+>#####Fixed an issue where when renaming a single file, a new task will be created even if the file name has not changed
 
->#####Fixed an issue where the properties window could crash in some cases
+>#####Fixed some issues when renaming multiple files and updated autonumbering logic
 
->#####Fixed the issue that after opening multiple tabs at the same time, the tab that stays on the search page may respond to the shortcut keys of other tabs
+>#####Fixed an issue where when renaming a drive, a prompt will be poped up: The name contains illegal characters
 
->#####Fixed an issue that could result in incorrect names when renaming multiple files in an MTP device
+>#####Fixed an issue that could cause drive name recognition errors or application crash when renaming drive names that contain certain special characters
 
->#####Fixed an issue that could cause a crash when renaming a drive with some special symbols
+>#####Fixed an issue where no files could be displayed when sorting by file type
 
->#####Fixed some other issues that could cause crashes
+>#####Fixed an issue that could result in incorrect filenames in the rename box in some cases

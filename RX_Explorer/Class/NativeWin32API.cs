@@ -660,7 +660,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static StorageItemTypes CheckItemTypeFromPath(string Path)
+        private static StorageItemTypes CheckItemTypeFromPath(string Path)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {

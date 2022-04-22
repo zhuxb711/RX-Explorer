@@ -132,7 +132,7 @@ namespace RX_Explorer.View
                 await new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_CouldReadWriteFile_Content"),
+                    Content = Globalization.GetString("QueueDialog_UnableReadWriteFile_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 }.ShowAsync();
 
@@ -168,7 +168,7 @@ namespace RX_Explorer.View
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_CouldReadWriteFile_Content"),
+                    Content = Globalization.GetString("QueueDialog_UnableReadWriteFile_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 

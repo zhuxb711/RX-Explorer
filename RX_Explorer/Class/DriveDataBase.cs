@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -39,7 +40,23 @@ namespace RX_Explorer.Class
         /// </summary>
         public FileSystemStorageFolder DriveFolder { get; }
 
-        public virtual string Name => (DriveFolder?.Name) ?? string.Empty;
+        public virtual string Name
+        {
+            get
+            {
+                string Name = Regex.Replace(DisplayName, $@"\({Regex.Escape(Path.TrimEnd('\\'))}\)$", string.Empty).Trim();
+
+                if (string.IsNullOrEmpty(Name))
+                {
+                    return (DriveFolder?.Name) ?? string.Empty;
+                }
+                else
+                {
+                    return Name;
+                }
+            }
+        }
+
         /// <summary>
         /// 驱动器名称
         /// </summary>

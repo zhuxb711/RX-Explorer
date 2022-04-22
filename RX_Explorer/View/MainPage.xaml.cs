@@ -128,8 +128,8 @@ namespace RX_Explorer.View
             {
                 args.Handled = true;
 
-                if (Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label") 
-                    && TabViewContainer.Current.CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
+                if (Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
+                    && TabViewContainer.Current?.CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
                 {
                     if (BackButtonPressed)
                     {

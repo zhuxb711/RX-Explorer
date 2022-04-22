@@ -522,38 +522,41 @@ namespace RX_Explorer.View
                         string OriginPath = Folder.Path;
                         string DesireName = dialog.DesireNameMap[OriginName];
 
-                        if (!OriginName.Equals(DesireName, StringComparison.OrdinalIgnoreCase)
+                        if (OriginName != DesireName)
+                        {
+                            if (!OriginName.Equals(DesireName, StringComparison.OrdinalIgnoreCase)
                             && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(Path.GetDirectoryName(Folder.Path), DesireName)))
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
 
-                            if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
-                            {
-                                return;
+                                if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
+                                {
+                                    return;
+                                }
                             }
-                        }
 
-                        string NewName = await Folder.RenameAsync(DesireName);
-                        string NewPath = Path.Combine(Path.GetDirectoryName(OriginPath), NewName);
+                            string NewName = await Folder.RenameAsync(DesireName);
+                            string NewPath = Path.Combine(Path.GetDirectoryName(OriginPath), NewName);
 
-                        if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, NewPath) is LibraryStorageFolder RefreshedLibrary)
-                        {
-                            int Index = CommonAccessCollection.LibraryList.IndexOf(RefreshedLibrary);
-
-                            if (CommonAccessCollection.LibraryList.Remove(RefreshedLibrary))
+                            if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, NewPath) is LibraryStorageFolder RefreshedLibrary)
                             {
-                                SQLite.Current.DeleteLibraryFolder(OriginPath);
-                                await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, OriginPath);
-                                SQLite.Current.SetLibraryPath(LibraryType.UserCustom, NewPath);
-                                await JumpListController.Current.AddItemAsync(JumpListGroup.Library, NewPath);
+                                int Index = CommonAccessCollection.LibraryList.IndexOf(RefreshedLibrary);
 
-                                CommonAccessCollection.LibraryList.Insert(Index, RefreshedLibrary);
+                                if (CommonAccessCollection.LibraryList.Remove(RefreshedLibrary))
+                                {
+                                    SQLite.Current.DeleteLibraryFolder(OriginPath);
+                                    await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, OriginPath);
+                                    SQLite.Current.SetLibraryPath(LibraryType.UserCustom, NewPath);
+                                    await JumpListController.Current.AddItemAsync(JumpListGroup.Library, NewPath);
+
+                                    CommonAccessCollection.LibraryList.Insert(Index, RefreshedLibrary);
+                                }
                             }
                         }
                     }

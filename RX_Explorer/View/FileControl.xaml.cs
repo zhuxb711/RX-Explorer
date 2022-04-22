@@ -1238,62 +1238,65 @@ namespace RX_Explorer.View
                         string OriginName = Folder.Name;
                         string NewName = dialog.DesireNameMap[OriginName];
 
-                        if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
-                            && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(Folder.Path, NewName)))
+                        if (OriginName != NewName)
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
+                                && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(Folder.Path, NewName)))
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
-
-                            if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
-                            {
-                                return;
-                            }
-                        }
-
-                        OperationListRenameModel Model = new OperationListRenameModel(Folder.Path, Path.Combine(Path.GetDirectoryName(Folder.Path), NewName));
-
-                        QueueTaskController.RegisterPostAction(Model, async (s, e) =>
-                        {
-                            EventDeferral Deferral = e.GetDeferral();
-
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
-                            {
-                                try
+                                QueueContentDialog Dialog = new QueueContentDialog
                                 {
-                                    if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
+                                {
+                                    return;
+                                }
+                            }
+
+                            OperationListRenameModel Model = new OperationListRenameModel(Folder.Path, Path.Combine(Path.GetDirectoryName(Folder.Path), NewName));
+
+                            QueueTaskController.RegisterPostAction(Model, async (s, e) =>
+                            {
+                                EventDeferral Deferral = e.GetDeferral();
+
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                {
+                                    try
                                     {
-                                        string ParentFolder = Path.GetDirectoryName(Folder.Path);
-
-                                        if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                        if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                         {
-                                            foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && ParentFolder.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
+                                            string ParentFolder = Path.GetDirectoryName(Folder.Path);
+
+                                            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
                                             {
-                                                await Node.UpdateAllSubNodeAsync();
+                                                foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && ParentFolder.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
+                                                {
+                                                    await Node.UpdateAllSubNodeAsync();
+                                                }
                                             }
-                                        }
 
-                                        if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(ParentFolder).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
-                                        {
-                                            if (await RootNode.GetNodeAsync(new PathAnalysis(ParentFolder), true) is TreeViewNode CurrentNode)
+                                            if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(ParentFolder).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                             {
-                                                await CurrentNode.UpdateAllSubNodeAsync();
+                                                if (await RootNode.GetNodeAsync(new PathAnalysis(ParentFolder), true) is TreeViewNode CurrentNode)
+                                                {
+                                                    await CurrentNode.UpdateAllSubNodeAsync();
+                                                }
                                             }
                                         }
                                     }
-                                }
-                                finally
-                                {
-                                    Deferral.Complete();
-                                }
+                                    finally
+                                    {
+                                        Deferral.Complete();
+                                    }
+                                });
                             });
-                        });
 
-                        QueueTaskController.EnqueueRenameOpeartion(Model);
+                            QueueTaskController.EnqueueRenameOpeartion(Model);
+                        }
                     }
                 }
                 else
@@ -1391,61 +1394,68 @@ namespace RX_Explorer.View
 
         private async void GlobeSearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            if (args.ChosenSuggestion is SearchSuggestionItem SuggestItem)
+            try
             {
-                sender.Text = SuggestItem.Text;
-            }
-            else
-            {
-                sender.Text = args.QueryText;
-            }
-
-            if (string.IsNullOrWhiteSpace(sender.Text))
-            {
-                return;
-            }
-
-            if (CurrentPresenter.CurrentFolder is MTPStorageFolder)
-            {
-                SearchInEverythingEngine.IsEnabled = false;
-            }
-            else if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-            {
-                if (Package.Current.Id.Architecture is ProcessorArchitecture.X64 or ProcessorArchitecture.X86OnArm64)
+                if (args.ChosenSuggestion is SearchSuggestionItem SuggestItem)
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    sender.Text = SuggestItem.Text;
+                }
+                else
+                {
+                    sender.Text = args.QueryText;
+                }
+
+                if (string.IsNullOrWhiteSpace(sender.Text))
+                {
+                    return;
+                }
+
+                if (CurrentPresenter.CurrentFolder is MTPStorageFolder)
+                {
+                    SearchInEverythingEngine.IsEnabled = false;
+                }
+                else if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    if (Package.Current.Id.Architecture is ProcessorArchitecture.X64 or ProcessorArchitecture.X86OnArm64)
                     {
-                        SearchInEverythingEngine.IsEnabled = await Exclusive.Controller.CheckIfEverythingIsAvailableAsync();
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            SearchInEverythingEngine.IsEnabled = await Exclusive.Controller.CheckIfEverythingIsAvailableAsync();
+                        }
+                    }
+                    else
+                    {
+                        SearchInEverythingEngine.IsEnabled = false;
                     }
                 }
                 else
                 {
                     SearchInEverythingEngine.IsEnabled = false;
                 }
-            }
-            else
-            {
-                SearchInEverythingEngine.IsEnabled = false;
-            }
 
-            SearchOptions Options = SettingPage.SearchEngineMode switch
-            {
-                SearchEngineFlyoutMode.UseBuildInEngineAsDefault => SearchOptions.LoadSavedConfiguration(SearchCategory.BuiltInEngine),
-                SearchEngineFlyoutMode.UseEverythingEngineAsDefault when SearchInEverythingEngine.IsEnabled => SearchOptions.LoadSavedConfiguration(SearchCategory.EverythingEngine),
-                _ => null
-            };
+                SearchOptions Options = SettingPage.SearchEngineMode switch
+                {
+                    SearchEngineFlyoutMode.UseBuildInEngineAsDefault => SearchOptions.LoadSavedConfiguration(SearchCategory.BuiltInEngine),
+                    SearchEngineFlyoutMode.UseEverythingEngineAsDefault when SearchInEverythingEngine.IsEnabled => SearchOptions.LoadSavedConfiguration(SearchCategory.EverythingEngine),
+                    _ => null
+                };
 
-            if (Options != null)
-            {
-                Options.SearchText = sender.Text;
-                Options.SearchFolder = CurrentPresenter.CurrentFolder;
-                Options.DeepSearch |= CurrentPresenter.CurrentFolder is RootStorageFolder;
+                if (Options != null)
+                {
+                    Options.SearchText = sender.Text;
+                    Options.SearchFolder = CurrentPresenter.CurrentFolder;
+                    Options.DeepSearch |= CurrentPresenter.CurrentFolder is RootStorageFolder;
 
-                Frame.Navigate(typeof(SearchPage), Options, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+                    Frame.Navigate(typeof(SearchPage), Options, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+                }
+                else
+                {
+                    FlyoutBase.ShowAttachedFlyout(sender);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                FlyoutBase.ShowAttachedFlyout(sender);
+                LogTracer.Log(ex, "Could not search the content on query submitted");
             }
         }
 

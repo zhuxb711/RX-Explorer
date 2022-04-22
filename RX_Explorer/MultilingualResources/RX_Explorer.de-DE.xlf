@@ -2722,7 +2722,7 @@ Inkorrekte Namen sind
           <source>Huge (≥1GB)</source>
           <target state="translated">Sehr groß (≥1GB)</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_CouldReadWriteFile_Content" translate="yes" xml:space="preserve">
+        <trans-unit id="QueueDialog_UnableReadWriteFile_Content" translate="yes" xml:space="preserve">
           <source>Cannot read or write file</source>
           <target state="translated">Datei kann icht geschrieben oder gelesen werden</target>
         </trans-unit>
@@ -4657,6 +4657,14 @@ Inkorrekte Namen sind
         <trans-unit id="MultiProperty_DiffLocation_Text" translate="yes" xml:space="preserve">
           <source>Different folders</source>
           <target state="translated">Verschiedene Ordner</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NotSupportedImageFormat_Content" translate="yes" xml:space="preserve">
+          <source>An unsupported image format was specified</source>
+          <target state="translated">Es wurde ein nicht unterstütztes Bildformat angegeben</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SaveFailed_Content" translate="yes" xml:space="preserve">
+          <source>Unable to save file due to unknown error</source>
+          <target state="translated">Datei kann aufgrund eines unbekannten Fehlers nicht gespeichert werden</target>
         </trans-unit>
       </group>
     </body>

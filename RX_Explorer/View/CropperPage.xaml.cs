@@ -11,7 +11,6 @@ using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
-using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -176,52 +175,94 @@ namespace RX_Explorer.View
 
         private async void SaveAs_Click(SplitButton sender, SplitButtonClickEventArgs args)
         {
-            FileSavePicker Picker = new FileSavePicker
+            try
             {
-                SuggestedFileName = Path.GetFileNameWithoutExtension(OriginFile.Name),
-                SuggestedStartLocation = PickerLocationId.Desktop
-            };
-            Picker.FileTypeChoices.Add($"PNG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".png" });
-            Picker.FileTypeChoices.Add($"JPEG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".jpg", ".jpeg" });
-            Picker.FileTypeChoices.Add($"BMP {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".bmp" });
-            Picker.FileTypeChoices.Add($"TIFF {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".tiff" });
-
-            StorageFile File = await Picker.PickSaveFileAsync();
-
-            if (File != null)
-            {
-                LoadingControl.IsLoading = true;
-
-                using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.ReadWrite))
+                FileSavePicker Picker = new FileSavePicker
                 {
-                    Stream.Size = 0;
-                    switch (File.FileType)
+                    SuggestedFileName = Path.GetFileNameWithoutExtension(OriginFile.Name),
+                    SuggestedStartLocation = PickerLocationId.Desktop
+                };
+                Picker.FileTypeChoices.Add($"PNG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".png" });
+                Picker.FileTypeChoices.Add($"JPEG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".jpg", ".jpeg" });
+                Picker.FileTypeChoices.Add($"BMP {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".bmp" });
+                Picker.FileTypeChoices.Add($"TIFF {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".tiff" });
+
+                if (await Picker.PickSaveFileAsync() is StorageFile File)
+                {
+                    LoadingControl.IsLoading = true;
+
+                    await Task.WhenAll(SaveToFileAsync(new FileSystemStorageFile(File)), Task.Delay(1000));
+
+                    LoadingControl.IsLoading = false;
+
+                    if (Frame.CanGoBack)
                     {
-                        case ".png":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Png);
-                            break;
-                        case ".jpg":
-                        case ".jpeg":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg);
-                            break;
-                        case ".bmp":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp);
-                            break;
-                        case ".tiff":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff);
-                            break;
-                        default:
-                            throw new InvalidOperationException("Unsupport image format");
+                        Frame.GoBack();
                     }
                 }
-
-                await Task.Delay(1000);
-                LoadingControl.IsLoading = false;
-
-                if (Frame.CanGoBack)
+            }
+            catch (NotSupportedException)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    Frame.GoBack();
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_NotSupportedImageFormat_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not save the image data");
+
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_SaveFailed_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
+        }
+
+        private async Task SaveToFileAsync(FileSystemStorageFile File)
+        {
+            using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.RandomAccess))
+            {
+                Stream.SetLength(0);
+
+                switch (File.Type.ToLower())
+                {
+                    case ".png":
+                        {
+                            await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png);
+                            break;
+                        }
+                    case ".jpg":
+                    case ".jpeg":
+                        {
+                            await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Jpeg);
+                            break;
+                        }
+                    case ".bmp":
+                        {
+                            await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Bmp);
+                            break;
+                        }
+                    case ".tiff":
+                        {
+                            await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Tiff);
+                            break;
+                        }
+                    default:
+                        {
+                            throw new NotSupportedException();
+                        }
                 }
+
+                await Stream.FlushAsync();
             }
         }
 
@@ -308,40 +349,42 @@ namespace RX_Explorer.View
 
         private async void Save_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            LoadingControl.IsLoading = true;
-
-            using (Stream Stream = await OriginFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
+            try
             {
-                switch (OriginFile.Type.ToLower())
+                LoadingControl.IsLoading = true;
+
+                await Task.WhenAll(SaveToFileAsync(OriginFile), Task.Delay(1000));
+
+                LoadingControl.IsLoading = false;
+
+                if (Frame.CanGoBack)
                 {
-                    case ".png":
-                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png);
-                        break;
-                    case ".jpg":
-                    case ".jpeg":
-                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Jpeg);
-                        break;
-                    case ".bmp":
-                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Bmp);
-                        break;
-                    case ".tiff":
-                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Tiff);
-                        break;
-                    default:
-                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png);
-                        break;
+                    Frame.GoBack();
                 }
-
-                await Stream.FlushAsync();
             }
-
-            await Task.Delay(1000);
-
-            LoadingControl.IsLoading = false;
-
-            if (Frame.CanGoBack)
+            catch (NotSupportedException)
             {
-                Frame.GoBack();
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_NotSupportedImageFormat_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not save the image data");
+
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_SaveFailed_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
             }
         }
 

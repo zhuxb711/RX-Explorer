@@ -1,21 +1,15 @@
-﻿###Quoi de neuf dans la version 7.6.5.0
-
-#####UI mise à jour
-
->#####Les utilisateurs seront invités avant de supprimer les dossiers qui ne sont plus disponibles dans l'accès rapide
-
->#####La page de recherche prend désormais en charge le changement de nom et de nouveaux éléments de menu ont été ajoutés
+﻿###Quoi de neuf dans la version 7.6.6.0
 
 #####Corrections de bogues
 
->#####Résolution du problème selon lequel la boîte de dialogue d'échec de déverrouillage s'affiche toujours après le déverrouillage de Bitlocker
+>#####Correction d'un problème où lors du renommage d'un seul fichier, une nouvelle tâche sera créée même si le nom du fichier n'a pas changé
 
->#####Correction d'un problème où la fenêtre des propriétés pouvait planter dans certains cas
+>#####Correction de certains problèmes lors du changement de nom de plusieurs fichiers et mise à jour de la logique de numérotation automatique
 
->#####Correction du problème suivant : après avoir ouvert plusieurs onglets en même temps, l'onglet qui reste sur la page de recherche peut répondre aux touches de raccourci d'autres onglets
+>#####Correction d'un problème où lors du renommage d'un lecteur, une invite s'affiche : le nom contient des caractères illégaux
 
->#####Correction d'un problème qui pouvait entraîner des noms incorrects lors du changement de nom de plusieurs fichiers dans un périphérique MTP
+>#####Correction d'un problème pouvant entraîner des erreurs de reconnaissance du nom du lecteur ou un blocage de l'application lors du renommage des noms de lecteur contenant certains caractères spéciaux
 
->#####Correction d'un problème qui pouvait provoquer un plantage lors du changement de nom d'un lecteur avec des symboles spéciaux
+>#####Correction d'un problème où aucun fichier ne pouvait être affiché lors du tri par type de fichier
 
->#####Correction d'autres problèmes pouvant provoquer des plantages
+>#####Correction d'un problème qui pouvait entraîner des noms de fichiers incorrects dans la boîte de renommage dans certains cas

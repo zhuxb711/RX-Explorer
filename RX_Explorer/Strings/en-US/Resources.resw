@@ -2169,7 +2169,7 @@ Invalid names include
   <data name="SizeFilterCheckBox4Text.Text" xml:space="preserve">
     <value>Huge (≥1GB)</value>
   </data>
-  <data name="QueueDialog_CouldReadWriteFile_Content" xml:space="preserve">
+  <data name="QueueDialog_UnableReadWriteFile_Content" xml:space="preserve">
     <value>Cannot read or write file</value>
   </data>
   <data name="TextViewer_EncodingCombo.PlaceholderText" xml:space="preserve">
@@ -3612,5 +3612,11 @@ Invalid names include
   </data>
   <data name="MultiProperty_DiffLocation_Text" xml:space="preserve">
     <value>Different folders</value>
+  </data>
+  <data name="QueueDialog_NotSupportedImageFormat_Content" xml:space="preserve">
+    <value>An unsupported image format was specified</value>
+  </data>
+  <data name="QueueDialog_SaveFailed_Content" xml:space="preserve">
+    <value>Unable to save file due to unknown error</value>
   </data>
 </root>

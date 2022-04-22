@@ -1217,7 +1217,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         {
                             case FileSystemStorageFolder Folder:
                                 {
-                                    FolderStorageItemName.Text = Folder.Name;
+                                    FolderStorageItemName.Text = Folder.DisplayName;
                                     FolderThumbnail.Source = Folder.Thumbnail;
                                     FolderTypeContent.Text = Folder.DisplayType;
                                     FolderSizeContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
@@ -1496,7 +1496,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 default:
                     {
                         RootDriveThumbnail.Source = RootDrive.Thumbnail;
-                        RootDriveName.Text = Regex.Replace(RootDrive.DisplayName, $@"\({Regex.Escape(RootDrive.Path.TrimEnd('\\'))}\)$", string.Empty).Trim();
+                        RootDriveName.Text = RootDrive.Name;
                         RootDriveCapacity.Text = RootDrive.UsedSpace;
                         RootDriveFreeSpace.Text = RootDrive.FreeSpace;
                         RootDriveTotalSpace.Text = RootDrive.Capacity;

@@ -2679,7 +2679,7 @@ Invalid names include
           <source>Huge (≥1GB)</source>
           <target state="translated">超大 (≥1GB)</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_CouldReadWriteFile_Content" translate="yes" xml:space="preserve">
+        <trans-unit id="QueueDialog_UnableReadWriteFile_Content" translate="yes" xml:space="preserve">
           <source>Cannot read or write file</source>
           <target state="translated">无法读取或写入文件</target>
         </trans-unit>
@@ -4659,6 +4659,14 @@ Invalid names include
         <trans-unit id="MultiProperty_DiffLocation_Text" translate="yes" xml:space="preserve">
           <source>Different folders</source>
           <target state="translated">不同的文件夹</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NotSupportedImageFormat_Content" translate="yes" xml:space="preserve">
+          <source>An unsupported image format was specified</source>
+          <target state="translated">指定了不受支持的图像格式</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SaveFailed_Content" translate="yes" xml:space="preserve">
+          <source>Unable to save file due to unknown error</source>
+          <target state="translated">由于未知错误，无法保存文件</target>
         </trans-unit>
       </group>
     </body>

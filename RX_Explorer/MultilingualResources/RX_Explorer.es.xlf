@@ -2718,7 +2718,7 @@ Las denominaciones no válidas son:
           <source>Huge (≥1GB)</source>
           <target state="translated">Enorme (≥1GB)</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_CouldReadWriteFile_Content" translate="yes" xml:space="preserve">
+        <trans-unit id="QueueDialog_UnableReadWriteFile_Content" translate="yes" xml:space="preserve">
           <source>Cannot read or write file</source>
           <target state="translated">No se puede leer o escribir el archivo.</target>
         </trans-unit>
@@ -4657,6 +4657,14 @@ Las denominaciones no válidas son:
         <trans-unit id="MultiProperty_DiffLocation_Text" translate="yes" xml:space="preserve">
           <source>Different folders</source>
           <target state="translated">Diferentes carpetas</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NotSupportedImageFormat_Content" translate="yes" xml:space="preserve">
+          <source>An unsupported image format was specified</source>
+          <target state="translated">Se especificó un formato de imagen no compatible</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SaveFailed_Content" translate="yes" xml:space="preserve">
+          <source>Unable to save file due to unknown error</source>
+          <target state="translated">No se puede guardar el archivo debido a un error desconocido</target>
         </trans-unit>
       </group>
     </body>
