@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -161,18 +160,6 @@ namespace RX_Explorer.Class
             }
 
             return 0;
-        }
-
-        public virtual async Task<StorageStreamTransaction> GetTransactionStreamFromFileAsync()
-        {
-            if (await GetStorageItemAsync() is StorageFile File)
-            {
-                return await File.OpenTransactedWriteAsync();
-            }
-            else
-            {
-                return await FileRandomAccessStream.OpenTransactedWriteAsync(Path);
-            }
         }
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)

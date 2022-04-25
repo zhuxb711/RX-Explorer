@@ -1923,9 +1923,6 @@ Invalid names include
   <data name="SetAsWallpaper.Label" xml:space="preserve">
     <value>Set as wallpaper</value>
   </data>
-  <data name="QueueDialog_LinkIsNotAllowInMixZip_Content" xml:space="preserve">
-    <value>The file to be compressed cannot contain lnk files</value>
-  </data>
   <data name="QuickStartAddButton.Label" xml:space="preserve">
     <value>Add</value>
   </data>

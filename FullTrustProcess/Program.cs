@@ -2563,7 +2563,7 @@ namespace FullTrustProcess
 
                                             if (string.IsNullOrEmpty(PackageFamilyName))
                                             {
-                                                Value.Add("Error", "TargetPath is invalid");
+                                                throw new Exception("TargetPath is invalid");
                                             }
                                             else
                                             {
@@ -2594,9 +2594,8 @@ namespace FullTrustProcess
                                                     Package.IconData = IconStream.ToArray();
                                                 }
                                             }
-                                            catch (Exception ex)
+                                            catch (Exception)
                                             {
-                                                LogTracer.Log(ex, "Could not get the icon");
                                                 Package.IconData = Array.Empty<byte>();
                                             }
                                         }

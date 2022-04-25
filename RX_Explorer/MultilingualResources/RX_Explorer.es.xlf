@@ -2390,10 +2390,6 @@ Las denominaciones no válidas son:
           <source>Set as wallpaper</source>
           <target state="translated">Establecer como fondo de escritorio</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_LinkIsNotAllowInMixZip_Content" translate="yes" xml:space="preserve">
-          <source>The file to be compressed cannot contain lnk files</source>
-          <target state="translated">El archivo para comprimir no puede contener archivos Ink.</target>
-        </trans-unit>
         <trans-unit id="QuickStartAddButton.Label" translate="yes" xml:space="preserve">
           <source>Add</source>
           <target state="translated">Añadir</target>

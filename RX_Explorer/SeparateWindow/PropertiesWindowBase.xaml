@@ -1094,7 +1094,10 @@
                                         <RowDefinition Height="35" />
                                         <RowDefinition Height="35" />
                                         <RowDefinition Height="35" />
-                                        <RowDefinition Height="50" />
+                                        <RowDefinition Height="10" />
+                                        <RowDefinition Height="35" />
+                                        <RowDefinition Height="10" />
+                                        <RowDefinition Height="35" />
                                         <RowDefinition />
                                     </Grid.RowDefinitions>
                                     <Border Height="2"
@@ -1185,18 +1188,28 @@
                                              Grid.Row="8"
                                              Grid.Column="1"
                                              Name="ShortcutCommentContent" />
-                                    <StackPanel Grid.Row="9"
-                                                Grid.ColumnSpan="2"
-                                                Orientation="Horizontal">
-                                        <CheckBox x:Name="RunAsAdmin"
-                                                  x:Uid="Properties_Shortcut_RunAsAdmin"
-                                                  Content="Run as administrator" />
-                                        <Button Name="OpenLocation"
-                                                Margin="20,0,0,0"
-                                                x:Uid="Properties_Shortcut_OpenLocation"
-                                                Click="OpenLocation_Click"
-                                                Content="Open File Location" />
-                                    </StackPanel>
+                                    <Border Height="2"
+                                            Grid.Row="9"
+                                            Grid.ColumnSpan="2"
+                                            HorizontalAlignment="Stretch"
+                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                    <CheckBox Grid.Row="10"
+                                              Grid.ColumnSpan="2"
+                                              x:Name="RunAsAdmin"
+                                              x:Uid="Properties_Shortcut_RunAsAdmin"
+                                              Content="Run as administrator" />
+                                    <Border Height="2"
+                                            Grid.Row="11"
+                                            Grid.ColumnSpan="2"
+                                            HorizontalAlignment="Stretch"
+                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                    <Button Grid.Row="12"
+                                            Grid.ColumnSpan="2"
+                                            Name="OpenLocation"
+                                            HorizontalAlignment="Right"
+                                            x:Uid="Properties_Shortcut_OpenLocation"
+                                            Click="OpenLocation_Click"
+                                            Content="Open File Location" />
                                 </Grid>
                             </controls:Case>
                         </controls:SwitchPresenter>

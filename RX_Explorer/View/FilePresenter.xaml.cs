@@ -1256,6 +1256,22 @@ namespace RX_Explorer.View
             Flyout.SecondaryCommands.Add(OpenButton);
             #endregion
 
+            #region SecondaryCommand -> CompressionButton
+            AppBarButton CompressionButton = new AppBarButton
+            {
+                Icon = new FontIcon
+                {
+                    FontFamily = FontIconFamily,
+                    Glyph = "\uE7B8"
+                },
+                Label = Globalization.GetString("Operate_Text_Compression"),
+                Width = 320
+            };
+            CompressionButton.Click += Compression_Click;
+
+            Flyout.SecondaryCommands.Add(CompressionButton);
+            #endregion
+
             #region SecondaryCommand -> OpenLocationButton
             AppBarButton OpenLocationButton = new AppBarButton
             {
@@ -2025,7 +2041,15 @@ namespace RX_Explorer.View
                                                         if (NewItem is FileSystemStorageFolder
                                                             && FileCollection.OfType<FileSystemStorageFile>().FirstOrDefault((Item) => Path.GetFileNameWithoutExtension(Item.Name) == NewItem.Name) is FileSystemStorageFile RelatedFile)
                                                         {
-                                                            FileCollection.Insert(FileCollection.IndexOf(RelatedFile) + 1, NewItem);
+                                                            if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                            {
+                                                                int Index = FileCollection.IndexOf(RelatedFile) + 1;
+
+                                                                if (Index >= 0 && Index <= FileCollection.Count)
+                                                                {
+                                                                    FileCollection.Insert(Index, NewItem);
+                                                                }
+                                                            }
                                                         }
                                                         else
                                                         {
@@ -2033,22 +2057,28 @@ namespace RX_Explorer.View
 
                                                             int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
-                                                            if (Index >= 0)
+                                                            if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                             {
-                                                                FileCollection.Insert(Index, NewItem);
-                                                            }
-                                                            else
-                                                            {
-                                                                FileCollection.Add(NewItem);
+                                                                if (Index >= 0)
+                                                                {
+                                                                    if (Index <= FileCollection.Count)
+                                                                    {
+                                                                        FileCollection.Insert(Index, NewItem);
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    FileCollection.Add(NewItem);
+                                                                }
                                                             }
                                                         }
                                                     }
-                                                    else
+                                                    else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                     {
                                                         FileCollection.Add(NewItem);
                                                     }
 
-                                                    if (NewItem is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
+                                                    if (FileCollection.Contains(NewItem) && NewItem is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
                                                         if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
                                                         {
@@ -2132,16 +2162,22 @@ namespace RX_Explorer.View
                                                             {
                                                                 int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
-                                                                if (Index >= 0)
+                                                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                                 {
-                                                                    FileCollection.Insert(Index, ModifiedItem);
-                                                                }
-                                                                else
-                                                                {
-                                                                    FileCollection.Add(ModifiedItem);
+                                                                    if (Index >= 0)
+                                                                    {
+                                                                        if (Index <= FileCollection.Count)
+                                                                        {
+                                                                            FileCollection.Insert(Index, ModifiedItem);
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        FileCollection.Add(ModifiedItem);
+                                                                    }
                                                                 }
                                                             }
-                                                            else
+                                                            else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                             {
                                                                 FileCollection.Add(ModifiedItem);
                                                             }
@@ -2173,16 +2209,22 @@ namespace RX_Explorer.View
                                                         {
                                                             int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
-                                                            if (Index >= 0)
+                                                            if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                             {
-                                                                FileCollection.Insert(Index, ModifiedItem);
-                                                            }
-                                                            else
-                                                            {
-                                                                FileCollection.Add(ModifiedItem);
+                                                                if (Index >= 0)
+                                                                {
+                                                                    if (Index <= FileCollection.Count)
+                                                                    {
+                                                                        FileCollection.Insert(Index, ModifiedItem);
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    FileCollection.Add(ModifiedItem);
+                                                                }
                                                             }
                                                         }
-                                                        else
+                                                        else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                         {
                                                             FileCollection.Add(ModifiedItem);
                                                         }
@@ -2196,16 +2238,22 @@ namespace RX_Explorer.View
                                             {
                                                 int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
-                                                if (Index >= 0)
+                                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    FileCollection.Insert(Index, ModifiedItem);
-                                                }
-                                                else
-                                                {
-                                                    FileCollection.Add(ModifiedItem);
+                                                    if (Index >= 0)
+                                                    {
+                                                        if (Index <= FileCollection.Count)
+                                                        {
+                                                            FileCollection.Insert(Index, ModifiedItem);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        FileCollection.Add(ModifiedItem);
+                                                    }
                                                 }
                                             }
-                                            else
+                                            else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                             {
                                                 FileCollection.Add(ModifiedItem);
                                             }
@@ -2236,21 +2284,27 @@ namespace RX_Explorer.View
 
                                                     int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
-                                                    if (Index >= 0)
+                                                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                     {
-                                                        FileCollection.Insert(Index, Item);
-                                                    }
-                                                    else
-                                                    {
-                                                        FileCollection.Add(Item);
+                                                        if (Index >= 0)
+                                                        {
+                                                            if (Index <= FileCollection.Count)
+                                                            {
+                                                                FileCollection.Insert(Index, Item);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            FileCollection.Add(Item);
+                                                        }
                                                     }
                                                 }
-                                                else
+                                                else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     FileCollection.Add(Item);
                                                 }
 
-                                                if (Item is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
+                                                if (FileCollection.Contains(Item) && Item is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
                                                 {
                                                     if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
                                                     {
@@ -2278,7 +2332,7 @@ namespace RX_Explorer.View
                     }
                     catch (Exception ex)
                     {
-                        LogTracer.Log(ex, $"{ nameof(FileChangeMonitor)}: Add item to collection failed");
+                        LogTracer.Log(ex, $"{nameof(FileChangeMonitor)}: failed to modify the collection on file changes");
                     }
                     finally
                     {
@@ -3409,7 +3463,7 @@ namespace RX_Explorer.View
 
                                                     if (MTPFolder == CurrentFolder)
                                                     {
-                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToAsyncEnumerable()))
+                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                         {
                                                             await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                         }
@@ -3450,7 +3504,7 @@ namespace RX_Explorer.View
                                         {
                                             if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToAsyncEnumerable()))
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                 }
@@ -5323,7 +5377,7 @@ namespace RX_Explorer.View
                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                             {
-                                await foreach (FileSystemStorageItemBase NewItem in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToAsyncEnumerable()))
+                                await foreach (FileSystemStorageItemBase NewItem in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                 {
                                     await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(NewItem.Path));
                                 }
@@ -5868,7 +5922,7 @@ namespace RX_Explorer.View
 
                                                     if (MTPFolder == CurrentFolder)
                                                     {
-                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToAsyncEnumerable()))
+                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                         {
                                                             await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                         }
@@ -5909,7 +5963,7 @@ namespace RX_Explorer.View
                                         {
                                             if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToAsyncEnumerable()))
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                 }
@@ -5951,34 +6005,20 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void MixedDecompression_Click(object sender, RoutedEventArgs e)
+        private void MixedDecompression_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Any((Item) => Item is LinkStorageFile))
+            if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
             {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LinkIsNotAllowInMixZip_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await Dialog.ShowAsync();
-            }
-            else
-            {
-                if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
-                {
-                    QueueTaskController.EnqueueDecompressionOpeartion(new OperationListDecompressionModel(SelectedItems.Select((Item) => Item.Path).ToArray(), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie"));
-                }
+                QueueTaskController.EnqueueDecompressionOpeartion(new OperationListDecompressionModel(SelectedItems.Select((Item) => Item.Path).ToArray(), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie"));
             }
         }
 
@@ -5986,23 +6026,9 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Any((Item) => Item is LinkStorageFile))
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LinkIsNotAllowInMixZip_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await dialog.ShowAsync();
-
-                return;
-            }
-
             CompressDialog Dialog = new CompressDialog();
 
-            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
                 QueueTaskController.EnqueueCompressionOpeartion(new OperationListCompressionModel(Dialog.Type, Dialog.Algorithm, Dialog.Level, SelectedItems.Select((Item) => Item.Path).ToArray(), Path.Combine(CurrentFolder.Path, Dialog.FileName)));
             }
@@ -6765,21 +6791,6 @@ namespace RX_Explorer.View
         private async void MixedDecompressOption_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-
-            if (SelectedItems.Any((Item) => Item is LinkStorageFile))
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LinkIsNotAllowInMixZip_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await Dialog.ShowAsync();
-
-                return;
-            }
-
 
             if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
                                             || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)

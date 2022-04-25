@@ -2394,10 +2394,6 @@ Inkorrekte Namen sind
           <source>Set as wallpaper</source>
           <target state="translated">Als Hintergrundbild einstellen</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_LinkIsNotAllowInMixZip_Content" translate="yes" xml:space="preserve">
-          <source>The file to be compressed cannot contain lnk files</source>
-          <target state="translated">Die zu komprimierende Datei darf keine Zeichnungsdateien enthalten.</target>
-        </trans-unit>
         <trans-unit id="QuickStartAddButton.Label" translate="yes" xml:space="preserve">
           <source>Add</source>
           <target state="translated">Hinzufügen</target>

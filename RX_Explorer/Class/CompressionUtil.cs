@@ -892,7 +892,7 @@ namespace RX_Explorer.Class
                     ReaderOptions ReadOptions = new ReaderOptions();
                     ReadOptions.ArchiveEncoding.Default = EncodingSetting;
 
-                    using (Stream InputStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                    using (Stream InputStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                     using (IReader Reader = ReaderFactory.Open(InputStream, ReadOptions))
                     {
                         Dictionary<string, string> DirectoryMap = new Dictionary<string, string>();

@@ -140,16 +140,6 @@ namespace RX_Explorer.Class
             return Task.FromResult<ulong>(0);
         }
 
-        public override async Task<StorageStreamTransaction> GetTransactionStreamFromFileAsync()
-        {
-            if (await GetStorageItemAsync() is StorageFile File)
-            {
-                return await File.OpenTransactedWriteAsync();
-            }
-
-            return null;
-        }
-
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
         {
             return Task.FromResult<IReadOnlyDictionary<string, string>>(new Dictionary<string, string>(Properties.Select((Prop) => new KeyValuePair<string, string>(Prop, string.Empty))));

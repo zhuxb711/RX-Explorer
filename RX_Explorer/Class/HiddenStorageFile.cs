@@ -64,16 +64,6 @@ namespace RX_Explorer.Class
             base.SetThumbnailStatus(ThumbnailStatus.HalfOpacity);
         }
 
-        public override Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
-        {
-            return null;
-        }
-
-        public override Task<StorageStreamTransaction> GetTransactionStreamFromFileAsync()
-        {
-            return null;
-        }
-
         public async Task<HiddenFileData> GetRawDataAsync()
         {
             try

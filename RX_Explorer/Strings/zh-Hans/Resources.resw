@@ -1760,9 +1760,6 @@
   <data name="SetAsWallpaper.Label" xml:space="preserve">
     <value>设为壁纸</value>
   </data>
-  <data name="QueueDialog_LinkIsNotAllowInMixZip_Content" xml:space="preserve">
-    <value>待压缩的文件中不能包含lnk文件</value>
-  </data>
   <data name="QuickStartAddButton.Label" xml:space="preserve">
     <value>添加</value>
   </data>

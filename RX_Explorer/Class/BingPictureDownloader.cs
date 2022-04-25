@@ -19,39 +19,9 @@ namespace RX_Explorer.Class
     {
         public static async Task<FileSystemStorageFile> GetBingPictureAsync()
         {
-            static async Task<Stream> DownloadBingPictureToTemporaryFileAsync(string DownloadPath)
-            {
-                try
-                {
-                    if (NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable)
-                    {
-                        if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
-                        {
-                            Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess);
+            string PicturePath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "BingDailyPicture.jpg");
 
-                            HttpWebRequest Request = WebRequest.CreateHttp(new Uri(DownloadPath));
-                            Request.Timeout = 10000;
-                            Request.ReadWriteTimeout = 10000;
-
-                            using (WebResponse Response = await Request.GetResponseAsync())
-                            using (Stream ResponseStream = Response.GetResponseStream())
-                            {
-                                await ResponseStream.CopyToAsync(TempFileStream);
-                            }
-
-                            return TempFileStream;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An error was threw in {nameof(DownloadBingPictureToTemporaryFileAsync)}");
-                }
-
-                return null;
-            }
-
-            if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, "BingDailyPicture.jpg")) is FileSystemStorageFile ExistFile)
+            if (await FileSystemStorageItemBase.OpenAsync(PicturePath) is FileSystemStorageFile ExistFile)
             {
                 try
                 {
@@ -61,15 +31,15 @@ namespace RX_Explorer.Class
 
                         if (!string.IsNullOrWhiteSpace(DownloadPath))
                         {
-                            using (Stream TempFileStream = await DownloadBingPictureToTemporaryFileAsync(DownloadPath))
+                            if (await DownloadBingPictureToTemporaryFileAsync(DownloadPath) is FileSystemStorageFile TempFile)
                             {
-                                if (TempFileStream != null)
+                                using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
+                                using (Stream ExistFileStream = await ExistFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
                                 {
-                                    using (Stream FileStream = await ExistFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                     using (MD5 MD5Alg1 = MD5.Create())
                                     using (MD5 MD5Alg2 = MD5.Create())
                                     {
-                                        Task<string> CalTask1 = MD5Alg1.GetHashAsync(FileStream);
+                                        Task<string> CalTask1 = MD5Alg1.GetHashAsync(ExistFileStream);
                                         Task<string> CalTask2 = MD5Alg2.GetHashAsync(TempFileStream);
 
                                         string[] ResultArray = await Task.WhenAll(CalTask1, CalTask2);
@@ -81,12 +51,10 @@ namespace RX_Explorer.Class
                                     }
 
                                     TempFileStream.Seek(0, SeekOrigin.Begin);
+                                    ExistFileStream.Seek(0, SeekOrigin.Begin);
+                                    ExistFileStream.SetLength(0);
 
-                                    using (StorageStreamTransaction Transaction = await ExistFile.GetTransactionStreamFromFileAsync())
-                                    {
-                                        await TempFileStream.CopyToAsync(Transaction.Stream.AsStreamForWrite());
-                                        await Transaction.CommitAsync();
-                                    }
+                                    await TempFileStream.CopyToAsync(ExistFileStream);
                                 }
                             }
                         }
@@ -107,22 +75,17 @@ namespace RX_Explorer.Class
 
                     if (!string.IsNullOrWhiteSpace(DownloadPath))
                     {
-                        using (Stream TempFileStream = await DownloadBingPictureToTemporaryFileAsync(DownloadPath))
+                        if (await DownloadBingPictureToTemporaryFileAsync(DownloadPath) is FileSystemStorageFile TempFile)
                         {
-                            if (TempFileStream != null)
+                            if (await FileSystemStorageItemBase.CreateNewAsync(PicturePath, StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile PictureFile)
                             {
-                                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, "BingDailyPicture.jpg"), StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile BingDailyPictureFile)
+                                using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                using (Stream PictureFileStream = await PictureFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                 {
-                                    TempFileStream.Seek(0, SeekOrigin.Begin);
-
-                                    using (StorageStreamTransaction Transaction = await BingDailyPictureFile.GetTransactionStreamFromFileAsync())
-                                    {
-                                        await TempFileStream.CopyToAsync(Transaction.Stream.AsStreamForWrite());
-                                        await Transaction.CommitAsync();
-                                    }
-
-                                    return BingDailyPictureFile;
+                                    await TempFileStream.CopyToAsync(PictureFileStream);
                                 }
+
+                                return PictureFile;
                             }
                         }
                     }
@@ -134,6 +97,40 @@ namespace RX_Explorer.Class
 
                 return null;
             }
+        }
+
+        private static async Task<FileSystemStorageFile> DownloadBingPictureToTemporaryFileAsync(string DownloadPath)
+        {
+            try
+            {
+                if (NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable)
+                {
+                    string TempPath = Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg");
+
+                    if (await FileSystemStorageItemBase.CreateNewAsync(TempPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
+                    {
+                        Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential);
+
+                        HttpWebRequest Request = WebRequest.CreateHttp(new Uri(DownloadPath));
+                        Request.Timeout = 10000;
+                        Request.ReadWriteTimeout = 10000;
+
+                        using (WebResponse Response = await Request.GetResponseAsync())
+                        using (Stream ResponseStream = Response.GetResponseStream())
+                        {
+                            await ResponseStream.CopyToAsync(TempFileStream);
+                        }
+
+                        return TempFile;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An error was threw in {nameof(DownloadBingPictureToTemporaryFileAsync)}");
+            }
+
+            return null;
         }
 
         private static async Task<string> GetDailyPicturePathAsync()

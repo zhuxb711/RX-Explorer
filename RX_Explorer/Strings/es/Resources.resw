@@ -1806,9 +1806,6 @@ Las denominaciones no válidas son:
   <data name="SetAsWallpaper.Label" xml:space="preserve">
     <value>Establecer como fondo de escritorio</value>
   </data>
-  <data name="QueueDialog_LinkIsNotAllowInMixZip_Content" xml:space="preserve">
-    <value>El archivo para comprimir no puede contener archivos Ink.</value>
-  </data>
   <data name="QuickStartAddButton.Label" xml:space="preserve">
     <value>Añadir</value>
   </data>

@@ -78,16 +78,6 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        public override Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
-        {
-            return null;
-        }
-
-        public override Task<StorageStreamTransaction> GetTransactionStreamFromFileAsync()
-        {
-            return null;
-        }
-
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
             RawData = await GetRawDataAsync();

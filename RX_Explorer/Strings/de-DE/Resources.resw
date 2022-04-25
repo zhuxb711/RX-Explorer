@@ -1809,9 +1809,6 @@ Inkorrekte Namen sind
   <data name="SetAsWallpaper.Label" xml:space="preserve">
     <value>Als Hintergrundbild einstellen</value>
   </data>
-  <data name="QueueDialog_LinkIsNotAllowInMixZip_Content" xml:space="preserve">
-    <value>Die zu komprimierende Datei darf keine Zeichnungsdateien enthalten.</value>
-  </data>
   <data name="QuickStartAddButton.Label" xml:space="preserve">
     <value>Hinzufügen</value>
   </data>
