@@ -302,7 +302,7 @@ namespace RX_Explorer.Class
 
             public override bool Equals(object obj)
             {
-                return cFileName.Equals(obj);
+                return obj is WIN32_FIND_DATA Item && Equals(Item);
             }
 
             public override int GetHashCode()
@@ -312,17 +312,17 @@ namespace RX_Explorer.Class
 
             public static bool operator ==(WIN32_FIND_DATA left, WIN32_FIND_DATA right)
             {
-                return left.cFileName.Equals(right.cFileName);
+                return left.Equals(right);
             }
 
             public static bool operator !=(WIN32_FIND_DATA left, WIN32_FIND_DATA right)
             {
-                return !(left.cFileName == right.cFileName);
+                return !left.Equals(right);
             }
 
             public bool Equals(WIN32_FIND_DATA other)
             {
-                return cFileName.Equals(other.cFileName);
+                return cFileName.Equals(other.cFileName, StringComparison.OrdinalIgnoreCase);
             }
         }
 

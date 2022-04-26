@@ -652,7 +652,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return new MTPDriveVolumnData();
+            return null;
         }
 
         public async Task<ulong> GetMTPFolderSizeAsync(string Path, CancellationToken CancelToken = default)
@@ -1550,7 +1550,7 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<List<VariableDataPackage>>(Result);
+                    return JsonSerializer.Deserialize<IReadOnlyList<VariableDataPackage>>(Result);
                 }
                 else if (Response.TryGetValue("Error", out var ErrorMessage))
                 {
@@ -1890,7 +1890,7 @@ namespace RX_Explorer.Class
 
         public async Task<IReadOnlyList<IRecycleStorageItem>> GetRecycleBinItemsAsync()
         {
-            if (await SendCommandAsync(CommandType.Get_RecycleBinItems) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.GetRecycleBinItems) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("RecycleBinItems_Json_Result", out string Result))
                 {
@@ -2309,7 +2309,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(OriginPathList), "Parameter could not be null or empty");
             }
 
-            if (await SendCommandAsync(CommandType.Restore_RecycleItem, ("ExecutePath", JsonSerializer.Serialize(OriginPathList))) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.RestoreRecycleItem, ("ExecutePath", JsonSerializer.Serialize(OriginPathList))) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Restore_Result", out string Result))
                 {
@@ -2358,7 +2358,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
             }
 
-            if (await SendCommandAsync(CommandType.Delete_RecycleItem, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.DeleteRecycleItem, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Delete_Result", out string Result))
                 {

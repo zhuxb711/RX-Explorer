@@ -282,14 +282,14 @@ namespace FullTrustProcess
                 }
 
                 PermissionsResult.Add(new PermissionDataPackage
-                {
-                    AccountName = Type switch
+                (
+                    Type switch
                     {
                         AccountType.User or AccountType.Group => WellKnownSID.Contains(SecurityId.Value) ? Name.ToString() : $"{Domain}\\{Name}",
                         _ => RuleGroupByAccount.Key.Value
                     },
-                    AccountType = Type,
-                    AccountPermissions = new Dictionary<Permissions, bool>
+                    Type,
+                    new Dictionary<Permissions, bool>
                     {
                         { Permissions.FullControl, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.FullControl) },
                         { Permissions.Modify, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Modify) },
@@ -298,7 +298,7 @@ namespace FullTrustProcess
                         { Permissions.Read, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Read) },
                         { Permissions.Write, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Write) },
                     }
-                });
+                ));
             }
 
             return PermissionsResult;

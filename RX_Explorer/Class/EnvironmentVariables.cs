@@ -63,7 +63,7 @@ namespace RX_Explorer.Class
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            string ActualPath = await Exclusive.Controller.GetVariablePathAsync(Variable.Trim('%')).ConfigureAwait(false);
+                            string ActualPath = await Exclusive.Controller.GetVariablePathAsync(Variable.Trim('%'));
 
                             if (string.IsNullOrWhiteSpace(ActualPath))
                             {

@@ -2,10 +2,17 @@
 {
     public sealed class UrlFileData
     {
-        public string UrlPath { get; set; }
+        public string UrlPath { get; }
 
-        public string UrlTargetPath { get; set; }
+        public string UrlTargetPath { get; }
 
-        public byte[] IconData { get; set; }
+        public byte[] IconData { get; }
+
+        public UrlFileData(string UrlPath, string UrlTargetPath, byte[] IconData)
+        {
+            this.UrlPath = UrlPath;
+            this.UrlTargetPath=UrlTargetPath;
+            this.IconData = IconData;
+        }
     }
 }

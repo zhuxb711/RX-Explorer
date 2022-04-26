@@ -145,21 +145,7 @@ namespace RX_Explorer.Class
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            else
-            {
-                if (obj is ProgramPickerItem Item)
-                {
-                    return Item.Path.Equals(Path);
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            return obj is ProgramPickerItem Item && Equals(Item);
         }
 
         public override int GetHashCode()
@@ -170,6 +156,16 @@ namespace RX_Explorer.Class
         public override string ToString()
         {
             return $"Name: {Name}, Path: {Path}";
+        }
+
+        public static bool operator ==(ProgramPickerItem left, ProgramPickerItem right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ProgramPickerItem left, ProgramPickerItem right)
+        {
+            return !left.Equals(right);
         }
 
         /// <summary>

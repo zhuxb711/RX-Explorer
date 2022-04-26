@@ -429,28 +429,7 @@ namespace RX_Explorer.Class
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            else
-            {
-                if (obj is DriveDataBase Item)
-                {
-                    if (!string.IsNullOrEmpty(DeviceId) && !string.IsNullOrEmpty(Item.DeviceId))
-                    {
-                        return DeviceId.Equals(Item.DeviceId, StringComparison.OrdinalIgnoreCase);
-                    }
-                    else
-                    {
-                        return Path.Equals(Item.Path, StringComparison.OrdinalIgnoreCase);
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            return obj is DriveDataBase Item && Equals(Item);
         }
 
         public override int GetHashCode()
@@ -465,54 +444,12 @@ namespace RX_Explorer.Class
 
         public static bool operator ==(DriveDataBase left, DriveDataBase right)
         {
-            if (left is null)
-            {
-                return right is null;
-            }
-            else
-            {
-                if (right is null)
-                {
-                    return false;
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(left.DeviceId) && !string.IsNullOrEmpty(right.DeviceId))
-                    {
-                        return left.DeviceId.Equals(right.DeviceId, StringComparison.OrdinalIgnoreCase);
-                    }
-                    else
-                    {
-                        return left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
-                    }
-                }
-            }
+            return left.Equals(right);
         }
 
         public static bool operator !=(DriveDataBase left, DriveDataBase right)
         {
-            if (left is null)
-            {
-                return right is object;
-            }
-            else
-            {
-                if (right is null)
-                {
-                    return true;
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(left.DeviceId) && !string.IsNullOrEmpty(right.DeviceId))
-                    {
-                        return !left.DeviceId.Equals(right.DeviceId, StringComparison.OrdinalIgnoreCase);
-                    }
-                    else
-                    {
-                        return !left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
-                    }
-                }
-            }
+            return !left.Equals(right);
         }
 
         protected DriveDataBase(FileSystemStorageFolder DriveFolder, DriveType DriveType, string DeviceId = null)

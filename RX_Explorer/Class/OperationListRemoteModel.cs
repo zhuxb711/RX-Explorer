@@ -17,7 +17,7 @@ namespace RX_Explorer.Class
             {
                 RemoteClipboardRelatedData Data = await Exclusive.Controller.GetRemoteClipboardRelatedDataAsync();
 
-                if (Data != null)
+                if ((Data?.TotalSize).GetValueOrDefault() > 0)
                 {
                     return new ProgressCalculator(Data.TotalSize);
                 }

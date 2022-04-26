@@ -19,21 +19,7 @@ namespace RX_Explorer.Class
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            else
-            {
-                if (obj is InstalledFonts Item)
-                {
-                    return Item.FamilyName == FamilyName && Item.Path == Path;
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            return obj is InstalledFonts Item && Equals(Item);
         }
 
         public override int GetHashCode()
@@ -67,40 +53,12 @@ namespace RX_Explorer.Class
 
         public static bool operator ==(InstalledFonts left, InstalledFonts right)
         {
-            if (left is null)
-            {
-                return right is null;
-            }
-            else
-            {
-                if (right is null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return left.FamilyName == right.FamilyName && left.Path == right.Path;
-                }
-            }
+            return left.Equals(right);
         }
 
         public static bool operator !=(InstalledFonts left, InstalledFonts right)
         {
-            if (left is null)
-            {
-                return right is object;
-            }
-            else
-            {
-                if (right is null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return left.FamilyName != right.FamilyName || left.Path != right.Path;
-                }
-            }
+            return !left.Equals(right);
         }
     }
 }

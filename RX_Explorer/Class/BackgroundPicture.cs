@@ -43,6 +43,16 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static bool operator ==(BackgroundPicture left, BackgroundPicture right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(BackgroundPicture left, BackgroundPicture right)
+        {
+            return !left.Equals(right);
+        }
+
         public bool Equals(BackgroundPicture other)
         {
             if (ReferenceEquals(this, other))
@@ -62,47 +72,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static bool operator ==(BackgroundPicture left, BackgroundPicture right)
-        {
-            if (left is null)
-            {
-                return right is null;
-            }
-            else
-            {
-                if (right is null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return left.PictureUri.AbsoluteUri.Equals(right.PictureUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
-                }
-            }
-        }
-
-        public static bool operator !=(BackgroundPicture left, BackgroundPicture right)
-        {
-            if (left is null)
-            {
-                return right is object;
-            }
-            else
-            {
-                if (right is null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return !left.PictureUri.AbsoluteUri.Equals(right.PictureUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
-                }
-            }
-        }
-
         public override bool Equals(object obj)
         {
-            return Equals(obj as BackgroundPicture);
+            return obj is BackgroundPicture Item && Equals(Item);
         }
 
         public override int GetHashCode()

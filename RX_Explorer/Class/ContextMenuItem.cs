@@ -14,55 +14,19 @@ namespace RX_Explorer.Class
 {
     public sealed class ContextMenuItem : IEquatable<ContextMenuItem>
     {
-        public string Name
-        {
-            get
-            {
-                return DataPackage.Name;
-            }
-        }
+        public string Name => DataPackage.Name;
 
-        public int Id
-        {
-            get
-            {
-                return DataPackage.Id;
-            }
-        }
+        public int Id => DataPackage.Id;
 
-        public string Verb
-        {
-            get
-            {
-                return DataPackage.Verb;
-            }
-        }
+        public string Verb => DataPackage.Verb;
 
-        public byte[] IconData
-        {
-            get
-            {
-                return DataPackage.IconData;
-            }
-        }
+        public byte[] IconData => DataPackage.IconData;
 
-        public string[] RelatedPath
-        {
-            get
-            {
-                return DataPackage.RelatedPath;
-            }
-        }
+        public string[] RelatedPath => DataPackage.RelatedPath;
 
         private ContextMenuItem[] subMenu;
 
-        public ContextMenuItem[] SubMenus
-        {
-            get
-            {
-                return subMenu ??= DataPackage.SubMenus.Select((Menu) => new ContextMenuItem(Menu)).ToArray();
-            }
-        }
+        public ContextMenuItem[] SubMenus => subMenu ??= DataPackage.SubMenus.Select((Menu) => new ContextMenuItem(Menu)).ToArray();
 
         private readonly ContextMenuPackage DataPackage;
 
@@ -200,24 +164,41 @@ namespace RX_Explorer.Class
 
         public bool Equals(ContextMenuItem other)
         {
-            return Id == other?.Id;
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            else
+            {
+                if (other == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return Id == other.Id;
+                }
+            }
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is ContextMenuItem Item)
-            {
-                return Id == Item.Id;
-            }
-            else
-            {
-                return false;
-            }
+            return obj is ContextMenuItem Item && Equals(Item);
         }
 
         public override int GetHashCode()
         {
             return Id.GetHashCode();
+        }
+
+        public static bool operator ==(ContextMenuItem left, ContextMenuItem right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ContextMenuItem left, ContextMenuItem right)
+        {
+            return !left.Equals(right);
         }
     }
 }

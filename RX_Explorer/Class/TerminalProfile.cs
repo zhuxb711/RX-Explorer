@@ -41,21 +41,7 @@ namespace RX_Explorer.Class
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            else
-            {
-                if (obj is TerminalProfile Item)
-                {
-                    return Item.Name == Name;
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            return obj is TerminalProfile Item && Equals(Item);
         }
 
         public override int GetHashCode()
@@ -70,40 +56,12 @@ namespace RX_Explorer.Class
 
         public static bool operator ==(TerminalProfile left, TerminalProfile right)
         {
-            if (left is null)
-            {
-                return right is null;
-            }
-            else
-            {
-                if (right is null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return left.Name == right.Name;
-                }
-            }
+            return left.Equals(right);
         }
 
         public static bool operator !=(TerminalProfile left, TerminalProfile right)
         {
-            if (left is null)
-            {
-                return right is object;
-            }
-            else
-            {
-                if (right is null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return left.Name != right.Name;
-                }
-            }
+            return !left.Equals(right);
         }
     }
 }

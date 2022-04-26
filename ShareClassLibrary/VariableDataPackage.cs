@@ -2,14 +2,14 @@
 {
     public sealed class VariableDataPackage
     {
-        public string Variable { get; }
-
         public string Path { get; }
 
-        public VariableDataPackage(string Variable, string Path)
+        public string Variable { get; }
+
+        public VariableDataPackage(string Path, string Variable)
         {
-            this.Variable = Variable;
             this.Path = Path;
+            this.Variable = Variable;
         }
     }
 }

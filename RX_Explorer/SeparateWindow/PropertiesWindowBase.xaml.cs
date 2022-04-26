@@ -506,11 +506,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     }
                                 case UrlStorageFile UrlFile:
                                     {
-                                        await Exclusive.Controller.UpdateUrlAsync(new UrlFileData
-                                        {
-                                            UrlPath = StorageItem.Path,
-                                            UrlTargetPath = ShortcutUrlContent.Text
-                                        });
+                                        await Exclusive.Controller.UpdateUrlAsync(new UrlFileData(StorageItem.Path, ShortcutUrlContent.Text, Array.Empty<byte>()));
 
                                         break;
                                     }

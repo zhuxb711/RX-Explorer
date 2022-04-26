@@ -1104,12 +1104,12 @@ namespace FullTrustProcess
                                 if (Device.GetDrives()?.FirstOrDefault() is MediaDriveInfo DriveInfo)
                                 {
                                     Value.Add("Success", JsonSerializer.Serialize(new MTPDriveVolumnData
-                                    {
-                                        Name = string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName,
-                                        FileSystem = DriveInfo.DriveFormat,
-                                        FreeByte = Convert.ToUInt64(DriveInfo.AvailableFreeSpace),
-                                        TotalByte = Convert.ToUInt64(DriveInfo.TotalSize)
-                                    }));
+                                    (
+                                        string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName,
+                                        DriveInfo.DriveFormat,
+                                        Convert.ToUInt64(DriveInfo.TotalSize),
+                                        Convert.ToUInt64(DriveInfo.AvailableFreeSpace)
+                                    )));
                                 }
                                 else
                                 {
@@ -2076,15 +2076,15 @@ namespace FullTrustProcess
                         {
                             string Variable = CommandValue["Variable"];
 
-                            string Env = Environment.GetEnvironmentVariable(Variable);
+                            string EnvPath = Environment.GetEnvironmentVariable(Variable);
 
-                            if (string.IsNullOrEmpty(Env))
+                            if (string.IsNullOrEmpty(EnvPath))
                             {
                                 Value.Add("Error", "Could not found EnvironmentVariable");
                             }
                             else
                             {
-                                Value.Add("Success", Env);
+                                Value.Add("Success", Path.GetFullPath(EnvPath));
                             }
 
                             break;
@@ -2096,9 +2096,10 @@ namespace FullTrustProcess
                             if (PartialVariable.IndexOf('%') == 0 && PartialVariable.LastIndexOf('%') == 0)
                             {
                                 IEnumerable<VariableDataPackage> VariableList = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
-                                                                                                                     .Where((Pair) => Directory.Exists(Convert.ToString(Pair.Value)))
-                                                                                                                     .Where((Pair) => Convert.ToString(Pair.Key).StartsWith(PartialVariable[1..], StringComparison.OrdinalIgnoreCase))
-                                                                                                                     .Select((Pair) => new VariableDataPackage($"%{Pair.Key}%", Convert.ToString(Pair.Value)));
+                                                                                                                     .Select((Pair) => new KeyValuePair<string, string>(Convert.ToString(Pair.Key), Path.GetFullPath(Convert.ToString(Pair.Value))))
+                                                                                                                     .Where((Pair) => Directory.Exists(Pair.Value))
+                                                                                                                     .Where((Pair) => Pair.Key.StartsWith(PartialVariable[1..], StringComparison.OrdinalIgnoreCase))
+                                                                                                                     .Select((Pair) => new VariableDataPackage(Pair.Value, $"%{Pair.Key}%"));
                                 Value.Add("Success", JsonSerializer.Serialize(VariableList));
                             }
                             else
@@ -2438,38 +2439,30 @@ namespace FullTrustProcess
 
                             if (File.Exists(ExecutePath))
                             {
+                                byte[] IconData = Array.Empty<byte>();
+
+                                try
+                                {
+                                    string DefaultProgramPath = ExtensionAssociation.GetDefaultProgramPathFromExtension(".html");
+
+                                    using (ShellItem DefaultProgramItem = new ShellItem(DefaultProgramPath))
+                                    using (Gdi32.SafeHBITMAP IconRawPtr = DefaultProgramItem.GetImage(new SIZE(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.IconOnly))
+                                    using (MemoryStream IconStream = new MemoryStream())
+                                    using (Bitmap TempBitmap = Image.FromHbitmap(IconRawPtr.DangerousGetHandle()))
+                                    {
+                                        TempBitmap.MakeTransparent(Color.Black);
+                                        TempBitmap.Save(IconStream, ImageFormat.Png);
+                                        IconData = IconStream.ToArray();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Could not get the icon of \"{ExecutePath}\"");
+                                }
+
                                 using (ShellItem Item = new ShellItem(ExecutePath))
                                 {
-                                    string UrlPath = Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl);
-
-                                    UrlFileData Package = new UrlFileData
-                                    {
-                                        UrlPath = ExecutePath,
-                                        UrlTargetPath = UrlPath
-                                    };
-
-                                    try
-                                    {
-                                        string DefaultProgramPath = ExtensionAssociation.GetDefaultProgramPathFromExtension(".html");
-
-                                        using (ShellItem DefaultProgramItem = new ShellItem(DefaultProgramPath))
-                                        using (Gdi32.SafeHBITMAP IconRawPtr = DefaultProgramItem.GetImage(new SIZE(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.IconOnly))
-                                        using (MemoryStream IconStream = new MemoryStream())
-                                        using (Bitmap TempBitmap = Image.FromHbitmap(IconRawPtr.DangerousGetHandle()))
-                                        {
-                                            TempBitmap.MakeTransparent(Color.Black);
-                                            TempBitmap.Save(IconStream, ImageFormat.Png);
-
-                                            Package.IconData = IconStream.ToArray();
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        LogTracer.Log(ex, $"Could not get the icon of \"{ExecutePath}\"");
-                                        Package.IconData = Array.Empty<byte>();
-                                    }
-
-                                    Value.Add("Success", JsonSerializer.Serialize(Package));
+                                    Value.Add("Success", JsonSerializer.Serialize(new UrlFileData(ExecutePath, Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl), IconData)));
                                 }
                             }
                             else
@@ -2817,7 +2810,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case CommandType.Get_RecycleBinItems:
+                    case CommandType.GetRecycleBinItems:
                         {
                             string RecycleItemResult = JsonSerializer.Serialize(RecycleBinController.GetRecycleItems());
 
@@ -2838,7 +2831,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case CommandType.Restore_RecycleItem:
+                    case CommandType.RestoreRecycleItem:
                         {
                             string[] PathList = JsonSerializer.Deserialize<string[]>(CommandValue["ExecutePath"]);
 
@@ -2846,7 +2839,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case CommandType.Delete_RecycleItem:
+                    case CommandType.DeleteRecycleItem:
                         {
                             string Path = CommandValue["ExecutePath"];
 
@@ -3997,7 +3990,7 @@ namespace FullTrustProcess
                         {
                             RemoteClipboardRelatedData RelatedData = await STAThreadController.Current.ExecuteOnSTAThreadAsync(() => RemoteDataObject.GetRemoteClipboardRelatedData());
 
-                            if (RelatedData != null)
+                            if ((RelatedData?.ItemsCount).GetValueOrDefault() > 0)
                             {
                                 Value.Add("Success", JsonSerializer.Serialize(RelatedData));
                             }

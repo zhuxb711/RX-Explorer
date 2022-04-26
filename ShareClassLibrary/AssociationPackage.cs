@@ -31,28 +31,14 @@ namespace ShareClassLibrary
                 }
                 else
                 {
-                    return other.ExecutablePath.Equals(ExecutablePath) && other.Extension.Equals(Extension);
+                    return other.ExecutablePath.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase) && other.Extension.Equals(Extension, StringComparison.OrdinalIgnoreCase);
                 }
             }
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            else
-            {
-                if (obj is AssociationPackage Item)
-                {
-                    return Item.ExecutablePath.Equals(ExecutablePath) && Item.Extension.Equals(Extension);
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            return obj is AssociationPackage Item && Equals(Item);
         }
 
         public override int GetHashCode()
@@ -63,6 +49,16 @@ namespace ShareClassLibrary
         public override string ToString()
         {
             return $"Extension: {Extension}, ExecutablePath: {ExecutablePath}";
+        }
+
+        public static bool operator ==(AssociationPackage left, AssociationPackage right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(AssociationPackage left, AssociationPackage right)
+        {
+            return !left.Equals(right);
         }
     }
 }
