@@ -575,7 +575,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Path">自定义文件夹的路径</param>
         /// <returns></returns>
-        public void DeleteLibraryFolder(string Path)
+        public void DeleteLibraryFolderRecord(string Path)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From Library Where Path = @Path", Connection))
             {
@@ -629,7 +629,7 @@ namespace RX_Explorer.Class
             return PathList;
         }
 
-        public void UpdateLibraryFolder(IEnumerable<LibraryFolderRecord> Records)
+        public void UpdateLibraryFolderRecord(IEnumerable<LibraryFolderRecord> Records)
         {
             using SqliteTransaction Transaction = Connection.BeginTransaction();
             using SqliteCommand Command = new SqliteCommand("Update Or Ignore Library Set Path = @Path Where Type = @Type", Connection, Transaction);
@@ -645,7 +645,7 @@ namespace RX_Explorer.Class
             Transaction.Commit();
         }
 
-        public void SetLibraryPath(LibraryType Type, string Path)
+        public void SetLibraryPathRecord(LibraryType Type, string Path)
         {
             using SqliteCommand Command = new SqliteCommand("Insert Or Replace Into Library Values (@Path,@Type)", Connection);
             Command.Parameters.AddWithValue("@Path", Path);

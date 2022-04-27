@@ -363,7 +363,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw in {nameof(SearchAsync)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(SearchAsync)}");
             }
             finally
             {

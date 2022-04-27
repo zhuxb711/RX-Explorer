@@ -954,31 +954,57 @@ namespace RX_Explorer.Class
 
         public bool Equals(FileSystemStorageItemBase other)
         {
+            if (other == null)
+            {
+                return false;
+            }
+
             if (ReferenceEquals(this, other))
             {
                 return true;
             }
             else
             {
-                if (other == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return other.Path.Equals(Path, StringComparison.OrdinalIgnoreCase);
-                }
+                return other.Path.Equals(Path, StringComparison.OrdinalIgnoreCase);
             }
         }
 
         public static bool operator ==(FileSystemStorageItemBase left, FileSystemStorageItemBase right)
         {
-            return left.Equals(right);
+            if (left is null)
+            {
+                return right is null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
+                }
+            }
         }
 
         public static bool operator !=(FileSystemStorageItemBase left, FileSystemStorageItemBase right)
         {
-            return !left.Equals(right);
+            if (left is null)
+            {
+                return right is not null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return !left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
+                }
+            }
         }
 
         public static class SpecialPath

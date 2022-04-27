@@ -550,9 +550,10 @@ namespace RX_Explorer.View
 
                                 if (CommonAccessCollection.LibraryList.Remove(RefreshedLibrary))
                                 {
-                                    SQLite.Current.DeleteLibraryFolder(OriginPath);
+                                    SQLite.Current.DeleteLibraryFolderRecord(OriginPath);
+                                    SQLite.Current.SetLibraryPathRecord(LibraryType.UserCustom, NewPath);
+
                                     await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, OriginPath);
-                                    SQLite.Current.SetLibraryPath(LibraryType.UserCustom, NewPath);
                                     await JumpListController.Current.AddItemAsync(JumpListGroup.Library, NewPath);
 
                                     CommonAccessCollection.LibraryList.Insert(Index, RefreshedLibrary);
@@ -1152,7 +1153,7 @@ namespace RX_Explorer.View
             if (LibraryGrid.SelectedItem is LibraryStorageFolder Library)
             {
                 CommonAccessCollection.LibraryList.Remove(Library);
-                SQLite.Current.DeleteLibraryFolder(Library.Path);
+                SQLite.Current.DeleteLibraryFolderRecord(Library.Path);
                 await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, Library.Path);
             }
         }
@@ -1391,7 +1392,7 @@ namespace RX_Explorer.View
 
             foreach (LibraryStorageFolder Item in CommonAccessCollection.LibraryList)
             {
-                SQLite.Current.SetLibraryPath(Item.LibType, Item.Path);
+                SQLite.Current.SetLibraryPathRecord(Item.LibType, Item.Path);
             }
         }
 
@@ -1419,12 +1420,12 @@ namespace RX_Explorer.View
 
                     await dialog.ShowAsync();
                 }
-                else
+                else if (!string.IsNullOrEmpty(Folder.Path))
                 {
                     if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
                     {
                         CommonAccessCollection.LibraryList.Add(LibFolder);
-                        SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
+                        SQLite.Current.SetLibraryPathRecord(LibraryType.UserCustom, Folder.Path);
                         await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
                     }
                 }

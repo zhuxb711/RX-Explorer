@@ -182,7 +182,7 @@ namespace RX_Explorer.View
             {
                 foreach (string ErrorPath in ErrorList)
                 {
-                    SQLite.Current.DeleteLibraryFolder(ErrorPath);
+                    SQLite.Current.DeleteLibraryFolderRecord(ErrorPath);
                 }
             }
         }

@@ -132,7 +132,7 @@ namespace RX_Explorer.Class
                                                  ? UserDataPaths.GetForUser(CurrentUser)
                                                  : UserDataPaths.GetDefault();
 
-                        SQLite.Current.UpdateLibraryFolder(new List<LibraryFolderRecord>(7)
+                        SQLite.Current.UpdateLibraryFolderRecord(new List<LibraryFolderRecord>(7)
                         {
                             new LibraryFolderRecord(LibraryType.Downloads, string.IsNullOrWhiteSpace(DataPath.Downloads) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads") : DataPath.Downloads),
                             new LibraryFolderRecord(LibraryType.Desktop, string.IsNullOrWhiteSpace(DataPath.Desktop) ? Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) : DataPath.Desktop),
@@ -145,7 +145,7 @@ namespace RX_Explorer.Class
                     }
                     catch (Exception)
                     {
-                        SQLite.Current.UpdateLibraryFolder(new List<LibraryFolderRecord>(6)
+                        SQLite.Current.UpdateLibraryFolderRecord(new List<LibraryFolderRecord>(6)
                         {
                             new LibraryFolderRecord(LibraryType.Desktop, Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)),
                             new LibraryFolderRecord(LibraryType.Videos, Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)),
@@ -160,7 +160,9 @@ namespace RX_Explorer.Class
 
                     List<Task> LongRunningTaskList = new List<Task>();
 
-                    foreach (LibraryFolderRecord Record in SQLite.Current.GetLibraryFolderRecord().OrderBy((Item) => Item.Type))
+                    foreach (LibraryFolderRecord Record in SQLite.Current.GetLibraryFolderRecord()
+                                                                         .OrderBy((Record) => Record.Type)
+                                                                         .Where((Record) => !string.IsNullOrEmpty(Record.Path)))
                     {
                         Task LoadTask = LibraryStorageFolder.CreateAsync(Record.Type, Record.Path).ContinueWith((PreviousTask) =>
                         {

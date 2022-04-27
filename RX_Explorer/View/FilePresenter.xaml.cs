@@ -1905,7 +1905,7 @@ namespace RX_Explorer.View
                 Key = VirtualKey.E,
                 IsEnabled = false
             });
-            UseSystemFileManagerButton.Click += UseSystemFileMananger_Click;
+            UseSystemFileManagerButton.Click += UseSystemFileExplorer_Click;
             ToolTipService.SetToolTip(UseSystemFileManagerButton, Globalization.GetString("Operate_Text_OpenInWinExplorer"));
 
             Flyout.SecondaryCommands.Add(UseSystemFileManagerButton);
@@ -1991,12 +1991,12 @@ namespace RX_Explorer.View
 
                     await Dialog.ShowAsync();
                 }
-                else
+                else if (!string.IsNullOrEmpty(Folder.Path))
                 {
                     if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
                     {
                         CommonAccessCollection.LibraryList.Add(LibFolder);
-                        SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
+                        SQLite.Current.SetLibraryPathRecord(LibraryType.UserCustom, Folder.Path);
                         await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
                     }
                 }
@@ -4405,20 +4405,27 @@ namespace RX_Explorer.View
             Clipboard.SetContent(Package);
         }
 
-        private async void UseSystemFileMananger_Click(object sender, RoutedEventArgs e)
+        private async void UseSystemFileExplorer_Click(object sender, RoutedEventArgs e)
         {
-            CloseAllFlyout();
-
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            try
             {
-                if (CurrentFolder is MTPStorageFolder)
+                CloseAllFlyout();
+
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    await Exclusive.Controller.RunAsync("explorer.exe", Parameters: $"::{{20D04FE0-3AEA-1069-A2D8-08002B30309D}}\\{CurrentFolder.Path}");
+                    if (CurrentFolder is MTPStorageFolder)
+                    {
+                        await Exclusive.Controller.RunAsync("explorer.exe", Parameters: $"::{{20D04FE0-3AEA-1069-A2D8-08002B30309D}}\\{CurrentFolder.Path}");
+                    }
+                    else
+                    {
+                        await Exclusive.Controller.RunAsync("explorer.exe", Parameters: CurrentFolder.Path);
+                    }
                 }
-                else
-                {
-                    await Exclusive.Controller.RunAsync("explorer.exe", Parameters: CurrentFolder.Path);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not launch the system file explorer");
             }
         }
 

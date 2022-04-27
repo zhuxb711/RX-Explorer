@@ -403,26 +403,24 @@ namespace RX_Explorer.Class
 
         public bool Equals(DriveDataBase other)
         {
+            if (other == null)
+            {
+                return false;
+            }
+
             if (ReferenceEquals(this, other))
             {
                 return true;
             }
             else
             {
-                if (other == null)
+                if (!string.IsNullOrEmpty(DeviceId) && !string.IsNullOrEmpty(other.DeviceId))
                 {
-                    return false;
+                    return DeviceId.Equals(other.DeviceId, StringComparison.OrdinalIgnoreCase);
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(DeviceId) && !string.IsNullOrEmpty(other.DeviceId))
-                    {
-                        return DeviceId.Equals(other.DeviceId, StringComparison.OrdinalIgnoreCase);
-                    }
-                    else
-                    {
-                        return Path.Equals(other.Path, StringComparison.OrdinalIgnoreCase);
-                    }
+                    return Path.Equals(other.Path, StringComparison.OrdinalIgnoreCase);
                 }
             }
         }
@@ -444,12 +442,54 @@ namespace RX_Explorer.Class
 
         public static bool operator ==(DriveDataBase left, DriveDataBase right)
         {
-            return left.Equals(right);
+            if (left is null)
+            {
+                return right is null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return false;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(left.DeviceId) && !string.IsNullOrEmpty(right.DeviceId))
+                    {
+                        return left.DeviceId.Equals(right.DeviceId, StringComparison.OrdinalIgnoreCase);
+                    }
+                    else
+                    {
+                        return left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
+                    }
+                }
+            }
         }
 
         public static bool operator !=(DriveDataBase left, DriveDataBase right)
         {
-            return !left.Equals(right);
+            if (left is null)
+            {
+                return right is not null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return true;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(left.DeviceId) && !string.IsNullOrEmpty(right.DeviceId))
+                    {
+                        return !left.DeviceId.Equals(right.DeviceId, StringComparison.OrdinalIgnoreCase);
+                    }
+                    else
+                    {
+                        return !left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
+                    }
+                }
+            }
         }
 
         protected DriveDataBase(FileSystemStorageFolder DriveFolder, DriveType DriveType, string DeviceId = null)

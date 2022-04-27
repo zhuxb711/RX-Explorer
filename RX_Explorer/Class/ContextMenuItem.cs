@@ -164,20 +164,18 @@ namespace RX_Explorer.Class
 
         public bool Equals(ContextMenuItem other)
         {
+            if (other == null)
+            {
+                return false;
+            }
+
             if (ReferenceEquals(this, other))
             {
                 return true;
             }
             else
             {
-                if (other == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return Id == other.Id;
-                }
+                return Id == other.Id;
             }
         }
 
@@ -193,12 +191,40 @@ namespace RX_Explorer.Class
 
         public static bool operator ==(ContextMenuItem left, ContextMenuItem right)
         {
-            return left.Equals(right);
+            if (left is null)
+            {
+                return right is null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return left.Id == right.Id;
+                }
+            }
         }
 
         public static bool operator !=(ContextMenuItem left, ContextMenuItem right)
         {
-            return !left.Equals(right);
+            if (left is null)
+            {
+                return right is not null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return left.Id != right.Id;
+                }
+            }
         }
     }
 }

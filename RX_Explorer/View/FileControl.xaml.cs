@@ -739,7 +739,7 @@ namespace RX_Explorer.View
 
                     this.Renderer = Renderer;
 
-                    await Initialize(Renderer.InitializePaths);
+                    await InitializeAsync(Renderer.InitializePaths);
                 }
             }
             catch (Exception ex)
@@ -918,7 +918,7 @@ namespace RX_Explorer.View
         /// <summary>
         /// 执行文件目录的初始化
         /// </summary>
-        private async Task Initialize(IEnumerable<string> InitPathArray)
+        private async Task InitializeAsync(IEnumerable<string> InitPathArray)
         {
             try
             {
@@ -3079,12 +3079,12 @@ namespace RX_Explorer.View
 
                     await Dialog.ShowAsync();
                 }
-                else
+                else if (!string.IsNullOrEmpty(Folder.Path))
                 {
                     if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
                     {
                         CommonAccessCollection.LibraryList.Add(LibFolder);
-                        SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
+                        SQLite.Current.SetLibraryPathRecord(LibraryType.UserCustom, Folder.Path);
                         await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
                     }
                 }
@@ -3314,7 +3314,7 @@ namespace RX_Explorer.View
             {
                 if (CommonAccessCollection.LibraryList.FirstOrDefault((Lib) => Lib.Path.Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is LibraryStorageFolder TargetLib)
                 {
-                    SQLite.Current.DeleteLibraryFolder(Content.Path);
+                    SQLite.Current.DeleteLibraryFolderRecord(Content.Path);
                     CommonAccessCollection.LibraryList.Remove(TargetLib);
                     await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, TargetLib.Path);
                 }

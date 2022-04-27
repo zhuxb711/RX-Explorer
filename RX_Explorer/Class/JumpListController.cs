@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.UI.StartScreen;
 
 namespace RX_Explorer.Class
@@ -14,13 +13,24 @@ namespace RX_Explorer.Class
 
         private JumpList InnerList;
 
-        public static JumpListController Current => Instance ??= new JumpListController();
+        private static readonly object Locker = new object();
+
+        public static JumpListController Current
+        {
+            get
+            {
+                lock (Locker)
+                {
+                    return Instance ??= new JumpListController();
+                }
+            }
+        }
 
         public bool IsSupported => JumpList.IsSupported();
 
         public int GroupItemMaxNum { get; set; } = 6;
 
-        private async Task<bool> Initialize()
+        private async Task<bool> InitializeAsync()
         {
             try
             {
@@ -44,23 +54,20 @@ namespace RX_Explorer.Class
 
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                LogTracer.Log(ex);
-                return false;
+                LogTracer.Log(ex, "Could not initialize the jump list");
             }
+
+            return false;
         }
 
         public async Task AddItemAsync(JumpListGroup Group, params string[] FolderPathList)
         {
             try
             {
-                if (await Initialize().ConfigureAwait(false))
+                if (await InitializeAsync().ConfigureAwait(false))
                 {
                     bool ItemModified = false;
 
@@ -121,7 +128,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, "Could not add items to jump list");
             }
         }
 
@@ -129,7 +136,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (await Initialize().ConfigureAwait(false))
+                if (await InitializeAsync().ConfigureAwait(false))
                 {
                     bool ItemModified = false;
                     string GroupString = ConvertGroupEnumToResourceString(Group);
@@ -153,33 +160,25 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, "Could not remove items to jump list");
             }
         }
 
-        public Task RemoveItemAsync(JumpListGroup Group, params StorageFolder[] FolderList)
-        {
-            return RemoveItemAsync(Group, FolderList.Select((Item) => Item.Path).ToArray());
-        }
-
-        public async Task<List<JumpListItem>> GetAllJumpListItems()
+        public async Task<IReadOnlyList<JumpListItem>> GetAllJumpListItems()
         {
             try
             {
-                if (await Initialize().ConfigureAwait(false))
+                if (await InitializeAsync().ConfigureAwait(false))
                 {
                     return InnerList.Items.ToList();
-                }
-                else
-                {
-                    return new List<JumpListItem>(0);
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
-                return new List<JumpListItem>(0);
+                LogTracer.Log(ex, "Could not get the jump list items");
             }
+
+            return new List<JumpListItem>(0);
         }
 
         public string ConvertGroupEnumToResourceString(JumpListGroup Group)

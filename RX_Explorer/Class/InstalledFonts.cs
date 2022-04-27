@@ -34,31 +34,57 @@ namespace RX_Explorer.Class
 
         public bool Equals(InstalledFonts Item)
         {
+            if (Item == null)
+            {
+                return false;
+            }
+
             if (ReferenceEquals(this, Item))
             {
                 return true;
             }
             else
             {
-                if (Item == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return Item.FamilyName == FamilyName && Item.Path == Path;
-                }
+                return Item.FamilyName == FamilyName && Item.Path == Path;
             }
         }
 
         public static bool operator ==(InstalledFonts left, InstalledFonts right)
         {
-            return left.Equals(right);
+            if (left is null)
+            {
+                return right is null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return left.FamilyName == right.FamilyName && left.Path == right.Path;
+                }
+            }
         }
 
         public static bool operator !=(InstalledFonts left, InstalledFonts right)
         {
-            return !left.Equals(right);
+            if (left is null)
+            {
+                return right is not null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return left.FamilyName != right.FamilyName || left.Path != right.Path;
+                }
+            }
         }
     }
 }

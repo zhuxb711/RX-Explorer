@@ -352,13 +352,7 @@ namespace RX_Explorer.View
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            InitCancellation = new CancellationTokenSource();
-
             ListViewControl.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
-            SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
-
-            CurrentSortTarget = CompressionSortTarget.Name;
-            CurrentSortDirection = SortDirection.Ascending;
 
             if (e.Parameter is FileSystemStorageFile File)
             {
@@ -366,6 +360,9 @@ namespace RX_Explorer.View
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
+                    InitCancellation = new CancellationTokenSource();
+                    SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
+
                     await InitializeAsync(File, Dialog.UserSelectedEncoding, InitCancellation.Token);
                 }
                 else if (Frame.CanGoBack)
@@ -381,7 +378,7 @@ namespace RX_Explorer.View
 
             ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
 
-            SelectionExtension.Dispose();
+            SelectionExtension?.Dispose();
             SelectionExtension = null;
 
             DelayDragCancellation?.Cancel();
@@ -411,6 +408,9 @@ namespace RX_Explorer.View
 
             try
             {
+                CurrentSortTarget = CompressionSortTarget.Name;
+                CurrentSortDirection = SortDirection.Ascending;
+
                 Stream CompressedStream = null;
 
                 switch (File.Type.ToLower())
@@ -457,7 +457,7 @@ namespace RX_Explorer.View
                         ZipFile = File;
                         ZipObj = new ZipFile(CompressedStream);
 
-                        await Task.WhenAll(DisplayItemsInEntryAsync(string.Empty), Task.Delay(1000));
+                        await Task.WhenAll(DisplayItemsInEntryAsync(string.Empty), Task.Delay(500));
                     }
                     finally
                     {

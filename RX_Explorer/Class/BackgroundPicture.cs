@@ -45,30 +45,56 @@ namespace RX_Explorer.Class
 
         public static bool operator ==(BackgroundPicture left, BackgroundPicture right)
         {
-            return left.Equals(right);
+            if (left is null)
+            {
+                return right is null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return left.PictureUri.AbsoluteUri.Equals(right.PictureUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
+                }
+            }
         }
 
         public static bool operator !=(BackgroundPicture left, BackgroundPicture right)
         {
-            return !left.Equals(right);
+            if (left is null)
+            {
+                return right is not null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return !left.PictureUri.AbsoluteUri.Equals(right.PictureUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
+                }
+            }
         }
 
         public bool Equals(BackgroundPicture other)
         {
+            if (other == null)
+            {
+                return false;
+            }
+
             if (ReferenceEquals(this, other))
             {
                 return true;
             }
             else
             {
-                if (other == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return other.PictureUri.AbsoluteUri.Equals(PictureUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
-                }
+                return other.PictureUri.AbsoluteUri.Equals(PictureUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
             }
         }
 

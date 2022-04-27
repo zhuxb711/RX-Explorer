@@ -53,12 +53,12 @@ namespace ShareClassLibrary
 
         public static bool operator ==(AssociationPackage left, AssociationPackage right)
         {
-            return left.Equals(right);
+            return (left?.Equals(right)).GetValueOrDefault();
         }
 
         public static bool operator !=(AssociationPackage left, AssociationPackage right)
         {
-            return !left.Equals(right);
+            return !(left?.Equals(right)).GetValueOrDefault();
         }
     }
 }

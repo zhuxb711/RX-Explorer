@@ -1600,29 +1600,27 @@ namespace RX_Explorer.Class
                     LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage1}");
                     throw new FileCaputureException();
                 }
-                else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage2))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage2}");
-                    throw new Exception();
-                }
-                else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage3))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage3}");
                     throw new InvalidOperationException();
                 }
-                else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage4))
+                else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage3))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage4}");
+                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage3}");
                     throw new FileNotFoundException();
+                }
+                else if (Response.TryGetValue("Error_Failure", out string ErrorMessage4))
+                {
+                    throw new Exception(ErrorMessage4);
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage5))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage5}");
-                    throw new Exception();
+                    throw new Exception(ErrorMessage5);
                 }
                 else
                 {
-                    throw new Exception();
+                    throw new Exception("Unknown response");
                 }
             }
             else
@@ -2008,35 +2006,32 @@ namespace RX_Explorer.Class
                         LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage1}");
                         throw new FileNotFoundException();
                     }
-                    else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                    else if (Response.TryGetValue("Error_Capture", out string ErrorMessage2))
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage2}");
-                        throw new Exception();
-                    }
-                    else if (Response.TryGetValue("Error_Capture", out string ErrorMessage3))
-                    {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage3}");
                         throw new FileCaputureException();
                     }
-                    else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage4))
+                    else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage3))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage4}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage3}");
                         throw new InvalidOperationException("Fail to delete item");
-                    }
-                    else if (Response.TryGetValue("Error", out string ErrorMessage5))
-                    {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage5}");
-                        throw new Exception();
                     }
                     else if (Response.ContainsKey("Error_Cancelled"))
                     {
                         LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
                         throw new OperationCanceledException("Operation was cancelled successfully");
                     }
+                    else if (Response.TryGetValue("Error_Failure", out string ErrorMessage4))
+                    {
+                        throw new Exception(ErrorMessage4);
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage5))
+                    {
+                        throw new Exception(ErrorMessage5);
+                    }
                     else
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}");
-                        throw new Exception();
+                        throw new Exception("Unknown response");
                     }
                 }
                 else
@@ -2112,40 +2107,37 @@ namespace RX_Explorer.Class
                         LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage1}");
                         throw new FileNotFoundException();
                     }
-                    else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                    else if (Response.TryGetValue("Error_Capture", out string ErrorMessage2))
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage2}");
-                        throw new Exception();
-                    }
-                    else if (Response.TryGetValue("Error_Capture", out string ErrorMessage3))
-                    {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage3}");
                         throw new FileCaputureException();
                     }
-                    else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage4))
+                    else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage3))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage4}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage3}");
                         throw new InvalidOperationException();
                     }
-                    else if (Response.TryGetValue("Error_UserCancel", out string ErrorMessage5))
+                    else if (Response.TryGetValue("Error_UserCancel", out string ErrorMessage4))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage5}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage4}");
                         throw new OperationCanceledException("Operation was cancelled");
-                    }
-                    else if (Response.TryGetValue("Error", out string ErrorMessage6))
-                    {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage6}");
-                        throw new Exception();
                     }
                     else if (Response.ContainsKey("Error_Cancelled"))
                     {
                         LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
                         throw new OperationCanceledException("Operation was cancelled");
                     }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage5))
+                    {
+                        throw new Exception(ErrorMessage5);
+                    }
+                    else if (Response.TryGetValue("Error_Failure", out string ErrorMessage6))
+                    {
+                        throw new Exception(ErrorMessage6);
+                    }
                     else
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}");
-                        throw new Exception();
+                        throw new Exception("Unknown response");
                     }
                 }
                 else
@@ -2244,11 +2236,6 @@ namespace RX_Explorer.Class
                         LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage1}");
                         throw new FileNotFoundException();
                     }
-                    else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
-                    {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage2}");
-                        throw new Exception();
-                    }
                     else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage3))
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage3}");
@@ -2259,20 +2246,22 @@ namespace RX_Explorer.Class
                         LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage4}");
                         throw new OperationCanceledException("Operation was cancelled");
                     }
-                    else if (Response.TryGetValue("Error", out string ErrorMessage5))
-                    {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage5}");
-                        throw new Exception();
-                    }
                     else if (Response.ContainsKey("Error_Cancelled"))
                     {
                         LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
                         throw new OperationCanceledException("Operation was cancelled");
                     }
+                    else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                    {
+                        throw new Exception(ErrorMessage2);
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage5))
+                    {
+                        throw new Exception(ErrorMessage5);
+                    }
                     else
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}");
-                        throw new Exception();
+                        throw new Exception("Unknown response");
                     }
                 }
                 else
