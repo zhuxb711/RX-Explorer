@@ -48,7 +48,7 @@ namespace RX_Explorer.View
     {
         public static MainPage Current { get; private set; }
 
-        public List<string[]> ActivatePathArray { get; }
+        public IReadOnlyList<string[]> ActivatePathArray { get; }
 
         private readonly Dictionary<Type, string> PageDictionary;
 
@@ -58,7 +58,7 @@ namespace RX_Explorer.View
 
         private DeviceWatcher BluetoothAudioWatcher;
 
-        public MainPage(Rect Parameter, List<string[]> ActivatePathArray = null)
+        public MainPage(Rect Parameter, IReadOnlyList<string[]> ActivatePathArray = null)
         {
             InitializeComponent();
 
@@ -124,13 +124,13 @@ namespace RX_Explorer.View
             bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
             bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
 
-            if (NavView.SelectedItem is NavigationViewItem NavItem)
+            if (!QueueContentDialog.IsRunningOrWaiting && NavView.SelectedItem is NavigationViewItem NavItem)
             {
-                args.Handled = true;
-
                 if (Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
                     && TabViewContainer.Current?.CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
                 {
+                    args.Handled = true;
+
                     if (BackButtonPressed)
                     {
                         if (!await Control.ExecuteGoBackActionIfAvailableAsync())
@@ -149,6 +149,8 @@ namespace RX_Explorer.View
                 }
                 else
                 {
+                    args.Handled = true;
+
                     if (BackButtonPressed)
                     {
                         ExecuteGlobalGoBackAction();

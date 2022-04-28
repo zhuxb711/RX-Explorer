@@ -291,13 +291,21 @@ namespace RX_Explorer.View
                                                                                                               Options.IgnoreCase,
                                                                                                               CancelToken))
                             {
+                                if (CancelToken.IsCancellationRequested)
+                                {
+                                    break;
+                                }
+
                                 await SignalControl.TrapOnSignalAsync();
 
                                 int Index = await SortCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection);
 
                                 if (Index >= 0)
                                 {
-                                    SearchResult.Insert(Index, Item);
+                                    if (Index <= SearchResult.Count)
+                                    {
+                                        SearchResult.Insert(Index, Item);
+                                    }
                                 }
                                 else
                                 {
@@ -1468,7 +1476,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        foreach (FileSystemStorageItemBase OriginItem in SelectedItemsCopy.Where((Item)=>Item.Name != Dialog.DesireNameMap[Item.Name]))
+                        foreach (FileSystemStorageItemBase OriginItem in SelectedItemsCopy.Where((Item) => Item.Name != Dialog.DesireNameMap[Item.Name]))
                         {
                             string FolderPath = Path.GetDirectoryName(OriginItem.Path);
 

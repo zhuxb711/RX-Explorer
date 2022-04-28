@@ -613,7 +613,7 @@ namespace RX_Explorer.View
             }
         }
 
-        public async Task CreateNewTabAsync(List<string[]> BulkTabWithPath)
+        public async Task CreateNewTabAsync(IEnumerable<string[]> BulkTabWithPath)
         {
             try
             {

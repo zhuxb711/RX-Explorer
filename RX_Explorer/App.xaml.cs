@@ -203,99 +203,105 @@ namespace RX_Explorer
 
         private async Task OnLaunchOrOnActivate(IActivatedEventArgs args)
         {
-            Globalization.Initialize();
-            FontFamilyController.Initialize();
-            SystemInformation.Instance.TrackAppUse(args);
-
-            switch (args)
+            try
             {
-                case LaunchActivatedEventArgs LaunchArgs:
-                    {
-                        if (Window.Current.Content is Frame frame)
+                Globalization.Initialize();
+                FontFamilyController.Initialize();
+                SystemInformation.Instance.TrackAppUse(args);
+
+                switch (args)
+                {
+                    case LaunchActivatedEventArgs LaunchArgs:
                         {
-                            if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
+                            if (Window.Current.Content is Frame frame)
                             {
-                                if (!string.IsNullOrWhiteSpace(LaunchArgs.Arguments) && await FileSystemStorageItemBase.CheckExistsAsync(LaunchArgs.Arguments))
+                                if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
                                 {
-                                    await TabContainer.CreateNewTabAsync(LaunchArgs.Arguments);
+                                    if (!string.IsNullOrWhiteSpace(LaunchArgs.Arguments) && await FileSystemStorageItemBase.CheckExistsAsync(LaunchArgs.Arguments))
+                                    {
+                                        await TabContainer.CreateNewTabAsync(LaunchArgs.Arguments);
+                                    }
+                                    else
+                                    {
+                                        await TabContainer.CreateNewTabAsync();
+                                    }
                                 }
-                                else
-                                {
-                                    await TabContainer.CreateNewTabAsync();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (string.IsNullOrWhiteSpace(LaunchArgs.Arguments) || !await FileSystemStorageItemBase.CheckExistsAsync(LaunchArgs.Arguments))
-                            {
-                                await LaunchWithStartupMode(LaunchArgs);
                             }
                             else
                             {
-                                Window.Current.Content = new ExtendedSplash(LaunchArgs.SplashScreen, new List<string[]> { new string[] { LaunchArgs.Arguments } });
+                                if (string.IsNullOrWhiteSpace(LaunchArgs.Arguments) || !await FileSystemStorageItemBase.CheckExistsAsync(LaunchArgs.Arguments))
+                                {
+                                    await LaunchWithStartupMode(LaunchArgs);
+                                }
+                                else
+                                {
+                                    Window.Current.Content = new ExtendedSplash(LaunchArgs.SplashScreen, new List<string[]> { new string[] { LaunchArgs.Arguments } });
+                                }
                             }
+
+                            break;
                         }
-
-                        break;
-                    }
-                case CommandLineActivatedEventArgs CmdArgs:
-                    {
-                        IEnumerable<string> ActualStartupArguments = Regex.Matches(CmdArgs.Operation.Arguments, @"[\""].+?[\""]|[^ ]+").Select((Match) => Match.Value.Trim('"')).Skip(1).ToArray();
-
-                        if (Window.Current.Content is Frame Frame)
+                    case CommandLineActivatedEventArgs CmdArgs:
                         {
-                            if (Frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
+                            IEnumerable<string> ActualStartupArguments = Regex.Matches(CmdArgs.Operation.Arguments, @"[\""].+?[\""]|[^ ]+").Select((Match) => Match.Value.Trim('"')).Skip(1).ToArray();
+
+                            if (Window.Current.Content is Frame Frame)
+                            {
+                                if (Frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
+                                {
+                                    if (ActualStartupArguments.Any() && ActualStartupArguments.All((Path) => !Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase)))
+                                    {
+                                        await TabContainer.CreateNewTabAsync(ActualStartupArguments.Select((Path) => new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path }).ToList());
+                                    }
+                                    else
+                                    {
+                                        await TabContainer.CreateNewTabAsync();
+                                    }
+                                }
+                            }
+                            else
                             {
                                 if (ActualStartupArguments.Any() && ActualStartupArguments.All((Path) => !Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase)))
                                 {
-                                    await TabContainer.CreateNewTabAsync(ActualStartupArguments.Select((Path) => new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path }).ToList());
+                                    Window.Current.Content = new ExtendedSplash(CmdArgs.SplashScreen, ActualStartupArguments.Select((Path) => new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path }).ToList());
                                 }
                                 else
                                 {
-                                    await TabContainer.CreateNewTabAsync();
+                                    await LaunchWithStartupMode(CmdArgs);
                                 }
                             }
+
+                            break;
                         }
-                        else
+                    case ProtocolActivatedEventArgs ProtocalArgs:
                         {
-                            if (ActualStartupArguments.Any() && ActualStartupArguments.All((Path) => !Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase)))
+                            if (string.IsNullOrWhiteSpace(ProtocalArgs.Uri.AbsolutePath))
                             {
-                                Window.Current.Content = new ExtendedSplash(CmdArgs.SplashScreen, ActualStartupArguments.Select((Path) => new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path }).ToList());
+                                Window.Current.Content = new ExtendedSplash(ProtocalArgs.SplashScreen);
                             }
                             else
                             {
-                                await LaunchWithStartupMode(CmdArgs);
+                                Window.Current.Content = new ExtendedSplash(ProtocalArgs.SplashScreen, JsonSerializer.Deserialize<IReadOnlyList<string[]>>(Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath)));
                             }
-                        }
 
-                        break;
-                    }
-                case ProtocolActivatedEventArgs ProtocalArgs:
-                    {
-                        if (string.IsNullOrWhiteSpace(ProtocalArgs.Uri.AbsolutePath))
-                        {
-                            Window.Current.Content = new ExtendedSplash(ProtocalArgs.SplashScreen);
+                            break;
                         }
-                        else
+                    default:
                         {
-                            Window.Current.Content = new ExtendedSplash(ProtocalArgs.SplashScreen, JsonSerializer.Deserialize<List<string[]>>(Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath)));
+                            Window.Current.Content = new ExtendedSplash(args.SplashScreen);
+                            break;
                         }
-
-                        break;
-                    }
-                case ToastNotificationActivatedEventArgs:
-                    {
-                        break;
-                    }
-                default:
-                    {
-                        Window.Current.Content = new ExtendedSplash(args.SplashScreen);
-                        break;
-                    }
+                }
             }
-
-            Window.Current.Activate();
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{args.GetType().Name} startup failed. Switching to normal startup mode");
+                Window.Current.Content = new ExtendedSplash(args.SplashScreen);
+            }
+            finally
+            {
+                Window.Current.Activate();
+            }
         }
 
         private async Task LaunchWithStartupMode(IActivatedEventArgs LaunchArgs)

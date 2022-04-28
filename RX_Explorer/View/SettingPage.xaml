@@ -486,7 +486,7 @@
                                                            x:Uid="FontFamilyComboBoxDescription"
                                                            Text="指定应用使用的字体，需要重启以生效" />
                                             </StackPanel>
-                                            <ComboBox Width="220"
+                                            <ComboBox Width="250"
                                                       x:Uid="FontFamilyComboBox"
                                                       Name="FontFamilyComboBox"
                                                       RelativePanel.AlignRightWithPanel="True"

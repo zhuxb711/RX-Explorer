@@ -101,6 +101,80 @@ namespace FullTrustProcess
                                             {
                                                 switch (JsonSerializer.Deserialize(CommandData, Type.GetType(RawTypeData)))
                                                 {
+                                                    case ElevationRemoteCopyData RemoteData:
+                                                        {
+                                                            STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
+                                                            {
+                                                                RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
+
+                                                                if (RelatedData.ItemsCount > 0)
+                                                                {
+                                                                    ulong CurrentPosition = 0;
+
+                                                                    foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(Cancellation.Token))
+                                                                    {
+                                                                        string TargetPath = Path.Combine(RemoteData.BaseFolderPath, Package.Name);
+
+                                                                        try
+                                                                        {
+                                                                            switch (Package)
+                                                                            {
+                                                                                case RemoteClipboardFileData FileData:
+                                                                                    {
+                                                                                        if (!Directory.Exists(RemoteData.BaseFolderPath))
+                                                                                        {
+                                                                                            Directory.CreateDirectory(RemoteData.BaseFolderPath);
+                                                                                        }
+
+                                                                                        string UniqueName = Helper.StorageGenerateUniquePath(TargetPath, CreateType.File);
+
+                                                                                        using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
+                                                                                        {
+                                                                                            FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
+                                                                                            {
+                                                                                                PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
+                                                                                            });
+                                                                                        }
+
+                                                                                        CurrentPosition += FileData.Size;
+
+                                                                                        break;
+                                                                                    }
+                                                                                case RemoteClipboardFolderData:
+                                                                                    {
+                                                                                        if (!Directory.Exists(TargetPath))
+                                                                                        {
+                                                                                            Directory.CreateDirectory(TargetPath);
+                                                                                        }
+
+                                                                                        break;
+                                                                                    }
+                                                                                default:
+                                                                                    {
+                                                                                        throw new NotSupportedException();
+                                                                                    }
+                                                                            }
+                                                                        }
+                                                                        catch (OperationCanceledException)
+                                                                        {
+                                                                            //No need to handle this exception
+                                                                        }
+                                                                        finally
+                                                                        {
+                                                                            Package.Dispose();
+                                                                        }
+                                                                    }
+
+                                                                    Value.Add("Success", string.Empty);
+                                                                }
+                                                                else
+                                                                {
+                                                                    Value.Add("Error", "No remote data object is available");
+                                                                }
+                                                            }).Wait();
+
+                                                            break;
+                                                        }
                                                     case ElevationSetDriveCompressStatusData DriveCompressStatusData:
                                                         {
                                                             static bool SetCompressionCore(string Path, Kernel32.COMPRESSION_FORMAT CompressStatus)
@@ -2125,7 +2199,7 @@ namespace FullTrustProcess
                                 }
                                 else if (Marshal.GetLastWin32Error() == 5)
                                 {
-                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath));
+                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken);
 
                                     foreach (KeyValuePair<string, string> Result in ResultMap)
                                     {
@@ -2139,7 +2213,7 @@ namespace FullTrustProcess
                             }
                             else
                             {
-                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath));
+                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken);
 
                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                 {
@@ -2211,7 +2285,7 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName));
+                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName), CancelToken);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -3243,7 +3317,7 @@ namespace FullTrustProcess
                                             }
                                             else if (Marshal.GetLastWin32Error() == 5)
                                             {
-                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option));
+                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option), CancelToken);
 
                                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                                 {
@@ -3262,7 +3336,7 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option));
+                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option), CancelToken);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -3630,7 +3704,7 @@ namespace FullTrustProcess
                                                 }
                                                 else if (Marshal.GetLastWin32Error() == 5)
                                                 {
-                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option));
+                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option), CancelToken);
 
                                                     foreach (KeyValuePair<string, string> Result in ResultMap)
                                                     {
@@ -3649,7 +3723,7 @@ namespace FullTrustProcess
                                         }
                                         else
                                         {
-                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option));
+                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option), CancelToken);
 
                                             foreach (KeyValuePair<string, string> Result in ResultMap)
                                             {
@@ -3758,7 +3832,7 @@ namespace FullTrustProcess
                                                 }
                                                 else if (Marshal.GetLastWin32Error() == 5)
                                                 {
-                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete));
+                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete), CancelToken);
 
                                                     foreach (KeyValuePair<string, string> Result in ResultMap)
                                                     {
@@ -3777,7 +3851,7 @@ namespace FullTrustProcess
                                         }
                                         else
                                         {
-                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete));
+                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete), CancelToken);
 
                                             foreach (KeyValuePair<string, string> Result in ResultMap)
                                             {
@@ -4003,85 +4077,94 @@ namespace FullTrustProcess
                         }
                     case CommandType.PasteRemoteFile:
                         {
-                            string Path = CommandValue["Path"];
+                            string BaseFolderPath = CommandValue["Path"];
 
-                            await STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
+                            if (StorageItemController.CheckPermission(BaseFolderPath, FileSystemRights.CreateFiles | FileSystemRights.CreateDirectories))
                             {
-                                RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
-
-                                if (RelatedData.ItemsCount > 0)
+                                await STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
                                 {
-                                    ulong CurrentPosition = 0;
+                                    RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
 
-                                    foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(CancelToken))
+                                    if (RelatedData.ItemsCount > 0)
                                     {
-                                        try
+                                        ulong CurrentPosition = 0;
+
+                                        foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(CancelToken))
                                         {
-                                            switch (Package)
+                                            string TargetPath = Path.Combine(BaseFolderPath, Package.Name);
+
+                                            try
                                             {
-                                                case RemoteClipboardFileData FileData:
-                                                    {
-                                                        string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                                                        if (!Directory.Exists(DirectoryPath))
+                                                switch (Package)
+                                                {
+                                                    case RemoteClipboardFileData FileData:
                                                         {
-                                                            Directory.CreateDirectory(DirectoryPath);
-                                                        }
-
-                                                        string UniqueName = Helper.StorageGenerateUniquePath(System.IO.Path.Combine(Path, Package.Name), CreateType.File);
-
-                                                        using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
-                                                        {
-                                                            FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), CancelToken, (s, e) =>
+                                                            if (!Directory.Exists(BaseFolderPath))
                                                             {
-                                                                PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
-                                                            });
+                                                                Directory.CreateDirectory(BaseFolderPath);
+                                                            }
+
+                                                            string UniqueName = Helper.StorageGenerateUniquePath(TargetPath, CreateType.File);
+
+                                                            using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
+                                                            {
+                                                                FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), CancelToken, (s, e) =>
+                                                                {
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
+                                                                });
+                                                            }
+
+                                                            CurrentPosition += FileData.Size;
+
+                                                            break;
                                                         }
-
-                                                        CurrentPosition += FileData.Size;
-
-                                                        break;
-                                                    }
-                                                case RemoteClipboardFolderData:
-                                                    {
-                                                        string DirectoryPath = System.IO.Path.Combine(Path, Package.Name);
-
-                                                        if (!Directory.Exists(DirectoryPath))
+                                                    case RemoteClipboardFolderData:
                                                         {
-                                                            Directory.CreateDirectory(DirectoryPath);
-                                                        }
+                                                            if (!Directory.Exists(TargetPath))
+                                                            {
+                                                                Directory.CreateDirectory(TargetPath);
+                                                            }
 
-                                                        break;
-                                                    }
-                                                default:
-                                                    {
-                                                        throw new NotSupportedException();
-                                                    }
+                                                            break;
+                                                        }
+                                                    default:
+                                                        {
+                                                            throw new NotSupportedException();
+                                                        }
+                                                }
+                                            }
+                                            catch (OperationCanceledException)
+                                            {
+                                                //No need to handle this exception
+                                            }
+                                            finally
+                                            {
+                                                Package.Dispose();
                                             }
                                         }
-                                        catch (Exception ex) when (ex is OperationCanceledException)
-                                        {
-                                            //No need to handle this exception
-                                        }
-                                        finally
-                                        {
-                                            Package.Dispose();
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    throw new InvalidOperationException("No remote data object is available");
-                                }
-                            });
 
-                            if (CancelToken.IsCancellationRequested)
-                            {
-                                Value.Add("Cancel", string.Empty);
+                                        Value.Add("Success", string.Empty);
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error", "No remote data object is available");
+                                    }
+                                });
                             }
                             else
                             {
-                                Value.Add("Success", string.Empty);
+                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRemoteCopyData(BaseFolderPath), CancelToken);
+
+                                foreach (KeyValuePair<string, string> Result in ResultMap)
+                                {
+                                    Value.Add(Result);
+                                }
+                            }
+
+                            if (CancelToken.IsCancellationRequested)
+                            {
+                                Value.Clear();
+                                Value.Add("Cancel", string.Empty);
                             }
 
                             break;
@@ -4257,13 +4340,15 @@ namespace FullTrustProcess
 
                         await ElevatedProcess.WaitForExitAsync(CancelToken);
                     }
-                    catch (TaskCanceledException)
+                    catch (OperationCanceledException)
                     {
                         CancelEvent.Set();
 
                         if (!ElevatedProcess.WaitForExit(10000))
                         {
                             LogTracer.Log("Elevated process is not exit in 10s and we will not wait for it any more");
+
+                            return new Dictionary<string, string>(0);
                         }
                     }
 

@@ -46,23 +46,27 @@ namespace RX_Explorer.CustomControl
         {
             if (Object is HightLightTextBlock Instance)
             {
-                if (Args.NewValue != null && Args.NewValue is string NewText)
-                {
-                    TextHighlighter HighLighter = new TextHighlighter()
-                    {
-                        Background = new SolidColorBrush(Colors.Yellow),
-                        Ranges =
-                        {
-                            new TextRange()
-                            {
-                                StartIndex = NewText.IndexOf(Instance.HightLightText, StringComparison.OrdinalIgnoreCase),
-                                Length = Instance.HightLightText.Length
-                            }
-                        }
-                    };
+                Instance.ResultTextBlock.TextHighlighters.Clear();
 
-                    Instance.ResultTextBlock.TextHighlighters.Clear();
-                    Instance.ResultTextBlock.TextHighlighters.Add(HighLighter);
+                if (Args.NewValue is string NewText)
+                {
+                    int StartIndex = Instance.Text.IndexOf(Instance.HightLightText, StringComparison.OrdinalIgnoreCase);
+
+                    if (StartIndex >= 0)
+                    {
+                        Instance.ResultTextBlock.TextHighlighters.Add(new TextHighlighter()
+                        {
+                            Background = new SolidColorBrush(Colors.Yellow),
+                            Ranges =
+                            {
+                                new TextRange()
+                                {
+                                    StartIndex = StartIndex,
+                                    Length = Instance.HightLightText.Length
+                                }
+                            }
+                        });
+                    }
                 }
             }
         }
@@ -71,23 +75,27 @@ namespace RX_Explorer.CustomControl
         {
             if (Object is HightLightTextBlock Instance)
             {
-                if (Args.NewValue != null && Args.NewValue is string NewHightlightText)
-                {
-                    TextHighlighter HighLighter = new TextHighlighter()
-                    {
-                        Background = new SolidColorBrush(Colors.Yellow),
-                        Ranges =
-                        {
-                            new TextRange()
-                            {
-                                StartIndex = Instance.Text.IndexOf(NewHightlightText, StringComparison.OrdinalIgnoreCase),
-                                Length = NewHightlightText.Length
-                            }
-                        }
-                    };
+                Instance.ResultTextBlock.TextHighlighters.Clear();
 
-                    Instance.ResultTextBlock.TextHighlighters.Clear();
-                    Instance.ResultTextBlock.TextHighlighters.Add(HighLighter);
+                if (Args.NewValue is string NewHightlightText)
+                {
+                    int StartIndex = Instance.Text.IndexOf(NewHightlightText, StringComparison.OrdinalIgnoreCase);
+
+                    if (StartIndex >= 0)
+                    {
+                        Instance.ResultTextBlock.TextHighlighters.Add(new TextHighlighter()
+                        {
+                            Background = new SolidColorBrush(Colors.Yellow),
+                            Ranges =
+                            {
+                                new TextRange()
+                                {
+                                    StartIndex = StartIndex,
+                                    Length = NewHightlightText.Length
+                                }
+                            }
+                        });
+                    }
                 }
             }
         }

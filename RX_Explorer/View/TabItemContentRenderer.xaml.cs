@@ -79,108 +79,138 @@ namespace RX_Explorer.View
 
         public async Task SetTreeViewStatusAsync(bool IsOpened)
         {
-            if (BaseControl.CurrentPresenter?.CurrentFolder != null)
+            try
             {
-                if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
+                if (BaseControl.CurrentPresenter?.CurrentFolder != null)
                 {
-                    BaseControl.TreeViewGridCol.Width = IsOpened ? new GridLength(Scale * BaseControl.ActualWidth) : new GridLength(0);
-                }
-                else
-                {
-                    BaseControl.TreeViewGridCol.Width = IsOpened ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-                }
-
-                if (IsOpened)
-                {
-                    BaseControl.FolderTree.RootNodes.Clear();
-
-                    BaseControl.FolderTree.RootNodes.Add(new TreeViewNode
+                    if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
                     {
-                        Content = TreeViewNodeContent.QuickAccessNode,
-                        IsExpanded = false,
-                        HasUnrealizedChildren = true
-                    });
-
-                    foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
+                        BaseControl.TreeViewGridCol.Width = IsOpened ? new GridLength(Scale * BaseControl.ActualWidth) : new GridLength(0);
+                    }
+                    else
                     {
-                        TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
+                        BaseControl.TreeViewGridCol.Width = IsOpened ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+                    }
 
-                        TreeViewNode RootNode = new TreeViewNode
+                    if (IsOpened)
+                    {
+                        BaseControl.FolderTree.RootNodes.Clear();
+
+                        BaseControl.FolderTree.RootNodes.Add(new TreeViewNode
                         {
+                            Content = TreeViewNodeContent.QuickAccessNode,
                             IsExpanded = false,
-                            Content = Content,
-                            HasUnrealizedChildren = Content.HasChildren
-                        };
+                            HasUnrealizedChildren = true
+                        });
 
-                        BaseControl.FolderTree.RootNodes.Add(RootNode);
-
-                        if (Path.GetPathRoot(BaseControl.CurrentPresenter.CurrentFolder.Path).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                        foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
                         {
-                            if (Content.HasChildren)
-                            {
-                                RootNode.IsExpanded = true;
-                            }
+                            TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
 
-                            BaseControl.FolderTree.SelectNodeAndScrollToVertical(RootNode);
+                            TreeViewNode RootNode = new TreeViewNode
+                            {
+                                IsExpanded = false,
+                                Content = Content,
+                                HasUnrealizedChildren = Content.HasChildren
+                            };
+
+                            BaseControl.FolderTree.RootNodes.Add(RootNode);
+
+                            if (Path.GetPathRoot(BaseControl.CurrentPresenter.CurrentFolder.Path).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (Content.HasChildren)
+                                {
+                                    RootNode.IsExpanded = true;
+                                }
+
+                                BaseControl.FolderTree.SelectNodeAndScrollToVertical(RootNode);
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not set the status of treeview");
             }
         }
 
         public async Task ClearAndRebuildTreeViewAsync()
         {
-            BaseControl.FolderTree.RootNodes.Clear();
-
-            BaseControl.FolderTree.RootNodes.Add(new TreeViewNode
+            try
             {
-                Content = TreeViewNodeContent.QuickAccessNode,
-                IsExpanded = false,
-                HasUnrealizedChildren = true
-            });
-
-            foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
-            {
-                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
+                BaseControl.FolderTree.RootNodes.Clear();
 
                 BaseControl.FolderTree.RootNodes.Add(new TreeViewNode
                 {
+                    Content = TreeViewNodeContent.QuickAccessNode,
                     IsExpanded = false,
-                    Content = Content,
-                    HasUnrealizedChildren = Content.HasChildren
+                    HasUnrealizedChildren = true
                 });
+
+                foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
+                {
+                    TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
+
+                    BaseControl.FolderTree.RootNodes.Add(new TreeViewNode
+                    {
+                        IsExpanded = false,
+                        Content = Content,
+                        HasUnrealizedChildren = Content.HasChildren
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not clear and rebuild the treeview");
             }
         }
 
         public async Task RefreshTreeViewAsync()
         {
-            if (BaseControl.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+            try
             {
-                foreach (TreeViewNode Node in QuickAccessNode.Children)
+                if (BaseControl.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content
+                                                                              && (Content.Path?.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode QuickAccessNode)
                 {
-                    await Node.UpdateAllSubNodeAsync();
+                    foreach (TreeViewNode Node in QuickAccessNode.Children)
+                    {
+                        await Node.UpdateAllSubNodeAsync();
+                    }
+                }
+
+                foreach (TreeViewNode RootNode in BaseControl.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content
+                                                                                                   && !(Content.Path?.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                {
+                    await RootNode.UpdateAllSubNodeAsync();
                 }
             }
-
-            foreach (TreeViewNode RootNode in BaseControl.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+            catch (Exception ex)
             {
-                await RootNode.UpdateAllSubNodeAsync();
+                LogTracer.Log(ex, "Could not refresh the treeview");
             }
         }
 
         public async Task RefreshPresentersAsync()
         {
-            List<Task> ParallelTask = new List<Task>();
-
-            foreach (FilePresenter Presenter in Presenters)
+            try
             {
-                if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
-                {
-                    ParallelTask.Add(Presenter.DisplayItemsInFolder(CurrentFolder, true));
-                }
-            }
+                List<Task> ParallelTask = new List<Task>();
 
-            await Task.WhenAll(ParallelTask);
+                foreach (FilePresenter Presenter in Presenters)
+                {
+                    if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
+                    {
+                        ParallelTask.Add(Presenter.DisplayItemsInFolder(CurrentFolder, true));
+                    }
+                }
+
+                await Task.WhenAll(ParallelTask);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not refresh the presenter");
+            }
         }
 
         private void TabItemContentRenderer_Loaded(object sender, RoutedEventArgs e)

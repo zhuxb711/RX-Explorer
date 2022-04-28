@@ -19,9 +19,9 @@ namespace RX_Explorer.View
     {
         private readonly SplashScreen Splash;
 
-        private readonly List<string[]> Parameter;
+        private readonly IReadOnlyList<string[]> Parameter;
 
-        public ExtendedSplash(SplashScreen Screen, List<string[]> Parameter) : this(Screen)
+        public ExtendedSplash(SplashScreen Screen, IReadOnlyList<string[]> Parameter) : this(Screen)
         {
             this.Parameter = Parameter;
         }
@@ -99,8 +99,6 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    LogTracer.Log("The secret of AppCenter was found and AppCenter is initializing");
-
                     Microsoft.AppCenter.AppCenter.Start(SecretText.Replace(Environment.NewLine, string.Empty), typeof(Microsoft.AppCenter.Crashes.Crashes));
 
                     if (await Microsoft.AppCenter.AppCenter.IsEnabledAsync())

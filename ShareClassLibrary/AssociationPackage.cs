@@ -53,12 +53,40 @@ namespace ShareClassLibrary
 
         public static bool operator ==(AssociationPackage left, AssociationPackage right)
         {
-            return (left?.Equals(right)).GetValueOrDefault();
+            if (left is null)
+            {
+                return right is null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return left.ExecutablePath.Equals(right.ExecutablePath, StringComparison.OrdinalIgnoreCase) && left.Extension.Equals(right.Extension, StringComparison.OrdinalIgnoreCase);
+                }
+            }
         }
 
         public static bool operator !=(AssociationPackage left, AssociationPackage right)
         {
-            return !(left?.Equals(right)).GetValueOrDefault();
+            if (left is null)
+            {
+                return right is not null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return !left.ExecutablePath.Equals(right.ExecutablePath, StringComparison.OrdinalIgnoreCase) && left.Extension.Equals(right.Extension, StringComparison.OrdinalIgnoreCase);
+                }
+            }
         }
     }
 }

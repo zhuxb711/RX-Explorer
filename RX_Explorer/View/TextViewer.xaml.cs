@@ -117,7 +117,7 @@ namespace RX_Explorer.View
                             EditText.Text = await Reader.ReadToEndAsync();
                         }
 
-                        await Task.Delay(1000);
+                        await Task.Delay(500);
                     }
                     finally
                     {

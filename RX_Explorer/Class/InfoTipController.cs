@@ -114,7 +114,7 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                await CoreApplication.RequestRestartAsync(string.Empty);
+                                await CoreApplication.RequestRestartAsync("Restart");
                             };
 
                             InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
@@ -133,7 +133,7 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                await CoreApplication.RequestRestartAsync(string.Empty);
+                                await CoreApplication.RequestRestartAsync("Restart");
                             };
 
                             InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
@@ -152,7 +152,7 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                await CoreApplication.RequestRestartAsync(string.Empty);
+                                await CoreApplication.RequestRestartAsync("Restart");
                             };
 
                             InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");

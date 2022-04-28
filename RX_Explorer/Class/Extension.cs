@@ -327,7 +327,7 @@ namespace RX_Explorer.Class
                 _ => throw new NotSupportedException()
             };
 
-            UWP_HANDLE_OPTIONS Optimize = Option switch
+            UWP_HANDLE_OPTIONS Optimize = UWP_HANDLE_OPTIONS.OVERLAPPED | Option switch
             {
                 OptimizeOption.None => UWP_HANDLE_OPTIONS.NONE,
                 OptimizeOption.Sequential => UWP_HANDLE_OPTIONS.SEQUENTIAL_SCAN,

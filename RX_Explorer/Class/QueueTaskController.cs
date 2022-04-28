@@ -210,7 +210,7 @@ namespace RX_Explorer.Class
                                     {
                                         try
                                         {
-                                            Exclusive.Controller.PasteRemoteFile(RModel.CopyTo, CancelToken, (s, e) =>
+                                            Exclusive.Controller.PasteRemoteFileAsync(RModel.CopyTo, CancelToken, (s, e) =>
                                             {
                                                 Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                 {

@@ -2316,13 +2316,13 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task PasteRemoteFile(string DestinationPath, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task PasteRemoteFileAsync(string DestinationPath, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             using (CancelToken.Register(() =>
             {
                 if (!TryCancelCurrentOperation())
                 {
-                    LogTracer.Log($"Could not cancel the operation in {nameof(PasteRemoteFile)}");
+                    LogTracer.Log($"Could not cancel the operation in {nameof(PasteRemoteFileAsync)}");
                 }
             }))
             {

@@ -1444,7 +1444,7 @@ namespace RX_Explorer.View
 
                     Window.Current.Activate();
 
-                    switch (await CoreApplication.RequestRestartAsync(string.Empty))
+                    switch (await CoreApplication.RequestRestartAsync("Restart"))
                     {
                         case AppRestartFailureReason.InvalidUser:
                         case AppRestartFailureReason.NotInForeground:

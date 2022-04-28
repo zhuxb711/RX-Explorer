@@ -73,6 +73,7 @@ namespace RX_Explorer
                                     }
                                     else
                                     {
+                                        AppInstanceIdContainer.RegisterId(AppInstance.FindOrRegisterInstanceForKey(Guid.NewGuid().ToString()).Key);
                                         Application.Start((_) => new App());
                                     }
 
