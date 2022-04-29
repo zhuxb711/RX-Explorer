@@ -522,7 +522,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
-                                await Exclusive.Controller.SetDriveLabelAsync(RootDrive.Path, RootDriveName.Text);
+                                await Exclusive.Controller.SetDriveLabelAsync(RootDrive.Path, RootDriveName.Text, CancelToken);
                             }
                         }
                         else
@@ -563,6 +563,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         }
                     }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                //No need to handle this exception
             }
             catch (Exception ex)
             {

@@ -46,11 +46,11 @@ namespace RX_Explorer.Class
                         }
                     case OperationStatus.NeedAttention:
                         {
-                            return $"{Globalization.GetString("TaskList_Task_Status_NeedAttention")}: {Message}";
+                            return string.IsNullOrEmpty(AdditionalMessage) ? Globalization.GetString("TaskList_Task_Status_NeedAttention") : $"{Globalization.GetString("TaskList_Task_Status_NeedAttention")}: {AdditionalMessage}";
                         }
                     case OperationStatus.Error:
                         {
-                            return $"{Globalization.GetString("TaskList_Task_Status_Error")}: {Message}";
+                            return string.IsNullOrEmpty(AdditionalMessage) ? Globalization.GetString("TaskList_Task_Status_Error") : $"{Globalization.GetString("TaskList_Task_Status_Error")}: {AdditionalMessage}";
                         }
                     case OperationStatus.Completed:
                         {
@@ -62,7 +62,7 @@ namespace RX_Explorer.Class
                         }
                     case OperationStatus.Cancelled:
                         {
-                            return Globalization.GetString("TaskList_Task_Status_Cancelled");
+                            return string.IsNullOrEmpty(AdditionalMessage) ? Globalization.GetString("TaskList_Task_Status_Cancelled") : $"{Globalization.GetString("TaskList_Task_Status_Cancelled")}: {AdditionalMessage}";
                         }
                     default:
                         {
@@ -221,7 +221,7 @@ namespace RX_Explorer.Class
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
-        private string Message;
+        private string AdditionalMessage;
         private TaskCompletionSource<short> ActionButtonSource;
         private ProgressCalculator Calculator;
 
@@ -254,14 +254,14 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(RemainingTime));
         }
 
-        public void UpdateStatus(OperationStatus Status, string Message = null)
+        public void UpdateStatus(OperationStatus Status, string AdditionalMessage = null)
         {
             if (Status == OperationStatus.Cancelling && !CanBeCancelled)
             {
                 throw new ArgumentException("This task could not be cancelled", nameof(Status));
             }
 
-            this.Message = Message;
+            this.AdditionalMessage = AdditionalMessage;
             this.Status = Status;
         }
 

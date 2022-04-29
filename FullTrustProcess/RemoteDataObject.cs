@@ -107,8 +107,10 @@ namespace FullTrustProcess
 
                             IntPtr FileDescriptorPointer = (IntPtr)(FileGroupDescriptorAPointer.ToInt64() + Marshal.SizeOf<int>());
 
-                            for (int FileDescriptorIndex = 0; FileDescriptorIndex < ItemCount && !CancelToken.IsCancellationRequested; FileDescriptorIndex++)
+                            for (int FileDescriptorIndex = 0; FileDescriptorIndex < ItemCount; FileDescriptorIndex++)
                             {
+                                CancelToken.ThrowIfCancellationRequested();
+
                                 Shell32.FILEDESCRIPTOR FileDescriptor = Marshal.PtrToStructure<Shell32.FILEDESCRIPTOR>(FileDescriptorPointer);
 
                                 if (FileDescriptor.dwFileAttributes.HasFlag(FileFlagsAndAttributes.FILE_ATTRIBUTE_DIRECTORY))

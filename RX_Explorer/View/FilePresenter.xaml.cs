@@ -2182,19 +2182,22 @@ namespace RX_Explorer.View
                                                                 FileCollection.Add(ModifiedItem);
                                                             }
                                                         }
-                                                        else
-                                                        {
-                                                            await OldItem.RefreshAsync();
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        await OldItem.RefreshAsync();
                                                     }
                                                 }
-                                                else
+
+                                                if (FileCollection.Contains(OldItem))
                                                 {
-                                                    await OldItem.RefreshAsync();
+                                                    int Index = FileCollection.IndexOf(OldItem);
+
+                                                    if (Index >= 0)
+                                                    {
+                                                        FileCollection.Remove(OldItem);
+
+                                                        if (await FileSystemStorageItemBase.OpenAsync(OldItem.Path) is FileSystemStorageItemBase RefreshedItem)
+                                                        {
+                                                            FileCollection.Insert(Index, RefreshedItem);
+                                                        }
+                                                    }
                                                 }
                                             }
                                             else

@@ -352,6 +352,9 @@ namespace RX_Explorer.View
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
+            InitCancellation = new CancellationTokenSource();
+            SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
+
             ListViewControl.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
 
             if (e.Parameter is FileSystemStorageFile File)
@@ -360,9 +363,6 @@ namespace RX_Explorer.View
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    InitCancellation = new CancellationTokenSource();
-                    SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
-
                     await InitializeAsync(File, Dialog.UserSelectedEncoding, InitCancellation.Token);
                 }
                 else if (Frame.CanGoBack)

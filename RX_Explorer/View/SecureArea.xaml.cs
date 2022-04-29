@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Services.Store;
@@ -415,52 +414,31 @@ namespace RX_Explorer.View
                         {
                             using (Stream OriginFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                             using (Stream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                            using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, new SLEHeader(SLEVersion.Version_1_5_0, OriginFile.Name, AESKeySize), AESKey))
                             {
-                                SLEVersion Version;
-
-                                string VersionString = string.Format("{0}{1}{2}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build);
-
-                                if (ushort.TryParse(VersionString, out ushort VersionNum))
+                                await OriginFStream.CopyToAsync(SLEStream, OriginFStream.Length, Cancellation.Token, async (s, e) =>
                                 {
-                                    Version = VersionNum switch
-                                    {
-                                        > 694 => SLEVersion.Version_1_5_0,
-                                        > 655 => SLEVersion.Version_1_1_0,
-                                        _ => SLEVersion.Version_1_0_0
-                                    };
-                                }
-                                else
-                                {
-                                    Version = SLEVersion.Version_1_0_0;
-                                }
-
-                                using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, new SLEHeader(Version, OriginFile.Name, AESKeySize), AESKey))
-                                {
-                                    await OriginFStream.CopyToAsync(SLEStream, OriginFStream.Length, Cancellation.Token, async (s, e) =>
-                                    {
-                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                        {
-                                            ProBar.IsIndeterminate = false;
-                                            ProBar.Value = Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize));
-                                        });
-                                    });
-
-                                    await SLEStream.FlushAsync();
-
-                                    CurrentPosition += OriginFile.Size;
-
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        ProBar.Value = Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize));
+                                        ProBar.IsIndeterminate = false;
+                                        ProBar.Value = Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize));
                                     });
-                                }
+                                });
+
+                                await SLEStream.FlushAsync();
+
+                                CurrentPosition += OriginFile.Size;
+
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    ProBar.Value = Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize));
+                                });
                             }
 
-                            await EncryptedFile.RefreshAsync();
-
-                            SecureCollection.Add(EncryptedFile);
-
-                            await OriginFile.DeleteAsync(false);
+                            if (await FileSystemStorageItemBase.OpenAsync(EncryptedFile.Path) is FileSystemStorageFile RefreshedItem)
+                            {
+                                SecureCollection.Add(RefreshedItem);
+                            }
                         }
                     }
                 }
@@ -508,7 +486,7 @@ namespace RX_Explorer.View
                 {
                     IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
 
-                    if (Items.OfType<StorageFolder>().Any())
+                    if (Items.Any((Item) => Item is StorageFolder))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {

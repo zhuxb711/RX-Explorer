@@ -1,15 +1,29 @@
-﻿###Novedades de la versión 7.6.6.0
+﻿###Novedades de la versión 7.6.8.0
+
+#####Actualización de funciones
+
+>#####Ahora es posible rastrear el progreso de las tareas ejecutadas con privilegios elevados
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el cual, al cambiar el nombre de un solo archivo, se crearía una nueva tarea incluso si el nombre del archivo no ha cambiado
+>#####Se solucionó un problema por el cual los archivos ocultos no se podían abrir con el visor incorporado
 
->#####Se corrigieron algunos problemas al cambiar el nombre de varios archivos y se actualizó la lógica de numeración automática
+>#####Se solucionó un problema por el cual las carpetas que contenían accesos directos o archivos ocultos no se podían comprimir
 
->#####Se solucionó un problema por el cual, al cambiar el nombre de una unidad, aparecía un mensaje emergente: El nombre contiene caracteres ilegales
+>#####Se solucionó un problema en el que algunas sugerencias contenían rutas relativas o nombres de archivo cortos al ingresar variables de entorno en el cuadro de dirección
 
->#####Se solucionó un problema que podía provocar errores de reconocimiento del nombre de la unidad o bloqueo de la aplicación al cambiar el nombre de la unidad que contenía ciertos caracteres especiales
+>#####Se solucionó un problema por el cual el cuadro de dirección podría no reconocer las rutas relativas correctamente en algunos casos
 
->#####Se solucionó un problema por el cual no se podían mostrar archivos al ordenar por tipo de archivo
+>#####Se solucionó un problema por el cual los archivos copiados de una máquina virtual no se podían pegar en la raíz de la unidad
 
->#####Se corrigió un problema que podía resultar en nombres de archivo incorrectos en el cuadro de cambio de nombre en algunos casos
+>#####Se solucionó el problema de que los archivos copiados de la máquina virtual no se pueden pegar en la carpeta de destino debido a problemas de permisos
+
+>#####Se solucionó un problema por el cual las tareas de copiar, mover o eliminar no se cancelaban correctamente cuando se ejecutaban con privilegios elevados
+
+>#####Se solucionó un problema por el cual la creación de secuencias de archivos podía fallar en algunos casos, lo que podía generar archivos ilegibles y un rendimiento lento
+
+>#####Se solucionó un problema que podía causar que los resultados de búsqueda resaltaran texto incorrecto al buscar archivos usando AQS o expresiones regulares
+
+>#####Se solucionó el problema de que el botón lateral del mouse aún se puede usar cuando el cuadro de aviso ya está abierto
+
+>#####Se corrigieron algunos otros problemas que podrían causar fallas

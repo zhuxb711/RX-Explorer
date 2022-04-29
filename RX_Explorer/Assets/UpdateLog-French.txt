@@ -1,15 +1,29 @@
-﻿###Quoi de neuf dans la version 7.6.6.0
+﻿###Quoi de neuf dans la version 7.6.8.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Il est maintenant capable de suivre la progression des tâches exécutées avec des privilèges élevés
 
 #####Corrections de bogues
 
->#####Correction d'un problème où lors du renommage d'un seul fichier, une nouvelle tâche sera créée même si le nom du fichier n'a pas changé
+>#####Correction d'un problème où les fichiers cachés ne pouvaient pas être ouverts avec la visionneuse intégrée
 
->#####Correction de certains problèmes lors du changement de nom de plusieurs fichiers et mise à jour de la logique de numérotation automatique
+>#####Correction d'un problème où les dossiers contenant des raccourcis ou des fichiers cachés ne pouvaient pas être compressés
 
->#####Correction d'un problème où lors du renommage d'un lecteur, une invite s'affiche : le nom contient des caractères illégaux
+>#####Correction d'un problème où certaines suggestions contenant des chemins relatifs ou des noms de fichiers courts lors de la saisie de variables d'environnement dans la zone d'adresse
 
->#####Correction d'un problème pouvant entraîner des erreurs de reconnaissance du nom du lecteur ou un blocage de l'application lors du renommage des noms de lecteur contenant certains caractères spéciaux
+>#####Correction d'un problème où la zone d'adresse pouvait ne pas reconnaître correctement les chemins relatifs dans certains cas
 
->#####Correction d'un problème où aucun fichier ne pouvait être affiché lors du tri par type de fichier
+>#####Correction d'un problème où les fichiers copiés à partir d'une machine virtuelle ne pouvaient pas être collés à la racine du lecteur
 
->#####Correction d'un problème qui pouvait entraîner des noms de fichiers incorrects dans la boîte de renommage dans certains cas
+>#####Correction d'un problème selon lequel les fichiers copiés à partir de la machine virtuelle ne peuvent pas être collés dans le dossier cible en raison de problèmes d'autorisation
+
+>#####Correction d'un problème où les tâches de copie, de déplacement ou de suppression pouvaient ne pas être annulées correctement lorsqu'elles étaient exécutées avec des privilèges élevés
+
+>#####Correction d'un problème où la création de flux de fichiers pouvait échouer dans certains cas, ce qui pouvait entraîner des fichiers illisibles et ralentir les performances
+
+>#####Correction d'un problème qui pouvait amener les résultats de recherche à mettre en surbrillance un texte incorrect lors de la recherche de fichiers à l'aide d'AQS ou d'expressions régulières
+
+>#####Correction du problème que le bouton latéral de la souris peut toujours être utilisé lorsque la boîte de dialogue est déjà ouverte
+
+>#####Correction d'autres problèmes pouvant provoquer des plantages

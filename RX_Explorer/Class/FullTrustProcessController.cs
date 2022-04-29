@@ -858,17 +858,30 @@ namespace RX_Explorer.Class
             return new List<PermissionDataPackage>(0);
         }
 
-        public async Task<bool> SetDriveLabelAsync(string DrivePath, string DriveLabelName)
+        public async Task<bool> SetDriveLabelAsync(string DrivePath, string DriveLabelName, CancellationToken CancelToken = default)
         {
-            if (await SendCommandAsync(CommandType.SetDriveLabel, ("Path", DrivePath), ("DriveLabelName", DriveLabelName)) is IDictionary<string, string> Response)
+            using (CancelToken.Register(() =>
             {
-                if (Response.ContainsKey("Success"))
+                if (!TryCancelCurrentOperation())
                 {
-                    return true;
+                    LogTracer.Log($"Could not cancel the operation in {nameof(SetDriveLabelAsync)}");
                 }
-                else if (Response.TryGetValue("Error", out string ErrorMessage))
+            }))
+            {
+                if (await SendCommandAsync(CommandType.SetDriveLabel, ("Path", DrivePath), ("DriveLabelName", DriveLabelName)) is IDictionary<string, string> Response)
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(SetDriveLabelAsync)}, message: {ErrorMessage}");
+                    if (Response.ContainsKey("Success"))
+                    {
+                        return true;
+                    }
+                    else if (Response.TryGetValue("Error_Cancelled", out string ErrorMessage1))
+                    {
+                        throw new OperationCanceledException(ErrorMessage1);
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage2))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(SetDriveLabelAsync)}, message: {ErrorMessage2}");
+                    }
                 }
             }
 
@@ -1580,52 +1593,61 @@ namespace RX_Explorer.Class
             return string.Empty;
         }
 
-        public async Task<string> RenameAsync(string Path, string DesireName, bool SkipOperationRecord = false)
+        public async Task<string> RenameAsync(string Path, string DesireName, bool SkipOperationRecord = false, CancellationToken CancelToken = default)
         {
-            if (await SendCommandAsync(CommandType.Rename, ("ExecutePath", Path), ("DesireName", DesireName)) is IDictionary<string, string> Response)
+            using (CancelToken.Register(() =>
             {
-                if (Response.TryGetValue("Success", out string NewName))
+                if (!TryCancelCurrentOperation())
                 {
-                    string NewNameString = Convert.ToString(NewName);
-
-                    if (!SkipOperationRecord)
+                    LogTracer.Log($"Could not cancel the operation in {nameof(RenameAsync)}");
+                }
+            }))
+            {
+                if (await SendCommandAsync(CommandType.Rename, ("ExecutePath", Path), ("DesireName", DesireName)) is IDictionary<string, string> Response)
+                {
+                    if (Response.TryGetValue("Success", out string NewName))
                     {
-                        OperationRecorder.Current.Push($"{Path}||Rename||{System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewNameString)}");
-                    }
+                        string NewNameString = Convert.ToString(NewName);
 
-                    return NewNameString;
-                }
-                else if (Response.TryGetValue("Error_Capture", out string ErrorMessage1))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage1}");
-                    throw new FileCaputureException();
-                }
-                else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage2))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage2}");
-                    throw new InvalidOperationException();
-                }
-                else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage3))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage3}");
-                    throw new FileNotFoundException();
-                }
-                else if (Response.TryGetValue("Error_Failure", out string ErrorMessage4))
-                {
-                    throw new Exception(ErrorMessage4);
-                }
-                else if (Response.TryGetValue("Error", out string ErrorMessage5))
-                {
-                    throw new Exception(ErrorMessage5);
+                        if (!SkipOperationRecord)
+                        {
+                            OperationRecorder.Current.Push($"{Path}||Rename||{System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewNameString)}");
+                        }
+
+                        return NewNameString;
+                    }
+                    else if (Response.TryGetValue("Error_Capture", out string ErrorMessage1))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage1}");
+                        throw new FileCaputureException();
+                    }
+                    else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage2))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage2}");
+                        throw new InvalidOperationException();
+                    }
+                    else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage3))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage3}");
+                        throw new FileNotFoundException();
+                    }
+                    else if (Response.TryGetValue("Error_Failure", out string ErrorMessage4))
+                    {
+                        throw new Exception(ErrorMessage4);
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage5))
+                    {
+                        throw new Exception(ErrorMessage5);
+                    }
+                    else
+                    {
+                        throw new Exception("Unknown response");
+                    }
                 }
                 else
                 {
-                    throw new Exception("Unknown response");
+                    throw new NoResponseException();
                 }
-            }
-            else
-            {
-                throw new NoResponseException();
             }
         }
 
@@ -2328,7 +2350,7 @@ namespace RX_Explorer.Class
             {
                 if (await SendCommandAndReportProgressAsync(CommandType.PasteRemoteFile, ProgressHandler, ("Path", DestinationPath)) is IDictionary<string, string> Response)
                 {
-                    if (Response.ContainsKey("Cancel"))
+                    if (Response.ContainsKey("Error_Cancelled"))
                     {
                         throw new OperationCanceledException();
                     }

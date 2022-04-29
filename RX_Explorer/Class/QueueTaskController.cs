@@ -399,20 +399,10 @@ namespace RX_Explorer.Class
                                     }
                                     catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
                                     {
-                                        if (CancelToken.IsCancellationRequested)
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                CModel.UpdateStatus(OperationStatus.Cancelled);
-                                            }).AsTask().Wait();
-                                        }
-                                        else
-                                        {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                CModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_TaskCanceledByUser_Content"));
-                                            }).AsTask().Wait();
-                                        }
+                                            CModel.UpdateStatus(OperationStatus.Cancelled, Globalization.GetString("QueueDialog_TaskCanceledByUser_Content"));
+                                        }).AsTask().Wait();
                                     }
                                     catch (Exception ex)
                                     {
@@ -588,20 +578,10 @@ namespace RX_Explorer.Class
                                     }
                                     catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
                                     {
-                                        if (CancelToken.IsCancellationRequested)
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                MModel.UpdateStatus(OperationStatus.Cancelled);
-                                            }).AsTask().Wait();
-                                        }
-                                        else
-                                        {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                MModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_TaskCanceledByUser_Content"));
-                                            }).AsTask().Wait();
-                                        }
+                                            MModel.UpdateStatus(OperationStatus.Cancelled, Globalization.GetString("QueueDialog_TaskCanceledByUser_Content"));
+                                        }).AsTask().Wait();
                                     }
                                     catch (Exception ex)
                                     {
@@ -621,7 +601,7 @@ namespace RX_Explorer.Class
                                     {
                                         using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
                                         {
-                                            ExtraParameter = Exclusive.Controller.RenameAsync(RenameModel.RenameFrom, Path.GetFileName(RenameModel.RenameTo)).Result;
+                                            ExtraParameter = Exclusive.Controller.RenameAsync(RenameModel.RenameFrom, Path.GetFileName(RenameModel.RenameTo), CancelToken: CancelToken).Result;
                                         }
                                     }
                                     catch (AggregateException ex) when (ex.InnerException is FileNotFoundException)
@@ -643,6 +623,13 @@ namespace RX_Explorer.Class
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
                                             RenameModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_FileOccupied_Content"));
+                                        }).AsTask().Wait();
+                                    }
+                                    catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
+                                    {
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            RenameModel.UpdateStatus(OperationStatus.Cancelled);
                                         }).AsTask().Wait();
                                     }
                                     catch (Exception ex)
@@ -693,11 +680,11 @@ namespace RX_Explorer.Class
                                             DModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"));
                                         }).AsTask().Wait();
                                     }
-                                    catch (Exception) when (CancelToken.IsCancellationRequested)
+                                    catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
                                     {
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            DModel.UpdateStatus(OperationStatus.Cancelled);
+                                            DModel.UpdateStatus(OperationStatus.Cancelled, Globalization.GetString("QueueDialog_TaskCanceledByUser_Content"));
                                         }).AsTask().Wait();
                                     }
                                     catch (Exception ex)
@@ -796,20 +783,10 @@ namespace RX_Explorer.Class
                                     }
                                     catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
                                     {
-                                        if (CancelToken.IsCancellationRequested)
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                UndoModel.UpdateStatus(OperationStatus.Cancelled);
-                                            }).AsTask().Wait();
-                                        }
-                                        else
-                                        {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                UndoModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_TaskCanceledByUser_Content"));
-                                            }).AsTask().Wait();
-                                        }
+                                            UndoModel.UpdateStatus(OperationStatus.Cancelled, Globalization.GetString("QueueDialog_TaskCanceledByUser_Content"));
+                                        }).AsTask().Wait();
                                     }
                                     catch (Exception ex)
                                     {

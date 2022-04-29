@@ -288,7 +288,7 @@
                    Width="100" />
             <TextBlock Text="点击按钮或拖动文件到此处"
                        x:Uid="SecureAreaDropText"
-                       FontSize="20"
+                       FontSize="18"
                        TextAlignment="Center"
                        Margin="0,20,0,0" />
         </StackPanel>
@@ -308,8 +308,7 @@
                                     TintOpacity="0.6"
                                     BlurAmount="3" />
             </control:Loading.Background>
-            <StackPanel Padding="12"
-                        Width="200">
+            <StackPanel Width="220">
                 <TextBlock Name="LoadingText"
                            FontSize="15"
                            TextAlignment="Center" />
@@ -322,7 +321,7 @@
                         x:Uid="SecureAreaImportCancelButton"
                         Name="CancelButton"
                         FontSize="12"
-                        HorizontalAlignment="Stretch"
+                        HorizontalAlignment="Center"
                         Click="CancelButton_Click"
                         Style="{ThemeResource ButtonRevealStyle}" />
             </StackPanel>

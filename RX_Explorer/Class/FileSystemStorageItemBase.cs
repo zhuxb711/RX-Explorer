@@ -871,28 +871,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task RefreshAsync()
-        {
-            try
-            {
-                if (await CheckExistsAsync(Path))
-                {
-                    await LoadCoreAsync(true);
-
-                    OnPropertyChanged(nameof(SizeDescription));
-                    OnPropertyChanged(nameof(Name));
-                    OnPropertyChanged(nameof(DisplayName));
-                    OnPropertyChanged(nameof(ModifiedTimeDescription));
-                    OnPropertyChanged(nameof(Thumbnail));
-                    OnPropertyChanged(nameof(DisplayType));
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw when executing FileSystemStorageItemBase.Update, path: {Path}");
-            }
-        }
-
         public virtual async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.None, ProgressChangedEventHandler ProgressHandler = null)
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())

@@ -147,15 +147,12 @@ namespace FullTrustProcess
                                     Array.ForEach(RunningProcess, (Pro) => Pro.Dispose());
                                 }
                             }
-
-                            return false;
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, $"An exception was threw in {nameof(CheckCaptured)}");
-                    return false;
                 }
             }
             else if (Directory.Exists(Path))
@@ -167,13 +164,9 @@ namespace FullTrustProcess
                         return true;
                     }
                 }
+            }
 
-                return false;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public static IReadOnlyList<PermissionDataPackage> GetAllAccountPermissions(string Path)
@@ -385,8 +378,9 @@ namespace FullTrustProcess
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(CheckPermission)}");
-                return false;
             }
+
+            return false;
         }
 
         public static bool Create(CreateType Type, string Path)
@@ -406,20 +400,17 @@ namespace FullTrustProcess
                         {
                             return Kernel32.CreateDirectory(Path);
                         }
-                    default:
-                        {
-                            return false;
-                        }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not create an item");
-                return false;
             }
+
+            return false;
         }
 
-        public static bool Rename(string Source, string DesireName, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostRenameEvent)
+        public static bool Rename(string Source, string DesireName, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostRenameEvent = null)
         {
             try
             {
@@ -434,16 +425,32 @@ namespace FullTrustProcess
                               | ShellFileOperations.OperationFlags.ShowElevationPrompt
                 })
                 {
-                    Operation.PostRenameItem += PostRenameEvent;
-
-                    using (ShellItem Item = new ShellItem(Source))
+                    if (PostRenameEvent != null)
                     {
-                        Operation.QueueRenameOperation(Item, DesireName);
+                        Operation.PostRenameItem += PostRenameEvent;
                     }
 
-                    Operation.PerformOperations();
+                    try
+                    {
+                        using (ShellItem Item = new ShellItem(Source))
+                        {
+                            Operation.QueueRenameOperation(Item, DesireName);
+                        }
 
-                    Operation.PostRenameItem -= PostRenameEvent;
+                        Operation.PerformOperations();
+
+                        if (Operation.AnyOperationsAborted)
+                        {
+                            throw new OperationCanceledException();
+                        }
+                    }
+                    finally
+                    {
+                        if (PostRenameEvent != null)
+                        {
+                            Operation.PostRenameItem -= PostRenameEvent;
+                        }
+                    }
                 }
 
                 return true;
@@ -451,8 +458,9 @@ namespace FullTrustProcess
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(Rename)}");
-                return false;
             }
+
+            return false;
         }
 
         public static bool Delete(IEnumerable<string> Source,
@@ -538,12 +546,9 @@ namespace FullTrustProcess
             catch (Exception ex) when (ex is not COMException and not OperationCanceledException)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(Delete)}");
-                return false;
             }
-            finally
-            {
-                Progress?.Invoke(null, new ProgressChangedEventArgs(100, null));
-            }
+
+            return false;
         }
 
         public static bool Copy(IEnumerable<string> SourcePath,
@@ -615,6 +620,11 @@ namespace FullTrustProcess
                         }
 
                         Operation.PerformOperations();
+
+                        if (Operation.AnyOperationsAborted)
+                        {
+                            throw new OperationCanceledException();
+                        }
                     }
                     finally
                     {
@@ -640,12 +650,9 @@ namespace FullTrustProcess
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(Copy)}");
-                return false;
             }
-            finally
-            {
-                Progress?.Invoke(null, new ProgressChangedEventArgs(100, null));
-            }
+
+            return false;
         }
 
         public static bool Move(IDictionary<string, string> SourcePath,
@@ -717,6 +724,11 @@ namespace FullTrustProcess
                         }
 
                         Operation.PerformOperations();
+
+                        if (Operation.AnyOperationsAborted)
+                        {
+                            throw new OperationCanceledException();
+                        }
                     }
                     finally
                     {
@@ -742,12 +754,9 @@ namespace FullTrustProcess
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(Move)}");
-                return false;
             }
-            finally
-            {
-                Progress?.Invoke(null, new ProgressChangedEventArgs(100, null));
-            }
+
+            return false;
         }
     }
 }

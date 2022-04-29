@@ -1,15 +1,29 @@
-﻿###What's new in Ver.7.6.6.0
+﻿###What's new in Ver.7.6.8.0
+
+#####Feature update
+
+>#####It is now be able to track the progress of tasks executed with elevated privileges
 
 #####Bug Fixes
 
->#####Fixed an issue where when renaming a single file, a new task will be created even if the file name has not changed
+>#####Fixed an issue where hidden files could not be opened with the built-in viewer
 
->#####Fixed some issues when renaming multiple files and updated autonumbering logic
+>#####Fixed an issue where folders containing shortcuts or hidden files could not be compressed
 
->#####Fixed an issue where when renaming a drive, a prompt will be poped up: The name contains illegal characters
+>#####Fixed an issue where some suggestions containing relative paths or short file names when entering environment variables in the address box
 
->#####Fixed an issue that could cause drive name recognition errors or application crash when renaming drive names that contain certain special characters
+>#####Fixed an issue where the address box might not recognize relative paths correctly in some cases
 
->#####Fixed an issue where no files could be displayed when sorting by file type
+>#####Fixed an issue where files copied from a virtual machine could not be pasted to the root of the drive
 
->#####Fixed an issue that could result in incorrect filenames in the rename box in some cases
+>#####Fixed the problem that the files copied from the virtual machine cannot be pasted to the target folder due to permission problems
+
+>#####Fixed an issue where copy, move or delete tasks might not be cancelled correctly when executed by an elevated privileges
+
+>#####Fixed an issue where file stream creation might fail in some cases, which could result in unreadable files and slow performance
+
+>#####Fixed an issue that could cause search results to highlight incorrect text when searching for files using AQS or regular expressions
+
+>#####Fixed the problem that the side button of mouse can still be used when the prompt box is already opened
+
+>#####Fixed some other issues that could cause crashes

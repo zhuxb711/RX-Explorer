@@ -66,44 +66,51 @@ namespace FullTrustProcess
 
                 if (args.FirstOrDefault() == "/ExecuteAdminOperation")
                 {
-                    string Input = args.LastOrDefault();
+                    string[] ArgsList = args.TakeLast(2).ToArray();
 
-                    if (!string.IsNullOrEmpty(Input))
+                    string MainPipeName = ArgsList.FirstOrDefault();
+                    string ProgressPipeName = ArgsList.LastOrDefault();
+
+                    if (ArgsList.Length == 2 && !string.IsNullOrEmpty(MainPipeName) && !string.IsNullOrEmpty(ProgressPipeName))
                     {
-                        using (NamedPipeClientStream PipeClient = new NamedPipeClientStream(".", Input, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough, TokenImpersonationLevel.Anonymous))
+                        using (NamedPipeClientStream MainPipeClient = new NamedPipeClientStream(".", MainPipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough, TokenImpersonationLevel.Anonymous))
+                        using (NamedPipeClientStream ProgressPipeClient = new NamedPipeClientStream(".", ProgressPipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough, TokenImpersonationLevel.Anonymous))
                         {
-                            PipeClient.Connect(2000);
+                            MainPipeClient.Connect(2000);
+                            ProgressPipeClient.Connect(2000);
 
-                            using (StreamReader Reader = new StreamReader(PipeClient, new UTF8Encoding(false), true, leaveOpen: true))
-                            using (StreamWriter Writer = new StreamWriter(PipeClient, new UTF8Encoding(false), leaveOpen: true))
+                            using (StreamReader MainReader = new StreamReader(MainPipeClient, new UTF8Encoding(false), true, leaveOpen: true))
+                            using (StreamWriter MainWriter = new StreamWriter(MainPipeClient, new UTF8Encoding(false), leaveOpen: true))
+                            using (StreamWriter ProgressWriter = new StreamWriter(ProgressPipeClient, new UTF8Encoding(false), leaveOpen: true))
+                            using (CancellationTokenSource Cancellation = new CancellationTokenSource())
                             {
                                 IDictionary<string, string> Value = new Dictionary<string, string>();
 
                                 try
                                 {
-                                    string RawTypeData = Reader.ReadLine();
-                                    string CancelSignalData = Reader.ReadLine();
-                                    string CommandData = Reader.ReadLine();
+                                    string RawTypeData = MainReader.ReadLine();
+                                    string CancelSignalData = MainReader.ReadLine();
+                                    string CommandData = MainReader.ReadLine();
 
                                     if (EventWaitHandle.TryOpenExisting(CancelSignalData, out EventWaitHandle EventHandle))
                                     {
-                                        using (CancellationTokenSource Cancellation = new CancellationTokenSource())
+                                        RegisteredWaitHandle RegistedHandle = ThreadPool.RegisterWaitForSingleObject(EventHandle, (state, timeout) =>
                                         {
-                                            RegisteredWaitHandle RegistedHandle = ThreadPool.RegisterWaitForSingleObject(EventHandle, (state, timeout) =>
+                                            if (state is CancellationTokenSource Cancellation)
                                             {
-                                                if (state is CancellationTokenSource Cancellation)
-                                                {
-                                                    Cancellation.Cancel();
-                                                }
-                                            }, Cancellation, -1, true);
+                                                Cancellation.Cancel();
+                                            }
+                                        }, Cancellation, -1, true);
 
-                                            try
+                                        try
+                                        {
+                                            switch (JsonSerializer.Deserialize(CommandData, Type.GetType(RawTypeData)))
                                             {
-                                                switch (JsonSerializer.Deserialize(CommandData, Type.GetType(RawTypeData)))
-                                                {
-                                                    case ElevationRemoteCopyData RemoteData:
+                                                case ElevationRemoteCopyData RemoteData:
+                                                    {
+                                                        STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
                                                         {
-                                                            STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
+                                                            try
                                                             {
                                                                 RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
 
@@ -132,7 +139,8 @@ namespace FullTrustProcess
                                                                                         {
                                                                                             FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
                                                                                             {
-                                                                                                PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
+                                                                                                ProgressWriter.WriteLine(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
+                                                                                                ProgressWriter.Flush();
                                                                                             });
                                                                                         }
 
@@ -155,10 +163,6 @@ namespace FullTrustProcess
                                                                                     }
                                                                             }
                                                                         }
-                                                                        catch (OperationCanceledException)
-                                                                        {
-                                                                            //No need to handle this exception
-                                                                        }
                                                                         finally
                                                                         {
                                                                             Package.Dispose();
@@ -171,156 +175,212 @@ namespace FullTrustProcess
                                                                 {
                                                                     Value.Add("Error", "No remote data object is available");
                                                                 }
-                                                            }).Wait();
-
-                                                            break;
-                                                        }
-                                                    case ElevationSetDriveCompressStatusData DriveCompressStatusData:
-                                                        {
-                                                            static bool SetCompressionCore(string Path, Kernel32.COMPRESSION_FORMAT CompressStatus)
+                                                            }
+                                                            catch (OperationCanceledException)
                                                             {
-                                                                if (Directory.Exists(Path))
+                                                                    //No need to handle this exception
+                                                            }
+                                                        }).Wait();
+
+                                                        break;
+                                                    }
+                                                case ElevationSetDriveCompressStatusData DriveCompressStatusData:
+                                                    {
+                                                        static bool SetCompressionCore(string Path, Kernel32.COMPRESSION_FORMAT CompressStatus)
+                                                        {
+                                                            if (Directory.Exists(Path))
+                                                            {
+                                                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(Path, Kernel32.FileAccess.GENERIC_READ | Kernel32.FileAccess.GENERIC_WRITE, FileShare.ReadWrite, null, FileMode.Open, FileFlagsAndAttributes.FILE_FLAG_BACKUP_SEMANTICS))
                                                                 {
-                                                                    using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(Path, Kernel32.FileAccess.GENERIC_READ | Kernel32.FileAccess.GENERIC_WRITE, FileShare.ReadWrite, null, FileMode.Open, FileFlagsAndAttributes.FILE_FLAG_BACKUP_SEMANTICS))
+                                                                    if (Handle.IsInvalid)
                                                                     {
-                                                                        if (Handle.IsInvalid)
-                                                                        {
-                                                                            return false;
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            return Kernel32.DeviceIoControl(Handle, Kernel32.IOControlCode.FSCTL_SET_COMPRESSION, CompressStatus);
-                                                                        }
+                                                                        return false;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        return Kernel32.DeviceIoControl(Handle, Kernel32.IOControlCode.FSCTL_SET_COMPRESSION, CompressStatus);
                                                                     }
                                                                 }
-                                                                else if (File.Exists(Path))
+                                                            }
+                                                            else if (File.Exists(Path))
+                                                            {
+                                                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(Path, Kernel32.FileAccess.GENERIC_READ | Kernel32.FileAccess.GENERIC_WRITE, FileShare.ReadWrite, null, FileMode.Open, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
                                                                 {
-                                                                    using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(Path, Kernel32.FileAccess.GENERIC_READ | Kernel32.FileAccess.GENERIC_WRITE, FileShare.ReadWrite, null, FileMode.Open, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
+                                                                    if (Handle.IsInvalid)
                                                                     {
-                                                                        if (Handle.IsInvalid)
-                                                                        {
-                                                                            return false;
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            return Kernel32.DeviceIoControl(Handle, Kernel32.IOControlCode.FSCTL_SET_COMPRESSION, CompressStatus);
-                                                                        }
+                                                                        return false;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        return Kernel32.DeviceIoControl(Handle, Kernel32.IOControlCode.FSCTL_SET_COMPRESSION, CompressStatus);
                                                                     }
                                                                 }
-                                                                else
+                                                            }
+                                                            else
+                                                            {
+                                                                return false;
+                                                            }
+                                                        }
+
+                                                        Kernel32.COMPRESSION_FORMAT CompressionFormat = DriveCompressStatusData.IsSetCompressionStatus ? Kernel32.COMPRESSION_FORMAT.COMPRESSION_FORMAT_LZNT1 : Kernel32.COMPRESSION_FORMAT.COMPRESSION_FORMAT_NONE;
+
+                                                        if (SetCompressionCore(DriveCompressStatusData.Path, CompressionFormat))
+                                                        {
+                                                            if (DriveCompressStatusData.ApplyToSubItems)
+                                                            {
+                                                                foreach (string Entry in Directory.EnumerateFileSystemEntries(DriveCompressStatusData.Path))
                                                                 {
-                                                                    return false;
+                                                                    if (Cancellation.IsCancellationRequested)
+                                                                    {
+                                                                        break;
+                                                                    }
+
+                                                                    SetCompressionCore(DriveCompressStatusData.Path, CompressionFormat);
                                                                 }
                                                             }
 
-                                                            Kernel32.COMPRESSION_FORMAT CompressionFormat = DriveCompressStatusData.IsSetCompressionStatus ? Kernel32.COMPRESSION_FORMAT.COMPRESSION_FORMAT_LZNT1 : Kernel32.COMPRESSION_FORMAT.COMPRESSION_FORMAT_NONE;
+                                                            Value.Add("Success", string.Empty);
+                                                        }
+                                                        else
+                                                        {
+                                                            Value.Add("Error_ApplyToRootFailure", "Could not apply compression status to root path");
+                                                        }
 
-                                                            if (SetCompressionCore(DriveCompressStatusData.Path, CompressionFormat))
+                                                        break;
+                                                    }
+                                                case ElevationSetDriveIndexStatusData DriveIndexStatusData:
+                                                    {
+                                                        try
+                                                        {
+                                                            File.SetAttributes(DriveIndexStatusData.Path, DriveIndexStatusData.AllowIndex ? File.GetAttributes(DriveIndexStatusData.Path) & ~FileAttributes.NotContentIndexed : File.GetAttributes(DriveIndexStatusData.Path) | FileAttributes.NotContentIndexed);
+
+                                                            if (DriveIndexStatusData.ApplyToSubItems)
                                                             {
-                                                                if (DriveCompressStatusData.ApplyToSubItems)
+                                                                foreach (string Entry in Directory.EnumerateFileSystemEntries(DriveIndexStatusData.Path))
                                                                 {
-                                                                    foreach (string Entry in Directory.EnumerateFileSystemEntries(DriveCompressStatusData.Path))
+                                                                    if (Cancellation.IsCancellationRequested)
                                                                     {
-                                                                        if (Cancellation.IsCancellationRequested)
-                                                                        {
-                                                                            break;
-                                                                        }
+                                                                        break;
+                                                                    }
 
-                                                                        SetCompressionCore(DriveCompressStatusData.Path, CompressionFormat);
+                                                                    try
+                                                                    {
+                                                                        File.SetAttributes(DriveIndexStatusData.Path, DriveIndexStatusData.AllowIndex ? File.GetAttributes(DriveIndexStatusData.Path) & ~FileAttributes.NotContentIndexed : File.GetAttributes(DriveIndexStatusData.Path) | FileAttributes.NotContentIndexed);
+                                                                    }
+                                                                    catch (Exception)
+                                                                    {
+                                                                        //No need to handle this exception
                                                                     }
                                                                 }
+                                                            }
 
+                                                            Value.Add("Success", string.Empty);
+                                                        }
+                                                        catch (Exception)
+                                                        {
+                                                            Value.Add("Error", "Could not set file attribute to the root path");
+                                                        }
+
+                                                        break;
+                                                    }
+                                                case ElevationSetDriveLabelData DriveLabelData:
+                                                    {
+                                                        short LengthLimit;
+
+                                                        if (Kernel32.GetVolumeInformation(DriveLabelData.Path, out _, out _, out _, out _, out string FileSystemName))
+                                                        {
+                                                            LengthLimit = FileSystemName switch
+                                                            {
+                                                                "NTFS" or "HPFS" or "CDFS" or "UDF" or "NWFS" => 32,
+                                                                "FAT32" or "exFAT" or "FAT" => 11,
+                                                                _ => short.MaxValue
+                                                            };
+                                                        }
+                                                        else
+                                                        {
+                                                            LengthLimit = 32;
+                                                        }
+
+                                                        if (DriveLabelData.DriveLabelName.Length > LengthLimit)
+                                                        {
+                                                            Value.Add("Error", $"Drive label name is longer than limitation, drive filesystem: {FileSystemName}");
+                                                        }
+                                                        else
+                                                        {
+                                                            if (Kernel32.SetVolumeLabel(DriveLabelData.Path, DriveLabelData.DriveLabelName))
+                                                            {
                                                                 Value.Add("Success", string.Empty);
                                                             }
                                                             else
                                                             {
-                                                                Value.Add("Error_ApplyToRootFailure", "Could not apply compression status to root path");
+                                                                Value.Add("Error", $"Set drive label failed, message: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
                                                             }
-
-                                                            break;
                                                         }
-                                                    case ElevationSetDriveIndexStatusData DriveIndexStatusData:
+
+                                                        break;
+                                                    }
+                                                case ElevationCreateNewData NewData:
+                                                    {
+                                                        if (StorageItemController.CheckPermission(Path.GetDirectoryName(NewData.Path) ?? NewData.Path, NewData.Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
                                                         {
-                                                            try
+                                                            if (StorageItemController.Create(NewData.Type, NewData.Path))
                                                             {
-                                                                File.SetAttributes(DriveIndexStatusData.Path, DriveIndexStatusData.AllowIndex ? File.GetAttributes(DriveIndexStatusData.Path) & ~FileAttributes.NotContentIndexed : File.GetAttributes(DriveIndexStatusData.Path) | FileAttributes.NotContentIndexed);
+                                                                Value.Add("Success", NewData.Path);
+                                                            }
+                                                            else if (Directory.Exists(NewData.Path) || File.Exists(NewData.Path))
+                                                            {
+                                                                Value.Add("Success", NewData.Path);
+                                                            }
+                                                            else
+                                                            {
+                                                                Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            Value.Add("Error_NoPermission", "Do not have enough permission");
+                                                        }
 
-                                                                if (DriveIndexStatusData.ApplyToSubItems)
+                                                        break;
+                                                    }
+                                                case ElevationCopyData CopyData:
+                                                    {
+                                                        if (CopyData.SourcePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                        {
+                                                            if (StorageItemController.CheckPermission(CopyData.DestinationPath, FileSystemRights.Modify))
+                                                            {
+                                                                List<string> OperationRecordList = new List<string>();
+
+                                                                if (StorageItemController.Copy(CopyData.SourcePath, CopyData.DestinationPath, CopyData.Option, (s, e) =>
                                                                 {
-                                                                    foreach (string Entry in Directory.EnumerateFileSystemEntries(DriveIndexStatusData.Path))
-                                                                    {
-                                                                        if (Cancellation.IsCancellationRequested)
-                                                                        {
-                                                                            break;
-                                                                        }
+                                                                    ProgressWriter.WriteLine(e.ProgressPercentage);
+                                                                    ProgressWriter.Flush();
 
-                                                                        try
+                                                                    if (Cancellation.IsCancellationRequested)
+                                                                    {
+                                                                        throw new COMException(null, HRESULT.E_ABORT);
+                                                                    }
+                                                                }, PostCopyEvent: (se, arg) =>
+                                                                {
+                                                                    if (arg.Result == HRESULT.S_OK)
+                                                                    {
+                                                                        if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
                                                                         {
-                                                                            File.SetAttributes(DriveIndexStatusData.Path, DriveIndexStatusData.AllowIndex ? File.GetAttributes(DriveIndexStatusData.Path) & ~FileAttributes.NotContentIndexed : File.GetAttributes(DriveIndexStatusData.Path) | FileAttributes.NotContentIndexed);
+                                                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
                                                                         }
-                                                                        catch (Exception)
+                                                                        else
                                                                         {
-                                                                            //No need to handle this exception
+                                                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
                                                                         }
                                                                     }
+                                                                }))
+                                                                {
+                                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                                                 }
-
-                                                                Value.Add("Success", string.Empty);
-                                                            }
-                                                            catch (Exception)
-                                                            {
-                                                                Value.Add("Error", "Could not set file attribute to the root path");
-                                                            }
-
-                                                            break;
-                                                        }
-                                                    case ElevationSetDriveLabelData DriveLabelData:
-                                                        {
-                                                            short LengthLimit;
-
-                                                            if (Kernel32.GetVolumeInformation(DriveLabelData.Path, out _, out _, out _, out _, out string FileSystemName))
-                                                            {
-                                                                LengthLimit = FileSystemName switch
+                                                                else if (CopyData.SourcePath.Select((Item) => Path.Combine(CopyData.DestinationPath, Path.GetFileName(Item)))
+                                                                                            .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
                                                                 {
-                                                                    "NTFS" or "HPFS" or "CDFS" or "UDF" or "NWFS" => 32,
-                                                                    "FAT32" or "exFAT" or "FAT" => 11,
-                                                                    _ => short.MaxValue
-                                                                };
-                                                            }
-                                                            else
-                                                            {
-                                                                LengthLimit = 32;
-                                                            }
-
-                                                            if (DriveLabelData.DriveLabelName.Length > LengthLimit)
-                                                            {
-                                                                Value.Add("Error", $"Drive label name is longer than limitation, drive filesystem: {FileSystemName}");
-                                                            }
-                                                            else
-                                                            {
-                                                                if (Kernel32.SetVolumeLabel(DriveLabelData.Path, DriveLabelData.DriveLabelName))
-                                                                {
-                                                                    Value.Add("Success", string.Empty);
-                                                                }
-                                                                else
-                                                                {
-                                                                    Value.Add("Error", $"Set drive label failed, message: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
-                                                                }
-                                                            }
-
-                                                            break;
-                                                        }
-                                                    case ElevationCreateNewData NewData:
-                                                        {
-                                                            if (StorageItemController.CheckPermission(Path.GetDirectoryName(NewData.Path) ?? NewData.Path, NewData.Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
-                                                            {
-                                                                if (StorageItemController.Create(NewData.Type, NewData.Path))
-                                                                {
-                                                                    Value.Add("Success", NewData.Path);
-                                                                }
-                                                                else if (Directory.Exists(NewData.Path) || File.Exists(NewData.Path))
-                                                                {
-                                                                    Value.Add("Success", NewData.Path);
+                                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                                                 }
                                                                 else
                                                                 {
@@ -331,42 +391,65 @@ namespace FullTrustProcess
                                                             {
                                                                 Value.Add("Error_NoPermission", "Do not have enough permission");
                                                             }
-
-                                                            break;
                                                         }
-                                                    case ElevationCopyData CopyData:
+                                                        else
                                                         {
-                                                            if (CopyData.SourcePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                            Value.Add("Error_NotFound", "Could not found the file");
+                                                        }
+
+                                                        break;
+                                                    }
+                                                case ElevationMoveData MoveData:
+                                                    {
+                                                        if (MoveData.SourcePath.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                        {
+                                                            if (MoveData.SourcePath.Keys.Any((Item) => StorageItemController.CheckCaptured(Item)))
                                                             {
-                                                                if (StorageItemController.CheckPermission(CopyData.DestinationPath, FileSystemRights.Modify))
+                                                                Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
+                                                            }
+                                                            else
+                                                            {
+                                                                if (StorageItemController.CheckPermission(MoveData.DestinationPath, FileSystemRights.Modify)
+                                                                    && MoveData.SourcePath.Keys.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                                                 {
                                                                     List<string> OperationRecordList = new List<string>();
 
-                                                                    if (StorageItemController.Copy(CopyData.SourcePath, CopyData.DestinationPath, CopyData.Option, (s, e) =>
+                                                                    if (StorageItemController.Move(MoveData.SourcePath, MoveData.DestinationPath, MoveData.Option, (s, e) =>
                                                                     {
+                                                                        ProgressWriter.WriteLine(e.ProgressPercentage);
+                                                                        ProgressWriter.Flush();
+
                                                                         if (Cancellation.IsCancellationRequested)
                                                                         {
                                                                             throw new COMException(null, HRESULT.E_ABORT);
                                                                         }
-                                                                    }, PostCopyEvent: (se, arg) =>
+                                                                    }, PostMoveEvent: (se, arg) =>
                                                                     {
-                                                                        if (arg.Result == HRESULT.S_OK)
+                                                                        if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
                                                                         {
                                                                             if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
                                                                             {
-                                                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
                                                                             }
                                                                             else
                                                                             {
-                                                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
                                                                             }
                                                                         }
                                                                     }))
                                                                     {
-                                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                                        if (MoveData.SourcePath.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                                        {
+                                                                            Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
+                                                                        }
                                                                     }
-                                                                    else if (CopyData.SourcePath.Select((Item) => Path.Combine(CopyData.DestinationPath, Path.GetFileName(Item)))
-                                                                                                .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
+                                                                    else if (MoveData.SourcePath.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item))
+                                                                             && MoveData.SourcePath.Select((Item) => Path.Combine(MoveData.DestinationPath, string.IsNullOrEmpty(Item.Value) ? Path.GetFileName(Item.Key) : Item.Value))
+                                                                                                   .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
                                                                     {
                                                                         Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                                                     }
@@ -380,186 +463,120 @@ namespace FullTrustProcess
                                                                     Value.Add("Error_NoPermission", "Do not have enough permission");
                                                                 }
                                                             }
+                                                        }
+                                                        else
+                                                        {
+                                                            Value.Add("Error_NotFound", "Could not found the file");
+                                                        }
+
+                                                        break;
+                                                    }
+                                                case ElevationDeleteData DeleteData:
+                                                    {
+                                                        if (DeleteData.DeletePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                        {
+                                                            if (DeleteData.DeletePath.Any((Item) => StorageItemController.CheckCaptured(Item)))
+                                                            {
+                                                                Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
+                                                            }
                                                             else
                                                             {
-                                                                Value.Add("Error_NotFound", "Could not found the file");
-                                                            }
+                                                                if (DeleteData.DeletePath.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
+                                                                {
+                                                                    List<string> OperationRecordList = new List<string>();
 
-                                                            break;
-                                                        }
-                                                    case ElevationMoveData MoveData:
-                                                        {
-                                                            if (MoveData.SourcePath.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
-                                                            {
-                                                                if (MoveData.SourcePath.Keys.Any((Item) => StorageItemController.CheckCaptured(Item)))
-                                                                {
-                                                                    Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
-                                                                }
-                                                                else
-                                                                {
-                                                                    if (StorageItemController.CheckPermission(MoveData.DestinationPath, FileSystemRights.Modify)
-                                                                        && MoveData.SourcePath.Keys.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
+                                                                    if (StorageItemController.Delete(DeleteData.DeletePath, DeleteData.PermanentDelete, (s, e) =>
                                                                     {
-                                                                        List<string> OperationRecordList = new List<string>();
+                                                                        ProgressWriter.WriteLine(e.ProgressPercentage);
+                                                                        ProgressWriter.Flush();
 
-                                                                        if (StorageItemController.Move(MoveData.SourcePath, MoveData.DestinationPath, MoveData.Option, (s, e) =>
+                                                                        if (Cancellation.IsCancellationRequested)
                                                                         {
-                                                                            if (Cancellation.IsCancellationRequested)
-                                                                            {
-                                                                                throw new COMException(null, HRESULT.E_ABORT);
-                                                                            }
-                                                                        }, PostMoveEvent: (se, arg) =>
-                                                                        {
-                                                                            if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
-                                                                            {
-                                                                                if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
-                                                                                {
-                                                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
-                                                                                }
-                                                                            }
-                                                                        }))
-                                                                        {
-                                                                            if (MoveData.SourcePath.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
-                                                                            {
-                                                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
-                                                                            }
+                                                                            throw new COMException(null, HRESULT.E_ABORT);
                                                                         }
-                                                                        else if (MoveData.SourcePath.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item))
-                                                                                 && MoveData.SourcePath.Select((Item) => Path.Combine(MoveData.DestinationPath, string.IsNullOrEmpty(Item.Value) ? Path.GetFileName(Item.Key) : Item.Value))
-                                                                                                       .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
+                                                                    }, PostDeleteEvent: (se, arg) =>
+                                                                    {
+                                                                        if (!DeleteData.PermanentDelete)
+                                                                        {
+                                                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                                                        }
+                                                                    }))
+                                                                    {
+                                                                        if (DeleteData.DeletePath.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                                                         {
                                                                             Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                                                         }
                                                                         else
                                                                         {
-                                                                            Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                                                                            Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
                                                                         }
+                                                                    }
+                                                                    else if (DeleteData.DeletePath.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                                    {
+                                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                                                     }
                                                                     else
                                                                     {
-                                                                        Value.Add("Error_NoPermission", "Do not have enough permission");
+                                                                        Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                                                     }
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                Value.Add("Error_NotFound", "Could not found the file");
-                                                            }
-
-                                                            break;
-                                                        }
-                                                    case ElevationDeleteData DeleteData:
-                                                        {
-                                                            if (DeleteData.DeletePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
-                                                            {
-                                                                if (DeleteData.DeletePath.Any((Item) => StorageItemController.CheckCaptured(Item)))
-                                                                {
-                                                                    Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
                                                                 }
                                                                 else
                                                                 {
-                                                                    if (DeleteData.DeletePath.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
-                                                                    {
-                                                                        List<string> OperationRecordList = new List<string>();
-
-                                                                        if (StorageItemController.Delete(DeleteData.DeletePath, DeleteData.PermanentDelete, (s, e) =>
-                                                                        {
-                                                                            if (Cancellation.IsCancellationRequested)
-                                                                            {
-                                                                                throw new COMException(null, HRESULT.E_ABORT);
-                                                                            }
-                                                                        }, PostDeleteEvent: (se, arg) =>
-                                                                        {
-                                                                            if (!DeleteData.PermanentDelete)
-                                                                            {
-                                                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
-                                                                            }
-                                                                        }))
-                                                                        {
-                                                                            if (DeleteData.DeletePath.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
-                                                                            {
-                                                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
-                                                                            }
-                                                                        }
-                                                                        else if (DeleteData.DeletePath.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
-                                                                        {
-                                                                            Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
-                                                                        }
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        Value.Add("Error_NoPermission", "Do not have enough permission");
-                                                                    }
+                                                                    Value.Add("Error_NoPermission", "Do not have enough permission");
                                                                 }
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            Value.Add("Error_NotFound", "Could not found the file");
+                                                        }
+
+                                                        break;
+                                                    }
+                                                case ElevationRenameData RenameData:
+                                                    {
+                                                        if (File.Exists(RenameData.Path) || Directory.Exists(RenameData.Path))
+                                                        {
+                                                            if (StorageItemController.CheckCaptured(RenameData.Path))
+                                                            {
+                                                                Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
                                                             }
                                                             else
                                                             {
-                                                                Value.Add("Error_NotFound", "Could not found the file");
-                                                            }
-
-                                                            break;
-                                                        }
-                                                    case ElevationRenameData RenameData:
-                                                        {
-                                                            if (File.Exists(RenameData.Path) || Directory.Exists(RenameData.Path))
-                                                            {
-                                                                if (StorageItemController.CheckCaptured(RenameData.Path))
+                                                                if (StorageItemController.CheckPermission(Path.GetDirectoryName(RenameData.Path) ?? RenameData.Path, FileSystemRights.Modify))
                                                                 {
-                                                                    Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
+                                                                    string NewName = string.Empty;
+
+                                                                    if (StorageItemController.Rename(RenameData.Path, RenameData.DesireName, (s, e) =>
+                                                                    {
+                                                                        NewName = e.Name;
+                                                                    }))
+                                                                    {
+                                                                        Value.Add("Success", NewName);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                                                                    }
                                                                 }
                                                                 else
                                                                 {
-                                                                    if (StorageItemController.CheckPermission(Path.GetDirectoryName(RenameData.Path) ?? RenameData.Path, FileSystemRights.Modify))
-                                                                    {
-                                                                        string NewName = string.Empty;
-
-                                                                        if (StorageItemController.Rename(RenameData.Path, RenameData.DesireName, (s, e) =>
-                                                                        {
-                                                                            NewName = e.Name;
-                                                                        }))
-                                                                        {
-                                                                            Value.Add("Success", NewName);
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
-                                                                        }
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        Value.Add("Error_NoPermission", "Do not have enough permission");
-                                                                    }
+                                                                    Value.Add("Error_NoPermission", "Do not have enough permission");
                                                                 }
                                                             }
-                                                            else
-                                                            {
-                                                                Value.Add("Error_NotFound", "Could not found the file");
-                                                            }
-
-                                                            break;
                                                         }
-                                                }
+                                                        else
+                                                        {
+                                                            Value.Add("Error_NotFound", "Could not found the file");
+                                                        }
+
+                                                        break;
+                                                    }
                                             }
-                                            finally
-                                            {
-                                                RegistedHandle.Unregister(EventHandle);
-                                            }
+                                        }
+                                        finally
+                                        {
+                                            RegistedHandle.Unregister(EventHandle);
                                         }
                                     }
                                     else
@@ -569,8 +586,11 @@ namespace FullTrustProcess
                                 }
                                 finally
                                 {
-                                    Writer.WriteLine(JsonSerializer.Serialize(Value));
-                                    Writer.Flush();
+                                    if (!Cancellation.IsCancellationRequested)
+                                    {
+                                        MainWriter.WriteLine(JsonSerializer.Serialize(Value));
+                                        MainWriter.Flush();
+                                    }
                                 }
                             }
                         }
@@ -1478,11 +1498,18 @@ namespace FullTrustProcess
 
                             if (System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveLabelData(Path, DriveLabelName), CancelToken);
-
-                                foreach (KeyValuePair<string, string> Result in ResultMap)
+                                try
                                 {
-                                    Value.Add(Result);
+                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveLabelData(Path, DriveLabelName), CancelToken: CancelToken);
+
+                                    foreach (KeyValuePair<string, string> Result in ResultMap)
+                                    {
+                                        Value.Add(Result);
+                                    }
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    Value.Add("Error_Cancelled", "Operation is cancelled");
                                 }
                             }
                             else
@@ -1500,11 +1527,18 @@ namespace FullTrustProcess
 
                             if (System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveIndexStatusData(Path, AllowIndex, ApplyToSubItems), CancelToken);
-
-                                foreach (KeyValuePair<string, string> Result in ResultMap)
+                                try
                                 {
-                                    Value.Add(Result);
+                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveIndexStatusData(Path, AllowIndex, ApplyToSubItems), CancelToken: CancelToken);
+
+                                    foreach (KeyValuePair<string, string> Result in ResultMap)
+                                    {
+                                        Value.Add(Result);
+                                    }
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    Value.Add("Error_Cancelled", "Operation is cancelled");
                                 }
                             }
                             else
@@ -1537,11 +1571,18 @@ namespace FullTrustProcess
 
                             if (System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveCompressStatusData(Path, IsSetCompressionStatus, ApplyToSubItems), CancelToken);
-
-                                foreach (KeyValuePair<string, string> Result in ResultMap)
+                                try
                                 {
-                                    Value.Add(Result);
+                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveCompressStatusData(Path, IsSetCompressionStatus, ApplyToSubItems), CancelToken: CancelToken);
+
+                                    foreach (KeyValuePair<string, string> Result in ResultMap)
+                                    {
+                                        Value.Add(Result);
+                                    }
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    Value.Add("Error_Cancelled", "Operation is cancelled");
                                 }
                             }
                             else
@@ -2190,7 +2231,6 @@ namespace FullTrustProcess
                             string CreateNewPath = CommandValue["NewPath"];
                             string UniquePath = Helper.StorageGenerateUniquePath(CreateNewPath, Type);
 
-
                             if (StorageItemController.CheckPermission(Path.GetDirectoryName(UniquePath) ?? UniquePath, Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
                             {
                                 if (StorageItemController.Create(Type, UniquePath))
@@ -2199,7 +2239,7 @@ namespace FullTrustProcess
                                 }
                                 else if (Marshal.GetLastWin32Error() == 5)
                                 {
-                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken);
+                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken: CancelToken);
 
                                     foreach (KeyValuePair<string, string> Result in ResultMap)
                                     {
@@ -2213,7 +2253,7 @@ namespace FullTrustProcess
                             }
                             else
                             {
-                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken);
+                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken: CancelToken);
 
                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                 {
@@ -2258,39 +2298,46 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageItemController.CheckPermission(Path.GetDirectoryName(ExecutePath) ?? ExecutePath, FileSystemRights.Modify))
+                                    try
                                     {
-                                        string NewName = string.Empty;
+                                        if (StorageItemController.CheckPermission(Path.GetDirectoryName(ExecutePath) ?? ExecutePath, FileSystemRights.Modify))
+                                        {
+                                            string NewName = string.Empty;
 
-                                        if (StorageItemController.Rename(ExecutePath, DesireName, (s, e) =>
-                                        {
-                                            NewName = e.Name;
-                                        }))
-                                        {
-                                            Value.Add("Success", NewName);
+                                            if (StorageItemController.Rename(ExecutePath, DesireName, (s, e) =>
+                                            {
+                                                NewName = e.Name;
+                                            }))
+                                            {
+                                                Value.Add("Success", NewName);
+                                            }
+                                            else if (Marshal.GetLastWin32Error() == 5)
+                                            {
+                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName), CancelToken: CancelToken);
+
+                                                foreach (KeyValuePair<string, string> Result in ResultMap)
+                                                {
+                                                    Value.Add(Result);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                                            }
                                         }
-                                        else if (Marshal.GetLastWin32Error() == 5)
+                                        else
                                         {
-                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName));
+                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName), CancelToken: CancelToken);
 
                                             foreach (KeyValuePair<string, string> Result in ResultMap)
                                             {
                                                 Value.Add(Result);
                                             }
                                         }
-                                        else
-                                        {
-                                            Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
-                                        }
                                     }
-                                    else
+                                    catch (OperationCanceledException)
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName), CancelToken);
-
-                                        foreach (KeyValuePair<string, string> Result in ResultMap)
-                                        {
-                                            Value.Add(Result);
-                                        }
+                                        Value.Add("Error_Cancelled", "Operation is cancelled");
                                     }
                                 }
                             }
@@ -3317,7 +3364,10 @@ namespace FullTrustProcess
                                             }
                                             else if (Marshal.GetLastWin32Error() == 5)
                                             {
-                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option), CancelToken);
+                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option), (s, e) =>
+                                                {
+                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                }, CancelToken);
 
                                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                                 {
@@ -3336,7 +3386,10 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option), CancelToken);
+                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option), (s, e) =>
+                                        {
+                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                        }, CancelToken);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -3704,7 +3757,10 @@ namespace FullTrustProcess
                                                 }
                                                 else if (Marshal.GetLastWin32Error() == 5)
                                                 {
-                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option), CancelToken);
+                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option), (s, e) =>
+                                                    {
+                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                    }, CancelToken);
 
                                                     foreach (KeyValuePair<string, string> Result in ResultMap)
                                                     {
@@ -3723,7 +3779,10 @@ namespace FullTrustProcess
                                         }
                                         else
                                         {
-                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option), CancelToken);
+                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option), (s, e) =>
+                                            {
+                                                PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                            }, CancelToken);
 
                                             foreach (KeyValuePair<string, string> Result in ResultMap)
                                             {
@@ -3832,7 +3891,10 @@ namespace FullTrustProcess
                                                 }
                                                 else if (Marshal.GetLastWin32Error() == 5)
                                                 {
-                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete), CancelToken);
+                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
+                                                    {
+                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                    }, CancelToken);
 
                                                     foreach (KeyValuePair<string, string> Result in ResultMap)
                                                     {
@@ -3851,7 +3913,10 @@ namespace FullTrustProcess
                                         }
                                         else
                                         {
-                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete), CancelToken);
+                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
+                                            {
+                                                PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                            }, CancelToken);
 
                                             foreach (KeyValuePair<string, string> Result in ResultMap)
                                             {
@@ -4079,92 +4144,92 @@ namespace FullTrustProcess
                         {
                             string BaseFolderPath = CommandValue["Path"];
 
-                            if (StorageItemController.CheckPermission(BaseFolderPath, FileSystemRights.CreateFiles | FileSystemRights.CreateDirectories))
+                            try
                             {
-                                await STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
+                                if (StorageItemController.CheckPermission(BaseFolderPath, FileSystemRights.CreateFiles | FileSystemRights.CreateDirectories))
                                 {
-                                    RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
-
-                                    if (RelatedData.ItemsCount > 0)
+                                    await STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
                                     {
-                                        ulong CurrentPosition = 0;
+                                        RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
 
-                                        foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(CancelToken))
+                                        if (RelatedData.ItemsCount > 0)
                                         {
-                                            string TargetPath = Path.Combine(BaseFolderPath, Package.Name);
+                                            ulong CurrentPosition = 0;
 
-                                            try
+                                            foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(CancelToken))
                                             {
-                                                switch (Package)
+                                                string TargetPath = Path.Combine(BaseFolderPath, Package.Name);
+
+                                                try
                                                 {
-                                                    case RemoteClipboardFileData FileData:
-                                                        {
-                                                            if (!Directory.Exists(BaseFolderPath))
+                                                    switch (Package)
+                                                    {
+                                                        case RemoteClipboardFileData FileData:
                                                             {
-                                                                Directory.CreateDirectory(BaseFolderPath);
-                                                            }
-
-                                                            string UniqueName = Helper.StorageGenerateUniquePath(TargetPath, CreateType.File);
-
-                                                            using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
-                                                            {
-                                                                FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), CancelToken, (s, e) =>
+                                                                if (!Directory.Exists(BaseFolderPath))
                                                                 {
-                                                                    PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
-                                                                });
+                                                                    Directory.CreateDirectory(BaseFolderPath);
+                                                                }
+
+                                                                string UniqueName = Helper.StorageGenerateUniquePath(TargetPath, CreateType.File);
+
+                                                                using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
+                                                                {
+                                                                    FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), CancelToken, (s, e) =>
+                                                                    {
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
+                                                                    });
+                                                                }
+
+                                                                CurrentPosition += FileData.Size;
+
+                                                                break;
                                                             }
-
-                                                            CurrentPosition += FileData.Size;
-
-                                                            break;
-                                                        }
-                                                    case RemoteClipboardFolderData:
-                                                        {
-                                                            if (!Directory.Exists(TargetPath))
+                                                        case RemoteClipboardFolderData:
                                                             {
-                                                                Directory.CreateDirectory(TargetPath);
-                                                            }
+                                                                if (!Directory.Exists(TargetPath))
+                                                                {
+                                                                    Directory.CreateDirectory(TargetPath);
+                                                                }
 
-                                                            break;
-                                                        }
-                                                    default:
-                                                        {
-                                                            throw new NotSupportedException();
-                                                        }
+                                                                break;
+                                                            }
+                                                        default:
+                                                            {
+                                                                throw new NotSupportedException();
+                                                            }
+                                                    }
+                                                }
+                                                finally
+                                                {
+                                                    Package.Dispose();
                                                 }
                                             }
-                                            catch (OperationCanceledException)
-                                            {
-                                                //No need to handle this exception
-                                            }
-                                            finally
-                                            {
-                                                Package.Dispose();
-                                            }
+
+                                            Value.Add("Success", string.Empty);
                                         }
-
-                                        Value.Add("Success", string.Empty);
-                                    }
-                                    else
-                                    {
-                                        Value.Add("Error", "No remote data object is available");
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRemoteCopyData(BaseFolderPath), CancelToken);
-
-                                foreach (KeyValuePair<string, string> Result in ResultMap)
+                                        else
+                                        {
+                                            Value.Add("Error", "No remote data object is available");
+                                        }
+                                    });
+                                }
+                                else
                                 {
-                                    Value.Add(Result);
+                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRemoteCopyData(BaseFolderPath), (s, e) =>
+                                    {
+                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                    }, CancelToken);
+
+                                    foreach (KeyValuePair<string, string> Result in ResultMap)
+                                    {
+                                        Value.Add(Result);
+                                    }
                                 }
                             }
-
-                            if (CancelToken.IsCancellationRequested)
+                            catch (OperationCanceledException)
                             {
-                                Value.Clear();
-                                Value.Add("Cancel", string.Empty);
+                                Value.Add("Error_Cancelled", "Operation is cancelled");
                             }
 
                             break;
@@ -4306,39 +4371,87 @@ namespace FullTrustProcess
             }
         }
 
-        private static async Task<IDictionary<string, string>> CreateNewProcessAsElevatedAndWaitForResultAsync<T>(T Data, CancellationToken CancelToken = default) where T : IElevationData
+        private static async Task<IDictionary<string, string>> CreateNewProcessAsElevatedAndWaitForResultAsync<T>(T Data, ProgressChangedEventHandler Progress = null, CancellationToken CancelToken = default) where T : IElevationData
         {
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {
                 string PipeName = $"FullTrustProcess_ElevatedPipe_{Guid.NewGuid()}";
+                string ProgressPipeName = $"FullTrustProcess_ElevatedPipe_{Guid.NewGuid()}";
                 string CancelSignalName = $"FullTrustProcess_ElevatedCancellation_{Guid.NewGuid()}";
 
                 using (EventWaitHandle CancelEvent = new EventWaitHandle(false, EventResetMode.ManualReset, CancelSignalName))
-                using (NamedPipeServerStream ServerStream = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
-                using (StreamWriter Writer = new StreamWriter(ServerStream, new UTF8Encoding(false), leaveOpen: true))
-                using (StreamReader Reader = new StreamReader(ServerStream, new UTF8Encoding(false), true, leaveOpen: true))
+                using (NamedPipeServerStream MainPipeStream = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
+                using (NamedPipeServerStream ProgressPipeStream = new NamedPipeServerStream(ProgressPipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
+                using (StreamWriter MainWriter = new StreamWriter(MainPipeStream, new UTF8Encoding(false), leaveOpen: true))
+                using (StreamReader MainReader = new StreamReader(MainPipeStream, new UTF8Encoding(false), true, leaveOpen: true))
+                using (StreamReader ProgressReader = new StreamReader(ProgressPipeStream, new UTF8Encoding(false), true, leaveOpen: true))
+                using (CancellationTokenSource ProgressCancellation = new CancellationTokenSource())
                 using (Process ElevatedProcess = Process.Start(new ProcessStartInfo
                 {
                     FileName = CurrentProcess.MainModule.FileName,
-                    Arguments = $"/ExecuteAdminOperation \"{PipeName}\"",
+                    Arguments = $"/ExecuteAdminOperation \"{PipeName}\" \"{ProgressPipeName}\"",
                     UseShellExecute = true,
                     Verb = "runas"
                 }))
                 {
-                    Task<string> GetRawResultTask = Task.FromResult<string>(null);
+                    Task GetProgressResultTask = Task.CompletedTask;
+                    Task<string> GetRawResultTask = Task.FromResult<string>(string.Empty);
 
                     try
                     {
-                        await ServerStream.WaitForConnectionAsync(CancelToken);
+                        await Task.WhenAll(MainPipeStream.WaitForConnectionAsync(CancelToken), ProgressPipeStream.WaitForConnectionAsync(CancelToken));
 
-                        Writer.WriteLine(Data.GetType().FullName);
-                        Writer.WriteLine(CancelSignalName);
-                        Writer.WriteLine(JsonSerializer.Serialize(Data));
-                        Writer.Flush();
+                        MainWriter.WriteLine(Data.GetType().FullName);
+                        MainWriter.WriteLine(CancelSignalName);
+                        MainWriter.WriteLine(JsonSerializer.Serialize(Data));
+                        MainWriter.Flush();
 
-                        GetRawResultTask = Reader.ReadLineAsync();
+                        GetRawResultTask = MainReader.ReadLineAsync();
+                        GetProgressResultTask = Task.Factory.StartNew((Parameter) =>
+                        {
+                            try
+                            {
+                                if (Parameter is CancellationToken Token)
+                                {
+                                    while (!Token.IsCancellationRequested)
+                                    {
+                                        string ProgressText = ProgressReader.ReadLine();
+
+                                        if (int.TryParse(ProgressText, out int ProgressValue))
+                                        {
+                                            if (ProgressValue >= 0)
+                                            {
+                                                Progress?.Invoke(null, new ProgressChangedEventArgs(ProgressValue, null));
+
+                                                if (ProgressValue < 100)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                //No need to handle this exception
+                            }
+                        }, ProgressCancellation.Token, TaskCreationOptions.LongRunning);
 
                         await ElevatedProcess.WaitForExitAsync(CancelToken);
+                    }
+                    catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
+                    {
+                        CancelEvent.Set();
+
+                        if (!ElevatedProcess.WaitForExit(10000))
+                        {
+                            LogTracer.Log("Elevated process is not exit in 10s and we will not wait for it any more");
+                        }
+
+                        throw ex.InnerException;
                     }
                     catch (OperationCanceledException)
                     {
@@ -4347,9 +4460,13 @@ namespace FullTrustProcess
                         if (!ElevatedProcess.WaitForExit(10000))
                         {
                             LogTracer.Log("Elevated process is not exit in 10s and we will not wait for it any more");
-
-                            return new Dictionary<string, string>(0);
                         }
+
+                        throw;
+                    }
+                    finally
+                    {
+                        ProgressCancellation.Cancel();
                     }
 
                     string RawResultText = await GetRawResultTask;

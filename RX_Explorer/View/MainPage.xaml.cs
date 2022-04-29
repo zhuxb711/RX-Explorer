@@ -318,10 +318,25 @@ namespace RX_Explorer.View
             }
         }
 
-        private void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
+        private async void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
         {
-            e.Handled = true;
-            ExecuteGlobalGoBackAction();
+            if (!QueueContentDialog.IsRunningOrWaiting && NavView.SelectedItem is NavigationViewItem NavItem)
+            {
+                e.Handled = true;
+
+                if (Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
+                    && TabViewContainer.Current?.CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
+                {
+                    if (!await Control.ExecuteGoBackActionIfAvailableAsync())
+                    {
+                        ExecuteGlobalGoBackAction();
+                    }
+                }
+                else
+                {
+                    ExecuteGlobalGoBackAction();
+                }
+            }
         }
 
         private void Current_LeavingBackground(object sender, LeavingBackgroundEventArgs e)
