@@ -4349,7 +4349,7 @@ namespace FullTrustProcess
 
                         if (!IsSuccess)
                         {
-                            LogTracer.Log("Could not switch to window because noraml method failed, use fallback function");
+                            LogTracer.Log("Could not switch to window because normal method failed, use fallback function");
                             SetWindowsPosFallback(WindowsBeforeStartup);
                         }
                     }

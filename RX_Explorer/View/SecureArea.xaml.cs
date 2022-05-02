@@ -1080,7 +1080,7 @@ namespace RX_Explorer.View
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "Transfering in SecureArea failed for unexpected error");
+                    LogTracer.Log(ex, "Transferring in SecureArea failed for unexpected error");
 
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
