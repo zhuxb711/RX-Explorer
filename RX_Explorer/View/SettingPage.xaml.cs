@@ -367,9 +367,9 @@ namespace RX_Explorer.View
         {
             get
             {
-                if (ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] is int SelectedIndex)
+                if (ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] is int FlyoutModeIndex)
                 {
-                    switch (SelectedIndex)
+                    switch (FlyoutModeIndex)
                     {
                         case 0:
                             {
@@ -552,6 +552,53 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["LoadWSLFolderOnStartupEnabled"] = value;
         }
 
+        public static bool AvoidRecycleBinEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsEnabled)
+                {
+                    return IsEnabled;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] = value;
+        }
+
+        public static bool DoubleConfirmOnDeletion
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool IsEnabled)
+                {
+                    return IsEnabled;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] = value;
+        }
+
+        public static int DefaultDisplayModeIndex
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DefaultDisplayMode"] is int Index)
+                {
+                    return Index;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["DefaultDisplayMode"] = value;
+        }
 
         public static bool IsOpened { get; private set; }
 
@@ -1025,6 +1072,9 @@ namespace RX_Explorer.View
             FileExtensionSwitch.IsOn = IsShowFileExtensionsEnabled;
             ShowContextMenuWhenLoading.IsChecked = !IsParallelShowContextMenu;
             LoadWSLOnStartup.IsOn = LoadWSLFolderOnStartupEnabled;
+            AvoidRecycleBin.IsChecked = AvoidRecycleBinEnabled;
+            DeleteConfirmSwitch.IsOn = DoubleConfirmOnDeletion;
+            DefaultDisplayMode.SelectedIndex = DefaultDisplayModeIndex;
 
 #if DEBUG
             SettingShareData.IsOn = false;
@@ -1048,15 +1098,6 @@ namespace RX_Explorer.View
                 DefaultTerminal.SelectedIndex = 0;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["DefaultDisplayMode"] is int DisplayModeIndex)
-            {
-                DefaultDisplayMode.SelectedIndex = DisplayModeIndex;
-            }
-            else
-            {
-                DefaultDisplayMode.SelectedIndex = 1;
-            }
-
             if (ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsInterceptedWinE)
             {
                 UseWinAndEActivate.IsOn = IsInterceptedWinE;
@@ -1078,10 +1119,9 @@ namespace RX_Explorer.View
 
             if (ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] is int FlyoutModeIndex)
             {
-                if (FlyoutModeIndex > SearchEngineConfig.Items.Count - 1)
+                if (FlyoutModeIndex >= SearchEngineConfig.Items.Count)
                 {
                     SearchEngineConfig.SelectedIndex = 0;
-                    ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] = 0;
                 }
                 else
                 {
@@ -1113,24 +1153,6 @@ namespace RX_Explorer.View
                         EverythingEngineSearchGloble.IsChecked = Options.DeepSearch;
                         break;
                     }
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool IsDeleteConfirm)
-            {
-                DeleteConfirmSwitch.IsOn = IsDeleteConfirm;
-            }
-            else
-            {
-                DeleteConfirmSwitch.IsOn = true;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRec)
-            {
-                AvoidRecycleBin.IsChecked = IsAvoidRec;
-            }
-            else
-            {
-                AvoidRecycleBin.IsChecked = false;
             }
 
             switch (StartupModeController.Mode)
@@ -1243,7 +1265,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                ApplicationData.Current.LocalSettings.Values["DefaultDisplayMode"] = DefaultDisplayMode.SelectedIndex;
+                DefaultDisplayModeIndex = DefaultDisplayMode.SelectedIndex;
                 SQLite.Current.SetDefaultDisplayMode(DefaultDisplayMode.SelectedIndex);
             }
             catch (Exception ex)
@@ -1323,7 +1345,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw in {nameof(AlwaysOnTop_Toggled)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(AlwaysOnTop_Toggled)}");
             }
             finally
             {
@@ -1347,7 +1369,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw in {nameof(FileLoadMode_SelectionChanged)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(FileLoadMode_SelectionChanged)}");
             }
             finally
             {
@@ -2263,7 +2285,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw when checking {PreventFallBack}");
+                LogTracer.Log(ex, $"An exception was threw when checking {PreventFallBack}");
             }
             finally
             {
@@ -2280,7 +2302,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw when unchecking {PreventFallBack}");
+                LogTracer.Log(ex, $"An exception was threw when unchecking {PreventFallBack}");
             }
             finally
             {
@@ -2624,7 +2646,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw in {nameof(SearchEngineConfig_SelectionChanged)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(SearchEngineConfig_SelectionChanged)}");
             }
             finally
             {
@@ -2708,19 +2730,19 @@ namespace RX_Explorer.View
 
         private void DeleteConfirmSwitch_Toggled(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] = DeleteConfirmSwitch.IsOn;
+            DoubleConfirmOnDeletion = DeleteConfirmSwitch.IsOn;
             ApplicationData.Current.SignalDataChanged();
         }
 
         private void AvoidRecycleBin_Checked(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] = true;
+            AvoidRecycleBinEnabled = true;
             ApplicationData.Current.SignalDataChanged();
         }
 
         private void AvoidRecycleBin_Unchecked(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] = false;
+            AvoidRecycleBinEnabled = false;
             ApplicationData.Current.SignalDataChanged();
         }
 

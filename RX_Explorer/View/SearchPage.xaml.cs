@@ -534,7 +534,7 @@ namespace RX_Explorer.View
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"An error was threw in {nameof(Location_Click)}");
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(Location_Click)}");
 
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -1078,7 +1078,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw in {nameof(OpenSelectedItemAsync)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(OpenSelectedItemAsync)}");
 
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -1184,31 +1184,9 @@ namespace RX_Explorer.View
                 string[] PathList = SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
 
                 bool ExecuteDelete = false;
-                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) | SettingPage.AvoidRecycleBinEnabled;
 
-                if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
-                {
-                    if (DeleteConfirm)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
-                            Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content")
-                        };
-
-                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            ExecuteDelete = true;
-                        }
-                    }
-                    else
-                    {
-                        ExecuteDelete = true;
-                    }
-                }
-                else
+                if (SettingPage.DoubleConfirmOnDeletion)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -1223,10 +1201,9 @@ namespace RX_Explorer.View
                         ExecuteDelete = true;
                     }
                 }
-
-                if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
+                else
                 {
-                    PermanentDelete |= IsAvoidRecycleBin;
+                    ExecuteDelete = true;
                 }
 
                 if (ExecuteDelete)

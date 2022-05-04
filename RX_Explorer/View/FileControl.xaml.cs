@@ -670,7 +670,7 @@ namespace RX_Explorer.View
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_LocatePathFailure_Content"),
+                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{CurrentRecord.Path}\"",
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
@@ -712,7 +712,7 @@ namespace RX_Explorer.View
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_LocatePathFailure_Content"),
+                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{CurrentRecord.Path}\"",
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
@@ -1067,7 +1067,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw in {nameof(FolderTree_Expanding)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(FolderTree_Expanding)}");
             }
             finally
             {
@@ -1112,31 +1112,9 @@ namespace RX_Explorer.View
                 if (await FileSystemStorageItemBase.CheckExistsAsync(TargetContent.Path))
                 {
                     bool ExecuteDelete = false;
-                    bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+                    bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) | SettingPage.AvoidRecycleBinEnabled;
 
-                    if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
-                    {
-                        if (DeleteConfirm)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
-                                Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFolderPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFolder_Content")
-                            };
-
-                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                ExecuteDelete = true;
-                            }
-                        }
-                        else
-                        {
-                            ExecuteDelete = true;
-                        }
-                    }
-                    else
+                    if (SettingPage.DoubleConfirmOnDeletion)
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -1151,10 +1129,9 @@ namespace RX_Explorer.View
                             ExecuteDelete = true;
                         }
                     }
-
-                    if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
+                    else
                     {
-                        PermanentDelete |= IsAvoidRecycleBin;
+                        ExecuteDelete = true;
                     }
 
                     if (ExecuteDelete)

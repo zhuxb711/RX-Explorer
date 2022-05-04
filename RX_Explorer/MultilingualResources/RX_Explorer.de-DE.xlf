@@ -2011,7 +2011,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">RX hat keine Berechtigung, diese Datei umzubenennen</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while deleting the file, the undo operation could not be completed</source>
+          <source>An exception occurred while deleting the file, the undo operation could not be completed</source>
           <target state="translated">Da einige Dateien/Ordner nicht mehr vorhanden sind, konnte nicht alles vollständig rückgängig gemacht werden.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
@@ -2193,11 +2193,11 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">Wird gelöscht...</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RecycleBinDeleteError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while deleting the following files:</source>
+          <source>An exception occurred while deleting the following files:</source>
           <target state="translated">Ein Fehler trat beim Löschen folgender Dateien auf:</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RecycleBinRestoreError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while restoring the following files:</source>
+          <source>An exception occurred while restoring the following files:</source>
           <target state="translated">Ein Fehler trat beim Wiederherstellen folgender Dateien auf:</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
@@ -2225,15 +2225,15 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">In neuem Fenster öffnen</target>
         </trans-unit>
         <trans-unit id="QueueDialog_CopyFailUnexpectError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while copying the file, the copy operation failed</source>
+          <source>An exception occurred while copying the file, the copy operation failed</source>
           <target state="translated">Ein Fehler trat während des Kopierens der Datei auf. Der Kopiervorgang ist fehlgeschlagen.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFailUnexpectError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while deleting the file, the delete operation failed</source>
+          <source>An exception occurred while deleting the file, the delete operation failed</source>
           <target state="translated">Ein Fehler trat während des Löschens der Datei auf. Der Löschvorgang ist fehlgeschlagen.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_MoveFailUnexpectError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while moving the file, the move operation failed</source>
+          <source>An exception occurred while moving the file, the move operation failed</source>
           <target state="translated">Ein Fehler trat während des Verschiebens der Datei auf. Der Verschiebungsvorgang ist fehlgeschlagen.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_FailToGetClipboardError_Content" translate="yes" xml:space="preserve">
@@ -4347,7 +4347,7 @@ Inkorrekte Namen sind
           <target state="translated">Ich habe die obige Erklärung sorgfältig gelesen und trage die Folgen eines Verstoßes gegen die Erklärung</target>
         </trans-unit>
         <trans-unit id="QueueDialog_ActionFailed_Content" translate="yes" xml:space="preserve">
-          <source>Unable to perform the requested operation due to an error</source>
+          <source>Unable to perform the requested operation due to an exception</source>
           <target state="translated">Der angeforderte Vorgang kann aufgrund eines Fehlers nicht ausgeführt werden</target>
         </trans-unit>
         <trans-unit id="ShutdownFolderGuidence.Text" translate="yes" xml:space="preserve">

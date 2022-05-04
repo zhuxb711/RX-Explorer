@@ -1638,7 +1638,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>RX does not have permission to rename this file</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
-    <value>An error occurred while deleting the file, the undo operation could not be completed</value>
+    <value>An exception occurred while deleting the file, the undo operation could not be completed</value>
   </data>
   <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
     <value>WIFI transmission has an unexpected error：\r</value>
@@ -1775,10 +1775,10 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Deleting</value>
   </data>
   <data name="QueueDialog_RecycleBinDeleteError_Content" xml:space="preserve">
-    <value>An error occurred while deleting the following files:</value>
+    <value>An exception occurred while deleting the following files:</value>
   </data>
   <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
-    <value>An error occurred while restoring the following files:</value>
+    <value>An exception occurred while restoring the following files:</value>
   </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>A file with the same name already exists, whether to rename it automatically?</value>
@@ -1799,13 +1799,13 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Open in new window</value>
   </data>
   <data name="QueueDialog_CopyFailUnexpectError_Content" xml:space="preserve">
-    <value>An error occurred while copying the file, the copy operation failed</value>
+    <value>An exception occurred while copying the file, the copy operation failed</value>
   </data>
   <data name="QueueDialog_DeleteFailUnexpectError_Content" xml:space="preserve">
-    <value>An error occurred while deleting the file, the delete operation failed</value>
+    <value>An exception occurred while deleting the file, the delete operation failed</value>
   </data>
   <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
-    <value>An error occurred while moving the file, the move operation failed</value>
+    <value>An exception occurred while moving the file, the move operation failed</value>
   </data>
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>Failed to get the contents of the clipboard</value>
@@ -3380,7 +3380,7 @@ Invalid names include
     <value>I have read the above statement carefully and bear the consequences of violating the statement</value>
   </data>
   <data name="QueueDialog_ActionFailed_Content" xml:space="preserve">
-    <value>Unable to perform the requested operation due to an error</value>
+    <value>Unable to perform the requested operation due to an exception</value>
   </data>
   <data name="ShutdownFolderGuidence.Text" xml:space="preserve">
     <value>Export the file used to turn off the folder redirection by yourself</value>

@@ -62,7 +62,7 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"An error was threw in {nameof(GetBingPictureAsync)}");
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(GetBingPictureAsync)}");
                 }
 
                 return ExistFile;
@@ -92,7 +92,7 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"An error was threw in {nameof(GetBingPictureAsync)}");
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(GetBingPictureAsync)}");
                 }
 
                 return null;
@@ -127,7 +127,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw in {nameof(DownloadBingPictureToTemporaryFileAsync)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(DownloadBingPictureToTemporaryFileAsync)}");
             }
 
             return null;

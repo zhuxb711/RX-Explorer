@@ -163,7 +163,7 @@ namespace RX_Explorer.View
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"An error was threw in {nameof(DismissExtendedSplashAsync)}");
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(DismissExtendedSplashAsync)}");
                 }
             });
         }
@@ -189,7 +189,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "An error was threw when dismissing extendedsplash ");
+                LogTracer.Log(ex, "An exception was threw when dismissing extendedsplash ");
             }
         }
 

@@ -162,7 +162,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "An error was threw when initialize PhotoViewer");
+                LogTracer.Log(ex, "An exception was threw when initialize PhotoViewer");
 
                 await new QueueContentDialog
                 {
@@ -407,7 +407,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "An error was threw when navigating to CropperPage");
+                LogTracer.Log(ex, "An exception was threw when navigating to CropperPage");
             }
         }
 

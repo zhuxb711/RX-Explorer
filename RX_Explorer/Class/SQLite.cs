@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using RX_Explorer.View;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -269,14 +270,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        if (ApplicationData.Current.LocalSettings.Values["DefaultDisplayMode"] is int DisplayModeIndex)
-                        {
-                            return new PathConfiguration(Path, DisplayModeIndex, SortTarget.Name, SortDirection.Ascending, GroupTarget.None, GroupDirection.Ascending);
-                        }
-                        else
-                        {
-                            return new PathConfiguration(Path, 1, SortTarget.Name, SortDirection.Ascending, GroupTarget.None, GroupDirection.Ascending);
-                        }
+                        return new PathConfiguration(Path, SettingPage.DefaultDisplayModeIndex, SortTarget.Name, SortDirection.Ascending, GroupTarget.None, GroupDirection.Ascending);
                     }
                 }
             }

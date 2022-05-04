@@ -1921,7 +1921,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">RX n'a pas la permission pour décompresser le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while deleting the file, the undo operation could not be completed</source>
+          <source>An exception occurred while deleting the file, the undo operation could not be completed</source>
           <target state="translated">Comme certains fichiers/dossiers n'existent plus, l'opération d'annulation n'a pas pu être menée à bien complètement</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
@@ -2120,11 +2120,11 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Suppression</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RecycleBinDeleteError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while deleting the following files:</source>
+          <source>An exception occurred while deleting the following files:</source>
           <target state="translated">Une erreur s'est produite lors de la suppression des fichiers suivants:</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RecycleBinRestoreError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while restoring the following files:</source>
+          <source>An exception occurred while restoring the following files:</source>
           <target state="translated">Une erreur s'est produite lors de la restauration des fichiers suivants:</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
@@ -2152,15 +2152,15 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Ouvrir dans une nouvelle fenetre</target>
         </trans-unit>
         <trans-unit id="QueueDialog_CopyFailUnexpectError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while copying the file, the copy operation failed</source>
+          <source>An exception occurred while copying the file, the copy operation failed</source>
           <target state="translated">Une erreur s'est produite lors de la copie du fichier, l'opération de copie a échoué</target>
         </trans-unit>
         <trans-unit id="QueueDialog_MoveFailUnexpectError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while moving the file, the move operation failed</source>
+          <source>An exception occurred while moving the file, the move operation failed</source>
           <target state="translated">Une erreur s'est produite lors du déplacement du fichier, l'opération de déplacement a échoué</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFailUnexpectError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while deleting the file, the delete operation failed</source>
+          <source>An exception occurred while deleting the file, the delete operation failed</source>
           <target state="translated">Une erreur s'est produite lors de la suppression du fichier, l'opération de suppression a échoué</target>
         </trans-unit>
         <trans-unit id="QueueDialog_FailToGetClipboardError_Content" translate="yes" xml:space="preserve">
@@ -4349,7 +4349,7 @@ Les noms non valides incluent
           <target state="translated">J'ai lu attentivement la déclaration ci-dessus et je supporte les conséquences de la violation de la déclaration</target>
         </trans-unit>
         <trans-unit id="QueueDialog_ActionFailed_Content" translate="yes" xml:space="preserve">
-          <source>Unable to perform the requested operation due to an error</source>
+          <source>Unable to perform the requested operation due to an exception</source>
           <target state="translated">Impossible d'effectuer l'opération demandée en raison d'une erreur</target>
         </trans-unit>
         <trans-unit id="ShutdownFolderGuidence.Text" translate="yes" xml:space="preserve">

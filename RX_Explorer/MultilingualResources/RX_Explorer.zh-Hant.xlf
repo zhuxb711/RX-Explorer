@@ -1946,7 +1946,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">RX 檔案總管沒有在此處解壓Zip檔案的權限，可能是您沒有權限訪問此檔案</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while deleting the file, the undo operation could not be completed</source>
+          <source>An exception occurred while deleting the file, the undo operation could not be completed</source>
           <target state="translated">由於某些檔案/資料夾不存在，因此復原操作無法完成</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
@@ -2124,11 +2124,11 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated" state-qualifier="tm-suggestion">正在刪除</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RecycleBinDeleteError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while deleting the following files:</source>
+          <source>An exception occurred while deleting the following files:</source>
           <target state="translated">刪除以下檔案時發生錯誤：</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RecycleBinRestoreError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while restoring the following files:</source>
+          <source>An exception occurred while restoring the following files:</source>
           <target state="translated">復原以下檔案時發生錯誤：</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
@@ -2156,15 +2156,15 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated" state-qualifier="tm-suggestion">在新視窗開啟</target>
         </trans-unit>
         <trans-unit id="QueueDialog_CopyFailUnexpectError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while copying the file, the copy operation failed</source>
+          <source>An exception occurred while copying the file, the copy operation failed</source>
           <target state="translated">複製檔案時發生錯誤，複製失敗</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFailUnexpectError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while deleting the file, the delete operation failed</source>
+          <source>An exception occurred while deleting the file, the delete operation failed</source>
           <target state="translated">刪除檔案時發生錯誤，刪除失敗</target>
         </trans-unit>
         <trans-unit id="QueueDialog_MoveFailUnexpectError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while moving the file, the move operation failed</source>
+          <source>An exception occurred while moving the file, the move operation failed</source>
           <target state="translated">移動檔案時發生錯誤，移動失敗</target>
         </trans-unit>
         <trans-unit id="QueueDialog_FailToGetClipboardError_Content" translate="yes" xml:space="preserve">
@@ -4349,7 +4349,7 @@ Invalid names include
           <target state="translated">我已仔細閱讀以上聲明，並承擔違反聲明的後果</target>
         </trans-unit>
         <trans-unit id="QueueDialog_ActionFailed_Content" translate="yes" xml:space="preserve">
-          <source>Unable to perform the requested operation due to an error</source>
+          <source>Unable to perform the requested operation due to an exception</source>
           <target state="translated">由於錯誤無法執行請求的操作</target>
         </trans-unit>
         <trans-unit id="ShutdownFolderGuidence.Text" translate="yes" xml:space="preserve">

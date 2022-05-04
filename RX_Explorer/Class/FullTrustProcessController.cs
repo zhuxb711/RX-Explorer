@@ -416,7 +416,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(SendCommandAsync)} throw an error");
+                LogTracer.Log(ex, $"{nameof(SendCommandAsync)} throw An exception");
             }
             finally
             {
@@ -454,7 +454,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(SendCommandAndReportProgressAsync)} throw an error");
+                LogTracer.Log(ex, $"{nameof(SendCommandAndReportProgressAsync)} throw An exception");
             }
             finally
             {

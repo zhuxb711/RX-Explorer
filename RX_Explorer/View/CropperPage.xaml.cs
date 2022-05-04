@@ -61,7 +61,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "An error was threw when initializing CropperPage");
+                LogTracer.Log(ex, "An exception was threw when initializing CropperPage");
             }
         }
 

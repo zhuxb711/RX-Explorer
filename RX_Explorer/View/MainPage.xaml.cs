@@ -581,7 +581,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "An error was threw in close delay");
+                LogTracer.Log(ex, "An exception was threw in close delay");
             }
             finally
             {
@@ -745,7 +745,7 @@ namespace RX_Explorer.View
             }
             catch (Exception e)
             {
-                LogTracer.Log(e, $"An error was threw in {nameof(RegisterBackgroundTaskAsync)}");
+                LogTracer.Log(e, $"An exception was threw in {nameof(RegisterBackgroundTaskAsync)}");
             }
         }
 
@@ -1059,7 +1059,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "An error was threw when navigating between NavigationView item");
+                LogTracer.Log(ex, "An exception was threw when navigating between NavigationView item");
             }
         }
 
@@ -1097,7 +1097,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "An error was threw when navigate back");
+                LogTracer.Log(ex, "An exception was threw when navigate back");
             }
         }
 

@@ -3601,37 +3601,15 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Count > 0)
+            //We should take the path of what we want to delete first. Or we might delete some items incorrectly
+            IReadOnlyList<FileSystemStorageItemBase> DeleteItems = SelectedItems.ToList();
+
+            if (DeleteItems.Count > 0)
             {
-                //We should take the path of what we want to delete first. Or we might delete some items incorrectly
-                string[] PathList = SelectedItems.Select((Item) => Item.Path).ToArray();
-
                 bool ExecuteDelete = false;
-                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) | SettingPage.AvoidRecycleBinEnabled;
 
-                if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
-                {
-                    if (DeleteConfirm)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
-                            Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content")
-                        };
-
-                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            ExecuteDelete = true;
-                        }
-                    }
-                    else
-                    {
-                        ExecuteDelete = true;
-                    }
-                }
-                else
+                if (SettingPage.DoubleConfirmOnDeletion)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -3646,28 +3624,27 @@ namespace RX_Explorer.View
                         ExecuteDelete = true;
                     }
                 }
+                else
+                {
+                    ExecuteDelete = true;
+                }
 
                 if (ExecuteDelete)
                 {
-                    if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
-                    {
-                        PermanentDelete |= IsAvoidRecycleBin;
-                    }
-
                     foreach (TabViewItem Tab in TabViewContainer.Current.TabCollection.ToArray())
                     {
                         if (Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
                         {
-                            foreach (string DeletePath in PathList)
+                            foreach (FileSystemStorageFolder DeleteItem in DeleteItems.OfType<FileSystemStorageFolder>())
                             {
                                 if (Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
-                                                       .All((BladePath) => BladePath.StartsWith(DeletePath, StringComparison.OrdinalIgnoreCase)))
+                                                       .All((BladePath) => BladePath.StartsWith(DeleteItem.Path, StringComparison.OrdinalIgnoreCase)))
                                 {
                                     await TabViewContainer.Current.CleanUpAndRemoveTabItem(Tab);
                                 }
                                 else
                                 {
-                                    foreach (FilePresenter Presenter in Renderer.Presenters.Where((Presenter) => (Presenter.CurrentFolder?.Path.StartsWith(DeletePath, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                                    foreach (FilePresenter Presenter in Renderer.Presenters.Where((Presenter) => (Presenter.CurrentFolder?.Path.StartsWith(DeleteItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
                                     {
                                         await Renderer.CloseBladeByPresenterAsync(Presenter);
                                     }
@@ -3676,7 +3653,7 @@ namespace RX_Explorer.View
                         }
                     }
 
-                    OperationListDeleteModel Model = new OperationListDeleteModel(PathList, PermanentDelete);
+                    OperationListDeleteModel Model = new OperationListDeleteModel(DeleteItems.Select((Item) => Item.Path).ToArray(), PermanentDelete);
 
                     QueueTaskController.RegisterPostAction(Model, async (s, e) =>
                     {
@@ -3694,9 +3671,9 @@ namespace RX_Explorer.View
                                 {
                                     if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
                                     {
-                                        foreach (string Path in PathList)
+                                        foreach (FileSystemStorageItemBase Item in DeleteItems)
                                         {
-                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
+                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Item.Path));
                                         }
                                     }
                                 }

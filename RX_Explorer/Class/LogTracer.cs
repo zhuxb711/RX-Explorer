@@ -63,7 +63,7 @@ namespace RX_Explorer.Class
                     Debugger.Launch();
                 }
 
-                Debug.WriteLine($"An error was threw in {nameof(CheckHasAnyLogAvailableAsync)}, message: {ex.Message}");
+                Debug.WriteLine($"An exception was threw in {nameof(CheckHasAnyLogAvailableAsync)}, message: {ex.Message}");
 #endif
             }
 
@@ -126,7 +126,7 @@ namespace RX_Explorer.Class
                     Debugger.Launch();
                 }
 
-                Debug.WriteLine($"An error was threw in {nameof(ExportAllLogAsync)}, message: {ex.Message}");
+                Debug.WriteLine($"An exception was threw in {nameof(ExportAllLogAsync)}, message: {ex.Message}");
 #endif
             }
         }
@@ -235,7 +235,7 @@ namespace RX_Explorer.Class
                     Debugger.Launch();
                 }
 
-                Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
+                Debug.WriteLine($"An exception was threw in {nameof(Log)}, message: {ex.Message}");
 #endif
             }
         }
@@ -293,7 +293,7 @@ namespace RX_Explorer.Class
                     Debugger.Launch();
                 }
 
-                Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
+                Debug.WriteLine($"An exception was threw in {nameof(Log)}, message: {ex.Message}");
 #endif
             }
         }
