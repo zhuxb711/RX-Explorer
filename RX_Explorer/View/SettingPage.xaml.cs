@@ -2688,7 +2688,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not change StartupMode");
+                LogTracer.Log(ex, "Could not set StartupMode");
             }
             finally
             {
@@ -2704,7 +2704,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not change StartupMode");
+                LogTracer.Log(ex, "Could not set StartupMode");
             }
             finally
             {
@@ -2720,7 +2720,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not change StartupMode");
+                LogTracer.Log(ex, "Could not set StartupMode");
             }
             finally
             {
@@ -2730,20 +2730,50 @@ namespace RX_Explorer.View
 
         private void DeleteConfirmSwitch_Toggled(object sender, RoutedEventArgs e)
         {
-            DoubleConfirmOnDeletion = DeleteConfirmSwitch.IsOn;
-            ApplicationData.Current.SignalDataChanged();
+            try
+            {
+                DoubleConfirmOnDeletion = DeleteConfirmSwitch.IsOn;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not set delete confirm");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private void AvoidRecycleBin_Checked(object sender, RoutedEventArgs e)
         {
-            AvoidRecycleBinEnabled = true;
-            ApplicationData.Current.SignalDataChanged();
+            try
+            {
+                AvoidRecycleBinEnabled = true;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not avoid recycle bin");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private void AvoidRecycleBin_Unchecked(object sender, RoutedEventArgs e)
         {
-            AvoidRecycleBinEnabled = false;
-            ApplicationData.Current.SignalDataChanged();
+            try
+            {
+                AvoidRecycleBinEnabled = false;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not avoid recycle bin");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private async void HideProtectedSystemItems_Unchecked(object sender, RoutedEventArgs e)

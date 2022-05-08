@@ -1557,9 +1557,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<IReadOnlyList<VariableDataPackage>> GetVariableSuggestionAsync(string PartialVariable)
+        public async Task<IReadOnlyList<VariableDataPackage>> GetVariablePathListAsync(string PartialVariable = null)
         {
-            if (await SendCommandAsync(CommandType.GetVariablePathSuggestion, ("PartialVariable", PartialVariable)) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.GetVariablePathList, ("PartialVariable", PartialVariable)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
@@ -1567,7 +1567,7 @@ namespace RX_Explorer.Class
                 }
                 else if (Response.TryGetValue("Error", out var ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(GetVariableSuggestionAsync)}, message: {ErrorMessage}");
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetVariablePathListAsync)}, message: {ErrorMessage}");
                 }
             }
 

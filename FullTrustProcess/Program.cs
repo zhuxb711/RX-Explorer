@@ -178,7 +178,7 @@ namespace FullTrustProcess
                                                             }
                                                             catch (OperationCanceledException)
                                                             {
-                                                                    //No need to handle this exception
+                                                                //No need to handle this exception
                                                             }
                                                         }).Wait();
 
@@ -2204,18 +2204,23 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case CommandType.GetVariablePathSuggestion:
+                    case CommandType.GetVariablePathList:
                         {
                             string PartialVariable = CommandValue["PartialVariable"];
 
-                            if (PartialVariable.IndexOf('%') == 0 && PartialVariable.LastIndexOf('%') == 0)
+
+                            IEnumerable<KeyValuePair<string,string>> AllEnvironmentVariables = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
+                                                                                                                                    .Select((Pair) => new KeyValuePair<string, string>(Convert.ToString(Pair.Key), Path.GetFullPath(Convert.ToString(Pair.Value))))
+                                                                                                                                    .Where((Pair) => Directory.Exists(Pair.Value));
+
+                            if (string.IsNullOrEmpty(PartialVariable))
                             {
-                                IEnumerable<VariableDataPackage> VariableList = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
-                                                                                                                     .Select((Pair) => new KeyValuePair<string, string>(Convert.ToString(Pair.Key), Path.GetFullPath(Convert.ToString(Pair.Value))))
-                                                                                                                     .Where((Pair) => Directory.Exists(Pair.Value))
-                                                                                                                     .Where((Pair) => Pair.Key.StartsWith(PartialVariable[1..], StringComparison.OrdinalIgnoreCase))
-                                                                                                                     .Select((Pair) => new VariableDataPackage(Pair.Value, $"%{Pair.Key}%"));
-                                Value.Add("Success", JsonSerializer.Serialize(VariableList));
+                                Value.Add("Success", JsonSerializer.Serialize(AllEnvironmentVariables.Select((Pair) => new VariableDataPackage(Pair.Value, $"%{Pair.Key}%"))));
+                            }
+                            else if (PartialVariable.IndexOf('%') == 0 && PartialVariable.LastIndexOf('%') == 0)
+                            {
+                                Value.Add("Success", JsonSerializer.Serialize(AllEnvironmentVariables.Where((Pair) => Pair.Key.StartsWith(PartialVariable[1..], StringComparison.OrdinalIgnoreCase))
+                                                                                                     .Select((Pair) => new VariableDataPackage(Pair.Value, $"%{Pair.Key}%"))));
                             }
                             else
                             {

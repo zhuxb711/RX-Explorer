@@ -27,21 +27,18 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<IEnumerable<VariableDataPackage>> GetVariablePathSuggestionAsync(string PartialVariablePath)
+        public static async Task<IReadOnlyList<VariableDataPackage>> GetVariablePathListAsync(string PartialVariablePath = null)
         {
             try
             {
-                if (!string.IsNullOrWhiteSpace(PartialVariablePath))
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        return await Exclusive.Controller.GetVariableSuggestionAsync(PartialVariablePath);
-                    }
+                    return await Exclusive.Controller.GetVariablePathListAsync(PartialVariablePath);
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(GetVariablePathSuggestionAsync)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(GetVariablePathListAsync)}");
             }
 
             return new List<VariableDataPackage>(0);

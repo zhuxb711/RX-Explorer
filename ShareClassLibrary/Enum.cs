@@ -61,7 +61,6 @@
     public enum CommandType
     {
         Test,
-        ConvertToLongPath,
         GetFriendlyTypeName,
         GetPermissions,
         SetDriveLabel,
@@ -118,7 +117,7 @@
         RemoveTopMostWindow,
         GetNativeHandle,
         GetTooltipText,
-        GetVariablePathSuggestion,
+        GetVariablePathList,
         GetDirectoryMonitorHandle,
         MapToUNCPath,
         SetTaskBarProgress,
@@ -136,6 +135,7 @@
         OrderByNaturalStringSortAlgorithm,
         GetSizeOnDisk,
         GetAvailableWslDrivePathList,
-        GetRemoteClipboardRelatedData
+        GetRemoteClipboardRelatedData,
+        ConvertToLongPath
     }
 }
