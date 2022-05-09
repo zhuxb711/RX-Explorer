@@ -44,7 +44,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                string Name = Regex.Replace(DisplayName, $@"\({Regex.Escape(Path.TrimEnd('\\'))}\)$", string.Empty).Trim();
+                string Name = Regex.Replace((DriveFolder?.DisplayName) ?? string.Empty, $@"\({Regex.Escape(Path.TrimEnd('\\'))}\)$", string.Empty).Trim();
 
                 if (string.IsNullOrEmpty(Name))
                 {

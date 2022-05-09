@@ -17,67 +17,8 @@
         <Cls:NavigationRecordDataTemplateSelector x:Key="NavTemplateSelector"
                                                   NormalTemplate="{StaticResource NavNormalRecordTemplate}"
                                                   RootTemplate="{StaticResource NavRootRecordTemplate}" />
-        <Cls:AddressSuggestionDataTemplateSelector x:Key="AddressTemplateSelector"
-                                                   PathOnlyTemplate="{StaticResource AddressPathOnlyTemplate}"
-                                                   DisplayNameAndPathTemplate="{StaticResource AddressDisplayNameAndPathTemplate}" />
+        
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
-
-        <DataTemplate x:Key="AddressPathOnlyTemplate"
-                      x:DataType="Cls:AddressSuggestionItem">
-            <RelativePanel HorizontalAlignment="Stretch"
-                           Padding="0,0,5,0">
-                <TextBlock Text="{x:Bind Path}"
-                           ToolTipService.ToolTip="{x:Bind Path}"
-                           RelativePanel.AlignLeftWithPanel="True"
-                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                           RelativePanel.LeftOf="AddressBarSelectionDelete"
-                           TextTrimming="CharacterEllipsis" />
-                <Border Height="20"
-                        Width="20"
-                        Padding="5"
-                        Visibility="{x:Bind CloseButtonVisibility}"
-                        RelativePanel.AlignRightWithPanel="True"
-                        x:Name="AddressBarSelectionDelete"
-                        RelativePanel.AlignVerticalCenterWithPanel="True"
-                        PointerPressed="AddressBarSelectionDelete_PointerPressed">
-                    <Viewbox ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}">
-                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xE8BB;" />
-                    </Viewbox>
-                </Border>
-            </RelativePanel>
-        </DataTemplate>
-
-        <DataTemplate x:Key="AddressDisplayNameAndPathTemplate"
-                      x:DataType="Cls:AddressSuggestionItem">
-            <RelativePanel HorizontalAlignment="Stretch"
-                           Padding="0,0,5,0">
-                <StackPanel RelativePanel.AlignLeftWithPanel="True"
-                            RelativePanel.AlignVerticalCenterWithPanel="True"
-                            RelativePanel.LeftOf="AddressBarSelectionDelete">
-                    <TextBlock TextTrimming="CharacterEllipsis"
-                               Text="{x:Bind DisplayName}" />
-                    <TextBlock TextTrimming="CharacterEllipsis"
-                               ToolTipService.ToolTip="{x:Bind Path}"
-                               Text="{x:Bind Path}"
-                               Foreground="Gray"
-                               FontSize="12" />
-                </StackPanel>
-                <Border Height="20"
-                        Width="20"
-                        Padding="5"
-                        Visibility="{x:Bind CloseButtonVisibility}"
-                        RelativePanel.AlignRightWithPanel="True"
-                        x:Name="AddressBarSelectionDelete"
-                        RelativePanel.AlignVerticalCenterWithPanel="True"
-                        PointerPressed="AddressBarSelectionDelete_PointerPressed">
-                    <Viewbox ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}">
-                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xE8BB;" />
-                    </Viewbox>
-                </Border>
-            </RelativePanel>
-        </DataTemplate>
 
         <DataTemplate x:Key="NavNormalRecordTemplate"
                       x:DataType="Cls:NavigationRecordDisplay">
@@ -339,14 +280,50 @@
                             LostFocus="AddressBox_LostFocus"
                             QuerySubmitted="AddressBox_QuerySubmitted"
                             TextChanged="AddressBox_TextChanged"
-                            ItemsSource="{x:Bind AddressSuggestionList}"
-                            ItemTemplateSelector="{StaticResource AddressTemplateSelector}">
+                            ItemsSource="{x:Bind AddressSuggestionList}">
                 <AutoSuggestBox.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="HorizontalContentAlignment"
                                 Value="Stretch" />
                     </Style>
                 </AutoSuggestBox.ItemContainerStyle>
+                <AutoSuggestBox.ItemTemplate>
+                    <DataTemplate x:DataType="Cls:AddressSuggestionItem">
+                        <RelativePanel Padding="0,4"
+                                       HorizontalAlignment="Stretch">
+                            <StackPanel RelativePanel.AlignLeftWithPanel="True"
+                                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                                        RelativePanel.LeftOf="AddressBarSelectionDelete">
+                                <TextBlock Text="{x:Bind DisplayName}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{x:Bind Path}"
+                                           FontSize="12"
+                                           Foreground="Gray"
+                                           x:Name="PathLabel"
+                                           TextTrimming="CharacterEllipsis">
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip Content="{x:Bind Path}"
+                                                    Visibility="{Binding ElementName=PathLabel,Path=IsTextTrimmed}" />
+                                    </ToolTipService.ToolTip>
+                                </TextBlock>
+                            </StackPanel>
+                            <Border Height="22"
+                                    Width="22"
+                                    Padding="5"
+                                    Background="Transparent"
+                                    x:Name="AddressBarSelectionDelete"
+                                    Visibility="{x:Bind DeleteButtonVisibility}"
+                                    RelativePanel.AlignRightWithPanel="True"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True"
+                                    PointerPressed="AddressBarSelectionDelete_PointerPressed">
+                                <Viewbox ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xE8BB;" />
+                                </Viewbox>
+                            </Border>
+                        </RelativePanel>
+                    </DataTemplate>
+                </AutoSuggestBox.ItemTemplate>
             </AutoSuggestBox>
             <ListView HorizontalAlignment="Left"
                       VerticalAlignment="Stretch"

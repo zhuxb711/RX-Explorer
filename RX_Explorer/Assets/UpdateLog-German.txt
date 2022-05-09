@@ -1,29 +1,17 @@
-﻿###Was ist neu in Ver.7.6.8.0
+﻿###Was ist neu in Ver.7.6.9.0
 
-#####Funktionsaktualisierung
+#####Benutzeroberfläche aktualisiert
 
->#####Es ist jetzt möglich, den Fortschritt von Aufgaben zu verfolgen, die mit erhöhten Rechten ausgeführt werden
+>#####Adressfeld fordert jetzt den Dateipfad unter jedem Umgebungsvariablenpfad als Referenz auf
 
 #####Fehlerbehebung
 
->#####Problem behoben, bei dem versteckte Dateien nicht mit dem integrierten Viewer geöffnet werden konnten
+>#####Ein Problem wurde behoben, das dazu führen konnte, dass einige Tabs unerwartet geschlossen wurden, wenn bestimmte Ordner gelöscht wurden
 
->#####Es wurde ein Problem behoben, bei dem Ordner mit Verknüpfungen oder versteckten Dateien nicht komprimiert werden konnten
+>#####Ein Problem wurde behoben, das beim Anschließen eines MTP-Geräts zu einem Absturz führen konnte
 
->#####Ein Problem wurde behoben, bei dem einige Vorschläge relative Pfade oder kurze Dateinamen enthielten, wenn Umgebungsvariablen in das Adressfeld eingegeben wurden
+>#####Es wurde ein Problem behoben, bei dem im Adressfeld keine Pfadvorschläge als Referenz angezeigt wurden
 
->#####Es wurde ein Problem behoben, bei dem das Adressfeld relative Pfade in einigen Fällen möglicherweise nicht korrekt erkennt
-
->#####Es wurde ein Problem behoben, bei dem Dateien, die von einer virtuellen Maschine kopiert wurden, nicht in das Stammverzeichnis des Laufwerks eingefügt werden konnten
-
->#####Das Problem, dass die von der virtuellen Maschine kopierten Dateien aufgrund von Berechtigungsproblemen nicht in den Zielordner eingefügt werden konnten, wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem Kopier-, Verschiebe- oder Löschaufgaben möglicherweise nicht korrekt abgebrochen wurden, wenn sie von erhöhten Rechten ausgeführt wurden
-
->#####Es wurde ein Problem behoben, bei dem die Erstellung von Dateistreams in einigen Fällen fehlschlagen konnte, was zu nicht lesbaren Dateien und langsamer Leistung führen konnte
-
->#####Es wurde ein Problem behoben, das dazu führen konnte, dass in den Suchergebnissen falscher Text hervorgehoben wurde, wenn mit AQS oder regulären Ausdrücken nach Dateien gesucht wurde
-
->#####Das Problem, dass die Seitentaste der Maus noch verwendet werden kann, wenn die Eingabeaufforderung bereits geöffnet ist, wurde behoben
+>#####Einige UI-Probleme mit dem Adressfeld wurden behoben
 
 >#####Einige andere Probleme behoben, die zu Abstürzen führen konnten

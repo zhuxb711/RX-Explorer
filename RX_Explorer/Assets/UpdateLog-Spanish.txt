@@ -1,29 +1,17 @@
-﻿###Novedades de la versión 7.6.8.0
+﻿###Novedades de la versión 7.6.9.0
 
-#####Actualización de funciones
+#####IU actualizada
 
->#####Ahora es posible rastrear el progreso de las tareas ejecutadas con privilegios elevados
+>#####El cuadro de dirección ahora muestra la ruta del archivo debajo de cada ruta de variable de entorno como referencia
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el cual los archivos ocultos no se podían abrir con el visor incorporado
+>#####Se solucionó un problema que podía causar que algunas pestañas se cerraran inesperadamente al eliminar ciertas carpetas
 
->#####Se solucionó un problema por el cual las carpetas que contenían accesos directos o archivos ocultos no se podían comprimir
+>#####Se solucionó un problema que podía provocar un bloqueo al conectar un dispositivo MTP
 
->#####Se solucionó un problema en el que algunas sugerencias contenían rutas relativas o nombres de archivo cortos al ingresar variables de entorno en el cuadro de dirección
+>#####Se solucionó un problema por el cual el cuadro de dirección no mostraba sugerencias de ruta como referencia
 
->#####Se solucionó un problema por el cual el cuadro de dirección podría no reconocer las rutas relativas correctamente en algunos casos
-
->#####Se solucionó un problema por el cual los archivos copiados de una máquina virtual no se podían pegar en la raíz de la unidad
-
->#####Se solucionó el problema de que los archivos copiados de la máquina virtual no se pueden pegar en la carpeta de destino debido a problemas de permisos
-
->#####Se solucionó un problema por el cual las tareas de copiar, mover o eliminar no se cancelaban correctamente cuando se ejecutaban con privilegios elevados
-
->#####Se solucionó un problema por el cual la creación de secuencias de archivos podía fallar en algunos casos, lo que podía generar archivos ilegibles y un rendimiento lento
-
->#####Se solucionó un problema que podía causar que los resultados de búsqueda resaltaran texto incorrecto al buscar archivos usando AQS o expresiones regulares
-
->#####Se solucionó el problema de que el botón lateral del mouse aún se puede usar cuando el cuadro de aviso ya está abierto
+>#####Se corrigieron algunos problemas de la interfaz de usuario con el cuadro de dirección
 
 >#####Se corrigieron algunos otros problemas que podrían causar fallas

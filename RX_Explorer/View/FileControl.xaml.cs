@@ -1830,7 +1830,7 @@ namespace RX_Explorer.View
 
                     foreach (string Path in SQLite.Current.GetRelatedPathHistory())
                     {
-                        AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Visible));
+                        AddressSuggestionList.Add(new AddressSuggestionItem(Path));
                     }
                 }
             }
@@ -1850,7 +1850,7 @@ namespace RX_Explorer.View
 
                         if (string.IsNullOrWhiteSpace(InputPath))
                         {
-                            AddressSuggestionList.AddRange(SQLite.Current.GetRelatedPathHistory().Select((Path) => new AddressSuggestionItem(Path, Visibility.Visible)));
+                            AddressSuggestionList.AddRange(SQLite.Current.GetRelatedPathHistory().Select((Path) => new AddressSuggestionItem(Path)));
                         }
                         else
                         {
@@ -1860,7 +1860,7 @@ namespace RX_Explorer.View
 
                                 if (args.CheckCurrent() && VarSuggestionList.Any())
                                 {
-                                    AddressSuggestionList.AddRange(VarSuggestionList.Select((Pack) => new AddressSuggestionItem(Pack.Variable, Pack.Path, Visibility.Collapsed)));
+                                    AddressSuggestionList.AddRange(VarSuggestionList.Select((Pack) => new AddressSuggestionItem(Pack.Path, Pack.Variable, Visibility.Collapsed)));
                                 }
                             }
                             else
@@ -1889,7 +1889,7 @@ namespace RX_Explorer.View
                                                                                                         ? ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems)
                                                                                                         : ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
 
-                                        await foreach (AddressSuggestionItem Item in SuggestionResult.Take(20).Select((Item) => new AddressSuggestionItem(Item.Path, Visibility.Collapsed)))
+                                        await foreach (AddressSuggestionItem Item in SuggestionResult.Take(20).Select((Item) => new AddressSuggestionItem(Item.Path, Item.DisplayName, Visibility.Collapsed)))
                                         {
                                             if (!args.CheckCurrent())
                                             {
@@ -1920,10 +1920,9 @@ namespace RX_Explorer.View
 
                                     if (args.CheckCurrent())
                                     {
-                                        await foreach (AddressSuggestionItem Item in SuggestionResult.Select((Item) => Item.Path)
-                                                                                                     .Distinct()
+                                        await foreach (AddressSuggestionItem Item in SuggestionResult.Distinct()
                                                                                                      .Take(20)
-                                                                                                     .Select((Path) => new AddressSuggestionItem(Path, Visibility.Collapsed)))
+                                                                                                     .Select((Item) => new AddressSuggestionItem(Item.Path, Item.DisplayName, Visibility.Collapsed)))
                                         {
                                             if (!args.CheckCurrent())
                                             {

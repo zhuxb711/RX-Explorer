@@ -4662,6 +4662,18 @@ Inkorrekte Namen sind
           <source>Unable to save file due to unknown error</source>
           <target state="translated">Datei kann aufgrund eines unbekannten Fehlers nicht gespeichert werden</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_TransocdeFailed_Content" translate="yes" xml:space="preserve">
+          <source>Could not transcode the file due to an unknown error</source>
+          <target state="translated">Impossible de transcoder le fichier en raison d'une erreur inconnue</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_VideoEditFailed_Content" translate="yes" xml:space="preserve">
+          <source>Could not edit the video file due to an unknown error</source>
+          <target state="translated">Impossible de modifier le fichier vidéo en raison d'une erreur inconnue</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_VideoMergeFailed_Content" translate="yes" xml:space="preserve">
+          <source>Could not merge the video file due to an unknown error</source>
+          <target state="translated">Impossible de fusionner le fichier vidéo en raison d'une erreur inconnue</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -3616,4 +3616,13 @@ Invalid names include
   <data name="QueueDialog_SaveFailed_Content" xml:space="preserve">
     <value>Unable to save file due to unknown error</value>
   </data>
+  <data name="QueueDialog_TransocdeFailed_Content" xml:space="preserve">
+    <value>Could not transcode the file due to an unknown error</value>
+  </data>
+  <data name="QueueDialog_VideoEditFailed_Content" xml:space="preserve">
+    <value>Could not edit the video file due to an unknown error</value>
+  </data>
+  <data name="QueueDialog_VideoMergeFailed_Content" xml:space="preserve">
+    <value>Could not merge the video file due to an unknown error</value>
+  </data>
 </root>

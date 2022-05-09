@@ -4662,6 +4662,18 @@ Las denominaciones no válidas son:
           <source>Unable to save file due to unknown error</source>
           <target state="translated">No se puede guardar el archivo debido a un error desconocido</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_TransocdeFailed_Content" translate="yes" xml:space="preserve">
+          <source>Could not transcode the file due to an unknown error</source>
+          <target state="translated">No se pudo transcodificar el archivo debido a un error desconocido</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_VideoEditFailed_Content" translate="yes" xml:space="preserve">
+          <source>Could not edit the video file due to an unknown error</source>
+          <target state="translated">No se pudo editar el archivo de video debido a un error desconocido</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_VideoMergeFailed_Content" translate="yes" xml:space="preserve">
+          <source>Could not merge the video file due to an unknown error</source>
+          <target state="translated">No se pudo fusionar el archivo de video debido a un error desconocido</target>
+        </trans-unit>
       </group>
     </body>
   </file>

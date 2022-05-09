@@ -342,25 +342,40 @@ namespace RX_Explorer.View
 
         private async void TranscodeImage_Click(object sender, RoutedEventArgs e)
         {
-            FileSystemStorageFile Item = PhotoCollection[PhotoFlip.SelectedIndex].PhotoFile;
-
-            BitmapDecoder Decoder = null;
-
-            using (Stream OriginStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+            try
             {
-                Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
+                FileSystemStorageFile Item = PhotoCollection[PhotoFlip.SelectedIndex].PhotoFile;
+
+                BitmapDecoder Decoder = null;
+
+                using (Stream OriginStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                {
+                    Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
+                }
+
+                TranscodeImageDialog Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
+
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    TranscodeLoadingControl.IsLoading = true;
+
+                    await Task.WhenAll(Task.Delay(500), GeneralTransformer.TranscodeFromImageAsync(Item, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode));
+
+                    TranscodeLoadingControl.IsLoading = false;
+                }
             }
-
-            TranscodeImageDialog Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
-
-            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+            catch (Exception ex)
             {
-                TranscodeLoadingControl.IsLoading = true;
+                LogTracer.Log(ex, "Could not transcode the image");
 
-                await GeneralTransformer.TranscodeFromImageAsync(Item, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
-                await Task.Delay(500);
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                    Content = Globalization.GetString("QueueDialog_TransocdeFailed_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
 
-                TranscodeLoadingControl.IsLoading = false;
+                await Dialog.ShowAsync();
             }
         }
 

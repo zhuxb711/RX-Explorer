@@ -1447,16 +1447,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.ConvertToLongPath:
                         {
-                            string Path = CommandValue["Path"];
-
-                            if (Directory.Exists(Path) || File.Exists(Path))
-                            {
-                                Value.Add("Success", Helper.ConvertShortPathToLongPath(Path));
-                            }
-                            else
-                            {
-                                Value.Add("Error", "File or directory is not found");
-                            }
+                            Value.Add("Success", Helper.ConvertShortPathToLongPath(CommandValue["Path"]));
 
                             break;
                         }

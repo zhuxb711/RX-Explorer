@@ -3511,4 +3511,13 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_SaveFailed_Content" xml:space="preserve">
     <value>No se puede guardar el archivo debido a un error desconocido</value>
   </data>
+  <data name="QueueDialog_TransocdeFailed_Content" xml:space="preserve">
+    <value>No se pudo transcodificar el archivo debido a un error desconocido</value>
+  </data>
+  <data name="QueueDialog_VideoEditFailed_Content" xml:space="preserve">
+    <value>No se pudo editar el archivo de video debido a un error desconocido</value>
+  </data>
+  <data name="QueueDialog_VideoMergeFailed_Content" xml:space="preserve">
+    <value>No se pudo fusionar el archivo de video debido a un error desconocido</value>
+  </data>
 </root>

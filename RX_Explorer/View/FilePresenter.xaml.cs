@@ -4173,7 +4173,118 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-            if (!await FileSystemStorageItemBase.CheckExistsAsync(SelectedItem.Path))
+            if (await FileSystemStorageItemBase.CheckExistsAsync(SelectedItem.Path))
+            {
+                if (GeneralTransformer.IsAnyTransformTaskRunning)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_TaskWorking_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+                else
+                {
+                    try
+                    {
+                        switch (SelectedItem.Type.ToLower())
+                        {
+                            case ".mkv":
+                            case ".mp4":
+                            case ".mp3":
+                            case ".flac":
+                            case ".wma":
+                            case ".wmv":
+                            case ".m4a":
+                            case ".mov":
+                            case ".alac":
+                                {
+                                    if (await SelectedItem.GetStorageItemAsync() is StorageFile Source)
+                                    {
+                                        TranscodeDialog dialog = new TranscodeDialog(Source);
+
+                                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                        {
+                                            if (await CurrentFolder.CreateNewSubItemAsync($"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}", StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
+                                            {
+                                                if (await Item.GetStorageItemAsync() is StorageFile DestinationFile)
+                                                {
+                                                    await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp);
+                                                    return;
+                                                }
+                                            }
+
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            await Dialog.ShowAsync();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await Dialog.ShowAsync();
+                                    }
+
+                                    break;
+                                }
+                            case ".png":
+                            case ".bmp":
+                            case ".jpg":
+                            case ".jpeg":
+                            case ".heic":
+                            case ".tiff":
+                                {
+                                    if (SelectedItem is FileSystemStorageFile File)
+                                    {
+                                        BitmapDecoder Decoder = null;
+
+                                        using (Stream OriginStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                                        {
+                                            Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
+                                        }
+
+                                        TranscodeImageDialog Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
+
+                                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                        {
+                                            await GeneralTransformer.TranscodeFromImageAsync(File, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
+                                        }
+                                    }
+
+                                    break;
+                                }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not transcode the file");
+
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_TransocdeFailed_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
+                }
+            }
+            else
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -4183,112 +4294,6 @@ namespace RX_Explorer.View
                 };
 
                 await Dialog.ShowAsync();
-
-                return;
-            }
-
-            if (GeneralTransformer.IsAnyTransformTaskRunning)
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                    Content = Globalization.GetString("QueueDialog_TaskWorking_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                await Dialog.ShowAsync();
-
-                return;
-            }
-
-            switch (SelectedItem.Type.ToLower())
-            {
-                case ".mkv":
-                case ".mp4":
-                case ".mp3":
-                case ".flac":
-                case ".wma":
-                case ".wmv":
-                case ".m4a":
-                case ".mov":
-                case ".alac":
-                    {
-                        if ((await SelectedItem.GetStorageItemAsync()) is StorageFile Source)
-                        {
-                            TranscodeDialog dialog = new TranscodeDialog(Source);
-
-                            if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
-                            {
-                                try
-                                {
-                                    if (await CurrentFolder.CreateNewSubItemAsync($"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}", StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
-                                    {
-                                        if (await Item.GetStorageItemAsync() is StorageFile DestinationFile)
-                                        {
-                                            await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp);
-                                        }
-                                        else
-                                        {
-                                            throw new FileNotFoundException();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new FileNotFoundException();
-                                    }
-                                }
-                                catch (Exception)
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    await Dialog.ShowAsync();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await Dialog.ShowAsync();
-                        }
-
-                        break;
-                    }
-                case ".png":
-                case ".bmp":
-                case ".jpg":
-                case ".jpeg":
-                case ".heic":
-                case ".tiff":
-                    {
-                        if (SelectedItem is FileSystemStorageFile File)
-                        {
-                            BitmapDecoder Decoder = null;
-
-                            using (Stream OriginStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                            {
-                                Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
-                            }
-
-                            TranscodeImageDialog Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
-
-                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                await GeneralTransformer.TranscodeFromImageAsync(File, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
-                            }
-                        }
-
-                        break;
-                    }
             }
         }
 
@@ -5155,18 +5160,45 @@ namespace RX_Explorer.View
             }
             else
             {
-                if ((await SelectedItem.GetStorageItemAsync()) is StorageFile File)
+                if (await SelectedItem.GetStorageItemAsync() is StorageFile File)
                 {
-                    VideoEditDialog Dialog = new VideoEditDialog(File);
-
-                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    try
                     {
-                        if (await CurrentFolder.GetStorageItemAsync() is StorageFolder Folder)
-                        {
-                            StorageFile ExportFile = await Folder.CreateFileAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                        VideoEditDialog Dialog = new VideoEditDialog(File);
 
-                            await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference);
+                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            if (await CurrentFolder.CreateNewSubItemAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+                            {
+                                if (await NewFile.GetStorageItemAsync() is StorageFile ExportFile)
+                                {
+                                    await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference);
+                                    return;
+                                }
+                            }
+
+                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await Dialog1.ShowAsync();
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not edit the video file");
+
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_VideoEditFailed_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
                     }
                 }
                 else
@@ -5198,18 +5230,45 @@ namespace RX_Explorer.View
 
                 await Dialog.ShowAsync();
             }
-            else if (await SelectedItem.GetStorageItemAsync() is StorageFile Item)
+            else if (await SelectedItem.GetStorageItemAsync() is StorageFile File)
             {
-                VideoMergeDialog Dialog = new VideoMergeDialog(Item);
-
-                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                try
                 {
-                    if (await CurrentFolder.GetStorageItemAsync() is StorageFolder Folder)
-                    {
-                        StorageFile ExportFile = await Folder.CreateFileAsync($"{Item.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                    VideoMergeDialog Dialog = new VideoMergeDialog(File);
 
-                        await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding);
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        if (await CurrentFolder.CreateNewSubItemAsync($"{File.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+                        {
+                            if (await NewFile.GetStorageItemAsync() is StorageFile ExportFile)
+                            {
+                                await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding);
+                                return;
+                            }
+                        }
+
+                        QueueContentDialog Dialog1 = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog1.ShowAsync();
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not merge the video files");
+
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_VideoMergeFailed_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
                 }
             }
         }

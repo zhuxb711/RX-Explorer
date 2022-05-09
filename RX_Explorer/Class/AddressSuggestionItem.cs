@@ -4,22 +4,22 @@ namespace RX_Explorer.Class
 {
     public sealed class AddressSuggestionItem
     {
-        public Visibility CloseButtonVisibility { get; }
-
         public string Path { get; }
 
         public string DisplayName { get; }
 
-        public AddressSuggestionItem(string Path, Visibility CloseButtonVisibility) : this(null, Path, CloseButtonVisibility)
-        {
+        public Visibility DeleteButtonVisibility { get; }
 
-        }
-
-        public AddressSuggestionItem(string DisplayName, string Path, Visibility CloseButtonVisibility)
+        public AddressSuggestionItem(string Path, string DisplayName = null, Visibility DeleteButtonVisibility = Visibility.Visible)
         {
             this.Path = Path;
-            this.DisplayName = DisplayName;
-            this.CloseButtonVisibility = CloseButtonVisibility;
+            this.DisplayName = string.IsNullOrEmpty(DisplayName) ? System.IO.Path.GetFileName(Path) : DisplayName;
+            this.DeleteButtonVisibility = DeleteButtonVisibility;
+
+            if (string.IsNullOrEmpty(this.DisplayName))
+            {
+                this.DisplayName = Path;
+            }
         }
     }
 }

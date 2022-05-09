@@ -52,16 +52,14 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                string Tag = "MergeVideoNotification";
-
-                                NotificationData data = new NotificationData
+                                NotificationData Data = new NotificationData
                                 {
                                     SequenceNumber = 0
                                 };
-                                data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
-                                data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+                                Data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
+                                Data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
 
-                                ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                                ToastNotificationManager.CreateToastNotifier().Update(Data, "MergeVideoNotification");
                             }
                             catch (Exception ex)
                             {
@@ -78,19 +76,17 @@ namespace RX_Explorer.Class
                                 ShowMergeCompleteNotification();
                             }).AsTask().Wait();
                         }
-                        catch (AggregateException)
+                        catch (Exception ex)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            if (ex is AggregateException)
                             {
-                                ShowMergeCancelNotification();
-                            }).AsTask().Wait();
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                {
+                                    ShowMergeCancelNotification();
+                                }).AsTask().Wait();
+                            }
 
                             Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
-                        }
-                        catch (Exception)
-                        {
-                            Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
-                            LogTracer.Log("Merge video failed");
                         }
                         finally
                         {
@@ -157,19 +153,17 @@ namespace RX_Explorer.Class
                                 ShowCropCompleteNotification();
                             }).AsTask().Wait();
                         }
-                        catch (AggregateException)
+                        catch (Exception ex)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            if (ex is AggregateException)
                             {
-                                ShowCropCancelNotification();
-                            }).AsTask().Wait();
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                {
+                                    ShowCropCancelNotification();
+                                }).AsTask().Wait();
+                            }
 
                             Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
-                        }
-                        catch (Exception)
-                        {
-                            Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
-                            LogTracer.Log("Crop video failed");
                         }
                         finally
                         {
@@ -230,21 +224,9 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                try
-                {
-                    if (await FileSystemStorageItemBase.CheckExistsAsync(DestinationFile.Path))
-                    {
-                        await DestinationFile.DeleteAsync(true);
-                    }
-                }
-                catch (Exception)
-                {
-                    //No need to handle this exception
-                }
-
-                LogTracer.Log(ex, "Could not transcode the image");
+                await DestinationFile.DeleteAsync(true);
             }
             finally
             {
@@ -350,18 +332,16 @@ namespace RX_Explorer.Class
                                 Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
                             }
                         }
-                        catch (AggregateException)
-                        {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                            {
-                                ShowTranscodeCancelNotification();
-                            }).AsTask().Wait();
-
-                            Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
-                        }
                         catch (Exception ex)
                         {
-                            LogTracer.Log(ex, "Transcode failed");
+                            if (ex is AggregateException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    ShowTranscodeCancelNotification();
+                                }).AsTask().Wait();
+                            }
+
                             Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
                         }
                         finally

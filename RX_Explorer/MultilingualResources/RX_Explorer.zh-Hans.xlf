@@ -4664,6 +4664,18 @@ Invalid names include
           <source>Unable to save file due to unknown error</source>
           <target state="translated">由于未知错误，无法保存文件</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_TransocdeFailed_Content" translate="yes" xml:space="preserve">
+          <source>Could not transcode the file due to an unknown error</source>
+          <target state="translated">由于出现未知错误，无法转码该文件</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_VideoEditFailed_Content" translate="yes" xml:space="preserve">
+          <source>Could not edit the video file due to an unknown error</source>
+          <target state="translated">由于出现未知错误，无法编辑该视频文件</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_VideoMergeFailed_Content" translate="yes" xml:space="preserve">
+          <source>Could not merge the video file due to an unknown error</source>
+          <target state="translated">由于出现未知错误，无法合并该视频文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>
