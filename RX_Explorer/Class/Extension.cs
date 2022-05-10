@@ -1176,6 +1176,13 @@ namespace RX_Explorer.Class
         {
             try
             {
+                uint RequestSize = Mode switch
+                {
+                    ThumbnailMode.ListView => 100,
+                    ThumbnailMode.SingleItem => 240,
+                    _ => 160
+                };
+
                 using (CancellationTokenSource Cancellation = new CancellationTokenSource())
                 {
                     Task<StorageItemThumbnail> GetThumbnailTask;
@@ -1184,7 +1191,7 @@ namespace RX_Explorer.Class
                     {
                         case StorageFolder Folder:
                             {
-                                GetThumbnailTask = Folder.GetThumbnailAsync(Mode, 96, ThumbnailOptions.UseCurrentScale)
+                                GetThumbnailTask = Folder.GetThumbnailAsync(Mode, RequestSize, ThumbnailOptions.UseCurrentScale)
                                                          .AsTask()
                                                          .ContinueWith((PreviousTask) =>
                                                          {
@@ -1210,7 +1217,7 @@ namespace RX_Explorer.Class
                             }
                         case StorageFile File:
                             {
-                                GetThumbnailTask = File.GetThumbnailAsync(Mode, 96, ThumbnailOptions.UseCurrentScale)
+                                GetThumbnailTask = File.GetThumbnailAsync(Mode, RequestSize, ThumbnailOptions.UseCurrentScale)
                                                        .AsTask()
                                                        .ContinueWith((PreviousTask) =>
                                                        {

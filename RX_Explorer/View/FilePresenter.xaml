@@ -466,7 +466,7 @@
                                                 <Grid Padding="5"
                                                       Background="Transparent">
                                                     <Grid.RowDefinitions>
-                                                        <RowDefinition Height="190" />
+                                                        <RowDefinition Height="220" />
                                                         <RowDefinition Height="Auto" />
                                                         <RowDefinition Height="8" />
                                                     </Grid.RowDefinitions>
@@ -475,7 +475,7 @@
                                                            Source="{x:Bind Thumbnail,Mode=OneWay}"
                                                            Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                                                            x:Phase="1"
-                                                           Width="240" />
+                                                           Width="260" />
                                                     <Image x:Name="ThumbnailOverlay"
                                                            Margin="15,0,0,0"
                                                            Width="60"

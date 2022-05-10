@@ -53,7 +53,7 @@ namespace SystemLaunchHelper
 
                                             using (StreamWriter Writer = new StreamWriter(TempFileStream, Encoding.Unicode))
                                             {
-                                                Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"{CurrentPath.Replace(@"\", @"\\")} \\\"%L\\\""));
+                                                Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"\\\"{CurrentPath.Replace(@"\", @"\\")}\\\" \\\"%L\\\""));
                                             }
                                         }
 
@@ -84,7 +84,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Key != null)
                                             {
-                                                if (!Convert.ToString(Key.GetValue(string.Empty)).StartsWith(CurrentPath, StringComparison.OrdinalIgnoreCase) || Key.GetValue("DelegateExecute") != null)
+                                                if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase) || Key.GetValue("DelegateExecute") != null)
                                                 {
                                                     IsRegistryCheckingSuccess = false;
                                                 }
@@ -109,7 +109,7 @@ namespace SystemLaunchHelper
 
                                     if (!IsRegistryCheckingSuccess)
                                     {
-                                        ExitCode = 1;
+                                        ExitCode = 2;
                                     }
                                 }
 
@@ -132,7 +132,7 @@ namespace SystemLaunchHelper
 
                                             using (StreamWriter Writer = new StreamWriter(TempFileStream, Encoding.Unicode))
                                             {
-                                                Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"{CurrentPath.Replace(@"\", @"\\")} \\\"%L\\\""));
+                                                Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"\\\"{CurrentPath.Replace(@"\", @"\\")}\\\" \\\"%L\\\""));
                                             }
                                         }
 
@@ -163,7 +163,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Key != null)
                                             {
-                                                if (!Convert.ToString(Key.GetValue(string.Empty)).StartsWith(CurrentPath, StringComparison.OrdinalIgnoreCase))
+                                                if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     IsRegistryCheckingSuccess = false;
                                                 }
@@ -174,7 +174,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Key != null)
                                             {
-                                                if (!Convert.ToString(Key.GetValue(string.Empty)).StartsWith(CurrentPath, StringComparison.OrdinalIgnoreCase))
+                                                if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     IsRegistryCheckingSuccess = false;
                                                 }
@@ -199,7 +199,7 @@ namespace SystemLaunchHelper
 
                                     if (!IsRegistryCheckingSuccess)
                                     {
-                                        ExitCode = 1;
+                                        ExitCode = 2;
                                     }
                                 }
 
@@ -249,9 +249,58 @@ namespace SystemLaunchHelper
 #endif
                                 }
 
-                                if (!IsRegistryCheckingSuccess)
+                                if (IsRegistryCheckingSuccess)
                                 {
-                                    ExitCode = 1;
+                                    bool IsAnotherRegistryKeyExists = false;
+
+                                    try
+                                    {
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("Directory", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                        {
+                                            if (Key != null)
+                                            {
+                                                if (Convert.ToString(Key.GetValue("DelegateExecute")) != "{11dbb47c-a525-400b-9e80-a54615a090c0}" || !string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
+                                                {
+                                                    IsAnotherRegistryKeyExists = true;
+                                                }
+                                            }
+                                        }
+
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Drive", false)?.OpenSubKey("shell", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                        {
+                                            if (Key != null)
+                                            {
+                                                if (!string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
+                                                {
+                                                    IsAnotherRegistryKeyExists = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+#if DEBUG
+                                        if (Debugger.IsAttached)
+                                        {
+                                            Debugger.Break();
+                                        }
+                                        else
+                                        {
+                                            Debugger.Launch();
+                                        }
+
+                                        Debug.WriteLine($"Registry checking failed, message: {ex.Message}");
+#endif
+                                    }
+
+                                    if (IsAnotherRegistryKeyExists)
+                                    {
+                                        ExitCode = 1;
+                                    }
+                                }
+                                else
+                                {
+                                    ExitCode = 2;
                                 }
 
                                 break;
@@ -311,9 +360,47 @@ namespace SystemLaunchHelper
 #endif
                                 }
 
-                                if (!IsRegistryCheckingSuccess)
+                                if (IsRegistryCheckingSuccess)
                                 {
-                                    ExitCode = 1;
+                                    bool IsAnotherRegistryKeyExists = false;
+
+                                    try
+                                    {
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false))
+                                        {
+                                            if (Key != null)
+                                            {
+                                                if (Convert.ToString(Key.GetValue("DelegateExecute")) != "{11dbb47c-a525-400b-9e80-a54615a090c0}" || !string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
+                                                {
+                                                    IsAnotherRegistryKeyExists = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+#if DEBUG
+                                        if (Debugger.IsAttached)
+                                        {
+                                            Debugger.Break();
+                                        }
+                                        else
+                                        {
+                                            Debugger.Launch();
+                                        }
+
+                                        Debug.WriteLine($"Registry checking failed, message: {ex.Message}");
+#endif
+                                    }
+
+                                    if (IsAnotherRegistryKeyExists)
+                                    {
+                                        ExitCode = 1;
+                                    }
+                                }
+                                else
+                                {
+                                    ExitCode = 2;
                                 }
 
                                 break;
@@ -478,7 +565,7 @@ namespace SystemLaunchHelper
             }
             catch (Exception ex)
             {
-                ExitCode = 2;
+                ExitCode = 3;
 
 #if DEBUG
                 if (Debugger.IsAttached)

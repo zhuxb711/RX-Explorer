@@ -12,6 +12,7 @@
 	<SelfContained>true</SelfContained>
 	<PublishSingleFile>true</PublishSingleFile>
 	<TieredCompilation>true</TieredCompilation>
+	<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)' == 'x64'">
 	<RuntimeIdentifier>win-x64</RuntimeIdentifier>

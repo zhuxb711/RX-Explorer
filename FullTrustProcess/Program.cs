@@ -2200,7 +2200,7 @@ namespace FullTrustProcess
                             string PartialVariable = CommandValue["PartialVariable"];
 
 
-                            IEnumerable<KeyValuePair<string,string>> AllEnvironmentVariables = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
+                            IEnumerable<KeyValuePair<string, string>> AllEnvironmentVariables = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
                                                                                                                                     .Select((Pair) => new KeyValuePair<string, string>(Convert.ToString(Pair.Key), Path.GetFullPath(Convert.ToString(Pair.Value))))
                                                                                                                                     .Where((Pair) => Directory.Exists(Pair.Value));
 
@@ -2740,11 +2740,12 @@ namespace FullTrustProcess
                                 switch (HelperProcess.ExitCode)
                                 {
                                     case 0:
+                                    case 1:
                                         {
                                             Value.Add("Success", string.Empty);
                                             break;
                                         }
-                                    case 1:
+                                    case 2:
                                         {
                                             Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                             break;
@@ -2778,11 +2779,12 @@ namespace FullTrustProcess
                                 switch (HelperProcess.ExitCode)
                                 {
                                     case 0:
+                                    case 1:
                                         {
                                             Value.Add("Success", string.Empty);
                                             break;
                                         }
-                                    case 1:
+                                    case 2:
                                         {
                                             Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                             break;
@@ -2799,17 +2801,27 @@ namespace FullTrustProcess
                         }
                     case CommandType.RestoreFolderInterception:
                         {
-                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
+                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
+                            string SystemLaunchHelperOriginExecutable = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
+                            string SystemLaunchHelperTargetExecutable = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
 
-                            Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-
-                            using (Process HelperProcess = Process.Start(new ProcessStartInfo
+                            ProcessStartInfo ProcessInfo = new ProcessStartInfo
                             {
-                                FileName = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe"),
                                 UseShellExecute = false,
                                 Arguments = "-Command RestoreFolder",
-                            }))
+                            };
+
+                            if (File.Exists(SystemLaunchHelperTargetExecutable))
+                            {
+                                ProcessInfo.FileName = SystemLaunchHelperTargetExecutable;
+                            }
+                            else
+                            {
+                                ProcessInfo.FileName = SystemLaunchHelperOriginExecutable;
+                            }
+
+                            using (Process HelperProcess = Process.Start(ProcessInfo))
                             {
                                 HelperProcess.WaitForExit();
 
@@ -2817,15 +2829,19 @@ namespace FullTrustProcess
                                 {
                                     case 0:
                                         {
-                                            if (!Convert.ToBoolean(Windows.Storage.ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"]))
+                                            if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
                                             {
                                                 Directory.Delete(SystemLaunchHelperTargetBaseFolder, true);
                                             }
 
+                                            goto case 1;
+                                        }
+                                    case 1:
+                                        {
                                             Value.Add("Success", string.Empty);
                                             break;
                                         }
-                                    case 1:
+                                    case 2:
                                         {
                                             Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                             break;
@@ -2842,17 +2858,27 @@ namespace FullTrustProcess
                         }
                     case CommandType.RestoreWinEInterception:
                         {
-                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
                             string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
+                            string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
+                            string SystemLaunchHelperOriginExecutable = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
+                            string SystemLaunchHelperTargetExecutable = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
 
-                            Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
-
-                            using (Process HelperProcess = Process.Start(new ProcessStartInfo
+                            ProcessStartInfo ProcessInfo = new ProcessStartInfo
                             {
-                                FileName = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe"),
                                 UseShellExecute = false,
                                 Arguments = "-Command RestoreWinE",
-                            }))
+                            };
+
+                            if (File.Exists(SystemLaunchHelperTargetExecutable))
+                            {
+                                ProcessInfo.FileName = SystemLaunchHelperTargetExecutable;
+                            }
+                            else
+                            {
+                                ProcessInfo.FileName = SystemLaunchHelperOriginExecutable;
+                            }
+
+                            using (Process HelperProcess = Process.Start(ProcessInfo))
                             {
                                 HelperProcess.WaitForExit();
 
@@ -2860,15 +2886,19 @@ namespace FullTrustProcess
                                 {
                                     case 0:
                                         {
-                                            if (!Convert.ToBoolean(Windows.Storage.ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"]))
+                                            if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
                                             {
                                                 Directory.Delete(SystemLaunchHelperTargetBaseFolder, true);
                                             }
 
+                                            goto case 1;
+                                        }
+                                    case 1:
+                                        {
                                             Value.Add("Success", string.Empty);
                                             break;
                                         }
-                                    case 1:
+                                    case 2:
                                         {
                                             Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                             break;

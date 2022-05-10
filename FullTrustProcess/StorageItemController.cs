@@ -231,6 +231,7 @@ namespace FullTrustProcess
             HashSet<string> WellKnownSID = new HashSet<string>(8)
             {
                 "S-1-1-0",
+                "S-1-3-0",
                 "S-1-5-11",
                 "S-1-5-18",
                 "S-1-5-32-544",
@@ -245,53 +246,61 @@ namespace FullTrustProcess
             foreach (IGrouping<IdentityReference, FileSystemAccessRule> RuleGroupByAccount in Security.GetAccessRules(true, true, typeof(NTAccount)).Cast<FileSystemAccessRule>()
                                                                                                                                                     .GroupBy((Rule) => Rule.IdentityReference))
             {
-                SecurityIdentifier SecurityId = new SecurityIdentifier(RuleGroupByAccount.Key.Translate(typeof(SecurityIdentifier)).Value);
-                byte[] SidBuffer = new byte[SecurityId.BinaryLength];
-                SecurityId.GetBinaryForm(SidBuffer, 0);
-
-                int CchName = 256;
-                int CchRefDomainName = 256;
-                StringBuilder Name = new StringBuilder(CchName);
-                StringBuilder Domain = new StringBuilder(CchRefDomainName);
-                AccountType Type = AccountType.Unknown;
-
-                if (AdvApi32.LookupAccountSid(null, SidBuffer, Name, ref CchName, Domain, ref CchRefDomainName, out AdvApi32.SID_NAME_USE SidType))
+                try
                 {
-                    switch (SidType)
-                    {
-                        case AdvApi32.SID_NAME_USE.SidTypeGroup:
-                        case AdvApi32.SID_NAME_USE.SidTypeWellKnownGroup:
-                        case AdvApi32.SID_NAME_USE.SidTypeAlias:
-                            {
-                                Type = AccountType.Group;
-                                break;
-                            }
-                        case AdvApi32.SID_NAME_USE.SidTypeUser:
-                            {
-                                Type = AccountType.User;
-                                break;
-                            }
-                    }
-                }
+                    SecurityIdentifier SecurityId = new SecurityIdentifier(RuleGroupByAccount.Key.Translate(typeof(SecurityIdentifier)).Value);
 
-                PermissionsResult.Add(new PermissionDataPackage
-                (
-                    Type switch
+                    byte[] SidBuffer = new byte[SecurityId.BinaryLength];
+                    SecurityId.GetBinaryForm(SidBuffer, 0);
+
+                    int CchName = 256;
+                    int CchRefDomainName = 256;
+                    StringBuilder Name = new StringBuilder(CchName);
+                    StringBuilder Domain = new StringBuilder(CchRefDomainName);
+                    AccountType Type = AccountType.Unknown;
+
+                    if (AdvApi32.LookupAccountSid(null, SidBuffer, Name, ref CchName, Domain, ref CchRefDomainName, out AdvApi32.SID_NAME_USE SidType))
                     {
-                        AccountType.User or AccountType.Group => WellKnownSID.Contains(SecurityId.Value) ? Name.ToString() : $"{Domain}\\{Name}",
-                        _ => RuleGroupByAccount.Key.Value
-                    },
-                    Type,
-                    new Dictionary<Permissions, bool>
-                    {
+                        switch (SidType)
+                        {
+                            case AdvApi32.SID_NAME_USE.SidTypeGroup:
+                            case AdvApi32.SID_NAME_USE.SidTypeWellKnownGroup:
+                            case AdvApi32.SID_NAME_USE.SidTypeAlias:
+                                {
+                                    Type = AccountType.Group;
+                                    break;
+                                }
+                            case AdvApi32.SID_NAME_USE.SidTypeUser:
+                                {
+                                    Type = AccountType.User;
+                                    break;
+                                }
+                        }
+                    }
+
+                    PermissionsResult.Add(new PermissionDataPackage
+                    (
+                        Type switch
+                        {
+                            AccountType.User or AccountType.Group => (WellKnownSID.Contains(SecurityId.Value) || string.IsNullOrEmpty(Domain.ToString())) ? Name.ToString() : $"{Domain}\\{Name}",
+                            _ => RuleGroupByAccount.Key.Value
+                        },
+                        Type,
+                        new Dictionary<Permissions, bool>
+                        {
                         { Permissions.FullControl, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.FullControl) },
                         { Permissions.Modify, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Modify) },
                         { Permissions.ListDirectory, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.ListDirectory) },
                         { Permissions.ReadAndExecute, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.ReadAndExecute) },
                         { Permissions.Read, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Read) },
                         { Permissions.Write, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Write) },
-                    }
-                ));
+                        }
+                    ));
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not load the permission of {RuleGroupByAccount.Key.Value}");
+                }
             }
 
             return PermissionsResult;
