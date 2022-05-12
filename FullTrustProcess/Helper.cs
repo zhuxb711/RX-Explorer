@@ -114,15 +114,16 @@ namespace FullTrustProcess
                             {
                                 int OverlayImage = ImageList.Interface.GetOverlayImage(OverlayIndex);
 
-                                using (User32.SafeHICON OverlayIcon = ImageList.Interface.GetIcon(OverlayImage, ComCtl32.IMAGELISTDRAWFLAGS.ILD_TRANSPARENT | ComCtl32.IMAGELISTDRAWFLAGS.ILD_PRESERVEALPHA))
+                                using (User32.SafeHICON OverlayIcon = ImageList.Interface.GetIcon(OverlayImage, ComCtl32.IMAGELISTDRAWFLAGS.ILD_PRESERVEALPHA))
                                 {
                                     if (!OverlayIcon.IsNull && !OverlayIcon.IsInvalid)
                                     {
-                                        using (Bitmap IconBitmap = Bitmap.FromHicon(OverlayIcon.DangerousGetHandle()))
+                                        using (Bitmap OriginBitmap = Bitmap.FromHicon(OverlayIcon.DangerousGetHandle()))
                                         using (MemoryStream MStream = new MemoryStream())
                                         {
-                                            IconBitmap.MakeTransparent(Color.Black);
-                                            IconBitmap.Save(MStream, ImageFormat.Png);
+                                            OriginBitmap.MakeTransparent(Color.Black);
+                                            OriginBitmap.Save(MStream, ImageFormat.Png);
+
                                             return MStream.ToArray();
                                         }
                                     }

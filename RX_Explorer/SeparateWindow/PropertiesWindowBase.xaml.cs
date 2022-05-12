@@ -287,19 +287,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
                                     FileLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                                    if (File is IUnsupportedStorageItem)
+                                    if (File is MTPStorageFile)
                                     {
-                                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Tools_Tab")));
-                                    }
-
-                                    if (File is IMTPStorageItem)
-                                    {
-                                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Security_Tab")));
+                                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock)?.Text == Globalization.GetString("Properties_Tools_Tab")));
+                                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock)?.Text == Globalization.GetString("Properties_Security_Tab")));
                                     }
 
                                     if (File is not (LinkStorageFile or UrlStorageFile))
                                     {
-                                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
+                                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock)?.Text == Globalization.GetString("Properties_Shortcut_Tab")));
                                     }
 
                                     break;
@@ -429,9 +425,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                         AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(FolderReadonlyAttribute.IsChecked.Value ? ModifyAttributeAction.Add : ModifyAttributeAction.Remove, System.IO.FileAttributes.ReadOnly));
                                     }
 
-                                    if (FolderHiddenAttribute.IsChecked.GetValueOrDefault() != (StorageItem is IHiddenStorageItem))
+                                    if (FolderHiddenAttribute.IsChecked.GetValueOrDefault() != StorageItem.IsHiddenItem)
                                     {
-                                        AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem is IHiddenStorageItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
+                                        AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem.IsHiddenItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
                                     }
 
                                     if (StorageItems.Length == 1 && FolderStorageItemName.Text != StorageItem.Name)
@@ -455,9 +451,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                         AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(File.IsReadOnly ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.ReadOnly));
                                     }
 
-                                    if (FileHiddenAttribute.IsChecked.GetValueOrDefault() != (StorageItem is IHiddenStorageItem))
+                                    if (FileHiddenAttribute.IsChecked.GetValueOrDefault() != StorageItem.IsHiddenItem)
                                     {
-                                        AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem is IHiddenStorageItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
+                                        AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem.IsHiddenItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
                                     }
 
                                     if (StorageItems.Length == 1 && FileStorageItemName.Text != StorageItem.Name)
@@ -1137,9 +1133,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         MultiSizeContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
                         MultiSizeOnDiskContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
                         MultiLocationContent.Text = StorageItems.Skip(1).All((Item) => Path.GetDirectoryName(Item.Path).Equals(Path.GetDirectoryName(StorageItems.First().Path), StringComparison.OrdinalIgnoreCase)) ? $"{Globalization.GetString("MultiProperty_Location_Text")} {Path.GetDirectoryName(StorageItems.First().Path) ?? StorageItems.First().Path}" : Globalization.GetString("MultiProperty_DiffLocation_Text");
-                        MultiHiddenAttribute.IsChecked = StorageItems.All((Item) => Item is IHiddenStorageItem)
+                        MultiHiddenAttribute.IsChecked = StorageItems.All((Item) => Item.IsHiddenItem)
                                                                       ? true
-                                                                      : (StorageItems.Any((Item) => Item is IHiddenStorageItem)
+                                                                      : (StorageItems.Any((Item) => Item.IsHiddenItem)
                                                                             ? null
                                                                             : false);
                         MultiReadonlyAttribute.IsChecked = StorageItems.Any((Item) => Item is FileSystemStorageFolder)
@@ -1224,7 +1220,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FolderContainsContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
                                     FolderLocationContent.Text = Path.GetDirectoryName(Folder.Path) ?? Folder.Path;
                                     FolderCreatedContent.Text = Folder.CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || Folder.CreationTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : Folder.CreationTime.ToString("F");
-                                    FolderHiddenAttribute.IsChecked = Folder is IHiddenStorageItem;
+                                    FolderHiddenAttribute.IsChecked = Folder.IsHiddenItem;
                                     FolderReadonlyAttribute.IsChecked = null;
                                     FolderHiddenAttribute.IsEnabled = Folder is not IMTPStorageItem;
                                     FolderReadonlyAttribute.IsEnabled = Folder is not IMTPStorageItem;
@@ -1265,7 +1261,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileLocationContent.Text = Path.GetDirectoryName(File.Path) ?? File.Path;
                                     FileCreatedContent.Text = File.CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || File.CreationTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.CreationTime.ToString("F");
                                     FileModifiedContent.Text = File.ModifiedTime == DateTimeOffset.MaxValue.ToLocalTime() || File.ModifiedTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.ModifiedTime.ToString("F");
-                                    FileHiddenAttribute.IsChecked = File is IHiddenStorageItem;
+                                    FileHiddenAttribute.IsChecked = File.IsHiddenItem;
                                     FileHiddenAttribute.IsEnabled = File is not IMTPStorageItem;
                                     FileReadonlyAttribute.IsEnabled = File is not IMTPStorageItem;
 
@@ -1288,7 +1284,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                 }
                                             }
                                         }
-                                        else if (File is not IUnsupportedStorageItem)
+                                        else
                                         {
                                             IReadOnlyDictionary<string, string> DescriptionResult = await File.GetPropertiesAsync(new string[] { "System.FileDescription" });
                                             Description = DescriptionResult["System.FileDescription"];

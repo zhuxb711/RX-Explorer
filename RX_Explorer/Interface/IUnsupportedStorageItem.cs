@@ -1,10 +1,9 @@
-﻿using System.ComponentModel;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace RX_Explorer.Interface
 {
-    public interface IUnsupportedStorageItem : IStorageItemPropertiesBase, INotifyPropertyChanged
+    public interface IUnsupportedStorageItem<T> where T : class
     {
-
+        public Task<T> GetRawDataAsync();
     }
 }

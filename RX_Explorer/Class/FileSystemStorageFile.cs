@@ -35,21 +35,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override bool IsSystemItem
-        {
-            get
-            {
-                if (StorageItem == null)
-                {
-                    return base.IsSystemItem;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
         private static readonly Uri Const_File_Image_Uri = AppThemeController.Current.Theme == ElementTheme.Dark
                                                                 ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
                                                                 : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
@@ -192,7 +177,10 @@ namespace RX_Explorer.Class
         {
             try
             {
-                return StorageItem ??= await StorageFile.GetFileFromPathAsync(Path);
+                if (!IsHiddenItem && !IsSystemItem)
+                {
+                    return StorageItem ??= await StorageFile.GetFileFromPathAsync(Path);
+                }
             }
             catch (FileNotFoundException)
             {

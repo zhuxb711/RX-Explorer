@@ -16,6 +16,9 @@ namespace ShareClassLibrary
         [JsonIgnore]
         public bool IsSystemItem => Attributes.HasFlag(FileAttributes.System);
 
+        [JsonIgnore]
+        public bool IsHiddenItem => Attributes.HasFlag(FileAttributes.Hidden);
+
         public FileAttributes Attributes { get; }
 
         public DateTimeOffset CreationTime { get; }

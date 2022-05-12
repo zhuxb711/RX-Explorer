@@ -14,6 +14,8 @@ namespace RX_Explorer.Class
 
         public bool IsSystemItem => Attributes.HasFlag(FileAttributes.System);
 
+        public bool IsHiddenItem => Attributes.HasFlag(FileAttributes.Hidden);
+
         public bool IsDataValid { get; } = true;
 
         public FileAttributes Attributes { get; }

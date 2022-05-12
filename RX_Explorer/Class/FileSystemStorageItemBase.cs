@@ -51,9 +51,27 @@ namespace RX_Explorer.Class
         }
 
         private int IsContentLoaded;
+        private double InnerThumbnailOpacity = 1;
         private RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerSharedRef;
 
-        public double ThumbnailOpacity { get; private set; } = 1;
+        public double ThumbnailOpacity
+        {
+            get
+            {
+                if (IsHiddenItem)
+                {
+                    return 0.5;
+                }
+                else
+                {
+                    return InnerThumbnailOpacity;
+                }
+            }
+            private set
+            {
+                InnerThumbnailOpacity = value;
+            }
+        }
 
         public virtual ulong Size { get; protected set; }
 
@@ -100,6 +118,8 @@ namespace RX_Explorer.Class
         public virtual bool IsReadOnly { get; protected set; }
 
         public virtual bool IsSystemItem { get; protected set; }
+
+        public virtual bool IsHiddenItem { get; protected set; }
 
         protected virtual bool ShouldGenerateThumbnail => (this is FileSystemStorageFile && SettingPage.ContentLoadMode == LoadMode.OnlyFile) || SettingPage.ContentLoadMode == LoadMode.All;
 
@@ -451,6 +471,7 @@ namespace RX_Explorer.Class
                 Size = Data.Size;
                 IsReadOnly = Data.IsReadOnly;
                 IsSystemItem = Data.IsSystemItem;
+                IsHiddenItem = Data.IsHiddenItem;
                 ModifiedTime = Data.ModifiedTime;
                 CreationTime = Data.CreationTime;
             }
@@ -463,6 +484,7 @@ namespace RX_Explorer.Class
                 Size = Data.Size;
                 IsReadOnly = Data.IsReadOnly;
                 IsSystemItem = Data.IsSystemItem;
+                IsHiddenItem = Data.IsHiddenItem;
                 ModifiedTime = Data.ModifiedTime;
                 CreationTime = Data.CreationTime;
             }
@@ -478,23 +500,26 @@ namespace RX_Explorer.Class
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
-        public virtual void SetThumbnailStatus(ThumbnailStatus Status)
+        public void SetThumbnailStatus(ThumbnailStatus Status)
         {
-            switch (Status)
+            if (!IsHiddenItem)
             {
-                case ThumbnailStatus.Normal:
-                    {
-                        ThumbnailOpacity = 1;
-                        break;
-                    }
-                case ThumbnailStatus.HalfOpacity:
-                    {
-                        ThumbnailOpacity = 0.5;
-                        break;
-                    }
-            }
+                switch (Status)
+                {
+                    case ThumbnailStatus.Normal:
+                        {
+                            ThumbnailOpacity = 1;
+                            break;
+                        }
+                    case ThumbnailStatus.HalfOpacity:
+                        {
+                            ThumbnailOpacity = 0.5;
+                            break;
+                        }
+                }
 
-            OnPropertyChanged(nameof(ThumbnailOpacity));
+                OnPropertyChanged(nameof(ThumbnailOpacity));
+            }
         }
 
 

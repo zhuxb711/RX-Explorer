@@ -1919,12 +1919,14 @@ namespace FullTrustProcess
                             if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
                                 using (ShellItem Item = new ShellItem(ExecutePath))
-                                using (Gdi32.SafeHBITMAP ThumbnailPtr = Item.GetImage(new SIZE(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
-                                using (Bitmap OriginBitmap = Image.FromHbitmap(ThumbnailPtr.DangerousGetHandle()))
+                                using (Gdi32.SafeHBITMAP HBitmap = Item.GetImage(new SIZE(150, 150), ShellItemGetImageOptions.BiggerSizeOk))
+                                using (Bitmap OriginBitmap = Image.FromHbitmap(HBitmap.DangerousGetHandle()))
                                 using (MemoryStream Stream = new MemoryStream())
                                 {
-                                    OriginBitmap.MakeTransparent(Color.Black);
-                                    OriginBitmap.Save(Stream, ImageFormat.Png);
+                                    using (Bitmap ConvertedBitmap = OriginBitmap.ConvertToBitmapWithAlphaChannel())
+                                    {
+                                        ConvertedBitmap?.Save(Stream, ImageFormat.Png);
+                                    }
 
                                     Value.Add("Success", JsonSerializer.Serialize(Stream.ToArray()));
                                 }
@@ -1984,40 +1986,6 @@ namespace FullTrustProcess
                             string ExecutePath = CommandValue["ExecutePath"];
 
                             Value.Add("Success", Helper.GetMIMEFromPath(ExecutePath));
-
-                            break;
-                        }
-                    case CommandType.GetHiddenItemData:
-                        {
-                            string ExecutePath = CommandValue["ExecutePath"];
-
-                            using (ShellItem Item = new ShellItem(ExecutePath))
-                            {
-                                HiddenFileData Package = new HiddenFileData
-                                {
-                                    DisplayType = Item.FileInfo.TypeName
-                                };
-
-                                try
-                                {
-                                    using (Gdi32.SafeHBITMAP ThumbnailPtr = Item.GetImage(new SIZE(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
-                                    using (Bitmap OriginBitmap = Image.FromHbitmap(ThumbnailPtr.DangerousGetHandle()))
-                                    using (MemoryStream IconStream = new MemoryStream())
-                                    {
-                                        OriginBitmap.MakeTransparent(Color.Black);
-                                        OriginBitmap.Save(IconStream, ImageFormat.Png);
-
-                                        Package.IconData = IconStream.ToArray();
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex, "Could not get the icon");
-                                    Package.IconData = Array.Empty<byte>();
-                                }
-
-                                Value.Add("Success", JsonSerializer.Serialize(Package));
-                            }
 
                             break;
                         }
@@ -2563,12 +2531,15 @@ namespace FullTrustProcess
                                     string DefaultProgramPath = ExtensionAssociation.GetDefaultProgramPathFromExtension(".html");
 
                                     using (ShellItem DefaultProgramItem = new ShellItem(DefaultProgramPath))
-                                    using (Gdi32.SafeHBITMAP IconRawPtr = DefaultProgramItem.GetImage(new SIZE(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.IconOnly))
+                                    using (Gdi32.SafeHBITMAP HBitmap = DefaultProgramItem.GetImage(new SIZE(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.IconOnly))
                                     using (MemoryStream IconStream = new MemoryStream())
-                                    using (Bitmap TempBitmap = Image.FromHbitmap(IconRawPtr.DangerousGetHandle()))
+                                    using (Bitmap OriginBitmap = Image.FromHbitmap(HBitmap.DangerousGetHandle()))
                                     {
-                                        TempBitmap.MakeTransparent(Color.Black);
-                                        TempBitmap.Save(IconStream, ImageFormat.Png);
+                                        using (Bitmap ConvertedBitmap = OriginBitmap.ConvertToBitmapWithAlphaChannel())
+                                        {
+                                            ConvertedBitmap?.Save(IconStream, ImageFormat.Png);
+                                        }
+
                                         IconData = IconStream.ToArray();
                                     }
                                 }
@@ -2624,12 +2595,14 @@ namespace FullTrustProcess
                                         try
                                         {
                                             using (ShellItem Item = new ShellItem(ActualPath))
-                                            using (Gdi32.SafeHBITMAP IconRawPtr = Item.GetImage(new SIZE(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
+                                            using (Gdi32.SafeHBITMAP HBitmap = Item.GetImage(new SIZE(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
                                             using (MemoryStream IconStream = new MemoryStream())
-                                            using (Bitmap TempBitmap = Image.FromHbitmap(IconRawPtr.DangerousGetHandle()))
+                                            using (Bitmap OriginBitmap = Image.FromHbitmap(HBitmap.DangerousGetHandle()))
                                             {
-                                                TempBitmap.MakeTransparent(Color.Black);
-                                                TempBitmap.Save(IconStream, ImageFormat.Png);
+                                                using (Bitmap ConvertedBitmap = OriginBitmap.ConvertToBitmapWithAlphaChannel())
+                                                {
+                                                    ConvertedBitmap?.Save(IconStream, ImageFormat.Png);
+                                                }
 
                                                 Package.IconData = IconStream.ToArray();
                                             }
@@ -2694,12 +2667,14 @@ namespace FullTrustProcess
 
                                             try
                                             {
-                                                using (Gdi32.SafeHBITMAP IconRawPtr = Link.GetImage(new SIZE(120, 120), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ScaleUp))
+                                                using (Gdi32.SafeHBITMAP HBitmap = Link.GetImage(new SIZE(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
                                                 using (MemoryStream IconStream = new MemoryStream())
-                                                using (Bitmap TempBitmap = Image.FromHbitmap(IconRawPtr.DangerousGetHandle()))
+                                                using (Bitmap OriginBitmap = Image.FromHbitmap(HBitmap.DangerousGetHandle()))
                                                 {
-                                                    TempBitmap.MakeTransparent(Color.Black);
-                                                    TempBitmap.Save(IconStream, ImageFormat.Png);
+                                                    using (Bitmap ConvertedBitmap = OriginBitmap.ConvertToBitmapWithAlphaChannel())
+                                                    {
+                                                        ConvertedBitmap?.Save(IconStream, ImageFormat.Png);
+                                                    }
 
                                                     Package.IconData = IconStream.ToArray();
                                                 }

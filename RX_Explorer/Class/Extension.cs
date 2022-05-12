@@ -4,6 +4,7 @@ using RX_Explorer.Interface;
 using RX_Explorer.View;
 using ShareClassLibrary;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -188,30 +189,32 @@ namespace RX_Explorer.Class
             {
                 Package.Properties.PackageFamilyName = Windows.ApplicationModel.Package.Current.Id.FamilyName;
 
-                IEnumerable<FileSystemStorageItemBase> StorageItems = Collection.Where((Item) => Item is not IUnsupportedStorageItem);
-                IEnumerable<FileSystemStorageItemBase> NotStorageItems = Collection.Where((Item) => Item is IUnsupportedStorageItem);
+                ConcurrentBag<string> PathList = new ConcurrentBag<string>();
+                ConcurrentBag<IStorageItem> StorageItemList = new ConcurrentBag<IStorageItem>();
 
-                if (StorageItems.Any())
+                await Task.Run(() =>
                 {
-                    List<IStorageItem> TempItemList = new List<IStorageItem>();
-
-                    foreach (FileSystemStorageItemBase Item in StorageItems)
+                    Parallel.ForEach(Collection, (Item) =>
                     {
-                        if (await Item.GetStorageItemAsync() is IStorageItem It)
+                        if (Item.GetStorageItemAsync().Result is IStorageItem StorageItem)
                         {
-                            TempItemList.Add(It);
+                            StorageItemList.Add(StorageItem);
                         }
-                    }
+                        else
+                        {
+                            PathList.Add(Item.Path);
+                        }
+                    });
+                });
 
-                    if (TempItemList.Count > 0)
-                    {
-                        Package.SetStorageItems(TempItemList, false);
-                    }
+                if (!StorageItemList.IsEmpty)
+                {
+                    Package.SetStorageItems(StorageItemList, false);
                 }
 
-                if (NotStorageItems.Any())
+                if (!PathList.IsEmpty)
                 {
-                    Package.SetData(ExtendedDataFormats.NotSupportedStorageItem, new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(NotStorageItems.Select((Item) => Item.Path)))).AsRandomAccessStream());
+                    Package.SetData(ExtendedDataFormats.NotSupportedStorageItem, new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(PathList))).AsRandomAccessStream());
                 }
             }
             catch (Exception ex)

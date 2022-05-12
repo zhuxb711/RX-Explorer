@@ -2034,7 +2034,7 @@ namespace RX_Explorer.View
                                         {
                                             if (SettingPage.IsDisplayProtectedSystemItems || !NewItem.IsSystemItem)
                                             {
-                                                if ((NewItem is IHiddenStorageItem && SettingPage.IsShowHiddenFilesEnabled) || NewItem is not IHiddenStorageItem)
+                                                if ((NewItem.IsHiddenItem && SettingPage.IsShowHiddenFilesEnabled) || !NewItem.IsHiddenItem)
                                                 {
                                                     if (FileCollection.Any())
                                                     {
@@ -2206,7 +2206,7 @@ namespace RX_Explorer.View
 
                                                 if (SettingPage.IsDisplayProtectedSystemItems || !ModifiedItem.IsSystemItem)
                                                 {
-                                                    if ((ModifiedItem is IHiddenStorageItem && SettingPage.IsShowHiddenFilesEnabled) || ModifiedItem is not IHiddenStorageItem)
+                                                    if ((ModifiedItem.IsHiddenItem && SettingPage.IsShowHiddenFilesEnabled) || !ModifiedItem.IsHiddenItem)
                                                     {
                                                         if (FileCollection.Any())
                                                         {
@@ -2235,7 +2235,7 @@ namespace RX_Explorer.View
                                                 }
                                             }
                                         }
-                                        else if (ModifiedItem is not IHiddenStorageItem)
+                                        else if (!ModifiedItem.IsHiddenItem)
                                         {
                                             if (FileCollection.Any())
                                             {
@@ -2273,7 +2273,7 @@ namespace RX_Explorer.View
                                     {
                                         if (SettingPage.IsDisplayProtectedSystemItems || !Item.IsSystemItem)
                                         {
-                                            if ((Item is IHiddenStorageItem && SettingPage.IsShowHiddenFilesEnabled) || Item is not IHiddenStorageItem)
+                                            if ((Item.IsHiddenItem && SettingPage.IsShowHiddenFilesEnabled) || !Item.IsHiddenItem)
                                             {
                                                 foreach (FileSystemStorageItemBase ExistItem in FileCollection.Where((Item) => Item.Path.Equals(RenamedArgs.Path, StringComparison.OrdinalIgnoreCase)
                                                                                                                                || Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)).ToArray())
@@ -2807,7 +2807,18 @@ namespace RX_Explorer.View
                         StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
                         ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
-                        await Task.WhenAll(AreaWatcher.StartMonitorAsync(Folder.Path), ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection), SetExtraInformationOnCurrentFolderAsync());
+                        List<Task> ParallelTaskList = new List<Task>(3)
+                        {
+                            SetExtraInformationOnCurrentFolderAsync(),
+                            ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection),
+                        };
+
+                        if (Folder is not MTPStorageFolder)
+                        {
+                            ParallelTaskList.Add(AreaWatcher.StartMonitorAsync(Folder.Path));
+                        }
+
+                        await Task.WhenAll(ParallelTaskList);
                     }
                     else
                     {
@@ -2925,7 +2936,7 @@ namespace RX_Explorer.View
 
         private async void Current_Resuming(object sender, object e)
         {
-            if (CurrentFolder is not RootStorageFolder)
+            if (CurrentFolder is not (RootStorageFolder or MTPStorageFolder))
             {
                 await AreaWatcher.StartMonitorAsync(CurrentFolder?.Path);
             }

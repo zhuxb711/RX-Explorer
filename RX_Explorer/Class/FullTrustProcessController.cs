@@ -1429,27 +1429,6 @@ namespace RX_Explorer.Class
             return Array.Empty<InstalledApplication>();
         }
 
-
-        public async Task<HiddenFileData> GetHiddenItemDataAsync(string Path)
-        {
-            if (await SendCommandAsync(CommandType.GetHiddenItemData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
-            {
-                if (Response.TryGetValue("Success", out string Result))
-                {
-                    return JsonSerializer.Deserialize<HiddenFileData>(Result);
-                }
-                else
-                {
-                    if (Response.TryGetValue("Error", out string ErrorMessage))
-                    {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetHiddenItemDataAsync)}, message: {ErrorMessage}");
-                    }
-                }
-            }
-
-            return null;
-        }
-
         public async Task<byte[]> GetThumbnailAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetThumbnail, ("ExecutePath", Path)) is IDictionary<string, string> Response)

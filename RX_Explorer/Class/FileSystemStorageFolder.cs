@@ -31,21 +31,6 @@ namespace RX_Explorer.Class
 
         public override ulong Size => 0;
 
-        public override bool IsSystemItem
-        {
-            get
-            {
-                if (StorageItem == null)
-                {
-                    return base.IsSystemItem;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
         public StorageFolder StorageItem { get; protected set; }
 
         private static readonly Uri Const_Folder_Image_Uri = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
@@ -530,7 +515,10 @@ namespace RX_Explorer.Class
         {
             try
             {
-                return StorageItem ??= await StorageFolder.GetFolderFromPathAsync(Path);
+                if (!IsHiddenItem && !IsSystemItem)
+                {
+                    return StorageItem ??= await StorageFolder.GetFolderFromPathAsync(Path);
+                }
             }
             catch (FileNotFoundException)
             {

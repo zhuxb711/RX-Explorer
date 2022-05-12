@@ -229,7 +229,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public MTPStorageFolder(MTPFileData Data, MTPStorageFolder Parent) : base(Data)
+        private MTPStorageFolder(MTPFileData Data, MTPStorageFolder Parent) : base(Data)
         {
             RawData = Data;
             ParentFolder = Parent;

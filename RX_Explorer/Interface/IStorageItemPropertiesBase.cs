@@ -22,6 +22,8 @@ namespace RX_Explorer.Interface
 
         public bool IsSystemItem { get; }
 
+        public bool IsHiddenItem { get; }
+
         public BitmapImage Thumbnail { get; }
 
         public BitmapImage ThumbnailOverlay { get; }

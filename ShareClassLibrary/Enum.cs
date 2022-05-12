@@ -102,7 +102,6 @@
         InvokeContextMenuItem,
         CheckIfEverythingAvailable,
         SearchByEverything,
-        GetHiddenItemData,
         GetThumbnail,
         SetFileAttribute,
         GetMIMEContentType,

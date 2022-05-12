@@ -746,22 +746,11 @@ namespace RX_Explorer.Class
 
                                     if (Data.dwFileAttributes.HasFlag(FileAttributes.Directory))
                                     {
-                                        if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
-                                        {
-                                            SearchResult.Add(new HiddenStorageFolder(new NativeFileData(CurrentDataPath, Data)));
-                                        }
-                                        else
-                                        {
-                                            SearchResult.Add(new FileSystemStorageFolder(new NativeFileData(CurrentDataPath, Data)));
-                                        }
+                                        SearchResult.Add(new FileSystemStorageFolder(new NativeFileData(CurrentDataPath, Data)));
                                     }
                                     else
                                     {
-                                        if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
-                                        {
-                                            SearchResult.Add(new HiddenStorageFile(new NativeFileData(CurrentDataPath, Data)));
-                                        }
-                                        else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                        if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                         {
                                             SearchResult.Add(new UrlStorageFile(new NativeFileData(CurrentDataPath, Data)));
                                         }
@@ -820,28 +809,15 @@ namespace RX_Explorer.Class
                         {
                             if ((IncludeHiddenItem || !Data.dwFileAttributes.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Data.dwFileAttributes.HasFlag(FileAttributes.System)))
                             {
+                                string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+
                                 if (Data.dwFileAttributes.HasFlag(FileAttributes.Directory))
                                 {
-                                    string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
-
-                                    if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
-                                    {
-                                        Result.Add(new HiddenStorageFolder(new NativeFileData(CurrentDataPath, Data)));
-                                    }
-                                    else
-                                    {
-                                        Result.Add(new FileSystemStorageFolder(new NativeFileData(CurrentDataPath, Data)));
-                                    }
+                                    Result.Add(new FileSystemStorageFolder(new NativeFileData(CurrentDataPath, Data)));
                                 }
                                 else
                                 {
-                                    string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
-
-                                    if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
-                                    {
-                                        Result.Add(new HiddenStorageFile(new NativeFileData(CurrentDataPath, Data)));
-                                    }
-                                    else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                    if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                     {
                                         Result.Add(new UrlStorageFile(new NativeFileData(CurrentDataPath, Data)));
                                     }
@@ -893,22 +869,11 @@ namespace RX_Explorer.Class
                     {
                         if (Data.dwFileAttributes.HasFlag(FileAttributes.Directory))
                         {
-                            if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
-                            {
-                                return new HiddenStorageFolder(new NativeFileData(ItemPath, Data));
-                            }
-                            else
-                            {
-                                return new FileSystemStorageFolder(new NativeFileData(ItemPath, Data));
-                            }
+                            return new FileSystemStorageFolder(new NativeFileData(ItemPath, Data));
                         }
                         else
                         {
-                            if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
-                            {
-                                return new HiddenStorageFile(new NativeFileData(ItemPath, Data));
-                            }
-                            else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                            if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                             {
                                 return new UrlStorageFile(new NativeFileData(ItemPath, Data));
                             }
@@ -1069,22 +1034,11 @@ namespace RX_Explorer.Class
             {
                 if (Data.Attributes.HasFlag(FileAttributes.Directory))
                 {
-                    if (Data.Attributes.HasFlag(FileAttributes.Hidden))
-                    {
-                        return new HiddenStorageFolder(Data);
-                    }
-                    else
-                    {
-                        return new FileSystemStorageFolder(Data);
-                    }
+                    return new FileSystemStorageFolder(Data);
                 }
                 else
                 {
-                    if (Data.Attributes.HasFlag(FileAttributes.Hidden))
-                    {
-                        return new HiddenStorageFile(Data);
-                    }
-                    else if (Path.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                    if (Path.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                     {
                         return new UrlStorageFile(Data);
                     }

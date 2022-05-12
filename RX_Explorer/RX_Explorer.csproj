@@ -183,8 +183,6 @@
     <Compile Include="Class\ProgressCalculator.cs" />
     <Compile Include="Class\ProgressChangedDeferredArgs.cs" />
     <Compile Include="Class\PropertiesGroupItem.cs" />
-    <Compile Include="Class\HiddenStorageFile.cs" />
-    <Compile Include="Class\HiddenStorageFolder.cs" />
     <Compile Include="Class\LinkStorageFile.cs" />
     <Compile Include="Class\InstalledApplication.cs" />
     <Compile Include="Class\QueueContentDialog.cs" />
@@ -232,7 +230,7 @@
     </Compile>
     <Compile Include="Interface\ICoreStorageItem.cs" />
     <Compile Include="Interface\IMTPStorageItem.cs" />
-    <Compile Include="Interface\IUnsupportedStorageItemGeneric.cs" />
+    <Compile Include="Interface\IUnsupportedStorageItem.cs" />
     <Compile Include="View\SettingPage.xaml.cs">
       <DependentUpon>SettingPage.xaml</DependentUpon>
     </Compile>
@@ -243,7 +241,6 @@
       <DependentUpon>ModifySystemWarningDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Interface\IDriveData.cs" />
-    <Compile Include="Interface\IHiddenStorageItem.cs" />
     <Compile Include="Interface\IIndirectLaunchStorageItem.cs" />
     <Compile Include="Interface\ILinkStorageFile.cs" />
     <Compile Include="Interface\IRecycleStorageItem.cs" />
@@ -329,7 +326,6 @@
     <Compile Include="Class\QuickStartItem.cs" />
     <Compile Include="Class\SQLite.cs" />
     <Compile Include="Interface\IStorageItemPropertiesBase.cs" />
-    <Compile Include="Interface\IUnsupportedStorageItem.cs" />
     <Compile Include="Interface\IUrlStorageFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="View\BlueScreen.xaml.cs">
@@ -797,7 +793,7 @@
       <Version>4.5.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>6.0.4</Version>
+      <Version>6.0.5</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.13</Version>

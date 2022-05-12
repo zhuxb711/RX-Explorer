@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 
@@ -9,6 +11,39 @@ namespace FullTrustProcess
 {
     public static class Extension
     {
+        public static Bitmap ConvertToBitmapWithAlphaChannel(this Bitmap OriginBitmap)
+        {
+            try
+            {
+                if (Image.IsAlphaPixelFormat(OriginBitmap.PixelFormat))
+                {
+                    return OriginBitmap;
+                }
+
+                if (Image.GetPixelFormatSize(OriginBitmap.PixelFormat) < 32)
+                {
+                    throw new NotSupportedException($"Pixel format: {Enum.GetName(OriginBitmap.PixelFormat)}");
+                }
+
+                BitmapData BmpData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
+
+                try
+                {
+                    return new Bitmap(BmpData.Width, BmpData.Height, BmpData.Stride, PixelFormat.Format32bppArgb, BmpData.Scan0);
+                }
+                finally
+                {
+                    OriginBitmap.UnlockBits(BmpData);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not convert the bitmap with alpha channel");
+            }
+
+            return null;
+        }
+
         public static void DownloadFile(this MediaDevice Device, string Source, string Destination, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Device.FileExists(Source))
