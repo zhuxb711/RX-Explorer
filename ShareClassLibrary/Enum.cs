@@ -125,7 +125,6 @@
         MTPCheckExists,
         MTPGetChildItems,
         MTPCheckContainsAnyItems,
-        MTPGetFolderSize,
         MTPGetDriveVolumnData,
         MTPCreateSubItem,
         MTPDownloadAndGetHandle,
@@ -135,6 +134,7 @@
         GetSizeOnDisk,
         GetAvailableWslDrivePathList,
         GetRemoteClipboardRelatedData,
+        CreateOneTimeFileHandle,
         ConvertToLongPath
     }
 }

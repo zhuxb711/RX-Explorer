@@ -147,7 +147,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                if (await FileSystemStorageItemBase.CreateNewAsync(TextFilePath, StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile File)
+                if (await FileSystemStorageItemBase.CreateNewAsync(TextFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile File)
                 {
                     using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                     using (StreamWriter Writer = new StreamWriter(Stream, SaveEncoding))

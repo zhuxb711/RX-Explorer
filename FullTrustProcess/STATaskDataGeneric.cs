@@ -7,12 +7,9 @@ namespace FullTrustProcess
     {
         public TaskCompletionSource<T> CompletionSource { get; }
 
-        public Delegate Executer { get; }
-
-        public STATaskData(TaskCompletionSource<T> CompletionSource, Delegate Executer)
+        public STATaskData(TaskCompletionSource<T> CompletionSource, Delegate Executer) : base(Executer)
         {
             this.CompletionSource = CompletionSource;
-            this.Executer = Executer;
         }
     }
 }

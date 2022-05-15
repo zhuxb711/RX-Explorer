@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using ShareClassLibrary;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -66,7 +67,7 @@ namespace RX_Explorer.Dialog
                 {
                     if (!await FileSystemStorageItemBase.CheckExistsAsync(ExtractLocation))
                     {
-                        await FileSystemStorageItemBase.CreateNewAsync(ExtractLocation, StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(false);
+                        await FileSystemStorageItemBase.CreateNewAsync(ExtractLocation, CreateType.Folder, CreateOption.OpenIfExist).ConfigureAwait(false);
                     }
                     else
                     {

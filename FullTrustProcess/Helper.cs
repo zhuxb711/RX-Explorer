@@ -137,23 +137,6 @@ namespace FullTrustProcess
             return Array.Empty<byte>();
         }
 
-        public static MTPPathAnalysis AnalysisMTPPath(string Path)
-        {
-            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-
-            if (SplitArray.Length > 0)
-            {
-                string DeviceId = @$"\\?\{SplitArray[0]}";
-                string RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
-
-                return new MTPPathAnalysis(DeviceId, RelativePath);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         public static string MTPGenerateUniquePath(MediaDevice Device, string Path, CreateType Type)
         {
             string UniquePath = Path;

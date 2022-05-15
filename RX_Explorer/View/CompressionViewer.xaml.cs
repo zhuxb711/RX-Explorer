@@ -855,16 +855,16 @@ namespace RX_Explorer.View
 
                 if (Entry.IsDirectory)
                 {
-                    if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.Folder, CreateOption.OpenIfExist) is not FileSystemStorageFolder)
+                    if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.OpenIfExist) is not FileSystemStorageFolder)
                     {
                         throw new UnauthorizedAccessException();
                     }
                 }
                 else
                 {
-                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.GetDirectoryName(TargetPath), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder)
+                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.GetDirectoryName(TargetPath), CreateType.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder)
                     {
-                        if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TargetFile)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TargetFile)
                         {
                             using (Stream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                             using (Stream ZipStream = ZipObj.GetInputStream(Entry))
@@ -1399,7 +1399,7 @@ namespace RX_Explorer.View
                             await ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
                         });
 
-                        if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N")), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder ExtractionFolder)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N")), CreateType.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder ExtractionFolder)
                         {
                             try
                             {

@@ -837,7 +837,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         if (!string.IsNullOrEmpty(PropertiesResult["System.Video.FrameRate"]))
                         {
                             uint FrameRate = Convert.ToUInt32(PropertiesResult["System.Video.FrameRate"]);
-                            VideoPropertiesDictionary[Globalization.GetString("Properties_Details_FrameRate")] = $"{ FrameRate / 1000:N2} {Globalization.GetString("Properties_Details_FrameRatePerSecond")}";
+                            VideoPropertiesDictionary[Globalization.GetString("Properties_Details_FrameRate")] = $"{FrameRate / 1000:N2} {Globalization.GetString("Properties_Details_FrameRatePerSecond")}";
                         }
 
                         if (!string.IsNullOrEmpty(PropertiesResult["System.Video.TotalBitrate"]))
@@ -1186,6 +1186,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                         Interlocked.Add(ref TotalSize, Convert.ToInt64(File.Size));
                                         SizeOnDiskTaskList.Add(File.GetSizeOnDiskAsync());
                                     }
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    //No need to handle this exception
                                 }
                                 catch (Exception ex)
                                 {
@@ -1570,20 +1574,19 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async Task<ulong> CalculateFolderSize(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)
         {
-            ulong TotalSize = await Folder.GetFolderSizeAsync(CancelToken);
-
-            CancelToken.ThrowIfCancellationRequested();
-
-            return TotalSize;
+            return await Folder.GetFolderSizeAsync(CancelToken);
         }
 
         private async Task<(ulong, ulong)> CalculateFolderAndFileCount(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)
         {
             IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(true, true, true, CancelToken: CancelToken).ToListAsync();
 
-            CancelToken.ThrowIfCancellationRequested();
+            if (Result.Count > 0)
+            {
+                return (Convert.ToUInt64(Result.OfType<FileSystemStorageFile>().LongCount()), Convert.ToUInt64(Result.OfType<FileSystemStorageFolder>().LongCount()));
+            }
 
-            return (Convert.ToUInt64(Result.OfType<FileSystemStorageFile>().LongCount()), Convert.ToUInt64(Result.OfType<FileSystemStorageFolder>().LongCount()));
+            return (0, 0);
         }
 
         private void ShortcutKeyContent_KeyDown(object sender, KeyRoutedEventArgs e)

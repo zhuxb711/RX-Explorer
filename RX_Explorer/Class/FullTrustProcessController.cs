@@ -482,6 +482,23 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<SafeFileHandle> CreateOneTimeFileHandleAsync(string TempFilePath = null)
+        {
+            if (await SendCommandAsync(CommandType.CreateOneTimeFileHandle, ("TempFilePath", TempFilePath ?? string.Empty)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string HandleString))
+                {
+                    return new SafeFileHandle(new IntPtr(Convert.ToInt64(HandleString)), true);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(CreateOneTimeFileHandleAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return new SafeFileHandle(IntPtr.Zero, true);
+        }
+
         public async Task<RemoteClipboardRelatedData> GetRemoteClipboardRelatedDataAsync()
         {
             if (await SendCommandAsync(CommandType.GetRemoteClipboardRelatedData) is IDictionary<string, string> Response)
@@ -606,17 +623,12 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public async Task<MTPFileData> MTPCreateSubItemAsync(string Path, string Name, StorageItemTypes ItemTypes, CreateOption Option)
+        public async Task<MTPFileData> MTPCreateSubItemAsync(string Path, string Name, CreateType ItemTypes, CreateOption Option)
         {
             if (await SendCommandAsync(CommandType.MTPCreateSubItem,
                                        ("Path", Path),
                                        ("Name", Name),
-                                       ("Type", ItemTypes switch
-                                       {
-                                           StorageItemTypes.File => Enum.GetName(typeof(CreateType), CreateType.File),
-                                           StorageItemTypes.Folder => Enum.GetName(typeof(CreateType), CreateType.Folder),
-                                           _ => throw new NotSupportedException()
-                                       }),
+                                       ("Type", Enum.GetName(typeof(CreateType), ItemTypes)),
                                        ("Option", Option switch
                                        {
                                            CreateOption.ReplaceExisting => Enum.GetName(typeof(CollisionOptions), CollisionOptions.OverrideOnCollision),
@@ -653,32 +665,6 @@ namespace RX_Explorer.Class
             }
 
             return null;
-        }
-
-        public async Task<ulong> GetMTPFolderSizeAsync(string Path, CancellationToken CancelToken = default)
-        {
-            using (CancelToken.Register(() =>
-            {
-                if (!TryCancelCurrentOperation())
-                {
-                    LogTracer.Log($"Could not cancel the operation in {nameof(GetMTPFolderSizeAsync)}");
-                }
-            }))
-            {
-                if (await SendCommandAsync(CommandType.MTPGetFolderSize, ("Path", Path)) is IDictionary<string, string> Response)
-                {
-                    if (Response.TryGetValue("Success", out string RawText))
-                    {
-                        return Convert.ToUInt64(RawText);
-                    }
-                    else if (Response.TryGetValue("Error", out string ErrorMessage))
-                    {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetMTPFolderSizeAsync)}, message: {ErrorMessage}");
-                    }
-                }
-
-                return 0;
-            }
         }
 
         public async Task<bool> MTPCheckContainersAnyItemsAsync(string Path, bool IncludeHiddenItems, bool IncludeSystemItems, BasicFilters Filter)

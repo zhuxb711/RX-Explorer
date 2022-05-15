@@ -105,51 +105,52 @@ namespace RX_Explorer.View
 
                     if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(File.Path)) is FileSystemStorageFolder Item)
                     {
-                        IReadOnlyList<FileSystemStorageFile> SearchResult = await Item.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, CancelToken: CancelToken, AdvanceFilter: (Name) => Regex.IsMatch(Path.GetExtension(Name), @"\.(png|bmp|jpg|jpeg)$", RegexOptions.IgnoreCase)).Cast<FileSystemStorageFile>().ToListAsync();
-
-                        if (!CancelToken.IsCancellationRequested)
+                        try
                         {
-                            try
+                            IReadOnlyList<FileSystemStorageFile> SearchResult = await Item.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, CancelToken: CancelToken, AdvanceFilter: (Name) => Regex.IsMatch(Path.GetExtension(Name), @"\.(png|bmp|jpg|jpeg)$", RegexOptions.IgnoreCase)).Cast<FileSystemStorageFile>().ToListAsync();
+
+                            if (SearchResult.Count > 0)
                             {
-                                if (SearchResult.Count > 0)
+                                if (Item is MTPStorageFolder MTPFolder)
                                 {
-                                    if (Item is MTPStorageFolder MTPFolder)
-                                    {
-                                        MTPEndOfShare = await FileSystemStorageItemBase.SetBulkAccessSharedControllerAsync(SearchResult);
-                                    }
-
-                                    PathConfiguration Config = SQLite.Current.GetPathConfiguration(Path.GetDirectoryName(File.Path));
-
-                                    PhotoCollection.AddRange((await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())).Select((Item) => new PhotoDisplayItem(Item)));
-                                    PhotoFlip.SelectedItem = PhotoCollection.FirstOrDefault((Item) => Item.PhotoFile == File);
-                                    Pips.NumberOfPages = PhotoCollection.Count;
-
-                                    if (PhotoFlip.SelectedIndex == 0)
-                                    {
-                                        await PhotoCollection[0].GenerateActualSourceAsync();
-                                    }
-
-                                    await Task.Delay(1000);
+                                    MTPEndOfShare = await FileSystemStorageItemBase.SetBulkAccessSharedControllerAsync(SearchResult);
                                 }
-                                else
-                                {
-                                    await new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("Queue_Dialog_ImageReadError_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
-                                    }.ShowAsync();
 
-                                    if (Frame.CanGoBack)
-                                    {
-                                        Frame.GoBack();
-                                    }
+                                PathConfiguration Config = SQLite.Current.GetPathConfiguration(Path.GetDirectoryName(File.Path));
+
+                                PhotoCollection.AddRange((await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())).Select((Item) => new PhotoDisplayItem(Item)));
+                                PhotoFlip.SelectedItem = PhotoCollection.FirstOrDefault((Item) => Item.PhotoFile == File);
+                                Pips.NumberOfPages = PhotoCollection.Count;
+
+                                if (PhotoFlip.SelectedIndex == 0)
+                                {
+                                    await PhotoCollection[0].GenerateActualSourceAsync();
+                                }
+
+                                await Task.Delay(1000);
+                            }
+                            else
+                            {
+                                await new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("Queue_Dialog_ImageReadError_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                                }.ShowAsync();
+
+                                if (Frame.CanGoBack)
+                                {
+                                    Frame.GoBack();
                                 }
                             }
-                            finally
-                            {
-                                TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
-                            }
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            //No need to handle this exception
+                        }
+                        finally
+                        {
+                            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                         }
                     }
                     else

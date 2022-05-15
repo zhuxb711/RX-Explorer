@@ -72,7 +72,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("GZip is not allowed in this function", nameof(Algorithm));
             }
 
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 ulong TotalSize = 0;
                 ulong CurrentPosition = 0;
@@ -90,7 +90,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFolder Folder:
                             {
-                                TotalSize += await Folder.GetFolderSizeAsync();
+                                TotalSize += await Folder.GetFolderSizeAsync(CancelToken);
                                 break;
                             }
                     }
@@ -180,7 +180,6 @@ namespace RX_Explorer.Class
             await foreach (FileSystemStorageItemBase Item in Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken))
             {
                 ChildItemNumber++;
-                CancelToken.ThrowIfCancellationRequested();
 
                 switch (Item)
                 {
@@ -265,7 +264,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Undefine is not allowed in this function", nameof(Level));
             }
 
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 using (Stream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                 using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
@@ -329,7 +328,7 @@ namespace RX_Explorer.Class
                 {
                     GZipStream.IsStreamOwner = false;
 
-                    if (await FileSystemStorageItemBase.CreateNewAsync(NewFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+                    if (await FileSystemStorageItemBase.CreateNewAsync(NewFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                     {
                         using (Stream NewFileStrem = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                         {
@@ -365,7 +364,7 @@ namespace RX_Explorer.Class
                                                   CancellationToken CancelToken = default,
                                                   ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 using (Stream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                 using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
@@ -403,7 +402,7 @@ namespace RX_Explorer.Class
                                                    ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(NewDirectoryPath, Path.GetFileNameWithoutExtension(Source.Name)),
-                                                               StorageItemTypes.File,
+                                                               CreateType.File,
                                                                CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 using (Stream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
@@ -469,7 +468,7 @@ namespace RX_Explorer.Class
                                                       CancellationToken CancelToken = default,
                                                       ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 ulong TotalSize = 0;
                 ulong CurrentPosition = 0;
@@ -487,7 +486,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFolder Folder:
                             {
-                                TotalSize += await Folder.GetFolderSizeAsync();
+                                TotalSize += await Folder.GetFolderSizeAsync(CancelToken);
                                 break;
                             }
                     }
@@ -570,7 +569,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Undefine is not allowed in this function", nameof(Level));
             }
 
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 ulong TotalSize = 0;
                 ulong CurrentPosition = 0;
@@ -588,7 +587,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFolder Folder:
                             {
-                                TotalSize += await Folder.GetFolderSizeAsync();
+                                TotalSize += await Folder.GetFolderSizeAsync(CancelToken);
                                 break;
                             }
                     }
@@ -666,7 +665,7 @@ namespace RX_Explorer.Class
                                                  CancellationToken CancelToken = default,
                                                  ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 ulong TotalSize = 0;
                 ulong CurrentPosition = 0;
@@ -684,7 +683,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFolder Folder:
                             {
-                                TotalSize += await Folder.GetFolderSizeAsync();
+                                TotalSize += await Folder.GetFolderSizeAsync(CancelToken);
                                 break;
                             }
                     }
@@ -766,7 +765,6 @@ namespace RX_Explorer.Class
             await foreach (FileSystemStorageItemBase Item in Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken))
             {
                 ChildItemNumber++;
-                CancelToken.ThrowIfCancellationRequested();
 
                 switch (Item)
                 {
@@ -937,7 +935,7 @@ namespace RX_Explorer.Class
 
                                 string DestFileName = Path.Combine(LastFolder, PathList.LastOrDefault() ?? Path.GetFileNameWithoutExtension(File.Name));
 
-                                if (await FileSystemStorageItemBase.CreateNewAsync(DestFileName, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+                                if (await FileSystemStorageItemBase.CreateNewAsync(DestFileName, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                                 {
                                     using (Stream OutputStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     using (EntryStream EntryStream = Reader.OpenEntryStream())
@@ -966,7 +964,7 @@ namespace RX_Explorer.Class
             {
                 case FileSystemStorageFile:
                     {
-                        if (await FileSystemStorageItemBase.CreateNewAsync(Path, StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder NewFolder)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(Path, CreateType.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder NewFolder)
                         {
                             return NewFolder.Path;
                         }
@@ -977,7 +975,7 @@ namespace RX_Explorer.Class
                     }
                 default:
                     {
-                        if (await FileSystemStorageItemBase.CreateNewAsync(Path, StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(Path, CreateType.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder)
                         {
                             return Path;
                         }

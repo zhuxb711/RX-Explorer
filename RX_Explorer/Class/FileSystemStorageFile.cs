@@ -58,6 +58,11 @@ namespace RX_Explorer.Class
 
         }
 
+        public FileSystemStorageFile(FTPFileData Data) : base(Data)
+        {
+
+        }
+
         public async virtual Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
             if (NativeWin32API.CreateStreamFromFile(Path, Mode, Option) is FileStream Stream)

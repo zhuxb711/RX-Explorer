@@ -277,87 +277,84 @@ namespace RX_Explorer.View
                 SearchStatus.Text = $"{Globalization.GetString("SearchProcessingText")} \"{Options.SearchText}\"";
                 SearchStatusBar.Visibility = Visibility.Visible;
 
-                switch (Options.EngineCategory)
+                try
                 {
-                    case SearchCategory.BuiltInEngine:
-                        {
-                            await foreach (FileSystemStorageItemBase Item in Options.SearchFolder.SearchAsync(Options.SearchText,
-                                                                                                              Options.DeepSearch,
-                                                                                                              SettingPage.IsShowHiddenFilesEnabled,
-                                                                                                              SettingPage.IsDisplayProtectedSystemItems,
-                                                                                                              Options.UseRegexExpression,
-                                                                                                              Options.UseAQSExpression,
-                                                                                                              Options.UseIndexerOnly,
-                                                                                                              Options.IgnoreCase,
-                                                                                                              CancelToken))
+                    switch (Options.EngineCategory)
+                    {
+                        case SearchCategory.BuiltInEngine:
                             {
-                                if (CancelToken.IsCancellationRequested)
+                                await foreach (FileSystemStorageItemBase Item in Options.SearchFolder.SearchAsync(Options.SearchText,
+                                                                                                                  Options.DeepSearch,
+                                                                                                                  SettingPage.IsShowHiddenFilesEnabled,
+                                                                                                                  SettingPage.IsDisplayProtectedSystemItems,
+                                                                                                                  Options.UseRegexExpression,
+                                                                                                                  Options.UseAQSExpression,
+                                                                                                                  Options.UseIndexerOnly,
+                                                                                                                  Options.IgnoreCase,
+                                                                                                                  CancelToken))
                                 {
-                                    break;
+                                    await SignalControl.TrapOnSignalAsync();
+
+                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection);
+
+                                    if (Index >= 0)
+                                    {
+                                        if (Index <= SearchResult.Count)
+                                        {
+                                            SearchResult.Insert(Index, Item);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        SearchResult.Add(Item);
+                                    }
+
+                                    if (SearchResult.Count % 50 == 0)
+                                    {
+                                        await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
+                                    }
                                 }
 
-                                await SignalControl.TrapOnSignalAsync();
+                                break;
+                            }
+                        case SearchCategory.EverythingEngine:
+                            {
+                                IReadOnlyList<string> SearchItems;
 
-                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection);
-
-                                if (Index >= 0)
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
-                                    if (Index <= SearchResult.Count)
+                                    SearchItems = await Exclusive.Controller.SearchByEverythingAsync(Options.DeepSearch ? string.Empty : Options.SearchFolder.Path,
+                                                                                                     Options.SearchText,
+                                                                                                     Options.UseRegexExpression,
+                                                                                                     Options.IgnoreCase);
+                                }
+
+                                await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(SearchItems, CancelToken))
+                                {
+                                    await SignalControl.TrapOnSignalAsync();
+
+                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection);
+
+                                    if (Index >= 0)
                                     {
                                         SearchResult.Insert(Index, Item);
                                     }
-                                }
-                                else
-                                {
-                                    SearchResult.Add(Item);
+                                    else
+                                    {
+                                        SearchResult.Add(Item);
+                                    }
+
+                                    if (SearchResult.Count % 50 == 0)
+                                    {
+                                        await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
+                                    }
                                 }
 
-                                if (SearchResult.Count % 50 == 0)
-                                {
-                                    await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
-                                }
+                                break;
                             }
-
-                            break;
-                        }
-                    case SearchCategory.EverythingEngine:
-                        {
-                            IReadOnlyList<string> SearchItems;
-
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                            {
-                                SearchItems = await Exclusive.Controller.SearchByEverythingAsync(Options.DeepSearch ? string.Empty : Options.SearchFolder.Path,
-                                                                                                 Options.SearchText,
-                                                                                                 Options.UseRegexExpression,
-                                                                                                 Options.IgnoreCase);
-                            }
-
-                            await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(SearchItems, CancelToken))
-                            {
-                                await SignalControl.TrapOnSignalAsync();
-
-                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection);
-
-                                if (Index >= 0)
-                                {
-                                    SearchResult.Insert(Index, Item);
-                                }
-                                else
-                                {
-                                    SearchResult.Add(Item);
-                                }
-
-                                if (SearchResult.Count % 50 == 0)
-                                {
-                                    await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
-                                }
-                            }
-
-                            break;
-                        }
+                    }
                 }
-
-                if (CancelToken.IsCancellationRequested)
+                catch (OperationCanceledException)
                 {
                     SearchResult.Clear();
                 }
@@ -641,7 +638,7 @@ namespace RX_Explorer.View
                     }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                 }
 
-                if (Item is not IMTPStorageItem)
+                if (Item is not (IMTPStorageItem or IFTPStorageItem))
                 {
                     DelayTooltipCancellation?.Cancel();
                     DelayTooltipCancellation?.Dispose();

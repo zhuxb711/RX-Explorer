@@ -339,7 +339,7 @@ namespace RX_Explorer.View
 
             if (SecureAreaFolderPath.Equals(DefaultSecureAreaFolderPath, StringComparison.OrdinalIgnoreCase))
             {
-                SItem = await FileSystemStorageItemBase.CreateNewAsync(SecureAreaFolderPath, StorageItemTypes.Folder, CreateOption.OpenIfExist);
+                SItem = await FileSystemStorageItemBase.CreateNewAsync(SecureAreaFolderPath, CreateType.Folder, CreateOption.OpenIfExist);
             }
             else
             {
@@ -350,9 +350,16 @@ namespace RX_Explorer.View
             {
                 SecureFolder = SFolder;
 
-                await foreach (FileSystemStorageFile SFile in SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File, AdvanceFilter: (Name) => Path.GetExtension(Name).Equals(".sle", StringComparison.OrdinalIgnoreCase)))
+                try
                 {
-                    SecureCollection.Add(SFile);
+                    await foreach (FileSystemStorageFile SFile in SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File, AdvanceFilter: (Name) => Path.GetExtension(Name).Equals(".sle", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        SecureCollection.Add(SFile);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not load the file for secure area");
                 }
 
                 if (SecureCollection.Count == 0)
@@ -410,7 +417,7 @@ namespace RX_Explorer.View
                     {
                         string EncryptedFilePath = Path.Combine(SecureFolder.Path, $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}.sle");
 
-                        if (await FileSystemStorageItemBase.CreateNewAsync(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(EncryptedFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
                         {
                             using (Stream OriginFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                             using (Stream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
@@ -688,7 +695,7 @@ namespace RX_Explorer.View
                     {
                         string DecryptedFilePath = Path.Combine(Folder.Path, Path.GetRandomFileName());
 
-                        if (await FileSystemStorageItemBase.CreateNewAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(DecryptedFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                         {
                             try
                             {

@@ -58,7 +58,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .zip", nameof(Name));
             }
 
-            if (await TargetFolder.CreateNewSubItemAsync(Name, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+            if (await TargetFolder.CreateNewSubItemAsync(Name, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
             {
                 try
                 {
@@ -102,14 +102,14 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .rtf", nameof(Name));
             }
 
-            if (await TargetFolder.CreateNewSubItemAsync(Name, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+            if (await TargetFolder.CreateNewSubItemAsync(Name, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
             {
                 try
                 {
                     using (Stream NewStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Sequential))
                     {
                         RichEditBox REB = new RichEditBox();
-                        
+
                         using (InMemoryRandomAccessStream MemoryStream = new InMemoryRandomAccessStream())
                         {
                             REB.Document.SaveToStream(Windows.UI.Text.TextGetOptions.FormatRtf, MemoryStream);
@@ -150,7 +150,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .xlsx", nameof(Name));
             }
 
-            if (await TargetFolder.CreateNewSubItemAsync(Name, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+            if (await TargetFolder.CreateNewSubItemAsync(Name, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
             {
                 try
                 {

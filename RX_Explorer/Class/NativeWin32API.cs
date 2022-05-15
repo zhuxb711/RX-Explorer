@@ -419,7 +419,7 @@ namespace RX_Explorer.Class
                         {
                             case CreateOption.GenerateUniqueName:
                                 {
-                                    string UniquePath = GenerateUniquePath(NextPath, StorageItemTypes.Folder);
+                                    string UniquePath = GenerateUniquePath(NextPath, CreateType.Folder);
 
                                     if (CreateDirectoryFromApp(UniquePath, IntPtr.Zero))
                                     {
@@ -460,6 +460,11 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public static SafeFileHandle CreateOneTimeFileHandle(string TempFilePath = null)
+        {
+            return CreateFileFromApp(string.IsNullOrEmpty(TempFilePath) ? Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N")) : TempFilePath, FILE_ACCESS.Generic_Read | FILE_ACCESS.File_Generic_Write, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Flag_Delete_On_Close | FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped, IntPtr.Zero);
+        }
+
         public static bool CreateFileFromPath(string Path, CreateOption Option, out string NewPath)
         {
             NewPath = string.Empty;
@@ -472,7 +477,7 @@ namespace RX_Explorer.Class
                         {
                             if (CheckExists(Path))
                             {
-                                string UniquePath = GenerateUniquePath(Path, StorageItemTypes.File);
+                                string UniquePath = GenerateUniquePath(Path, CreateType.File);
 
                                 using (SafeFileHandle Handle = CreateFileFromApp(UniquePath, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                                 {
@@ -538,14 +543,14 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        private static string GenerateUniquePath(string Path, StorageItemTypes ItemType)
+        private static string GenerateUniquePath(string Path, CreateType ItemType)
         {
             string UniquePath = Path;
 
             if (CheckExists(UniquePath))
             {
-                string Name = ItemType == StorageItemTypes.Folder ? System.IO.Path.GetFileName(Path) : System.IO.Path.GetFileNameWithoutExtension(Path);
-                string Extension = ItemType == StorageItemTypes.Folder ? string.Empty : System.IO.Path.GetExtension(Path);
+                string Name = ItemType == CreateType.Folder ? System.IO.Path.GetFileName(Path) : System.IO.Path.GetFileNameWithoutExtension(Path);
+                string Extension = ItemType == CreateType.Folder ? string.Empty : System.IO.Path.GetExtension(Path);
                 string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
                 for (ushort Count = 1; CheckExists(UniquePath); Count++)
@@ -608,14 +613,13 @@ namespace RX_Explorer.Class
                                     {
                                         return true;
                                     }
-                                    else
-                                    {
-                                        return false;
-                                    }
                                 }
-                                else if (Filter.HasFlag(BasicFilters.File))
+                                else
                                 {
-                                    return true;
+                                    if (Filter.HasFlag(BasicFilters.File))
+                                    {
+                                        return true;
+                                    }
                                 }
                             }
                         }

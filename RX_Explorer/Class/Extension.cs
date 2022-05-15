@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using FluentFTP;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
 using RX_Explorer.View;
@@ -14,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -42,6 +44,32 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
+        public static async Task<string> GenerateUniquePathAsync(this FtpClient Client, string Path, CreateType ItemType)
+        {
+            string UniquePath = Path;
+
+            if (ItemType == CreateType.Folder ? await Client.DirectoryExistsAsync(UniquePath) : await Client.FileExistsAsync(UniquePath))
+            {
+                string FileName = ItemType == CreateType.Folder ? System.IO.Path.GetFileName(Path) : System.IO.Path.GetFileNameWithoutExtension(Path);
+                string Extension = ItemType == CreateType.Folder ? string.Empty : System.IO.Path.GetExtension(Path);
+                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                for (ushort Count = 1; ItemType == CreateType.Folder ? await Client.DirectoryExistsAsync(UniquePath) : await Client.FileExistsAsync(UniquePath); Count++)
+                {
+                    if (Regex.IsMatch(FileName, @".*\(\d+\)"))
+                    {
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{FileName.Substring(0, FileName.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
+                    }
+                    else
+                    {
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{FileName} ({Count}){Extension}");
+                    }
+                }
+            }
+
+            return UniquePath;
+        }
+
         public static async Task<T> GetStorageItemByTraverse<T>(this StorageFolder RootFolder, PathAnalysis Analysis) where T : class, IStorageItem
         {
             if (Analysis.HasNextLevel)

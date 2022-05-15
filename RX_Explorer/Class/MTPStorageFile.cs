@@ -16,33 +16,10 @@ namespace RX_Explorer.Class
 {
     public class MTPStorageFile : FileSystemStorageFile, IMTPStorageItem
     {
-        private MTPFileData RawData;
-        private readonly MTPStorageFolder ParentFolder;
         private string InnerDisplayType;
+        private readonly MTPStorageFolder Parent;
 
         public override string DisplayType => string.IsNullOrEmpty(InnerDisplayType) ? Type : InnerDisplayType;
-
-        public override bool IsReadOnly => RawData.IsReadOnly;
-
-        public override bool IsSystemItem => RawData.IsSystemItem;
-
-        public override ulong Size
-        {
-            get => RawData?.Size ?? base.Size;
-            protected set => base.Size = value;
-        }
-
-        public override DateTimeOffset CreationTime
-        {
-            get => RawData?.CreationTime ?? base.CreationTime;
-            protected set => base.CreationTime = value;
-        }
-
-        public override DateTimeOffset ModifiedTime
-        {
-            get => RawData?.ModifiedTime ?? base.ModifiedTime;
-            protected set => base.ModifiedTime = value;
-        }
 
         public string DeviceId => @$"\\?\{new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()}";
 
@@ -82,11 +59,6 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-
-            if (RawData == null || ForceUpdate)
-            {
-                RawData = await GetRawDataAsync();
-            }
         }
 
         public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
@@ -122,22 +94,13 @@ namespace RX_Explorer.Class
             }
             else
             {
-                FileStream Stream = new FileStream(Handle, Access, 4096, true);
-
-                if (Access is FileAccess.Read)
-                {
-                    return Stream;
-                }
-                else
-                {
-                    return new MTPFileReadWriteStream(Path, Stream);
-                }
+                return new MTPFileSaveOnFlushStream(Path, new FileStream(Handle, Access, 4096, true));
             }
         }
 
         public override Task<ulong> GetSizeOnDiskAsync()
         {
-            return Task.FromResult<ulong>(0);
+            return Task.FromResult(Size);
         }
 
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
@@ -155,9 +118,9 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    if (ParentFolder != null)
+                    if (Parent != null)
                     {
-                        if (await ParentFolder.GetStorageItemAsync() is StorageFolder Folder)
+                        if (await Parent.GetStorageItemAsync() is StorageFolder Folder)
                         {
                             if (await Folder.TryGetItemAsync(Name) is StorageFile Item)
                             {
@@ -213,8 +176,7 @@ namespace RX_Explorer.Class
 
         public MTPStorageFile(MTPFileData Data, MTPStorageFolder Parent) : base(Data)
         {
-            RawData = Data;
-            ParentFolder = Parent;
+            this.Parent = Parent;
         }
     }
 }

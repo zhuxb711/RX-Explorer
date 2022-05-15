@@ -578,6 +578,8 @@ namespace RX_Explorer.View
                 {
                     SaveLastOpenedTab();
                 }
+
+                await FTPClientManager.CloseAllClientAsync();
             }
             catch (Exception ex)
             {

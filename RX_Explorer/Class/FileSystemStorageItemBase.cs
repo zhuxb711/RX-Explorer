@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32.SafeHandles;
+﻿using FluentFTP;
+using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
 using RX_Explorer.View;
 using ShareClassLibrary;
@@ -168,6 +169,21 @@ namespace RX_Explorer.Class
                             return await Exclusive.Controller.MTPCheckExistsAsync(Path);
                         }
                     }
+                    else if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                             || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                    {
+                        FTPPathAnalysis Analysis = new FTPPathAnalysis(Path);
+
+                        if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                        {
+                            if (Analysis.IsRootDirectory
+                                || await Controller.RunCommandAsync((Client) => Client.DirectoryExistsAsync(Analysis.RelatedPath))
+                                || await Controller.RunCommandAsync((Client) => Client.FileExistsAsync(Analysis.RelatedPath)))
+                            {
+                                return true;
+                            }
+                        }
+                    }
                     else
                     {
                         try
@@ -194,6 +210,10 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
+                }
+                catch (ArgumentException)
+                {
+                    //No need to handle this exception
                 }
                 catch (Exception ex)
                 {
@@ -243,6 +263,30 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
+                    else if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                             || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                    {
+                        FTPPathAnalysis Analysis = new FTPPathAnalysis(Path);
+
+                        if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                        {
+                            if (Analysis.IsRootDirectory)
+                            {
+                                return new FTPStorageFolder(Controller, new FTPFileData(Path, string.Empty, 0, FtpPermission.None, DateTimeOffset.MinValue, DateTimeOffset.MinValue));
+                            }
+                            else if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                            {
+                                if (Item.Type.HasFlag(FtpFileSystemObjectType.Directory))
+                                {
+                                    return new FTPStorageFolder(Controller, new FTPFileData(Path, Analysis.RelatedPath, 0, Item.OwnerPermissions, Item.Created.ToLocalTime(), Item.Modified.ToLocalTime()));
+                                }
+                                else
+                                {
+                                    return new FTPStorageFile(Controller, new FTPFileData(Path, Analysis.RelatedPath, Convert.ToUInt64(Item.Size), Item.OwnerPermissions, Item.Modified.ToLocalTime(), Item.Created.ToLocalTime()));
+                                }
+                            }
+                        }
+                    }
                     else
                     {
                         try
@@ -281,7 +325,7 @@ namespace RX_Explorer.Class
                                     }
                                 }
                             }
-                            catch (Exception ex) when (ex is not (FileNotFoundException or DirectoryNotFoundException))
+                            catch (Exception ex) when (ex is not (ArgumentException or FileNotFoundException or DirectoryNotFoundException))
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 using (SafeFileHandle Handle = await Exclusive.Controller.GetNativeHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None))
@@ -299,6 +343,10 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
+                catch (ArgumentException)
+                {
+                    //No need to handle this exception
+                }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, $"{nameof(OpenAsync)} failed and could not get the storage item, path:\"{Path}\"");
@@ -308,7 +356,27 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public static async Task<FileSystemStorageItemBase> CreateNewAsync(string Path, StorageItemTypes ItemTypes, CreateOption Option)
+        public static async Task<Stream> CreateOneTimeFileStreamAsync(string TempFilePath = null)
+        {
+            SafeFileHandle Handle = NativeWin32API.CreateOneTimeFileHandle(TempFilePath);
+
+            if (Handle.IsInvalid)
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    Handle = await Exclusive.Controller.CreateOneTimeFileHandleAsync(TempFilePath);
+                }
+            }
+
+            if (Handle.IsInvalid)
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            return new FileStream(Handle, FileAccess.ReadWrite, 4096, true);
+        }
+
+        public static async Task<FileSystemStorageItemBase> CreateNewAsync(string Path, CreateType ItemTypes, CreateOption Option)
         {
             try
             {
@@ -322,11 +390,11 @@ namespace RX_Explorer.Class
                         {
                             switch (ItemTypes)
                             {
-                                case StorageItemTypes.File:
+                                case CreateType.File:
                                     {
                                         return new MTPStorageFile(Data);
                                     }
-                                case StorageItemTypes.Folder:
+                                case CreateType.Folder:
                                     {
                                         return new MTPStorageFolder(Data);
                                     }
@@ -338,7 +406,7 @@ namespace RX_Explorer.Class
                 {
                     switch (ItemTypes)
                     {
-                        case StorageItemTypes.File:
+                        case CreateType.File:
                             {
                                 try
                                 {
@@ -390,7 +458,7 @@ namespace RX_Explorer.Class
 
                                 break;
                             }
-                        case StorageItemTypes.Folder:
+                        case CreateType.Folder:
                             {
                                 try
                                 {
@@ -464,9 +532,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageItemBase(NativeFileData Data) : this(Data.Path)
+        protected FileSystemStorageItemBase(NativeFileData Data) : this(Data?.Path)
         {
-            if (Data != null && Data.IsDataValid)
+            if ((Data?.IsDataValid).GetValueOrDefault())
             {
                 Size = Data.Size;
                 IsReadOnly = Data.IsReadOnly;
@@ -477,7 +545,20 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageItemBase(MTPFileData Data) : this(Data.Path)
+        protected FileSystemStorageItemBase(MTPFileData Data) : this(Data?.Path)
+        {
+            if (Data != null)
+            {
+                Size = Data.Size;
+                IsReadOnly = Data.IsReadOnly;
+                IsSystemItem = Data.IsSystemItem;
+                IsHiddenItem = Data.IsHiddenItem;
+                ModifiedTime = Data.ModifiedTime;
+                CreationTime = Data.CreationTime;
+            }
+        }
+
+        protected FileSystemStorageItemBase(FTPFileData Data) : this(Data?.Path)
         {
             if (Data != null)
             {

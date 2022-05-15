@@ -31,14 +31,19 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (!RootStorageFolder.Current.DisplayName.Equals(DisplayName, StringComparison.OrdinalIgnoreCase))
+                    if (!RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
+                        switch (await FileSystemStorageItemBase.OpenAsync(Path))
                         {
-                            if (await Folder.GetStorageItemAsync() is StorageFolder InnerFolder)
-                            {
-                                DisplayName = InnerFolder.DisplayName;
-                            }
+                            case FileSystemStorageFolder Folder when Folder is not (MTPStorageFolder or FTPStorageFolder):
+                                {
+                                    if (await Folder.GetStorageItemAsync() is StorageFolder InnerFolder)
+                                    {
+                                        DisplayName = InnerFolder.DisplayName;
+                                    }
+
+                                    break;
+                                }
                         }
                     }
                 }

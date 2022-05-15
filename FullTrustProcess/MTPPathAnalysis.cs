@@ -1,4 +1,7 @@
-﻿namespace FullTrustProcess
+﻿using System;
+using System.Linq;
+
+namespace FullTrustProcess
 {
     public sealed class MTPPathAnalysis
     {
@@ -6,10 +9,15 @@
 
         public string RelativePath { get; }
 
-        public MTPPathAnalysis(string DeviceId, string RelativePath)
+        public MTPPathAnalysis(string Path)
         {
-            this.DeviceId = DeviceId;
-            this.RelativePath = RelativePath;
+            string[] SplitArray = new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+
+            if (SplitArray.Length > 0)
+            {
+                DeviceId = @$"\\?\{SplitArray[0]}";
+                RelativePath = @$"\{string.Join('\\', SplitArray.Skip(1))}";
+            }
         }
     }
 }

@@ -77,7 +77,7 @@ namespace RX_Explorer.Class
                     {
                         if (await DownloadBingPictureToTemporaryFileAsync(DownloadPath) is FileSystemStorageFile TempFile)
                         {
-                            if (await FileSystemStorageItemBase.CreateNewAsync(PicturePath, StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile PictureFile)
+                            if (await FileSystemStorageItemBase.CreateNewAsync(PicturePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile PictureFile)
                             {
                                 using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                 using (Stream PictureFileStream = await PictureFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
@@ -107,7 +107,7 @@ namespace RX_Explorer.Class
                 {
                     string TempPath = Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg");
 
-                    if (await FileSystemStorageItemBase.CreateNewAsync(TempPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
+                    if (await FileSystemStorageItemBase.CreateNewAsync(TempPath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
                     {
                         Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential);
 

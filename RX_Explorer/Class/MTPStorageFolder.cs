@@ -18,24 +18,7 @@ namespace RX_Explorer.Class
 {
     public class MTPStorageFolder : FileSystemStorageFolder, IMTPStorageItem
     {
-        private MTPFileData RawData;
         private readonly MTPStorageFolder ParentFolder;
-
-        public override bool IsReadOnly => RawData.IsReadOnly;
-
-        public override bool IsSystemItem => RawData.IsSystemItem;
-
-        public override DateTimeOffset CreationTime
-        {
-            get => RawData?.CreationTime ?? base.CreationTime;
-            protected set => base.CreationTime = value;
-        }
-
-        public override DateTimeOffset ModifiedTime
-        {
-            get => RawData?.ModifiedTime ?? base.ModifiedTime;
-            protected set => base.ModifiedTime = value;
-        }
 
         public string DeviceId => @$"\\?\{new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()}";
 
@@ -49,12 +32,9 @@ namespace RX_Explorer.Class
             return Task.FromResult<IRandomAccessStream>(null);
         }
 
-        protected override async Task LoadCoreAsync(bool ForceUpdate)
+        protected override Task LoadCoreAsync(bool ForceUpdate)
         {
-            if (RawData == null || ForceUpdate)
-            {
-                RawData = await GetRawDataAsync();
-            }
+            return Task.CompletedTask;
         }
 
         public override async Task<IStorageItem> GetStorageItemAsync()
@@ -144,21 +124,21 @@ namespace RX_Explorer.Class
                                      : Result.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
         }
 
-        public override async Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, StorageItemTypes ItemTypes, CreateOption Option)
+        public override async Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, CreateType ItemType, CreateOption Option)
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                MTPFileData Data = await Exclusive.Controller.MTPCreateSubItemAsync(Path, Name, ItemTypes, Option);
+                MTPFileData Data = await Exclusive.Controller.MTPCreateSubItemAsync(Path, Name, ItemType, Option);
 
                 if (Data != null)
                 {
-                    switch (ItemTypes)
+                    switch (ItemType)
                     {
-                        case StorageItemTypes.File:
+                        case CreateType.File:
                             {
                                 return new MTPStorageFile(Data, this);
                             }
-                        case StorageItemTypes.Folder:
+                        case CreateType.Folder:
                             {
                                 return new MTPStorageFolder(Data, this);
                             }
@@ -166,14 +146,6 @@ namespace RX_Explorer.Class
                 }
 
                 return null;
-            }
-        }
-
-        public override async Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
-        {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-            {
-                return await Exclusive.Controller.GetMTPFolderSizeAsync(Path, CancelToken);
             }
         }
 
@@ -231,7 +203,6 @@ namespace RX_Explorer.Class
 
         private MTPStorageFolder(MTPFileData Data, MTPStorageFolder Parent) : base(Data)
         {
-            RawData = Data;
             ParentFolder = Parent;
         }
     }

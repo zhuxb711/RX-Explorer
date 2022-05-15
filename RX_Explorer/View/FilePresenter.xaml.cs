@@ -2813,7 +2813,7 @@ namespace RX_Explorer.View
                             ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection),
                         };
 
-                        if (Folder is not MTPStorageFolder)
+                        if (Folder is not (MTPStorageFolder or FTPStorageFolder))
                         {
                             ParallelTaskList.Add(AreaWatcher.StartMonitorAsync(Folder.Path));
                         }
@@ -2936,7 +2936,7 @@ namespace RX_Explorer.View
 
         private async void Current_Resuming(object sender, object e)
         {
-            if (CurrentFolder is not (RootStorageFolder or MTPStorageFolder))
+            if (CurrentFolder is not (RootStorageFolder or MTPStorageFolder or FTPStorageFolder))
             {
                 await AreaWatcher.StartMonitorAsync(CurrentFolder?.Path);
             }
@@ -3486,6 +3486,10 @@ namespace RX_Explorer.View
                                             }
                                         }
                                     }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex);
+                                    }
                                     finally
                                     {
                                         Deferral.Complete();
@@ -3525,6 +3529,10 @@ namespace RX_Explorer.View
                                             }
                                         }
                                     }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex);
                                 }
                                 finally
                                 {
@@ -4219,7 +4227,7 @@ namespace RX_Explorer.View
 
                                         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                         {
-                                            if (await CurrentFolder.CreateNewSubItemAsync($"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}", StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
+                                            if (await CurrentFolder.CreateNewSubItemAsync($"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}", CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
                                             {
                                                 if (await Item.GetStorageItemAsync() is StorageFile DestinationFile)
                                                 {
@@ -4522,7 +4530,7 @@ namespace RX_Explorer.View
 
             if (await FileSystemStorageItemBase.CheckExistsAsync(CurrentFolder.Path))
             {
-                if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
+                if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreateType.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                 {
                     OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
 
@@ -4694,7 +4702,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(Refresh_Click)} throw an exception");
+                LogTracer.Log(ex, $"{nameof(Refresh_Click)} throw an exception");
             }
         }
 
@@ -5179,7 +5187,7 @@ namespace RX_Explorer.View
 
                         if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
-                            if (await CurrentFolder.CreateNewSubItemAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+                            if (await CurrentFolder.CreateNewSubItemAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                             {
                                 if (await NewFile.GetStorageItemAsync() is StorageFile ExportFile)
                                 {
@@ -5249,7 +5257,7 @@ namespace RX_Explorer.View
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        if (await CurrentFolder.CreateNewSubItemAsync($"{File.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+                        if (await CurrentFolder.CreateNewSubItemAsync($"{File.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                         {
                             if (await NewFile.GetStorageItemAsync() is StorageFile ExportFile)
                             {
@@ -5415,7 +5423,7 @@ namespace RX_Explorer.View
                             }
                         default:
                             {
-                                if (await CurrentFolder.CreateNewSubItemAsync(NewFileName, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+                                if (await CurrentFolder.CreateNewSubItemAsync(NewFileName, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
                                 {
                                     NewFile = File;
                                 }
@@ -5874,7 +5882,7 @@ namespace RX_Explorer.View
                     }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                 }
 
-                if (Item is not IMTPStorageItem)
+                if (Item is not (IMTPStorageItem or IFTPStorageItem))
                 {
                     DelayTooltipCancellation?.Cancel();
                     DelayTooltipCancellation?.Dispose();
@@ -6027,6 +6035,10 @@ namespace RX_Explorer.View
                                             }
                                         }
                                     }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex);
                                 }
                                 finally
                                 {
@@ -6822,7 +6834,7 @@ namespace RX_Explorer.View
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        FileSystemStorageFolder TargetFolder = await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(Dialog.ExtractLocation, File.Name.Split(".")[0]), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) as FileSystemStorageFolder;
+                        FileSystemStorageFolder TargetFolder = await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(Dialog.ExtractLocation, File.Name.Split(".")[0]), CreateType.Folder, CreateOption.GenerateUniqueName) as FileSystemStorageFolder;
 
                         if (TargetFolder == null)
                         {

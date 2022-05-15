@@ -301,7 +301,7 @@ namespace RX_Explorer.Class
                                                             }
                                                         }
 
-                                                        if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(CModel.CopyTo, FileName), StorageItemTypes.File, CreateOption.GenerateUniqueName).Result is FileSystemStorageFile NewFile)
+                                                        if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(CModel.CopyTo, FileName), CreateType.File, CreateOption.GenerateUniqueName).Result is FileSystemStorageFile NewFile)
                                                         {
                                                             using (Stream FStream = NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential).Result)
                                                             using (Stream WebStream = Response.GetResponseStream())
@@ -481,7 +481,7 @@ namespace RX_Explorer.Class
                                                             }
                                                         }
 
-                                                        if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(MModel.MoveTo, FileName), StorageItemTypes.File, CreateOption.GenerateUniqueName).Result is FileSystemStorageFile NewFile)
+                                                        if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(MModel.MoveTo, FileName), CreateType.File, CreateOption.GenerateUniqueName).Result is FileSystemStorageFile NewFile)
                                                         {
                                                             using (Stream FStream = NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential).Result)
                                                             using (Stream WebStream = Response.GetResponseStream())

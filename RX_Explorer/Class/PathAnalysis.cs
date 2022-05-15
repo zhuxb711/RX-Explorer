@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace RX_Explorer.Class
 {
@@ -65,6 +66,11 @@ namespace RX_Explorer.Class
                     else if (this.FullPath.StartsWith(@"\\"))
                     {
                         Split[0] = $@"\\{Split[0]}\";
+                    }
+                    else if (this.FullPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                             || this.FullPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Split[0] = $@"{string.Join(@"\\", Split.Take(2))}\";
                     }
                     else
                     {
