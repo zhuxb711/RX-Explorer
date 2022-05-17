@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Windows.ApplicationModel.Core;
-using Windows.Storage;
 using Windows.UI.Core;
 
 namespace RX_Explorer.Class
@@ -331,7 +330,7 @@ namespace RX_Explorer.Class
                                         }
                                         else
                                         {
-                                            CollisionOptions Option = CollisionOptions.None;
+                                            CollisionOptions Option = CollisionOptions.Skip;
 
                                             if (CModel.CopyFrom.All((Item) => Path.GetDirectoryName(Item).Equals(CModel.CopyTo, StringComparison.OrdinalIgnoreCase)))
                                             {
@@ -370,15 +369,36 @@ namespace RX_Explorer.Class
                                                     }).AsTask().Wait();
                                                 }
 
-                                                using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                                                if (CModel.CopyFrom.All((Item) => Item.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) || Item.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                                                    || CModel.CopyTo.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) || CModel.CopyTo.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    Exclusive.Controller.CopyAsync(CModel.CopyFrom, CModel.CopyTo, Option, CancelToken: CancelToken, ProgressHandler: (s, e) =>
+                                                    int Progress = 0;
+
+                                                    foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(CModel.CopyFrom, CancelToken).ToEnumerable())
                                                     {
-                                                        Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                        Item.CopyAsync(CModel.CopyTo, Option, (s, e) =>
                                                         {
-                                                            CModel.UpdateProgress(e.ProgressPercentage);
-                                                        }).AsTask(), ProgressChangedCoreAsync());
-                                                    }).Wait();
+                                                            Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                            {
+                                                                CModel.UpdateProgress(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(CModel.CopyFrom.Length))));
+                                                            }).AsTask(), ProgressChangedCoreAsync());
+
+                                                            Progress += 100;
+                                                        }).Wait();
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                                                    {
+                                                        Exclusive.Controller.CopyAsync(CModel.CopyFrom, CModel.CopyTo, Option, CancelToken: CancelToken, ProgressHandler: (s, e) =>
+                                                        {
+                                                            Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                            {
+                                                                CModel.UpdateProgress(e.ProgressPercentage);
+                                                            }).AsTask(), ProgressChangedCoreAsync());
+                                                        }).Wait();
+                                                    }
                                                 }
                                             }
                                         }
@@ -420,7 +440,7 @@ namespace RX_Explorer.Class
                                 {
                                     try
                                     {
-                                        CollisionOptions Option = CollisionOptions.None;
+                                        CollisionOptions Option = CollisionOptions.Skip;
 
                                         List<Uri> UriList = new List<Uri>();
 

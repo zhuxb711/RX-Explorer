@@ -24,15 +24,15 @@ namespace RX_Explorer.Class
         {
             if (Regex.IsMatch(Path, @"^ftp(s)?:\\.+", RegexOptions.IgnoreCase))
             {
-                if (Regex.IsMatch(Path, @"^ftp(s)?:\\[^\\].+", RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(Path, @"^ftp(s)?:\\\\.+", RegexOptions.IgnoreCase))
                 {
                     if (Path.StartsWith("ftp:", StringComparison.OrdinalIgnoreCase))
                     {
-                        Path = Path.Insert(5, @"\");
+                        Path = Path.Remove(5, 1);
                     }
                     else if (Path.StartsWith("ftps:", StringComparison.OrdinalIgnoreCase))
                     {
-                        Path = Path.Insert(6, @"\");
+                        Path = Path.Remove(6, 1);
                     }
                 }
 

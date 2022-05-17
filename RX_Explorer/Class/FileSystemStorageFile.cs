@@ -1,7 +1,9 @@
-﻿using Microsoft.Win32.SafeHandles;
+﻿using FluentFTP;
+using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -201,6 +203,62 @@ namespace RX_Explorer.Class
             }
 
             return null;
+        }
+
+        public override async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            if (DirectoryPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                || DirectoryPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+            {
+                FTPPathAnalysis TargetAnalysis = new FTPPathAnalysis(System.IO.Path.Combine(DirectoryPath, Name));
+
+                if (await FTPClientManager.GetClientControllerAsync(TargetAnalysis) is FTPClientController TargetClientController)
+                {
+                    Stream FileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential);
+
+                    switch (Option)
+                    {
+                        case CollisionOptions.OverrideOnCollision:
+                            {
+                                if (await TargetClientController.RunCommandAsync((Client) => Client.UploadAsync(FileStream, TargetAnalysis.RelatedPath, FtpRemoteExists.Overwrite, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))) == FtpStatus.Failed)
+                                {
+                                    throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}");
+                                }
+
+                                break;
+                            }
+
+                        case CollisionOptions.RenameOnCollision:
+                            {
+                                string UniquePath = await TargetClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
+
+                                if (await TargetClientController.RunCommandAsync((Client) => Client.UploadAsync(FileStream, UniquePath, FtpRemoteExists.NoCheck, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))) == FtpStatus.Failed)
+                                {
+                                    throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}");
+                                }
+
+                                break;
+                            }
+                        case CollisionOptions.Skip:
+                            {
+                                if (await TargetClientController.RunCommandAsync((Client) => Client.UploadAsync(FileStream, TargetAnalysis.RelatedPath, FtpRemoteExists.Skip, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))) == FtpStatus.Failed)
+                                {
+                                    throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}");
+                                }
+
+                                break;
+                            }
+                    }
+                }
+                else
+                {
+                    throw new Exception($"Could not find the ftp server: {TargetAnalysis.Host}");
+                }
+            }
+            else
+            {
+                await base.CopyAsync(DirectoryPath, Option, ProgressHandler);
+            }
         }
 
         public static explicit operator StorageFile(FileSystemStorageFile File)

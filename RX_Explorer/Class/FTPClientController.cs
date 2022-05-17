@@ -65,6 +65,17 @@ namespace RX_Explorer.Class
             });
         }
 
+        public Task RunCommandAsync(Func<FtpClient, Task> Executor)
+        {
+            FTPTaskData Data = new FTPTaskData(Executor);
+
+            TaskQueue.Enqueue(Data);
+
+            ProcessSleepLocker.Set();
+
+            return Data.CompletionSource.Task;
+        }
+
         public Task<T> RunCommandAsync<T>(Func<FtpClient, Task<T>> Executor)
         {
             FTPTaskData Data = new FTPTaskData(Executor);
@@ -125,6 +136,11 @@ namespace RX_Explorer.Class
             }
 
             return false;
+        }
+
+        public FtpClient DangerousGetFtpClient()
+        {
+            return Client;
         }
 
         public void Dispose()

@@ -245,7 +245,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         MultiLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
                         MultiLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                        while (PivotControl.Items.Count > (StorageItems.Any((Item) => Item is IMTPStorageItem) ? 1 : 2))
+                        while (PivotControl.Items.Count > (StorageItems.Any((Item) => Item is IMTPStorageItem or IFTPStorageItem) ? 1 : 2))
                         {
                             PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
                         }
@@ -270,7 +270,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FolderLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
                                     FolderLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                                    while (PivotControl.Items.Count > (Folder is IMTPStorageItem ? 1 : 2))
+                                    while (PivotControl.Items.Count > (Folder is IMTPStorageItem or IFTPStorageItem ? 1 : 2))
                                     {
                                         PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
                                     }
@@ -287,7 +287,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
                                     FileLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                                    if (File is MTPStorageFile)
+                                    if (File is MTPStorageFile or FTPStorageFile)
                                     {
                                         PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock)?.Text == Globalization.GetString("Properties_Tools_Tab")));
                                         PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock)?.Text == Globalization.GetString("Properties_Security_Tab")));
@@ -577,7 +577,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 LoadDataForGeneralPage()
             };
 
-            if (RootDrive is not MTPDriveData && (StorageItems?.All((Item) => Item is not IMTPStorageItem)).GetValueOrDefault(true))
+            if (RootDrive is not MTPDriveData && (StorageItems?.All((Item) => Item is not (IMTPStorageItem or IFTPStorageItem))).GetValueOrDefault(true))
             {
                 ParallelLoadingList.Add(LoadDataForSecurityPage());
             }
@@ -793,7 +793,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     string ContentType = string.Empty;
 
-                    if (StorageItem is not IMTPStorageItem)
+                    if (StorageItem is not (IMTPStorageItem or IFTPStorageItem))
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
@@ -1145,8 +1145,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                                                : (Array.TrueForAll(StorageItems, (Item) => !Item.IsReadOnly)
                                                                                        ? false
                                                                                        : null));
-                        MultiHiddenAttribute.IsEnabled = StorageItems.All((Item) => Item is not IMTPStorageItem);
-                        MultiReadonlyAttribute.IsEnabled = StorageItems.All((Item) => Item is not IMTPStorageItem);
+                        MultiHiddenAttribute.IsEnabled = StorageItems.All((Item) => Item is not (IMTPStorageItem or IFTPStorageItem));
+                        MultiReadonlyAttribute.IsEnabled = StorageItems.All((Item) => Item is not (IMTPStorageItem or IFTPStorageItem));
 
                         try
                         {
@@ -1226,8 +1226,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FolderCreatedContent.Text = Folder.CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || Folder.CreationTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : Folder.CreationTime.ToString("F");
                                     FolderHiddenAttribute.IsChecked = Folder.IsHiddenItem;
                                     FolderReadonlyAttribute.IsChecked = null;
-                                    FolderHiddenAttribute.IsEnabled = Folder is not IMTPStorageItem;
-                                    FolderReadonlyAttribute.IsEnabled = Folder is not IMTPStorageItem;
+                                    FolderHiddenAttribute.IsEnabled = Folder is not (IMTPStorageItem or IFTPStorageItem);
+                                    FolderReadonlyAttribute.IsEnabled = Folder is not (IMTPStorageItem or IFTPStorageItem);
 
                                     try
                                     {
@@ -1266,8 +1266,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileCreatedContent.Text = File.CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || File.CreationTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.CreationTime.ToString("F");
                                     FileModifiedContent.Text = File.ModifiedTime == DateTimeOffset.MaxValue.ToLocalTime() || File.ModifiedTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.ModifiedTime.ToString("F");
                                     FileHiddenAttribute.IsChecked = File.IsHiddenItem;
-                                    FileHiddenAttribute.IsEnabled = File is not IMTPStorageItem;
-                                    FileReadonlyAttribute.IsEnabled = File is not IMTPStorageItem;
+                                    FileHiddenAttribute.IsEnabled = File is not (IMTPStorageItem or IFTPStorageItem);
+                                    FileReadonlyAttribute.IsEnabled = File is not (IMTPStorageItem or IFTPStorageItem);
 
                                     if (Regex.IsMatch(File.Name, @"\.(exe|bat|lnk|url)$"))
                                     {

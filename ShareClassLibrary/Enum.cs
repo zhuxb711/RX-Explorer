@@ -25,7 +25,7 @@
 
     public enum CollisionOptions
     {
-        None,
+        Skip,
         RenameOnCollision,
         OverrideOnCollision
     }

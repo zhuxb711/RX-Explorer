@@ -14,7 +14,7 @@ namespace RX_Explorer.Class
         {
             string TempFilePath = System.IO.Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N"));
 
-            using (Stream TempStream = await FileSystemStorageItemBase.CreateOneTimeFileStreamAsync(TempFilePath))
+            using (Stream TempStream = await FileSystemStorageItemBase.CreateLocalOneTimeFileStreamAsync(TempFilePath))
             {
                 BaseStream.Seek(0, SeekOrigin.Begin);
 

@@ -618,7 +618,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        if (PathArray.All((Path) => !Path.StartsWith(@"\\?\")))
+                        if (PathArray.All((Path) => !Path.StartsWith(@"\\?\") && !Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) && !Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)))
                         {
                             IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
 

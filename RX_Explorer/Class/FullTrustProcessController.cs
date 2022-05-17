@@ -482,7 +482,7 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<SafeFileHandle> CreateOneTimeFileHandleAsync(string TempFilePath = null)
+        public async Task<SafeFileHandle> CreateLocalOneTimeFileHandleAsync(string TempFilePath = null)
         {
             if (await SendCommandAsync(CommandType.CreateOneTimeFileHandle, ("TempFilePath", TempFilePath ?? string.Empty)) is IDictionary<string, string> Response)
             {
@@ -492,7 +492,7 @@ namespace RX_Explorer.Class
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(CreateOneTimeFileHandleAsync)}, message: {ErrorMessage}");
+                    LogTracer.Log($"An unexpected error was threw in {nameof(CreateLocalOneTimeFileHandleAsync)}, message: {ErrorMessage}");
                 }
             }
 
@@ -632,7 +632,7 @@ namespace RX_Explorer.Class
                                        ("Option", Option switch
                                        {
                                            CreateOption.ReplaceExisting => Enum.GetName(typeof(CollisionOptions), CollisionOptions.OverrideOnCollision),
-                                           CreateOption.OpenIfExist => Enum.GetName(typeof(CollisionOptions), CollisionOptions.None),
+                                           CreateOption.OpenIfExist => Enum.GetName(typeof(CollisionOptions), CollisionOptions.Skip),
                                            CreateOption.GenerateUniqueName => Enum.GetName(typeof(CollisionOptions), CollisionOptions.RenameOnCollision),
                                            _ => throw new NotSupportedException()
                                        })) is IDictionary<string, string> Response)
@@ -2044,7 +2044,7 @@ namespace RX_Explorer.Class
 
         public async Task MoveAsync(Dictionary<string, string> Source,
                                     string DestinationPath,
-                                    CollisionOptions Option = CollisionOptions.None,
+                                    CollisionOptions Option = CollisionOptions.Skip,
                                     bool SkipOperationRecord = false,
                                     CancellationToken CancelToken = default,
                                     ProgressChangedEventHandler ProgressHandler = null)
@@ -2136,7 +2136,7 @@ namespace RX_Explorer.Class
 
         public Task MoveAsync(IEnumerable<string> Source,
                               string DestinationPath,
-                              CollisionOptions Option = CollisionOptions.None,
+                              CollisionOptions Option = CollisionOptions.Skip,
                               bool SkipOperationRecord = false,
                               CancellationToken CancelToken = default,
                               ProgressChangedEventHandler ProgressHandler = null)
@@ -2153,7 +2153,7 @@ namespace RX_Explorer.Class
 
         public Task MoveAsync(string SourcePath,
                               string Destination,
-                              CollisionOptions Option = CollisionOptions.None,
+                              CollisionOptions Option = CollisionOptions.Skip,
                               bool SkipOperationRecord = false,
                               CancellationToken CancelToken = default,
                               ProgressChangedEventHandler ProgressHandler = null)
@@ -2173,7 +2173,7 @@ namespace RX_Explorer.Class
 
         public async Task CopyAsync(IEnumerable<string> Source,
                                     string DestinationPath,
-                                    CollisionOptions Option = CollisionOptions.None,
+                                    CollisionOptions Option = CollisionOptions.Skip,
                                     bool SkipOperationRecord = false,
                                     CancellationToken CancelToken = default,
                                     ProgressChangedEventHandler ProgressHandler = null)
@@ -2260,7 +2260,7 @@ namespace RX_Explorer.Class
 
         public Task CopyAsync(string SourcePath,
                               string Destination,
-                              CollisionOptions Option = CollisionOptions.None,
+                              CollisionOptions Option = CollisionOptions.Skip,
                               bool SkipOperationRecord = false,
                               CancellationToken CancelToken = default,
                               ProgressChangedEventHandler ProgressHandler = null)

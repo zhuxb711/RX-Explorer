@@ -3468,14 +3468,16 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder)
+                                                FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
+
+                                                if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
                                                 {
-                                                    foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(MTPFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                                                    foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                                                     {
                                                         await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
                                                     }
 
-                                                    if (MTPFolder == CurrentFolder)
+                                                    if (this.CurrentFolder == CurrentFolder)
                                                     {
                                                         await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                         {
@@ -3520,7 +3522,9 @@ namespace RX_Explorer.View
                                                                                                                   .Cast<TabItemContentRenderer>()
                                                                                                                   .SelectMany((Renderer) => Renderer.Presenters))
                                         {
-                                            if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                            FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
+
+                                            if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
                                             {
                                                 await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                 {
@@ -3688,7 +3692,9 @@ namespace RX_Explorer.View
                                                                                                           .Cast<TabItemContentRenderer>()
                                                                                                           .SelectMany((Renderer) => Renderer.Presenters))
                                 {
-                                    if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                    FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
+
+                                    if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
                                     {
                                         foreach (FileSystemStorageItemBase Item in DeleteItems)
                                         {
@@ -3763,7 +3769,9 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                                FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
+
+                                                if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
                                                 {
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(SelectedItemsCopy.First().Path, NewName));
                                                 }
@@ -3814,7 +3822,9 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                                FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
+
+                                                if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
                                                 {
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
                                                 }
@@ -4748,7 +4758,7 @@ namespace RX_Explorer.View
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
-                                    if (File is MTPStorageFile)
+                                    if (File is MTPStorageFile or FTPStorageFile)
                                     {
                                         switch (File.Type.ToLower())
                                         {
@@ -5086,7 +5096,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        if (File is MTPStorageFile)
+                        if (File is MTPStorageFile or FTPStorageFile)
                         {
                             switch (Path.GetExtension(File.Path).ToLower())
                             {
@@ -5394,7 +5404,11 @@ namespace RX_Explorer.View
                             }
                         case ".lnk":
                             {
-                                if (CurrentFolder is not MTPStorageFolder)
+                                if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                {
+                                    throw new NotSupportedException();
+                                }
+                                else
                                 {
                                     LinkOptionsDialog Dialog = new LinkOptionsDialog();
 
@@ -5402,7 +5416,7 @@ namespace RX_Explorer.View
                                     {
                                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                         {
-                                            if (await Exclusive.Controller.CreateLinkAsync(new LinkFileData
+                                            if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                             {
                                                 LinkPath = Path.Combine(CurrentFolder.Path, NewFileName),
                                                 LinkTargetPath = Dialog.Path,
@@ -5413,13 +5427,13 @@ namespace RX_Explorer.View
                                                 Arguments = Dialog.Arguments
                                             }))
                                             {
-                                                break;
+                                                throw new UnauthorizedAccessException();
                                             }
                                         }
                                     }
                                 }
 
-                                throw new UnauthorizedAccessException();
+                                break;
                             }
                         default:
                             {
@@ -5434,7 +5448,7 @@ namespace RX_Explorer.View
 
                     if (NewFile != null)
                     {
-                        if (CurrentFolder is MTPStorageFolder)
+                        if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
                         {
                             foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                       .Cast<Frame>()
@@ -5978,14 +5992,16 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder)
+                                                FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
+
+                                                if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
                                                 {
-                                                    foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(MTPFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                                                    foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                                                     {
                                                         await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
                                                     }
 
-                                                    if (MTPFolder == CurrentFolder)
+                                                    if (this.CurrentFolder == CurrentFolder)
                                                     {
                                                         await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                         {
@@ -6026,7 +6042,9 @@ namespace RX_Explorer.View
                                                                                                                   .Cast<TabItemContentRenderer>()
                                                                                                                   .SelectMany((Renderer) => Renderer.Presenters))
                                         {
-                                            if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                            FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
+
+                                            if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
                                             {
                                                 await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                 {
@@ -6115,7 +6133,7 @@ namespace RX_Explorer.View
                     {
                         string LaunchPath = string.Empty;
 
-                        if (CurrentFolder is MTPStorageFolder)
+                        if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
                         {
                             LaunchPath = Environment.GetFolderPath(Environment.SpecialFolder.System);
                         }
@@ -6293,7 +6311,9 @@ namespace RX_Explorer.View
                                                                                                               .Cast<TabItemContentRenderer>()
                                                                                                               .SelectMany((Renderer) => Renderer.Presenters))
                                     {
-                                        if (Presenter.CurrentFolder is MTPStorageFolder MTPFolder && MTPFolder == CurrentFolder)
+                                        FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
+
+                                        if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
                                         {
                                             await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(CurrentEditItem.Path, NewName));
                                         }
@@ -7573,7 +7593,7 @@ namespace RX_Explorer.View
 
                         FileSystemStorageItemBase Item = SelectedItemsCopy.First();
 
-                        if (Item is not IMTPStorageItem)
+                        if (Item is not (IMTPStorageItem or IFTPStorageItem))
                         {
                             switch (Item.Type.ToLower())
                             {

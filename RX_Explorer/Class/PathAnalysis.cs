@@ -70,7 +70,7 @@ namespace RX_Explorer.Class
                     else if (this.FullPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                              || this.FullPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                     {
-                        Split[0] = $@"{string.Join(@"\\", Split.Take(2))}\";
+                        Split[0] = $@"{string.Join(@"\", Split.Take(2))}\";
                     }
                     else
                     {

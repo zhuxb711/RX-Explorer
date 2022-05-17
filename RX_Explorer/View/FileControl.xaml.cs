@@ -445,7 +445,7 @@ namespace RX_Explorer.View
                     {
                         if (CurrentSplit.Length > 0)
                         {
-                            RootPath = string.Join(@"\\", CurrentSplit.Take(2));
+                            RootPath = string.Join(@"\", CurrentSplit.Take(2));
                             CurrentSplit = CurrentSplit.Skip(2).Prepend(RootPath).ToArray();
                         }
                     }
@@ -508,7 +508,7 @@ namespace RX_Explorer.View
                                     else if (LastPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                                              || LastPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        LastPathSplit = LastPathSplit.Skip(2).Prepend(string.Join(@"\\", LastPathSplit.Take(2))).ToArray();
+                                        LastPathSplit = LastPathSplit.Skip(2).Prepend(string.Join(@"\", LastPathSplit.Take(2))).ToArray();
                                     }
                                 }
                             }
@@ -549,7 +549,7 @@ namespace RX_Explorer.View
                                         else if (LastGrayPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                                                  || LastGrayPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            LastGrayPathSplit = LastGrayPathSplit.Skip(2).Prepend(string.Join(@"\\", LastGrayPathSplit.Take(2))).ToArray();
+                                            LastGrayPathSplit = LastGrayPathSplit.Skip(2).Prepend(string.Join(@"\", LastGrayPathSplit.Take(2))).ToArray();
                                         }
                                     }
                                 }
@@ -581,7 +581,7 @@ namespace RX_Explorer.View
                                         else if (LastPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                                                  || LastPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            LastPathSplit = LastPathSplit.Skip(2).Prepend(string.Join(@"\\", LastPathSplit.Take(2))).ToArray();
+                                            LastPathSplit = LastPathSplit.Skip(2).Prepend(string.Join(@"\", LastPathSplit.Take(2))).ToArray();
                                         }
                                     }
                                 }
@@ -626,7 +626,7 @@ namespace RX_Explorer.View
                                 else if (CurrentPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                                          || CurrentPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    OriginSplit = OriginSplit.Skip(2).Prepend(string.Join(@"\\", OriginSplit.Take(2))).ToArray();
+                                    OriginSplit = OriginSplit.Skip(2).Prepend(string.Join(@"\", OriginSplit.Take(2))).ToArray();
                                 }
                             }
                         }
@@ -1227,7 +1227,9 @@ namespace RX_Explorer.View
                                                                                                               .Cast<TabItemContentRenderer>()
                                                                                                               .SelectMany((Renderer) => Renderer.Presenters))
                                     {
-                                        if (Presenter.CurrentFolder is MTPStorageFolder Folder && Path.GetDirectoryName(TargetContent.Path).Equals(Folder.Path, StringComparison.OrdinalIgnoreCase))
+                                        FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
+
+                                        if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && Path.GetDirectoryName(TargetContent.Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                         {
                                             await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(TargetContent.Path));
                                         }
@@ -1462,7 +1464,7 @@ namespace RX_Explorer.View
                     return;
                 }
 
-                if (CurrentPresenter.CurrentFolder is MTPStorageFolder)
+                if (CurrentPresenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
                 {
                     SearchInEverythingEngine.IsEnabled = false;
                 }
@@ -2584,7 +2586,7 @@ namespace RX_Explorer.View
 
         private void SearchEngineFlyout_Opening(object sender, object e)
         {
-            if (CurrentPresenter.CurrentFolder is MTPStorageFolder)
+            if (CurrentPresenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
             {
                 BuiltInSearchAllSubFolders.Visibility = Visibility.Visible;
 

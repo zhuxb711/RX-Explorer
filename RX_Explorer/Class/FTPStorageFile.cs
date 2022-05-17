@@ -4,6 +4,7 @@ using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,9 +17,11 @@ namespace RX_Explorer.Class
 {
     internal class FTPStorageFile : FileSystemStorageFile, IFTPStorageItem
     {
-        private readonly FTPClientController Controller;
+        private readonly FTPClientController ClientController;
         private readonly FTPFileData Data;
         private string InnerDisplayType;
+
+        public string RelatedPath { get => Data.RelatedPath; }
 
         public override string DisplayType => string.IsNullOrEmpty(InnerDisplayType) ? Type : InnerDisplayType;
 
@@ -67,16 +70,16 @@ namespace RX_Explorer.Class
 
         public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
-            Stream Stream = await CreateOneTimeFileStreamAsync();
+            Stream Stream = await CreateLocalOneTimeFileStreamAsync();
 
-            if (!await Controller.RunCommandAsync((Client) => Client.DownloadAsync(Stream, Data.RelatedPath)))
+            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(Stream, RelatedPath)))
             {
                 throw new InvalidDataException();
             }
 
             Stream.Seek(0, SeekOrigin.Begin);
 
-            return new FTPFileSaveOnFlushStream(Path, Controller, Stream);
+            return new FTPFileSaveOnFlushStream(Path, ClientController, Stream);
         }
 
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
@@ -94,10 +97,384 @@ namespace RX_Explorer.Class
             return Task.FromResult(Data);
         }
 
-        public FTPStorageFile(FTPClientController Controller, FTPFileData Data) : base(Data)
+        public override async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath)))
+            {
+                string TargetPath = System.IO.Path.Combine(DirectoryPath, Name);
+
+                if (DirectoryPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                    || DirectoryPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                {
+                    FTPPathAnalysis TargetAnalysis = new FTPPathAnalysis(TargetPath);
+
+                    if (await FTPClientManager.GetClientControllerAsync(TargetAnalysis) is FTPClientController TargetClientController)
+                    {
+                        if (TargetClientController == ClientController)
+                        {
+                            using (Stream TempFileStream = await CreateLocalOneTimeFileStreamAsync())
+                            {
+                                switch (Option)
+                                {
+                                    case CollisionOptions.OverrideOnCollision:
+                                        {
+                                            if (await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(TempFileStream, RelatedPath, progress: new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))))))
+                                            {
+                                                TempFileStream.Seek(0, SeekOrigin.Begin);
+
+                                                if (await ClientController.RunCommandAsync((Client) => Client.UploadAsync(TempFileStream, TargetAnalysis.RelatedPath, FtpRemoteExists.Overwrite, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))))) == FtpStatus.Failed)
+                                                {
+                                                    throw new Exception($"Could not upload the file to the ftp server: {ClientController.ServerHost}");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}");
+                                            }
+
+                                            break;
+                                        }
+
+                                    case CollisionOptions.RenameOnCollision:
+                                        {
+                                            string UniquePath = await ClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
+
+                                            if (await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(TempFileStream, RelatedPath, progress: new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))))))
+                                            {
+                                                TempFileStream.Seek(0, SeekOrigin.Begin);
+
+                                                if (await ClientController.RunCommandAsync((Client) => Client.UploadAsync(TempFileStream, UniquePath, FtpRemoteExists.NoCheck, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))))) == FtpStatus.Failed)
+                                                {
+                                                    throw new Exception($"Could not upload the file to the ftp server: {ClientController.ServerHost}");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}");
+                                            }
+
+                                            break;
+                                        }
+                                    case CollisionOptions.Skip:
+                                        {
+                                            if (await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(TempFileStream, RelatedPath, progress: new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))))))
+                                            {
+                                                TempFileStream.Seek(0, SeekOrigin.Begin);
+
+                                                if (await ClientController.RunCommandAsync((Client) => Client.UploadAsync(TempFileStream, TargetAnalysis.RelatedPath, FtpRemoteExists.Skip, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))))) == FtpStatus.Failed)
+                                                {
+                                                    throw new Exception($"Could not upload the file to the ftp server: {ClientController.ServerHost}");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}");
+                                            }
+
+                                            break;
+                                        }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            switch (Option)
+                            {
+                                case CollisionOptions.OverrideOnCollision:
+                                    {
+                                        if (await ClientController.RunCommandAsync((Client) => Client.TransferFileAsync(RelatedPath, TargetClientController.DangerousGetFtpClient(), TargetAnalysis.RelatedPath, true, FtpRemoteExists.Overwrite, FtpVerify.Delete, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))) == FtpStatus.Failed)
+                                        {
+                                            throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}");
+                                        }
+
+                                        break;
+                                    }
+
+                                case CollisionOptions.RenameOnCollision:
+                                    {
+                                        string UniquePath = await TargetClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
+
+                                        if (await ClientController.RunCommandAsync((Client) => Client.TransferFileAsync(RelatedPath, TargetClientController.DangerousGetFtpClient(), UniquePath, true, FtpRemoteExists.NoCheck, FtpVerify.Delete, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))) == FtpStatus.Failed)
+                                        {
+                                            throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}");
+                                        }
+
+                                        break;
+                                    }
+                                case CollisionOptions.Skip:
+                                    {
+                                        if (await ClientController.RunCommandAsync((Client) => Client.TransferFileAsync(RelatedPath, TargetClientController.DangerousGetFtpClient(), TargetAnalysis.RelatedPath, true, FtpRemoteExists.Skip, FtpVerify.Delete, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))) == FtpStatus.Failed)
+                                        {
+                                            throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}");
+                                        }
+
+                                        break;
+                                    }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"Could not find the ftp server: {TargetAnalysis.Host}");
+                    }
+                }
+                else
+                {
+                    string TargetFilePath = System.IO.Path.Combine(DirectoryPath, Name);
+
+                    switch (Option)
+                    {
+                        case CollisionOptions.OverrideOnCollision:
+                            {
+                                if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                {
+                                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                    {
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, progress: new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))))
+                                        {
+                                            throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}");
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                        case CollisionOptions.RenameOnCollision:
+                            {
+                                if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+                                {
+                                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                    {
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, progress: new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))))
+                                        {
+                                            throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}");
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                        case CollisionOptions.Skip:
+                            {
+                                if (!await CheckExistsAsync(TargetFilePath))
+                                {
+                                    if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                    {
+                                        using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                        {
+                                            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, progress: new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))))
+                                            {
+                                                throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}");
+                                            }
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                    }
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException(Path);
+            }
+        }
+
+        public override async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath)))
+            {
+                string TargetPath = System.IO.Path.Combine(DirectoryPath, Name);
+
+                if (DirectoryPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                    || DirectoryPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                {
+                    FTPPathAnalysis TargetAnalysis = new FTPPathAnalysis(TargetPath);
+
+                    if (await FTPClientManager.GetClientControllerAsync(TargetAnalysis) is FTPClientController TargetClientController)
+                    {
+                        if (TargetClientController == ClientController)
+                        {
+                            switch (Option)
+                            {
+                                case CollisionOptions.OverrideOnCollision:
+                                    {
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveFileAsync(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Overwrite)))
+                                        {
+                                            throw new Exception($"Could not move the file from: {Path} to: {TargetPath} on the ftp server: {ClientController.ServerHost}");
+                                        }
+
+                                        break;
+                                    }
+                                case CollisionOptions.RenameOnCollision:
+                                    {
+                                        string UniquePath = await ClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
+
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveFileAsync(RelatedPath, UniquePath, FtpRemoteExists.NoCheck)))
+                                        {
+                                            throw new Exception($"Could not move the file from: {Path} to: {TargetAnalysis.Host + UniquePath} on the ftp server: {ClientController.ServerHost}");
+                                        }
+
+                                        break;
+                                    }
+                                case CollisionOptions.Skip:
+                                    {
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveFileAsync(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Skip)))
+                                        {
+                                            throw new Exception($"Could not move the file from: {Path} to: {TargetPath} on the ftp server: {ClientController.ServerHost}");
+                                        }
+
+                                        break;
+                                    }
+                            }
+                        }
+                        else
+                        {
+                            switch (Option)
+                            {
+                                case CollisionOptions.OverrideOnCollision:
+                                    {
+                                        if (await ClientController.RunCommandAsync((Client) => Client.TransferFileAsync(RelatedPath, TargetClientController.DangerousGetFtpClient(), TargetAnalysis.RelatedPath, true, FtpRemoteExists.Overwrite, FtpVerify.Delete, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))) == FtpStatus.Failed)
+                                        {
+                                            throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}");
+                                        }
+
+                                        break;
+                                    }
+
+                                case CollisionOptions.RenameOnCollision:
+                                    {
+                                        string UniquePath = await TargetClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
+
+                                        if (await ClientController.RunCommandAsync((Client) => Client.TransferFileAsync(RelatedPath, TargetClientController.DangerousGetFtpClient(), UniquePath, true, FtpRemoteExists.NoCheck, FtpVerify.Delete, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))) == FtpStatus.Failed)
+                                        {
+                                            throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}");
+                                        }
+
+                                        break;
+                                    }
+                                case CollisionOptions.Skip:
+                                    {
+                                        if (await ClientController.RunCommandAsync((Client) => Client.TransferFileAsync(RelatedPath, TargetClientController.DangerousGetFtpClient(), TargetAnalysis.RelatedPath, true, FtpRemoteExists.Skip, FtpVerify.Delete, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))) == FtpStatus.Failed)
+                                        {
+                                            throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}");
+                                        }
+
+                                        break;
+                                    }
+                            }
+
+                            await ClientController.RunCommandAsync((Client) => Client.DeleteFileAsync(RelatedPath));
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"Could not find the ftp server: {TargetAnalysis.Host}");
+                    }
+                }
+                else
+                {
+                    string TargetFilePath = System.IO.Path.Combine(DirectoryPath, Name);
+
+                    switch (Option)
+                    {
+                        case CollisionOptions.OverrideOnCollision:
+                            {
+                                if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                {
+                                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                    {
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, progress: new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))))
+                                        {
+                                            throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}");
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                        case CollisionOptions.RenameOnCollision:
+                            {
+                                if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+                                {
+                                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                    {
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, progress: new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))))
+                                        {
+                                            throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}");
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                        case CollisionOptions.Skip:
+                            {
+                                if (!await CheckExistsAsync(TargetFilePath))
+                                {
+                                    if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                    {
+                                        using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                        {
+                                            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, progress: new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))))
+                                            {
+                                                throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}");
+                                            }
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                    }
+
+                    await ClientController.RunCommandAsync((Client) => Client.DeleteFileAsync(RelatedPath));
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException(Path);
+            }
+        }
+
+        public override async Task<string> RenameAsync(string DesireName)
+        {
+            if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath)))
+            {
+                string TargetPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(RelatedPath), DesireName);
+
+                if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetPath)))
+                {
+                    TargetPath = await ClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetPath, CreateType.File));
+                }
+
+                await ClientController.RunCommandAsync((Client) => Client.RenameAsync(RelatedPath, TargetPath));
+
+                return TargetPath;
+            }
+            else
+            {
+                throw new FileNotFoundException(Path);
+            }
+        }
+
+        public override async Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath)))
+            {
+                await ClientController.RunCommandAsync((Client) => Client.DeleteFileAsync(RelatedPath));
+            }
+            else
+            {
+                throw new FileNotFoundException(Path);
+            }
+        }
+
+        public FTPStorageFile(FTPClientController ClientController, FTPFileData Data) : base(Data)
         {
             this.Data = Data;
-            this.Controller = Controller;
+            this.ClientController = ClientController;
         }
     }
 }

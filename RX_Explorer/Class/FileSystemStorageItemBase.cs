@@ -272,7 +272,7 @@ namespace RX_Explorer.Class
                         {
                             if (Analysis.IsRootDirectory)
                             {
-                                return new FTPStorageFolder(Controller, new FTPFileData(Path, string.Empty, 0, FtpPermission.None, DateTimeOffset.MinValue, DateTimeOffset.MinValue));
+                                return new FTPStorageFolder(Controller, new FTPFileData(Path, @"\", 0, FtpPermission.None, DateTimeOffset.MinValue, DateTimeOffset.MinValue));
                             }
                             else if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
                             {
@@ -356,15 +356,15 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public static async Task<Stream> CreateOneTimeFileStreamAsync(string TempFilePath = null)
+        public static async Task<Stream> CreateLocalOneTimeFileStreamAsync(string TempFilePath = null)
         {
-            SafeFileHandle Handle = NativeWin32API.CreateOneTimeFileHandle(TempFilePath);
+            SafeFileHandle Handle = NativeWin32API.CreateLocalOneTimeFileHandle(TempFilePath);
 
             if (Handle.IsInvalid)
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    Handle = await Exclusive.Controller.CreateOneTimeFileHandleAsync(TempFilePath);
+                    Handle = await Exclusive.Controller.CreateLocalOneTimeFileHandleAsync(TempFilePath);
                 }
             }
 
@@ -376,7 +376,7 @@ namespace RX_Explorer.Class
             return new FileStream(Handle, FileAccess.ReadWrite, 4096, true);
         }
 
-        public static async Task<FileSystemStorageItemBase> CreateNewAsync(string Path, CreateType ItemTypes, CreateOption Option)
+        public static async Task<FileSystemStorageItemBase> CreateNewAsync(string Path, CreateType ItemType, CreateOption Option)
         {
             try
             {
@@ -384,11 +384,11 @@ namespace RX_Explorer.Class
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        MTPFileData Data = await Exclusive.Controller.MTPCreateSubItemAsync(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path), ItemTypes, Option);
+                        MTPFileData Data = await Exclusive.Controller.MTPCreateSubItemAsync(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path), ItemType, Option);
 
                         if (Data != null)
                         {
-                            switch (ItemTypes)
+                            switch (ItemType)
                             {
                                 case CreateType.File:
                                     {
@@ -402,9 +402,113 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
+                else if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                         || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                {
+                    FTPPathAnalysis Analysis = new FTPPathAnalysis(Path);
+
+                    if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                    {
+                        if (ItemType == CreateType.Folder)
+                        {
+                            switch (Option)
+                            {
+                                case CreateOption.OpenIfExist:
+                                    {
+                                        if (!await Controller.RunCommandAsync((Client) => Client.DirectoryExistsAsync(Analysis.RelatedPath)))
+                                        {
+                                            if (!await Controller.RunCommandAsync((Client) => Client.CreateDirectoryAsync(Analysis.RelatedPath)))
+                                            {
+                                                throw new Exception("Could not create the directory on ftp server");
+                                            }
+                                        }
+
+                                        if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                                        {
+                                            return new FTPStorageFolder(Controller, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item.FullName, 0, Item.OwnerPermissions, Item.Modified.ToLocalTime(), Item.Created.ToLocalTime()));
+                                        }
+
+                                        break;
+                                    }
+                                case CreateOption.GenerateUniqueName:
+                                    {
+                                        string UniquePath = await Controller.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(Analysis.RelatedPath, CreateType.Folder));
+
+                                        if (await Controller.RunCommandAsync((Client) => Client.CreateDirectoryAsync(UniquePath)))
+                                        {
+                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(UniquePath, true)) is FtpListItem Item)
+                                            {
+                                                return new FTPStorageFolder(Controller, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item.FullName, 0, Item.OwnerPermissions, Item.Modified.ToLocalTime(), Item.Created.ToLocalTime()));
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case CreateOption.ReplaceExisting:
+                                    {
+                                        await Controller.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(Analysis.RelatedPath));
+
+                                        if (await Controller.RunCommandAsync((Client) => Client.CreateDirectoryAsync(Analysis.RelatedPath)))
+                                        {
+                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                                            {
+                                                return new FTPStorageFolder(Controller, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item.FullName, 0, Item.OwnerPermissions, Item.Modified.ToLocalTime(), Item.Created.ToLocalTime()));
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                            }
+                        }
+                        else
+                        {
+                            switch (Option)
+                            {
+                                case CreateOption.OpenIfExist:
+                                    {
+                                        if (await Controller.RunCommandAsync((Client) => Client.UploadAsync(Array.Empty<byte>(), Analysis.RelatedPath, FtpRemoteExists.Skip)) != FtpStatus.Failed)
+                                        {
+                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                                            {
+                                                return new FTPStorageFile(Controller, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item.FullName, Convert.ToUInt64(Item.Size), Item.OwnerPermissions, Item.Modified.ToLocalTime(), Item.Created.ToLocalTime()));
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case CreateOption.GenerateUniqueName:
+                                    {
+                                        string UniquePath = await Controller.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(Analysis.RelatedPath, CreateType.File));
+
+                                        if (await Controller.RunCommandAsync((Client) => Client.UploadAsync(Array.Empty<byte>(), UniquePath, FtpRemoteExists.NoCheck)) == FtpStatus.Success)
+                                        {
+                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(UniquePath, true)) is FtpListItem Item)
+                                            {
+                                                return new FTPStorageFile(Controller, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item.FullName, Convert.ToUInt64(Item.Size), Item.OwnerPermissions, Item.Modified.ToLocalTime(), Item.Created.ToLocalTime()));
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case CreateOption.ReplaceExisting:
+                                    {
+                                        if (await Controller.RunCommandAsync((Client) => Client.UploadAsync(Array.Empty<byte>(), Analysis.RelatedPath, FtpRemoteExists.Overwrite)) == FtpStatus.Success)
+                                        {
+                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                                            {
+                                                return new FTPStorageFile(Controller, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item.FullName, Convert.ToUInt64(Item.Size), Item.OwnerPermissions, Item.Modified.ToLocalTime(), Item.Created.ToLocalTime()));
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                            }
+                        }
+                    }
+                }
                 else
                 {
-                    switch (ItemTypes)
+                    switch (ItemType)
                     {
                         case CreateType.File:
                             {
@@ -977,7 +1081,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.None, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, ProgressChangedEventHandler ProgressHandler = null)
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
@@ -985,22 +1089,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual Task MoveAsync(FileSystemStorageFolder Directory, CollisionOptions Option = CollisionOptions.None, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            return MoveAsync(Directory.Path, Option, ProgressHandler);
-        }
-
-        public virtual async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.None, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, ProgressChangedEventHandler ProgressHandler = null)
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 await Exclusive.Controller.CopyAsync(Path, DirectoryPath, Option, true, ProgressHandler: ProgressHandler);
             }
-        }
-
-        public virtual Task CopyAsync(FileSystemStorageFolder Directory, CollisionOptions Option = CollisionOptions.None, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            return CopyAsync(Directory.Path, Option, ProgressHandler);
         }
 
         public async virtual Task<string> RenameAsync(string DesireName)
