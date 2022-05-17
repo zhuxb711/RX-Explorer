@@ -1991,7 +1991,7 @@ namespace RX_Explorer.View
 
                     await Dialog.ShowAsync();
                 }
-                else if (!string.IsNullOrEmpty(Folder.Path))
+                else if (!string.IsNullOrEmpty(Folder.Path) && Folder is not (MTPStorageFolder or FTPStorageFolder))
                 {
                     if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
                     {
@@ -3551,7 +3551,10 @@ namespace RX_Explorer.View
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(CurrentFolder.Path));
+                if (CurrentFolder is not (MTPStorageFolder or FTPStorageFolder))
+                {
+                    QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(CurrentFolder.Path));
+                }
             }
             catch (Exception ex)
             {
@@ -5656,7 +5659,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
+                if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item && Item is not (MTPStorageFolder or FTPStorageFolder))
                 {
                     QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Item.Path));
                 }
@@ -6071,7 +6074,10 @@ namespace RX_Explorer.View
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(CurrentFolder.Path));
+                if (CurrentFolder is not (MTPStorageFolder or FTPStorageFolder))
+                {
+                    QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(CurrentFolder.Path));
+                }
             }
             catch (Exception ex)
             {

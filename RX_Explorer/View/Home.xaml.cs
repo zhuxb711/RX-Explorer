@@ -834,7 +834,7 @@ namespace RX_Explorer.View
             {
                 switch ((sender as SelectorItem)?.Content)
                 {
-                    case LibraryStorageFolder Lib:
+                    case LibraryStorageFolder Lib when !Lib.Path.StartsWith(@"\\?\") && !Lib.Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) && !Lib.Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase):
                         {
                             QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Lib.Path));
                             break;

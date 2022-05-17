@@ -128,24 +128,32 @@ namespace RX_Explorer.Class
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
 
-        public static Task<EndUsageNotification> SetBulkAccessSharedControllerAsync<T>(T Item) where T : FileSystemStorageItemBase
+        public static Task<EndUsageNotification> SetBulkAccessSharedControllerAsync<T>(T Item, FullTrustProcessController.ExclusiveUsage ExistingExclusiveUsage = null) where T : FileSystemStorageItemBase
         {
-            return SetBulkAccessSharedControllerAsync(new T[] { Item });
+            return SetBulkAccessSharedControllerAsync(new T[] { Item }, ExistingExclusiveUsage);
         }
 
-        public static async Task<EndUsageNotification> SetBulkAccessSharedControllerAsync<T>(IEnumerable<T> Items) where T : FileSystemStorageItemBase
+        public static async Task<EndUsageNotification> SetBulkAccessSharedControllerAsync<T>(IEnumerable<T> Items, FullTrustProcessController.ExclusiveUsage ExistingExclusiveUsage = null) where T : FileSystemStorageItemBase
         {
-            RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRef = new RefSharedRegion<FullTrustProcessController.ExclusiveUsage>(await FullTrustProcessController.GetAvailableControllerAsync());
-
-            foreach (T Item in Items)
+            if (Items.Any())
             {
-                Item.SetBulkAccessSharedControllerCore(SharedRef);
+                FullTrustProcessController.ExclusiveUsage Exclusive = ExistingExclusiveUsage ?? await FullTrustProcessController.GetAvailableControllerAsync();
+                RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRef = new RefSharedRegion<FullTrustProcessController.ExclusiveUsage>(Exclusive, ExistingExclusiveUsage == null);
+
+                foreach (T Item in Items)
+                {
+                    Item.SetBulkAccessSharedControllerCore(SharedRef);
+                }
+
+                return new EndUsageNotification(() =>
+                {
+                    SharedRef.Dispose();
+                });
             }
-
-            return new EndUsageNotification(() =>
+            else
             {
-                SharedRef.Dispose();
-            });
+                throw new ArgumentException("Input items should not be empty", nameof(Items));
+            }
         }
 
         private void SetBulkAccessSharedControllerCore(RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRef)
@@ -236,6 +244,10 @@ namespace RX_Explorer.Class
                 if (await OpenAsync(Path) is FileSystemStorageItemBase Item)
                 {
                     yield return Item;
+                }
+                else
+                {
+                    throw new FileNotFoundException(Path);
                 }
             }
         }
@@ -628,6 +640,129 @@ namespace RX_Explorer.Class
             return null;
         }
 
+        public static async Task CopyAsync(IEnumerable<string> CopyFrom, string CopyTo, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            if (CopyTo.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                || CopyTo.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)
+                || CopyFrom.All((Item) => Item.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) || Item.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)))
+            {
+                int Progress = 0;
+                int ItemCount = CopyFrom.Count();
+
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(CopyFrom, CancelToken))
+                    {
+                        using (EndUsageNotification Disposable = await SetBulkAccessSharedControllerAsync(Item, Exclusive))
+                        {
+                            await Item.CopyAsync(CopyTo, Option, CancelToken, (s, e) =>
+                            {
+                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
+                            });
+                        }
+
+                        Progress += 100;
+                    }
+                }
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    await Exclusive.Controller.CopyAsync(CopyFrom, CopyTo, Option, false, CancelToken, ProgressHandler);
+                }
+            }
+        }
+
+        public static async Task MoveAsync(IEnumerable<string> MoveFrom, string MoveTo, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            if (MoveTo.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                || MoveTo.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)
+                || MoveFrom.All((Item) => Item.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) || Item.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)))
+            {
+                int Progress = 0;
+                int ItemCount = MoveFrom.Count();
+
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(MoveFrom, CancelToken))
+                    {
+                        using (EndUsageNotification Disposable = await SetBulkAccessSharedControllerAsync(Item, Exclusive))
+                        {
+                            await Item.MoveAsync(MoveTo, Option, CancelToken, (s, e) =>
+                            {
+                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
+                            });
+                        }
+
+                        Progress += 100;
+                    }
+                }
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    await Exclusive.Controller.MoveAsync(MoveFrom, MoveTo, Option, false, CancelToken, ProgressHandler);
+                }
+            }
+        }
+
+        public static async Task DeleteAsync(IEnumerable<string> DeleteFrom, bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            if (DeleteFrom.All((Item) => Item.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) || Item.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)))
+            {
+                int Progress = 0;
+                int ItemCount = DeleteFrom.Count();
+
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(DeleteFrom, CancelToken))
+                    {
+                        using (EndUsageNotification Disposable = await SetBulkAccessSharedControllerAsync(Item, Exclusive))
+                        {
+                            await Item.DeleteAsync(PermanentDelete, CancelToken, (s, e) =>
+                            {
+                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
+                            });
+                        }
+
+                        Progress += 100;
+                    }
+                }
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    await Exclusive.Controller.DeleteAsync(DeleteFrom, PermanentDelete, false, CancelToken, ProgressHandler);
+                }
+            }
+        }
+
+        public static async Task<string> RenameAsync(string Path, string DesireName, CancellationToken CancelToken = default)
+        {
+            if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+            {
+                if (await OpenAsync(Path) is FileSystemStorageItemBase Item)
+                {
+                    return await Item.RenameAsync(DesireName, CancelToken);
+                }
+                else
+                {
+                    throw new FileNotFoundException(Path);
+                }
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    return await Exclusive.Controller.RenameAsync(Path, DesireName, true, CancelToken);
+                }
+            }
+        }
+
         protected FileSystemStorageItemBase(string Path, SafeFileHandle Handle, bool LeaveOpen) : this(NativeWin32API.GetStorageItemRawDataFromHandle(Path, Handle.DangerousGetHandle()))
         {
             if (!LeaveOpen)
@@ -792,9 +927,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected RefSharedRegion<FullTrustProcessController.ExclusiveUsage> GetBulkAccessSharedController()
+        protected bool GetBulkAccessSharedController(out RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedController)
         {
-            return ControllerSharedRef?.CreateNew();
+            return (SharedController = ControllerSharedRef?.CreateNew()) != null;
         }
 
         private async Task GetSyncStatusAsync()
@@ -824,18 +959,18 @@ namespace RX_Explorer.Class
         {
             async Task<SafeFileHandle> GetNativeHandleCoreAsync()
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+                if (GetBulkAccessSharedController(out var ControllerRef))
                 {
-                    if (ControllerRef != null)
+                    using (ControllerRef)
                     {
                         return await ControllerRef.Value.Controller.GetNativeHandleAsync(Path, Mode, Option);
                     }
-                    else
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        {
-                            return await Exclusive.Controller.GetNativeHandleAsync(Path, Mode, Option);
-                        }
+                        return await Exclusive.Controller.GetNativeHandleAsync(Path, Mode, Option);
                     }
                 }
             }
@@ -879,18 +1014,18 @@ namespace RX_Explorer.Class
                 return null;
             }
 
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+            if (GetBulkAccessSharedController(out var ControllerRef))
             {
-                if (ControllerRef != null)
+                using (ControllerRef)
                 {
                     return ThumbnailOverlay = await GetThumbnailOverlayCoreAsync(ControllerRef.Value);
                 }
-                else
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        return ThumbnailOverlay = await GetThumbnailOverlayCoreAsync(Exclusive);
-                    }
+                    return ThumbnailOverlay = await GetThumbnailOverlayCoreAsync(Exclusive);
                 }
             }
         }
@@ -940,18 +1075,18 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+                if (GetBulkAccessSharedController(out var ControllerRef))
                 {
-                    if (ControllerRef != null)
+                    using (ControllerRef)
                     {
                         return await InternalGetThumbnailAsync(ControllerRef.Value);
                     }
-                    else
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        {
-                            return await InternalGetThumbnailAsync(Exclusive);
-                        }
+                        return await InternalGetThumbnailAsync(Exclusive);
                     }
                 }
             }
@@ -994,18 +1129,18 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+                if (GetBulkAccessSharedController(out var ControllerRef))
                 {
-                    if (ControllerRef != null)
+                    using (ControllerRef)
                     {
                         return await GetThumbnailRawStreamCoreAsync(ControllerRef.Value);
                     }
-                    else
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        {
-                            return await GetThumbnailRawStreamCoreAsync(Exclusive);
-                        }
+                        return await GetThumbnailRawStreamCoreAsync(Exclusive);
                     }
                 }
             }
@@ -1016,18 +1151,18 @@ namespace RX_Explorer.Class
         {
             async Task<IReadOnlyDictionary<string, string>> GetPropertiesCoreAsync(IEnumerable<string> Properties)
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+                if (GetBulkAccessSharedController(out var ControllerRef))
                 {
-                    if (ControllerRef != null)
+                    using (ControllerRef)
                     {
                         return await ControllerRef.Value.Controller.GetPropertiesAsync(Path, Properties);
                     }
-                    else
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        {
-                            return await Exclusive.Controller.GetPropertiesAsync(Path, Properties);
-                        }
+                        return await Exclusive.Controller.GetPropertiesAsync(Path, Properties);
                     }
                 }
             }
@@ -1081,37 +1216,79 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            if (GetBulkAccessSharedController(out var ControllerRef))
             {
-                await Exclusive.Controller.MoveAsync(Path, DirectoryPath, Option, true, ProgressHandler: ProgressHandler);
+                using (ControllerRef)
+                {
+                    await ControllerRef.Value.Controller.MoveAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler); ;
+                }
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    await Exclusive.Controller.MoveAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler);
+                }
             }
         }
 
-        public virtual async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            if (GetBulkAccessSharedController(out var ControllerRef))
             {
-                await Exclusive.Controller.CopyAsync(Path, DirectoryPath, Option, true, ProgressHandler: ProgressHandler);
+                using (ControllerRef)
+                {
+                    await ControllerRef.Value.Controller.CopyAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler);
+                }
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    await Exclusive.Controller.CopyAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler);
+                }
             }
         }
 
-        public async virtual Task<string> RenameAsync(string DesireName)
+        public async virtual Task<string> RenameAsync(string DesireName, CancellationToken CancelToken = default)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            if (GetBulkAccessSharedController(out var ControllerRef))
             {
-                string NewName = await Exclusive.Controller.RenameAsync(Path, DesireName, true);
-                Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
-                return NewName;
+                using (ControllerRef)
+                {
+                    string NewName = await ControllerRef.Value.Controller.RenameAsync(Path, DesireName, true, CancelToken);
+                    Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
+                    return NewName;
+                }
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    string NewName = await Exclusive.Controller.RenameAsync(Path, DesireName, true, CancelToken);
+                    Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
+                    return NewName;
+                }
             }
         }
 
-        public virtual async Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual async Task DeleteAsync(bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            if (GetBulkAccessSharedController(out var ControllerRef))
             {
-                await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, true, ProgressHandler: ProgressHandler);
+                using (ControllerRef)
+                {
+                    await ControllerRef.Value.Controller.DeleteAsync(Path, PermanentDelete, true, CancelToken, ProgressHandler);
+                }
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, true, CancelToken, ProgressHandler);
+                }
             }
         }
 

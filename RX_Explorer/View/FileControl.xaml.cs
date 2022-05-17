@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -443,6 +444,18 @@ namespace RX_Explorer.View
                     else if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                              || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                     {
+                        if (Regex.IsMatch(Path, @"^ftp(s)?:\\\\.+", RegexOptions.IgnoreCase))
+                        {
+                            if (Path.StartsWith("ftp:", StringComparison.OrdinalIgnoreCase))
+                            {
+                                Path = Path.Remove(5, 1);
+                            }
+                            else if (Path.StartsWith("ftps:", StringComparison.OrdinalIgnoreCase))
+                            {
+                                Path = Path.Remove(6, 1);
+                            }
+                        }
+
                         if (CurrentSplit.Length > 0)
                         {
                             RootPath = string.Join(@"\", CurrentSplit.Take(2));
@@ -2213,7 +2226,10 @@ namespace RX_Explorer.View
                 }
                 catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
                 {
-                    QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Block.Path));
+                    if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is not (MTPStorageFolder or FTPStorageFolder))
+                    {
+                        QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Block.Path));
+                    }
                 }
                 catch (Exception ex)
                 {

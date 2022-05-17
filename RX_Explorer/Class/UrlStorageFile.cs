@@ -21,18 +21,18 @@ namespace RX_Explorer.Class
 
         public async Task<UrlFileData> GetRawDataAsync()
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+            if (GetBulkAccessSharedController(out var ControllerRef))
             {
-                if (ControllerRef != null)
+                using (ControllerRef)
                 {
                     return await ControllerRef.Value.Controller.GetUrlDataAsync(Path);
                 }
-                else
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        return await Exclusive.Controller.GetUrlDataAsync(Path);
-                    }
+                    return await Exclusive.Controller.GetUrlDataAsync(Path);
                 }
             }
         }

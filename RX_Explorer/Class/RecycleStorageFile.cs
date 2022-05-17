@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -40,18 +41,18 @@ namespace RX_Explorer.Class
         {
             if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+                if (GetBulkAccessSharedController(out var ControllerRef))
                 {
-                    if (ControllerRef != null)
+                    using (ControllerRef)
                     {
                         InnerDisplayType = await ControllerRef.Value.Controller.GetFriendlyTypeNameAsync(Type);
                     }
-                    else
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        {
-                            InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
-                        }
+                        InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
                     }
                 }
             }
@@ -71,9 +72,15 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
+        public override async Task DeleteAsync(bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            return DeleteAsync();
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            {
+                if (!await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path))
+                {
+                    throw new Exception();
+                }
+            }
         }
 
         public RecycleStorageFile(StorageFile File, string OriginPath, DateTimeOffset DeleteTime) : base(File)
@@ -86,14 +93,6 @@ namespace RX_Explorer.Class
         {
             this.OriginPath = OriginPath;
             ModifiedTime = DeleteTime.ToLocalTime();
-        }
-
-        public async Task<bool> DeleteAsync()
-        {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-            {
-                return await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path);
-            }
         }
 
         public async Task<bool> RestoreAsync()

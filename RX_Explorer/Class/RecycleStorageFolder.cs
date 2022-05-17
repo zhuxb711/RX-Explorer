@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Interface;
 using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -41,9 +42,15 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
+        public override async Task DeleteAsync(bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            return DeleteAsync();
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            {
+                if (!await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path))
+                {
+                    throw new Exception();
+                }
+            }
         }
 
         public RecycleStorageFolder(StorageFolder Folder, string OriginPath, DateTimeOffset DeleteTime) : base(Folder)
@@ -56,14 +63,6 @@ namespace RX_Explorer.Class
         {
             this.OriginPath = OriginPath;
             ModifiedTime = DeleteTime.ToLocalTime();
-        }
-
-        public async Task<bool> DeleteAsync()
-        {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-            {
-                return await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path);
-            }
         }
 
         public async Task<bool> RestoreAsync()

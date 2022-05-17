@@ -4,8 +4,6 @@ using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -20,10 +18,10 @@ namespace RX_Explorer.Class
 {
     public class FTPStorageFolder : FileSystemStorageFolder, IFTPStorageItem
     {
-        private readonly FTPClientController Controller;
         private readonly FTPFileData Data;
+        private readonly FTPClientController Controller;
 
-        public override string DisplayName => Data.RelatedPath == "\\" ? Path : base.DisplayName;
+        public override string DisplayName => Data.RelatedPath == "\\" ? Controller.ServerHost : base.DisplayName;
 
         protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
         {

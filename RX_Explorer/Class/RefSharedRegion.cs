@@ -16,7 +16,7 @@ namespace RX_Explorer.Class
             this.CoreData = CoreData;
         }
 
-        public RefSharedRegion(T Value) : this(new RefSharedCore<T>(Value))
+        public RefSharedRegion(T Value, bool IsOwner) : this(new RefSharedCore<T>(Value, IsOwner))
         {
 
         }
@@ -28,10 +28,8 @@ namespace RX_Explorer.Class
                 CoreData.AddRef();
                 return new RefSharedRegion<T>(CoreData);
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public void Dispose()
@@ -46,10 +44,12 @@ namespace RX_Explorer.Class
         {
             public V Value { get; private set; }
             private volatile int RefCount = 1;
+            private bool IsOwner;
 
-            public RefSharedCore(V Value)
+            public RefSharedCore(V Value, bool IsOwner)
             {
                 this.Value = Value;
+                this.IsOwner = IsOwner;
             }
 
             public void AddRef()
@@ -65,7 +65,11 @@ namespace RX_Explorer.Class
             {
                 if (Interlocked.Decrement(ref RefCount) == 0)
                 {
-                    Value.Dispose();
+                    if (IsOwner)
+                    {
+                        Value.Dispose();
+                    }
+
                     Value = default;
                 }
             }

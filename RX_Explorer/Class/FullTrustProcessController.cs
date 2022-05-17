@@ -1873,7 +1873,7 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<IReadOnlyList<IRecycleStorageItem>> GetRecycleBinItemsAsync()
+        public async Task<IReadOnlyList<FileSystemStorageItemBase>> GetRecycleBinItemsAsync()
         {
             if (await SendCommandAsync(CommandType.GetRecycleBinItems) is IDictionary<string, string> Response)
             {
@@ -1881,7 +1881,7 @@ namespace RX_Explorer.Class
                 {
                     IReadOnlyList<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<IReadOnlyList<Dictionary<string, string>>>(Result);
 
-                    ConcurrentBag<IRecycleStorageItem> ResultBag = new ConcurrentBag<IRecycleStorageItem>();
+                    ConcurrentBag<FileSystemStorageItemBase> ResultBag = new ConcurrentBag<FileSystemStorageItemBase>();
 
                     Parallel.ForEach(JsonList, (PropertyDic) =>
                     {
@@ -1920,7 +1920,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return new List<IRecycleStorageItem>(0);
+            return new List<FileSystemStorageItemBase>(0);
         }
 
         public async Task<bool> TryUnlockFileOccupy(string Path, bool ForceClose = false)

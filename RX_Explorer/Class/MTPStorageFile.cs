@@ -45,18 +45,18 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+            if (GetBulkAccessSharedController(out var ControllerRef))
             {
-                if (ControllerRef != null)
+                using (ControllerRef)
                 {
                     InnerDisplayType = await ControllerRef.Value.Controller.GetFriendlyTypeNameAsync(Type);
                 }
-                else
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
-                    }
+                    InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
                 }
             }
         }
@@ -73,18 +73,18 @@ namespace RX_Explorer.Class
 
             SafeFileHandle Handle;
 
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+            if (GetBulkAccessSharedController(out var ControllerRef))
             {
-                if (ControllerRef != null)
+                using (ControllerRef)
                 {
                     Handle = await ControllerRef.Value.Controller.MTPDownloadAndGetHandleAsync(Path, Mode, Option);
                 }
-                else
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        Handle = await Exclusive.Controller.MTPDownloadAndGetHandleAsync(Path, Mode, Option);
-                    }
+                    Handle = await Exclusive.Controller.MTPDownloadAndGetHandleAsync(Path, Mode, Option);
                 }
             }
 
@@ -146,18 +146,18 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+                if (GetBulkAccessSharedController(out var ControllerRef))
                 {
-                    if (ControllerRef != null)
+                    using (ControllerRef)
                     {
                         return await ControllerRef.Value.Controller.GetMTPItemDataAsync(Path);
                     }
-                    else
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        {
-                            return await Exclusive.Controller.GetMTPItemDataAsync(Path);
-                        }
+                        return await Exclusive.Controller.GetMTPItemDataAsync(Path);
                     }
                 }
             }

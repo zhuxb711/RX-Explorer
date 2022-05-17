@@ -10,6 +10,7 @@
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
       xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
+      xmlns:View="using:RX_Explorer.View"
       mc:Ignorable="d"
       Background="Transparent"
       NavigationCacheMode="Required">
@@ -231,7 +232,7 @@
                 </Grid>
             </ListView.Header>
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="Interface:IRecycleStorageItem">
+                <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4*" />
@@ -270,11 +271,16 @@
                         </Grid>
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
-                                   Text="{x:Bind OriginPath}"
-                                   ToolTipService.ToolTip="{x:Bind OriginPath}"
+                                   Text="{Binding OriginPath,Mode=OneTime}"
+                                   Name="OriginPathLabel"
                                    Grid.Column="1"
                                    Padding="10,0,0,0"
-                                   TextTrimming="CharacterEllipsis" />
+                                   TextTrimming="CharacterEllipsis">
+                            <ToolTipService.ToolTip>
+                                <ToolTip Content="{Binding OriginPath,Mode=OneTime}"
+                                         Visibility="{Binding ElementName=OriginPathLabel,Path=IsTextTrimmed}"/>
+                            </ToolTipService.ToolTip>
+                        </TextBlock>
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
                                    Text="{x:Bind ModifiedTimeDescription}"

@@ -18,6 +18,8 @@ namespace RX_Explorer.Dialog
         public FTPCredentialDialog(FTPPathAnalysis Analysis) : this()
         {
             this.Analysis = Analysis;
+           
+            FtpHost.Text = $"FTP服务器: {Analysis.Host}";
 
             if (!string.IsNullOrEmpty(Analysis.UserName))
             {

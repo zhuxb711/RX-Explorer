@@ -57,18 +57,18 @@ namespace RX_Explorer.Class
 
         public async Task<LinkFileData> GetRawDataAsync()
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetBulkAccessSharedController())
+            if (GetBulkAccessSharedController(out var ControllerRef))
             {
-                if (ControllerRef != null)
+                using (ControllerRef)
                 {
                     return await ControllerRef.Value.Controller.GetLinkDataAsync(Path);
                 }
-                else
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        return await Exclusive.Controller.GetLinkDataAsync(Path);
-                    }
+                    return await Exclusive.Controller.GetLinkDataAsync(Path);
                 }
             }
         }

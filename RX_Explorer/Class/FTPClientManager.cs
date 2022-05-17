@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (ControllerList.FirstOrDefault((Controller) => Controller.ServerHost == Analysis.Host) is FTPClientController ExistController)
+                if (ControllerList.FirstOrDefault((Controller) => Controller.ServerHost == Analysis.Host && Controller.ServerPort == Analysis.Port) is FTPClientController ExistController)
                 {
                     if (ExistController.IsAvailable)
                     {

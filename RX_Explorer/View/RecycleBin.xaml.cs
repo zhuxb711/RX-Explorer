@@ -126,7 +126,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private readonly ObservableCollection<IRecycleStorageItem> FileCollection = new ObservableCollection<IRecycleStorageItem>();
+        private readonly ObservableCollection<FileSystemStorageItemBase> FileCollection = new ObservableCollection<FileSystemStorageItemBase>();
 
         private ListViewBaseSelectionExtension SelectionExtension;
 
@@ -469,11 +469,11 @@ namespace RX_Explorer.View
                     CurrentSortDirection = SortDirection.Ascending;
                 }
 
-                IReadOnlyList<IRecycleStorageItem> SortResult = new List<IRecycleStorageItem>(await SortCollectionGenerator.GetSortedCollectionAsync(FileCollection, CurrentSortTarget, CurrentSortDirection));
+                IReadOnlyList<FileSystemStorageItemBase> SortResult = new List<FileSystemStorageItemBase>(await SortCollectionGenerator.GetSortedCollectionAsync(FileCollection, CurrentSortTarget, CurrentSortDirection));
 
                 FileCollection.Clear();
 
-                foreach (IRecycleStorageItem Item in SortResult)
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -505,18 +505,20 @@ namespace RX_Explorer.View
 
                 if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    List<string> ErrorList = new List<string>();
+                    Queue<string> ErrorList = new Queue<string>();
 
-                    foreach (IRecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
+                    foreach (FileSystemStorageItemBase Item in ListViewControl.SelectedItems.ToList())
                     {
-                        if (await Item.DeleteAsync())
+                        try
                         {
-                            FileCollection.Remove(Item);
+                            await Item.DeleteAsync(true);
                         }
-                        else
+                        catch (Exception)
                         {
-                            ErrorList.Add(Item.Name);
+                            ErrorList.Enqueue(Item.Name);
                         }
+
+                        FileCollection.Remove(Item);
                     }
 
                     if (ErrorList.Count > 0)
@@ -595,9 +597,9 @@ namespace RX_Explorer.View
             {
                 ControlLoading(true, Globalization.GetString("RecycleBinRestoreText"));
 
-                List<string> ErrorList = new List<string>();
+                Queue<string> ErrorList = new Queue<string>();
 
-                foreach (IRecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
+                foreach (RecycleStorageFile Item in ListViewControl.SelectedItems.OfType<RecycleStorageFile>().ToList())
                 {
                     if (await Item.RestoreAsync())
                     {
@@ -605,7 +607,19 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        ErrorList.Add(Item.Name);
+                        ErrorList.Enqueue(Item.Name);
+                    }
+                }
+
+                foreach (RecycleStorageFolder Item in ListViewControl.SelectedItems.OfType<RecycleStorageFolder>().ToList())
+                {
+                    if (await Item.RestoreAsync())
+                    {
+                        FileCollection.Remove(Item);
+                    }
+                    else
+                    {
+                        ErrorList.Enqueue(Item.Name);
                     }
                 }
 
@@ -652,7 +666,7 @@ namespace RX_Explorer.View
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    foreach (IRecycleStorageItem Item in await SortCollectionGenerator.GetSortedCollectionAsync(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending))
+                    foreach (FileSystemStorageItemBase Item in await SortCollectionGenerator.GetSortedCollectionAsync(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending))
                     {
                         FileCollection.Add(Item);
                     }

@@ -15,6 +15,8 @@ namespace RX_Explorer.Class
 
         public string ServerHost => Client.Host;
 
+        public int ServerPort => Client.Port;
+
         public bool IsAvailable => Client.IsConnected && Client.IsAuthenticated;
 
         private void ProcessCore()
