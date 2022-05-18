@@ -276,7 +276,7 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    if (SettingPage.LoadWSLFolderOnStartupEnabled)
+                    if (SettingPage.IsLoadWSLFolderOnStartupEnabled)
                     {
                         foreach (StorageFolder WslFolder in await GetAvailableWslDriveAsync())
                         {

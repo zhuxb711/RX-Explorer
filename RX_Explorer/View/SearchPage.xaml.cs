@@ -1181,9 +1181,9 @@ namespace RX_Explorer.View
                 string[] PathList = SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
 
                 bool ExecuteDelete = false;
-                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) | SettingPage.AvoidRecycleBinEnabled;
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) | SettingPage.IsAvoidRecycleBinEnabled;
 
-                if (SettingPage.DoubleConfirmOnDeletion)
+                if (SettingPage.IsDoubleConfirmOnDeletionEnabled)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {

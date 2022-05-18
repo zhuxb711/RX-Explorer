@@ -3633,9 +3633,9 @@ namespace RX_Explorer.View
             if (DeleteItems.Count > 0)
             {
                 bool ExecuteDelete = false;
-                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) | SettingPage.AvoidRecycleBinEnabled;
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) | SettingPage.IsAvoidRecycleBinEnabled;
 
-                if (SettingPage.DoubleConfirmOnDeletion)
+                if (SettingPage.IsDoubleConfirmOnDeletionEnabled)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {

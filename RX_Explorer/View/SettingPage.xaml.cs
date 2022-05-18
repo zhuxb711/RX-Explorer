@@ -396,7 +396,7 @@ namespace RX_Explorer.View
             }
         }
 
-        public static bool LibraryExpanderIsExpanded
+        public static bool IsLibraryExpanderExpanded
         {
             get
             {
@@ -413,7 +413,7 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = value;
         }
 
-        public static bool DeviceExpanderIsExpanded
+        public static bool IsDeviceExpanderExpanded
         {
             get
             {
@@ -430,7 +430,7 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = value;
         }
 
-        public static bool AlwaysLaunchNewProcess
+        public static bool IsAlwaysLaunchNewProcess
         {
             get
             {
@@ -446,7 +446,7 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = value;
         }
 
-        public static bool WindowAlwaysOnTop
+        public static bool IsWindowAlwaysOnTop
         {
             get
             {
@@ -460,6 +460,22 @@ namespace RX_Explorer.View
                 }
             }
             set => ApplicationData.Current.LocalSettings.Values["AlwaysOnTop"] = value;
+        }
+
+        public static bool IsWindowsExplorerContextMenuIntegrated
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["IntegrateWithWindowsExplorerContextMenu"] is bool IsEnabled)
+                {
+                    return IsEnabled;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["IntegrateWithWindowsExplorerContextMenu"] = value;
         }
 
         public static string DefaultTerminalName
@@ -478,7 +494,7 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = value;
         }
 
-        public static bool PreventAcrylicFallbackEnabled
+        public static bool IsPreventAcrylicFallbackEnabled
         {
             get
             {
@@ -494,7 +510,7 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = value;
         }
 
-        public static bool ContextMenuExtensionEnabled
+        public static bool IsContextMenuExtensionEnabled
         {
             get
             {
@@ -536,7 +552,7 @@ namespace RX_Explorer.View
             }
         }
 
-        public static bool LoadWSLFolderOnStartupEnabled
+        public static bool IsLoadWSLFolderOnStartupEnabled
         {
             get
             {
@@ -552,7 +568,7 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["LoadWSLFolderOnStartupEnabled"] = value;
         }
 
-        public static bool AvoidRecycleBinEnabled
+        public static bool IsAvoidRecycleBinEnabled
         {
             get
             {
@@ -568,7 +584,7 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] = value;
         }
 
-        public static bool DoubleConfirmOnDeletion
+        public static bool IsDoubleConfirmOnDeletionEnabled
         {
             get
             {
@@ -608,7 +624,7 @@ namespace RX_Explorer.View
 
         private readonly SemaphoreSlim SyncLocker = new SemaphoreSlim(1, 1);
 
-        public SettingPage()
+        private SettingPage()
         {
             InitializeComponent();
 
@@ -754,7 +770,14 @@ namespace RX_Explorer.View
                                                                      .Select((Renderer) => Renderer.RefreshPresentersAsync()));
         }
 
-        public async Task InitializeAsync()
+        public static async Task<SettingPage> CreateAsync()
+        {
+            SettingPage Page = new SettingPage();
+            await Page.InitializeAsync();
+            return Page;
+        }
+
+        private async Task InitializeAsync()
         {
             if (!HasInit)
             {
@@ -780,7 +803,20 @@ namespace RX_Explorer.View
 
                 TerminalList.AddRange(SQLite.Current.GetAllTerminalProfile());
 
-                await ApplyLocalSetting(true);
+                await ApplyLocalSettingsAsync();
+
+                DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
+                FileExtensionSwitch.Toggled += FileExtensionSwitch_Toggled;
+                TreeViewDetach.Toggled += TreeViewDetach_Toggled;
+                FileLoadMode.SelectionChanged += FileLoadMode_SelectionChanged;
+                LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
+                FontFamilyComboBox.SelectionChanged += FontFamilyComboBox_SelectionChanged;
+
+                if (WindowsVersionChecker.IsOlderOrEqual(Class.Version.Windows10_2004))
+                {
+                    DisableSelectionAnimation.Checked += DisableSelectionAnimation_Changed;
+                    DisableSelectionAnimation.Unchecked += DisableSelectionAnimation_Changed;
+                }
 
                 ApplicationData.Current.DataChanged += Current_DataChanged;
 
@@ -830,7 +866,7 @@ namespace RX_Explorer.View
                         TerminalList.Remove(RemoveProfile);
                     }
 
-                    await ApplyLocalSetting(false);
+                    await ApplyLocalSettingsAsync();
 
                     if (UIMode.SelectedIndex == BackgroundController.Current.CurrentType switch
                     {
@@ -865,7 +901,7 @@ namespace RX_Explorer.View
                                 {
                                     if (AcrylicMode.IsChecked.GetValueOrDefault())
                                     {
-                                        PreventFallBack.IsChecked = PreventAcrylicFallbackEnabled;
+                                        PreventFallBack.IsChecked = IsPreventAcrylicFallbackEnabled;
                                     }
                                     else
                                     {
@@ -994,29 +1030,13 @@ namespace RX_Explorer.View
             return CompletionTask.Task;
         }
 
-        private async Task ApplyLocalSetting(bool IsCallFromInit)
+        private async Task ApplyLocalSettingsAsync()
         {
-            if (IsCallFromInit)
-            {
-                DisplayHiddenItem.Toggled -= DisplayHiddenItem_Toggled;
-                FileExtensionSwitch.Toggled -= FileExtensionSwitch_Toggled;
-                TreeViewDetach.Toggled -= TreeViewDetach_Toggled;
-                FileLoadMode.SelectionChanged -= FileLoadMode_SelectionChanged;
-                LanguageComboBox.SelectionChanged -= LanguageComboBox_SelectionChanged;
-                FontFamilyComboBox.SelectionChanged -= FontFamilyComboBox_SelectionChanged;
-                AlwaysOnTop.Toggled -= AlwaysOnTop_Toggled;
-
-                if (WindowsVersionChecker.IsOlderOrEqual(Class.Version.Windows10_2004))
-                {
-                    DisableSelectionAnimation.Checked -= DisableSelectionAnimation_Changed;
-                    DisableSelectionAnimation.Unchecked -= DisableSelectionAnimation_Changed;
-                }
-            }
-
             DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
             UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
             InterceptFolderSwitch.Toggled -= InterceptFolder_Toggled;
             AutoBoot.Toggled -= AutoBoot_Toggled;
+            WindowsExplorerContextMenu.Toggled -= WindowsExplorerContextMenu_Toggled;
             HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
             HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
             DefaultDisplayMode.SelectionChanged -= DefaultDisplayMode_SelectionChanged;
@@ -1066,14 +1086,15 @@ namespace RX_Explorer.View
             SearchHistory.IsOn = IsSearchHistoryEnabled;
             PathHistory.IsOn = IsPathHistoryEnabled;
             NavigationViewLayout.IsOn = LayoutMode == NavigationViewPaneDisplayMode.LeftCompact;
-            AlwaysLaunchNew.IsChecked = AlwaysLaunchNewProcess;
-            AlwaysOnTop.IsOn = WindowAlwaysOnTop;
-            ContextMenuExtSwitch.IsOn = ContextMenuExtensionEnabled;
+            AlwaysLaunchNew.IsChecked = IsAlwaysLaunchNewProcess;
+            AlwaysOnTop.IsOn = IsWindowAlwaysOnTop;
+            WindowsExplorerContextMenu.IsOn = IsWindowsExplorerContextMenuIntegrated;
+            ContextMenuExtSwitch.IsOn = IsContextMenuExtensionEnabled;
             FileExtensionSwitch.IsOn = IsShowFileExtensionsEnabled;
             ShowContextMenuWhenLoading.IsChecked = !IsParallelShowContextMenu;
-            LoadWSLOnStartup.IsOn = LoadWSLFolderOnStartupEnabled;
-            AvoidRecycleBin.IsChecked = AvoidRecycleBinEnabled;
-            DeleteConfirmSwitch.IsOn = DoubleConfirmOnDeletion;
+            LoadWSLOnStartup.IsOn = IsLoadWSLFolderOnStartupEnabled;
+            AvoidRecycleBin.IsChecked = IsAvoidRecycleBinEnabled;
+            DeleteConfirmSwitch.IsOn = IsDoubleConfirmOnDeletionEnabled;
             DefaultDisplayMode.SelectedIndex = DefaultDisplayModeIndex;
 
 #if DEBUG
@@ -1187,27 +1208,11 @@ namespace RX_Explorer.View
                     }
             }
 
-            if (IsCallFromInit)
-            {
-                DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
-                FileExtensionSwitch.Toggled += FileExtensionSwitch_Toggled;
-                TreeViewDetach.Toggled += TreeViewDetach_Toggled;
-                FileLoadMode.SelectionChanged += FileLoadMode_SelectionChanged;
-                LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
-                FontFamilyComboBox.SelectionChanged += FontFamilyComboBox_SelectionChanged;
-                AlwaysOnTop.Toggled += AlwaysOnTop_Toggled;
-
-                if (WindowsVersionChecker.IsOlderOrEqual(Class.Version.Windows10_2004))
-                {
-                    DisableSelectionAnimation.Checked += DisableSelectionAnimation_Changed;
-                    DisableSelectionAnimation.Unchecked += DisableSelectionAnimation_Changed;
-                }
-            }
-
             UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
             InterceptFolderSwitch.Toggled += InterceptFolder_Toggled;
             DefaultTerminal.SelectionChanged += DefaultTerminal_SelectionChanged;
             AutoBoot.Toggled += AutoBoot_Toggled;
+            WindowsExplorerContextMenu.Toggled += WindowsExplorerContextMenu_Toggled;
             HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
             HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
             DefaultDisplayMode.SelectionChanged += DefaultDisplayMode_SelectionChanged;
@@ -1230,6 +1235,22 @@ namespace RX_Explorer.View
             EverythingEngineSearchGloble.Unchecked += SeachEngineOptionSave_UnChecked;
             ShowContextMenuWhenLoading.Checked += ShowContextMenuWhenLoading_Checked;
             ShowContextMenuWhenLoading.Unchecked += ShowContextMenuWhenLoading_Unchecked;
+        }
+
+        private void WindowsExplorerContextMenu_Toggled(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsWindowsExplorerContextMenuIntegrated = WindowsExplorerContextMenu.IsOn;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(WindowsExplorerContextMenu_Toggled)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private void FontFamilyComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1307,7 +1328,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                WindowAlwaysOnTop = AlwaysOnTop.IsOn;
+                IsWindowAlwaysOnTop = AlwaysOnTop.IsOn;
 
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
@@ -1610,7 +1631,7 @@ namespace RX_Explorer.View
             try
             {
                 AcrylicModeExpander.IsExpanded = true;
-                PreventFallBack.IsChecked = PreventAcrylicFallbackEnabled;
+                PreventFallBack.IsChecked = IsPreventAcrylicFallbackEnabled;
                 BackgroundController.Current.SwitchTo(BackgroundBrushType.CustomAcrylic);
             }
             catch (Exception ex)
@@ -2237,13 +2258,13 @@ namespace RX_Explorer.View
 
         private void AlwaysLaunchNew_Checked(object sender, RoutedEventArgs e)
         {
-            AlwaysLaunchNewProcess = true;
+            IsAlwaysLaunchNewProcess = true;
             ApplicationData.Current.SignalDataChanged();
         }
 
         private void AlwaysLaunchNew_Unchecked(object sender, RoutedEventArgs e)
         {
-            AlwaysLaunchNewProcess = false;
+            IsAlwaysLaunchNewProcess = false;
             ApplicationData.Current.SignalDataChanged();
         }
 
@@ -2280,7 +2301,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                PreventAcrylicFallbackEnabled = true;
+                IsPreventAcrylicFallbackEnabled = true;
                 BackgroundController.Current.IsCompositionAcrylicBackgroundEnabled = true;
             }
             catch (Exception ex)
@@ -2297,7 +2318,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                PreventAcrylicFallbackEnabled = false;
+                IsPreventAcrylicFallbackEnabled = false;
                 BackgroundController.Current.IsCompositionAcrylicBackgroundEnabled = false;
             }
             catch (Exception ex)
@@ -2634,7 +2655,7 @@ namespace RX_Explorer.View
 
         private void ContextMenuExtSwitch_Toggled(object sender, RoutedEventArgs e)
         {
-            ContextMenuExtensionEnabled = ContextMenuExtSwitch.IsOn;
+            IsContextMenuExtensionEnabled = ContextMenuExtSwitch.IsOn;
             ApplicationData.Current.SignalDataChanged();
         }
 
@@ -2732,7 +2753,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                DoubleConfirmOnDeletion = DeleteConfirmSwitch.IsOn;
+                IsDoubleConfirmOnDeletionEnabled = DeleteConfirmSwitch.IsOn;
             }
             catch (Exception ex)
             {
@@ -2748,7 +2769,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                AvoidRecycleBinEnabled = true;
+                IsAvoidRecycleBinEnabled = true;
             }
             catch (Exception ex)
             {
@@ -2764,7 +2785,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                AvoidRecycleBinEnabled = false;
+                IsAvoidRecycleBinEnabled = false;
             }
             catch (Exception ex)
             {
@@ -3458,7 +3479,7 @@ namespace RX_Explorer.View
 
         private void LoadWSLOnStartup_Toggled(object sender, RoutedEventArgs e)
         {
-            LoadWSLFolderOnStartupEnabled = LoadWSLOnStartup.IsOn;
+            IsLoadWSLFolderOnStartupEnabled = LoadWSLOnStartup.IsOn;
             ApplicationData.Current.SignalDataChanged();
         }
 

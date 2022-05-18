@@ -340,7 +340,7 @@
         </muxc:TeachingTip>
     </Page.Resources>
 
-    <Grid>
+    <Grid x:Name="RootGrid">
         <Grid x:Name="BackgroundEffectArea"
               Visibility="{x:Bind Cls:BackgroundController.Current.IsMicaEffectEnabled,Mode=OneWay,Converter={StaticResource InverseConverter}}">
             <Border Name="CompositorAcrylicBackground"
@@ -456,11 +456,6 @@
                 </Grid>
             </muxc:NavigationView.Content>
         </muxc:NavigationView>
-
-        <local:SettingPage x:Name="Settings"
-                           x:Load="False"
-                           Visibility="Collapsed"
-                           x:FieldModifier="public" />
 
         <Border x:Name="TitleBar"
                 Height="32"

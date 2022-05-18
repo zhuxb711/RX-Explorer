@@ -33,7 +33,7 @@ namespace RX_Explorer.Class
                     try
                     {
                         object ExecuteResult = Data.Executor.DynamicInvoke(Client);
-                        
+
                         if (ExecuteResult is Task AsyncTask)
                         {
                             AsyncTask.Wait();
@@ -50,62 +50,83 @@ namespace RX_Explorer.Class
 
         public Task<T> RunCommandAsync<T>(Func<FtpClient, T> Executor)
         {
-            FTPTaskData Data = new FTPTaskData(Executor);
-
-            TaskQueue.Enqueue(Data);
-
-            ProcessSleepLocker.Set();
-
-            return Data.CompletionSource.Task.ContinueWith((PreviousTask) =>
+            if (IsAvailable)
             {
-                if (PreviousTask.Exception is Exception InnerException)
-                {
-                    throw new AggregateException(InnerException);
-                }
+                FTPTaskData Data = new FTPTaskData(Executor);
 
-                return (T)PreviousTask.Result;
-            });
+                TaskQueue.Enqueue(Data);
+
+                ProcessSleepLocker.Set();
+
+                return Data.CompletionSource.Task.ContinueWith((PreviousTask) =>
+                {
+                    if (PreviousTask.Exception is Exception InnerException)
+                    {
+                        throw new AggregateException(InnerException);
+                    }
+
+                    return (T)PreviousTask.Result;
+                });
+            }
+
+            throw new Exception("FtpClient is not available");
         }
 
         public Task RunCommandAsync(Func<FtpClient, Task> Executor)
         {
-            FTPTaskData Data = new FTPTaskData(Executor);
+            if (IsAvailable)
+            {
 
-            TaskQueue.Enqueue(Data);
+                FTPTaskData Data = new FTPTaskData(Executor);
 
-            ProcessSleepLocker.Set();
+                TaskQueue.Enqueue(Data);
 
-            return Data.CompletionSource.Task;
+                ProcessSleepLocker.Set();
+
+                return Data.CompletionSource.Task;
+            }
+
+            throw new Exception("FtpClient is not available");
         }
 
         public Task<T> RunCommandAsync<T>(Func<FtpClient, Task<T>> Executor)
         {
-            FTPTaskData Data = new FTPTaskData(Executor);
-
-            TaskQueue.Enqueue(Data);
-
-            ProcessSleepLocker.Set();
-
-            return Data.CompletionSource.Task.ContinueWith((PreviousTask) =>
+            if (IsAvailable)
             {
-                if (PreviousTask.Exception is Exception InnerException)
-                {
-                    throw new AggregateException(InnerException);
-                }
+                FTPTaskData Data = new FTPTaskData(Executor);
 
-                return (T)PreviousTask.Result;
-            });
+                TaskQueue.Enqueue(Data);
+
+                ProcessSleepLocker.Set();
+
+                return Data.CompletionSource.Task.ContinueWith((PreviousTask) =>
+                {
+                    if (PreviousTask.Exception is Exception InnerException)
+                    {
+                        throw new AggregateException(InnerException);
+                    }
+
+                    return (T)PreviousTask.Result;
+                });
+            }
+
+            throw new Exception("FtpClient is not available");
         }
 
         public Task RunCommandAsync(Action<FtpClient> Executor)
         {
-            FTPTaskData Data = new FTPTaskData(Executor);
+            if (IsAvailable)
+            {
+                FTPTaskData Data = new FTPTaskData(Executor);
 
-            TaskQueue.Enqueue(Data);
+                TaskQueue.Enqueue(Data);
 
-            ProcessSleepLocker.Set();
+                ProcessSleepLocker.Set();
 
-            return Data.CompletionSource.Task;
+                return Data.CompletionSource.Task;
+            }
+
+            throw new Exception("FtpClient is not available");
         }
 
         public async Task<bool> ConnectAsync()

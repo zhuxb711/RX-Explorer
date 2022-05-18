@@ -76,7 +76,8 @@ HRESULT OpenTerminalHere::GetState(IShellItemArray* /*psiItemArray*/,
     // We however don't need to bother with any of that, so we'll just return
     // ECS_ENABLED.
 
-    *pCmdState = ECS_ENABLED;
+    const bool enabled = winrt::unbox_value_or<bool>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"IntegrateWithWindowsExplorerContextMenu"), true);
+    *pCmdState = enabled ? ECS_ENABLED : ECS_HIDDEN;
     return S_OK;
 }
 

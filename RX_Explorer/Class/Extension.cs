@@ -460,7 +460,7 @@ namespace RX_Explorer.Class
                 });
             }
 
-            if (SettingPage.ContextMenuExtensionEnabled)
+            if (SettingPage.IsContextMenuExtensionEnabled)
             {
                 try
                 {

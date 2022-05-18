@@ -10,7 +10,8 @@
               xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
               xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
               xmlns:Triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
-              mc:Ignorable="d">
+              mc:Ignorable="d"
+              Visibility="Collapsed">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
@@ -640,6 +641,7 @@
                                                           OffContent="禁用"
                                                           Name="AlwaysOnTop"
                                                           x:Uid="AlwaysOnTop"
+                                                          Toggled="AlwaysOnTop_Toggled"
                                                           Style="{StaticResource SettingToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
@@ -831,6 +833,33 @@
                                                         </StackPanel>
                                                     </muxc:Expander.Content>
                                                 </muxc:Expander>
+                                                <Border Padding="40,10,10,10"
+                                                        MinHeight="60"
+                                                        CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <RelativePanel>
+                                                        <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                    RelativePanel.AlignLeftWithPanel="True"
+                                                                    RelativePanel.LeftOf="WindowsExplorerContextMenu"
+                                                                    Margin="0,0,20,0">
+                                                            <TextBlock Text="Windows文件管理器菜单集成"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Text="启用此选项后将添加&quot;使用RX文件管理器打开&quot;菜单项至Windows文件管理器以快速启动本应用程序"
+                                                                       FontSize="12"
+                                                                       Foreground="Gray"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       TextWrapping="WrapWholeWords" />
+                                                        </StackPanel>
+                                                        <ToggleSwitch OnContent="启用"
+                                                                      OffContent="禁用"
+                                                                      Name="WindowsExplorerContextMenu"
+                                                                      Style="{StaticResource SettingToggleSwitchStyle}"
+                                                                      RelativePanel.AlignRightWithPanel="True"
+                                                                      RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                    </RelativePanel>
+                                                </Border>
                                                 <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         BorderThickness="1"

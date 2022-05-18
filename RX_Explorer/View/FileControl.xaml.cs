@@ -1143,7 +1143,7 @@ namespace RX_Explorer.View
                             });
                         }
                     }
-                    else if (!SettingPage.LibraryExpanderIsExpanded)
+                    else if (!SettingPage.IsLibraryExpanderExpanded)
                     {
                         await CommonAccessCollection.LoadLibraryFoldersAsync();
                     }
@@ -1200,9 +1200,9 @@ namespace RX_Explorer.View
                 if (await FileSystemStorageItemBase.CheckExistsAsync(TargetContent.Path))
                 {
                     bool ExecuteDelete = false;
-                    bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) | SettingPage.AvoidRecycleBinEnabled;
+                    bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) | SettingPage.IsAvoidRecycleBinEnabled;
 
-                    if (SettingPage.DoubleConfirmOnDeletion)
+                    if (SettingPage.IsDoubleConfirmOnDeletionEnabled)
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {

@@ -570,7 +570,7 @@ namespace RX_Explorer.Class
                         }
                     case BackgroundBrushType.CustomAcrylic:
                         {
-                            IsCompositionAcrylicBackgroundEnabled = SettingPage.PreventAcrylicFallbackEnabled;
+                            IsCompositionAcrylicBackgroundEnabled = SettingPage.IsPreventAcrylicFallbackEnabled;
                             break;
                         }
                     case BackgroundBrushType.Mica:

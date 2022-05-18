@@ -690,7 +690,7 @@ namespace RX_Explorer.View
                 CommonAccessCollection.LoadDriveAsync()
             };
 
-            if (SettingPage.LibraryExpanderIsExpanded)
+            if (SettingPage.IsLibraryExpanderExpanded)
             {
                 LoadTaskList.Add(CommonAccessCollection.LoadLibraryFoldersAsync());
             }

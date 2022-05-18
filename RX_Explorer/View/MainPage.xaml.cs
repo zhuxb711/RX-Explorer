@@ -6,7 +6,6 @@ using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -236,7 +235,7 @@ namespace RX_Explorer.View
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
                 if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
                 {
@@ -256,11 +255,6 @@ namespace RX_Explorer.View
                 if (ApplicationData.Current.LocalSettings.Values["ShouldShowBluetoothAudioItem"] is bool ShowBluetoothAudio)
                 {
                     BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
-                }
-
-                if (FindName(nameof(Settings)) is SettingPage Dialog)
-                {
-                    await Settings.InitializeAsync();
                 }
             });
         }
@@ -287,33 +281,6 @@ namespace RX_Explorer.View
                             SQLite.Current.SetTerminalProfile(new TerminalProfile("Windows Terminal", "wt.exe", "/d [CurrentLocation]", true));
                             break;
                         }
-                }
-            }
-
-            if (SettingPage.WindowAlwaysOnTop)
-            {
-                try
-                {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        using Process CurrentProcess = Process.GetCurrentProcess();
-
-                        if (!await Exclusive.Controller.SetAsTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_SetTopMostFailed_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await Dialog.ShowAsync();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An exception was threw when setting this application as the TopMost window");
                 }
             }
         }
@@ -624,14 +591,16 @@ namespace RX_Explorer.View
                     });
                 }
 
+                await Task.WhenAll(RegisterBackgroundTaskAsync(),
+                                   CheckUpdateIfExistAsync(),
+                                   SettingPage.CreateAsync().ContinueWith((Task) => RootGrid.Children.Add(Task.Result), TaskScheduler.FromCurrentSynchronizationContext()));
+
                 ApplicationData.Current.DataChanged += Current_DataChanged;
 
                 if (SystemInformation.Instance.IsAppUpdated || SystemInformation.Instance.IsFirstRun)
                 {
                     await new WhatIsNew().ShowAsync();
                 }
-
-                await Task.WhenAll(RegisterBackgroundTaskAsync(), CheckUpdateIfExistAsync());
 
                 bool IsPurchased = await MSStoreHelper.Current.CheckPurchaseStatusAsync();
 
@@ -995,7 +964,7 @@ namespace RX_Explorer.View
             {
                 if (args.IsSettingsInvoked)
                 {
-                    if (!SettingPage.IsOpened && FindName(nameof(Settings)) is SettingPage Dialog)
+                    if (!SettingPage.IsOpened && RootGrid.Children.OfType<SettingPage>().FirstOrDefault() is SettingPage Dialog)
                     {
                         await Dialog.ShowAsync();
                     }
