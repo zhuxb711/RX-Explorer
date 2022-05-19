@@ -548,27 +548,23 @@ namespace RX_Explorer.Class
                                     await TargetClientController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(TargetAnalysis.RelatedPath, CancelToken));
                                 }
 
-                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken)))
-                                {
-                                    throw new UnauthorizedAccessException(TargetAnalysis.Path);
-                                }
+                                await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken));
 
                                 await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
                                 {
                                     switch (Item)
                                     {
-                                        case FTPStorageFolder Folder:
+                                        case FileSystemStorageFolder Folder:
                                             {
-                                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(System.IO.Path.Combine(TargetAnalysis.RelatedPath, System.IO.Path.GetRelativePath(Path, Folder.Path)), true, CancelToken)))
-                                                {
-                                                    throw new UnauthorizedAccessException(Folder.Path);
-                                                }
+                                                await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
 
                                                 break;
                                             }
-                                        case FTPStorageFile File:
+                                        case FileSystemStorageFile File:
                                             {
-                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.RelatedPath, System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path))), Option, CancelToken, (s, e) =>
+                                                string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
+
+                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, CancelToken, (s, e) =>
                                                 {
                                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                 });
@@ -587,27 +583,26 @@ namespace RX_Explorer.Class
                             {
                                 string UniquePath = await TargetClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.Folder));
 
-                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(UniquePath, true, CancelToken)))
-                                {
-                                    throw new UnauthorizedAccessException(TargetAnalysis.Path);
-                                }
+                                await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(UniquePath, true, CancelToken));
 
                                 await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
                                 {
                                     switch (Item)
                                     {
-                                        case FTPStorageFolder Folder:
+                                        case FileSystemStorageFolder Folder:
                                             {
-                                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(System.IO.Path.Combine(UniquePath, System.IO.Path.GetRelativePath(Path, Folder.Path)), true, CancelToken)))
+                                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{UniquePath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken)))
                                                 {
                                                     throw new UnauthorizedAccessException(Folder.Path);
                                                 }
 
                                                 break;
                                             }
-                                        case FTPStorageFile File:
+                                        case FileSystemStorageFile File:
                                             {
-                                                await File.CopyAsync(System.IO.Path.Combine(UniquePath, System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path))), Option, CancelToken, (s, e) =>
+                                                string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
+
+                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path.Replace(TargetAnalysis.RelatedPath, UniquePath), RelativePath), Option, CancelToken, (s, e) =>
                                                 {
                                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                 });
@@ -623,24 +618,26 @@ namespace RX_Explorer.Class
                             }
                         case CollisionOptions.Skip:
                             {
-                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken)))
+                                if (await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken)))
                                 {
                                     await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
                                     {
                                         switch (Item)
                                         {
-                                            case FTPStorageFolder Folder:
+                                            case FileSystemStorageFolder Folder:
                                                 {
-                                                    if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(System.IO.Path.Combine(TargetAnalysis.RelatedPath, System.IO.Path.GetRelativePath(Path, Folder.Path)), true, CancelToken)))
+                                                    if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken)))
                                                     {
                                                         throw new UnauthorizedAccessException(Folder.Path);
                                                     }
 
                                                     break;
                                                 }
-                                            case FTPStorageFile File:
+                                            case FileSystemStorageFile File:
                                                 {
-                                                    await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.RelatedPath, System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path))), Option, CancelToken, (s, e) =>
+                                                    string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
+
+                                                    await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, CancelToken, (s, e) =>
                                                     {
                                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                     });
@@ -689,27 +686,23 @@ namespace RX_Explorer.Class
                                     await TargetClientController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(TargetAnalysis.RelatedPath, CancelToken));
                                 }
 
-                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken)))
-                                {
-                                    throw new UnauthorizedAccessException(TargetAnalysis.Path);
-                                }
+                                await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken));
 
                                 await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
                                 {
                                     switch (Item)
                                     {
-                                        case FTPStorageFolder Folder:
+                                        case FileSystemStorageFolder Folder:
                                             {
-                                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(System.IO.Path.Combine(TargetAnalysis.RelatedPath, System.IO.Path.GetRelativePath(Path, Folder.Path)), true, CancelToken)))
-                                                {
-                                                    throw new UnauthorizedAccessException(Folder.Path);
-                                                }
+                                                await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
 
                                                 break;
                                             }
-                                        case FTPStorageFile File:
+                                        case FileSystemStorageFile File:
                                             {
-                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.RelatedPath, System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path))), Option, CancelToken, (s, e) =>
+                                                string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
+
+                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, CancelToken, (s, e) =>
                                                 {
                                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                 });
@@ -728,27 +721,26 @@ namespace RX_Explorer.Class
                             {
                                 string UniquePath = await TargetClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.Folder));
 
-                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(UniquePath, true, CancelToken)))
-                                {
-                                    throw new UnauthorizedAccessException(TargetAnalysis.Path);
-                                }
+                                await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(UniquePath, true, CancelToken));
 
                                 await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
                                 {
                                     switch (Item)
                                     {
-                                        case FTPStorageFolder Folder:
+                                        case FileSystemStorageFolder Folder:
                                             {
-                                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(System.IO.Path.Combine(UniquePath, System.IO.Path.GetRelativePath(Path, Folder.Path)), true, CancelToken)))
+                                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{UniquePath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken)))
                                                 {
                                                     throw new UnauthorizedAccessException(Folder.Path);
                                                 }
 
                                                 break;
                                             }
-                                        case FTPStorageFile File:
+                                        case FileSystemStorageFile File:
                                             {
-                                                await File.CopyAsync(System.IO.Path.Combine(UniquePath, System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path))), Option, CancelToken, (s, e) =>
+                                                string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
+
+                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path.Replace(TargetAnalysis.RelatedPath, UniquePath), RelativePath), Option, CancelToken, (s, e) =>
                                                 {
                                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                 });
@@ -764,24 +756,26 @@ namespace RX_Explorer.Class
                             }
                         case CollisionOptions.Skip:
                             {
-                                if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken)))
+                                if (await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken)))
                                 {
                                     await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
                                     {
                                         switch (Item)
                                         {
-                                            case FTPStorageFolder Folder:
+                                            case FileSystemStorageFolder Folder:
                                                 {
-                                                    if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(System.IO.Path.Combine(TargetAnalysis.RelatedPath, System.IO.Path.GetRelativePath(Path, Folder.Path)), true, CancelToken)))
+                                                    if (!await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken)))
                                                     {
                                                         throw new UnauthorizedAccessException(Folder.Path);
                                                     }
 
                                                     break;
                                                 }
-                                            case FTPStorageFile File:
+                                            case FileSystemStorageFile File:
                                                 {
-                                                    await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.RelatedPath, System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path))), Option, CancelToken, (s, e) =>
+                                                    string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
+
+                                                    await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, CancelToken, (s, e) =>
                                                     {
                                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                     });

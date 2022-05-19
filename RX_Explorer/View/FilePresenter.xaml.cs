@@ -3468,16 +3468,14 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
-
-                                                if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                                if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
                                                 {
-                                                    foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                                                    foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                                                     {
                                                         await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
                                                     }
 
-                                                    if (this.CurrentFolder == CurrentFolder)
+                                                    if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
                                                         await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                         {
@@ -3522,9 +3520,7 @@ namespace RX_Explorer.View
                                                                                                                   .Cast<TabItemContentRenderer>()
                                                                                                                   .SelectMany((Renderer) => Renderer.Presenters))
                                         {
-                                            FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
-
-                                            if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
+                                            if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                 {
@@ -3695,9 +3691,8 @@ namespace RX_Explorer.View
                                                                                                           .Cast<TabItemContentRenderer>()
                                                                                                           .SelectMany((Renderer) => Renderer.Presenters))
                                 {
-                                    FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
 
-                                    if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
+                                    if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                     {
                                         foreach (FileSystemStorageItemBase Item in DeleteItems)
                                         {
@@ -3772,9 +3767,7 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
-
-                                                if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
+                                                if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(SelectedItemsCopy.First().Path, NewName));
                                                 }
@@ -3825,9 +3818,7 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
-
-                                                if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
+                                                if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
                                                 }
@@ -4105,7 +4096,49 @@ namespace RX_Explorer.View
 
                 if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    QueueTaskController.EnqueueCompressionOpeartion(new OperationListCompressionModel(Dialog.Type, Dialog.Algorithm, Dialog.Level, new string[] { File.Path }, Path.Combine(CurrentFolder.Path, Dialog.FileName)));
+                    OperationListCompressionModel CModel = new OperationListCompressionModel(Dialog.Type, Dialog.Algorithm, Dialog.Level, new string[] { File.Path }, Path.Combine(CurrentFolder.Path, Dialog.FileName));
+
+                    QueueTaskController.RegisterPostAction(CModel, async (s, e) =>
+                    {
+                        EventDeferral Deferral = e.GetDeferral();
+
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        {
+                            try
+                            {
+                                if (e.Status == OperationStatus.Completed)
+                                {
+                                    foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                              .Cast<Frame>()
+                                                                                                              .Select((Frame) => Frame.Content)
+                                                                                                              .Cast<TabItemContentRenderer>()
+                                                                                                              .SelectMany((Renderer) => Renderer.Presenters))
+                                    {
+                                        if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                        {
+                                            if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                {
+                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex);
+                            }
+                            finally
+                            {
+                                Deferral.Complete();
+                            }
+                        });
+                    });
+
+                    QueueTaskController.EnqueueCompressionOpeartion(CModel);
                 }
             }
         }
@@ -4126,7 +4159,49 @@ namespace RX_Explorer.View
                     || File.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase))
 
                 {
-                    QueueTaskController.EnqueueDecompressionOpeartion(new OperationListDecompressionModel(new string[] { File.Path }, CurrentFolder.Path, (sender as FrameworkElement)?.Name == "DecompressionOption2"));
+                    OperationListDecompressionModel DModel = new OperationListDecompressionModel(new string[] { File.Path }, CurrentFolder.Path, (sender as FrameworkElement)?.Name == "DecompressionOption2");
+
+                    QueueTaskController.RegisterPostAction(DModel, async (s, e) =>
+                    {
+                        EventDeferral Deferral = e.GetDeferral();
+
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        {
+                            try
+                            {
+                                if (e.Status == OperationStatus.Completed)
+                                {
+                                    foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                              .Cast<Frame>()
+                                                                                                              .Select((Frame) => Frame.Content)
+                                                                                                              .Cast<TabItemContentRenderer>()
+                                                                                                              .SelectMany((Renderer) => Renderer.Presenters))
+                                    {
+                                        if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                        {
+                                            if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                {
+                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex);
+                            }
+                            finally
+                            {
+                                Deferral.Complete();
+                            }
+                        });
+                    });
+
+                    QueueTaskController.EnqueueDecompressionOpeartion(DModel);
                 }
             }
         }
@@ -4545,7 +4620,21 @@ namespace RX_Explorer.View
             {
                 if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreateType.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                 {
-                    OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
+                    if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                    {
+                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                  .Cast<Frame>()
+                                                                                                  .Select((Frame) => Frame.Content)
+                                                                                                  .Cast<TabItemContentRenderer>()
+                                                                                                  .SelectMany((Renderer) => Renderer.Presenters))
+                        {
+                            await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(NewFolder.Path));
+                        }
+                    }
+                    else
+                    {
+                        OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
+                    }
 
                     FileSystemStorageItemBase TargetItem = null;
 
@@ -5459,10 +5548,7 @@ namespace RX_Explorer.View
                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                             {
-                                await foreach (FileSystemStorageItemBase NewItem in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
-                                {
-                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(NewItem.Path));
-                                }
+                                await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(NewFile.Path));
                             }
                         }
                         else
@@ -5537,7 +5623,49 @@ namespace RX_Explorer.View
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        QueueTaskController.EnqueueCompressionOpeartion(new OperationListCompressionModel(Dialog.Type, Dialog.Algorithm, Dialog.Level, new string[] { Folder.Path }, Path.Combine(CurrentFolder.Path, Dialog.FileName)));
+                        OperationListCompressionModel CModel = new OperationListCompressionModel(Dialog.Type, Dialog.Algorithm, Dialog.Level, new string[] { Folder.Path }, Path.Combine(CurrentFolder.Path, Dialog.FileName));
+
+                        QueueTaskController.RegisterPostAction(CModel, async (s, e) =>
+                        {
+                            EventDeferral Deferral = e.GetDeferral();
+
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                            {
+                                try
+                                {
+                                    if (e.Status == OperationStatus.Completed)
+                                    {
+                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                  .Cast<Frame>()
+                                                                                                                  .Select((Frame) => Frame.Content)
+                                                                                                                  .Cast<TabItemContentRenderer>()
+                                                                                                                  .SelectMany((Renderer) => Renderer.Presenters))
+                                        {
+                                            if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                            {
+                                                if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                    {
+                                                        await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex);
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
+                            });
+                        });
+
+                        QueueTaskController.EnqueueCompressionOpeartion(CModel);
                     }
                 }
                 else
@@ -5995,16 +6123,14 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
-
-                                                if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                                if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
                                                 {
-                                                    foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                                                    foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                                                     {
                                                         await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
                                                     }
 
-                                                    if (this.CurrentFolder == CurrentFolder)
+                                                    if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
                                                         await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                         {
@@ -6045,9 +6171,7 @@ namespace RX_Explorer.View
                                                                                                                   .Cast<TabItemContentRenderer>()
                                                                                                                   .SelectMany((Renderer) => Renderer.Presenters))
                                         {
-                                            FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
-
-                                            if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
+                                            if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                 {
@@ -6111,7 +6235,49 @@ namespace RX_Explorer.View
                                             || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
                                             || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
             {
-                QueueTaskController.EnqueueDecompressionOpeartion(new OperationListDecompressionModel(SelectedItems.Select((Item) => Item.Path).ToArray(), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie"));
+                OperationListDecompressionModel DModel = new OperationListDecompressionModel(SelectedItems.Select((Item) => Item.Path).ToArray(), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie");
+
+                QueueTaskController.RegisterPostAction(DModel, async (s, e) =>
+                {
+                    EventDeferral Deferral = e.GetDeferral();
+
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                    {
+                        try
+                        {
+                            if (e.Status == OperationStatus.Completed)
+                            {
+                                foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                          .Cast<Frame>()
+                                                                                                          .Select((Frame) => Frame.Content)
+                                                                                                          .Cast<TabItemContentRenderer>()
+                                                                                                          .SelectMany((Renderer) => Renderer.Presenters))
+                                {
+                                    if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                    {
+                                        if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                            {
+                                                await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex);
+                        }
+                        finally
+                        {
+                            Deferral.Complete();
+                        }
+                    });
+                });
+
+                QueueTaskController.EnqueueDecompressionOpeartion(DModel);
             }
         }
 
@@ -6123,7 +6289,49 @@ namespace RX_Explorer.View
 
             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                QueueTaskController.EnqueueCompressionOpeartion(new OperationListCompressionModel(Dialog.Type, Dialog.Algorithm, Dialog.Level, SelectedItems.Select((Item) => Item.Path).ToArray(), Path.Combine(CurrentFolder.Path, Dialog.FileName)));
+                OperationListCompressionModel CModel = new OperationListCompressionModel(Dialog.Type, Dialog.Algorithm, Dialog.Level, SelectedItems.Select((Item) => Item.Path).ToArray(), Path.Combine(CurrentFolder.Path, Dialog.FileName));
+
+                QueueTaskController.RegisterPostAction(CModel, async (s, e) =>
+                {
+                    EventDeferral Deferral = e.GetDeferral();
+
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                    {
+                        try
+                        {
+                            if (e.Status == OperationStatus.Completed)
+                            {
+                                foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                          .Cast<Frame>()
+                                                                                                          .Select((Frame) => Frame.Content)
+                                                                                                          .Cast<TabItemContentRenderer>()
+                                                                                                          .SelectMany((Renderer) => Renderer.Presenters))
+                                {
+                                    if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                    {
+                                        if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                            {
+                                                await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex);
+                        }
+                        finally
+                        {
+                            Deferral.Complete();
+                        }
+                    });
+                });
+
+                QueueTaskController.EnqueueCompressionOpeartion(CModel);
             }
         }
 
@@ -6317,9 +6525,7 @@ namespace RX_Explorer.View
                                                                                                               .Cast<TabItemContentRenderer>()
                                                                                                               .SelectMany((Renderer) => Renderer.Presenters))
                                     {
-                                        FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
-
-                                        if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && this.CurrentFolder == CurrentFolder)
+                                        if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                         {
                                             await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(CurrentEditItem.Path, NewName));
                                         }
@@ -6876,7 +7082,49 @@ namespace RX_Explorer.View
                         }
                         else
                         {
-                            QueueTaskController.EnqueueDecompressionOpeartion(new OperationListDecompressionModel(new string[] { File.Path }, TargetFolder.Path, false, Dialog.CurrentEncoding));
+                            OperationListDecompressionModel DModel = new OperationListDecompressionModel(new string[] { File.Path }, TargetFolder.Path, false, Dialog.CurrentEncoding);
+
+                            QueueTaskController.RegisterPostAction(DModel, async (s, e) =>
+                            {
+                                EventDeferral Deferral = e.GetDeferral();
+
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                {
+                                    try
+                                    {
+                                        if (e.Status == OperationStatus.Completed)
+                                        {
+                                            foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                      .Cast<Frame>()
+                                                                                                                      .Select((Frame) => Frame.Content)
+                                                                                                                      .Cast<TabItemContentRenderer>()
+                                                                                                                      .SelectMany((Renderer) => Renderer.Presenters))
+                                            {
+                                                if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                                {
+                                                    if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                        {
+                                                            await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex);
+                                    }
+                                    finally
+                                    {
+                                        Deferral.Complete();
+                                    }
+                                });
+                            });
+
+                            QueueTaskController.EnqueueDecompressionOpeartion(DModel);
                         }
                     }
                 }
@@ -6900,7 +7148,49 @@ namespace RX_Explorer.View
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    QueueTaskController.EnqueueDecompressionOpeartion(new OperationListDecompressionModel(SelectedItems.Select((Item) => Item.Path).ToArray(), Dialog.ExtractLocation, true, Dialog.CurrentEncoding));
+                    OperationListDecompressionModel DModel = new OperationListDecompressionModel(SelectedItems.Select((Item) => Item.Path).ToArray(), Dialog.ExtractLocation, true, Dialog.CurrentEncoding);
+
+                    QueueTaskController.RegisterPostAction(DModel, async (s, e) =>
+                    {
+                        EventDeferral Deferral = e.GetDeferral();
+
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        {
+                            try
+                            {
+                                if (e.Status == OperationStatus.Completed)
+                                {
+                                    foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                              .Cast<Frame>()
+                                                                                                              .Select((Frame) => Frame.Content)
+                                                                                                              .Cast<TabItemContentRenderer>()
+                                                                                                              .SelectMany((Renderer) => Renderer.Presenters))
+                                    {
+                                        if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                        {
+                                            if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                {
+                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex);
+                            }
+                            finally
+                            {
+                                Deferral.Complete();
+                            }
+                        });
+                    });
+
+                    QueueTaskController.EnqueueDecompressionOpeartion(DModel);
                 }
             }
         }

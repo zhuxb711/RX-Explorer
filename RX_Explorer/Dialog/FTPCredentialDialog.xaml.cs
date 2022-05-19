@@ -68,7 +68,7 @@ namespace RX_Explorer.Dialog
 
                 AnonymousLogin.IsEnabled = true;
                 Message.Foreground = new SolidColorBrush(Colors.Red);
-                ProgressControl.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                ProgressControl.Visibility = Visibility.Collapsed;
 
                 if (ex is FtpAuthenticationException)
                 {

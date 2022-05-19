@@ -19,7 +19,7 @@
     <SplitView DisplayMode="Overlay"
                PanePlacement="Right"
                Name="TaskListPanel"
-               OpenPaneLength="330"
+               OpenPaneLength="350"
                PaneBackground="{ThemeResource ElementCustomAcrylicBrush}">
         <Grid>
             <Frame Name="BaseFrame"
@@ -198,27 +198,57 @@
                                            Margin="0,5,0,0"
                                            FontSize="12"
                                            HorizontalAlignment="Left" />
-                                <StackPanel Orientation="Horizontal"
-                                            HorizontalAlignment="Right"
-                                            Margin="0,5,0,0"
-                                            Visibility="{x:Bind ActionButtonAreaVisibility,Mode=OneWay}">
-                                    <Button Style="{ThemeResource ButtonRevealStyle}"
+                                <Grid Margin="0,5,0,0"
+                                      Visibility="{x:Bind ActionButtonAreaVisibility,Mode=OneWay}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0"
+                                            Style="{ThemeResource ButtonRevealStyle}"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                            Content="{x:Bind ActionButton1Content,Mode=OneWay}"
                                             Click="{x:Bind ActionButton1}"
-                                            Visibility="{x:Bind ActionButton1Visibility,Mode=OneWay}" />
-                                    <Button Style="{ThemeResource ButtonRevealStyle}"
+                                            Visibility="{x:Bind ActionButton1Visibility,Mode=OneWay}">
+                                        <TextBlock x:Name="ActionButtonLabel1"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Text="{x:Bind ActionButton1Content,Mode=OneWay}">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip Content="{x:Bind ActionButton1Content,Mode=OneWay}"
+                                                         Visibility="{Binding ElementName=ActionButtonLabel1,Path=IsTextTrimmed}"/>
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
+                                    </Button>
+                                    <Button Grid.Column="1"
+                                            Style="{ThemeResource ButtonRevealStyle}"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                            Content="{x:Bind ActionButton2Content,Mode=OneWay}"
                                             Click="{x:Bind ActionButton2}"
                                             Visibility="{x:Bind ActionButton2Visibility,Mode=OneWay}"
-                                            Margin="5,0" />
-                                    <Button Style="{ThemeResource ButtonRevealStyle}"
+                                            Margin="5,0">
+                                        <TextBlock x:Name="ActionButtonLabel2"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Text="{x:Bind ActionButton2Content,Mode=OneWay}">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip Content="{x:Bind ActionButton2Content,Mode=OneWay}"
+                                                         Visibility="{Binding ElementName=ActionButtonLabel2,Path=IsTextTrimmed}" />
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
+                                    </Button>
+                                    <Button Grid.Column="2"
+                                            Style="{ThemeResource ButtonRevealStyle}"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                            Content="{x:Bind ActionButton3Content,Mode=OneWay}"
                                             Click="{x:Bind ActionButton3}"
-                                            Visibility="{x:Bind ActionButton3Visibility,Mode=OneWay}" />
-                                </StackPanel>
+                                            Visibility="{x:Bind ActionButton3Visibility,Mode=OneWay}">
+                                        <TextBlock x:Name="ActionButtonLabel3"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Text="{x:Bind ActionButton3Content,Mode=OneWay}">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip Content="{x:Bind ActionButton3Content,Mode=OneWay}"
+                                                         Visibility="{Binding ElementName=ActionButtonLabel3,Path=IsTextTrimmed}" />
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
+                                    </Button>
+                                </Grid>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>

@@ -24,28 +24,57 @@ namespace RX_Explorer.Class
 
         public DateTimeOffset ModifiedTime { get; }
 
-        public FTPFileData(string Path, string RelatedPath, ulong Size, FtpPermission Permission, DateTimeOffset ModifiedTime, DateTimeOffset CreationTime)
+        public FTPFileData(string FTPPath, FtpListItem Item)
         {
-            if (Regex.IsMatch(Path, @"^ftp(s)?:\\.+", RegexOptions.IgnoreCase))
+            if (Regex.IsMatch(FTPPath, @"^ftp(s)?:\\.+", RegexOptions.IgnoreCase))
             {
-                if (Regex.IsMatch(Path, @"^ftp(s)?:\\\\.+", RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(FTPPath, @"^ftp(s)?:\\\\.+", RegexOptions.IgnoreCase))
                 {
-                    if (Path.StartsWith("ftp:", StringComparison.OrdinalIgnoreCase))
+                    if (FTPPath.StartsWith("ftp:", StringComparison.OrdinalIgnoreCase))
                     {
-                        Path = Path.Remove(5, 1);
+                        FTPPath = FTPPath.Remove(5, 1);
                     }
                     else if (Path.StartsWith("ftps:", StringComparison.OrdinalIgnoreCase))
                     {
-                        Path = Path.Remove(6, 1);
+                        FTPPath = FTPPath.Remove(6, 1);
                     }
                 }
 
-                this.Path = Path;
-                this.Size = Size;
-                this.Permission = Permission;
-                this.RelatedPath = RelatedPath;
-                this.ModifiedTime = ModifiedTime;
-                this.CreationTime = CreationTime;
+                Path = FTPPath.Replace("/", @"\");
+                Size = Convert.ToUInt64(Item.Size);
+                Permission = Item.OwnerPermissions;
+                RelatedPath = Item.FullName.Replace("/", @"\");
+                ModifiedTime = new DateTimeOffset(Item.Modified, TimeZoneInfo.Utc.BaseUtcOffset);
+                CreationTime = new DateTimeOffset(Item.Modified, TimeZoneInfo.Utc.BaseUtcOffset);
+            }
+            else
+            {
+                throw new NotSupportedException(Path);
+            }
+        }
+
+        public FTPFileData(string FTPPath)
+        {
+            if (Regex.IsMatch(FTPPath, @"^ftp(s)?:\\.+", RegexOptions.IgnoreCase))
+            {
+                if (Regex.IsMatch(FTPPath, @"^ftp(s)?:\\\\.+", RegexOptions.IgnoreCase))
+                {
+                    if (FTPPath.StartsWith("ftp:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        FTPPath = FTPPath.Remove(5, 1);
+                    }
+                    else if (Path.StartsWith("ftps:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        FTPPath = FTPPath.Remove(6, 1);
+                    }
+                }
+
+                Path = FTPPath.Replace("/", @"\");
+                Size = 0;
+                Permission = FtpPermission.Read | FtpPermission.Write;
+                RelatedPath = @"\";
+                ModifiedTime = DateTimeOffset.MinValue;
+                CreationTime = DateTimeOffset.MinValue;
             }
             else
             {
