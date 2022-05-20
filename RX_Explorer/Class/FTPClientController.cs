@@ -146,6 +146,10 @@ namespace RX_Explorer.Class
                                 }
                             }
                         }
+                        else
+                        {
+                            return true;
+                        }
                     }
                     catch (Exception)
                     {

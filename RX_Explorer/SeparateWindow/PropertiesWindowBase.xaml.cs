@@ -1268,6 +1268,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileHiddenAttribute.IsChecked = File.IsHiddenItem;
                                     FileHiddenAttribute.IsEnabled = File is not (IMTPStorageItem or IFTPStorageItem);
                                     FileReadonlyAttribute.IsEnabled = File is not (IMTPStorageItem or IFTPStorageItem);
+                                    FileChangeOpenWithButton.Visibility = File is IMTPStorageItem or IFTPStorageItem ? Visibility.Collapsed : Visibility.Visible;
 
                                     if (Regex.IsMatch(File.Name, @"\.(exe|bat|lnk|url)$"))
                                     {

@@ -567,19 +567,8 @@ namespace RX_Explorer.Class
                                 return null;
                             }
 
-                            IReadOnlyList<AssociationPackage> SystemAssocAppList = await Exclusive.Controller.GetAssociationFromPathAsync(PathArray.First());
-                            IEnumerable<MenuFlyoutItem> OpenWithItemsRaw = await Task.WhenAll(SystemAssocAppList.Where((Assoc) => Assoc.IsRecommanded).Select((Package) => GenerateOpenWithItemAsync(Package.ExecutablePath)));
-                            IEnumerable<MenuFlyoutItem> OpenWithItems = OpenWithItemsRaw.Reverse().OfType<MenuFlyoutItem>();
-
-                            if (!CancelToken.IsCancellationRequested)
+                            if (PathArray.All((Path) => Path.StartsWith(@"\\?\") || Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)))
                             {
-                                CleanUpContextMenuOpenWithFlyoutItems();
-
-                                foreach (MenuFlyoutItem Item in OpenWithItems)
-                                {
-                                    OpenWithFlyout.Items.Insert(0, Item);
-                                }
-
                                 if (GetInnerViewerType(PathArray.First()) != null)
                                 {
                                     ProgramPickerItem Item = ProgramPickerItem.InnerViewer;
@@ -597,23 +586,57 @@ namespace RX_Explorer.Class
 
                                     OpenWithFlyout.Items.Insert(0, MenuItem);
                                 }
+                            }
+                            else
+                            {
+                                IReadOnlyList<AssociationPackage> SystemAssocAppList = await Exclusive.Controller.GetAssociationFromPathAsync(PathArray.First());
+                                IEnumerable<MenuFlyoutItem> OpenWithItemsRaw = await Task.WhenAll(SystemAssocAppList.Where((Assoc) => Assoc.IsRecommanded).Select((Package) => GenerateOpenWithItemAsync(Package.ExecutablePath)));
+                                IEnumerable<MenuFlyoutItem> OpenWithItems = OpenWithItemsRaw.Reverse().OfType<MenuFlyoutItem>();
 
-                                string DefaultProgramPath = SQLite.Current.GetDefaultProgramPickerRecord(Path.GetExtension(PathArray.First()));
-
-                                if (!string.IsNullOrEmpty(DefaultProgramPath)
-                                    && !ProgramPickerItem.InnerViewer.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase)
-                                    && OpenWithFlyout.Items.OfType<FrameworkElement>()
-                                                           .Select((Item) => Item.Tag)
-                                                           .OfType<(string Path, ProgramPickerItem PickerItem)>()
-                                                           .Select((Data) => Data.PickerItem)
-                                                           .All((PickerItem) => !DefaultProgramPath.Equals(PickerItem.Path, StringComparison.OrdinalIgnoreCase)))
+                                if (!CancelToken.IsCancellationRequested)
                                 {
-                                    OpenWithFlyout.Items.Insert(0, await GenerateOpenWithItemAsync(DefaultProgramPath));
-                                }
+                                    CleanUpContextMenuOpenWithFlyoutItems();
 
-                                if (OpenWithFlyout.Items.Count > 2)
-                                {
-                                    OpenWithFlyout.Items.Insert(OpenWithFlyout.Items.Count - 2, new MenuFlyoutSeparator());
+                                    foreach (MenuFlyoutItem Item in OpenWithItems)
+                                    {
+                                        OpenWithFlyout.Items.Insert(0, Item);
+                                    }
+
+                                    if (GetInnerViewerType(PathArray.First()) != null)
+                                    {
+                                        ProgramPickerItem Item = ProgramPickerItem.InnerViewer;
+
+                                        MenuFlyoutItem MenuItem = new MenuFlyoutItem
+                                        {
+                                            Text = Item.Name,
+                                            Icon = new ImageIcon { Source = Item.Thumbnuil },
+                                            Tag = (PathArray.First(), Item),
+                                            MinWidth = 150,
+                                            MaxWidth = 300,
+                                            FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
+                                        };
+                                        MenuItem.Click += ClickHandler;
+
+                                        OpenWithFlyout.Items.Insert(0, MenuItem);
+                                    }
+
+                                    string DefaultProgramPath = SQLite.Current.GetDefaultProgramPickerRecord(Path.GetExtension(PathArray.First()));
+
+                                    if (!string.IsNullOrEmpty(DefaultProgramPath)
+                                        && !ProgramPickerItem.InnerViewer.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase)
+                                        && OpenWithFlyout.Items.OfType<FrameworkElement>()
+                                                               .Select((Item) => Item.Tag)
+                                                               .OfType<(string Path, ProgramPickerItem PickerItem)>()
+                                                               .Select((Data) => Data.PickerItem)
+                                                               .All((PickerItem) => !DefaultProgramPath.Equals(PickerItem.Path, StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        OpenWithFlyout.Items.Insert(0, await GenerateOpenWithItemAsync(DefaultProgramPath));
+                                    }
+
+                                    if (OpenWithFlyout.Items.Count > 2)
+                                    {
+                                        OpenWithFlyout.Items.Insert(OpenWithFlyout.Items.Count - 2, new MenuFlyoutSeparator());
+                                    }
                                 }
                             }
                         }

@@ -61,7 +61,7 @@ namespace RX_Explorer.Class
                 {
                     if (this.FullPath.StartsWith(@"\\?\"))
                     {
-                        Split[0] = $@"\\?\{Split[1]}\";
+                        Split = Split.Skip(2).Prepend($@"\\{string.Join(@"\", Split.Take(2))}\").ToArray();
                     }
                     else if (this.FullPath.StartsWith(@"\\"))
                     {
