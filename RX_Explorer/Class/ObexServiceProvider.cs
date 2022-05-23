@@ -24,10 +24,8 @@ namespace RX_Explorer.Class
             {
                 return ObexService.GetDefaultForBluetoothDevice(BlueToothDevice);
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         /// <summary>

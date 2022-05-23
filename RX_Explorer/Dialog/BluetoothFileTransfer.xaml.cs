@@ -175,7 +175,7 @@ namespace RX_Explorer.Dialog
                     {
                         ProgressControl.Value = 0;
                         CloseButtonText = string.Empty;
-                        SecondaryButtonText = Globalization.GetString("BluetoothTranfer.SecondaryButtonText");
+                        SecondaryButtonText = Globalization.GetString("BluetoothTranfer/SecondaryButtonText");
                         await ObexClient.ConnectAsync();
                         await ObexClient.SendFileAsync(FileToSend);
                     }

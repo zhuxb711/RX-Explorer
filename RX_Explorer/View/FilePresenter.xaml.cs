@@ -4504,43 +4504,43 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-            if (await SelectedItem.GetStorageItemAsync() is StorageFile ShareFile)
+            if (await FileSystemStorageItemBase.CheckExistsAsync(SelectedItem.Path))
             {
-                if (!await FileSystemStorageItemBase.CheckExistsAsync(ShareFile.Path))
+                if (await SelectedItem.GetStorageItemAsync() is StorageFile ShareFile)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    IReadOnlyList<Radio> RadioDevice = await Radio.GetRadiosAsync();
+
+                    if (RadioDevice.Any((Device) => Device.Kind == RadioKind.Bluetooth && Device.State == RadioState.On))
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
+                        BluetoothUI Bluetooth = new BluetoothUI();
 
-                    await Dialog.ShowAsync();
-
-                    return;
-                }
-
-                IReadOnlyList<Radio> RadioDevice = await Radio.GetRadiosAsync();
-
-                if (RadioDevice.Any((Device) => Device.Kind == RadioKind.Bluetooth && Device.State == RadioState.On))
-                {
-                    BluetoothUI Bluetooth = new BluetoothUI();
-                    if ((await Bluetooth.ShowAsync()) == ContentDialogResult.Primary)
+                        if (await Bluetooth.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            await new BluetoothFileTransfer(ShareFile).ShowAsync();
+                        }
+                    }
+                    else
                     {
-                        BluetoothFileTransfer FileTransfer = new BluetoothFileTransfer(ShareFile);
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_OpenBluetooth_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
 
-                        await FileTransfer.ShowAsync();
+                        await Dialog.ShowAsync();
                     }
                 }
                 else
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_OpenBluetooth_Content"),
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    await dialog.ShowAsync();
+
+                    await Dialog.ShowAsync();
                 }
             }
             else
@@ -4548,7 +4548,7 @@ namespace RX_Explorer.View
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
@@ -8583,39 +8583,40 @@ namespace RX_Explorer.View
                     {
                         if (OpenWithButton.Flyout is MenuFlyout OpenWithButtonFlyout)
                         {
-                            MenuFlyoutItem ChooseOtherAppButton = OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "ChooseOtherAppButton");
-                            MenuFlyoutItem RunAsAdminButton = OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "RunAsAdminButton");
-
-                            if (SelectedItem is IMTPStorageItem or IFTPStorageItem)
+                            if (OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().FirstOrDefault((Btn) => Btn.Name == "ChooseOtherAppButton") is MenuFlyoutItem ChooseOtherAppButton
+                                && OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().FirstOrDefault((Btn) => Btn.Name == "RunAsAdminButton") is MenuFlyoutItem RunAsAdminButton)
                             {
-                                RunAsAdminButton.Visibility = Visibility.Collapsed;
-                                ChooseOtherAppButton.Visibility = Visibility.Collapsed;
-                            }
-                            else
-                            {
-                                switch (SelectedItem.Type.ToLower())
+                                if (SelectedItem is IMTPStorageItem or IFTPStorageItem)
                                 {
-                                    case ".exe":
-                                    case ".bat":
-                                    case ".cmd":
-                                        {
-                                            RunAsAdminButton.Visibility = Visibility.Visible;
-                                            ChooseOtherAppButton.Visibility = Visibility.Collapsed;
-                                            break;
-                                        }
-                                    case ".msi":
-                                    case ".msc":
-                                        {
-                                            RunAsAdminButton.Visibility = Visibility.Visible;
-                                            ChooseOtherAppButton.Visibility = Visibility.Visible;
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            RunAsAdminButton.Visibility = Visibility.Collapsed;
-                                            ChooseOtherAppButton.Visibility = Visibility.Visible;
-                                            break;
-                                        }
+                                    RunAsAdminButton.Visibility = Visibility.Collapsed;
+                                    ChooseOtherAppButton.Visibility = Visibility.Collapsed;
+                                }
+                                else
+                                {
+                                    switch (SelectedItem.Type.ToLower())
+                                    {
+                                        case ".exe":
+                                        case ".bat":
+                                        case ".cmd":
+                                            {
+                                                RunAsAdminButton.Visibility = Visibility.Visible;
+                                                ChooseOtherAppButton.Visibility = Visibility.Collapsed;
+                                                break;
+                                            }
+                                        case ".msi":
+                                        case ".msc":
+                                            {
+                                                RunAsAdminButton.Visibility = Visibility.Visible;
+                                                ChooseOtherAppButton.Visibility = Visibility.Visible;
+                                                break;
+                                            }
+                                        default:
+                                            {
+                                                RunAsAdminButton.Visibility = Visibility.Collapsed;
+                                                ChooseOtherAppButton.Visibility = Visibility.Visible;
+                                                break;
+                                            }
+                                    }
                                 }
                             }
                         }

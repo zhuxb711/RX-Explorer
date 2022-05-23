@@ -1,6 +1,7 @@
 ﻿using Bluetooth.Core.Services;
 using RX_Explorer.Class;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +18,6 @@ namespace RX_Explorer.Dialog
     public sealed partial class BluetoothUI : QueueContentDialog
     {
         private readonly ObservableCollection<BluetoothDeivceData> BluetoothDeviceCollection = new ObservableCollection<BluetoothDeivceData>();
-        private TaskCompletionSource<bool> PairConfirmaion;
         private DeviceWatcher BluetoothWatcher;
 
         public BluetoothUI()
@@ -49,58 +49,62 @@ namespace RX_Explorer.Dialog
 
         private async void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            var Deferral = args.GetDeferral();
+            ContentDialogButtonClickDeferral Deferral = args.GetDeferral();
 
             try
             {
-                if (BluetoothControl.SelectedIndex == -1 || !BluetoothDeviceCollection[BluetoothControl.SelectedIndex].DeviceInfo.Pairing.IsPaired)
-                {
-                    Tips.Text = Globalization.GetString("BluetoothUI_Tips_Text_1");
-                    Tips.Visibility = Visibility.Visible;
-                    args.Cancel = true;
-                }
-                else
-                {
-                    //首先连接到RFComm服务，获取到设备的规范名称
-                    string CanonicalName = await ConnectToRfcommServiceAsync(BluetoothDeviceCollection[BluetoothControl.SelectedIndex]);
+                Tips.Text = string.Empty;
+                Tips.Visibility = Visibility.Collapsed;
 
-                    BluetoothService BTService = BluetoothService.GetDefault();
-                    BTService.SearchForPairedDevicesSucceeded += BTService_SearchForPairedDevicesSucceeded;
+                BluetoothDeivceData DeviceData = null;
+
+                if (BluetoothControl.SelectedIndex >= 0 && BluetoothControl.SelectedIndex < BluetoothDeviceCollection.Count)
+                {
+                    DeviceData = BluetoothDeviceCollection[BluetoothControl.SelectedIndex];
+                }
+
+                if ((DeviceData?.DeviceInfo.Pairing.IsPaired).GetValueOrDefault())
+                {
+                    string FailureReason = null;
+                    IReadOnlyList<BluetoothDevice> PairedDevice = null;
 
                     void BTService_SearchForPairedDevicesSucceeded(object sender, SearchForPairedDevicesSucceededEventArgs e)
                     {
-                        BTService.SearchForPairedDevicesSucceeded -= BTService_SearchForPairedDevicesSucceeded;
-
-                        if (e.PairedDevices.FirstOrDefault((Device) => Device.DeviceHost.CanonicalName == CanonicalName) is BluetoothDevice BTDevice)
-                        {
-                            ObexServiceProvider.SetObexInstance(BTDevice, BluetoothDeviceCollection[BluetoothControl.SelectedIndex].Name);
-
-                            if (ObexServiceProvider.GetObexInstance() == null)
-                            {
-                                throw new Exception(Globalization.GetString("BluetoothUI_Tips_Text_2"));
-                            }
-                        }
-                        else
-                        {
-                            throw new Exception(Globalization.GetString("BluetoothUI_Tips_Text_2"));
-                        }
+                        FailureReason = string.Empty;
+                        PairedDevice = e.PairedDevices;
                     }
 
-                    //能到这里说明该设备已经配对，启动搜索，完成后PairedBluetoothDeviceCollection被填充
+                    void BTService_SearchForPairedDevicesFailed(object sender, SearchForPairedDevicesFailedEventArgs e)
+                    {
+                        FailureReason = Enum.GetName(typeof(SearchForDeviceFailureReasons), e.FailureReason);
+                    }
+
+                    BluetoothService BTService = BluetoothService.GetDefault();
+                    BTService.SearchForPairedDevicesSucceeded += BTService_SearchForPairedDevicesSucceeded;
+                    BTService.SearchForPairedDevicesFailed += BTService_SearchForPairedDevicesFailed;
                     await BTService.SearchForPairedDevicesAsync();
+
+                    if (string.IsNullOrEmpty(FailureReason))
+                    {
+                        await PrepareSelectedBluetoothDeviceAsync(PairedDevice);
+                    }
+                    else
+                    {
+                        throw new Exception(FailureReason);
+                    }
+                }
+                else
+                {
+                    throw new Exception(Globalization.GetString("BluetoothUI_Tips_Text_1"));
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 args.Cancel = true;
+                Tips.Text = ex.Message;
+                Tips.Visibility = Visibility.Visible;
 
-                LogTracer.Log(e);
-
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    Tips.Text = e.Message;
-                    Tips.Visibility = Visibility.Visible;
-                });
+                LogTracer.Log(ex, "Could not connect to the bluetooth device");
             }
             finally
             {
@@ -137,6 +141,32 @@ namespace RX_Explorer.Dialog
             BluetoothWatcher.EnumerationCompleted += BluetoothWatcher_EnumerationCompleted;
 
             BluetoothWatcher.Start();
+        }
+
+        private async Task PrepareSelectedBluetoothDeviceAsync(IReadOnlyList<BluetoothDevice> PairedDevices)
+        {
+            BluetoothDeivceData DeviceData = null;
+
+            if (BluetoothControl.SelectedIndex >= 0 && BluetoothControl.SelectedIndex < BluetoothDeviceCollection.Count)
+            {
+                DeviceData = BluetoothDeviceCollection[BluetoothControl.SelectedIndex];
+            }
+
+            if (DeviceData != null)
+            {
+                string CanonicalName = await ConnectToRfcommServiceAsync(DeviceData);
+
+                if (!string.IsNullOrEmpty(CanonicalName))
+                {
+                    if (PairedDevices.FirstOrDefault((Device) => Device.DeviceHost.CanonicalName == CanonicalName) is BluetoothDevice Device)
+                    {
+                        ObexServiceProvider.SetObexInstance(Device, DeviceData.Name);
+                        return;
+                    }
+                }
+            }
+
+            throw new Exception(Globalization.GetString("BluetoothUI_Tips_Text_2"));
         }
 
         private async void BluetoothWatcher_EnumerationCompleted(DeviceWatcher sender, object args)
@@ -183,19 +213,14 @@ namespace RX_Explorer.Dialog
             });
         }
 
-        /// <summary>
-        /// 连接到指定的蓝牙设备的RFComm服务
-        /// </summary>
-        /// <param name="BL">要连接到的设备</param>
-        /// <returns>主机对象的规范名称</returns>
-        public async Task<string> ConnectToRfcommServiceAsync(BluetoothDeivceData BL)
+        private async Task<string> ConnectToRfcommServiceAsync(BluetoothDeivceData Data)
         {
-            if (BL == null)
+            if (Data == null)
             {
-                throw new ArgumentNullException(nameof(BL), "Parameter could not be null");
+                throw new ArgumentNullException(nameof(Data), "Parameter could not be null");
             }
 
-            using (Windows.Devices.Bluetooth.BluetoothDevice Device = await Windows.Devices.Bluetooth.BluetoothDevice.FromIdAsync(BL.Id))
+            using (Windows.Devices.Bluetooth.BluetoothDevice Device = await Windows.Devices.Bluetooth.BluetoothDevice.FromIdAsync(Data.Id))
             {
                 RfcommDeviceServicesResult Services = await Device.GetRfcommServicesForIdAsync(RfcommServiceId.ObexObjectPush);
 
@@ -218,7 +243,7 @@ namespace RX_Explorer.Dialog
             {
                 if (Btn.Content.ToString() == Globalization.GetString("PairText"))
                 {
-                    await PairAsync(Device).ConfigureAwait(false);
+                    await PairAsync(Device);
                 }
                 else
                 {
@@ -254,24 +279,18 @@ namespace RX_Explorer.Dialog
                     if (PairResult.Status == DevicePairingResultStatus.Paired)
                     {
                         Device.Update();
-                    }
-                    else
-                    {
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                        {
-                            Tips.Text = Globalization.GetString("BluetoothUI_Tips_Text_4");
-                            Tips.Visibility = Visibility.Visible;
-                        });
+                        return;
                     }
                 }
-                else
-                {
-                    LogTracer.Log($"Unable pair with Bluetooth device: \"{Device.Name}\", reason: CanPair property return false");
-                }
+
+                throw new Exception();
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Unable pair with Bluetooth device: \"{Device.Name}\"");
+                Tips.Text = string.IsNullOrEmpty(ex.Message) ? Globalization.GetString("BluetoothUI_Tips_Text_4") : $"{Globalization.GetString("BluetoothUI_Tips_Text_4")}: {ex.Message}";
+                Tips.Visibility = Visibility.Visible;
+
+                LogTracer.Log(ex, $"Unable pair with bluetooth device: \"{Device.Name}\"");
             }
         }
 
@@ -281,38 +300,66 @@ namespace RX_Explorer.Dialog
 
             try
             {
-                PairConfirmaion = new TaskCompletionSource<bool>();
+                TaskCompletionSource<bool> PairConfirmaion = new TaskCompletionSource<bool>();
+
+                Task TimeoutTask = Task.Delay(60000);
 
                 switch (args.PairingKind)
                 {
                     case DevicePairingKinds.ConfirmPinMatch:
                         {
+                            void PinConfirm_Click(object sender, RoutedEventArgs e)
+                            {
+                                PinConfirm.Click -= PinConfirm_Click;
+                                Tips.Text = string.Empty;
+                                Tips.Visibility = Visibility.Collapsed;
+                                PinButtonArea.Visibility = Visibility.Collapsed;
+                                PairConfirmaion.SetResult(true);
+                            }
+
                             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
                                 Tips.Text = $"{Globalization.GetString("BluetoothUI_Tips_Text_5")}{Environment.NewLine}{args.Pin}";
                                 Tips.Visibility = Visibility.Visible;
                                 PinButtonArea.Visibility = Visibility.Visible;
+                                PinConfirm.Click += PinConfirm_Click;
                             });
 
-                            if (await PairConfirmaion.Task)
+                            if (await Task.WhenAny(PairConfirmaion.Task, TimeoutTask) != TimeoutTask)
                             {
-                                args.Accept(args.Pin);
+                                if (PairConfirmaion.Task.Result)
+                                {
+                                    args.Accept(args.Pin);
+                                }
                             }
 
                             break;
                         }
                     case DevicePairingKinds.ConfirmOnly:
                         {
+                            void PinRefuse_Click(object sender, RoutedEventArgs e)
+                            {
+                                PinRefuse.Click -= PinRefuse_Click;
+                                Tips.Text = string.Empty;
+                                Tips.Visibility = Visibility.Collapsed;
+                                PinButtonArea.Visibility = Visibility.Collapsed;
+                                PairConfirmaion.SetResult(false);
+                            }
+
                             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
                                 Tips.Text = Globalization.GetString("BluetoothUI_Tips_Text_6");
                                 Tips.Visibility = Visibility.Visible;
                                 PinButtonArea.Visibility = Visibility.Visible;
+                                PinRefuse.Click += PinRefuse_Click;
                             });
 
-                            if (await PairConfirmaion.Task)
+                            if (await Task.WhenAny(PairConfirmaion.Task, TimeoutTask) != TimeoutTask)
                             {
-                                args.Accept();
+                                if (PairConfirmaion.Task.Result)
+                                {
+                                    args.Accept();
+                                }
                             }
 
                             break;
@@ -327,24 +374,6 @@ namespace RX_Explorer.Dialog
             {
                 PairDeferral.Complete();
             }
-        }
-
-        private void PinConfirm_Click(object sender, RoutedEventArgs e)
-        {
-            Tips.Text = string.Empty;
-            Tips.Visibility = Visibility.Collapsed;
-            PinButtonArea.Visibility = Visibility.Collapsed;
-
-            PairConfirmaion?.SetResult(true);
-        }
-
-        private void PinRefuse_Click(object sender, RoutedEventArgs e)
-        {
-            Tips.Text = string.Empty;
-            Tips.Visibility = Visibility.Collapsed;
-            PinButtonArea.Visibility = Visibility.Collapsed;
-
-            PairConfirmaion?.SetResult(false);
         }
     }
 

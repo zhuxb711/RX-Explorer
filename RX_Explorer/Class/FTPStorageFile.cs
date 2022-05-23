@@ -31,9 +31,10 @@ namespace RX_Explorer.Class
             return Task.FromResult<BitmapImage>(null);
         }
 
-        protected override Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
         {
-            return Task.FromResult<IRandomAccessStream>(null);
+            StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(DefaultFileThumbnailUri);
+            return await ThumbnailFile.OpenReadAsync();
         }
 
         public override Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
@@ -46,9 +47,38 @@ namespace RX_Explorer.Class
             return Task.FromResult<BitmapImage>(null);
         }
 
-        public override Task<IStorageItem> GetStorageItemAsync()
+        public override async Task<IStorageItem> GetStorageItemAsync()
         {
-            return Task.FromResult<IStorageItem>(null);
+            RandomAccessStreamReference Reference = null;
+
+            if (await GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem) is IRandomAccessStream ThumbnailStream)
+            {
+                Reference = RandomAccessStreamReference.CreateFromStream(ThumbnailStream);
+            }
+
+            return StorageItem ??= await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
+            {
+                try
+                {
+                    using (Stream TargetFileStream = Request.AsStreamForWrite())
+                    using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                    {
+                        if (CurrentFileStream == null)
+                        {
+                            throw new Exception($"Could not get the file stream from ftp file: {Path}");
+                        }
+
+                        await CurrentFileStream.CopyToAsync(TargetFileStream);
+                    }
+
+                    Request.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not create streamed file for ftp file: {Path}");
+                    Request.FailAndClose(StreamedFileFailureMode.Incomplete);
+                }
+            }, Reference);
         }
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)

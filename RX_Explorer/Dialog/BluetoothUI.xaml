@@ -26,8 +26,43 @@
             <TextBlock Text="{x:Bind Cls:Globalization.GetString('BluetoothUI_Status_Text_1')}"
                        Name="StatusText" />
             <muxc:ProgressBar Name="Progress"
+                              Margin="0,5,0,0"
                               IsIndeterminate="True"
                               HorizontalAlignment="Stretch" />
+            <RelativePanel Margin="0,10,0,0"
+                           Visibility="{x:Bind Tips.Visibility,Mode=OneWay}"
+                           HorizontalAlignment="Stretch">
+                <TextBlock Name="Tips"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           RelativePanel.AlignVerticalCenterWithPanel="True"
+                           RelativePanel.AlignLeftWithPanel="True"
+                           RelativePanel.LeftOf="PinButtonArea"
+                           Padding="0,0,5,0"
+                           Visibility="Collapsed" />
+                <RelativePanel Name="PinButtonArea"
+                               Visibility="Collapsed"
+                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                               RelativePanel.AlignRightWithPanel="True">
+                    <Button Content="是"
+                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                            RelativePanel.AlignLeftWithPanel="True"
+                            x:Uid="BluetoothUIPinYes"
+                            Margin="0,0,2.5,0"
+                            Style="{ThemeResource ButtonRevealStyle}"
+                            FontSize="12"
+                            Name="PinConfirm" />
+                    <Button Content="否"
+                            x:Uid="BluetoothUIPinNo"
+                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                            RelativePanel.AlignRightWithPanel="True"
+                            RelativePanel.RightOf="PinConfirm"
+                            FontSize="12"
+                            Margin="2.5,0,0,0"
+                            Style="{ThemeResource ButtonRevealStyle}"
+                            Name="PinRefuse" />
+                </RelativePanel>
+            </RelativePanel>
         </StackPanel>
         <ListView Margin="0,10,0,0"
                   Grid.Row="1"
@@ -80,43 +115,5 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <RelativePanel Margin="5,10,5,5"
-                       Visibility="{x:Bind Tips.Visibility,Mode=OneWay}"
-                       HorizontalAlignment="Stretch">
-            <TextBlock Name="Tips"
-                       FontSize="12"
-                       TextWrapping="Wrap"
-                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                       RelativePanel.AlignLeftWithPanel="True"
-                       RelativePanel.LeftOf="PinButtonArea"
-                       Padding="0,0,5,0"
-                       Visibility="Collapsed"
-                       ToolTipService.ToolTip="{x:Bind Tips.Text,Mode=OneWay}" />
-            <RelativePanel Name="PinButtonArea"
-                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                           RelativePanel.AlignRightWithPanel="True">
-                <Button Content="是"
-                        RelativePanel.AlignVerticalCenterWithPanel="True"
-                        RelativePanel.AlignLeftWithPanel="True"
-                        x:Uid="BluetoothUIPinYes"
-                        Margin="0,0,2.5,0"
-                        Style="{ThemeResource ButtonRevealStyle}"
-                        FontSize="12"
-                        Name="PinConfirm"
-                        Visibility="Collapsed"
-                        Click="PinConfirm_Click" />
-                <Button Content="否"
-                        x:Uid="BluetoothUIPinNo"
-                        RelativePanel.AlignVerticalCenterWithPanel="True"
-                        RelativePanel.AlignRightWithPanel="True"
-                        RelativePanel.RightOf="PinConfirm"
-                        FontSize="12"
-                        Margin="2.5,0,0,0"
-                        Style="{ThemeResource ButtonRevealStyle}"
-                        Name="PinRefuse"
-                        Visibility="Collapsed"
-                        Click="PinRefuse_Click" />
-            </RelativePanel>
-        </RelativePanel>
     </Grid>
 </Cls:QueueContentDialog>

@@ -440,7 +440,7 @@ namespace RX_Explorer.Class
                 if (Flyout.SecondaryCommands.OfType<AppBarButton>()
                                             .FirstOrDefault((Item) => Item.Name == "OpenWithButton")?.Flyout is MenuFlyout OpenFlyout)
                 {
-                    foreach (MenuFlyoutItemBase FlyoutItem in OpenFlyout.Items.SkipLast(2).ToArray())
+                    foreach (MenuFlyoutItemBase FlyoutItem in OpenFlyout.Items.Where((Item) => Item.Name != "ChooseOtherAppButton" && Item.Name != "RunAsAdminButton").ToArray())
                     {
                         OpenFlyout.Items.Remove(FlyoutItem);
                     }
@@ -638,6 +638,18 @@ namespace RX_Explorer.Class
                                         OpenWithFlyout.Items.Insert(OpenWithFlyout.Items.Count - 2, new MenuFlyoutSeparator());
                                     }
                                 }
+                            }
+
+                            if (OpenWithFlyout.Items.Count((Item) => Item.Visibility == Visibility.Visible) == 0 || OpenWithFlyout.Items.All((Item) => Item is MenuFlyoutSeparator))
+                            {
+                                OpenWithFlyout.Items.Add(new MenuFlyoutItem
+                                {
+                                    Text = "<无任何可用的应用程序>",
+                                    MinWidth = 150,
+                                    MaxWidth = 300,
+                                    Icon = new FontIcon { Glyph = "\uE7BA" },
+                                    FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily
+                                });
                             }
                         }
 

@@ -390,6 +390,7 @@ namespace RX_Explorer.View
 
             TaskCancellation?.Cancel();
             TaskCancellation?.Dispose();
+            TaskCancellation = null;
 
             EntryList.Clear();
             AddressBox.Text = string.Empty;

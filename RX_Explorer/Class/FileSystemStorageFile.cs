@@ -38,11 +38,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static readonly Uri Const_File_Image_Uri = AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
+        protected Uri DefaultFileThumbnailUri => AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
 
-        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(Const_File_Image_Uri);
+        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(DefaultFileThumbnailUri);
 
         public StorageFile StorageItem { get; protected set; }
 
