@@ -1563,38 +1563,53 @@ namespace RX_Explorer.View
 
                 Flyout.Items.Add(SendDocumentItem);
 
-                MenuFlyoutItem SendLinkItem = new MenuFlyoutItem
+                if (LibraryGrid.SelectedItem is LibraryStorageFolder SItem)
                 {
-                    Name = "SendLinkItem",
-                    Text = Globalization.GetString("SendTo_CreateDesktopShortcut"),
-                    Icon = new ImageIcon
+                    if (!SItem.Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                        && !SItem.Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)
+                        && !SItem.Path.StartsWith(@"\\?\"))
                     {
-                        Source = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico"))
-                    },
-                    MinWidth = 150,
-                    MaxWidth = 350
-                };
-                SendLinkItem.Click += SendToItem_Click;
 
-                Flyout.Items.Add(SendLinkItem);
-
-                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType is DriveType.Removable or DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)).ToArray())
-                {
-                    MenuFlyoutItem SendRemovableDriveItem = new MenuFlyoutItem
-                    {
-                        Name = "SendRemovableItem",
-                        Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)}",
-                        Icon = new ImageIcon
+                        MenuFlyoutItem SendLinkItem = new MenuFlyoutItem
                         {
-                            Source = RemovableDrive.Thumbnail
-                        },
-                        MinWidth = 150,
-                        MaxWidth = 350,
-                        Tag = RemovableDrive.Path
-                    };
-                    SendRemovableDriveItem.Click += SendToItem_Click;
+                            Name = "SendLinkItem",
+                            Text = Globalization.GetString("SendTo_CreateDesktopShortcut"),
+                            Icon = new ImageIcon
+                            {
+                                Source = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico"))
+                            },
+                            MinWidth = 150,
+                            MaxWidth = 350
+                        };
+                        SendLinkItem.Click += SendToItem_Click;
 
-                    Flyout.Items.Add(SendRemovableDriveItem);
+                        Flyout.Items.Add(SendLinkItem);
+                    }
+
+                    DriveDataBase[] RemovableDriveList = CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType is DriveType.Removable or DriveType.Network)
+                                                                                                            && !string.IsNullOrEmpty(Drive.Path)
+                                                                                                            && !SItem.Path.StartsWith(Drive.Path, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+                    for (int i = 0; i < RemovableDriveList.Length; i++)
+                    {
+                        DriveDataBase RemovableDrive = RemovableDriveList[i];
+
+                        MenuFlyoutItem SendRemovableDriveItem = new MenuFlyoutItem
+                        {
+                            Name = $"SendRemovableItem{i}",
+                            Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)}",
+                            Icon = new ImageIcon
+                            {
+                                Source = RemovableDrive.Thumbnail
+                            },
+                            MinWidth = 150,
+                            MaxWidth = 350,
+                            Tag = RemovableDrive.Path
+                        };
+                        SendRemovableDriveItem.Click += SendToItem_Click;
+
+                        Flyout.Items.Add(SendRemovableDriveItem);
+                    }
                 }
             }
         }

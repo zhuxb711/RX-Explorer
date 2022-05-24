@@ -33,8 +33,17 @@ namespace RX_Explorer.Class
 
         protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
         {
-            StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(DefaultFileThumbnailUri);
-            return await ThumbnailFile.OpenReadAsync();
+            try
+            {
+                StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(DefaultFileThumbnailUri);
+                return await ThumbnailFile.OpenReadAsync();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the raw stream of thumbnail");
+            }
+
+            return null;
         }
 
         public override Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
@@ -49,36 +58,45 @@ namespace RX_Explorer.Class
 
         public override async Task<IStorageItem> GetStorageItemAsync()
         {
-            RandomAccessStreamReference Reference = null;
-
-            if (await GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem) is IRandomAccessStream ThumbnailStream)
+            try
             {
-                Reference = RandomAccessStreamReference.CreateFromStream(ThumbnailStream);
-            }
+                RandomAccessStreamReference Reference = null;
 
-            return StorageItem ??= await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
-            {
-                try
+                if (await GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem) is IRandomAccessStream ThumbnailStream)
                 {
-                    using (Stream TargetFileStream = Request.AsStreamForWrite())
-                    using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                    Reference = RandomAccessStreamReference.CreateFromStream(ThumbnailStream);
+                }
+
+                return StorageItem ??= await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
+                {
+                    try
                     {
-                        if (CurrentFileStream == null)
+                        using (Stream TargetFileStream = Request.AsStreamForWrite())
+                        using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                         {
-                            throw new Exception($"Could not get the file stream from ftp file: {Path}");
+                            if (CurrentFileStream == null)
+                            {
+                                throw new Exception($"Could not get the file stream from ftp file: {Path}");
+                            }
+
+                            await CurrentFileStream.CopyToAsync(TargetFileStream);
                         }
 
-                        await CurrentFileStream.CopyToAsync(TargetFileStream);
+                        Request.Dispose();
                     }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Could not create streamed file for ftp file: {Path}");
+                        Request.FailAndClose(StreamedFileFailureMode.Incomplete);
+                    }
+                }, Reference);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not get the storage item for ftp file: {Path}");
+            }
 
-                    Request.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"Could not create streamed file for ftp file: {Path}");
-                    Request.FailAndClose(StreamedFileFailureMode.Incomplete);
-                }
-            }, Reference);
+            return null;
         }
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)

@@ -28,9 +28,19 @@ namespace RX_Explorer.Class
             return Task.FromResult<BitmapImage>(null);
         }
 
-        protected override Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
         {
-            return Task.FromResult<IRandomAccessStream>(null);
+            try
+            {
+                StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(DefaultFileThumbnailUri);
+                return await ThumbnailFile.OpenReadAsync();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the raw stream of thumbnail");
+            }
+
+            return null;
         }
 
         public override Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
@@ -110,13 +120,13 @@ namespace RX_Explorer.Class
 
         public override async Task<IStorageItem> GetStorageItemAsync()
         {
-            try
+            if (StorageItem != null)
             {
-                if (StorageItem != null)
-                {
-                    return StorageItem;
-                }
-                else
+                return StorageItem;
+            }
+            else
+            {
+                try
                 {
                     if (Parent != null)
                     {
@@ -133,10 +143,48 @@ namespace RX_Explorer.Class
                         return StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFile>(new PathAnalysis(Path, DeviceId));
                     }
                 }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not get StorageFile, Path: {Path}");
+                }
+            }
+
+            try
+            {
+                RandomAccessStreamReference Reference = null;
+
+                if (await GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem) is IRandomAccessStream ThumbnailStream)
+                {
+                    Reference = RandomAccessStreamReference.CreateFromStream(ThumbnailStream);
+                }
+
+                return await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
+                {
+                    try
+                    {
+                        using (Stream TargetFileStream = Request.AsStreamForWrite())
+                        using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                        {
+                            if (CurrentFileStream == null)
+                            {
+                                throw new Exception($"Could not get the file stream from ftp file: {Path}");
+                            }
+
+                            await CurrentFileStream.CopyToAsync(TargetFileStream);
+                        }
+
+                        Request.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Could not create streamed file for mtp file: {Path}");
+                        Request.FailAndClose(StreamedFileFailureMode.Incomplete);
+                    }
+                }, Reference);
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Could not get StorageFile, Path: {Path}");
+                LogTracer.Log(ex, $"Could not get the storage item for mtp file: {Path}");
             }
 
             return null;

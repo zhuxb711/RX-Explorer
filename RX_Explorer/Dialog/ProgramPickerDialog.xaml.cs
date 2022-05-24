@@ -49,15 +49,8 @@ namespace RX_Explorer.Dialog
 
                 List<AssociationPackage> AssociationList = new List<AssociationPackage>();
 
-                string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(OpenFile.Type);
-
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    if (string.IsNullOrEmpty(AdminExecutablePath))
-                    {
-                        AdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(OpenFile.Path);
-                    }
-
                     AssociationList.AddRange(await Exclusive.Controller.GetAssociationFromPathAsync(OpenFile.Path));
                 }
 
@@ -99,16 +92,6 @@ namespace RX_Explorer.Dialog
                     }
                 }
 
-                if (!string.IsNullOrEmpty(AdminExecutablePath))
-                {
-                    if (LocalRecommandList.Concat(LocalNotRecommandList).FirstOrDefault((Item) => Item.Path.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item)
-                    {
-                        DefaultProgramCollection.Add(Item);
-                        LocalRecommandList.Remove(Item);
-                        LocalNotRecommandList.Remove(Item);
-                    }
-                }
-
                 RecommandList.AddRange(LocalRecommandList.Distinct());
                 NotRecommandList.AddRange(LocalNotRecommandList.Distinct());
 
@@ -133,7 +116,10 @@ namespace RX_Explorer.Dialog
                     case ".pdf":
                     case ".exe":
                         {
-                            if (DefaultProgramCollection.Count == 0)
+                            string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(OpenFile.Type);
+
+                            if (string.IsNullOrEmpty(AdminExecutablePath)
+                                || ProgramPickerItem.InnerViewer.Path.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase))
                             {
                                 DefaultProgramCollection.Add(ProgramPickerItem.InnerViewer);
                             }
@@ -144,6 +130,21 @@ namespace RX_Explorer.Dialog
 
                             break;
                         }
+                }
+
+                if (DefaultProgramCollection.Count == 0)
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        string SystemAdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(OpenFile.Path);
+
+                        if (RecommandList.Concat(NotRecommandList).FirstOrDefault((Item) => Item.Path.Equals(SystemAdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item)
+                        {
+                            DefaultProgramCollection.Add(Item);
+                            RecommandList.Remove(Item);
+                            NotRecommandList.Remove(Item);
+                        }
+                    }
                 }
 
                 if (RecommandList.Count == 0)
