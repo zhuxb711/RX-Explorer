@@ -1720,7 +1720,7 @@ namespace RX_Explorer.View
                                 TargetPath = await Exclusive.Controller.ConvertShortPathToLongPathAsync(TargetPath);
                             }
 
-                            if (!await FileSystemStorageItemBase.CheckExistsAsync(TargetPath))
+                            if (Regex.IsMatch(TargetPath, @"^\\{0,1}[^\\]+.*"))
                             {
                                 IReadOnlyList<VariableDataPackage> VariablePathList = await EnvironmentVariables.GetVariablePathListAsync();
 
