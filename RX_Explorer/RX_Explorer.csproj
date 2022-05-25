@@ -579,6 +579,7 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="Assets\Restore_Folder.reg" />
+    <PRIResource Include="Strings\ja-JP\Resources.resw" />
     <PRIResource Include="Strings\de-DE\Resources.resw" />
     <PRIResource Include="Strings\es\Resources.resw" />
     <PRIResource Include="Strings\zh-Hant\Resources.resw" />
@@ -897,6 +898,7 @@
     <XliffResource Include="MultilingualResources\RX_Explorer.de-DE.xlf" />
     <XliffResource Include="MultilingualResources\RX_Explorer.es.xlf" />
     <XliffResource Include="MultilingualResources\RX_Explorer.fr-FR.xlf" />
+    <XliffResource Include="MultilingualResources\RX_Explorer.ja-JP.xlf" />
     <XliffResource Include="MultilingualResources\RX_Explorer.zh-Hans.xlf" />
     <XliffResource Include="MultilingualResources\RX_Explorer.zh-Hant.xlf" />
   </ItemGroup>

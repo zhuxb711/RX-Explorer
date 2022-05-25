@@ -644,7 +644,7 @@ namespace RX_Explorer.Class
                             {
                                 OpenWithFlyout.Items.Add(new MenuFlyoutItem
                                 {
-                                    Text = "<无任何可用的应用程序>",
+                                    Text = $"<{Globalization.GetString("NoApplicationAvailable")}>",
                                     MinWidth = 150,
                                     MaxWidth = 300,
                                     Icon = new FontIcon { Glyph = "\uE7BA" },

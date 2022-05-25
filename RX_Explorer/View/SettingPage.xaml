@@ -844,9 +844,11 @@
                                                                     RelativePanel.AlignLeftWithPanel="True"
                                                                     RelativePanel.LeftOf="WindowsExplorerContextMenu"
                                                                     Margin="0,0,20,0">
-                                                            <TextBlock Text="Windows文件管理器菜单集成"
-                                                                       TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Text="Windows文件管理器集成"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       x:Uid="SettingPageExplorerContextMenu" />
                                                             <TextBlock Text="启用此选项后将添加&quot;使用RX文件管理器打开&quot;菜单项至Windows文件管理器以快速启动本应用程序"
+                                                                       x:Uid="SettingPageExplorerContextMenuDescription"
                                                                        FontSize="12"
                                                                        Foreground="Gray"
                                                                        TextTrimming="CharacterEllipsis"
@@ -854,6 +856,7 @@
                                                         </StackPanel>
                                                         <ToggleSwitch OnContent="启用"
                                                                       OffContent="禁用"
+                                                                      x:Uid="SettingPageExplorerContextMenuSwitch"
                                                                       Name="WindowsExplorerContextMenu"
                                                                       Style="{StaticResource SettingToggleSwitchStyle}"
                                                                       RelativePanel.AlignRightWithPanel="True"

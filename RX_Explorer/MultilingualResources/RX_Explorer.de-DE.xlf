@@ -4674,6 +4674,66 @@ Inkorrekte Namen sind
           <source>Could not merge the video file due to an unknown error</source>
           <target state="translated">Impossible de fusionner le fichier vidéo en raison d'une erreur inconnue</target>
         </trans-unit>
+        <trans-unit id="FTPCredentialDialog.Title" translate="yes" xml:space="preserve">
+          <source>Login credentials required</source>
+          <target state="new">Login credentials required</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogAnonymousLogin.Content" translate="yes" xml:space="preserve">
+          <source>Login with anonymous account</source>
+          <target state="new">Login with anonymous account</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogFTPHost" translate="yes" xml:space="preserve">
+          <source>FTP Server</source>
+          <target state="new">FTP Server</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogPassword.Header" translate="yes" xml:space="preserve">
+          <source>Password</source>
+          <target state="new">Password</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogStatus1" translate="yes" xml:space="preserve">
+          <source>Trying to log in</source>
+          <target state="new">Trying to log in</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogStatus2" translate="yes" xml:space="preserve">
+          <source>The FTP server does not allow anonymous logins</source>
+          <target state="new">The FTP server does not allow anonymous logins</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogStatus3" translate="yes" xml:space="preserve">
+          <source>Incorrect account or password</source>
+          <target state="new">Incorrect account or password</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogStatus4" translate="yes" xml:space="preserve">
+          <source>Could not connect to the ftp server</source>
+          <target state="new">Could not connect to the ftp server</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogAccount.Header" translate="yes" xml:space="preserve">
+          <source>Account</source>
+          <target state="new">Account</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogSavePassword.Content" translate="yes" xml:space="preserve">
+          <source>Save account and password</source>
+          <target state="new">Save account and password</target>
+        </trans-unit>
+        <trans-unit id="NoApplicationAvailable" translate="yes" xml:space="preserve">
+          <source>No apps available</source>
+          <target state="new">No apps available</target>
+        </trans-unit>
+        <trans-unit id="SettingPageExplorerContextMenu.Text" translate="yes" xml:space="preserve">
+          <source>Integration with Windows Explorer's menu</source>
+          <target state="new">Integration with Windows Explorer's menu</target>
+        </trans-unit>
+        <trans-unit id="SettingPageExplorerContextMenuDescription.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will add an "Open with RX-Explorer" menu item to the Windows Explorer to launch this application faster</source>
+          <target state="new">Enabling this option will add an "Open with RX-Explorer" menu item to the Windows Explorer to launch this application faster</target>
+        </trans-unit>
+        <trans-unit id="SettingPageExplorerContextMenuSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="new">Disabled</target>
+        </trans-unit>
+        <trans-unit id="SettingPageExplorerContextMenuSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="new">Enabled</target>
+        </trans-unit>
       </group>
     </body>
   </file>

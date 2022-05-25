@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Windows.Security.Credentials;
 
@@ -7,65 +8,82 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对用户凭据的保护功能
     /// </summary>
-    public static class CredentialProtector
+    public class CredentialProtector
     {
+        private readonly string VaultName;
+        private readonly PasswordVault Vault;
+
         /// <summary>
         /// 从凭据保护器中取得密码
         /// </summary>
-        /// <param name="Name">名称</param>
+        /// <param name="UserName">名称</param>
         /// <returns></returns>
-        public static string GetPasswordFromProtector(string Name)
+        public string GetPassword(string UserName)
         {
             try
             {
-                PasswordVault Vault = new PasswordVault();
-
-                if (Vault.RetrieveAll().Any((Cre) => Cre.Resource == "RX_Secure_Vault" && Cre.UserName == Name))
+                if (Vault.RetrieveAll().FirstOrDefault((Cre) => Cre.Resource == VaultName && Cre.UserName == UserName) is PasswordCredential Credential)
                 {
-                    if (Vault.Retrieve("RX_Secure_Vault", Name) is PasswordCredential Credential)
-                    {
-                        Credential.RetrievePassword();
-                        return Credential.Password;
-                    }
-                    else
-                    {
-                        return string.Empty;
-                    }
-                }
-                else
-                {
-                    return string.Empty;
+                    Credential.RetrievePassword();
+                    return Credential.Password;
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex);
-                return string.Empty;
             }
+
+            return string.Empty;
         }
 
         /// <summary>
         /// 请求保护指定的内容
         /// </summary>
-        /// <param name="Name">用户名</param>
+        /// <param name="UserName">用户名</param>
         /// <param name="Password">密码</param>
-        public static void RequestProtectPassword(string Name, string Password)
+        public void RequestProtection(string UserName, string Password)
         {
+            RemoveProtection(UserName);
+
             try
             {
-                PasswordVault Vault = new PasswordVault();
-
-                foreach (PasswordCredential Credential in Vault.RetrieveAll().Where((Cre) => Cre.Resource == "RX_Secure_Vault" && Cre.UserName == Name))
-                {
-                    Vault.Remove(Credential);
-                }
-
-                Vault.Add(new PasswordCredential("RX_Secure_Vault", Name, Password));
+                Vault.Add(new PasswordCredential(VaultName, UserName, Password));
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex);
             }
+        }
+
+        public void RemoveProtection(string UserName)
+        {
+            try
+            {
+                foreach (PasswordCredential Credential in Vault.RetrieveAll().Where((Cre) => Cre.Resource == VaultName && Cre.UserName == UserName))
+                {
+                    Vault.Remove(Credential);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+        }
+
+        public bool CheckExists(string UserName)
+        {
+            return Vault.RetrieveAll().Any((Cre) => Cre.Resource == VaultName && Cre.UserName == UserName);
+        }
+
+        public IReadOnlyList<string> GetAccountList()
+        {
+            return Vault.RetrieveAll().Where((Cre) => Cre.Resource == VaultName).Select((Cre) => Cre.UserName).ToList();
+        }
+
+        public CredentialProtector(string VaultName)
+        {
+            this.VaultName = VaultName;
+            Vault = new PasswordVault();
         }
     }
 }

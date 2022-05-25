@@ -1,7 +1,10 @@
 ﻿using FluentFTP;
 using RX_Explorer.Class;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -11,19 +14,24 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class FTPCredentialDialog : QueueContentDialog
     {
-        public FTPClientController FtpController { get; private set; }
-
         private readonly FTPPathAnalysis Analysis;
+
+        private readonly CredentialProtector Protector;
+
+        public FTPClientController FtpController { get; private set; }
 
         public FTPCredentialDialog(FTPPathAnalysis Analysis) : this()
         {
             this.Analysis = Analysis;
-           
-            FtpHost.Text = $"FTP服务器: {Analysis.Host}";
+
+            Protector = new CredentialProtector("RX_FTP_Vault");
+            FtpHost.Text = $"{Globalization.GetString("FTPCredentialDialogFTPHost")}: {Analysis.Host}";
+
+            AccountBox.ItemsSource = Protector.GetAccountList();
 
             if (!string.IsNullOrEmpty(Analysis.UserName))
             {
-                UserNameBox.Text = Analysis.UserName;
+                AccountBox.Text = Analysis.UserName;
             }
 
             if (!string.IsNullOrEmpty(Analysis.Password))
@@ -41,25 +49,61 @@ namespace RX_Explorer.Dialog
         {
             ContentDialogButtonClickDeferral Deferral = args.GetDeferral();
 
-            Message.Text = "正在尝试登录...";
-            Message.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
-            Message.Visibility = Windows.UI.Xaml.Visibility.Visible;
-            ProgressControl.Visibility = Windows.UI.Xaml.Visibility.Visible;
-            AnonymousLogin.IsEnabled = false;
-
             try
             {
-                FTPClientController Controller = AnonymousLogin.IsChecked.GetValueOrDefault()
-                                               ? new FTPClientController(Analysis.Host, Analysis.Port, "anonymous", "anonymous")
-                                               : new FTPClientController(Analysis.Host, Analysis.Port, UserNameBox.Text, PasswordBox.Password);
-
-                if (await Controller.ConnectAsync())
+                if (AnonymousLogin.IsChecked.GetValueOrDefault())
                 {
-                    FtpController = Controller;
+                    Message.Text = $"{Globalization.GetString("FTPCredentialDialogStatus1")}...";
+                    Message.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
+                    Message.Visibility = Visibility.Visible;
+                    ProgressControl.Visibility = Visibility.Visible;
+                    AnonymousLogin.IsEnabled = false;
+
+                    FTPClientController Controller = new FTPClientController(Analysis.Host, Analysis.Port, "anonymous", "anonymous");
+
+                    if (await Controller.ConnectAsync())
+                    {
+                        FtpController = Controller;
+                    }
+                    else
+                    {
+                        throw new TimeoutException("Ftp server do not response in time");
+                    }
                 }
                 else
                 {
-                    throw new TimeoutException("Ftp server do not response in time");
+                    if (string.IsNullOrEmpty(AccountBox.Text))
+                    {
+                        args.Cancel = true;
+                    }
+                    else
+                    {
+                        Message.Text = $"{Globalization.GetString("FTPCredentialDialogStatus1")}...";
+                        Message.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
+                        Message.Visibility = Visibility.Visible;
+                        ProgressControl.Visibility = Visibility.Visible;
+                        AnonymousLogin.IsEnabled = false;
+
+                        FTPClientController Controller = new FTPClientController(Analysis.Host, Analysis.Port, AccountBox.Text, PasswordBox.Password);
+
+                        if (await Controller.ConnectAsync())
+                        {
+                            FtpController = Controller;
+
+                            if (SavePassword.IsChecked.GetValueOrDefault())
+                            {
+                                Protector.RequestProtection(AccountBox.Text, PasswordBox.Password);
+                            }
+                            else if (Protector.CheckExists(AccountBox.Text))
+                            {
+                                Protector.RemoveProtection(AccountBox.Text);
+                            }
+                        }
+                        else
+                        {
+                            throw new TimeoutException("Ftp server do not response in time");
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -74,16 +118,16 @@ namespace RX_Explorer.Dialog
                 {
                     if (AnonymousLogin.IsChecked.GetValueOrDefault())
                     {
-                        Message.Text = "该FTP服务器不允许以匿名方式登录";
+                        Message.Text = Globalization.GetString("FTPCredentialDialogStatus2");
                     }
                     else
                     {
-                        Message.Text = "用户名或密码错误";
+                        Message.Text = Globalization.GetString("FTPCredentialDialogStatus3");
                     }
                 }
                 else
                 {
-                    Message.Text = "无法连接到该FTP服务器";
+                    Message.Text = Globalization.GetString("FTPCredentialDialogStatus4");
                 }
 
                 LogTracer.Log(ex, "Could not connect to the ftp server");
@@ -92,6 +136,27 @@ namespace RX_Explorer.Dialog
             {
                 Deferral.Complete();
             }
+        }
+
+        private void UserNameBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (Protector.CheckExists(AccountBox.Text))
+            {
+                SavePassword.IsChecked = true;
+                PasswordBox.Password = Protector.GetPassword(e.AddedItems.Cast<string>().Single());
+            }
+        }
+
+        private void AnonymousLogin_Checked(object sender, RoutedEventArgs e)
+        {
+            AccountBox.Text = "anonymous";
+            PasswordBox.Password = "anonymous";
+        }
+
+        private void AnonymousLogin_Unchecked(object sender, RoutedEventArgs e)
+        {
+            AccountBox.Text = string.Empty;
+            PasswordBox.Password = string.Empty;
         }
     }
 }

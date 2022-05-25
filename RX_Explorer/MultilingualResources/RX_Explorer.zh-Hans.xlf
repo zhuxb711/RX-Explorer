@@ -4676,6 +4676,66 @@ Invalid names include
           <source>Could not merge the video file due to an unknown error</source>
           <target state="translated">由于出现未知错误，无法合并该视频文件</target>
         </trans-unit>
+        <trans-unit id="FTPCredentialDialog.Title" translate="yes" xml:space="preserve">
+          <source>Login credentials required</source>
+          <target state="translated">需要登录凭据</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogAnonymousLogin.Content" translate="yes" xml:space="preserve">
+          <source>Login with anonymous account</source>
+          <target state="translated">使用匿名账号登录</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogFTPHost" translate="yes" xml:space="preserve">
+          <source>FTP Server</source>
+          <target state="translated">FTP服务器</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogPassword.Header" translate="yes" xml:space="preserve">
+          <source>Password</source>
+          <target state="translated">密码</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogStatus1" translate="yes" xml:space="preserve">
+          <source>Trying to log in</source>
+          <target state="translated">正在尝试登录</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogStatus2" translate="yes" xml:space="preserve">
+          <source>The FTP server does not allow anonymous logins</source>
+          <target state="translated">该FTP服务器不允许使用匿名账号登录</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogStatus3" translate="yes" xml:space="preserve">
+          <source>Incorrect account or password</source>
+          <target state="translated">账号或密码不正确</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogStatus4" translate="yes" xml:space="preserve">
+          <source>Could not connect to the ftp server</source>
+          <target state="translated">无法连接到FTP服务器</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogAccount.Header" translate="yes" xml:space="preserve">
+          <source>Account</source>
+          <target state="translated">账号</target>
+        </trans-unit>
+        <trans-unit id="FTPCredentialDialogSavePassword.Content" translate="yes" xml:space="preserve">
+          <source>Save account and password</source>
+          <target state="translated">保存账号和密码</target>
+        </trans-unit>
+        <trans-unit id="NoApplicationAvailable" translate="yes" xml:space="preserve">
+          <source>No apps available</source>
+          <target state="translated">无任何可用应用程序</target>
+        </trans-unit>
+        <trans-unit id="SettingPageExplorerContextMenu.Text" translate="yes" xml:space="preserve">
+          <source>Integration with Windows Explorer's menu</source>
+          <target state="translated">与Windows文件管理器的菜单集成</target>
+        </trans-unit>
+        <trans-unit id="SettingPageExplorerContextMenuDescription.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will add an "Open with RX-Explorer" menu item to the Windows Explorer to launch this application faster</source>
+          <target state="translated">启用此选项后将添加"使用RX文件管理器打开"菜单项至Windows文件管理器以快速启动本应用程序</target>
+        </trans-unit>
+        <trans-unit id="SettingPageExplorerContextMenuSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">已禁用</target>
+        </trans-unit>
+        <trans-unit id="SettingPageExplorerContextMenuSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">已启用</target>
+        </trans-unit>
       </group>
     </body>
   </file>

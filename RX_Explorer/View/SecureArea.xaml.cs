@@ -29,20 +29,22 @@ namespace RX_Explorer.View
 {
     public sealed partial class SecureArea : Page
     {
-        private readonly ObservableCollection<FileSystemStorageFile> SecureCollection = new ObservableCollection<FileSystemStorageFile>();
+        private readonly PointerEventHandler PointerPressedHandler;
+
+        private readonly string DefaultSecureAreaFolderPath;
+
+        private readonly ObservableCollection<FileSystemStorageFile> SecureCollection;
 
         private FileSystemStorageFolder SecureFolder;
 
-        private readonly PointerEventHandler PointerPressedHandler;
-
-        private readonly string DefaultSecureAreaFolderPath = Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
+        private static readonly CredentialProtector Protecter = new CredentialProtector("RX_Secure_Vault");
 
         internal static string AESKey => KeyGenerator.GetMD5WithLength(UnlockPassword, 16);
 
         internal static string UnlockPassword
         {
-            get => CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword");
-            private set => CredentialProtector.RequestProtectPassword("SecureAreaPrimaryPassword", value);
+            get => Protecter.GetPassword("SecureAreaPrimaryPassword");
+            private set => Protecter.RequestProtection("SecureAreaPrimaryPassword", value);
         }
 
         private int AESKeySize;
@@ -58,6 +60,9 @@ namespace RX_Explorer.View
         public SecureArea()
         {
             InitializeComponent();
+
+            SecureCollection = new ObservableCollection<FileSystemStorageFile>();
+            DefaultSecureAreaFolderPath = Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
             PointerPressedHandler = new PointerEventHandler(SecureGridView_PointerPressed);
             SecureCollection.CollectionChanged += SecureCollection_CollectionChanged;
             Loaded += SecureArea_Loaded;

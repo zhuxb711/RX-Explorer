@@ -1721,7 +1721,9 @@ namespace RX_Explorer.View
                                 TargetPath = await Exclusive.Controller.ConvertShortPathToLongPathAsync(TargetPath);
                             }
 
-                            if (Regex.IsMatch(TargetPath, @"^\\{0,1}[^\\]+.*"))
+                            if (Regex.IsMatch(TargetPath, @"^\\?(?!\\).*")
+                                && !TargetPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                                && !TargetPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                             {
                                 IReadOnlyList<VariableDataPackage> VariablePathList = await EnvironmentVariables.GetVariablePathListAsync();
 

@@ -3625,4 +3625,49 @@ Invalid names include
   <data name="QueueDialog_VideoMergeFailed_Content" xml:space="preserve">
     <value>Could not merge the video file due to an unknown error</value>
   </data>
+  <data name="FTPCredentialDialog.Title" xml:space="preserve">
+    <value>Login credentials required</value>
+  </data>
+  <data name="FTPCredentialDialogAccount.Header" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="FTPCredentialDialogAnonymousLogin.Content" xml:space="preserve">
+    <value>Login with anonymous account</value>
+  </data>
+  <data name="FTPCredentialDialogFTPHost" xml:space="preserve">
+    <value>FTP Server</value>
+  </data>
+  <data name="FTPCredentialDialogPassword.Header" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="FTPCredentialDialogSavePassword.Content" xml:space="preserve">
+    <value>Save account and password</value>
+  </data>
+  <data name="FTPCredentialDialogStatus1" xml:space="preserve">
+    <value>Trying to log in</value>
+  </data>
+  <data name="FTPCredentialDialogStatus2" xml:space="preserve">
+    <value>The FTP server does not allow anonymous logins</value>
+  </data>
+  <data name="FTPCredentialDialogStatus3" xml:space="preserve">
+    <value>Incorrect account or password</value>
+  </data>
+  <data name="FTPCredentialDialogStatus4" xml:space="preserve">
+    <value>Could not connect to the ftp server</value>
+  </data>
+  <data name="NoApplicationAvailable" xml:space="preserve">
+    <value>No apps available</value>
+  </data>
+  <data name="SettingPageExplorerContextMenu.Text" xml:space="preserve">
+    <value>Integration with Windows Explorer's menu</value>
+  </data>
+  <data name="SettingPageExplorerContextMenuDescription.Text" xml:space="preserve">
+    <value>Enabling this option will add an "Open with RX-Explorer" menu item to the Windows Explorer to launch this application faster</value>
+  </data>
+  <data name="SettingPageExplorerContextMenuSwitch.OffContent" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="SettingPageExplorerContextMenuSwitch.OnContent" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
 </root>
