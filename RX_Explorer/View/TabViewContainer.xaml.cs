@@ -235,7 +235,7 @@ namespace RX_Explorer.View
                                     NewWindow = await PropertiesWindowBase.CreateAsync(Drive);
                                 }
                             }
-                            else if (Control.CurrentPresenter.SelectedItems.Count > 0)
+                            else if (Control.CurrentPresenter.SelectedItems.Any())
                             {
                                 NewWindow = await PropertiesWindowBase.CreateAsync(Control.CurrentPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray());
                             }
