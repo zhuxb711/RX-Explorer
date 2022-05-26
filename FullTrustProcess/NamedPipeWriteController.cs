@@ -58,7 +58,7 @@ namespace FullTrustProcess
                         ProcessSleepLocker.WaitOne();
                     }
 
-                    while (MessageQueue.TryDequeue(out string Message))
+                    while (IsConnected && MessageQueue.TryDequeue(out string Message))
                     {
                         byte[] ByteArray = Encoding.Unicode.GetBytes(Message);
 

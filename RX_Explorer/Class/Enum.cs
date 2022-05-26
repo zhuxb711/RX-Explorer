@@ -2,6 +2,16 @@
 
 namespace RX_Explorer.Class
 {
+    public enum BluetoothEventKind
+    {
+        Aborted,
+        Connected,
+        Disconnected,
+        TransferSuccess,
+        TransferFailure,
+        ConnectionFailure
+    }
+
     public enum DriveContextMenuType
     {
         Locked,

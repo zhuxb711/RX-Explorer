@@ -1,4 +1,5 @@
 ﻿using ComputerVision;
+using FluentFTP;
 using Microsoft.Toolkit.Deferred;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -97,11 +98,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
         }
 
-        private CancellationTokenSource Md5Cancellation;
-        private CancellationTokenSource SHA1Cancellation;
-        private CancellationTokenSource SHA256Cancellation;
         private readonly CancellationTokenSource SavingCancellation = new CancellationTokenSource();
-        private readonly CancellationTokenSource SizeCalculateCancellation = new CancellationTokenSource();
+        private readonly CancellationTokenSource OperationCancellation = new CancellationTokenSource();
 
         private bool IsClosed;
         private int ActionButtonLockResource;
@@ -287,10 +285,21 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
                                     FileLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                                    if (File is MTPStorageFile or FTPStorageFile)
+                                    switch (File)
                                     {
-                                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock)?.Text == Globalization.GetString("Properties_Tools_Tab")));
-                                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock)?.Text == Globalization.GetString("Properties_Security_Tab")));
+                                        case MTPStorageFile:
+                                            {
+                                                PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock)?.Text == Globalization.GetString("Properties_Tools_Tab")));
+                                                PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock)?.Text == Globalization.GetString("Properties_Security_Tab")));
+                                                break;
+                                            }
+
+                                        case FTPStorageFile:
+                                            {
+                                                UnlockArea.Visibility = Visibility.Collapsed;
+                                                PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock)?.Text == Globalization.GetString("Properties_Security_Tab")));
+                                                break;
+                                            }
                                     }
 
                                     if (File is not (LinkStorageFile or UrlStorageFile))
@@ -331,17 +340,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             Window.Closed -= Window_Closed;
 
-            Md5Cancellation?.Cancel();
-            Md5Cancellation?.Dispose();
-
-            SHA1Cancellation?.Cancel();
-            SHA1Cancellation?.Dispose();
-
-            SHA256Cancellation?.Cancel();
-            SHA256Cancellation?.Dispose();
-
-            SizeCalculateCancellation?.Cancel();
-            SizeCalculateCancellation?.Dispose();
+            OperationCancellation?.Cancel();
+            OperationCancellation?.Dispose();
 
             SavingCancellation.Cancel();
             SavingCancellation.Dispose();
@@ -1164,12 +1164,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     {
                                         Interlocked.Increment(ref FolderCount);
 
-                                        CancellationToken CancelToken = SizeCalculateCancellation.Token;
-
-                                        IReadOnlyList<FileSystemStorageItemBase> Result = Folder.GetChildItemsAsync(true, true, true, CancelToken: CancelToken).ToEnumerable().ToList();
-
-                                        if (!CancelToken.IsCancellationRequested)
+                                        using (CancellationTokenSource Cancellation = CancellationTokenSource.CreateLinkedTokenSource(OperationCancellation.Token))
                                         {
+                                            IReadOnlyList<FileSystemStorageItemBase> Result = Folder.GetChildItemsAsync(true, true, true, CancelToken: Cancellation.Token).ToEnumerable().ToList();
+
                                             Interlocked.Add(ref TotalSize, Result.OfType<FileSystemStorageFile>().Sum((SubFile) => Convert.ToInt64(SubFile.Size)));
                                             Interlocked.Add(ref FileCount, Result.OfType<FileSystemStorageFile>().LongCount());
                                             Interlocked.Add(ref FolderCount, Result.OfType<FileSystemStorageFolder>().LongCount());
@@ -1231,19 +1229,20 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                     try
                                     {
-                                        CancellationToken CancelToken = SizeCalculateCancellation.Token;
-
-                                        Task CountTask = CalculateFolderAndFileCount(Folder, CancelToken).ContinueWith((PreviousTask) =>
+                                        using (CancellationTokenSource Cancellation = CancellationTokenSource.CreateLinkedTokenSource(OperationCancellation.Token))
                                         {
-                                            FolderContainsContent.Text = $"{PreviousTask.Result.Item1} {Globalization.GetString("FolderInfo_File_Count")} , {PreviousTask.Result.Item2} {Globalization.GetString("FolderInfo_Folder_Count")}";
-                                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+                                            Task CountTask = CalculateFolderAndFileCount(Folder, Cancellation.Token).ContinueWith((PreviousTask) =>
+                                            {
+                                                FolderContainsContent.Text = $"{PreviousTask.Result.Item1} {Globalization.GetString("FolderInfo_File_Count")} , {PreviousTask.Result.Item2} {Globalization.GetString("FolderInfo_Folder_Count")}";
+                                            }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                                        Task SizeTask = CalculateFolderSize(Folder, CancelToken).ContinueWith((PreviousTask) =>
-                                        {
-                                            FolderSizeContent.Text = $"{PreviousTask.Result.GetSizeDescription()} ({PreviousTask.Result:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
-                                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+                                            Task SizeTask = CalculateFolderSize(Folder, Cancellation.Token).ContinueWith((PreviousTask) =>
+                                            {
+                                                FolderSizeContent.Text = $"{PreviousTask.Result.GetSizeDescription()} ({PreviousTask.Result:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
+                                            }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                                        await Task.WhenAll(CountTask, SizeTask);
+                                            await Task.WhenAll(CountTask, SizeTask);
+                                        }
                                     }
                                     catch (OperationCanceledException)
                                     {
@@ -1635,7 +1634,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void OpenLocation_Click(object sender, RoutedEventArgs e)
         {
-            if (StorageItems.First() is LinkStorageFile Link)
+            if (StorageItems.Single() is LinkStorageFile Link)
             {
                 await TabViewContainer.Current.CreateNewTabAsync(new string[] { Path.GetDirectoryName(Link.LinkTargetPath) });
 
@@ -1657,49 +1656,97 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void CalculateMd5_Click(object sender, RoutedEventArgs e)
         {
-            if (await FileSystemStorageItemBase.OpenAsync(StorageItems.First().Path) is FileSystemStorageFile File)
+            if (StorageItems.Single() is FileSystemStorageFile File)
             {
-                DateTimeOffset StartTime = DateTimeOffset.Now;
-
-                try
+                if (await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                 {
-                    MD5Progress.Value = 0;
-                    MD5TextBox.IsEnabled = false;
-                    MD5TextBox.Text = Globalization.GetString("HashPlaceHolderText");
-                    CalculateMd5.IsEnabled = false;
+                    DateTimeOffset StartTime = DateTimeOffset.Now;
 
-                    Md5Cancellation?.Cancel();
-                    Md5Cancellation?.Dispose();
-                    Md5Cancellation = new CancellationTokenSource();
-
-                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                    using (MD5 MD5Alg = MD5.Create())
+                    try
                     {
-                        MD5TextBox.Text = await MD5Alg.GetHashAsync(Stream, Md5Cancellation.Token, async (s, args) =>
+                        MD5Progress.Value = 0;
+                        MD5Progress.IsIndeterminate = false;
+
+                        MD5TextBox.IsEnabled = false;
+                        MD5TextBox.Text = Globalization.GetString("HashPlaceHolderText");
+                        CalculateMd5.IsEnabled = false;
+
+                        using (CancellationTokenSource Md5Cancellation = CancellationTokenSource.CreateLinkedTokenSource(OperationCancellation.Token))
                         {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            if (File is FTPStorageFile)
                             {
-                                MD5Progress.Value = args.ProgressPercentage;
-                            });
-                        });
-                    }
-                }
-                catch (Exception)
-                {
-                    MD5TextBox.Text = Globalization.GetString("HashError");
-                }
-                finally
-                {
-                    if ((DateTimeOffset.Now - StartTime).TotalMilliseconds < 500)
-                    {
-                        await Task.Delay(500);
-                    }
+                                MD5Progress.IsIndeterminate = true;
 
-                    MD5TextBox.IsEnabled = true;
-                    CalculateMd5.IsEnabled = true;
-                    CheckHashButton.IsEnabled = true;
-                    CheckHashBox.IsEnabled = true;
-                    CheckHashTitle.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+                                try
+                                {
+                                    FTPPathAnalysis Analysis = new FTPPathAnalysis(File.Path);
+
+                                    if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                                    {
+                                        FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksumAsync(Analysis.RelatedPath, FtpHashAlgorithm.MD5, Md5Cancellation.Token));
+
+                                        if (Hash.IsValid)
+                                        {
+                                            MD5TextBox.Text = Hash.Value;
+                                        }
+                                        else
+                                        {
+                                            MD5TextBox.Text = Globalization.GetString("HashError");
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, "Could not get the MD5 hash from ftp server directly");
+
+                                    MD5Progress.IsIndeterminate = false;
+
+                                    using (MD5 MD5Alg = MD5.Create())
+                                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                    {
+                                        MD5TextBox.Text = await MD5Alg.GetHashAsync(Stream, Md5Cancellation.Token, async (s, args) =>
+                                        {
+                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                            {
+                                                MD5Progress.Value = args.ProgressPercentage;
+                                            });
+                                        });
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                using (MD5 MD5Alg = MD5.Create())
+                                using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                {
+                                    MD5TextBox.Text = await MD5Alg.GetHashAsync(Stream, Md5Cancellation.Token, async (s, args) =>
+                                    {
+                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            MD5Progress.Value = args.ProgressPercentage;
+                                        });
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        MD5TextBox.Text = Globalization.GetString("HashError");
+                    }
+                    finally
+                    {
+                        if ((DateTimeOffset.Now - StartTime).TotalMilliseconds < 500)
+                        {
+                            await Task.Delay(500);
+                        }
+
+                        MD5TextBox.IsEnabled = true;
+                        CalculateMd5.IsEnabled = true;
+                        CheckHashButton.IsEnabled = true;
+                        CheckHashBox.IsEnabled = true;
+                        CheckHashTitle.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+                    }
                 }
             }
         }
@@ -1712,25 +1759,70 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    SHA1Progress.Value = 0;
+                    SHA1Progress.Value = 0; 
+                    SHA1Progress.IsIndeterminate = false;
+
                     SHA1TextBox.IsEnabled = false;
                     SHA1TextBox.Text = Globalization.GetString("HashPlaceHolderText");
                     CalculateSHA1.IsEnabled = false;
 
-                    SHA1Cancellation?.Cancel();
-                    SHA1Cancellation?.Dispose();
-                    SHA1Cancellation = new CancellationTokenSource();
-
-                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                    using (SHA1 SHA1Alg = SHA1.Create())
+                    using (CancellationTokenSource SHA1Cancellation = CancellationTokenSource.CreateLinkedTokenSource(OperationCancellation.Token))
                     {
-                        SHA1TextBox.Text = await SHA1Alg.GetHashAsync(Stream, SHA1Cancellation.Token, async (s, args) =>
+                        if (File is FTPStorageFile)
                         {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            SHA1Progress.IsIndeterminate = true;
+
+                            try
                             {
-                                SHA1Progress.Value = args.ProgressPercentage;
-                            });
-                        });
+                                FTPPathAnalysis Analysis = new FTPPathAnalysis(File.Path);
+
+                                if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                                {
+                                    FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksumAsync(Analysis.RelatedPath, FtpHashAlgorithm.SHA1, SHA1Cancellation.Token));
+
+                                    if (Hash.IsValid)
+                                    {
+                                        SHA1TextBox.Text = Hash.Value;
+                                    }
+                                    else
+                                    {
+                                        SHA1TextBox.Text = Globalization.GetString("HashError");
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Could not get the SHA1 hash from ftp server directly");
+
+                                SHA1Progress.IsIndeterminate = false;
+
+                                using (SHA1 SHA1Alg = SHA1.Create())
+                                using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                {
+                                    SHA1TextBox.Text = await SHA1Alg.GetHashAsync(Stream, SHA1Cancellation.Token, async (s, args) =>
+                                    {
+                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            SHA1Progress.Value = args.ProgressPercentage;
+                                        });
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            using (SHA1 SHA1Alg = SHA1.Create())
+                            using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            {
+                                SHA1TextBox.Text = await SHA1Alg.GetHashAsync(Stream, SHA1Cancellation.Token, async (s, args) =>
+                                {
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                    {
+                                        SHA1Progress.Value = args.ProgressPercentage;
+                                    });
+                                });
+                            }
+                        }
                     }
                 }
                 catch (Exception)
@@ -1762,24 +1854,69 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 try
                 {
                     SHA256Progress.Value = 0;
+                    SHA256Progress.IsIndeterminate = false;
+
                     SHA256TextBox.IsEnabled = false;
                     SHA256TextBox.Text = Globalization.GetString("HashPlaceHolderText");
                     CalculateSHA256.IsEnabled = false;
 
-                    SHA256Cancellation?.Cancel();
-                    SHA256Cancellation?.Dispose();
-                    SHA256Cancellation = new CancellationTokenSource();
-
-                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                    using (SHA256 SHA256Alg = SHA256.Create())
+                    using (CancellationTokenSource SHA256Cancellation = CancellationTokenSource.CreateLinkedTokenSource(OperationCancellation.Token))
                     {
-                        SHA256TextBox.Text = await SHA256Alg.GetHashAsync(Stream, SHA256Cancellation.Token, async (s, args) =>
+                        if (File is FTPStorageFile)
                         {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            SHA256Progress.IsIndeterminate = true;
+
+                            try
                             {
-                                SHA256Progress.Value = args.ProgressPercentage;
-                            });
-                        });
+                                FTPPathAnalysis Analysis = new FTPPathAnalysis(File.Path);
+
+                                if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                                {
+                                    FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksumAsync(Analysis.RelatedPath, FtpHashAlgorithm.SHA256, SHA256Cancellation.Token));
+
+                                    if (Hash.IsValid)
+                                    {
+                                        SHA256TextBox.Text = Hash.Value;
+                                    }
+                                    else
+                                    {
+                                        SHA256TextBox.Text = Globalization.GetString("HashError");
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Could not get the SHA256 hash from ftp server directly");
+
+                                SHA256Progress.IsIndeterminate = false;
+
+                                using (SHA256 SHA256Alg = SHA256.Create())
+                                using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                {
+                                    SHA256TextBox.Text = await SHA256Alg.GetHashAsync(Stream, SHA256Cancellation.Token, async (s, args) =>
+                                    {
+                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            SHA256Progress.Value = args.ProgressPercentage;
+                                        });
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            using (SHA256 SHA256Alg = SHA256.Create())
+                            using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            {
+                                SHA256TextBox.Text = await SHA256Alg.GetHashAsync(Stream, SHA256Cancellation.Token, async (s, args) =>
+                                {
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                    {
+                                        SHA256Progress.Value = args.ProgressPercentage;
+                                    });
+                                });
+                            }
+                        }
                     }
                 }
                 catch (Exception)

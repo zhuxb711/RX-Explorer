@@ -244,42 +244,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                string[] MessageSplit;
-
-                try
-                {
-                    if (string.IsNullOrWhiteSpace(Message))
-                    {
-                        MessageSplit = Array.Empty<string>();
-                    }
-                    else
-                    {
-                        MessageSplit = Message.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
-                    }
-                }
-                catch
-                {
-                    MessageSplit = Array.Empty<string>();
-                }
-
-                StringBuilder Builder = new StringBuilder()
-                                        .AppendLine("------------------------------------")
-                                        .AppendLine("Plain Text Error Record")
-                                        .AppendLine("------------------------------------")
-                                        .AppendLine("Source: RX-Explorer")
-                                        .AppendLine()
-                                        .AppendLine($"Version: {string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}")
-                                        .AppendLine()
-                                        .AppendLine("Message:")
-                                        .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
-                                        .AppendLine()
-                                        .AppendLine("Extra info: ")
-                                        .AppendLine($"        CallerFileName: {Path.GetFileName(SourceFilePath)}")
-                                        .AppendLine($"        CallerMemberName: {MemberName}")
-                                        .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
-                                        .AppendLine("------------------------------------");
-
-                LogInternal(Builder.ToString());
+                LogInternal($"Date: {DateTimeOffset.Now:G}, Info: {Message}");
             }
             catch (Exception ex)
             {

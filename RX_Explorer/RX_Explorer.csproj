@@ -332,7 +332,6 @@
     <Compile Include="Class\DriveDataBase.cs" />
     <Compile Include="Class\KeyGenerator.cs" />
     <Compile Include="Class\LibraryStorageFolder.cs" />
-    <Compile Include="Class\ObexServiceProvider.cs" />
     <Compile Include="Class\PathAnalysis.cs" />
     <Compile Include="Class\PhotoDisplayItem.cs" />
     <Compile Include="Class\QuickStartItem.cs" />
@@ -345,9 +344,6 @@
     </Compile>
     <Compile Include="Dialog\QuickStartModifiedDialog.xaml.cs">
       <DependentUpon>QuickStartModifiedDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Dialog\BluetoothFileTransfer.xaml.cs">
-      <DependentUpon>BluetoothFileTransfer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\BluetoothUI.xaml.cs">
       <DependentUpon>BluetoothUI.xaml</DependentUpon>
@@ -703,10 +699,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\QuickStartModifiedDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialog\BluetoothFileTransfer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

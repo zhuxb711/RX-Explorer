@@ -3870,12 +3870,7 @@ namespace RX_Explorer.View
 
                     if (RadioDevice.Any((Device) => Device.Kind == RadioKind.Bluetooth && Device.State == RadioState.On))
                     {
-                        BluetoothUI Bluetooth = new BluetoothUI();
-
-                        if (await Bluetooth.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            await new BluetoothFileTransfer(ShareFile).ShowAsync();
-                        }
+                        await new BluetoothUI(ShareFile).ShowAsync();
                     }
                     else
                     {

@@ -69,21 +69,6 @@
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>报告给开发者</value>
   </data>
-  <data name="BluetoothTranfer.SecondaryButtonText" xml:space="preserve">
-    <value>终止</value>
-  </data>
-  <data name="BluetoothTranfer.Title" xml:space="preserve">
-    <value>初始化中</value>
-  </data>
-  <data name="BluetoothUI.CloseButtonText" xml:space="preserve">
-    <value>取消</value>
-  </data>
-  <data name="BluetoothUI.PrimaryButtonText" xml:space="preserve">
-    <value>确定</value>
-  </data>
-  <data name="BluetoothUI.Title" xml:space="preserve">
-    <value>选择目标设备</value>
-  </data>
   <data name="BluetoothUIPinNo.Content" xml:space="preserve">
     <value>否</value>
   </data>
@@ -797,22 +782,13 @@
     <value>连接失败:</value>
     <comment>Example: Connection failed: [Reason]</comment>
   </data>
-  <data name="Bluetooth_Transfer_Description_4" xml:space="preserve">
-    <value>文件传输已完成</value>
-  </data>
   <data name="Bluetooth_Transfer_DeviceName" xml:space="preserve">
     <value>目标设备:</value>
     <comment>Example: Target device: [Bluetooth Device Name]</comment>
   </data>
-  <data name="Bluetooth_Transfer_ExitButton" xml:space="preserve">
-    <value>退出</value>
-  </data>
   <data name="Bluetooth_Transfer_FileName" xml:space="preserve">
     <value>传输文件名:</value>
     <comment>Example: File to transfer:  [FileName]</comment>
-  </data>
-  <data name="Bluetooth_Transfer_RetryButton" xml:space="preserve">
-    <value>重试</value>
   </data>
   <data name="Bluetooth_Transfer_Status_1" xml:space="preserve">
     <value>正在传输</value>

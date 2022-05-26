@@ -11,9 +11,9 @@ namespace RX_Explorer.Class
     {
         private readonly Thread ProcessThread;
         private readonly TaskCompletionSource<bool> ConnectionSet;
-        private CancellationTokenSource Cancellation;
-        private readonly ConcurrentQueue<string> MessageQueue = new ConcurrentQueue<string>();
-        private readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
+        private readonly CancellationTokenSource Cancellation;
+        private readonly ConcurrentQueue<string> MessageQueue;
+        private readonly AutoResetEvent ProcessSleepLocker;
 
         protected override int MaxAllowedConnection => 1;
 
@@ -23,28 +23,24 @@ namespace RX_Explorer.Class
             {
                 if (!IsConnected)
                 {
-                    Cancellation = new CancellationTokenSource();
-
-                    try
+                    using (CancellationTokenSource LocalCancellation = CancellationTokenSource.CreateLinkedTokenSource(Cancellation.Token))
                     {
-                        PipeStream.WaitForConnectionAsync(Cancellation.Token).Wait();
-                    }
-                    catch (AggregateException ex) when (ex.InnerException is IOException)
-                    {
-                        LogTracer.Log("Could not write pipeline data because the pipeline is closed");
-                    }
-                    catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
-                    {
-                        LogTracer.Log("Could not write pipeline data because connection timeout");
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Could not write pipeline data because unknown exception");
-                    }
-                    finally
-                    {
-                        Cancellation?.Dispose();
-                        Cancellation = null;
+                        try
+                        {
+                            PipeStream.WaitForConnectionAsync(Cancellation.Token).Wait();
+                        }
+                        catch (AggregateException ex) when (ex.InnerException is IOException)
+                        {
+                            LogTracer.Log("Could not write pipeline data because the pipeline is closed");
+                        }
+                        catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
+                        {
+                            LogTracer.Log("Could not write pipeline data because connection timeout");
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "Could not write pipeline data because unknown exception");
+                        }
                     }
                 }
 
@@ -57,7 +53,7 @@ namespace RX_Explorer.Class
                         ProcessSleepLocker.WaitOne();
                     }
 
-                    while (MessageQueue.TryDequeue(out string Message))
+                    while (IsConnected && MessageQueue.TryDequeue(out string Message))
                     {
                         byte[] ByteArray = Encoding.Unicode.GetBytes(Message);
 
@@ -95,8 +91,7 @@ namespace RX_Explorer.Class
             {
                 ProcessSleepLocker.Dispose();
                 MessageQueue.Clear();
-                Cancellation?.Dispose();
-                Cancellation = null;
+                Cancellation.Dispose();
             }
 
             base.Dispose();
@@ -130,7 +125,10 @@ namespace RX_Explorer.Class
 
         protected NamedPipeWriteController(string Id) : base(Id)
         {
+            MessageQueue = new ConcurrentQueue<string>();
+            Cancellation = new CancellationTokenSource();
             ConnectionSet = new TaskCompletionSource<bool>();
+            ProcessSleepLocker = new AutoResetEvent(false);
 
             ProcessThread = new Thread(WriteProcess)
             {

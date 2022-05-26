@@ -82,26 +82,6 @@
           <source>Report to Developer</source>
           <target state="translated">报告给开发者</target>
         </trans-unit>
-        <trans-unit id="BluetoothTranfer.SecondaryButtonText" translate="yes" xml:space="preserve">
-          <source>Abort</source>
-          <target state="translated">终止</target>
-        </trans-unit>
-        <trans-unit id="BluetoothTranfer.Title" translate="yes" xml:space="preserve">
-          <source>Initializing</source>
-          <target state="translated">初始化中</target>
-        </trans-unit>
-        <trans-unit id="BluetoothUI.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <target state="translated">取消</target>
-        </trans-unit>
-        <trans-unit id="BluetoothUI.PrimaryButtonText" translate="yes" xml:space="preserve">
-          <source>Confirm</source>
-          <target state="translated">确定</target>
-        </trans-unit>
-        <trans-unit id="BluetoothUI.Title" translate="yes" xml:space="preserve">
-          <source>Select target device</source>
-          <target state="translated">选择目标设备</target>
-        </trans-unit>
         <trans-unit id="BluetoothUIPinNo.Content" translate="yes" xml:space="preserve">
           <source>No</source>
           <target state="translated">否</target>
@@ -1053,27 +1033,15 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">连接失败:</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Example: Connection failed: [Reason]</note>
         </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_Description_4" translate="yes" xml:space="preserve">
-          <source>File transfer completed</source>
-          <target state="translated">文件传输已完成</target>
-        </trans-unit>
         <trans-unit id="Bluetooth_Transfer_DeviceName" translate="yes" xml:space="preserve">
           <source>Target device:</source>
           <target state="translated">目标设备:</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Example: Target device: [Bluetooth Device Name]</note>
         </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_ExitButton" translate="yes" xml:space="preserve">
-          <source>Exit</source>
-          <target state="translated">退出</target>
-        </trans-unit>
         <trans-unit id="Bluetooth_Transfer_FileName" translate="yes" xml:space="preserve">
           <source>File to transfer: </source>
           <target state="translated">传输文件名:</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Example: File to transfer:  [FileName]</note>
-        </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_RetryButton" translate="yes" xml:space="preserve">
-          <source>Retry</source>
-          <target state="translated">重试</target>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Status_1" translate="yes" xml:space="preserve">
           <source>Transferring</source>
@@ -1202,8 +1170,9 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">请确认是否与设备配对</target>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Description_5" translate="yes" xml:space="preserve">
-          <source>File transfer terminated unexpectedly:</source>
-          <target state="translated">文件传输意外中止:</target>
+          <source>File transfer terminated unexpectedly</source>
+          <target state="needs-review-translation">文件传输意外中止:</target>
+          <note from="MultilingualUpdate" annotates="source" priority="2">Please verify the translation’s accuracy as the source string was updated after it was translated.</note>
           <note from="MultilingualBuild" annotates="source" priority="2">Example: File transfer terminated unexpectedly: &lt;Reason&gt;</note>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Description_6" translate="yes" xml:space="preserve">
@@ -4735,6 +4704,10 @@ Invalid names include
         <trans-unit id="SettingPageExplorerContextMenuSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
           <target state="translated">已启用</target>
+        </trans-unit>
+        <trans-unit id="BluetoothTransferTitle" translate="yes" xml:space="preserve">
+          <source>Bluetooth file transfer</source>
+          <target state="new">Bluetooth file transfer</target>
         </trans-unit>
       </group>
     </body>

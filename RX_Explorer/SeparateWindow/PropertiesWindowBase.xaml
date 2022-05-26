@@ -1283,9 +1283,11 @@
                                               Name="ToolsPanelSwitcher">
                         <controls:Case Value="NormalTools">
                             <StackPanel>
-                                <Border Background="Transparent"
+                                <Border Name="UnlockArea"
+                                        Background="Transparent"
                                         BorderBrush="Gray"
                                         BorderThickness="1"
+                                        Margin="0,0,0,20"
                                         CornerRadius="{StaticResource ControlCornerRadius}">
                                     <StackPanel Padding="10">
                                         <RelativePanel>
@@ -1394,7 +1396,6 @@
                                 <Border Background="Transparent"
                                         BorderBrush="Gray"
                                         BorderThickness="1"
-                                        Margin="0,20,0,0"
                                         CornerRadius="{StaticResource ControlCornerRadius}">
                                     <StackPanel Padding="10">
                                         <RelativePanel>

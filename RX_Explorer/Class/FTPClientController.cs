@@ -40,7 +40,15 @@ namespace RX_Explorer.Class
                             if (ExecuteResult is Task AsyncTask)
                             {
                                 AsyncTask.Wait();
-                                Data.CompletionSource.SetResult(AsyncTask.GetType().GetProperty("Result").GetValue(AsyncTask));
+
+                                if (AsyncTask.Exception is Exception ex)
+                                {
+                                    Data.CompletionSource.SetException(ex);
+                                }
+                                else
+                                {
+                                    Data.CompletionSource.SetResult(AsyncTask.GetType().GetProperty("Result").GetValue(AsyncTask));
+                                }
                             }
                         }
                     }

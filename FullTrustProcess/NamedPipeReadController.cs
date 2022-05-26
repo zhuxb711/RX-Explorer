@@ -52,7 +52,7 @@ namespace FullTrustProcess
                             {
                                 MStream.Write(ReadBuffer, 0, BytesRead);
                             }
-                        } while (!PipeStream.IsMessageComplete);
+                        } while (IsConnected && !PipeStream.IsMessageComplete);
 
                         string ReadText = Encoding.Unicode.GetString(MStream.ToArray());
 

@@ -66,7 +66,7 @@ namespace RX_Explorer.Class
                                 {
                                     MStream.Write(ReadBuffer, 0, BytesRead);
                                 }
-                            } while (!PipeStream.IsMessageComplete);
+                            } while (IsConnected && !PipeStream.IsMessageComplete);
                         }
                         catch (ObjectDisposedException)
                         {

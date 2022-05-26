@@ -69,21 +69,6 @@
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>An Entwickler senden</value>
   </data>
-  <data name="BluetoothTranfer.SecondaryButtonText" xml:space="preserve">
-    <value>Abbrechen</value>
-  </data>
-  <data name="BluetoothTranfer.Title" xml:space="preserve">
-    <value>Initialisieren</value>
-  </data>
-  <data name="BluetoothUI.CloseButtonText" xml:space="preserve">
-    <value>Abbrechen</value>
-  </data>
-  <data name="BluetoothUI.PrimaryButtonText" xml:space="preserve">
-    <value>Bestätigen</value>
-  </data>
-  <data name="BluetoothUI.Title" xml:space="preserve">
-    <value>Zielgerät auswählen</value>
-  </data>
   <data name="BluetoothUIPinNo.Content" xml:space="preserve">
     <value>Nein</value>
   </data>
@@ -840,22 +825,13 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Verbindung fehlgeschlagen:</value>
     <comment>Example: Connection failed: [Reason]</comment>
   </data>
-  <data name="Bluetooth_Transfer_Description_4" xml:space="preserve">
-    <value>Dateiübertragung abgeschlossen</value>
-  </data>
   <data name="Bluetooth_Transfer_DeviceName" xml:space="preserve">
     <value>Zielgerät:</value>
     <comment>Example: Target device: [Bluetooth Device Name]</comment>
   </data>
-  <data name="Bluetooth_Transfer_ExitButton" xml:space="preserve">
-    <value>Beenden</value>
-  </data>
   <data name="Bluetooth_Transfer_FileName" xml:space="preserve">
     <value>Zu übertragende Datei:</value>
     <comment>Example: File to transfer:  [FileName]</comment>
-  </data>
-  <data name="Bluetooth_Transfer_RetryButton" xml:space="preserve">
-    <value>Wiederholen</value>
   </data>
   <data name="Bluetooth_Transfer_Status_1" xml:space="preserve">
     <value>Übertragen</value>
@@ -3519,5 +3495,50 @@ Inkorrekte Namen sind
   </data>
   <data name="QueueDialog_VideoMergeFailed_Content" xml:space="preserve">
     <value>Impossible de fusionner le fichier vidéo en raison d'une erreur inconnue</value>
+  </data>
+  <data name="FTPCredentialDialog.Title" xml:space="preserve">
+    <value>Anmeldedaten erforderlich</value>
+  </data>
+  <data name="FTPCredentialDialogAnonymousLogin.Content" xml:space="preserve">
+    <value>Melden Sie sich mit einem anonymen Konto an</value>
+  </data>
+  <data name="FTPCredentialDialogFTPHost" xml:space="preserve">
+    <value>FTP-Server</value>
+  </data>
+  <data name="FTPCredentialDialogPassword.Header" xml:space="preserve">
+    <value>Passwort</value>
+  </data>
+  <data name="FTPCredentialDialogStatus1" xml:space="preserve">
+    <value>Versuchen sich anzumelden</value>
+  </data>
+  <data name="FTPCredentialDialogStatus2" xml:space="preserve">
+    <value>Der FTP-Server erlaubt keine anonymen Anmeldungen</value>
+  </data>
+  <data name="FTPCredentialDialogStatus3" xml:space="preserve">
+    <value>Falsches Konto oder Passwort</value>
+  </data>
+  <data name="FTPCredentialDialogStatus4" xml:space="preserve">
+    <value>Es konnte keine Verbindung zum FTP-Server hergestellt werden</value>
+  </data>
+  <data name="FTPCredentialDialogAccount.Header" xml:space="preserve">
+    <value>Konto</value>
+  </data>
+  <data name="FTPCredentialDialogSavePassword.Content" xml:space="preserve">
+    <value>Konto und Passwort speichern</value>
+  </data>
+  <data name="NoApplicationAvailable" xml:space="preserve">
+    <value>Keine Anwendungen verfügbar</value>
+  </data>
+  <data name="SettingPageExplorerContextMenu.Text" xml:space="preserve">
+    <value>Integration mit dem Menü des Windows Explorers</value>
+  </data>
+  <data name="SettingPageExplorerContextMenuDescription.Text" xml:space="preserve">
+    <value>Wenn Sie diese Option aktivieren, wird dem Windows Explorer ein Menüelement „Mit RX-Explorer öffnen“ hinzugefügt, um diese Anwendung schneller zu starten</value>
+  </data>
+  <data name="SettingPageExplorerContextMenuSwitch.OffContent" xml:space="preserve">
+    <value>Behindert</value>
+  </data>
+  <data name="SettingPageExplorerContextMenuSwitch.OnContent" xml:space="preserve">
+    <value>Aktiviert</value>
   </data>
 </root>

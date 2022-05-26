@@ -82,26 +82,6 @@
           <source>Report to Developer</source>
           <target state="translated">Notificar al desarrollador</target>
         </trans-unit>
-        <trans-unit id="BluetoothTranfer.SecondaryButtonText" translate="yes" xml:space="preserve">
-          <source>Abort</source>
-          <target state="translated">Cancelar</target>
-        </trans-unit>
-        <trans-unit id="BluetoothTranfer.Title" translate="yes" xml:space="preserve">
-          <source>Initializing</source>
-          <target state="translated">Iniciando</target>
-        </trans-unit>
-        <trans-unit id="BluetoothUI.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <target state="translated">Cancelar</target>
-        </trans-unit>
-        <trans-unit id="BluetoothUI.PrimaryButtonText" translate="yes" xml:space="preserve">
-          <source>Confirm</source>
-          <target state="translated">Confirmar</target>
-        </trans-unit>
-        <trans-unit id="BluetoothUI.Title" translate="yes" xml:space="preserve">
-          <source>Select target device</source>
-          <target state="translated">Seleccionar dispositivo de destino</target>
-        </trans-unit>
         <trans-unit id="BluetoothUIPinNo.Content" translate="yes" xml:space="preserve">
           <source>No</source>
           <target state="translated">No</target>
@@ -1110,27 +1090,15 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">La conexión ha fallado:</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Example: Connection failed: [Reason]</note>
         </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_Description_4" translate="yes" xml:space="preserve">
-          <source>File transfer completed</source>
-          <target state="translated">Transferencia de archivos completada</target>
-        </trans-unit>
         <trans-unit id="Bluetooth_Transfer_DeviceName" translate="yes" xml:space="preserve">
           <source>Target device:</source>
           <target state="translated">Dispositivo de destino:</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Example: Target device: [Bluetooth Device Name]</note>
         </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_ExitButton" translate="yes" xml:space="preserve">
-          <source>Exit</source>
-          <target state="translated">Salir</target>
-        </trans-unit>
         <trans-unit id="Bluetooth_Transfer_FileName" translate="yes" xml:space="preserve">
           <source>File to transfer: </source>
           <target state="translated"> Archivo para transferir: </target>
           <note from="MultilingualBuild" annotates="source" priority="2">Example: File to transfer:  [FileName]</note>
-        </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_RetryButton" translate="yes" xml:space="preserve">
-          <source>Retry</source>
-          <target state="translated">Reintentar</target>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Status_1" translate="yes" xml:space="preserve">
           <source>Transferring</source>
@@ -1259,8 +1227,9 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Confirma que quieres vincular el dispositivo.</target>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Description_5" translate="yes" xml:space="preserve">
-          <source>File transfer terminated unexpectedly:</source>
-          <target state="translated">Transferencia de archivos terminada inesperadamente:</target>
+          <source>File transfer terminated unexpectedly</source>
+          <target state="needs-review-translation">Transferencia de archivos terminada inesperadamente:</target>
+          <note from="MultilingualUpdate" annotates="source" priority="2">Please verify the translation’s accuracy as the source string was updated after it was translated.</note>
           <note from="MultilingualBuild" annotates="source" priority="2">Example: File transfer terminated unexpectedly: &lt;Reason&gt;</note>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Description_6" translate="yes" xml:space="preserve">
@@ -4676,63 +4645,67 @@ Las denominaciones no válidas son:
         </trans-unit>
         <trans-unit id="FTPCredentialDialog.Title" translate="yes" xml:space="preserve">
           <source>Login credentials required</source>
-          <target state="new">Login credentials required</target>
+          <target state="translated">Se requieren credenciales de inicio de sesión</target>
         </trans-unit>
         <trans-unit id="FTPCredentialDialogAnonymousLogin.Content" translate="yes" xml:space="preserve">
           <source>Login with anonymous account</source>
-          <target state="new">Login with anonymous account</target>
+          <target state="translated">Iniciar sesión con cuenta anónima</target>
         </trans-unit>
         <trans-unit id="FTPCredentialDialogFTPHost" translate="yes" xml:space="preserve">
           <source>FTP Server</source>
-          <target state="new">FTP Server</target>
+          <target state="translated">Servidor FTP</target>
         </trans-unit>
         <trans-unit id="FTPCredentialDialogPassword.Header" translate="yes" xml:space="preserve">
           <source>Password</source>
-          <target state="new">Password</target>
+          <target state="translated">Clave</target>
         </trans-unit>
         <trans-unit id="FTPCredentialDialogStatus1" translate="yes" xml:space="preserve">
           <source>Trying to log in</source>
-          <target state="new">Trying to log in</target>
+          <target state="translated">Intentando iniciar sesión</target>
         </trans-unit>
         <trans-unit id="FTPCredentialDialogStatus2" translate="yes" xml:space="preserve">
           <source>The FTP server does not allow anonymous logins</source>
-          <target state="new">The FTP server does not allow anonymous logins</target>
+          <target state="translated">El servidor FTP no permite inicios de sesión anónimos</target>
         </trans-unit>
         <trans-unit id="FTPCredentialDialogStatus3" translate="yes" xml:space="preserve">
           <source>Incorrect account or password</source>
-          <target state="new">Incorrect account or password</target>
+          <target state="translated">Cuenta o contraseña incorrecta</target>
         </trans-unit>
         <trans-unit id="FTPCredentialDialogStatus4" translate="yes" xml:space="preserve">
           <source>Could not connect to the ftp server</source>
-          <target state="new">Could not connect to the ftp server</target>
+          <target state="translated">No se pudo conectar al servidor ftp</target>
         </trans-unit>
         <trans-unit id="FTPCredentialDialogAccount.Header" translate="yes" xml:space="preserve">
           <source>Account</source>
-          <target state="new">Account</target>
+          <target state="translated">Cuenta</target>
         </trans-unit>
         <trans-unit id="FTPCredentialDialogSavePassword.Content" translate="yes" xml:space="preserve">
           <source>Save account and password</source>
-          <target state="new">Save account and password</target>
+          <target state="translated">Guardar cuenta y contraseña</target>
         </trans-unit>
         <trans-unit id="NoApplicationAvailable" translate="yes" xml:space="preserve">
           <source>No apps available</source>
-          <target state="new">No apps available</target>
+          <target state="translated">No hay aplicaciones disponibles</target>
         </trans-unit>
         <trans-unit id="SettingPageExplorerContextMenu.Text" translate="yes" xml:space="preserve">
           <source>Integration with Windows Explorer's menu</source>
-          <target state="new">Integration with Windows Explorer's menu</target>
+          <target state="translated">Integración con el menú del Explorador de Windows</target>
         </trans-unit>
         <trans-unit id="SettingPageExplorerContextMenuDescription.Text" translate="yes" xml:space="preserve">
           <source>Enabling this option will add an "Open with RX-Explorer" menu item to the Windows Explorer to launch this application faster</source>
-          <target state="new">Enabling this option will add an "Open with RX-Explorer" menu item to the Windows Explorer to launch this application faster</target>
+          <target state="translated">Habilitar esta opción agregará un elemento de menú "Abrir con RX-Explorer" al Explorador de Windows para iniciar esta aplicación más rápido</target>
         </trans-unit>
         <trans-unit id="SettingPageExplorerContextMenuSwitch.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
-          <target state="new">Disabled</target>
+          <target state="translated">Desactivado</target>
         </trans-unit>
         <trans-unit id="SettingPageExplorerContextMenuSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
-          <target state="new">Enabled</target>
+          <target state="translated">Activado</target>
+        </trans-unit>
+        <trans-unit id="BluetoothTransferTitle" translate="yes" xml:space="preserve">
+          <source>Bluetooth file transfer</source>
+          <target state="new">Bluetooth file transfer</target>
         </trans-unit>
       </group>
     </body>
