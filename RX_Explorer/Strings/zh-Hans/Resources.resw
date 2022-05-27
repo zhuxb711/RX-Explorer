@@ -760,7 +760,7 @@
   <data name="PairedText" xml:space="preserve">
     <value>已配对</value>
   </data>
-  <data name="PairText" xml:space="preserve">
+  <data name="BluetoothPairButtonText" xml:space="preserve">
     <value>配对</value>
   </data>
   <data name="ReadyToPairText" xml:space="preserve">
@@ -772,23 +772,9 @@
   <data name="UnpairText" xml:space="preserve">
     <value>取消配对</value>
   </data>
-  <data name="Bluetooth_Transfer_Description_1" xml:space="preserve">
-    <value>目标设备终止了文件传输</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_2" xml:space="preserve">
-    <value>文件传输中止</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_3" xml:space="preserve">
-    <value>连接失败:</value>
-    <comment>Example: Connection failed: [Reason]</comment>
-  </data>
   <data name="Bluetooth_Transfer_DeviceName" xml:space="preserve">
     <value>目标设备:</value>
     <comment>Example: Target device: [Bluetooth Device Name]</comment>
-  </data>
-  <data name="Bluetooth_Transfer_FileName" xml:space="preserve">
-    <value>传输文件名:</value>
-    <comment>Example: File to transfer:  [FileName]</comment>
   </data>
   <data name="Bluetooth_Transfer_Status_1" xml:space="preserve">
     <value>正在传输</value>
@@ -877,20 +863,13 @@
     <value>无法发现蓝牙设备的ObexObjectPush服务，该设备不受支持</value>
   </data>
   <data name="BluetoothUI_Tips_Text_4" xml:space="preserve">
-    <value>配对失败</value>
+    <value>无法与该设备配对</value>
   </data>
   <data name="BluetoothUI_Tips_Text_5" xml:space="preserve">
     <value>请确认PIN码与配对设备一致</value>
   </data>
   <data name="BluetoothUI_Tips_Text_6" xml:space="preserve">
     <value>请确认是否与设备配对</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_5" xml:space="preserve">
-    <value>文件传输意外中止:</value>
-    <comment>Example: File transfer terminated unexpectedly: &lt;Reason&gt;</comment>
-  </data>
-  <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
-    <value>未能重新连接至目标设备</value>
   </data>
   <data name="Drive_Capacity_Unit" xml:space="preserve">
     <value>字节</value>
@@ -3536,9 +3515,27 @@
     <value>启用此选项后将添加"使用RX文件管理器打开"菜单项至Windows文件管理器以快速启动本应用程序</value>
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OffContent" xml:space="preserve">
-    <value>已禁用</value>
+    <value>禁用</value>
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OnContent" xml:space="preserve">
-    <value>已启用</value>
+    <value>启用</value>
+  </data>
+  <data name="BluetoothSendFileButtonText" xml:space="preserve">
+    <value>发送文件</value>
+  </data>
+  <data name="BluetoothUnPairButtonText" xml:space="preserve">
+    <value>取消配对</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_4" xml:space="preserve">
+    <value>无法连接至目标设备</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_7" xml:space="preserve">
+    <value>无法取消配对该设备</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_8" xml:space="preserve">
+    <value>正在等待</value>
+  </data>
+  <data name="BluetoothShareTitle" xml:space="preserve">
+    <value>蓝牙分享</value>
   </data>
 </root>

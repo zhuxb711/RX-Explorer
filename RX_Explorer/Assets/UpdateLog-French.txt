@@ -1,17 +1,25 @@
-﻿###Quoi de neuf dans la version 7.6.9.0
+﻿###Quoi de neuf dans la version 7.7.1.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Prise en charge de l'accès au serveur FTP
+
+>#####Ajout de nouveaux paramètres pour contrôler l'intégration avec le menu de l'explorateur Windows
 
 #####UI mise à jour
 
->#####La boîte d'adresse demande maintenant le chemin du fichier sous chaque chemin de variable d'environnement pour référence
+>#####Retravaillé l'interface utilisateur du module de partage Bluetooth et résolu de nombreux problèmes connexes
 
 #####Corrections de bogues
 
->#####Correction d'un problème qui pouvait entraîner la fermeture inattendue de certains onglets lors de la suppression de certains dossiers
+>#####Correction du problème selon lequel le contenu affiché dans la boîte de dialogue Ouvrir avec peut ne pas correspondre à la situation réelle
 
->#####Correction d'un problème qui pouvait provoquer un plantage lors de la connexion d'un périphérique MTP
+>#####Correction d'un problème où certaines fonctionnalités indisponibles n'étaient pas masquées sur les appareils MTP
 
->#####Correction d'un problème où la zone d'adresse n'affichait pas de suggestions de chemin pour référence
+>#####Correction d'un problème où la visionneuse d'archives intégrée pouvait planter dans certains cas
 
->#####Correction de quelques problèmes d'interface utilisateur avec la boîte d'adresse
+>#####Correction d'un problème où certains contenus de l'onglet "Sécurité" dans la fenêtre des propriétés pouvaient ne pas s'afficher correctement dans certains fichiers
 
->#####Correction d'autres problèmes pouvant provoquer des plantages
+>#####Correction de certains problèmes liés à "l'intégration avec le composant système"
+
+>#####Correction d'autres problèmes

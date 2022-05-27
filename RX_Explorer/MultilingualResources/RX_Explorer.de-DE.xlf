@@ -1061,7 +1061,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Paired</source>
           <target state="translated">Verbunden</target>
         </trans-unit>
-        <trans-unit id="PairText" translate="yes" xml:space="preserve">
+        <trans-unit id="BluetoothPairButtonText" translate="yes" xml:space="preserve">
           <source>Pair</source>
           <target state="translated">Verbinden</target>
         </trans-unit>
@@ -1077,31 +1077,13 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Unpair</source>
           <target state="translated">Entkoppeln</target>
         </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_Description_1" translate="yes" xml:space="preserve">
-          <source>Target device terminated file transfer</source>
-          <target state="translated">Zielgerät beendete Dateiübertragung</target>
-        </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_Description_2" translate="yes" xml:space="preserve">
-          <source>File transfer terminated</source>
-          <target state="translated">Dateiübertragung beendet</target>
-        </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_Description_3" translate="yes" xml:space="preserve">
-          <source>Connection failed:</source>
-          <target state="translated">Verbindung fehlgeschlagen:</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Example: Connection failed: [Reason]</note>
-        </trans-unit>
         <trans-unit id="Bluetooth_Transfer_DeviceName" translate="yes" xml:space="preserve">
           <source>Target device:</source>
           <target state="translated">Zielgerät:</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Example: Target device: [Bluetooth Device Name]</note>
         </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_FileName" translate="yes" xml:space="preserve">
-          <source>File to transfer: </source>
-          <target state="translated">Zu übertragende Datei:</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Example: File to transfer:  [FileName]</note>
-        </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Status_1" translate="yes" xml:space="preserve">
-          <source>Transferring</source>
+          <source>Transmitting</source>
           <target state="translated">Übertragen</target>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Status_2" translate="yes" xml:space="preserve">
@@ -1109,8 +1091,8 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">Übertragung beendet</target>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Status_3" translate="yes" xml:space="preserve">
-          <source>Transfer completed</source>
-          <target state="translated">Transfer abgeschlossen</target>
+          <source>Transmission completed</source>
+          <target state="translated">Übertragung abgeschlossen</target>
         </trans-unit>
         <trans-unit id="Crop_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
           <source>Cropping task has been cancelled</source>
@@ -1215,8 +1197,8 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">Der ObexObjectPush-Dienst für Bluetooth-Geräte, der nicht unterstützt wird, kann nicht erkannt werden.</target>
         </trans-unit>
         <trans-unit id="BluetoothUI_Tips_Text_4" translate="yes" xml:space="preserve">
-          <source>Pair failed</source>
-          <target state="translated">Verbindung fehlgeschlagen</target>
+          <source>Unable to pair with this device</source>
+          <target state="translated">Koppeln mit diesem Gerät nicht möglich</target>
         </trans-unit>
         <trans-unit id="BluetoothUI_Tips_Text_5" translate="yes" xml:space="preserve">
           <source>Please confirm that the PIN is the same as the paired device</source>
@@ -1225,16 +1207,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
         <trans-unit id="BluetoothUI_Tips_Text_6" translate="yes" xml:space="preserve">
           <source>Please confirm whether to pair with the device</source>
           <target state="translated">Bitte bestätigen Sie, ob sie das Gerät verbinden wollen.</target>
-        </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_Description_5" translate="yes" xml:space="preserve">
-          <source>File transfer terminated unexpectedly</source>
-          <target state="needs-review-translation">Dateiübertragung unerwartet beendet:</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Example: File transfer terminated unexpectedly: &lt;Reason&gt;</note>
-          <note from="MultilingualUpdate" annotates="source" priority="2">Please verify the translation’s accuracy as the source string was updated after it was translated.</note>
-        </trans-unit>
-        <trans-unit id="Bluetooth_Transfer_Description_6" translate="yes" xml:space="preserve">
-          <source>Unable to reconnect the target device</source>
-          <target state="translated">Das Zielgerät kann nicht erneut verbunden werden.</target>
         </trans-unit>
         <trans-unit id="Drive_Capacity_Unit" translate="yes" xml:space="preserve">
           <source>bytes</source>
@@ -4703,9 +4675,29 @@ Inkorrekte Namen sind
           <source>Enabled</source>
           <target state="translated">Aktiviert</target>
         </trans-unit>
-        <trans-unit id="BluetoothTransferTitle" translate="yes" xml:space="preserve">
-          <source>Bluetooth file transfer</source>
-          <target state="new">Bluetooth file transfer</target>
+        <trans-unit id="BluetoothSendFileButtonText" translate="yes" xml:space="preserve">
+          <source>Send file</source>
+          <target state="translated">Datei senden</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUnPairButtonText" translate="yes" xml:space="preserve">
+          <source>Unpair</source>
+          <target state="translated">Entkoppeln</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Status_4" translate="yes" xml:space="preserve">
+          <source>Unable to connect to target device</source>
+          <target state="translated">Es kann keine Verbindung zum Zielgerät hergestellt werden</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_7" translate="yes" xml:space="preserve">
+          <source>Unable to unpair the device</source>
+          <target state="translated">Das Gerät kann nicht entkoppelt werden</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_8" translate="yes" xml:space="preserve">
+          <source>Pending</source>
+          <target state="translated">Ausstehend</target>
+        </trans-unit>
+        <trans-unit id="BluetoothShareTitle" translate="yes" xml:space="preserve">
+          <source>Bluetooth Sharing</source>
+          <target state="translated">Bluetooth-Freigabe</target>
         </trans-unit>
       </group>
     </body>

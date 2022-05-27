@@ -769,7 +769,7 @@
   <data name="PairedText" xml:space="preserve">
     <value>已配對</value>
   </data>
-  <data name="PairText" xml:space="preserve">
+  <data name="BluetoothPairButtonText" xml:space="preserve">
     <value>配對</value>
   </data>
   <data name="ReadyToPairText" xml:space="preserve">
@@ -781,26 +781,12 @@
   <data name="UnpairText" xml:space="preserve">
     <value>取消配對</value>
   </data>
-  <data name="Bluetooth_Transfer_Description_1" xml:space="preserve">
-    <value>目前裝置停止了檔案傳輸</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_2" xml:space="preserve">
-    <value>檔案傳輸停止</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_3" xml:space="preserve">
-    <value>連線失敗:</value>
-    <comment>Example: Connection failed: [Reason]</comment>
-  </data>
   <data name="Bluetooth_Transfer_DeviceName" xml:space="preserve">
     <value>目標裝置:</value>
     <comment>Example: Target device: [Bluetooth Device Name]</comment>
   </data>
-  <data name="Bluetooth_Transfer_FileName" xml:space="preserve">
-    <value>傳輸檔案：</value>
-    <comment>Example: File to transfer:  [FileName]</comment>
-  </data>
   <data name="Bluetooth_Transfer_Status_1" xml:space="preserve">
-    <value>傳送中...</value>
+    <value>傳送中</value>
   </data>
   <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
     <value>傳輸停止</value>
@@ -886,20 +872,13 @@
     <value>無法發現支持藍牙設備的Obex Object Push服務</value>
   </data>
   <data name="BluetoothUI_Tips_Text_4" xml:space="preserve">
-    <value>配對失敗</value>
+    <value>無法與此設備配對</value>
   </data>
   <data name="BluetoothUI_Tips_Text_5" xml:space="preserve">
     <value>請確認PIN碼與配對的設備相同</value>
   </data>
   <data name="BluetoothUI_Tips_Text_6" xml:space="preserve">
     <value>請確認是否與設備配對</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_5" xml:space="preserve">
-    <value>檔案傳輸意外終止：</value>
-    <comment>Example: File transfer terminated unexpectedly: &lt;Reason&gt;</comment>
-  </data>
-  <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
-    <value>無法重新連接目標設備</value>
   </data>
   <data name="Drive_Capacity_Unit" xml:space="preserve">
     <value>位元組</value>
@@ -3540,5 +3519,23 @@
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OnContent" xml:space="preserve">
     <value>已啟用</value>
+  </data>
+  <data name="BluetoothSendFileButtonText" xml:space="preserve">
+    <value>发送档案</value>
+  </data>
+  <data name="BluetoothUnPairButtonText" xml:space="preserve">
+    <value>取消配對</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_4" xml:space="preserve">
+    <value>無法連接到目標設備</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_7" xml:space="preserve">
+    <value>無法取消配對設備</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_8" xml:space="preserve">
+    <value>正在等待</value>
+  </data>
+  <data name="BluetoothShareTitle" xml:space="preserve">
+    <value>藍牙共享</value>
   </data>
 </root>

@@ -2,11 +2,18 @@
 
 namespace RX_Explorer.Class
 {
+    public enum BluetoothPanelMode
+    {
+        None = 0,
+        PairMode = 1,
+        TextMode = 2,
+        TransferMode = 4,
+    }
+
     public enum BluetoothEventKind
     {
         Aborted,
         Connected,
-        Disconnected,
         TransferSuccess,
         TransferFailure,
         ConnectionFailure

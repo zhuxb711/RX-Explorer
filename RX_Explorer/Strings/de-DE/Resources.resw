@@ -803,7 +803,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="PairedText" xml:space="preserve">
     <value>Verbunden</value>
   </data>
-  <data name="PairText" xml:space="preserve">
+  <data name="BluetoothPairButtonText" xml:space="preserve">
     <value>Verbinden</value>
   </data>
   <data name="ReadyToPairText" xml:space="preserve">
@@ -815,23 +815,9 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="UnpairText" xml:space="preserve">
     <value>Entkoppeln</value>
   </data>
-  <data name="Bluetooth_Transfer_Description_1" xml:space="preserve">
-    <value>Zielgerät beendete Dateiübertragung</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_2" xml:space="preserve">
-    <value>Dateiübertragung beendet</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_3" xml:space="preserve">
-    <value>Verbindung fehlgeschlagen:</value>
-    <comment>Example: Connection failed: [Reason]</comment>
-  </data>
   <data name="Bluetooth_Transfer_DeviceName" xml:space="preserve">
     <value>Zielgerät:</value>
     <comment>Example: Target device: [Bluetooth Device Name]</comment>
-  </data>
-  <data name="Bluetooth_Transfer_FileName" xml:space="preserve">
-    <value>Zu übertragende Datei:</value>
-    <comment>Example: File to transfer:  [FileName]</comment>
   </data>
   <data name="Bluetooth_Transfer_Status_1" xml:space="preserve">
     <value>Übertragen</value>
@@ -840,7 +826,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Übertragung beendet</value>
   </data>
   <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
-    <value>Transfer abgeschlossen</value>
+    <value>Übertragung abgeschlossen</value>
   </data>
   <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Zuschneideaufgabe wurde abgebrochen</value>
@@ -920,20 +906,13 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Der ObexObjectPush-Dienst für Bluetooth-Geräte, der nicht unterstützt wird, kann nicht erkannt werden.</value>
   </data>
   <data name="BluetoothUI_Tips_Text_4" xml:space="preserve">
-    <value>Verbindung fehlgeschlagen</value>
+    <value>Koppeln mit diesem Gerät nicht möglich</value>
   </data>
   <data name="BluetoothUI_Tips_Text_5" xml:space="preserve">
     <value>Bitte bestätigen Sie, dass die angezeigte PIN mit der PIN auf dem verbundenen Gerät übereinstimmt.</value>
   </data>
   <data name="BluetoothUI_Tips_Text_6" xml:space="preserve">
     <value>Bitte bestätigen Sie, ob sie das Gerät verbinden wollen.</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_5" xml:space="preserve">
-    <value>Dateiübertragung unerwartet beendet:</value>
-    <comment>Example: File transfer terminated unexpectedly: &lt;Reason&gt;</comment>
-  </data>
-  <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
-    <value>Das Zielgerät kann nicht erneut verbunden werden.</value>
   </data>
   <data name="Drive_Capacity_Unit" xml:space="preserve">
     <value>Bytes</value>
@@ -3540,5 +3519,23 @@ Inkorrekte Namen sind
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OnContent" xml:space="preserve">
     <value>Aktiviert</value>
+  </data>
+  <data name="BluetoothSendFileButtonText" xml:space="preserve">
+    <value>Datei senden</value>
+  </data>
+  <data name="BluetoothUnPairButtonText" xml:space="preserve">
+    <value>Entkoppeln</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_4" xml:space="preserve">
+    <value>Es kann keine Verbindung zum Zielgerät hergestellt werden</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_7" xml:space="preserve">
+    <value>Das Gerät kann nicht entkoppelt werden</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_8" xml:space="preserve">
+    <value>Ausstehend</value>
+  </data>
+  <data name="BluetoothShareTitle" xml:space="preserve">
+    <value>Bluetooth-Freigabe</value>
   </data>
 </root>

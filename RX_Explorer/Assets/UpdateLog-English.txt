@@ -1,17 +1,25 @@
-﻿###What's new in Ver.7.6.9.0
+﻿###What's new in Ver.7.7.1.0
+
+#####Feature update
+
+>#####Support access to FTP server
+
+>#####Added a new settings to control whether integrate with the Windows Explorer's menu
 
 #####UI updated
 
->#####Address box now prompts file path under each environment variable path for reference
+>#####Reworked the UI of the bluetooth sharing module and solved many related issues
 
 #####Bug Fixes
 
->#####Fixed an issue that could cause some tabs to close unexpectedly when deleting certain folders
+>#####Fixed the problem that the content displayed in the Open With dialog may not match the actual situation
 
->#####Fixed an issue that could cause a crash when plugging in an MTP device
+>#####Fixed an issue where some unavailable features were not being hidden on MTP devices
 
->#####Fixed an issue where the address box would not pop up path suggestions for reference
+>#####Fixed an issue where the built-in archive viewer could crash in some cases
 
->#####Fixed some UI issues with the address box
+>#####Fixed an issue where some content in the "Security" tab within the properties window might not display correctly in certain files
 
->#####Fixed some other issues that could cause crashes
+>#####Fixed some issues related to "Integration with system component"
+
+>#####Fixed some other issues

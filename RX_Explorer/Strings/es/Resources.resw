@@ -803,7 +803,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="PairedText" xml:space="preserve">
     <value>Vinculado</value>
   </data>
-  <data name="PairText" xml:space="preserve">
+  <data name="BluetoothPairButtonText" xml:space="preserve">
     <value>Vincular</value>
   </data>
   <data name="ReadyToPairText" xml:space="preserve">
@@ -815,32 +815,18 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="UnpairText" xml:space="preserve">
     <value>Desvincular</value>
   </data>
-  <data name="Bluetooth_Transfer_Description_1" xml:space="preserve">
-    <value>El dispositivo de destino ha interrumpido la transferencia de archivos.</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_2" xml:space="preserve">
-    <value>Transferencia de archivos terminada</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_3" xml:space="preserve">
-    <value>La conexión ha fallado:</value>
-    <comment>Example: Connection failed: [Reason]</comment>
-  </data>
   <data name="Bluetooth_Transfer_DeviceName" xml:space="preserve">
     <value>Dispositivo de destino:</value>
     <comment>Example: Target device: [Bluetooth Device Name]</comment>
   </data>
-  <data name="Bluetooth_Transfer_FileName" xml:space="preserve">
-    <value> Archivo para transferir: </value>
-    <comment>Example: File to transfer:  [FileName]</comment>
-  </data>
   <data name="Bluetooth_Transfer_Status_1" xml:space="preserve">
-    <value>Transfiriendo</value>
+    <value>Transmitiendo</value>
   </data>
   <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
     <value>Transmisión terminada</value>
   </data>
   <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
-    <value>Transferencia completada</value>
+    <value>Transmisión completada</value>
   </data>
   <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Se ha cancelado la tarea de recorte.</value>
@@ -920,20 +906,13 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>No se ha podido descubrir el servicio ObexObjectPush para dispositivos Bluetooth, el cual no es compatible.</value>
   </data>
   <data name="BluetoothUI_Tips_Text_4" xml:space="preserve">
-    <value>No se ha podido vincular.</value>
+    <value>No se puede emparejar con este dispositivo</value>
   </data>
   <data name="BluetoothUI_Tips_Text_5" xml:space="preserve">
     <value>Por favor, confirma que el PIN es igual que el del dispositivo vinculado.</value>
   </data>
   <data name="BluetoothUI_Tips_Text_6" xml:space="preserve">
     <value>Confirma que quieres vincular el dispositivo.</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_5" xml:space="preserve">
-    <value>Transferencia de archivos terminada inesperadamente:</value>
-    <comment>Example: File transfer terminated unexpectedly: &lt;Reason&gt;</comment>
-  </data>
-  <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
-    <value>No se ha podido reconectar el dispositivo de destino.</value>
   </data>
   <data name="Drive_Capacity_Unit" xml:space="preserve">
     <value>bytes</value>
@@ -3540,5 +3519,23 @@ Las denominaciones no válidas son:
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OnContent" xml:space="preserve">
     <value>Activado</value>
+  </data>
+  <data name="BluetoothSendFileButtonText" xml:space="preserve">
+    <value>Enviar archivo</value>
+  </data>
+  <data name="BluetoothUnPairButtonText" xml:space="preserve">
+    <value>Desemparejar</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_4" xml:space="preserve">
+    <value>No se puede conectar al dispositivo de destino</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_7" xml:space="preserve">
+    <value>No se puede desvincular el dispositivo</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_8" xml:space="preserve">
+    <value>Pendiente</value>
+  </data>
+  <data name="BluetoothShareTitle" xml:space="preserve">
+    <value>Compartir Bluetooth</value>
   </data>
 </root>

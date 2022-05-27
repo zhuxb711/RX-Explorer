@@ -778,8 +778,11 @@ namespace RX_Explorer.View
 
             foreach (string Path in PathForNewTab.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
             {
-                if (RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)
-                    || await FileSystemStorageItemBase.CheckExistsAsync(Path))
+                if (RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                {
+                    ValidPathArray.Add(RootStorageFolder.Current.Path);
+                }
+                else if (await FileSystemStorageItemBase.CheckExistsAsync(Path))
                 {
                     ValidPathArray.Add(Path);
                 }

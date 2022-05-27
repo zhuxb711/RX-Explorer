@@ -1,17 +1,25 @@
-﻿###Novedades de la versión 7.6.9.0
+﻿###Novedades de la versión 7.7.1.0
+
+#####Actualización de funciones
+
+>#####Admite acceso al servidor FTP
+
+>#####Se agregó una nueva configuración para controlar si se integra con el menú del Explorador de Windows
 
 #####IU actualizada
 
->#####El cuadro de dirección ahora muestra la ruta del archivo debajo de cada ruta de variable de entorno como referencia
+>#####Se modificó la interfaz de usuario del módulo para compartir bluetooth y se resolvieron muchos problemas relacionados
 
 #####Corrección de errores
 
->#####Se solucionó un problema que podía causar que algunas pestañas se cerraran inesperadamente al eliminar ciertas carpetas
+>#####Se solucionó el problema de que el contenido que se muestra en el cuadro de diálogo Abrir con puede no coincidir con la situación real
 
->#####Se solucionó un problema que podía provocar un bloqueo al conectar un dispositivo MTP
+>#####Se solucionó un problema por el cual algunas funciones no disponibles no se ocultaban en los dispositivos MTP
 
->#####Se solucionó un problema por el cual el cuadro de dirección no mostraba sugerencias de ruta como referencia
+>#####Se solucionó un problema por el cual el visor de archivos integrado podía bloquearse en algunos casos
 
->#####Se corrigieron algunos problemas de la interfaz de usuario con el cuadro de dirección
+>#####Se solucionó un problema por el cual parte del contenido de la pestaña "Seguridad" dentro de la ventana de propiedades podría no mostrarse correctamente en ciertos archivos
 
->#####Se corrigieron algunos otros problemas que podrían causar fallas
+>#####Se corrigieron algunos problemas relacionados con la "Integración con el componente del sistema"
+
+>#####Se corrigieron algunos otros problemas

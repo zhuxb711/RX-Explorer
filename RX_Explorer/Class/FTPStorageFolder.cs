@@ -59,7 +59,7 @@ namespace RX_Explorer.Class
                                                                                              BasicFilters Filter = BasicFilters.File | BasicFilters.Folder,
                                                                                              Func<string, bool> AdvanceFilter = null)
         {
-            foreach (FtpListItem Item in await ClientController.RunCommandAsync((Client) => Client.GetListingAsync(RelatedPath, IncludeAllSubItems ? FtpListOption.Recursive : FtpListOption.Auto, CancelToken)))
+            foreach (FtpListItem Item in await ClientController.RunCommandAsync((Client) => Client.GetListingAsync(RelatedPath, FtpListOption.Auto, CancelToken)))
             {
                 if ((AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true))
                 {
@@ -67,7 +67,17 @@ namespace RX_Explorer.Class
                     {
                         if (Filter.HasFlag(BasicFilters.Folder))
                         {
-                            yield return new FTPStorageFolder(ClientController, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item));
+                            FTPStorageFolder SubFolder = new FTPStorageFolder(ClientController, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item));
+
+                            yield return SubFolder;
+
+                            if (IncludeAllSubItems)
+                            {
+                                await foreach (FileSystemStorageItemBase SubItem in SubFolder.GetChildItemsAsync(IncludeHiddenItems, IncludeSystemItems, true, CancelToken, Filter, AdvanceFilter))
+                                {
+                                    yield return SubItem;
+                                }
+                            }
                         }
                     }
                     else

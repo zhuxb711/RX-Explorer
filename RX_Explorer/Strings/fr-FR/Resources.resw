@@ -760,7 +760,7 @@
   <data name="PairedText" xml:space="preserve">
     <value>Appairé</value>
   </data>
-  <data name="PairText" xml:space="preserve">
+  <data name="BluetoothPairButtonText" xml:space="preserve">
     <value>Coupler</value>
   </data>
   <data name="ReadyToPairText" xml:space="preserve">
@@ -772,32 +772,18 @@
   <data name="UnpairText" xml:space="preserve">
     <value>Déconnecter</value>
   </data>
-  <data name="Bluetooth_Transfer_Description_1" xml:space="preserve">
-    <value>L'appareil cible a terminé le transfert de fichier</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_2" xml:space="preserve">
-    <value>Transfert de fichiers terminé</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_3" xml:space="preserve">
-    <value>Connexion échouée:</value>
-    <comment>Example: Connection failed: [Reason]</comment>
-  </data>
   <data name="Bluetooth_Transfer_DeviceName" xml:space="preserve">
     <value>Appareil cible:</value>
     <comment>Example: Target device: [Bluetooth Device Name]</comment>
   </data>
-  <data name="Bluetooth_Transfer_FileName" xml:space="preserve">
-    <value>Fichiers a transférer: </value>
-    <comment>Example: File to transfer:  [FileName]</comment>
-  </data>
   <data name="Bluetooth_Transfer_Status_1" xml:space="preserve">
-    <value>Transfert en cours</value>
+    <value>Transmettre</value>
   </data>
   <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
     <value>Transfert terminé</value>
   </data>
   <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
-    <value>Transfert terminé</value>
+    <value>Transmission terminée</value>
   </data>
   <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Opération de recadrage a été annulée</value>
@@ -877,20 +863,13 @@
     <value>Impossible de découvrir le service ObexObjectPush pour les appareils Bluetooth, qui n'est pas supporté</value>
   </data>
   <data name="BluetoothUI_Tips_Text_4" xml:space="preserve">
-    <value>Le couplage a échoué</value>
+    <value>Impossible d'associer cet appareil</value>
   </data>
   <data name="BluetoothUI_Tips_Text_5" xml:space="preserve">
     <value>Veuillez confirmer que le code PIN est le même que celui de l'appareil jumelé</value>
   </data>
   <data name="BluetoothUI_Tips_Text_6" xml:space="preserve">
     <value>Veuillez confirmer si vous voulez vous jumeler avec l'appareil</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_5" xml:space="preserve">
-    <value>Le transfert de fichiers a pris fin de manière inattendue :</value>
-    <comment>Example: File transfer terminated unexpectedly: &lt;Reason&gt;</comment>
-  </data>
-  <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
-    <value>Impossible de se reconnecter à l'appareil</value>
   </data>
   <data name="Drive_Capacity_Unit" xml:space="preserve">
     <value>bytes</value>
@@ -3540,5 +3519,23 @@ Les noms non valides incluent
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OnContent" xml:space="preserve">
     <value>Activé</value>
+  </data>
+  <data name="BluetoothSendFileButtonText" xml:space="preserve">
+    <value>Envoyer le fichier</value>
+  </data>
+  <data name="BluetoothUnPairButtonText" xml:space="preserve">
+    <value>Dissocier</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_4" xml:space="preserve">
+    <value>Impossible de se connecter à l'appareil cible</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_7" xml:space="preserve">
+    <value>Impossible de dissocier l'appareil</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_8" xml:space="preserve">
+    <value>En attente</value>
+  </data>
+  <data name="BluetoothShareTitle" xml:space="preserve">
+    <value>Partage Bluetooth</value>
   </data>
 </root>

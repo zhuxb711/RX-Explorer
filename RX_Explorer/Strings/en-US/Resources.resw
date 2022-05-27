@@ -174,8 +174,8 @@
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>Report to Developer</value>
   </data>
-  <data name="BluetoothTransferTitle" xml:space="preserve">
-    <value>Bluetooth file transfer</value>
+  <data name="BluetoothShareTitle" xml:space="preserve">
+    <value>Bluetooth Sharing</value>
   </data>
   <data name="BluetoothUIPinNo.Content" xml:space="preserve">
     <value>No</value>
@@ -920,7 +920,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="PairedText" xml:space="preserve">
     <value>Paired</value>
   </data>
-  <data name="PairText" xml:space="preserve">
+  <data name="BluetoothPairButtonText" xml:space="preserve">
     <value>Pair</value>
   </data>
   <data name="ReadyToPairText" xml:space="preserve">
@@ -932,32 +932,18 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="UnpairText" xml:space="preserve">
     <value>Unpair</value>
   </data>
-  <data name="Bluetooth_Transfer_Description_1" xml:space="preserve">
-    <value>Target device terminated file transfer</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_2" xml:space="preserve">
-    <value>File transfer terminated</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_3" xml:space="preserve">
-    <value>Connection failed:</value>
-    <comment>Example: Connection failed: [Reason]</comment>
-  </data>
   <data name="Bluetooth_Transfer_DeviceName" xml:space="preserve">
     <value>Target device:</value>
     <comment>Example: Target device: [Bluetooth Device Name]</comment>
   </data>
-  <data name="Bluetooth_Transfer_FileName" xml:space="preserve">
-    <value>File to transfer: </value>
-    <comment>Example: File to transfer:  [FileName]</comment>
-  </data>
   <data name="Bluetooth_Transfer_Status_1" xml:space="preserve">
-    <value>Transferring</value>
+    <value>Transmitting</value>
   </data>
   <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
     <value>Transmission terminated</value>
   </data>
   <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
-    <value>Transfer completed</value>
+    <value>Transmission completed</value>
   </data>
   <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Cropping task has been cancelled</value>
@@ -1037,20 +1023,13 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Unable to discover the ObexObjectPush service for Bluetooth devices, which is not supported</value>
   </data>
   <data name="BluetoothUI_Tips_Text_4" xml:space="preserve">
-    <value>Pair failed</value>
+    <value>Unable to pair with this device</value>
   </data>
   <data name="BluetoothUI_Tips_Text_5" xml:space="preserve">
     <value>Please confirm that the PIN is the same as the paired device</value>
   </data>
   <data name="BluetoothUI_Tips_Text_6" xml:space="preserve">
     <value>Please confirm whether to pair with the device</value>
-  </data>
-  <data name="Bluetooth_Transfer_Description_5" xml:space="preserve">
-    <value>File transfer terminated unexpectedly</value>
-    <comment>Example: File transfer terminated unexpectedly: &lt;Reason&gt;</comment>
-  </data>
-  <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
-    <value>Unable to reconnect the target device</value>
   </data>
   <data name="Drive_Capacity_Unit" xml:space="preserve">
     <value>bytes</value>
@@ -3648,5 +3627,20 @@ Invalid names include
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OnContent" xml:space="preserve">
     <value>Enabled</value>
+  </data>
+  <data name="BluetoothSendFileButtonText" xml:space="preserve">
+    <value>Send file</value>
+  </data>
+  <data name="BluetoothUnPairButtonText" xml:space="preserve">
+    <value>Unpair</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_4" xml:space="preserve">
+    <value>Unable to connect to target device</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_7" xml:space="preserve">
+    <value>Unable to unpair the device</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_8" xml:space="preserve">
+    <value>Pending</value>
   </data>
 </root>

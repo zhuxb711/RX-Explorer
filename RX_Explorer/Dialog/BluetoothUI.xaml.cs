@@ -1,14 +1,10 @@
-﻿using Bluetooth.Core.Services;
-using Bluetooth.Services.Obex;
-using RX_Explorer.Class;
+﻿using RX_Explorer.Class;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
+using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Devices.Enumeration;
-using Windows.Foundation;
 using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -29,8 +25,8 @@ namespace RX_Explorer.Dialog
             this.ShareFile = ShareFile;
 
             BluetoothDeviceCollection = new ObservableCollection<BluetoothDeivceData>();
-            BluetoothWatcher = DeviceInformation.CreateWatcher("System.Devices.Aep.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\"",
-                                                               new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected", "System.Devices.Aep.Bluetooth.Le.IsConnectable" },
+            BluetoothWatcher = DeviceInformation.CreateWatcher("System.Devices.Aep.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\"", 
+                                                               new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" },
                                                                DeviceInformationKind.AssociationEndpoint);
 
             BluetoothWatcher.Added += BluetoothWatcher_Added;
@@ -80,7 +76,7 @@ namespace RX_Explorer.Dialog
             {
                 if (BluetoothDeviceCollection.FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothDeivceData Device)
                 {
-                    Device.Update(args);
+                    Device.UpdateBasicInformation(args);
                 }
             });
         }
@@ -93,20 +89,27 @@ namespace RX_Explorer.Dialog
             });
         }
 
-        private async void PairOrCancelButton_Click(object sender, RoutedEventArgs e)
+        private async void PairButton_Click(object sender, RoutedEventArgs e)
         {
-            Button Btn = sender as Button;
-
-            if (Btn.DataContext is BluetoothDeivceData Device)
+            if (sender is Button Btn && Btn.DataContext is BluetoothDeivceData Device)
             {
-                if (Btn.Content.ToString() == Globalization.GetString("PairText"))
-                {
-                    await Device.PairAsync();
-                }
-                else
-                {
-                    await Device.SendFileAsync();
-                }
+                await Device.PairAsync();
+            }
+        }
+
+        private async void UnpairButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button Btn && Btn.DataContext is BluetoothDeivceData Device)
+            {
+                await Device.UnPairAsync();
+            }
+        }
+
+        private async void SendFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button Btn && Btn.DataContext is BluetoothDeivceData Device)
+            {
+                await Device.SendFileAsync();
             }
         }
     }

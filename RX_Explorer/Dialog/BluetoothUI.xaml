@@ -7,16 +7,14 @@
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                          xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+                         xmlns:Triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
+                         xmlns:sys="using:System"
                          mc:Ignorable="d"
-                         Title="{x:Bind Cls:Globalization.GetString('BluetoothTransferTitle')}"
-                         CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}">
-   
-    <Cls:QueueContentDialog.Resources>
-        <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
-    </Cls:QueueContentDialog.Resources>
+                         Title="{x:Bind Cls:Globalization.GetString('BluetoothShareTitle')}"
+                         CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}" >
 
-    <Grid MinWidth="400"
-          MaxHeight="320">
+    <Grid MinWidth="420"
+          MaxHeight="350">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -36,117 +34,215 @@
                   VerticalAlignment="Stretch"
                   Name="BluetoothControl"
                   ItemsSource="{x:Bind BluetoothDeviceCollection}"
-                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                   IsItemClickEnabled="False"
                   ScrollViewer.VerticalScrollMode="Auto"
                   ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Padding"
+                            Value="0"/>
+                    <Setter Property="HorizontalContentAlignment"
+                            Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="Cls:BluetoothDeivceData">
-                    <Grid Padding="0,5">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <RelativePanel HorizontalAlignment="Stretch"
-                                           VerticalAlignment="Stretch">
-                                <Border Padding="5"
-                                        Name="DeviceThumbnail"
-                                        Background="{ThemeResource SystemBaseMediumLowColor}"
-                                        RelativePanel.AlignLeftWithPanel="True">
-                                    <Viewbox Width="30">
-                                        <Image Stretch="UniformToFill"
-                                               Source="{x:Bind DeviceThumbnail}" />
-                                    </Viewbox>
-                                </Border>
-                                <StackPanel Margin="5,0,0,0"
-                                            RelativePanel.RightOf="DeviceThumbnail"
-                                            RelativePanel.AlignRightWithPanel="True"
-                                            Orientation="Vertical">
-                                    <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                                               TextTrimming="CharacterEllipsis"
-                                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay}" />
-                                    <TextBlock Text="{x:Bind DevicePairingStatus,Mode=OneWay}"
-                                               FontSize="12" />
-                                </StackPanel>
-                            </RelativePanel>
-                            <Viewbox Width="25"
-                                     Margin="0,0,20,0"
-                                     Grid.Column="1"
-                                     HorizontalAlignment="Center"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xE702;" />
-                            </Viewbox>
-                        </Grid>
-
-                        <controls:SwitchPresenter Grid.Row="1"
-                                                  Value="{x:Bind PanelMode,Mode=OneWay}"
-                                                  HorizontalAlignment="Stretch">
-                            <controls:Case Value="TextMode">
-                                <TextBlock Text="{x:Bind InfoText,Mode=OneWay}"
-                                           FontSize="12" />
-                            </controls:Case>
-                            <controls:Case Value="TransferMode">
-                                <StackPanel>
-                                    <TextBlock Text="{x:Bind InfoText,Mode=OneWay}"
-                                               FontSize="12" />
-                                    <muxc:ProgressBar Margin="0,5,0,0"
-                                                      Value="{x:Bind ProgressValue,Mode=OneWay}"
-                                                      IsIndeterminate="{x:Bind IsProgressIndeterminate,Mode=OneWay}" />
-                                </StackPanel>
-                            </controls:Case>
-                            <controls:Case Value="PairMode">
-                                <RelativePanel Margin="0,10,0,0"
-                                               HorizontalAlignment="Stretch">
-                                    <TextBlock Text="{x:Bind InfoText,Mode=OneWay}"
-                                               FontSize="12"
-                                               TextWrapping="Wrap"
-                                               RelativePanel.AlignVerticalCenterWithPanel="True"
-                                               RelativePanel.AlignLeftWithPanel="True"
-                                               RelativePanel.LeftOf="PinButtonArea"
-                                               Padding="0,0,5,0" />
-                                    <RelativePanel Name="PinButtonArea"
-                                                   RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                   RelativePanel.AlignRightWithPanel="True">
-                                        <Button Content="是"
-                                                RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                RelativePanel.AlignLeftWithPanel="True"
-                                                x:Uid="BluetoothUIPinYes"
-                                                Margin="0,0,2.5,0"
-                                                Style="{ThemeResource ButtonRevealStyle}"
-                                                FontSize="12"
-                                                Name="PinConfirm"
-                                                Click="{x:Bind PinConfirm}"/>
-                                        <Button Content="否"
-                                                x:Uid="BluetoothUIPinNo"
-                                                RelativePanel.AlignVerticalCenterWithPanel="True"
+                    <UserControl>
+                        <Grid Margin="0,5"
+                              Padding="10"
+                              BorderBrush="Gray"
+                              BorderThickness="1.5"
+                              CornerRadius="8">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup>
+                                    <VisualState x:Name="ProgressBarState">
+                                        <VisualState.StateTriggers>
+                                            <Triggers:IsEqualStateTrigger Value="{x:Bind ProgressValue,Mode=OneWay}"
+                                                                          To="0" />
+                                        </VisualState.StateTriggers>
+                                        <VisualState.Setters>
+                                            <Setter Target="ProgressBarControl.IsIndeterminate"
+                                                    Value="True" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto"
+                                               MinHeight="5" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <RelativePanel HorizontalAlignment="Stretch"
+                                               VerticalAlignment="Stretch">
+                                    <Border Padding="5"
+                                            Name="DeviceThumbnail"
+                                            Background="{ThemeResource SystemBaseMediumLowColor}"
+                                            RelativePanel.AlignLeftWithPanel="True">
+                                        <Viewbox Width="30">
+                                            <Image Stretch="UniformToFill"
+                                                   Source="{x:Bind DeviceThumbnail}" />
+                                        </Viewbox>
+                                    </Border>
+                                    <StackPanel Margin="5,0,0,0"
+                                                RelativePanel.RightOf="DeviceThumbnail"
                                                 RelativePanel.AlignRightWithPanel="True"
-                                                RelativePanel.RightOf="PinConfirm"
-                                                FontSize="12"
-                                                Margin="2.5,0,0,0"
-                                                Style="{ThemeResource ButtonRevealStyle}"
-                                                Name="PinRefuse"
-                                                Click="{x:Bind PinRefuse}"/>
-                                    </RelativePanel>
+                                                Orientation="Vertical">
+                                        <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay}" />
+                                        <TextBlock Text="{x:Bind DevicePairingStatus,Mode=OneWay}"
+                                                   Margin="0,2,0,0"
+                                                   FontSize="12" />
+                                    </StackPanel>
                                 </RelativePanel>
-                            </controls:Case>
-                        </controls:SwitchPresenter>
-                        <Button Content="{x:Bind ActionButtonText,Mode=OneWay}"
-                                Margin="0,5,0,0"
-                                Grid.Row="2"
-                                HorizontalAlignment="Right"
-                                FontSize="12"
-                                MinWidth="100"
-                                Name="PairOrCancelButton"
-                                Click="PairOrCancelButton_Click" />
-                    </Grid>
+                                <Viewbox Width="22"
+                                         Margin="0,0,20,0"
+                                         Grid.Column="1"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE702;" />
+                                </Viewbox>
+                            </Grid>
+
+                            <controls:SwitchPresenter Grid.Row="1"
+                                                      Value="{x:Bind sys:Convert.ToString(PanelMode),Mode=OneWay}"
+                                                      HorizontalAlignment="Stretch">
+                                <controls:Case Value="TextMode">
+                                    <StackPanel Padding="0,5">
+                                        <TextBlock Text="{x:Bind InfoText,Mode=OneWay}"
+                                                   FontSize="12"
+                                                   Foreground="Red"
+                                                   Name="TextModeInfoLabel"
+                                                   TextWrapping="WrapWholeWords"
+                                                   MaxLines="3"
+                                                   TextTrimming="CharacterEllipsis">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip Content="{x:Bind InfoText,Mode=OneWay}"
+                                                         Visibility="{Binding ElementName=TextModeInfoLabel,Path=IsTextTrimmed}" />
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </controls:Case>
+                                <controls:Case Value="TransferMode">
+                                    <StackPanel Padding="0,5">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{x:Bind InfoText,Mode=OneWay}"
+                                                       Name="TransferModeInfoLabel"
+                                                       FontSize="12"
+                                                       MaxLines="3"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       TextWrapping="WrapWholeWords">
+                                                <ToolTipService.ToolTip>
+                                                    <ToolTip Content="{x:Bind InfoText,Mode=OneWay}"
+                                                             Visibility="{Binding ElementName=TransferModeInfoLabel,Path=IsTextTrimmed}" />
+                                                </ToolTipService.ToolTip>
+                                            </TextBlock>
+                                            <Button Padding="2"
+                                                    Width="20"
+                                                    Height="20"
+                                                    Grid.Column="1"
+                                                    Click="{x:Bind AbortClick}">
+                                                <Viewbox>
+                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                              Glyph="&#xE10A;" />
+                                                </Viewbox>
+                                            </Button>
+                                        </Grid>
+                                        <muxc:ProgressBar Margin="0,5,0,0"
+                                                          Name="ProgressBarControl"
+                                                          Value="{x:Bind ProgressValue,Mode=OneWay}" />
+                                    </StackPanel>
+                                </controls:Case>
+                                <controls:Case Value="PairMode">
+                                    <RelativePanel Padding="0,5"
+                                                   HorizontalAlignment="Stretch">
+                                        <TextBlock Text="{x:Bind InfoText,Mode=OneWay}"
+                                                   FontSize="12"
+                                                   MaxLines="3"
+                                                   Name="PairModeInfoLabel"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   TextWrapping="WrapWholeWords"
+                                                   RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                   RelativePanel.AlignLeftWithPanel="True"
+                                                   RelativePanel.LeftOf="PinButtonArea"
+                                                   Padding="0,0,5,0">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip Content="{x:Bind InfoText,Mode=OneWay}"
+                                                         Visibility="{Binding ElementName=PairModeInfoLabel,Path=IsTextTrimmed}" />
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
+                                        <RelativePanel Name="PinButtonArea"
+                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                       RelativePanel.AlignRightWithPanel="True">
+                                            <Button Content="是"
+                                                    RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                    RelativePanel.AlignLeftWithPanel="True"
+                                                    x:Uid="BluetoothUIPinYes"
+                                                    FontSize="12"
+                                                    Name="PinConfirm"
+                                                    Click="{x:Bind PinConfirmClick}" />
+                                            <Button Content="否"
+                                                    x:Uid="BluetoothUIPinNo"
+                                                    RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                    RelativePanel.AlignRightWithPanel="True"
+                                                    RelativePanel.RightOf="PinConfirm"
+                                                    FontSize="12"
+                                                    Margin="5,0,0,0"
+                                                    Name="PinRefuse"
+                                                    Click="{x:Bind PinRefuseClick}" />
+                                        </RelativePanel>
+                                    </RelativePanel>
+                                </controls:Case>
+                                <controls:Case IsDefault="True" />
+                            </controls:SwitchPresenter>
+
+                            <controls:SwitchPresenter Grid.Row="2"
+                                                      Value="{x:Bind IsPaired.ToString(),Mode=OneWay}"
+                                                      HorizontalAlignment="Stretch">
+                                <controls:Case Value="True">
+                                    <Grid HorizontalAlignment="Right">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Button x:Name="SendFileButton"
+                                                FontSize="12"
+                                                MinWidth="100"
+                                                Content="{x:Bind Cls:Globalization.GetString('BluetoothSendFileButtonText')}"
+                                                Click="SendFileButton_Click" />
+
+                                        <Button x:Name="UnpairButton"
+                                                Grid.Column="1"
+                                                Margin="5,0,0,0"
+                                                FontSize="12"
+                                                MinWidth="100"
+                                                Content="{x:Bind Cls:Globalization.GetString('BluetoothUnPairButtonText')}"
+                                                Click="UnpairButton_Click" />
+                                    </Grid>
+                                </controls:Case>
+                                <controls:Case IsDefault="True">
+                                    <Button x:Name="PairButton"
+                                            FontSize="12"
+                                            MinWidth="100"
+                                            HorizontalAlignment="Right"
+                                            Content="{x:Bind Cls:Globalization.GetString('BluetoothPairButtonText')}"
+                                            Click="PairButton_Click" />
+                                </controls:Case>
+                            </controls:SwitchPresenter>
+                        </Grid>
+                    </UserControl>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

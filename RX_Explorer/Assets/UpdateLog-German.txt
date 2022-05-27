@@ -1,17 +1,25 @@
-﻿###Was ist neu in Ver.7.6.9.0
+﻿###Was ist neu in Ver.7.7.1.0
+
+#####Funktionsaktualisierung
+
+>#####Zugriff auf FTP-Server unterstützen
+
+>#####Neue Einstellungen hinzugefügt, um zu steuern, ob die Integration in das Windows Explorer-Menü erfolgt
 
 #####Benutzeroberfläche aktualisiert
 
->#####Adressfeld fordert jetzt den Dateipfad unter jedem Umgebungsvariablenpfad als Referenz auf
+>#####Benutzeroberfläche des Bluetooth-Sharing-Moduls überarbeitet und viele damit zusammenhängende Probleme gelöst
 
 #####Fehlerbehebung
 
->#####Ein Problem wurde behoben, das dazu führen konnte, dass einige Tabs unerwartet geschlossen wurden, wenn bestimmte Ordner gelöscht wurden
+>#####Das Problem, dass der im Dialogfeld „Öffnen mit“ angezeigte Inhalt möglicherweise nicht mit der tatsächlichen Situation übereinstimmt, wurde behoben
 
->#####Ein Problem wurde behoben, das beim Anschließen eines MTP-Geräts zu einem Absturz führen konnte
+>#####Ein Problem wurde behoben, bei dem einige nicht verfügbare Funktionen auf MTP-Geräten nicht ausgeblendet wurden
 
->#####Es wurde ein Problem behoben, bei dem im Adressfeld keine Pfadvorschläge als Referenz angezeigt wurden
+>#####Ein Problem wurde behoben, bei dem der integrierte Archivbetrachter in einigen Fällen abstürzen konnte
 
->#####Einige UI-Probleme mit dem Adressfeld wurden behoben
+>#####Es wurde ein Problem behoben, bei dem einige Inhalte auf der Registerkarte „Sicherheit“ im Eigenschaftenfenster in bestimmten Dateien möglicherweise nicht korrekt angezeigt wurden
 
->#####Einige andere Probleme behoben, die zu Abstürzen führen konnten
+>#####Einige Probleme im Zusammenhang mit „Integration mit Systemkomponente“ behoben
+
+>#####Einige andere Probleme wurden behoben
