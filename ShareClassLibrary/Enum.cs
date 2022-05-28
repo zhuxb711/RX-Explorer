@@ -128,7 +128,6 @@
         MTPGetDriveVolumnData,
         MTPCreateSubItem,
         MTPDownloadAndGetHandle,
-        MTPDownloadAndGetPath,
         MTPReplaceWithNewFile,
         OrderByNaturalStringSortAlgorithm,
         GetSizeOnDisk,

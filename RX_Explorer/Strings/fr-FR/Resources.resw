@@ -745,9 +745,6 @@
   <data name="LanguageComboBoxLabel.Text" xml:space="preserve">
     <value>Langue</value>
   </data>
-  <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
-    <value>Il peut y avoir un retard dans le chargement</value>
-  </data>
   <data name="Common_Dialog_CloseButton" xml:space="preserve">
     <value>Compris</value>
   </data>
@@ -2738,9 +2735,6 @@ Les noms non valides incluent
   </data>
   <data name="SystemTip_FullTrustBusyContent" xml:space="preserve">
     <value>Le processus auxiliaire est occupé et ne peut pas répondre aux nouvelles demandes, veuillez patienter</value>
-  </data>
-  <data name="SystemTip_LoadFileDelayContent" xml:space="preserve">
-    <value>Impossible d'obtenir les miniatures de certains fichiers. Veuillez patienter.</value>
   </data>
   <data name="SystemTip_UpdateAvailableActionButton" xml:space="preserve">
     <value>Mettez à jour maintenant</value>

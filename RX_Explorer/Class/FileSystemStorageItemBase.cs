@@ -26,6 +26,10 @@ namespace RX_Explorer.Class
     /// </summary>
     public abstract class FileSystemStorageItemBase : IStorageItemPropertiesBase, INotifyPropertyChanged, IStorageItemOperation, IEquatable<FileSystemStorageItemBase>
     {
+        private int IsContentLoaded;
+        private double InnerThumbnailOpacity = 1;
+        private RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerSharedRef;
+
         public string Path { get; protected set; }
 
         public virtual string SizeDescription { get; }
@@ -50,10 +54,6 @@ namespace RX_Explorer.Class
                 OnPropertyChanged();
             }
         }
-
-        private int IsContentLoaded;
-        private double InnerThumbnailOpacity = 1;
-        private RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerSharedRef;
 
         public double ThumbnailOpacity
         {
@@ -114,7 +114,7 @@ namespace RX_Explorer.Class
 
         public virtual BitmapImage Thumbnail { get; private set; }
 
-        public virtual BitmapImage ThumbnailOverlay { get; protected set; }
+        public BitmapImage ThumbnailOverlay { get; private set; }
 
         public virtual bool IsReadOnly { get; protected set; }
 
@@ -1032,28 +1032,21 @@ namespace RX_Explorer.Class
         {
             if (Thumbnail == null || !string.IsNullOrEmpty(Thumbnail.UriSource?.AbsoluteUri))
             {
-                return Thumbnail = await GetThumbnailCoreAsync(Mode);
+                Thumbnail = await GetThumbnailCoreAsync(Mode);
             }
-            else
-            {
-                return Thumbnail;
-            }
+
+            return Thumbnail;
         }
 
         protected virtual async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
         {
             async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
             {
-                byte[] ThumbnailData = await Exclusive.Controller.GetThumbnailAsync(Path);
-
-                if (ThumbnailData.Length > 0)
+                if (await Exclusive.Controller.GetThumbnailAsync(Path) is Stream ThumbnailStream)
                 {
-                    using (MemoryStream IconStream = new MemoryStream(ThumbnailData))
-                    {
-                        BitmapImage Image = new BitmapImage();
-                        await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
-                        return Image;
-                    }
+                    BitmapImage Thumbnail = new BitmapImage();
+                    await Thumbnail.SetSourceAsync(ThumbnailStream.AsRandomAccessStream());
+                    return Thumbnail;
                 }
 
                 return null;
@@ -1093,9 +1086,9 @@ namespace RX_Explorer.Class
         }
 
 
-        public Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode)
+        public async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode)
         {
-            return GetThumbnailRawStreamCoreAsync(Mode);
+            return await GetThumbnailRawStreamCoreAsync(Mode) ?? throw new NotSupportedException("Could not get the thumbnail stream");
         }
 
         protected virtual async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
@@ -1108,19 +1101,12 @@ namespace RX_Explorer.Class
             {
                 async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
                 {
-                    byte[] ThumbnailData = await Exclusive.Controller.GetThumbnailAsync(Path);
+                    if (await Exclusive.Controller.GetThumbnailAsync(Path) is Stream ThumbnailStream)
+                    {
+                        return ThumbnailStream.AsRandomAccessStream();
+                    }
 
-                    if (ThumbnailData.Length > 0)
-                    {
-                        using (MemoryStream IconStream = new MemoryStream(ThumbnailData))
-                        {
-                            return IconStream.AsRandomAccessStream();
-                        }
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return null;
                 }
 
                 if (GetBulkAccessSharedController(out var ControllerRef))

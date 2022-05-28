@@ -788,9 +788,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="LanguageComboBoxLabel.Text" xml:space="preserve">
     <value>Sprache</value>
   </data>
-  <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
-    <value>Es kann zu einer Verzögerung beim Laden kommen</value>
-  </data>
   <data name="Common_Dialog_CloseButton" xml:space="preserve">
     <value>Verstanden</value>
   </data>
@@ -2738,9 +2735,6 @@ Inkorrekte Namen sind
   </data>
   <data name="SystemTip_FullTrustBusyContent" xml:space="preserve">
     <value>Der Hilfsprozess ist beschäftigt und kann nicht auf neue Anfragen reagieren. Bitte warten Sie geduldig</value>
-  </data>
-  <data name="SystemTip_LoadFileDelayContent" xml:space="preserve">
-    <value>Es können keine Miniaturansichten einiger Dateien abgerufen werden. Bitte warte geduldig.</value>
   </data>
   <data name="SystemTip_UpdateAvailableActionButton" xml:space="preserve">
     <value>Jetzt aktualisieren</value>

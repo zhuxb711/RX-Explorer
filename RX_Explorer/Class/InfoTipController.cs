@@ -162,14 +162,6 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    case InfoTipType.ThumbnailDelay:
-                        {
-                            InfoTip.Title = Globalization.GetString("SystemTip_LoadFileDelayTitle");
-                            InfoTip.Message = Globalization.GetString("SystemTip_LoadFileDelayContent");
-                            InfoTip.Severity = InfoBarSeverity.Warning;
-
-                            break;
-                        }
                     case InfoTipType.FullTrustBusy:
                         {
                             InfoTip.Title = Globalization.GetString("SystemTip_FullTrustBusyTitle");

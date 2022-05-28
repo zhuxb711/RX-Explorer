@@ -27,9 +27,21 @@ namespace RX_Explorer.Class
             return Task.FromResult<BitmapImage>(null);
         }
 
-        protected override Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
         {
-            return Task.FromResult<IRandomAccessStream>(null);
+            try
+            {
+                StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                                                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                                                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+                return await ThumbnailFile.OpenReadAsync();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the raw stream of thumbnail");
+            }
+
+            return null;
         }
 
         protected override Task LoadCoreAsync(bool ForceUpdate)

@@ -788,9 +788,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="LanguageComboBoxLabel.Text" xml:space="preserve">
     <value>Idioma</value>
   </data>
-  <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
-    <value>Puede que la carga se esté demorando.</value>
-  </data>
   <data name="Common_Dialog_CloseButton" xml:space="preserve">
     <value>Vale</value>
   </data>
@@ -2738,9 +2735,6 @@ Las denominaciones no válidas son:
   </data>
   <data name="SystemTip_FullTrustBusyContent" xml:space="preserve">
     <value>El proceso auxiliar está ocupado y no puede responder a nuevas solicitudes, espere pacientemente</value>
-  </data>
-  <data name="SystemTip_LoadFileDelayContent" xml:space="preserve">
-    <value>No se pueden obtener miniaturas de algunos archivos. Espere pacientemente.</value>
   </data>
   <data name="SystemTip_UpdateAvailableActionButton" xml:space="preserve">
     <value>Actualizar ahora</value>

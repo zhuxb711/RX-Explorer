@@ -8,6 +8,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -38,9 +40,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected Uri DefaultFileThumbnailUri => AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
-
-        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(DefaultFileThumbnailUri);
+        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                                                       ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
+                                                                                       : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 
         public StorageFile StorageItem { get; protected set; }
 
@@ -151,6 +153,30 @@ namespace RX_Explorer.Class
             }
 
             return 0;
+        }
+
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        {
+            try
+            {
+                try
+                {
+                    return await base.GetThumbnailRawStreamCoreAsync(Mode);
+                }
+                catch (Exception)
+                {
+                    StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                                                                    ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
+                                                                                                    : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                    return await ThumbnailFile.OpenReadAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the raw stream of thumbnail");
+            }
+
+            return null;
         }
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)

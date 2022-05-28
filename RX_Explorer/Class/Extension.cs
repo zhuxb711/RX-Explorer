@@ -1251,40 +1251,10 @@ namespace RX_Explorer.Class
 
                 using (CancellationTokenSource Cancellation = new CancellationTokenSource())
                 {
-                    Task<StorageItemThumbnail> GetThumbnailTask;
-
-                    switch (Item)
+                    Task<StorageItemThumbnail> GetThumbnailTask = Item switch
                     {
-                        case StorageFolder Folder:
-                            {
-                                GetThumbnailTask = Folder.GetThumbnailAsync(Mode, RequestSize, ThumbnailOptions.UseCurrentScale)
-                                                         .AsTask()
-                                                         .ContinueWith((PreviousTask) =>
-                                                         {
-                                                             try
-                                                             {
-                                                                 if (Cancellation.IsCancellationRequested)
-                                                                 {
-                                                                     PreviousTask.Result?.Dispose();
-                                                                 }
-                                                                 else
-                                                                 {
-                                                                     return PreviousTask.Result;
-                                                                 }
-                                                             }
-                                                             catch (Exception)
-                                                             {
-                                                                 //No need to handle this exception
-                                                             }
-
-                                                             return null;
-                                                         }, TaskContinuationOptions.ExecuteSynchronously);
-                                break;
-                            }
-                        case StorageFile File:
-                            {
-                                GetThumbnailTask = File.GetThumbnailAsync(Mode, RequestSize, ThumbnailOptions.UseCurrentScale)
-                                                       .AsTask()
+                        StorageFolder Folder => Folder.GetThumbnailAsync(Mode, RequestSize, ThumbnailOptions.UseCurrentScale)
+                                                       .AsTask(Cancellation.Token)
                                                        .ContinueWith((PreviousTask) =>
                                                        {
                                                            try
@@ -1304,14 +1274,32 @@ namespace RX_Explorer.Class
                                                            }
 
                                                            return null;
-                                                       }, TaskContinuationOptions.ExecuteSynchronously);
-                                break;
-                            }
-                        default:
-                            {
-                                return null;
-                            }
-                    }
+                                                       }, TaskContinuationOptions.ExecuteSynchronously),
+                        StorageFile File => File.GetThumbnailAsync(Mode, RequestSize, ThumbnailOptions.UseCurrentScale)
+                                                .AsTask(Cancellation.Token)
+                                                .ContinueWith((PreviousTask) =>
+                                                {
+                                                    try
+                                                    {
+                                                        if (Cancellation.IsCancellationRequested)
+                                                        {
+                                                            PreviousTask.Result?.Dispose();
+                                                        }
+                                                        else
+                                                        {
+                                                            return PreviousTask.Result;
+                                                        }
+                                                    }
+                                                    catch (Exception)
+                                                    {
+                                                        //No need to handle this exception
+                                                    }
+
+                                                    return null;
+                                                }, TaskContinuationOptions.ExecuteSynchronously),
+                        _ => throw new NotSupportedException("Not an valid storage item")
+
+                    };
 
                     if (await Task.WhenAny(GetThumbnailTask, Task.Delay(5000)) == GetThumbnailTask)
                     {
@@ -1330,7 +1318,6 @@ namespace RX_Explorer.Class
                     else
                     {
                         Cancellation.Cancel();
-                        InfoTipController.Current.Show(InfoTipType.ThumbnailDelay);
                     }
                 }
             }
@@ -1348,65 +1335,76 @@ namespace RX_Explorer.Class
             {
                 using (CancellationTokenSource Cancellation = new CancellationTokenSource())
                 {
-                    Task<StorageItemThumbnail> GetThumbnailTask;
-
-                    switch (Item)
+                    Task<StorageItemThumbnail> GetThumbnailTask = Item switch
                     {
-                        case StorageFolder Folder:
-                            {
-                                GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
-                                break;
-                            }
-                        case StorageFile File:
-                            {
-                                GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
-                                break;
-                            }
-                        default:
-                            {
-                                return null;
-                            }
-                    }
+                        StorageFolder Folder => Folder.GetThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
+                                                      .AsTask(Cancellation.Token)
+                                                      .ContinueWith((PreviousTask) =>
+                                                      {
+                                                          try
+                                                          {
+                                                              if (Cancellation.IsCancellationRequested)
+                                                              {
+                                                                  PreviousTask.Result?.Dispose();
+                                                              }
+                                                              else
+                                                              {
+                                                                  return PreviousTask.Result;
+                                                              }
+                                                          }
+                                                          catch (Exception)
+                                                          {
+                                                              //No need to handle this exception
+                                                          }
 
-                    await Task.WhenAny(GetThumbnailTask, Task.Delay(3000));
+                                                          return null;
+                                                      }, TaskContinuationOptions.ExecuteSynchronously),
+                        StorageFile File => File.GetThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
+                                                .AsTask(Cancellation.Token)
+                                                .ContinueWith((PreviousTask) =>
+                                                {
+                                                    try
+                                                    {
+                                                        if (Cancellation.IsCancellationRequested)
+                                                        {
+                                                            PreviousTask.Result?.Dispose();
+                                                        }
+                                                        else
+                                                        {
+                                                            return PreviousTask.Result;
+                                                        }
+                                                    }
+                                                    catch (Exception)
+                                                    {
+                                                        //No need to handle this exception
+                                                    }
 
-                    if (GetThumbnailTask.IsCompleted)
+                                                    return null;
+                                                }, TaskContinuationOptions.ExecuteSynchronously),
+                        _ => throw new NotSupportedException("Not an valid storage item")
+                    };
+
+                    if (await Task.WhenAny(GetThumbnailTask, Task.Delay(5000)) == GetThumbnailTask)
                     {
-                        using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
+                        StorageItemThumbnail Thumbnail = GetThumbnailTask.Result;
+
+                        if (Thumbnail != null && Thumbnail.Size != 0)
                         {
-                            if (Thumbnail == null || Thumbnail.Size == 0 || Thumbnail.OriginalHeight == 0 || Thumbnail.OriginalWidth == 0)
-                            {
-                                return null;
-                            }
-
-                            return Thumbnail.CloneStream();
+                            return Thumbnail;
                         }
                     }
                     else
                     {
-                        _ = GetThumbnailTask.ContinueWith((task) =>
-                        {
-                            try
-                            {
-                                task.Result?.Dispose();
-                            }
-                            catch
-                            {
-
-                            }
-                        }, TaskScheduler.Default);
-
                         Cancellation.Cancel();
-
-                        return null;
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An exception was threw when getting thumbnail");
-                return null;
             }
+
+            return null;
         }
 
         public static Task<string> GetHashAsync(this HashAlgorithm Algorithm, Stream InputStream, CancellationToken Token = default, ProgressChangedEventHandler ProgressHandler = null)

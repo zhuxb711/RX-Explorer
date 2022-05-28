@@ -71,7 +71,6 @@ namespace RX_Explorer.Class
         LanguageRestartRequired,
         FontFamilyRestartRequired,
         ConfigRestartRequired,
-        ThumbnailDelay,
         FullTrustBusy
     }
 

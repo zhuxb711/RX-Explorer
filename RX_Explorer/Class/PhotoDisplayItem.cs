@@ -81,21 +81,14 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    bool ThumbnailFailed = false;
-
-                    using (IRandomAccessStream ThumbnailStream = await PhotoFile.GetThumbnailRawStreamAsync(ThumbnailMode.PicturesView))
+                    try
                     {
-                        if (ThumbnailStream != null)
+                        using (IRandomAccessStream ThumbnailStream = await PhotoFile.GetThumbnailRawStreamAsync(ThumbnailMode.PicturesView))
                         {
                             await ThumbnailSource.SetSourceAsync(ThumbnailStream);
                         }
-                        else
-                        {
-                            ThumbnailFailed = true;
-                        }
                     }
-
-                    if (ThumbnailFailed)
+                    catch (Exception)
                     {
                         using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                         {

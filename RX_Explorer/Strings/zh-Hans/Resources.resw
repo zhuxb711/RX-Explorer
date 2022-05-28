@@ -745,9 +745,6 @@
   <data name="LanguageComboBoxLabel.Text" xml:space="preserve">
     <value>语言</value>
   </data>
-  <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
-    <value>加载可能存在延迟</value>
-  </data>
   <data name="Common_Dialog_CloseButton" xml:space="preserve">
     <value>知道了</value>
   </data>
@@ -2738,9 +2735,6 @@
   </data>
   <data name="SystemTip_FullTrustBusyContent" xml:space="preserve">
     <value>辅助进程正忙，无法响应新的请求，请耐心等待</value>
-  </data>
-  <data name="SystemTip_LoadFileDelayContent" xml:space="preserve">
-    <value>无法加载某些文件的缩略图，请耐心等待。</value>
   </data>
   <data name="SystemTip_UpdateAvailableActionButton" xml:space="preserve">
     <value>立即更新</value>

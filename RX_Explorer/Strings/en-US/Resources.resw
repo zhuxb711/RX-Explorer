@@ -905,9 +905,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="LanguageComboBoxLabel.Text" xml:space="preserve">
     <value>Language</value>
   </data>
-  <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
-    <value>There may be a delay in loading</value>
-  </data>
   <data name="Common_Dialog_CloseButton" xml:space="preserve">
     <value>Got it</value>
   </data>
@@ -2864,9 +2861,6 @@ Invalid names include
   </data>
   <data name="SystemTip_FullTrustBusyContent" xml:space="preserve">
     <value>The auxiliary process is busy and cannot respond to new requests, please wait patiently</value>
-  </data>
-  <data name="SystemTip_LoadFileDelayContent" xml:space="preserve">
-    <value>Unable to get thumbnails of some files. Please wait patiently.</value>
   </data>
   <data name="SystemTip_UpdateAvailableActionButton" xml:space="preserve">
     <value>Update now</value>

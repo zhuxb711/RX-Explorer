@@ -1,5 +1,4 @@
-﻿using FluentFTP;
-using RX_Explorer.Interface;
+﻿using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -13,6 +12,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -33,13 +33,11 @@ namespace RX_Explorer.Class
 
         public override ulong Size => 0;
 
+        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                                                       ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                                                       : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+
         public StorageFolder StorageItem { get; protected set; }
-
-        private static readonly Uri Const_Folder_Image_Uri = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
-                                                                 ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                                 : new Uri("ms-appx:///Assets/FolderIcon_Win10.png");
-
-        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(Const_Folder_Image_Uri);
 
         public FileSystemStorageFolder(StorageFolder Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read, OptimizeOption.None), false)
         {
@@ -522,6 +520,30 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Could not get StorageFolder, path: {Path}");
+            }
+
+            return null;
+        }
+
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        {
+            try
+            {
+                try
+                {
+                    return await base.GetThumbnailRawStreamCoreAsync(Mode);
+                }
+                catch (Exception)
+                {
+                    StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+                    return await ThumbnailFile.OpenReadAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the raw stream of thumbnail");
             }
 
             return null;

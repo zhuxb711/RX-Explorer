@@ -4880,84 +4880,33 @@ namespace RX_Explorer.View
                                                 }
                                             default:
                                                 {
-                                                    string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
-
-                                                    if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath.Equals(ProgramPickerItem.InnerViewer.Path, StringComparison.OrdinalIgnoreCase))
+                                                    if (!TryOpenInternally(File))
                                                     {
-                                                        if (!TryOpenInternally(File))
-                                                        {
-                                                            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
-
-                                                            try
-                                                            {
-                                                                string TempPath = await Exclusive.Controller.MTPDownloadAndGetPathAsync(File.Path);
-
-                                                                if (await FileSystemStorageItemBase.CheckExistsAsync(TempPath))
-                                                                {
-                                                                    if (!await Exclusive.Controller.RunAsync(TempPath))
-                                                                    {
-                                                                        throw new UnauthorizedAccessException();
-                                                                    }
-
-                                                                    await Task.Delay(1000);
-                                                                }
-                                                                else
-                                                                {
-                                                                    throw new UnauthorizedAccessException();
-                                                                }
-                                                            }
-                                                            finally
-                                                            {
-                                                                TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
-                                                            }
-                                                        }
+                                                        throw new NotSupportedException();
                                                     }
-                                                    else
-                                                    {
-                                                        if (await FileSystemStorageItemBase.CheckExistsAsync(AdminExecutablePath))
-                                                        {
-                                                            string TempPath = await Exclusive.Controller.MTPDownloadAndGetPathAsync(File.Path);
 
-                                                            if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Parameters: TempPath))
-                                                            {
-                                                                throw new UnauthorizedAccessException();
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is AppInfo Info)
-                                                            {
-                                                                TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+                                                    break;
+                                                }
+                                        }
+                                    }
 
-                                                                try
-                                                                {
-                                                                    string TempPath = await Exclusive.Controller.MTPDownloadAndGetPathAsync(File.Path);
+                                    if (File is MTPStorageFile or FTPStorageFile)
+                                    {
+                                        switch (File.Type.ToLower())
+                                        {
+                                            case ".exe":
+                                            case ".bat":
+                                            case ".msi":
+                                            case ".msc":
+                                            case ".lnk":
+                                            case ".url":
+                                            case ".cmd":
+                                                {
+                                                    throw new NotSupportedException();
+                                                }
+                                            default:
+                                                {
 
-                                                                    if (await FileSystemStorageItemBase.CheckExistsAsync(TempPath))
-                                                                    {
-                                                                        if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, TempPath))
-                                                                        {
-                                                                            throw new UnauthorizedAccessException();
-                                                                        }
-
-                                                                        await Task.Delay(1000);
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        throw new UnauthorizedAccessException();
-                                                                    }
-                                                                }
-                                                                finally
-                                                                {
-                                                                    TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                await OpenFileWithProgramPicker(File);
-                                                            }
-                                                        }
-                                                    }
                                                 }
 
                                                 break;
@@ -5200,53 +5149,9 @@ namespace RX_Explorer.View
                             throw new LaunchProgramException();
                         }
                     }
-                    else
+                    else if (!await Dialog.UserPickedItem.LaunchAsync(File.Path))
                     {
-                        if (File is MTPStorageFile or FTPStorageFile)
-                        {
-                            switch (Path.GetExtension(File.Path).ToLower())
-                            {
-                                case ".exe":
-                                case ".bat":
-                                case ".msi":
-                                case ".msc":
-                                case ".cmd":
-                                case ".lnk":
-                                case ".url":
-                                    {
-                                        throw new NotSupportedException();
-                                    }
-                                default:
-                                    {
-                                        TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
-
-                                        try
-                                        {
-                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                            {
-                                                string TempPath = await Exclusive.Controller.MTPDownloadAndGetPathAsync(File.Path);
-
-                                                if (!await Dialog.UserPickedItem.LaunchAsync(TempPath))
-                                                {
-                                                    throw new LaunchProgramException();
-                                                }
-                                            }
-
-                                            await Task.Delay(1000);
-                                        }
-                                        finally
-                                        {
-                                            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
-                                        }
-
-                                        break;
-                                    }
-                            }
-                        }
-                        else if (!await Dialog.UserPickedItem.LaunchAsync(File.Path))
-                        {
-                            throw new LaunchProgramException();
-                        }
+                        throw new LaunchProgramException();
                     }
                 }
             }

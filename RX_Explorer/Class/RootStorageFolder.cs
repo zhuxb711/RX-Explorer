@@ -13,7 +13,6 @@ namespace RX_Explorer.Class
     public sealed class RootStorageFolder : FileSystemStorageFolder
     {
         private static RootStorageFolder Instance;
-        private static readonly BitmapImage InnerThumbnail = new BitmapImage(new Uri("ms-appx:///Assets/ThisPC.png"));
         private static readonly object Locker = new object();
 
         public static RootStorageFolder Current
@@ -30,8 +29,6 @@ namespace RX_Explorer.Class
         public override string Name => Globalization.GetString("RootStorageFolderDisplayName");
 
         public override string DisplayName => Name;
-
-        public override BitmapImage Thumbnail => InnerThumbnail;
 
         protected override Task LoadCoreAsync(bool ForceUpdate)
         {
@@ -55,8 +52,17 @@ namespace RX_Explorer.Class
 
         protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
         {
-            StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/ThisPC.png"));
-            return await ThumbnailFile.OpenAsync(FileAccessMode.Read);
+            try
+            {
+                StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/ThisPC.png"));
+                return await ThumbnailFile.OpenAsync(FileAccessMode.Read);
+            }
+            catch(Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the raw stream of thumbnail");
+            }
+
+            return null;
         }
 
         public override IAsyncEnumerable<FileSystemStorageItemBase> GetChildItemsAsync(bool IncludeHiddenItems = false,

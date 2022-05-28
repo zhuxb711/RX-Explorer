@@ -13,6 +13,8 @@ namespace RX_Explorer.Class
     {
         public string Name => Path.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
 
+        public abstract string DisplayType { get; }
+
         public abstract BitmapImage Thumbnail { get; }
 
         public string Path { get; private set; }
@@ -40,8 +42,6 @@ namespace RX_Explorer.Class
         public DateTimeOffset ModifiedTime { get; private set; }
 
         public virtual string Type => System.IO.Path.GetExtension(Name).ToUpper();
-
-        public virtual string DisplayType { get; private set; }
 
         public virtual string SizeDescription => Size.GetFileSizeDescription();
 
@@ -83,13 +83,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (this is CompressionFile)
-                    {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        {
-                            DisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
-                        }
-                    }
+                    await LoadCoreAsync();
                 }
                 catch (Exception ex)
                 {
@@ -98,9 +92,12 @@ namespace RX_Explorer.Class
                 finally
                 {
                     OnPropertyChanged(nameof(DisplayType));
+                    OnPropertyChanged(nameof(Thumbnail));
                 }
             }
         }
+
+        protected abstract Task LoadCoreAsync();
 
         private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {

@@ -1041,10 +1041,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Language</source>
           <target state="translated">Idioma</target>
         </trans-unit>
-        <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
-          <source>There may be a delay in loading</source>
-          <target state="translated">Puede que la carga se esté demorando.</target>
-        </trans-unit>
         <trans-unit id="Common_Dialog_CloseButton" translate="yes" xml:space="preserve">
           <source>Got it</source>
           <target state="translated">Vale</target>
@@ -3633,10 +3629,6 @@ Las denominaciones no válidas son:
         <trans-unit id="SystemTip_FullTrustBusyContent" translate="yes" xml:space="preserve">
           <source>The auxiliary process is busy and cannot respond to new requests, please wait patiently</source>
           <target state="translated">El proceso auxiliar está ocupado y no puede responder a nuevas solicitudes, espere pacientemente</target>
-        </trans-unit>
-        <trans-unit id="SystemTip_LoadFileDelayContent" translate="yes" xml:space="preserve">
-          <source>Unable to get thumbnails of some files. Please wait patiently.</source>
-          <target state="translated">No se pueden obtener miniaturas de algunos archivos. Espere pacientemente.</target>
         </trans-unit>
         <trans-unit id="SystemTip_UpdateAvailableActionButton" translate="yes" xml:space="preserve">
           <source>Update now</source>

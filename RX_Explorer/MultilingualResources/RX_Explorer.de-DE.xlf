@@ -1041,10 +1041,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Language</source>
           <target state="translated">Sprache</target>
         </trans-unit>
-        <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
-          <source>There may be a delay in loading</source>
-          <target state="translated">Es kann zu einer Verzögerung beim Laden kommen</target>
-        </trans-unit>
         <trans-unit id="Common_Dialog_CloseButton" translate="yes" xml:space="preserve">
           <source>Got it</source>
           <target state="translated">Verstanden</target>
@@ -3633,10 +3629,6 @@ Inkorrekte Namen sind
         <trans-unit id="SystemTip_FullTrustBusyContent" translate="yes" xml:space="preserve">
           <source>The auxiliary process is busy and cannot respond to new requests, please wait patiently</source>
           <target state="translated">Der Hilfsprozess ist beschäftigt und kann nicht auf neue Anfragen reagieren. Bitte warten Sie geduldig</target>
-        </trans-unit>
-        <trans-unit id="SystemTip_LoadFileDelayContent" translate="yes" xml:space="preserve">
-          <source>Unable to get thumbnails of some files. Please wait patiently.</source>
-          <target state="translated">Es können keine Miniaturansichten einiger Dateien abgerufen werden. Bitte warte geduldig.</target>
         </trans-unit>
         <trans-unit id="SystemTip_UpdateAvailableActionButton" translate="yes" xml:space="preserve">
           <source>Update now</source>

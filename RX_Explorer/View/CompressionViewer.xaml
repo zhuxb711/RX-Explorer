@@ -162,7 +162,7 @@
                             <Image VerticalAlignment="Center"
                                    HorizontalAlignment="Center"
                                    Stretch="Uniform"
-                                   Source="{x:Bind Thumbnail}"
+                                   Source="{x:Bind Thumbnail,Mode=OneWay}"
                                    Height="30"
                                    Width="30" />
                             <TextBlock VerticalAlignment="Center"

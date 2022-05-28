@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class FullTrustProcessController : IDisposable
     {
-        public static ushort DynamicBackupProcessNum => 2;
+        public static ushort DynamicBackupProcessNum => 3;
 
         public bool IsAnyCommandExecutingInCurrentController => CurrentControllerExecutingCommandNum > 0;
 
@@ -587,23 +587,6 @@ namespace RX_Explorer.Class
                     LogTracer.Log($"An unexpected error was threw in {nameof(MTPReplaceWithNewFileAsync)}, message: {ErrorMessage}");
                 }
             }
-        }
-
-        public async Task<string> MTPDownloadAndGetPathAsync(string Path)
-        {
-            if (await SendCommandAsync(CommandType.MTPDownloadAndGetPath, ("Path", Path)) is IDictionary<string, string> Response)
-            {
-                if (Response.TryGetValue("Success", out string RawText))
-                {
-                    return RawText;
-                }
-                else if (Response.TryGetValue("Error", out string ErrorMessage))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(MTPDownloadAndGetPathAsync)}, message: {ErrorMessage}");
-                }
-            }
-
-            return null;
         }
 
         public async Task<SafeFileHandle> MTPDownloadAndGetHandleAsync(string Path, AccessMode Access, OptimizeOption Option)
@@ -1415,13 +1398,18 @@ namespace RX_Explorer.Class
             return Array.Empty<InstalledApplication>();
         }
 
-        public async Task<byte[]> GetThumbnailAsync(string Path)
+        public async Task<Stream> GetThumbnailAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetThumbnail, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<byte[]>(Result);
+                    byte[] Data = JsonSerializer.Deserialize<byte[]>(Result);
+
+                    if (Data.Length > 0)
+                    {
+                        return new MemoryStream(Data);
+                    }
                 }
                 else
                 {
@@ -1432,7 +1420,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return Array.Empty<byte>();
+            return null;
         }
 
         public async Task<IReadOnlyList<ContextMenuItem>> GetContextMenuItemsAsync(string[] PathArray, bool IncludeExtensionItem = false)

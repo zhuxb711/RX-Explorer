@@ -996,10 +996,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Language</source>
           <target state="translated" state-qualifier="tm-suggestion">語言</target>
         </trans-unit>
-        <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
-          <source>There may be a delay in loading</source>
-          <target state="translated">讀取可能會延遲</target>
-        </trans-unit>
         <trans-unit id="Common_Dialog_CloseButton" translate="yes" xml:space="preserve">
           <source>Got it</source>
           <target state="translated" state-qualifier="tm-suggestion">我知道了</target>
@@ -3635,10 +3631,6 @@ Invalid names include
         <trans-unit id="SystemTip_FullTrustBusyContent" translate="yes" xml:space="preserve">
           <source>The auxiliary process is busy and cannot respond to new requests, please wait patiently</source>
           <target state="translated">輔助進程很忙，無法響應新請求，請耐心等待</target>
-        </trans-unit>
-        <trans-unit id="SystemTip_LoadFileDelayContent" translate="yes" xml:space="preserve">
-          <source>Unable to get thumbnails of some files. Please wait patiently.</source>
-          <target state="translated">無法獲取某些文件的縮略圖。 請耐心等待。</target>
         </trans-unit>
         <trans-unit id="SystemTip_UpdateAvailableActionButton" translate="yes" xml:space="preserve">
           <source>Update now</source>
