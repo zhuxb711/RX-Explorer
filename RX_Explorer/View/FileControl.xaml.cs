@@ -2733,30 +2733,33 @@ namespace RX_Explorer.View
 
                     Blade.AddHandler(PointerPressedEvent, BladePointerPressedEventHandler, true);
                     Blade.Expanded += Blade_Expanded;
+                    Blade.Collapsed += Blade_Collapsed;
 
                     if (BladeViewer.IsLoaded)
                     {
-                        Blade.Height = BladeViewer.ActualHeight;
+                        double BladeHeight = BladeViewer.ActualHeight;
+                        double BladeWidth = (BladeViewer.ActualWidth - BladeViewer.Items.Cast<BladeItem>().Where((Item) => !Item.IsExpanded).Sum((Item) => Item.ActualWidth)) / Math.Min(BladeViewer.Items.Cast<BladeItem>().Where((Item) => Item.IsExpanded).Count() + 1, SettingPage.VerticalSplitViewLimitation);
+
+                        Blade.Width = BladeWidth;
+                        Blade.Height = BladeHeight;
 
                         if (BladeViewer.Items.Count > 0)
                         {
-                            Blade.Width = BladeViewer.ActualWidth / 2;
                             Blade.TitleBarVisibility = Visibility.Visible;
 
                             foreach (BladeItem Item in BladeViewer.Items)
                             {
-                                Item.Height = BladeViewer.ActualHeight;
+                                Item.Height = BladeHeight;
                                 Item.TitleBarVisibility = Visibility.Visible;
 
                                 if (Item.IsExpanded)
                                 {
-                                    Item.Width = BladeViewer.ActualWidth / 2;
+                                    Item.Width = BladeWidth;
                                 }
                             }
                         }
                         else
                         {
-                            Blade.Width = BladeViewer.ActualWidth;
                             Blade.TitleBarVisibility = Visibility.Collapsed;
                         }
                     }
@@ -2841,14 +2844,66 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void Blade_Expanded(object sender, EventArgs e)
+        private async void Blade_Collapsed(object sender, EventArgs e)
         {
-            if (BladeViewer.Items.Count == 1 && BladeViewer.Items[0] is BladeItem Item)
+            if (sender is BladeItem Item)
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    Item.TitleBarVisibility = Visibility.Collapsed;
-                    Item.Width = BladeViewer.ActualWidth;
+                    Item.UpdateLayout();
+
+                    double BladeHeight = BladeViewer.ActualHeight;
+                    double BladeWidth = (BladeViewer.ActualWidth - BladeViewer.Items.Cast<BladeItem>().Where((Item) => !Item.IsExpanded).Sum((Item) => Item.ActualWidth)) / Math.Min(BladeViewer.Items.Cast<BladeItem>().Where((Item) => Item.IsExpanded).Count(), SettingPage.VerticalSplitViewLimitation);
+
+                    foreach (BladeItem Item in BladeViewer.Items)
+                    {
+                        Item.Height = BladeHeight;
+
+                        if (Item.IsExpanded)
+                        {
+                            Item.Width = BladeWidth;
+                        }
+                    }
+
+                    if (BladeViewer.Items.Count == 1)
+                    {
+                        if (BladeViewer.Items.Single() is BladeItem Item && Item.IsExpanded)
+                        {
+                            Item.TitleBarVisibility = Visibility.Collapsed;
+                        }
+                    }
+                });
+            }
+        }
+
+        private async void Blade_Expanded(object sender, EventArgs e)
+        {
+            if (sender is BladeItem Item)
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                {
+                    Item.UpdateLayout();
+
+                    double BladeHeight = BladeViewer.ActualHeight;
+                    double BladeWidth = (BladeViewer.ActualWidth - BladeViewer.Items.Cast<BladeItem>().Where((Item) => !Item.IsExpanded).Sum((Item) => Item.ActualWidth)) / Math.Min(BladeViewer.Items.Cast<BladeItem>().Where((Item) => Item.IsExpanded).Count(), SettingPage.VerticalSplitViewLimitation);
+
+                    foreach (BladeItem Item in BladeViewer.Items)
+                    {
+                        Item.Height = BladeHeight;
+
+                        if (Item.IsExpanded)
+                        {
+                            Item.Width = BladeWidth;
+                        }
+                    }
+
+                    if (BladeViewer.Items.Count == 1)
+                    {
+                        if (BladeViewer.Items.Single() is BladeItem Item && Item.IsExpanded)
+                        {
+                            Item.TitleBarVisibility = Visibility.Collapsed;
+                        }
+                    }
                 });
             }
         }
@@ -2881,18 +2936,19 @@ namespace RX_Explorer.View
             }
         }
 
-        public async Task CloseBladeAsync(BladeItem Item)
+        public async Task CloseBladeAsync(BladeItem Blade)
         {
-            if (Item.Content is FilePresenter Presenter)
+            if (Blade.Content is FilePresenter Presenter)
             {
                 Presenter.Dispose();
 
-                Item.RemoveHandler(PointerPressedEvent, BladePointerPressedEventHandler);
-                Item.Expanded -= Blade_Expanded;
-                Item.Content = null;
+                Blade.RemoveHandler(PointerPressedEvent, BladePointerPressedEventHandler);
+                Blade.Expanded -= Blade_Expanded;
+                Blade.Collapsed -= Blade_Collapsed;
+                Blade.Content = null;
             }
 
-            BladeViewer.Items.Remove(Item);
+            BladeViewer.Items.Remove(Blade);
 
             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
@@ -2901,12 +2957,24 @@ namespace RX_Explorer.View
                     CurrentPresenter = LastPresenter;
                 }
 
+                double BladeHeight = BladeViewer.ActualHeight;
+                double BladeWidth = (BladeViewer.ActualWidth - BladeViewer.Items.Cast<BladeItem>().Where((Item) => !Item.IsExpanded).Sum((Item) => Item.ActualWidth)) / Math.Min(BladeViewer.Items.Cast<BladeItem>().Where((Item) => Item.IsExpanded).Count(), SettingPage.VerticalSplitViewLimitation);
+
+                foreach (BladeItem Item in BladeViewer.Items)
+                {
+                    Item.Height = BladeHeight;
+
+                    if (Item.IsExpanded)
+                    {
+                        Item.Width = BladeWidth;
+                    }
+                }
+
                 if (BladeViewer.Items.Count == 1)
                 {
-                    if (BladeViewer.Items[0] is BladeItem Item && Item.IsExpanded)
+                    if (BladeViewer.Items.Single() is BladeItem Item && Item.IsExpanded)
                     {
                         Item.TitleBarVisibility = Visibility.Collapsed;
-                        Item.Width = BladeViewer.ActualWidth;
                     }
                 }
             });
@@ -2933,7 +3001,7 @@ namespace RX_Explorer.View
 
                         if (Item.IsExpanded)
                         {
-                            double NewWidth = e.NewSize.Width / 2;
+                            double NewWidth = (e.NewSize.Width - BladeViewer.Items.Cast<BladeItem>().Where((Item) => !Item.IsExpanded).Sum((Item) => Item.ActualWidth)) / Math.Min(BladeViewer.Items.Cast<BladeItem>().Where((Item) => Item.IsExpanded).Count(), SettingPage.VerticalSplitViewLimitation);
 
                             if (Item.Width != NewWidth)
                             {
@@ -3488,14 +3556,17 @@ namespace RX_Explorer.View
         {
             if (BladeViewer.Items.Count > 1)
             {
+                double BladeHeight = BladeViewer.ActualHeight;
+                double BladeWidth = (BladeViewer.ActualWidth - BladeViewer.Items.Cast<BladeItem>().Where((Item) => !Item.IsExpanded).Sum((Item) => Item.ActualWidth)) / Math.Min(BladeViewer.Items.Cast<BladeItem>().Where((Item) => Item.IsExpanded).Count(), SettingPage.VerticalSplitViewLimitation);
+
                 foreach (BladeItem Item in BladeViewer.Items)
                 {
-                    Item.Height = BladeViewer.ActualHeight;
+                    Item.Height = BladeHeight;
                     Item.TitleBarVisibility = Visibility.Visible;
 
                     if (Item.IsExpanded)
                     {
-                        Item.Width = BladeViewer.ActualWidth / 2;
+                        Item.Width = BladeWidth;
                     }
                 }
             }

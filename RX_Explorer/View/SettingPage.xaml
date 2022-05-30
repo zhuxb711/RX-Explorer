@@ -1028,29 +1028,33 @@
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <StackPanel  RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                         RelativePanel.AlignLeftWithPanel="True"
-                                                         RelativePanel.LeftOf="FileLoadMode"
-                                                         Margin="0,0,20,0">
-                                                <TextBlock Text="缩略图加载模式"
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="VerticalSplitViewLimitationCombox"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="垂直拆分窗口并排显示数量"
                                                            TextTrimming="CharacterEllipsis"
-                                                           x:Uid="FileLoadModeLabel" />
+                                                           x:Uid="VerticalSplitViewLimitationLabel" />
                                                 <TextBlock FontSize="12"
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           x:Uid="FileLoadModeDescription"
-                                                           Text="根据不同选项来平衡文件加载性能" />
+                                                           x:Uid="VerticalSplitViewLimitationDescription"
+                                                           Text="指定垂直拆分窗口并排显示的数量，超出的部分需要通过滚动的方式访问。注意: 仅建议在较宽的屏幕上才调整此设置，否则可能导致各窗口内容无法辨识" />
                                             </StackPanel>
-                                            <ComboBox MinWidth="200"
-                                                      x:Uid="FileLoadMode"
-                                                      Name="FileLoadMode"
-                                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                                            <ComboBox MinWidth="100"
+                                                      Name="VerticalSplitViewLimitationCombox"
+                                                      x:Uid="VerticalSplitViewLimitation"
                                                       RelativePanel.AlignRightWithPanel="True"
-                                                      RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                      RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <x:String>2</x:String>
+                                                <x:String>3</x:String>
+                                                <x:String>4</x:String>
+                                                <x:String>5</x:String>
+                                            </ComboBox>
                                         </RelativePanel>
                                     </Border>
-
+                                    
                                     <Border Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
@@ -1078,6 +1082,37 @@
                                                       x:Uid="DefaultDisplayMode"
                                                       DisplayMemberPath="DisplayName"
                                                       ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
+                                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                                                      RelativePanel.AlignRightWithPanel="True"
+                                                      RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                        </RelativePanel>
+                                    </Border>
+
+                                    <Border Padding="20,10"
+                                            MinHeight="60"
+                                            Margin="0,5,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel  RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                         RelativePanel.AlignLeftWithPanel="True"
+                                                         RelativePanel.LeftOf="FileLoadMode"
+                                                         Margin="0,0,20,0">
+                                                <TextBlock Text="缩略图加载模式"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="FileLoadModeLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           x:Uid="FileLoadModeDescription"
+                                                           Text="根据不同选项来平衡文件加载性能" />
+                                            </StackPanel>
+                                            <ComboBox MinWidth="200"
+                                                      x:Uid="FileLoadMode"
+                                                      Name="FileLoadMode"
                                                       Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
                                                       RelativePanel.AlignRightWithPanel="True"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True" />

@@ -616,6 +616,22 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["DefaultDisplayMode"] = value;
         }
 
+        public static int VerticalSplitViewLimitation
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["MaximumVerticalSplitViewLimitation"] is int Limitation)
+                {
+                    return Limitation;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
+            private set => ApplicationData.Current.LocalSettings.Values["MaximumVerticalSplitViewLimitation"] = value;
+        }
+
         public static bool IsOpened { get; private set; }
 
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
@@ -1040,6 +1056,7 @@ namespace RX_Explorer.View
             HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
             HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
             DefaultDisplayMode.SelectionChanged -= DefaultDisplayMode_SelectionChanged;
+            VerticalSplitViewLimitationCombox.SelectionChanged -= VerticalSplitViewLimitationCombox_SelectionChanged;
 
             BuiltInEngineIgnoreCase.Checked -= SeachEngineOptionSave_Checked;
             BuiltInEngineIgnoreCase.Unchecked -= SeachEngineOptionSave_UnChecked;
@@ -1096,7 +1113,7 @@ namespace RX_Explorer.View
             AvoidRecycleBin.IsChecked = IsAvoidRecycleBinEnabled;
             DeleteConfirmSwitch.IsOn = IsDoubleConfirmOnDeletionEnabled;
             DefaultDisplayMode.SelectedIndex = DefaultDisplayModeIndex;
-
+            VerticalSplitViewLimitationCombox.SelectedIndex = VerticalSplitViewLimitation - 2;
 #if DEBUG
             SettingShareData.IsOn = false;
 #else
@@ -1216,6 +1233,7 @@ namespace RX_Explorer.View
             HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
             HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
             DefaultDisplayMode.SelectionChanged += DefaultDisplayMode_SelectionChanged;
+            VerticalSplitViewLimitationCombox.SelectionChanged += VerticalSplitViewLimitationCombox_SelectionChanged;
 
             BuiltInEngineIgnoreCase.Checked += SeachEngineOptionSave_Checked;
             BuiltInEngineIgnoreCase.Unchecked += SeachEngineOptionSave_UnChecked;
@@ -1235,6 +1253,22 @@ namespace RX_Explorer.View
             EverythingEngineSearchGloble.Unchecked += SeachEngineOptionSave_UnChecked;
             ShowContextMenuWhenLoading.Checked += ShowContextMenuWhenLoading_Checked;
             ShowContextMenuWhenLoading.Unchecked += ShowContextMenuWhenLoading_Unchecked;
+        }
+
+        private void VerticalSplitViewLimitationCombox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                VerticalSplitViewLimitation = Convert.ToInt32(e.AddedItems.Single());
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(VerticalSplitViewLimitationCombox_SelectionChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private void WindowsExplorerContextMenu_Toggled(object sender, RoutedEventArgs e)

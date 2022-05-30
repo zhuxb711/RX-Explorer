@@ -33,7 +33,7 @@ namespace RX_Explorer.Class
 
         public override ulong Size => 0;
 
-        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+        public override BitmapImage Thumbnail => base.Thumbnail ??= new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
                                                                                        ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                                                        : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
 

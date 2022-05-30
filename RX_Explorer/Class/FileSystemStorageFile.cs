@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
+        public override BitmapImage Thumbnail => base.Thumbnail ??= new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
                                                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
                                                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 

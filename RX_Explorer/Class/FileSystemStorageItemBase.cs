@@ -112,9 +112,9 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public virtual BitmapImage Thumbnail { get; private set; }
+        public virtual BitmapImage Thumbnail { get; protected set; }
 
-        public BitmapImage ThumbnailOverlay { get; private set; }
+        public virtual BitmapImage ThumbnailOverlay { get; protected set; }
 
         public virtual bool IsReadOnly { get; protected set; }
 
