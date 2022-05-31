@@ -10,8 +10,7 @@
               xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
               xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
               xmlns:Triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
-              mc:Ignorable="d"
-              Visibility="Collapsed">
+              mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
@@ -1024,6 +1023,8 @@
                                             MinHeight="60"
                                             Margin="0,5,0,0"
                                             BorderThickness="1"
+                                            Visibility="Collapsed"
+                                            Name="VerticalSplitViewLimitationArea"
                                             BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -1045,8 +1046,10 @@
                                             <ComboBox MinWidth="100"
                                                       Name="VerticalSplitViewLimitationCombox"
                                                       x:Uid="VerticalSplitViewLimitation"
+                                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
                                                       RelativePanel.AlignRightWithPanel="True"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <x:String>1</x:String>
                                                 <x:String>2</x:String>
                                                 <x:String>3</x:String>
                                                 <x:String>4</x:String>
@@ -1054,7 +1057,38 @@
                                             </ComboBox>
                                         </RelativePanel>
                                     </Border>
-                                    
+
+                                    <Border Padding="20,10"
+                                            MinHeight="60"
+                                            Margin="0,5,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="ShutdownButtonBehaviorCombox"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="自定义关闭按钮的默认行为"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="ShutdownButtonBehaviorLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           x:Uid="VerticalSplitViewLimitationDescription"
+                                                           Text="指定关闭按钮的默认行为，可以防止意外关闭本应用程序" />
+                                            </StackPanel>
+                                            <ComboBox MinWidth="200"
+                                                      Name="ShutdownButtonBehaviorCombox"
+                                                      x:Uid="ShutdownButtonBehaviorCombox"
+                                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                                                      RelativePanel.AlignRightWithPanel="True"
+                                                      RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                        </RelativePanel>
+                                    </Border>
+
                                     <Border Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
@@ -2599,6 +2633,7 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,10,0,0"
+                                            Visibility="Collapsed"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             Name="PurchaseApp"

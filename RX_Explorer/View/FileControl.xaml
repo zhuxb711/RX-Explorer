@@ -680,8 +680,9 @@
                     Margin="0,2"
                     Background="{ThemeResource SystemControlBackgroundBaseMediumRevealBorderBrush}" />
             <controls:GridSplitter Background="Transparent"
+                                   MinWidth="0"
                                    Grid.Column="1"
-                                   ResizeBehavior="BasedOnAlignment"
+                                   ResizeBehavior="PreviousAndNext"
                                    ResizeDirection="Auto"
                                    IsTabStop="False"
                                    Name="Splitter"
@@ -690,6 +691,12 @@
                                    PointerCaptureLost="GridSplitter_PointerCaptureLost"
                                    PointerPressed="GridSplitter_PointerPressed"
                                    PointerReleased="GridSplitter_PointerReleased">
+                <controls:GridSplitter.Resources>
+                    <SolidColorBrush x:Key="SystemControlSplitterPointerOver"
+                                     Color="Transparent" />
+                    <SolidColorBrush x:Key="SystemControlSplitterPressed"
+                                     Color="Transparent" />
+                </controls:GridSplitter.Resources>
                 <controls:GridSplitter.Element>
                     <StackPanel />
                 </controls:GridSplitter.Element>

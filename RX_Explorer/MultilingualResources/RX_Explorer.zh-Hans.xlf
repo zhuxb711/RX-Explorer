@@ -4693,6 +4693,18 @@ Invalid names include
           <source>Bluetooth Sharing</source>
           <target state="translated">蓝牙分享</target>
         </trans-unit>
+        <trans-unit id="ShutdownButtonBehavior_AskEveryTime" translate="yes" xml:space="preserve">
+          <source>Ask me every time</source>
+          <target state="new">Ask me every time</target>
+        </trans-unit>
+        <trans-unit id="ShutdownButtonBehavior_CloseApplication" translate="yes" xml:space="preserve">
+          <source>Close the application</source>
+          <target state="new">Close the application</target>
+        </trans-unit>
+        <trans-unit id="ShutdownButtonBehavior_CloseInnerViewer" translate="yes" xml:space="preserve">
+          <source>Close the inner viewer</source>
+          <target state="new">Close the inner viewer</target>
+        </trans-unit>
       </group>
     </body>
   </file>

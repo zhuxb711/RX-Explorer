@@ -457,6 +457,9 @@
             </muxc:NavigationView.Content>
         </muxc:NavigationView>
 
+        <local:SettingPage x:Name="Settings"
+                           Visibility="Collapsed"/>
+
         <Border x:Name="TitleBar"
                 Height="32"
                 Background="Transparent"

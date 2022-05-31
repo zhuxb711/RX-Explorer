@@ -2,6 +2,13 @@
 
 namespace RX_Explorer.Class
 {
+    public enum ShutdownBehaivor
+    {
+        CloseApplication,
+        CloseInnerViewer,
+        AskEveryTime
+    }
+
     public enum BluetoothPanelMode
     {
         None = 0,

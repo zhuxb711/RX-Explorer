@@ -36,7 +36,7 @@ namespace FullTrustProcess
                 {
                     try
                     {
-                        PipeStream.Connect(5000);
+                        PipeStream.Connect(10000);
                         PipeStream.ReadMode = PipeTransmissionMode.Message;
                     }
                     catch (IOException)

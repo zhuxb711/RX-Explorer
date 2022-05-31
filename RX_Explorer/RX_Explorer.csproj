@@ -575,14 +575,14 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="Assets\Restore_Folder.reg" />
-	<PRIResource Include="Strings\de-DE\Resources.resw" />
-	<PRIResource Include="Strings\es\Resources.resw" />
-	<PRIResource Include="Strings\zh-Hant\Resources.resw" />
-	<PRIResource Include="Strings\en-US\Resources.resw">
-		<SubType>Designer</SubType>
-	</PRIResource>
-	<PRIResource Include="Strings\fr-FR\Resources.resw" />
-	<PRIResource Include="Strings\zh-Hans\Resources.resw" />
+    <PRIResource Include="Strings\de-DE\Resources.resw" />
+    <PRIResource Include="Strings\es\Resources.resw" />
+    <PRIResource Include="Strings\zh-Hant\Resources.resw" />
+    <PRIResource Include="Strings\en-US\Resources.resw">
+      <SubType>Designer</SubType>
+    </PRIResource>
+    <PRIResource Include="Strings\fr-FR\Resources.resw" />
+    <PRIResource Include="Strings\zh-Hans\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

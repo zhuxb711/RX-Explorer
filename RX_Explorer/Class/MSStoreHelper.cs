@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,9 +35,15 @@ namespace RX_Explorer.Class
 
         public Task<bool> CheckPurchaseStatusAsync()
         {
-            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("LicenseGrant"))
+#if DEBUG
+            return Task.FromResult(true);
+#else
+            if (ApplicationData.Current.LocalSettings.Values["LicenseGrant"] is bool IsGrant && IsGrant)
             {
-                return Task.FromResult(true);
+                if (SystemInformation.Instance.TotalLaunchCount % 5 > 0)
+                {
+                    return Task.FromResult(true);
+                }
             }
 
             lock (Locker)
@@ -47,11 +54,14 @@ namespace RX_Explorer.Class
                     {
                         if (License != null)
                         {
-                            if ((License.AddOnLicenses?.Any((Item) => Item.Value.InAppOfferToken == "Donation")).GetValueOrDefault()
-                                || License.IsActive && !License.IsTrial)
+                            if ((License.IsActive && !License.IsTrial) || (License.AddOnLicenses?.Any((Item) => Item.Value.InAppOfferToken == "Donation")).GetValueOrDefault())
                             {
                                 ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
                                 return true;
+                            }
+                            else
+                            {
+                                ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
                             }
                         }
                     }
@@ -63,6 +73,7 @@ namespace RX_Explorer.Class
                     return false;
                 });
             }
+#endif
         }
 
         public Task<bool> CheckHasUpdateAsync()
@@ -145,6 +156,11 @@ namespace RX_Explorer.Class
                                         ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
                                         break;
                                     }
+                                default:
+                                    {
+                                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
+                                        break;
+                                    }
                             }
 
                             return Result.Status;
@@ -205,6 +221,10 @@ namespace RX_Explorer.Class
                 if (License.IsActive && !License.IsTrial)
                 {
                     ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
                 }
             }
             catch (Exception ex)

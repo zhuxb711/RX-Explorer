@@ -3637,4 +3637,13 @@ Invalid names include
   <data name="BluetoothUI_Tips_Text_8" xml:space="preserve">
     <value>Pending</value>
   </data>
+  <data name="ShutdownButtonBehavior_AskEveryTime" xml:space="preserve">
+    <value>Ask me every time</value>
+  </data>
+  <data name="ShutdownButtonBehavior_CloseApplication" xml:space="preserve">
+    <value>Close the application</value>
+  </data>
+  <data name="ShutdownButtonBehavior_CloseInnerViewer" xml:space="preserve">
+    <value>Close the inner viewer</value>
+  </data>
 </root>

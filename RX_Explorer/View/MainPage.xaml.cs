@@ -363,76 +363,84 @@ namespace RX_Explorer.View
                 {
                     if (CurrentFrame.Content is not (FileControl or SearchPage))
                     {
-                        if (ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] is bool IsAlwaysCloseApp)
+                        switch(SettingPage.ShutdownButtonBehavior)
                         {
-                            if (!IsAlwaysCloseApp)
-                            {
-                                e.Handled = true;
-
-                                while (CurrentFrame.CanGoBack)
+                            case ShutdownBehaivor.CloseApplication:
                                 {
-                                    CurrentFrame.GoBack();
+                                    break;
                                 }
-
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            StackPanel Panel = new StackPanel
-                            {
-                                MinWidth = 300,
-                                HorizontalAlignment = HorizontalAlignment.Stretch
-                            };
-
-                            TextBlock Text = new TextBlock
-                            {
-                                Text = Globalization.GetString("QueueDialog_CloseOnInnerViewer_Content"),
-                                TextWrapping = TextWrapping.WrapWholeWords
-                            };
-
-                            CheckBox Box = new CheckBox
-                            {
-                                Content = Globalization.GetString("QueueDialog_CloseOnInnerViewerRemember_Content"),
-                                Margin = new Thickness(0, 10, 0, 0)
-                            };
-
-                            Panel.Children.Add(Text);
-                            Panel.Children.Add(Box);
-
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                Content = Panel,
-                                PrimaryButtonText = Globalization.GetString("QueueDialog_CloseOnInnerViewer_PrimaryButton"),
-                                CloseButtonText = Globalization.GetString("QueueDialog_CloseOnInnerViewer_SencondaryButton")
-                            };
-
-                            ContentDialogResult Result = await Dialog.ShowAsync();
-
-                            if (Box.IsChecked.GetValueOrDefault())
-                            {
-                                if (Result == ContentDialogResult.Primary)
+                            case ShutdownBehaivor.CloseInnerViewer:
                                 {
-                                    ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] = true;
+                                    e.Handled = true;
+
+                                    while (CurrentFrame.CanGoBack)
+                                    {
+                                        CurrentFrame.GoBack();
+                                    }
+
+                                    return;
                                 }
-                                else
+                            default:
                                 {
-                                    ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] = false;
+                                    StackPanel Panel = new StackPanel
+                                    {
+                                        MinWidth = 300,
+                                        HorizontalAlignment = HorizontalAlignment.Stretch
+                                    };
+
+                                    TextBlock Text = new TextBlock
+                                    {
+                                        Text = Globalization.GetString("QueueDialog_CloseOnInnerViewer_Content"),
+                                        TextWrapping = TextWrapping.WrapWholeWords
+                                    };
+
+                                    CheckBox Box = new CheckBox
+                                    {
+                                        Content = Globalization.GetString("QueueDialog_CloseOnInnerViewerRemember_Content"),
+                                        Margin = new Thickness(0, 10, 0, 0)
+                                    };
+
+                                    Panel.Children.Add(Text);
+                                    Panel.Children.Add(Box);
+
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                        Content = Panel,
+                                        PrimaryButtonText = Globalization.GetString("QueueDialog_CloseOnInnerViewer_PrimaryButton"),
+                                        CloseButtonText = Globalization.GetString("QueueDialog_CloseOnInnerViewer_SencondaryButton")
+                                    };
+
+                                    ContentDialogResult Result = await Dialog.ShowAsync();
+
+                                    if (Box.IsChecked.GetValueOrDefault())
+                                    {
+                                        if (Result == ContentDialogResult.Primary)
+                                        {
+                                            SettingPage.ShutdownButtonBehavior = ShutdownBehaivor.CloseApplication;
+                                        }
+                                        else
+                                        {
+                                            SettingPage.ShutdownButtonBehavior = ShutdownBehaivor.CloseInnerViewer;
+                                        }
+
+                                        ApplicationData.Current.SignalDataChanged();
+                                    }
+
+                                    if (Result != ContentDialogResult.Primary)
+                                    {
+                                        e.Handled = true;
+
+                                        while (CurrentFrame.CanGoBack)
+                                        {
+                                            CurrentFrame.GoBack();
+                                        }
+
+                                        return;
+                                    }
+
+                                    break;
                                 }
-                            }
-
-                            if (Result != ContentDialogResult.Primary)
-                            {
-                                e.Handled = true;
-
-                                while (CurrentFrame.CanGoBack)
-                                {
-                                    CurrentFrame.GoBack();
-                                }
-
-                                return;
-                            }
                         }
                     }
                 }
@@ -591,10 +599,6 @@ namespace RX_Explorer.View
                     });
                 }
 
-                await Task.WhenAll(RegisterBackgroundTaskAsync(),
-                                   CheckUpdateIfExistAsync(),
-                                   SettingPage.CreateAsync().ContinueWith((Task) => RootGrid.Children.Add(Task.Result), TaskScheduler.FromCurrentSynchronizationContext()));
-
                 ApplicationData.Current.DataChanged += Current_DataChanged;
 
                 if (SystemInformation.Instance.IsAppUpdated || SystemInformation.Instance.IsFirstRun)
@@ -602,28 +606,32 @@ namespace RX_Explorer.View
                     await new WhatIsNew().ShowAsync();
                 }
 
-                bool IsPurchased = await MSStoreHelper.Current.CheckPurchaseStatusAsync();
+                await Task.WhenAll(RegisterBackgroundTaskAsync(), CheckUpdateIfExistAsync(), Settings.InitializeAsync());
 
-                if (!IsPurchased)
+                if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
                     AppName.Text += $" ({Globalization.GetString("Trial_Version")})";
+
+                    switch (SystemInformation.Instance.TotalLaunchCount)
+                    {
+                        case 15:
+                        case 25:
+                        case 35:
+                            {
+                                PurchaseApplication();
+                                break;
+                            }
+                    }
                 }
 
-                switch (SystemInformation.Instance.LaunchCount)
+                switch (SystemInformation.Instance.TotalLaunchCount)
                 {
-                    case 15 when !IsPurchased:
-                    case 25 when !IsPurchased:
-                    case 35 when !IsPurchased:
-                        {
-                            PurchaseApplication();
-                            break;
-                        }
-                    case 5:
+                    case 10:
                         {
                             await PinApplicationToTaskBarAsync();
                             break;
                         }
-                    case 10:
+                    case 20:
                         {
                             RequestRateApplication();
                             break;
@@ -765,8 +773,16 @@ namespace RX_Explorer.View
                     PinTip.ActionButtonClick += async (s, e) =>
                     {
                         s.IsOpen = false;
-                        await BarManager.RequestPinCurrentAppAsync();
-                        await ScreenManager.RequestAddAppListEntryAsync(Entry);
+
+                        try
+                        {
+                            await BarManager.RequestPinCurrentAppAsync();
+                            await ScreenManager.RequestAddAppListEntryAsync(Entry);
+                        }
+                        catch (Exception)
+                        {
+                            //No need to handle this exception
+                        }
                     };
                 }
                 else if (PinStartScreen && !PinTaskBar)
@@ -774,7 +790,15 @@ namespace RX_Explorer.View
                     PinTip.ActionButtonClick += async (s, e) =>
                     {
                         s.IsOpen = false;
-                        await ScreenManager.RequestAddAppListEntryAsync(Entry);
+
+                        try
+                        {
+                            await ScreenManager.RequestAddAppListEntryAsync(Entry);
+                        }
+                        catch (Exception)
+                        {
+                            //No need to handle this exception
+                        }
                     };
                 }
                 else if (!PinStartScreen && PinTaskBar)
@@ -782,7 +806,15 @@ namespace RX_Explorer.View
                     PinTip.ActionButtonClick += async (s, e) =>
                     {
                         s.IsOpen = false;
-                        await BarManager.RequestPinCurrentAppAsync();
+
+                        try
+                        {
+                            await BarManager.RequestPinCurrentAppAsync();
+                        }
+                        catch (Exception)
+                        {
+                            //No need to handle this exception
+                        }
                     };
                 }
                 else
@@ -964,9 +996,9 @@ namespace RX_Explorer.View
             {
                 if (args.IsSettingsInvoked)
                 {
-                    if (!SettingPage.IsOpened && RootGrid.Children.OfType<SettingPage>().FirstOrDefault() is SettingPage Dialog)
+                    if (!SettingPage.IsOpened)
                     {
-                        await Dialog.ShowAsync();
+                        await Settings.ShowAsync();
                     }
                 }
                 else

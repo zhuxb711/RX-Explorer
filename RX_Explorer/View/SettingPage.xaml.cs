@@ -632,22 +632,38 @@ namespace RX_Explorer.View
             private set => ApplicationData.Current.LocalSettings.Values["MaximumVerticalSplitViewLimitation"] = value;
         }
 
+        public static ShutdownBehaivor ShutdownButtonBehavior
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["ShutdownButtonBehavior"] is string RawValue)
+                {
+                    return Enum.Parse<ShutdownBehaivor>(RawValue);
+                }
+                else
+                {
+                    return ShutdownBehaivor.CloseApplication;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["ShutdownButtonBehavior"] = Enum.GetName(typeof(ShutdownBehaivor), value);
+        }
+
         public static bool IsOpened { get; private set; }
 
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
 
-        private bool HasInit;
+        private int InitializeLocker;
 
         private readonly SemaphoreSlim SyncLocker = new SemaphoreSlim(1, 1);
 
-        private SettingPage()
+        public SettingPage()
         {
             InitializeComponent();
 
             PictureGirdView.ItemsSource = PictureList;
             CloseButton.Content = Globalization.GetString("Common_Dialog_ConfirmButton");
 
-            Loading += SettingDialog_Loading;
+            Loaded += SettingPage_Loaded;
             AnimationController.Current.AnimationStateChanged += Current_AnimationStateChanged;
             BackgroundController.Current.BackgroundTypeChanged += Current_BackgroundTypeChanged;
 
@@ -657,6 +673,47 @@ namespace RX_Explorer.View
                 {
                     Btn.Visibility = Visibility.Visible;
                 }
+            }
+        }
+
+        private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await InitializeAsync();
+
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync();
+                }
+
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    VerticalSplitViewLimitationArea.Visibility = Visibility.Visible;
+
+                    if (SearchEngineConfig.Items.Count == 2)
+                    {
+                        SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseEverythingAsDefault"));
+                    }
+                }
+                else
+                {
+                    PurchaseApp.Visibility = Visibility.Visible;
+
+                    if (SearchEngineConfig.SelectedIndex == 2)
+                    {
+                        SearchEngineConfig.SelectedIndex = 0;
+                    }
+                }
+
+                if (await MSStoreHelper.Current.CheckHasUpdateAsync())
+                {
+                    VersionTip.Text = Globalization.GetString("UpdateAvailable");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw in initialize the setting page");
             }
         }
 
@@ -760,23 +817,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void SettingDialog_Loading(FrameworkElement sender, object args)
-        {
-            try
-            {
-                await InitializeAsync();
-
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                {
-                    EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An exception was threw in initialize the setting page");
-            }
-        }
-
         private async void Current_AnimationStateChanged(object sender, bool e)
         {
             await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
@@ -786,19 +826,10 @@ namespace RX_Explorer.View
                                                                      .Select((Renderer) => Renderer.RefreshPresentersAsync()));
         }
 
-        public static async Task<SettingPage> CreateAsync()
+        public async Task InitializeAsync()
         {
-            SettingPage Page = new SettingPage();
-            await Page.InitializeAsync();
-            return Page;
-        }
-
-        private async Task InitializeAsync()
-        {
-            if (!HasInit)
+            if (Interlocked.CompareExchange(ref InitializeLocker, 1, 0) == 0)
             {
-                HasInit = true;
-
                 UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Recommend"));
                 UIMode.Items.Add(Globalization.GetString("Setting_UIMode_SolidColor"));
                 UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Custom"));
@@ -815,7 +846,10 @@ namespace RX_Explorer.View
 
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_AlwaysPopup"));
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseBuildInAsDefault"));
-                SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseEverythingAsDefault"));
+
+                ShutdownButtonBehaviorCombox.Items.Add(Globalization.GetString("ShutdownButtonBehavior_CloseApplication"));
+                ShutdownButtonBehaviorCombox.Items.Add(Globalization.GetString("ShutdownButtonBehavior_CloseInnerViewer"));
+                ShutdownButtonBehaviorCombox.Items.Add(Globalization.GetString("ShutdownButtonBehavior_AskEveryTime"));
 
                 TerminalList.AddRange(SQLite.Current.GetAllTerminalProfile());
 
@@ -835,25 +869,6 @@ namespace RX_Explorer.View
                 }
 
                 ApplicationData.Current.DataChanged += Current_DataChanged;
-
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-                {
-                    PurchaseApp.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    if (SearchEngineConfig.SelectedIndex == 2)
-                    {
-                        SearchEngineConfig.SelectedIndex = 0;
-                    }
-
-                    SearchEngineConfig.Items.Remove(Globalization.GetString("SearchEngineConfig_UseEverythingAsDefault"));
-                }
-
-                if (await MSStoreHelper.Current.CheckHasUpdateAsync())
-                {
-                    VersionTip.Text = Globalization.GetString("UpdateAvailable");
-                }
 
                 if (PictureList.Count == 0)
                 {
@@ -1057,6 +1072,7 @@ namespace RX_Explorer.View
             HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
             DefaultDisplayMode.SelectionChanged -= DefaultDisplayMode_SelectionChanged;
             VerticalSplitViewLimitationCombox.SelectionChanged -= VerticalSplitViewLimitationCombox_SelectionChanged;
+            ShutdownButtonBehaviorCombox.SelectionChanged -= ShutdownButtonBehaviorCombox_SelectionChanged;
 
             BuiltInEngineIgnoreCase.Checked -= SeachEngineOptionSave_Checked;
             BuiltInEngineIgnoreCase.Unchecked -= SeachEngineOptionSave_UnChecked;
@@ -1113,7 +1129,14 @@ namespace RX_Explorer.View
             AvoidRecycleBin.IsChecked = IsAvoidRecycleBinEnabled;
             DeleteConfirmSwitch.IsOn = IsDoubleConfirmOnDeletionEnabled;
             DefaultDisplayMode.SelectedIndex = DefaultDisplayModeIndex;
-            VerticalSplitViewLimitationCombox.SelectedIndex = VerticalSplitViewLimitation - 2;
+            VerticalSplitViewLimitationCombox.SelectedIndex = VerticalSplitViewLimitation - 1;
+            ShutdownButtonBehaviorCombox.SelectedIndex = ShutdownButtonBehavior switch
+            {
+                ShutdownBehaivor.CloseApplication => 0,
+                ShutdownBehaivor.CloseInnerViewer => 1,
+                _ => 2
+            };
+
 #if DEBUG
             SettingShareData.IsOn = false;
 #else
@@ -1234,6 +1257,7 @@ namespace RX_Explorer.View
             HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
             DefaultDisplayMode.SelectionChanged += DefaultDisplayMode_SelectionChanged;
             VerticalSplitViewLimitationCombox.SelectionChanged += VerticalSplitViewLimitationCombox_SelectionChanged;
+            ShutdownButtonBehaviorCombox.SelectionChanged += ShutdownButtonBehaviorCombox_SelectionChanged;
 
             BuiltInEngineIgnoreCase.Checked += SeachEngineOptionSave_Checked;
             BuiltInEngineIgnoreCase.Unchecked += SeachEngineOptionSave_UnChecked;
@@ -1253,6 +1277,27 @@ namespace RX_Explorer.View
             EverythingEngineSearchGloble.Unchecked += SeachEngineOptionSave_UnChecked;
             ShowContextMenuWhenLoading.Checked += ShowContextMenuWhenLoading_Checked;
             ShowContextMenuWhenLoading.Unchecked += ShowContextMenuWhenLoading_Unchecked;
+        }
+
+        private void ShutdownButtonBehaviorCombox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                ShutdownButtonBehavior = ShutdownButtonBehaviorCombox.SelectedIndex switch
+                {
+                    0 => ShutdownBehaivor.CloseApplication,
+                    1 => ShutdownBehaivor.CloseInnerViewer,
+                    _ => ShutdownBehaivor.AskEveryTime
+                };
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ShutdownButtonBehaviorCombox_SelectionChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private void VerticalSplitViewLimitationCombox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -2403,45 +2448,42 @@ namespace RX_Explorer.View
 
                                         ApplicationData.Current.LocalSettings.Values.Clear();
 
-                                        foreach (KeyValuePair<string, JsonElement> Pair in ConfigDic)
+                                        foreach (KeyValuePair<string, JsonElement> Pair in ConfigDic.Where((Config) => Config.Key != "LicenseGrant"))
                                         {
-                                            if (Pair.Key != "LicenseGrant")
+                                            switch (Pair.Value.ValueKind)
                                             {
-                                                switch (Pair.Value.ValueKind)
-                                                {
-                                                    case JsonValueKind.Number:
+                                                case JsonValueKind.Number:
+                                                    {
+                                                        if (Pair.Value.TryGetInt32(out int INT32))
                                                         {
-                                                            if (Pair.Value.TryGetInt32(out int INT32))
-                                                            {
-                                                                ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT32);
-                                                            }
-                                                            else if (Pair.Value.TryGetInt64(out long INT64))
-                                                            {
-                                                                ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT64);
-                                                            }
-                                                            else if (Pair.Value.TryGetSingle(out float FL32))
-                                                            {
-                                                                ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL32);
-                                                            }
-                                                            else if (Pair.Value.TryGetDouble(out double FL64))
-                                                            {
-                                                                ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL64);
-                                                            }
+                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT32);
+                                                        }
+                                                        else if (Pair.Value.TryGetInt64(out long INT64))
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT64);
+                                                        }
+                                                        else if (Pair.Value.TryGetSingle(out float FL32))
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL32);
+                                                        }
+                                                        else if (Pair.Value.TryGetDouble(out double FL64))
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL64);
+                                                        }
 
-                                                            break;
-                                                        }
-                                                    case JsonValueKind.String:
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetString());
-                                                            break;
-                                                        }
-                                                    case JsonValueKind.True:
-                                                    case JsonValueKind.False:
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetBoolean());
-                                                            break;
-                                                        }
-                                                }
+                                                        break;
+                                                    }
+                                                case JsonValueKind.String:
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetString());
+                                                        break;
+                                                    }
+                                                case JsonValueKind.True:
+                                                case JsonValueKind.False:
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetBoolean());
+                                                        break;
+                                                    }
                                             }
                                         }
 
@@ -2656,8 +2698,7 @@ namespace RX_Explorer.View
                         }
                     }
 
-                    Dictionary<string, object> ConfigDic = new Dictionary<string, object>(ApplicationData.Current.LocalSettings.Values.ToArray());
-                    ConfigDic.Remove("LicenseGrant");
+                    Dictionary<string, object> ConfigDic = new Dictionary<string, object>(ApplicationData.Current.LocalSettings.Values.ToArray().Where((Item) => Item.Key != "LicenseGrant"));
 
                     string DatabaseString = JsonSerializer.Serialize(DataBaseDic);
                     string ConfigurationString = JsonSerializer.Serialize(ConfigDic);

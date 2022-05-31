@@ -19,7 +19,7 @@
         <Cls:ColorTagConverter x:Key="ColorTagConverter" />
         <Cls:NameExtensionsConverter x:Name="NameExtensionsConverter"
                                      ItemsSource="{x:Bind FileCollection}"/>
-        
+
         <CollectionViewSource x:Name="CollectionVS"
                               IsSourceGrouped="False" />
 
@@ -120,6 +120,23 @@
                         <RowDefinition />
                         <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
+
+                    <Grid x:Name="ListViewGridHelper"
+                          VerticalAlignment="Stretch"
+                          HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="6*"/>
+                            <ColumnDefinition Width="6"
+                                              x:Name="SpliterRegion1"/>
+                            <ColumnDefinition Width="2.5*"/>
+                            <ColumnDefinition Width="6"
+                                              x:Name="SpliterRegion2" />
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="6"
+                                              x:Name="SpliterRegion3" />
+                            <ColumnDefinition Width="1.5*" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
 
                     <muxc:ProgressBar IsIndeterminate="True"
                                       Height="4"
@@ -889,10 +906,13 @@
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                                                 <Grid Background="Transparent">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="6*" />
-                                                        <ColumnDefinition Width="2.5*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="1.5*" />
+                                                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[0].Width,Mode=OneWay}" />
+                                                        <ColumnDefinition Width="6" />
+                                                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[2].Width,Mode=OneWay}" />
+                                                        <ColumnDefinition Width="6" />
+                                                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[4].Width,Mode=OneWay}" />
+                                                        <ColumnDefinition Width="6" />
+                                                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[6].Width,Mode=OneWay}" />
                                                     </Grid.ColumnDefinitions>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
@@ -963,7 +983,7 @@
                                                                Padding="10,0,0,0"
                                                                HorizontalAlignment="Left"
                                                                Text="{x:Bind ModifiedTimeDescription, Mode=OneWay}"
-                                                               Grid.Column="1"
+                                                               Grid.Column="2"
                                                                Name="ModifiedTimeLabel"
                                                                TextTrimming="CharacterEllipsis"
                                                                PointerPressed="GetFocus_PointerPressed">
@@ -976,7 +996,7 @@
                                                                Padding="10,0,0,0"
                                                                HorizontalAlignment="Left"
                                                                Text="{x:Bind DisplayType,Mode=OneWay}"
-                                                               Grid.Column="2"
+                                                               Grid.Column="4"
                                                                x:Phase="1"
                                                                Name="DisplayTypeLabel"
                                                                TextTrimming="CharacterEllipsis"
@@ -991,7 +1011,7 @@
                                                                HorizontalAlignment="Left"
                                                                Text="{x:Bind SizeDescription,Mode=OneWay}"
                                                                TextTrimming="CharacterEllipsis"
-                                                               Grid.Column="3"
+                                                               Grid.Column="6"
                                                                Name="SizeLabel"
                                                                PointerPressed="GetFocus_PointerPressed">
                                                         <ToolTipService.ToolTip>
@@ -1009,11 +1029,20 @@
                                                       Windows11Present:Padding="12,0"
                                                       Windows11NotPresent:Padding="0">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="6*" />
-                                                        <ColumnDefinition Width="2.5*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="1.5*" />
+                                                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[0].Width,Mode=TwoWay}"/>
+                                                        <ColumnDefinition Width="6" />
+                                                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[2].Width,Mode=TwoWay}" />
+                                                        <ColumnDefinition Width="6" />
+                                                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[4].Width,Mode=TwoWay}" />
+                                                        <ColumnDefinition Width="6" />
+                                                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[6].Width,Mode=TwoWay}" />
                                                     </Grid.ColumnDefinitions>
+                                                    <Grid.Resources>
+                                                        <SolidColorBrush x:Key="SystemControlSplitterPointerOver"
+                                                                         Color="Transparent" />
+                                                        <SolidColorBrush x:Key="SystemControlSplitterPressed"
+                                                                         Color="Transparent" />
+                                                    </Grid.Resources>
                                                     <RelativePanel Grid.Column="0"
                                                                    VerticalAlignment="Stretch"
                                                                    HorizontalAlignment="Stretch"
@@ -1187,7 +1216,23 @@
                                                             </Button.Flyout>
                                                         </Button>
                                                     </RelativePanel>
-                                                    <RelativePanel Grid.Column="1"
+                                                    <Border HorizontalAlignment="Center"
+                                                            VerticalAlignment="Stretch"
+                                                            Grid.Column="1"
+                                                            Width="2"
+                                                            Margin="0,2"
+                                                            Background="{ThemeResource SystemControlBackgroundBaseMediumRevealBorderBrush}" />
+                                                    <controls:GridSplitter Grid.Column="1"
+                                                                           MinWidth="0"
+                                                                           Background="Transparent"
+                                                                           ResizeBehavior="PreviousAndNext"
+                                                                           ResizeDirection="Auto"
+                                                                           IsTabStop="False">
+                                                        <controls:GridSplitter.Element>
+                                                            <StackPanel />
+                                                        </controls:GridSplitter.Element>
+                                                    </controls:GridSplitter>
+                                                    <RelativePanel Grid.Column="2"
                                                                    VerticalAlignment="Stretch"
                                                                    HorizontalAlignment="Stretch"
                                                                    PointerEntered="ListHeaderRelativePanel_PointerEntered"
@@ -1306,7 +1351,23 @@
                                                             </Button.Flyout>
                                                         </Button>
                                                     </RelativePanel>
-                                                    <RelativePanel Grid.Column="2"
+                                                    <Border HorizontalAlignment="Center"
+                                                            VerticalAlignment="Stretch"
+                                                            Grid.Column="3"
+                                                            Width="2"
+                                                            Margin="0,2"
+                                                            Background="{ThemeResource SystemControlBackgroundBaseMediumRevealBorderBrush}" />
+                                                    <controls:GridSplitter Grid.Column="3"
+                                                                           MinWidth="0"
+                                                                           Background="Transparent"
+                                                                           ResizeBehavior="PreviousAndNext"
+                                                                           ResizeDirection="Auto"
+                                                                           IsTabStop="False">
+                                                        <controls:GridSplitter.Element>
+                                                            <StackPanel />
+                                                        </controls:GridSplitter.Element>
+                                                    </controls:GridSplitter>
+                                                    <RelativePanel Grid.Column="4"
                                                                    VerticalAlignment="Stretch"
                                                                    HorizontalAlignment="Stretch"
                                                                    PointerEntered="ListHeaderRelativePanel_PointerEntered"
@@ -1373,7 +1434,23 @@
                                                             </Button.Flyout>
                                                         </Button>
                                                     </RelativePanel>
-                                                    <RelativePanel Grid.Column="3"
+                                                    <Border HorizontalAlignment="Center"
+                                                            VerticalAlignment="Stretch"
+                                                            Grid.Column="5"
+                                                            Width="2"
+                                                            Margin="0,2"
+                                                            Background="{ThemeResource SystemControlBackgroundBaseMediumRevealBorderBrush}" />
+                                                    <controls:GridSplitter Grid.Column="5"
+                                                                           MinWidth="0"
+                                                                           Background="Transparent"
+                                                                           ResizeBehavior="PreviousAndNext"
+                                                                           ResizeDirection="Auto"
+                                                                           IsTabStop="False">
+                                                        <controls:GridSplitter.Element>
+                                                            <StackPanel />
+                                                        </controls:GridSplitter.Element>
+                                                    </controls:GridSplitter>
+                                                    <RelativePanel Grid.Column="6"
                                                                    VerticalAlignment="Stretch"
                                                                    HorizontalAlignment="Stretch"
                                                                    PointerEntered="ListHeaderRelativePanel_PointerEntered"
