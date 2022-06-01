@@ -1,4 +1,5 @@
-﻿using RX_Explorer.Class;
+﻿using Microsoft.Toolkit.Uwp.UI.Controls;
+using RX_Explorer.Class;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using System;
@@ -126,6 +127,7 @@ namespace RX_Explorer.View
             }
         }
 
+        private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.RecycleBin);
         private readonly ObservableCollection<FileSystemStorageItemBase> FileCollection = new ObservableCollection<FileSystemStorageItemBase>();
 
         private ListViewBaseSelectionExtension SelectionExtension;
@@ -240,6 +242,8 @@ namespace RX_Explorer.View
 
         private void ListViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Arrow, 0);
+
             if (e.OriginalSource is FrameworkElement Element)
             {
                 if (Element.DataContext is IRecycleStorageItem Item)
@@ -286,6 +290,11 @@ namespace RX_Explorer.View
                 }
                 else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
                 {
+                    SelectionExtension.Disable();
+                }
+                else if (Element.FindParentOfType<GridSplitter>() is not null || Element.FindParentOfType<Button>() is not null)
+                {
+                    ListViewControl.SelectedItem = null;
                     SelectionExtension.Disable();
                 }
                 else

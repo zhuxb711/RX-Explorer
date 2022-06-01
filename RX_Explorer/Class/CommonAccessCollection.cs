@@ -235,7 +235,7 @@ namespace RX_Explorer.Class
                             }
                         }, TaskScheduler.FromCurrentSynchronizationContext());
 
-                        if (await Task.WhenAny(LoadTask, Task.Delay(1000)) != LoadTask)
+                        if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
                         {
                             LongRunningTaskList.Add(LoadTask);
                         }
@@ -269,7 +269,7 @@ namespace RX_Explorer.Class
                                 }
                             }, TaskScheduler.FromCurrentSynchronizationContext());
 
-                            if (await Task.WhenAny(LoadTask, Task.Delay(1000)) != LoadTask)
+                            if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
                             {
                                 LongRunningTaskList.Add(LoadTask);
                             }

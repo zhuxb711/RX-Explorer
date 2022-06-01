@@ -64,6 +64,7 @@ namespace RX_Explorer.View
         public FileChangeMonitor AreaWatcher { get; } = new FileChangeMonitor();
 
         private readonly FileControl Container;
+        private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Presenter);
 
         private readonly SemaphoreSlim EnterLock = new SemaphoreSlim(1, 1);
         private readonly SemaphoreSlim CollectionChangeLock = new SemaphoreSlim(1, 1);
@@ -6622,138 +6623,6 @@ namespace RX_Explorer.View
                             SortBySizeButton.IsChecked = true;
                             break;
                         }
-                }
-            }
-        }
-
-        private void BottomCommandBar_Opening(object sender, object e)
-        {
-            BottomCommandBar.PrimaryCommands.Clear();
-            BottomCommandBar.SecondaryCommands.Clear();
-
-            if (SelectedItems.Count() > 1)
-            {
-                AppBarButton CopyButton = new AppBarButton
-                {
-                    IsTabStop = false,
-                    Icon = new SymbolIcon(Symbol.Copy),
-                    Label = Globalization.GetString("Operate_Text_Copy")
-                };
-                CopyButton.Click += Copy_Click;
-                BottomCommandBar.PrimaryCommands.Add(CopyButton);
-
-                AppBarButton CutButton = new AppBarButton
-                {
-                    IsTabStop = false,
-                    Icon = new SymbolIcon(Symbol.Cut),
-                    Label = Globalization.GetString("Operate_Text_Cut")
-                };
-                CutButton.Click += Cut_Click;
-                BottomCommandBar.PrimaryCommands.Add(CutButton);
-
-                AppBarButton DeleteButton = new AppBarButton
-                {
-                    IsTabStop = false,
-                    Icon = new SymbolIcon(Symbol.Delete),
-                    Label = Globalization.GetString("Operate_Text_Delete")
-                };
-                DeleteButton.Click += Delete_Click;
-                BottomCommandBar.PrimaryCommands.Add(DeleteButton);
-            }
-            else
-            {
-                if (SelectedItem is FileSystemStorageItemBase Item)
-                {
-                    AppBarButton CopyButton = new AppBarButton
-                    {
-                        IsTabStop = false,
-                        Icon = new SymbolIcon(Symbol.Copy),
-                        Label = Globalization.GetString("Operate_Text_Copy")
-                    };
-                    CopyButton.Click += Copy_Click;
-                    BottomCommandBar.PrimaryCommands.Add(CopyButton);
-
-                    AppBarButton CutButton = new AppBarButton
-                    {
-                        IsTabStop = false,
-                        Icon = new SymbolIcon(Symbol.Cut),
-                        Label = Globalization.GetString("Operate_Text_Cut")
-                    };
-                    CutButton.Click += Cut_Click;
-                    BottomCommandBar.PrimaryCommands.Add(CutButton);
-
-                    AppBarButton DeleteButton = new AppBarButton
-                    {
-                        IsTabStop = false,
-                        Icon = new SymbolIcon(Symbol.Delete),
-                        Label = Globalization.GetString("Operate_Text_Delete")
-                    };
-                    DeleteButton.Click += Delete_Click;
-                    BottomCommandBar.PrimaryCommands.Add(DeleteButton);
-
-                    AppBarButton RenameButton = new AppBarButton
-                    {
-                        IsTabStop = false,
-                        Icon = new SymbolIcon(Symbol.Rename),
-                        Label = Globalization.GetString("Operate_Text_Rename")
-                    };
-                    RenameButton.Click += Rename_Click;
-                    BottomCommandBar.PrimaryCommands.Add(RenameButton);
-                }
-                else
-                {
-                    AppBarButton MultiSelectButton = new AppBarButton
-                    {
-                        IsTabStop = false,
-                        Icon = new FontIcon { Glyph = "\uE762" },
-                        Label = Globalization.GetString("Operate_Text_MultiSelect")
-                    };
-                    MultiSelectButton.Click += MultiSelect_Click;
-                    BottomCommandBar.PrimaryCommands.Add(MultiSelectButton);
-
-                    bool EnablePasteButton;
-
-                    try
-                    {
-                        DataPackageView Package = Clipboard.GetContent();
-
-                        EnablePasteButton = Package.Contains(StandardDataFormats.StorageItems)
-                                            || Package.Contains(ExtendedDataFormats.CompressionItems)
-                                            || Package.Contains(ExtendedDataFormats.NotSupportedStorageItem);
-                    }
-                    catch
-                    {
-                        EnablePasteButton = false;
-                    }
-
-                    AppBarButton PasteButton = new AppBarButton
-                    {
-                        IsTabStop = false,
-                        Icon = new SymbolIcon(Symbol.Paste),
-                        Label = Globalization.GetString("Operate_Text_Paste"),
-                        IsEnabled = EnablePasteButton
-                    };
-                    PasteButton.Click += Paste_Click;
-                    BottomCommandBar.PrimaryCommands.Add(PasteButton);
-
-                    AppBarButton UndoButton = new AppBarButton
-                    {
-                        IsTabStop = false,
-                        Icon = new SymbolIcon(Symbol.Undo),
-                        Label = Globalization.GetString("Operate_Text_Undo"),
-                        IsEnabled = OperationRecorder.Current.IsNotEmpty
-                    };
-                    UndoButton.Click += Undo_Click;
-                    BottomCommandBar.PrimaryCommands.Add(UndoButton);
-
-                    AppBarButton RefreshButton = new AppBarButton
-                    {
-                        IsTabStop = false,
-                        Icon = new SymbolIcon(Symbol.Refresh),
-                        Label = Globalization.GetString("Operate_Text_Refresh")
-                    };
-                    RefreshButton.Click += Refresh_Click;
-                    BottomCommandBar.PrimaryCommands.Add(RefreshButton);
                 }
             }
         }

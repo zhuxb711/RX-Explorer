@@ -3532,4 +3532,25 @@ Inkorrekte Namen sind
   <data name="BluetoothShareTitle" xml:space="preserve">
     <value>Bluetooth-Freigabe</value>
   </data>
+  <data name="ShutdownButtonBehavior_AskEveryTime" xml:space="preserve">
+    <value>Frag mich jedes mal</value>
+  </data>
+  <data name="ShutdownButtonBehavior_CloseApplication" xml:space="preserve">
+    <value>Schließen Sie die Anwendung</value>
+  </data>
+  <data name="ShutdownButtonBehavior_CloseInnerViewer" xml:space="preserve">
+    <value>Schließen Sie den inneren Viewer</value>
+  </data>
+  <data name="ShutdownButtonBehaviorLabel" xml:space="preserve">
+    <value>Passen Sie das Standardverhalten der Schließen-Schaltfläche an</value>
+  </data>
+  <data name="ShutdownButtonBehaviorLabelDescription" xml:space="preserve">
+    <value>Legen Sie das Standardverhalten der Schließen-Schaltfläche fest, um ein versehentliches Schließen der Anwendung zu vermeiden</value>
+  </data>
+  <data name="VerticalSplitViewLimitationDescription" xml:space="preserve">
+    <value>Geben Sie das Limit für die Anzahl der gleichzeitig angezeigten vertikal geteilten Ansichten an, und auf den überschüssigen Teil muss durch Scrollen zugegriffen werden. Hinweis: Das Anpassen dieser Einstellung wird nur auf breiteren Bildschirmen empfohlen, da sonst der Inhalt jeder Ansicht unkenntlich werden kann</value>
+  </data>
+  <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
+    <value>Anzeigebeschränkung für vertikal geteilte Ansicht</value>
+  </data>
 </root>

@@ -1,4 +1,5 @@
 ﻿using ICSharpCode.SharpZipLib.Zip;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using ShareClassLibrary;
@@ -33,6 +34,7 @@ namespace RX_Explorer.View
     {
         private readonly ObservableCollection<CompressionItemBase> EntryList = new ObservableCollection<CompressionItemBase>();
         private readonly ObservableCollection<string> AutoSuggestList = new ObservableCollection<string>();
+        private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Compression);
 
         private ListViewBaseSelectionExtension SelectionExtension;
         private readonly PointerEventHandler PointerPressedEventHandler;
@@ -244,6 +246,8 @@ namespace RX_Explorer.View
 
         private void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Arrow, 0);
+
             if (e.OriginalSource is FrameworkElement Element)
             {
                 if (Element.DataContext is CompressionItemBase Item)
@@ -334,6 +338,11 @@ namespace RX_Explorer.View
                 }
                 else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
                 {
+                    SelectionExtension.Disable();
+                }
+                else if (Element.FindParentOfType<GridSplitter>() is not null || Element.FindParentOfType<Button>() is not null)
+                {
+                    ListViewControl.SelectedItem = null;
                     SelectionExtension.Disable();
                 }
                 else

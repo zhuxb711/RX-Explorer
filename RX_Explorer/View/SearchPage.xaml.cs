@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Deferred;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
@@ -44,6 +45,7 @@ namespace RX_Explorer.View
         private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
         private readonly ObservableCollection<FileSystemStorageItemBase> SearchResult = new ObservableCollection<FileSystemStorageItemBase>();
         private readonly SignalContext SignalControl = new SignalContext();
+        private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Search);
 
         private SortTarget STarget;
         private SortDirection SDirection;
@@ -409,6 +411,8 @@ namespace RX_Explorer.View
 
         private void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Arrow, 0);
+
             if (e.OriginalSource is FrameworkElement Element)
             {
                 if (Element.DataContext is FileSystemStorageItemBase Item)
@@ -500,6 +504,11 @@ namespace RX_Explorer.View
                 }
                 else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
                 {
+                    SelectionExtension.Disable();
+                }
+                else if (Element.FindParentOfType<GridSplitter>() is not null || Element.FindParentOfType<Button>() is not null)
+                {
+                    SearchResultList.SelectedItem = null;
                     SelectionExtension.Disable();
                 }
                 else

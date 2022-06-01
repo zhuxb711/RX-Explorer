@@ -2,6 +2,15 @@
 
 namespace RX_Explorer.Class
 {
+
+    public enum ListViewLocation
+    {
+        Presenter,
+        RecycleBin,
+        Search,
+        Compression
+    }
+
     public enum ShutdownBehaivor
     {
         CloseApplication,

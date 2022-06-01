@@ -3532,4 +3532,25 @@
   <data name="BluetoothShareTitle" xml:space="preserve">
     <value>蓝牙分享</value>
   </data>
+  <data name="ShutdownButtonBehavior_AskEveryTime" xml:space="preserve">
+    <value>每次都询问我</value>
+  </data>
+  <data name="ShutdownButtonBehavior_CloseApplication" xml:space="preserve">
+    <value>关闭应用程序</value>
+  </data>
+  <data name="ShutdownButtonBehavior_CloseInnerViewer" xml:space="preserve">
+    <value>关闭内置查看器</value>
+  </data>
+  <data name="ShutdownButtonBehaviorLabel" xml:space="preserve">
+    <value>自定义关闭按钮的默认行为</value>
+  </data>
+  <data name="ShutdownButtonBehaviorLabelDescription" xml:space="preserve">
+    <value>指定关闭按钮的默认行为以避免意外关闭本应用程序</value>
+  </data>
+  <data name="VerticalSplitViewLimitationDescription" xml:space="preserve">
+    <value>指定垂直拆分窗口同时显示的数量限制，超出的部分需要通过滚动的方式访问。注意: 仅建议在较宽的屏幕上才调整此设置，否则可能导致各窗口内容无法辨识</value>
+  </data>
+  <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
+    <value>垂直拆分窗口显示数量限制</value>
+  </data>
 </root>

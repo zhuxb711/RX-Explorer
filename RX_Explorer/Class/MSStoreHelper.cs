@@ -36,7 +36,10 @@ namespace RX_Explorer.Class
         public Task<bool> CheckPurchaseStatusAsync()
         {
 #if DEBUG
-            return Task.FromResult(true);
+            lock (Locker)
+            {
+                return CheckPurchaseStatusTask ??= Task.FromResult(true);
+            }
 #else
             if (ApplicationData.Current.LocalSettings.Values["LicenseGrant"] is bool IsGrant && IsGrant)
             {

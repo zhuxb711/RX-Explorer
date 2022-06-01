@@ -6,11 +6,9 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Cls="using:RX_Explorer.Class"
-      xmlns:Interface="using:RX_Explorer.Interface"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
       xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
-      xmlns:View="using:RX_Explorer.View"
       mc:Ignorable="d"
       Background="Transparent"
       NavigationCacheMode="Required">
@@ -90,6 +88,21 @@
     </Page.Resources>
 
     <Grid>
+        <Grid x:Name="ListViewGridHelper"
+              VerticalAlignment="Stretch"
+              HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{x:Bind ColumnWidthSaver.NameColumnWidth,Mode=TwoWay}" />
+                <ColumnDefinition Width="6" />
+                <ColumnDefinition Width="{x:Bind ColumnWidthSaver.OriginPathColumnWidth,Mode=TwoWay}" />
+                <ColumnDefinition Width="6" />
+                <ColumnDefinition Width="{x:Bind ColumnWidthSaver.ModifiedColumnWidth,Mode=TwoWay}" />
+                <ColumnDefinition Width="6" />
+                <ColumnDefinition Width="{x:Bind ColumnWidthSaver.TypeColumnWidth,Mode=TwoWay}" />
+                <ColumnDefinition Width="6" />
+                <ColumnDefinition Width="{x:Bind ColumnWidthSaver.SizeColumnWidth,Mode=TwoWay}" />
+            </Grid.ColumnDefinitions>
+        </Grid>
         <ListView Background="Transparent"
                   x:Name="ListViewControl"
                   HorizontalAlignment="Stretch"
@@ -114,12 +127,22 @@
                       Windows11Present:Padding="12,0"
                       Windows11NotPresent:Padding="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="4*" />
-                        <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[0].Width,Mode=TwoWay}" />
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[2].Width,Mode=TwoWay}" />
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[4].Width,Mode=TwoWay}" />
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[6].Width,Mode=TwoWay}" />
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[8].Width,Mode=TwoWay}" />
                     </Grid.ColumnDefinitions>
+                    <Grid.Resources>
+                        <SolidColorBrush x:Key="SystemControlSplitterPointerOver"
+                                         Color="Transparent" />
+                        <SolidColorBrush x:Key="SystemControlSplitterPressed"
+                                         Color="Transparent" />
+                    </Grid.Resources>
                     <Button Height="35"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
@@ -141,11 +164,27 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
+                    <Border HorizontalAlignment="Center"
+                            VerticalAlignment="Stretch"
+                            Grid.Column="1"
+                            Width="1.5"
+                            Margin="0,5"
+                            Background="Gray" />
+                    <controls:GridSplitter Grid.Column="1"
+                                           MinWidth="0"
+                                           Background="Transparent"
+                                           ResizeBehavior="PreviousAndNext"
+                                           ResizeDirection="Auto"
+                                           IsTabStop="False">
+                        <controls:GridSplitter.Element>
+                            <StackPanel />
+                        </controls:GridSplitter.Element>
+                    </controls:GridSplitter>
                     <Button Height="35"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
-                            Grid.Column="1"
+                            Grid.Column="2"
                             x:Name="ListHeaderOriginLocation"
                             Click="ListHeader_Click"
                             Style="{StaticResource ListHeaderButtonStyle}">
@@ -163,11 +202,27 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
+                    <Border HorizontalAlignment="Center"
+                            VerticalAlignment="Stretch"
+                            Grid.Column="3"
+                            Width="1.5"
+                            Margin="0,5"
+                            Background="Gray" />
+                    <controls:GridSplitter Grid.Column="3"
+                                           MinWidth="0"
+                                           Background="Transparent"
+                                           ResizeBehavior="PreviousAndNext"
+                                           ResizeDirection="Auto"
+                                           IsTabStop="False">
+                        <controls:GridSplitter.Element>
+                            <StackPanel />
+                        </controls:GridSplitter.Element>
+                    </controls:GridSplitter>
                     <Button Height="35"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
-                            Grid.Column="2"
+                            Grid.Column="4"
                             Name="ListHeaderModifiedTime"
                             Click="ListHeader_Click"
                             Style="{StaticResource ListHeaderButtonStyle}">
@@ -185,8 +240,24 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
+                    <Border HorizontalAlignment="Center"
+                            VerticalAlignment="Stretch"
+                            Grid.Column="5"
+                            Width="1.5"
+                            Margin="0,5"
+                            Background="Gray" />
+                    <controls:GridSplitter Grid.Column="5"
+                                           MinWidth="0"
+                                           Background="Transparent"
+                                           ResizeBehavior="PreviousAndNext"
+                                           ResizeDirection="Auto"
+                                           IsTabStop="False">
+                        <controls:GridSplitter.Element>
+                            <StackPanel />
+                        </controls:GridSplitter.Element>
+                    </controls:GridSplitter>
                     <Button Height="35"
-                            Grid.Column="3"
+                            Grid.Column="6"
                             AllowFocusOnInteraction="False"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
@@ -207,12 +278,28 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
+                    <Border HorizontalAlignment="Center"
+                            VerticalAlignment="Stretch"
+                            Grid.Column="7"
+                            Width="1.5"
+                            Margin="0,5"
+                            Background="Gray" />
+                    <controls:GridSplitter Grid.Column="7"
+                                           MinWidth="0"
+                                           Background="Transparent"
+                                           ResizeBehavior="PreviousAndNext"
+                                           ResizeDirection="Auto"
+                                           IsTabStop="False">
+                        <controls:GridSplitter.Element>
+                            <StackPanel />
+                        </controls:GridSplitter.Element>
+                    </controls:GridSplitter>
                     <Button Height="35"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             Name="ListHeaderSize"
-                            Grid.Column="4"
+                            Grid.Column="8"
                             Click="ListHeader_Click"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
@@ -235,11 +322,15 @@
                 <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="4*" />
-                            <ColumnDefinition Width="3*" />
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="1.5*" />
+                            <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[0].Width,Mode=OneWay}" />
+                            <ColumnDefinition Width="6" />
+                            <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[2].Width,Mode=OneWay}" />
+                            <ColumnDefinition Width="6" />
+                            <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[4].Width,Mode=OneWay}" />
+                            <ColumnDefinition Width="6" />
+                            <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[6].Width,Mode=OneWay}" />
+                            <ColumnDefinition Width="6" />
+                            <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[8].Width,Mode=OneWay}" />
                         </Grid.ColumnDefinitions>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -249,7 +340,7 @@
                             <Image VerticalAlignment="Center"
                                    HorizontalAlignment="Center"
                                    Stretch="Uniform"
-                                   Source="{x:Bind Thumbnail, Mode=OneWay}"
+                                   Source="{x:Bind Thumbnail,Mode=OneWay}"
                                    Height="30"
                                    Width="30"
                                    x:Phase="1" />
@@ -260,7 +351,7 @@
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Bottom"
                                    x:Phase="1"
-                                   Source="{x:Bind ThumbnailOverlay, Mode=OneWay}"
+                                   Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
                                    Stretch="Uniform" />
                             <TextBlock VerticalAlignment="Center"
                                        Grid.Column="1"
@@ -273,7 +364,7 @@
                                    HorizontalAlignment="Left"
                                    Text="{Binding OriginPath,Mode=OneTime}"
                                    Name="OriginPathLabel"
-                                   Grid.Column="1"
+                                   Grid.Column="2"
                                    Padding="10,0,0,0"
                                    TextTrimming="CharacterEllipsis">
                             <ToolTipService.ToolTip>
@@ -285,24 +376,24 @@
                                    HorizontalAlignment="Left"
                                    Text="{x:Bind ModifiedTimeDescription}"
                                    ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription}"
-                                   Grid.Column="2"
+                                   Grid.Column="4"
                                    Padding="10,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
                                    Text="{x:Bind DisplayType, Mode=OneWay}"
-                                   ToolTipService.ToolTip="{x:Bind DisplayType, Mode=OneWay}"
-                                   Grid.Column="3"
+                                   ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay}"
+                                   Grid.Column="6"
                                    Padding="10,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
                                    Padding="10,0,0,0"
-                                   Text="{x:Bind SizeDescription, Mode=OneWay}"
+                                   Text="{x:Bind SizeDescription,Mode=OneWay}"
                                    x:Phase="1"
-                                   ToolTipService.ToolTip="{x:Bind SizeDescription, Mode=OneWay}"
+                                   ToolTipService.ToolTip="{x:Bind SizeDescription,Mode=OneWay}"
                                    TextTrimming="CharacterEllipsis"
-                                   Grid.Column="4" />
+                                   Grid.Column="8" />
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

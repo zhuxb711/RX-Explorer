@@ -416,8 +416,7 @@
                                                            x:Uid="SettingFolderOpenMethodDescription"
                                                            Text="根据您的喜好选择符合的操作习惯" />
                                             </StackPanel>
-                                            <ComboBox x:Uid="SettingFolderOpenMethod"
-                                                      MinWidth="120"
+                                            <ComboBox MinWidth="120"
                                                       Name="FolderOpenMethod"
                                                       Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
                                                       RelativePanel.AlignRightWithPanel="True"
@@ -450,7 +449,6 @@
                                             </StackPanel>
                                             <ComboBox MinWidth="180"
                                                       Name="LanguageComboBox"
-                                                      x:Uid="LanguageComboBox"
                                                       RelativePanel.AlignRightWithPanel="True"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
                                                       Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}">
@@ -487,7 +485,6 @@
                                                            Text="指定应用使用的字体，需要重启以生效" />
                                             </StackPanel>
                                             <ComboBox Width="250"
-                                                      x:Uid="FontFamilyComboBox"
                                                       Name="FontFamilyComboBox"
                                                       RelativePanel.AlignRightWithPanel="True"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -1033,7 +1030,7 @@
                                                         RelativePanel.AlignLeftWithPanel="True"
                                                         RelativePanel.LeftOf="VerticalSplitViewLimitationCombox"
                                                         Margin="0,0,20,0">
-                                                <TextBlock Text="垂直拆分窗口并排显示数量"
+                                                <TextBlock Text="垂直拆分窗口显示数量限制"
                                                            TextTrimming="CharacterEllipsis"
                                                            x:Uid="VerticalSplitViewLimitationLabel" />
                                                 <TextBlock FontSize="12"
@@ -1041,11 +1038,10 @@
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
                                                            x:Uid="VerticalSplitViewLimitationDescription"
-                                                           Text="指定垂直拆分窗口并排显示的数量，超出的部分需要通过滚动的方式访问。注意: 仅建议在较宽的屏幕上才调整此设置，否则可能导致各窗口内容无法辨识" />
+                                                           Text="指定垂直拆分窗口同时显示的数量限制，超出的部分需要通过滚动的方式访问。注意: 仅建议在较宽的屏幕上才调整此设置，否则可能导致各窗口内容无法辨识" />
                                             </StackPanel>
                                             <ComboBox MinWidth="100"
                                                       Name="VerticalSplitViewLimitationCombox"
-                                                      x:Uid="VerticalSplitViewLimitation"
                                                       Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
                                                       RelativePanel.AlignRightWithPanel="True"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True">
@@ -1077,12 +1073,11 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           x:Uid="VerticalSplitViewLimitationDescription"
-                                                           Text="指定关闭按钮的默认行为，可以防止意外关闭本应用程序" />
+                                                           x:Uid="ShutdownButtonBehaviorLabelDescription"
+                                                           Text="指定关闭按钮的默认行为以避免意外关闭本应用程序" />
                                             </StackPanel>
                                             <ComboBox MinWidth="200"
                                                       Name="ShutdownButtonBehaviorCombox"
-                                                      x:Uid="ShutdownButtonBehaviorCombox"
                                                       Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
                                                       RelativePanel.AlignRightWithPanel="True"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
@@ -1113,7 +1108,6 @@
                                             </StackPanel>
                                             <ComboBox MinWidth="200"
                                                       Name="DefaultDisplayMode"
-                                                      x:Uid="DefaultDisplayMode"
                                                       DisplayMemberPath="DisplayName"
                                                       ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
                                                       Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
@@ -1145,7 +1139,6 @@
                                                            Text="根据不同选项来平衡文件加载性能" />
                                             </StackPanel>
                                             <ComboBox MinWidth="200"
-                                                      x:Uid="FileLoadMode"
                                                       Name="FileLoadMode"
                                                       Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
                                                       RelativePanel.AlignRightWithPanel="True"
@@ -1183,7 +1176,6 @@
                                                             RelativePanel.AlignRightWithPanel="True"
                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
                                                     <ComboBox Name="DefaultTerminal"
-                                                              x:Uid="DefaultTerminal"
                                                               MinWidth="180"
                                                               DisplayMemberPath="Name"
                                                               ItemsSource="{x:Bind TerminalList}"
@@ -1439,8 +1431,7 @@
                                                                x:Uid="SettingPageSearchEngineConfigDescription"
                                                                Text="指定搜索引擎配置，可始终使用特定配置或每次询问" />
                                                 </StackPanel>
-                                                <ComboBox x:Uid="SettingPageSearchEngineConfig"
-                                                          Name="SearchEngineConfig"
+                                                <ComboBox Name="SearchEngineConfig"
                                                           MinWidth="240"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -2006,7 +1997,6 @@
                                                                                RelativePanel.AlignLeftWithPanel="True"
                                                                                RelativePanel.LeftOf="ThemeColor" />
                                                                     <ComboBox MinWidth="150"
-                                                                              x:Uid="ThemeColor"
                                                                               Name="ThemeColor"
                                                                               RelativePanel.AlignRightWithPanel="True"
                                                                               RelativePanel.AlignVerticalCenterWithPanel="True"

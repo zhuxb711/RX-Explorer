@@ -4695,15 +4695,31 @@ Invalid names include
         </trans-unit>
         <trans-unit id="ShutdownButtonBehavior_AskEveryTime" translate="yes" xml:space="preserve">
           <source>Ask me every time</source>
-          <target state="new">Ask me every time</target>
+          <target state="translated">每次都询问我</target>
         </trans-unit>
         <trans-unit id="ShutdownButtonBehavior_CloseApplication" translate="yes" xml:space="preserve">
           <source>Close the application</source>
-          <target state="new">Close the application</target>
+          <target state="translated">关闭应用程序</target>
         </trans-unit>
         <trans-unit id="ShutdownButtonBehavior_CloseInnerViewer" translate="yes" xml:space="preserve">
           <source>Close the inner viewer</source>
-          <target state="new">Close the inner viewer</target>
+          <target state="translated">关闭内置查看器</target>
+        </trans-unit>
+        <trans-unit id="ShutdownButtonBehaviorLabel" translate="yes" xml:space="preserve">
+          <source>Customize the default behavior of the close button</source>
+          <target state="translated">自定义关闭按钮的默认行为</target>
+        </trans-unit>
+        <trans-unit id="ShutdownButtonBehaviorLabelDescription" translate="yes" xml:space="preserve">
+          <source>Specify the default behavior of the close button to avoid closing the application accidentally</source>
+          <target state="translated">指定关闭按钮的默认行为以避免意外关闭本应用程序</target>
+        </trans-unit>
+        <trans-unit id="VerticalSplitViewLimitationDescription" translate="yes" xml:space="preserve">
+          <source>Specify the limit of the number of vertical split views displayed at the same time, and the excess part needs to be accessed by scrolling. Note: Adjusting this setting is only recommended on wider screens, otherwise the contents of each view may become unrecognizable</source>
+          <target state="translated">指定垂直拆分窗口同时显示的数量限制，超出的部分需要通过滚动的方式访问。注意: 仅建议在较宽的屏幕上才调整此设置，否则可能导致各窗口内容无法辨识</target>
+        </trans-unit>
+        <trans-unit id="VerticalSplitViewLimitationLabel" translate="yes" xml:space="preserve">
+          <source>Vertical split view display limitation</source>
+          <target state="translated">垂直拆分窗口显示数量限制</target>
         </trans-unit>
       </group>
     </body>

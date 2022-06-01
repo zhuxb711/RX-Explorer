@@ -4693,15 +4693,31 @@ Inkorrekte Namen sind
         </trans-unit>
         <trans-unit id="ShutdownButtonBehavior_AskEveryTime" translate="yes" xml:space="preserve">
           <source>Ask me every time</source>
-          <target state="new">Ask me every time</target>
+          <target state="translated">Frag mich jedes mal</target>
         </trans-unit>
         <trans-unit id="ShutdownButtonBehavior_CloseApplication" translate="yes" xml:space="preserve">
           <source>Close the application</source>
-          <target state="new">Close the application</target>
+          <target state="translated">Schließen Sie die Anwendung</target>
         </trans-unit>
         <trans-unit id="ShutdownButtonBehavior_CloseInnerViewer" translate="yes" xml:space="preserve">
           <source>Close the inner viewer</source>
-          <target state="new">Close the inner viewer</target>
+          <target state="translated">Schließen Sie den inneren Viewer</target>
+        </trans-unit>
+        <trans-unit id="ShutdownButtonBehaviorLabel" translate="yes" xml:space="preserve">
+          <source>Customize the default behavior of the close button</source>
+          <target state="translated">Passen Sie das Standardverhalten der Schließen-Schaltfläche an</target>
+        </trans-unit>
+        <trans-unit id="ShutdownButtonBehaviorLabelDescription" translate="yes" xml:space="preserve">
+          <source>Specify the default behavior of the close button to avoid closing the application accidentally</source>
+          <target state="translated">Legen Sie das Standardverhalten der Schließen-Schaltfläche fest, um ein versehentliches Schließen der Anwendung zu vermeiden</target>
+        </trans-unit>
+        <trans-unit id="VerticalSplitViewLimitationDescription" translate="yes" xml:space="preserve">
+          <source>Specify the limit of the number of vertical split views displayed at the same time, and the excess part needs to be accessed by scrolling. Note: Adjusting this setting is only recommended on wider screens, otherwise the contents of each view may become unrecognizable</source>
+          <target state="translated">Geben Sie das Limit für die Anzahl der gleichzeitig angezeigten vertikal geteilten Ansichten an, und auf den überschüssigen Teil muss durch Scrollen zugegriffen werden. Hinweis: Das Anpassen dieser Einstellung wird nur auf breiteren Bildschirmen empfohlen, da sonst der Inhalt jeder Ansicht unkenntlich werden kann</target>
+        </trans-unit>
+        <trans-unit id="VerticalSplitViewLimitationLabel" translate="yes" xml:space="preserve">
+          <source>Vertical split view display limitation</source>
+          <target state="translated">Anzeigebeschränkung für vertikal geteilte Ansicht</target>
         </trans-unit>
       </group>
     </body>

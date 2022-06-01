@@ -3532,4 +3532,25 @@ Las denominaciones no válidas son:
   <data name="BluetoothShareTitle" xml:space="preserve">
     <value>Compartir Bluetooth</value>
   </data>
+  <data name="ShutdownButtonBehavior_AskEveryTime" xml:space="preserve">
+    <value>Pregúntame todo el tiempo</value>
+  </data>
+  <data name="ShutdownButtonBehavior_CloseApplication" xml:space="preserve">
+    <value>Cierra la aplicación</value>
+  </data>
+  <data name="ShutdownButtonBehavior_CloseInnerViewer" xml:space="preserve">
+    <value>Cierra el visor interior</value>
+  </data>
+  <data name="ShutdownButtonBehaviorLabel" xml:space="preserve">
+    <value>Personaliza el comportamiento predeterminado del botón de cerrar</value>
+  </data>
+  <data name="ShutdownButtonBehaviorLabelDescription" xml:space="preserve">
+    <value>Especifique el comportamiento predeterminado del botón de cerrar para evitar cerrar la aplicación accidentalmente</value>
+  </data>
+  <data name="VerticalSplitViewLimitationDescription" xml:space="preserve">
+    <value>Especifique el límite de la cantidad de vistas divididas verticales que se muestran al mismo tiempo, y se debe acceder a la parte sobrante desplazándose. Nota: solo se recomienda ajustar esta configuración en pantallas más anchas, de lo contrario, el contenido de cada vista puede volverse irreconocible</value>
+  </data>
+  <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
+    <value>Limitación de visualización de vista dividida vertical</value>
+  </data>
 </root>

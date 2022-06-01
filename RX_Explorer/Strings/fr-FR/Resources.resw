@@ -3532,4 +3532,25 @@ Les noms non valides incluent
   <data name="BluetoothShareTitle" xml:space="preserve">
     <value>Partage Bluetooth</value>
   </data>
+  <data name="ShutdownButtonBehavior_AskEveryTime" xml:space="preserve">
+    <value>Demande-moi à chaque fois</value>
+  </data>
+  <data name="ShutdownButtonBehavior_CloseApplication" xml:space="preserve">
+    <value>Fermer l'application</value>
+  </data>
+  <data name="ShutdownButtonBehavior_CloseInnerViewer" xml:space="preserve">
+    <value>Fermez la visionneuse intérieure</value>
+  </data>
+  <data name="ShutdownButtonBehaviorLabel" xml:space="preserve">
+    <value>Personnaliser le comportement par défaut du bouton de fermeture</value>
+  </data>
+  <data name="ShutdownButtonBehaviorLabelDescription" xml:space="preserve">
+    <value>Spécifiez le comportement par défaut du bouton de fermeture pour éviter de fermer accidentellement l'application</value>
+  </data>
+  <data name="VerticalSplitViewLimitationDescription" xml:space="preserve">
+    <value>Spécifiez la limite du nombre de vues fractionnées verticales affichées en même temps, et la partie excédentaire doit être accessible par défilement. Remarque : le réglage de ce paramètre n'est recommandé que sur des écrans plus larges, sinon le contenu de chaque vue peut devenir méconnaissable</value>
+  </data>
+  <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
+    <value>Limitation de l'affichage de la vue fractionnée verticale</value>
+  </data>
 </root>

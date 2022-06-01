@@ -18,7 +18,7 @@
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
         <Cls:ColorTagConverter x:Key="ColorTagConverter" />
         <Cls:NameExtensionsConverter x:Name="NameExtensionsConverter"
-                                     ItemsSource="{x:Bind FileCollection}"/>
+                                     ItemsSource="{x:Bind FileCollection}" />
 
         <CollectionViewSource x:Name="CollectionVS"
                               IsSourceGrouped="False" />
@@ -106,7 +106,7 @@
     </Page.Resources>
 
     <Grid>
-        <controls:SwitchPresenter Name="PageSwitcher" >
+        <controls:SwitchPresenter Name="PageSwitcher">
             <controls:Case Value="{x:Bind Cls:RootStorageFolder.Current.Path}">
                 <local:Home HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
@@ -116,7 +116,7 @@
             <controls:Case IsDefault="True">
                 <Grid PointerWheelChanged="Presenter_PointerWheelChanged">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition />
                         <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
@@ -125,16 +125,13 @@
                           VerticalAlignment="Stretch"
                           HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="6*"/>
-                            <ColumnDefinition Width="6"
-                                              x:Name="SpliterRegion1"/>
-                            <ColumnDefinition Width="2.5*"/>
-                            <ColumnDefinition Width="6"
-                                              x:Name="SpliterRegion2" />
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="6"
-                                              x:Name="SpliterRegion3" />
-                            <ColumnDefinition Width="1.5*" />
+                            <ColumnDefinition Width="{x:Bind ColumnWidthSaver.NameColumnWidth,Mode=TwoWay}" />
+                            <ColumnDefinition Width="6" />
+                            <ColumnDefinition Width="{x:Bind ColumnWidthSaver.ModifiedColumnWidth,Mode=TwoWay}" />
+                            <ColumnDefinition Width="6" />
+                            <ColumnDefinition Width="{x:Bind ColumnWidthSaver.TypeColumnWidth,Mode=TwoWay}" />
+                            <ColumnDefinition Width="6" />
+                            <ColumnDefinition Width="{x:Bind ColumnWidthSaver.SizeColumnWidth,Mode=TwoWay}" />
                         </Grid.ColumnDefinitions>
                     </Grid>
 
@@ -142,7 +139,7 @@
                                       Height="4"
                                       HorizontalAlignment="Stretch"
                                       Visibility="Collapsed"
-                                      Name="FileLoadProgress"/>
+                                      Name="FileLoadProgress" />
 
                     <controls:SwitchPresenter Name="ViewModeSwitcher"
                                               Grid.Row="1">
@@ -240,7 +237,7 @@
                                                                  IsSpellCheckEnabled="False"
                                                                  Visibility="Collapsed"
                                                                  HorizontalAlignment="Stretch"
-                                                                 VerticalAlignment="Center"/>
+                                                                 VerticalAlignment="Center" />
                                                         <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
                                                                    FontSize="12"
                                                                    x:Phase="1"
@@ -1029,7 +1026,7 @@
                                                       Windows11Present:Padding="12,0"
                                                       Windows11NotPresent:Padding="0">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[0].Width,Mode=TwoWay}"/>
+                                                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[0].Width,Mode=TwoWay}" />
                                                         <ColumnDefinition Width="6" />
                                                         <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[2].Width,Mode=TwoWay}" />
                                                         <ColumnDefinition Width="6" />
@@ -1219,9 +1216,9 @@
                                                     <Border HorizontalAlignment="Center"
                                                             VerticalAlignment="Stretch"
                                                             Grid.Column="1"
-                                                            Width="2"
-                                                            Margin="0,2"
-                                                            Background="{ThemeResource SystemControlBackgroundBaseMediumRevealBorderBrush}" />
+                                                            Width="1.5"
+                                                            Margin="0,5"
+                                                            Background="Gray" />
                                                     <controls:GridSplitter Grid.Column="1"
                                                                            MinWidth="0"
                                                                            Background="Transparent"
@@ -1354,9 +1351,9 @@
                                                     <Border HorizontalAlignment="Center"
                                                             VerticalAlignment="Stretch"
                                                             Grid.Column="3"
-                                                            Width="2"
-                                                            Margin="0,2"
-                                                            Background="{ThemeResource SystemControlBackgroundBaseMediumRevealBorderBrush}" />
+                                                            Width="1.5"
+                                                            Margin="0,5"
+                                                            Background="Gray" />
                                                     <controls:GridSplitter Grid.Column="3"
                                                                            MinWidth="0"
                                                                            Background="Transparent"
@@ -1437,9 +1434,9 @@
                                                     <Border HorizontalAlignment="Center"
                                                             VerticalAlignment="Stretch"
                                                             Grid.Column="5"
-                                                            Width="2"
-                                                            Margin="0,2"
-                                                            Background="{ThemeResource SystemControlBackgroundBaseMediumRevealBorderBrush}" />
+                                                            Width="1.5"
+                                                            Margin="0,5"
+                                                            Background="Gray" />
                                                     <controls:GridSplitter Grid.Column="5"
                                                                            MinWidth="0"
                                                                            Background="Transparent"
@@ -1617,12 +1614,6 @@
                                 HorizontalAlignment="Stretch"
                                 x:FieldModifier="public"
                                 x:Name="FocusIndicator" />
-                        <CommandBar IsOpen="False"
-                                    ClosedDisplayMode="Minimal"
-                                    DefaultLabelPosition="Right"
-                                    Name="BottomCommandBar"
-                                    Opening="BottomCommandBar_Opening"
-                                    Background="{ThemeResource ElementCustomAcrylicBrush}" />
                     </StackPanel>
                 </Grid>
             </controls:Case>
