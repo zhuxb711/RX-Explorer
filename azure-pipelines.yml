@@ -10,6 +10,7 @@ pr:
       - master
 
 variables:
+  - group: UWP-PipeLineVariable
   - name: BuildProject
     value: "Package"
   - name: Solution
