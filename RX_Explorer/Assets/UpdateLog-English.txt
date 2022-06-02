@@ -1,25 +1,29 @@
-﻿###What's new in Ver.7.7.1.0
+﻿###What's new in Ver.7.7.3.0
 
 #####Feature update
 
->#####Support access to FTP server
+>#####"Details" layout mode now supports resizing column widths
 
->#####Added a new settings to control whether integrate with the Windows Explorer's menu
+>#####Now support custom label color and label text of file
+
+>#####"Vertical Split View" now supports adjust the number of displays at the same time
+
+>#####Now support to change the default behavior of the top right close button
 
 #####UI updated
 
->#####Reworked the UI of the bluetooth sharing module and solved many related issues
+>#####The animation of the "Vertical Split View" has been optimized
+
+>#####FTP and MTP files and compressed files will now display thumbnails for each type
 
 #####Bug Fixes
 
->#####Fixed the problem that the content displayed in the Open With dialog may not match the actual situation
+>#####Fixed an issue where keyboard shortcuts still take effect when the settings page was open
 
->#####Fixed an issue where some unavailable features were not being hidden on MTP devices
+>#####Fixed an issue that could cause a crash when recycle bin pages were sorted by their original path
 
->#####Fixed an issue where the built-in archive viewer could crash in some cases
+>#####Fixed an issue that could cause a crash when clicking the "Confirm" button of the Decompression Options Dialog
 
->#####Fixed an issue where some content in the "Security" tab within the properties window might not display correctly in certain files
+>#####Fixed an issue where FTP files or MTP files might not be opened correctly in some cases
 
->#####Fixed some issues related to "Integration with system component"
-
->#####Fixed some other issues
+>#####Fixed some issues that could cause crashes

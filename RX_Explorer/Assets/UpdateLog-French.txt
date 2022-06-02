@@ -1,25 +1,29 @@
-﻿###Quoi de neuf dans la version 7.7.1.0
+﻿###Quoi de neuf dans la version 7.7.3.0
 
 #####Mise à jour des fonctionnalités
 
->#####Prise en charge de l'accès au serveur FTP
+>#####Le mode de mise en page "Détails" prend désormais en charge le redimensionnement des largeurs de colonne
 
->#####Ajout de nouveaux paramètres pour contrôler l'intégration avec le menu de l'explorateur Windows
+>#####Prend désormais en charge la couleur d'étiquette personnalisée et le texte d'étiquette du fichier
+
+>#####"Vertical Split View" prend désormais en charge l'ajustement du nombre d'affichages en même temps
+
+>#####Support maintenant pour changer le comportement par défaut du bouton de fermeture en haut à droite
 
 #####UI mise à jour
 
->#####Retravaillé l'interface utilisateur du module de partage Bluetooth et résolu de nombreux problèmes connexes
+>#####L'animation de la "Vertical Split View" a été optimisée
+
+>#####Les fichiers FTP et MTP et les fichiers compressés afficheront désormais des vignettes pour chaque type
 
 #####Corrections de bogues
 
->#####Correction du problème selon lequel le contenu affiché dans la boîte de dialogue Ouvrir avec peut ne pas correspondre à la situation réelle
+>#####Correction d'un problème où les raccourcis clavier prennent toujours effet lorsque la page des paramètres est ouverte
 
->#####Correction d'un problème où certaines fonctionnalités indisponibles n'étaient pas masquées sur les appareils MTP
+>#####Correction d'un problème qui pouvait provoquer un plantage lorsque les pages de la corbeille étaient triées par leur chemin d'origine
 
->#####Correction d'un problème où la visionneuse d'archives intégrée pouvait planter dans certains cas
+>#####Correction d'un problème qui pouvait provoquer un plantage en cliquant sur le bouton "Confirmer" de la boîte de dialogue Options de décompression
 
->#####Correction d'un problème où certains contenus de l'onglet "Sécurité" dans la fenêtre des propriétés pouvaient ne pas s'afficher correctement dans certains fichiers
+>#####Correction d'un problème où les fichiers FTP ou les fichiers MTP pouvaient ne pas être ouverts correctement dans certains cas
 
->#####Correction de certains problèmes liés à "l'intégration avec le composant système"
-
->#####Correction d'autres problèmes
+>#####Correction de certains problèmes pouvant provoquer des plantages

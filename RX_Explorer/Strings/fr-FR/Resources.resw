@@ -2605,29 +2605,11 @@ Les noms non valides incluent
   <data name="SettingHideProtectedSystemItems.Text" xml:space="preserve">
     <value>Masquer les fichiers système protégés (Recommandé)</value>
   </data>
-  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Étiquette bleue</value>
-  </data>
-  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Étiquette verte</value>
-  </data>
-  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Étiquette orange</value>
-  </data>
-  <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Détacher</value>
-  </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>En train de préparer</value>
   </data>
   <data name="Operate_Text_Copy" xml:space="preserve">
     <value>Copie</value>
-  </data>
-  <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Étiqueter</value>
-  </data>
-  <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Étiquette violette</value>
   </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>Algorithme de compression</value>
@@ -3552,5 +3534,32 @@ Les noms non valides incluent
   </data>
   <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
     <value>Limitation de l'affichage de la vue fractionnée verticale</value>
+  </data>
+  <data name="RemoveLabel" xml:space="preserve">
+    <value>Retirer l'étiquette</value>
+  </data>
+  <data name="CustomLabelColorAndLabel" xml:space="preserve">
+    <value>Personnaliser l'étiquette et les couleurs des étiquettes</value>
+  </data>
+  <data name="CustomLabelColorAndLabelDescription" xml:space="preserve">
+    <value>Personnalisez la couleur de l'étiquette et les étiquettes selon vos préférences personnelles</value>
+  </data>
+  <data name="CustomLabelColorAndLabelBox.PlaceholderText" xml:space="preserve">
+    <value>Veuillez entrer le texte que vous souhaitez utiliser</value>
+  </data>
+  <data name="PredefineLabelText1" xml:space="preserve">
+    <value>Étiquette 1</value>
+  </data>
+  <data name="PredefineLabelText2" xml:space="preserve">
+    <value>Étiquette 2</value>
+  </data>
+  <data name="PredefineLabelText3" xml:space="preserve">
+    <value>Étiquette 3</value>
+  </data>
+  <data name="PredefineLabelText4" xml:space="preserve">
+    <value>Étiquette 4</value>
+  </data>
+  <data name="AddLabel" xml:space="preserve">
+    <value>Étiquette</value>
   </data>
 </root>

@@ -682,7 +682,7 @@ namespace RX_Explorer.Class
                                 IReadOnlyList<AppBarButton> AvailableButton = Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).ToList();
 
                                 int FirstSeparatorIndex = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.FirstOrDefault((Item) => Item is AppBarSeparator)) + 1;
-                                int FreeExtMenuItemCount = AvailableButton.Any((Item) => Item.Name == "Decompression") ? Math.Max(8 - AvailableButton.Count, 0) : Math.Max(9 - AvailableButton.Count, 0);
+                                int FreeExtMenuItemCount = Math.Max(9 - AvailableButton.Count, 0);
 
                                 if (ExtraMenuItems.Count > FreeExtMenuItemCount)
                                 {

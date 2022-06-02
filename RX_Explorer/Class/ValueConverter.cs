@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -124,26 +125,81 @@ namespace RX_Explorer.Class
         }
     }
 
-    public sealed class ColorTagConverter : IValueConverter
+    public sealed class TagToColorConverter : IValueConverter
     {
-        private readonly IReadOnlyDictionary<ColorTag, string> ColorTagMap = new Dictionary<ColorTag, string>
-        {
-            { ColorTag.Transparent, "#00FFFFFF" },
-            { ColorTag.Orange, "#FFFFA500" },
-            { ColorTag.Green, "#FF22B324" },
-            { ColorTag.Purple, "#FFCC6EFF" },
-            { ColorTag.Blue, "#FF42C5FF" }
-        };
-
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is ColorTag Tag)
+            if (value is LabelKind Tag)
             {
-                return new SolidColorBrush(ColorTagMap[Tag].ToColor());
+                switch (Tag)
+                {
+                    case LabelKind.PredefineLabel1:
+                        {
+                            return new SolidColorBrush(SettingPage.PredefineLabelForeground1);
+                        }
+                    case LabelKind.PredefineLabel2:
+                        {
+                            return new SolidColorBrush(SettingPage.PredefineLabelForeground2);
+                        }
+                    case LabelKind.PredefineLabel3:
+                        {
+                            return new SolidColorBrush(SettingPage.PredefineLabelForeground3);
+                        }
+                    case LabelKind.PredefineLabel4:
+                        {
+                            return new SolidColorBrush(SettingPage.PredefineLabelForeground4);
+                        }
+                    default:
+                        {
+                            return new SolidColorBrush(Colors.Transparent);
+                        }
+                }
             }
             else
             {
                 return new SolidColorBrush(Colors.Transparent);
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class TagToLabelConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is LabelKind Tag)
+            {
+                switch (Tag)
+                {
+                    case LabelKind.PredefineLabel1:
+                        {
+                            return SettingPage.PredefineLabelText1;
+                        }
+                    case LabelKind.PredefineLabel2:
+                        {
+                            return SettingPage.PredefineLabelText2;
+                        }
+                    case LabelKind.PredefineLabel3:
+                        {
+                            return SettingPage.PredefineLabelText3;
+                        }
+                    case LabelKind.PredefineLabel4:
+                        {
+                            return SettingPage.PredefineLabelText4;
+                        }
+                    default:
+                        {
+                            return string.Empty;
+                        }
+                }
+            }
+            else
+            {
+                return string.Empty;
             }
         }
 

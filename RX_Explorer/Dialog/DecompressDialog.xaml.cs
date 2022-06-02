@@ -2,9 +2,7 @@
 using ShareClassLibrary;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -63,21 +61,31 @@ namespace RX_Explorer.Dialog
             {
                 ExtractLocation = LocationText.Text;
 
-                if (await FileSystemStorageItemBase.OpenAsync(ExtractLocation) is not FileSystemStorageFolder)
+                switch (await FileSystemStorageItemBase.OpenAsync(ExtractLocation))
                 {
-                    if (!await FileSystemStorageItemBase.CheckExistsAsync(ExtractLocation))
-                    {
-                        await FileSystemStorageItemBase.CreateNewAsync(ExtractLocation, CreateType.Folder, CreateOption.OpenIfExist).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        args.Cancel = true;
-                    }
+                    case FileSystemStorageFolder:
+                        {
+                            break;
+                        }
+                    case FileSystemStorageFile:
+                        {
+                            args.Cancel = true;
+                            break;
+                        }
+                    default:
+                        {
+                            if (await FileSystemStorageItemBase.CreateNewAsync(ExtractLocation, CreateType.Folder, CreateOption.OpenIfExist) is not FileSystemStorageFolder)
+                            {
+                                args.Cancel = true;
+                            }
+
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, $"An exception was threw in the primiary button of {nameof(DecompressDialog)}");
             }
             finally
             {

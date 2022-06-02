@@ -16,7 +16,8 @@
 
     <Page.Resources>
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
-        <Cls:ColorTagConverter x:Key="ColorTagConverter" />
+        <Cls:TagToColorConverter x:Key="TagToColorConverter" />
+        <Cls:TagToLabelConverter x:Key="TagToLabelConverter" />
         <Cls:NameExtensionsConverter x:Name="NameExtensionsConverter"
                                      ItemsSource="{x:Bind FileCollection}" />
 
@@ -261,7 +262,7 @@
                                                             CornerRadius="2"
                                                             Margin="0,5"
                                                             Width="4"
-                                                            Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
+                                                            Background="{x:Bind Label,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Stretch" />
                                                 </Grid>
@@ -400,7 +401,7 @@
                                                             CornerRadius="2"
                                                             Margin="0,5"
                                                             Width="4"
-                                                            Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
+                                                            Background="{x:Bind Label,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Stretch" />
                                                 </Grid>
@@ -539,7 +540,7 @@
                                                             CornerRadius="2"
                                                             Margin="5,0"
                                                             Height="4"
-                                                            Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
+                                                            Background="{x:Bind Label,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                                             HorizontalAlignment="Stretch"
                                                             VerticalAlignment="Center" />
                                                 </Grid>
@@ -678,7 +679,7 @@
                                                             CornerRadius="2"
                                                             Margin="5,0"
                                                             Height="4"
-                                                            Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
+                                                            Background="{x:Bind Label,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                                             HorizontalAlignment="Stretch"
                                                             VerticalAlignment="Center" />
                                                 </Grid>
@@ -817,7 +818,7 @@
                                                             CornerRadius="2"
                                                             Margin="5,0"
                                                             Height="4"
-                                                            Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
+                                                            Background="{x:Bind Label,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                                             HorizontalAlignment="Stretch"
                                                             VerticalAlignment="Center" />
                                                 </Grid>
@@ -916,7 +917,8 @@
                                                             <ColumnDefinition Width="45" />
                                                             <ColumnDefinition Width="*" />
                                                             <ColumnDefinition Width="Auto" />
-                                                            <ColumnDefinition Width="8" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
                                                         <Image VerticalAlignment="Center"
                                                                HorizontalAlignment="Center"
@@ -968,13 +970,27 @@
                                                                           Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
                                                             </Viewbox>
                                                         </Border>
+                                                        
                                                         <Border Grid.Column="3"
                                                                 CornerRadius="2"
-                                                                Margin="0,5"
+                                                                Margin="5,4,0,4"
                                                                 Width="4"
-                                                                Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
+                                                                Background="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToColorConverter}}"
                                                                 HorizontalAlignment="Center"
                                                                 VerticalAlignment="Stretch" />
+                                                        <TextBlock Grid.Column="4"
+                                                                   Name="TagLabel"
+                                                                   Margin="5,5,0,5"
+                                                                   MaxWidth="120"
+                                                                   VerticalAlignment="Stretch"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   Foreground="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToColorConverter}}"
+                                                                   Text="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToLabelConverter}}">
+                                                            <ToolTipService.ToolTip>
+                                                                <ToolTip Content="{Binding ElementName=TagLabel,Path=Text}"
+                                                                         Visibility="{Binding ElementName=TagLabel,Path=IsTextTrimmed}"/>
+                                                            </ToolTipService.ToolTip>
+                                                        </TextBlock>
                                                     </Grid>
                                                     <TextBlock VerticalAlignment="Center"
                                                                Padding="10,0,0,0"
@@ -1103,10 +1119,10 @@
                                                                                 <Viewbox Height="15">
                                                                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                                               Glyph="&#xF127;"
-                                                                                              Foreground="Orange" />
+                                                                                              Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground1,Mode=OneWay}" />
                                                                                 </Viewbox>
                                                                                 <TextBlock Margin="10,0,0,0"
-                                                                                           Text="{x:Bind Cls:Globalization.GetString('OrangeTag/ToolTipService/ToolTip')}" />
+                                                                                           Text="{x:Bind Filter.ColorFilterCheckBoxContent1,Mode=OneWay}" />
                                                                             </StackPanel>
                                                                         </CheckBox>
                                                                         <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
@@ -1114,10 +1130,10 @@
                                                                                 <Viewbox Height="15">
                                                                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                                               Glyph="&#xF127;"
-                                                                                              Foreground="#22B324" />
+                                                                                              Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground2,Mode=OneWay}" />
                                                                                 </Viewbox>
                                                                                 <TextBlock Margin="10,0,0,0"
-                                                                                           Text="{x:Bind Cls:Globalization.GetString('GreenTag/ToolTipService/ToolTip')}" />
+                                                                                           Text="{x:Bind Filter.ColorFilterCheckBoxContent2,Mode=OneWay}" />
                                                                             </StackPanel>
                                                                         </CheckBox>
                                                                         <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
@@ -1125,10 +1141,10 @@
                                                                                 <Viewbox Height="15">
                                                                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                                               Glyph="&#xF127;"
-                                                                                              Foreground="#CC6EFF" />
+                                                                                              Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground3,Mode=OneWay}" />
                                                                                 </Viewbox>
                                                                                 <TextBlock Margin="10,0,0,0"
-                                                                                           Text="{x:Bind Cls:Globalization.GetString('PurpleTag/ToolTipService/ToolTip')}" />
+                                                                                           Text="{x:Bind Filter.ColorFilterCheckBoxContent3,Mode=OneWay}" />
                                                                             </StackPanel>
                                                                         </CheckBox>
                                                                         <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
@@ -1136,10 +1152,10 @@
                                                                                 <Viewbox Height="15">
                                                                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                                               Glyph="&#xF127;"
-                                                                                              Foreground="#42C5FF" />
+                                                                                              Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground4,Mode=OneWay}" />
                                                                                 </Viewbox>
                                                                                 <TextBlock Margin="10,0,0,0"
-                                                                                           Text="{x:Bind Cls:Globalization.GetString('BlueTag/ToolTipService/ToolTip')}" />
+                                                                                           Text="{x:Bind Filter.ColorFilterCheckBoxContent4,Mode=OneWay}" />
                                                                             </StackPanel>
                                                                         </CheckBox>
                                                                         <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox1,Mode=TwoWay}">

@@ -194,6 +194,7 @@ namespace RX_Explorer.View
                 && CurrentTabRenderer.RendererFrame.Content is FileControl Control
                 && !Control.ShouldNotAcceptShortcutKeyInput
                 && !QueueContentDialog.IsRunningOrWaiting
+                && !SettingPage.IsOpened
                 && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
                 )
@@ -255,7 +256,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                if (!QueueContentDialog.IsRunningOrWaiting)
+                if (!QueueContentDialog.IsRunningOrWaiting && !SettingPage.IsOpened)
                 {
                     bool CtrlDown = sender.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
                     bool ShiftDown = sender.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);

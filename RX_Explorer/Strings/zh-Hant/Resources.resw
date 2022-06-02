@@ -2605,29 +2605,11 @@
   <data name="SettingHideProtectedSystemItems.Text" xml:space="preserve">
     <value>隱藏受保護的系統文件(推薦)</value>
   </data>
-  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>藍色標籤</value>
-  </data>
-  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>綠色標籤</value>
-  </data>
-  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>橙色標籤</value>
-  </data>
-  <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>取消標記</value>
-  </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>準備中</value>
   </data>
   <data name="Operate_Text_Copy" xml:space="preserve">
     <value>複製</value>
-  </data>
-  <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
-    <value>標籤</value>
-  </data>
-  <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>紫色標籤</value>
   </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>壓縮算法</value>
@@ -3552,5 +3534,32 @@
   </data>
   <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
     <value>垂直分屏显示限制</value>
+  </data>
+  <data name="RemoveLabel" xml:space="preserve">
+    <value>移除標籤</value>
+  </data>
+  <data name="CustomLabelColorAndLabel" xml:space="preserve">
+    <value>定制标签和标签颜色</value>
+  </data>
+  <data name="CustomLabelColorAndLabelDescription" xml:space="preserve">
+    <value>根据您的个人喜好定制标签颜色和标签</value>
+  </data>
+  <data name="CustomLabelColorAndLabelBox.PlaceholderText" xml:space="preserve">
+    <value>請輸入您要使用的文字</value>
+  </data>
+  <data name="PredefineLabelText1" xml:space="preserve">
+    <value>標籤 1</value>
+  </data>
+  <data name="PredefineLabelText2" xml:space="preserve">
+    <value>標籤 2</value>
+  </data>
+  <data name="PredefineLabelText3" xml:space="preserve">
+    <value>標籤 3</value>
+  </data>
+  <data name="PredefineLabelText4" xml:space="preserve">
+    <value>標籤 4</value>
+  </data>
+  <data name="AddLabel" xml:space="preserve">
+    <value>標籤</value>
   </data>
 </root>

@@ -2605,29 +2605,11 @@ Las denominaciones no válidas son:
   <data name="SettingHideProtectedSystemItems.Text" xml:space="preserve">
     <value>Ocultar archivos de sistema protegidos (Recomendado)</value>
   </data>
-  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Etiqueta azul</value>
-  </data>
-  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Etiqueta verde</value>
-  </data>
-  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Etiqueta naranja</value>
-  </data>
-  <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Desmarcar</value>
-  </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>Preparando</value>
   </data>
   <data name="Operate_Text_Copy" xml:space="preserve">
     <value>Dupdo</value>
-  </data>
-  <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Etiqueta</value>
-  </data>
-  <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Etiqueta morada</value>
   </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>Algoritmo de compresión</value>
@@ -3552,5 +3534,32 @@ Las denominaciones no válidas son:
   </data>
   <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
     <value>Limitación de visualización de vista dividida vertical</value>
+  </data>
+  <data name="RemoveLabel" xml:space="preserve">
+    <value>Retire la etiqueta</value>
+  </data>
+  <data name="CustomLabelColorAndLabel" xml:space="preserve">
+    <value>Personalizar etiquetas y colores de etiquetas</value>
+  </data>
+  <data name="CustomLabelColorAndLabelDescription" xml:space="preserve">
+    <value>Personaliza el color de la etiqueta y las etiquetas según tus preferencias personales</value>
+  </data>
+  <data name="CustomLabelColorAndLabelBox.PlaceholderText" xml:space="preserve">
+    <value>Por favor ingrese el texto que desea utilizar</value>
+  </data>
+  <data name="PredefineLabelText1" xml:space="preserve">
+    <value>Etiqueta 1</value>
+  </data>
+  <data name="PredefineLabelText2" xml:space="preserve">
+    <value>Etiqueta 2</value>
+  </data>
+  <data name="PredefineLabelText3" xml:space="preserve">
+    <value>Etiqueta 3</value>
+  </data>
+  <data name="PredefineLabelText4" xml:space="preserve">
+    <value>Etiqueta 4</value>
+  </data>
+  <data name="AddLabel" xml:space="preserve">
+    <value>Etiqueta</value>
   </data>
 </root>

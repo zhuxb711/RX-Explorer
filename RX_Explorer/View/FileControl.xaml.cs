@@ -164,7 +164,6 @@ namespace RX_Explorer.View
                 AlwaysExpanded = true,
                 ShouldConstrainToRootBounds = false
             };
-            Flyout.Opening += RightTabFlyout_Opening;
             Flyout.Closing += RightTabFlyout_Closing;
 
             FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
@@ -724,7 +723,7 @@ namespace RX_Explorer.View
 
         public async Task<bool> ExecuteGoBackActionIfAvailableAsync()
         {
-            if (!QueueContentDialog.IsRunningOrWaiting)
+            if (!QueueContentDialog.IsRunningOrWaiting && !SettingPage.IsOpened)
             {
                 if (CurrentPresenter.BackNavigationStack.TryPop(out NavigationRelatedRecord CurrentRecord))
                 {
@@ -766,7 +765,7 @@ namespace RX_Explorer.View
 
         public async Task<bool> ExecuteGoForwardActionIfAvailableAsync()
         {
-            if (!QueueContentDialog.IsRunningOrWaiting)
+            if (!QueueContentDialog.IsRunningOrWaiting && !SettingPage.IsOpened)
             {
                 if (CurrentPresenter.ForwardNavigationStack.TryPop(out NavigationRelatedRecord CurrentRecord))
                 {
@@ -1095,6 +1094,8 @@ namespace RX_Explorer.View
             {
                 if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder Folder)
                 {
+                    TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
+
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
                         try
@@ -1114,12 +1115,16 @@ namespace RX_Explorer.View
                                     HasUnrealizedChildren = Content.HasChildren
                                 });
                             }
+
+                            CompletionSource.SetResult(true);
                         }
                         catch (Exception ex)
                         {
-                            LogTracer.Log(ex, "Could not fill the node of treeview");
+                            CompletionSource.SetException(ex);
                         }
                     });
+
+                    await CompletionSource.Task;
                 }
             }
         }
@@ -3466,48 +3471,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void RightTabFlyout_Opening(object sender, object e)
-        {
-            if (sender is CommandBarFlyout Flyout)
-            {
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-                {
-                    AppBarButton RemovePinButton = Flyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "RemovePinButton");
-
-                    if (FolderTree.SelectedNode is TreeViewNode Node && Node.CanTraceToRootNode(QuickAccessNode))
-                    {
-                        RemovePinButton.Visibility = Visibility.Visible;
-                    }
-                    else
-                    {
-                        RemovePinButton.Visibility = Visibility.Collapsed;
-                    }
-                }
-
-                if (Flyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Item) => Item.Name == "OpenFolderInNewWindowButton") is AppBarButton NewWindowButton)
-                {
-                    if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
-                    {
-                        if (Content.Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                            || Content.Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)
-                            || Content.Path.StartsWith(@"\\?\"))
-                        {
-                            NewWindowButton.Visibility = Visibility.Collapsed;
-                        }
-                        else
-                        {
-                            NewWindowButton.Visibility = Visibility.Visible;
-                        }
-                    }
-                }
-
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-                {
-                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
-                }
-            }
-        }
-
         private async void RemovePin_Click(object sender, RoutedEventArgs e)
         {
             RightTapFlyout.Hide();
@@ -3593,6 +3556,48 @@ namespace RX_Explorer.View
             EverythingTip.IsOpen = true;
         }
 
+        public async Task PrepareContextMenuAsync(CommandBarFlyout Flyout)
+        {
+            if (Flyout == RightTapFlyout)
+            {
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                {
+                    AppBarButton RemovePinButton = Flyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "RemovePinButton");
+
+                    if (FolderTree.SelectedNode is TreeViewNode Node && Node.CanTraceToRootNode(QuickAccessNode))
+                    {
+                        RemovePinButton.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        RemovePinButton.Visibility = Visibility.Collapsed;
+                    }
+                }
+
+                if (Flyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Item) => Item.Name == "OpenFolderInNewWindowButton") is AppBarButton NewWindowButton)
+                {
+                    if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
+                    {
+                        if (Content.Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                            || Content.Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)
+                            || Content.Path.StartsWith(@"\\?\"))
+                        {
+                            NewWindowButton.Visibility = Visibility.Collapsed;
+                        }
+                        else
+                        {
+                            NewWindowButton.Visibility = Visibility.Visible;
+                        }
+                    }
+                }
+
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
+                }
+            }
+        }
+
         private async void FolderTree_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
             if (args.TryGetPosition(sender, out Point Position))
@@ -3649,6 +3654,7 @@ namespace RX_Explorer.View
                                 {
                                     try
                                     {
+                                        await PrepareContextMenuAsync(RightTapFlyout);
                                         await RightTapFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
                                                                                                            Position,
                                                                                                            ContextMenuCancellation.Token,

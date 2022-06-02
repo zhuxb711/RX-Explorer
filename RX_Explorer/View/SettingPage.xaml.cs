@@ -1,6 +1,7 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -38,6 +39,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using AnimationController = RX_Explorer.Class.AnimationController;
 using AnimationDirection = Windows.UI.Composition.AnimationDirection;
+using Expander = Microsoft.UI.Xaml.Controls.Expander;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
 
@@ -48,6 +50,7 @@ namespace RX_Explorer.View
         private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
         private readonly ObservableCollection<TerminalProfile> TerminalList = new ObservableCollection<TerminalProfile>();
         private int AnimationLocker = 0;
+        private bool RefreshPresenterOnClose;
 
         public static bool AllowTaskParalledExecution
         {
@@ -648,11 +651,167 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["ShutdownButtonBehavior"] = Enum.GetName(typeof(ShutdownBehaivor), value);
         }
 
+        public static Color PredefineLabelForeground1
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["PredefineLabelForeground1"] is string PredefineLabelForeground1)
+                {
+                    return PredefineLabelForeground1.ToColor();
+                }
+                else
+                {
+                    return "#FFFFA500".ToColor();
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["PredefineLabelForeground1"] = value.ToHex();
+            }
+        }
+
+        public static Color PredefineLabelForeground2
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["PredefineLabelForeground2"] is string PredefineLabelForeground2)
+                {
+                    return PredefineLabelForeground2.ToColor();
+                }
+                else
+                {
+                    return "#FF22B324".ToColor();
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["PredefineLabelForeground2"] = value.ToHex();
+            }
+        }
+
+        public static Color PredefineLabelForeground3
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["PredefineLabelForeground3"] is string PredefineLabelForeground3)
+                {
+                    return PredefineLabelForeground3.ToColor();
+                }
+                else
+                {
+                    return "#FFCC6EFF".ToColor();
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["PredefineLabelForeground3"] = value.ToHex();
+            }
+        }
+
+        public static Color PredefineLabelForeground4
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["PredefineLabelForeground4"] is string PredefineLabelForeground4)
+                {
+                    return PredefineLabelForeground4.ToColor();
+                }
+                else
+                {
+                    return "#FF42C5FF".ToColor();
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["PredefineLabelForeground4"] = value.ToHex();
+            }
+        }
+
+        public static string PredefineLabelText1
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["PredefineLabelText1"] is string PredefineLabelText1)
+                {
+                    return PredefineLabelText1;
+                }
+                else
+                {
+                    return Globalization.GetString("PredefineLabelText1");
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["PredefineLabelText1"] = value;
+            }
+        }
+
+        public static string PredefineLabelText2
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["PredefineLabelText2"] is string PredefineLabelText2)
+                {
+                    return PredefineLabelText2;
+                }
+                else
+                {
+                    return Globalization.GetString("PredefineLabelText2");
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["PredefineLabelText2"] = value;
+            }
+        }
+
+        public static string PredefineLabelText3
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["PredefineLabelText3"] is string PredefineLabelText3)
+                {
+                    return PredefineLabelText3;
+                }
+                else
+                {
+                    return Globalization.GetString("PredefineLabelText3");
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["PredefineLabelText3"] = value;
+            }
+        }
+
+        public static string PredefineLabelText4
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["PredefineLabelText4"] is string PredefineLabelText4)
+                {
+                    return PredefineLabelText4;
+                }
+                else
+                {
+                    return Globalization.GetString("PredefineLabelText4");
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["PredefineLabelText4"] = value;
+            }
+        }
+
         public static bool IsOpened { get; private set; }
 
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
 
         private int InitializeLocker;
+        private long ColorPickerChangeRegisterToken1;
+        private long ColorPickerChangeRegisterToken2;
+        private long ColorPickerChangeRegisterToken3;
+        private long ColorPickerChangeRegisterToken4;
 
         private readonly SemaphoreSlim SyncLocker = new SemaphoreSlim(1, 1);
 
@@ -965,13 +1124,14 @@ namespace RX_Explorer.View
                                             {
                                                 try
                                                 {
-                                                    BackgroundPicture Picture = await BackgroundPicture.CreateAsync(new Uri(Uri));
-
-                                                    if (!PictureList.Contains(Picture))
+                                                    if (await BackgroundPicture.CreateAsync(new Uri(Uri)) is BackgroundPicture Picture)
                                                     {
-                                                        PictureList.Add(Picture);
-                                                        PictureGirdView.UpdateLayout();
-                                                        PictureGirdView.SelectedItem = Picture;
+                                                        if (!PictureList.Contains(Picture))
+                                                        {
+                                                            PictureList.Add(Picture);
+                                                            PictureGirdView.UpdateLayout();
+                                                            PictureGirdView.SelectedItem = Picture;
+                                                        }
                                                     }
                                                 }
                                                 catch (Exception ex)
@@ -1093,6 +1253,11 @@ namespace RX_Explorer.View
             ShowContextMenuWhenLoading.Checked -= ShowContextMenuWhenLoading_Checked;
             ShowContextMenuWhenLoading.Unchecked -= ShowContextMenuWhenLoading_Unchecked;
 
+            PredefineTagColorPicker1.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken1);
+            PredefineTagColorPicker2.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken2);
+            PredefineTagColorPicker3.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken3);
+            PredefineTagColorPicker4.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken4);
+
             LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
 
             FontFamilyComboBox.SelectedIndex = ApplicationData.Current.LocalSettings.Values["DefaultFontFamilyOverride"] is string OverrideString
@@ -1130,6 +1295,14 @@ namespace RX_Explorer.View
             DeleteConfirmSwitch.IsOn = IsDoubleConfirmOnDeletionEnabled;
             DefaultDisplayMode.SelectedIndex = DefaultDisplayModeIndex;
             VerticalSplitViewLimitationCombox.SelectedIndex = VerticalSplitViewLimitation - 1;
+            PredefineTagColorPicker1.SelectedColor = PredefineLabelForeground1;
+            PredefineTagColorPicker2.SelectedColor = PredefineLabelForeground2;
+            PredefineTagColorPicker3.SelectedColor = PredefineLabelForeground3;
+            PredefineTagColorPicker4.SelectedColor = PredefineLabelForeground4;
+            PredefineLabelBox1.Text = PredefineLabelText1;
+            PredefineLabelBox2.Text = PredefineLabelText2;
+            PredefineLabelBox3.Text = PredefineLabelText3;
+            PredefineLabelBox4.Text = PredefineLabelText4;
             ShutdownButtonBehaviorCombox.SelectedIndex = ShutdownButtonBehavior switch
             {
                 ShutdownBehaivor.CloseApplication => 0,
@@ -1277,7 +1450,93 @@ namespace RX_Explorer.View
             EverythingEngineSearchGloble.Unchecked += SeachEngineOptionSave_UnChecked;
             ShowContextMenuWhenLoading.Checked += ShowContextMenuWhenLoading_Checked;
             ShowContextMenuWhenLoading.Unchecked += ShowContextMenuWhenLoading_Unchecked;
+
+            ColorPickerChangeRegisterToken1 = PredefineTagColorPicker1.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker1SelectedColorChanged));
+            ColorPickerChangeRegisterToken2 = PredefineTagColorPicker2.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker2SelectedColorChanged));
+            ColorPickerChangeRegisterToken3 = PredefineTagColorPicker3.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker3SelectedColorChanged));
+            ColorPickerChangeRegisterToken4 = PredefineTagColorPicker4.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker4SelectedColorChanged));
         }
+
+        private void OnPredefineTagColorPicker1SelectedColorChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            try
+            {
+                if (sender is ColorPickerButton Button)
+                {
+                    RefreshPresenterOnClose = true;
+                    PredefineLabelForeground1 = Button.SelectedColor;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(OnPredefineTagColorPicker1SelectedColorChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void OnPredefineTagColorPicker2SelectedColorChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            try
+            {
+                if (sender is ColorPickerButton Button)
+                {
+                    RefreshPresenterOnClose = true;
+                    PredefineLabelForeground2 = Button.SelectedColor;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(OnPredefineTagColorPicker2SelectedColorChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void OnPredefineTagColorPicker3SelectedColorChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            try
+            {
+                if (sender is ColorPickerButton Button)
+                {
+                    RefreshPresenterOnClose = true;
+                    PredefineLabelForeground3 = Button.SelectedColor;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(OnPredefineTagColorPicker3SelectedColorChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void OnPredefineTagColorPicker4SelectedColorChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            try
+            {
+                if (sender is ColorPickerButton Button)
+                {
+                    RefreshPresenterOnClose = true;
+                    PredefineLabelForeground4 = Button.SelectedColor;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(OnPredefineTagColorPicker4SelectedColorChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
 
         private void ShutdownButtonBehaviorCombox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -1978,16 +2237,24 @@ namespace RX_Explorer.View
 
             if (await Picker.PickSingleFileAsync() is StorageFile File)
             {
-                StorageFolder ImageFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists);
-                StorageFile CopyedFile = await File.CopyAsync(ImageFolder, $"BackgroundPicture_{Guid.NewGuid():N}{File.FileType}", NameCollisionOption.GenerateUniqueName);
+                try
+                {
+                    StorageFolder ImageFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists);
+                    StorageFile CopyedFile = await File.CopyAsync(ImageFolder, $"BackgroundPicture_{Guid.NewGuid():N}{File.FileType}", NameCollisionOption.GenerateUniqueName);
 
-                BackgroundPicture Picture = await BackgroundPicture.CreateAsync(new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"));
+                    if (await BackgroundPicture.CreateAsync(new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}")) is BackgroundPicture Picture)
+                    {
+                        PictureList.Add(Picture);
+                        PictureGirdView.UpdateLayout();
+                        PictureGirdView.SelectedItem = Picture;
 
-                PictureList.Add(Picture);
-                PictureGirdView.UpdateLayout();
-                PictureGirdView.SelectedItem = Picture;
-
-                SQLite.Current.SetBackgroundPicture(Picture.PictureUri);
+                        SQLite.Current.SetBackgroundPicture(Picture.PictureUri);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not add the background picture");
+                }
             }
         }
 
@@ -3298,16 +3565,22 @@ namespace RX_Explorer.View
 
         private async void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            bool SholdRaiseDataChangedEvent = SQLite.Current.GetAllTerminalProfile().Count != TerminalList.Count;
-
             foreach (TerminalProfile Profile in TerminalList.Where((Profile) => !string.IsNullOrWhiteSpace(Profile.Name) && !string.IsNullOrWhiteSpace(Profile.Path) && !string.IsNullOrWhiteSpace(Profile.Argument)))
             {
                 SQLite.Current.SetTerminalProfile(Profile);
             }
 
-            if (SholdRaiseDataChangedEvent)
+            ApplicationData.Current.SignalDataChanged();
+
+            if (RefreshPresenterOnClose)
             {
-                ApplicationData.Current.SignalDataChanged();
+                RefreshPresenterOnClose = false;
+
+                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                         .Cast<Frame>()
+                                                                         .Select((Frame) => Frame.Content)
+                                                                         .Cast<TabItemContentRenderer>()
+                                                                         .Select((Renderer) => Renderer.RefreshPresentersAsync()));
             }
 
             await HideAsync();
@@ -3565,6 +3838,74 @@ namespace RX_Explorer.View
 #else
             await Microsoft.AppCenter.AppCenter.SetEnabledAsync(SettingShareData.IsOn);
 #endif
+        }
+
+        private void PredefineLabelBox1_LostFocus(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                RefreshPresenterOnClose = true;
+                PredefineLabelText1 = PredefineLabelBox1.Text;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(PredefineLabelBox1_LostFocus)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void PredefineLabelBox2_LostFocus(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                RefreshPresenterOnClose = true;
+                PredefineLabelText2 = PredefineLabelBox2.Text;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(PredefineLabelBox2_LostFocus)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void PredefineLabelBox3_LostFocus(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                RefreshPresenterOnClose = true;
+                PredefineLabelText3 = PredefineLabelBox3.Text;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(PredefineLabelBox3_LostFocus)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void PredefineLabelBox4_LosingFocus(UIElement sender, LosingFocusEventArgs args)
+        {
+            try
+            {
+                RefreshPresenterOnClose = true;
+                PredefineLabelText4 = PredefineLabelBox4.Text;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(PredefineLabelBox4_LosingFocus)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
     }
 }

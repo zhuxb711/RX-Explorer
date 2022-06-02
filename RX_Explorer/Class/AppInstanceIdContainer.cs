@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return JsonSerializer.Deserialize<List<string>>(SavedInfo).LastOrDefault();
+                    return JsonSerializer.Deserialize<IEnumerable<string>>(SavedInfo).LastOrDefault() ?? string.Empty;
                 }
             }
         }
@@ -39,20 +39,11 @@ namespace RX_Explorer.Class
 
             if (string.IsNullOrEmpty(SavedInfo))
             {
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(new List<string>() { CurrentId });
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(new string[] { CurrentId });
             }
             else
             {
-                List<string> Collection = JsonSerializer.Deserialize<List<string>>(SavedInfo);
-
-                if (Collection.Contains(CurrentId))
-                {
-                    Collection.Remove(CurrentId);
-                }
-
-                Collection.Add(CurrentId);
-
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(Collection);
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<string>>(SavedInfo).Except(new string[] { CurrentId }).Append(CurrentId));
             }
         }
 
@@ -62,19 +53,13 @@ namespace RX_Explorer.Class
 
             if (!string.IsNullOrEmpty(SavedInfo))
             {
-                List<string> Collection = JsonSerializer.Deserialize<List<string>>(SavedInfo);
-
-                if (Collection.Contains(Id))
-                {
-                    Collection.Remove(Id);
-                    ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(Collection);
-                }
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<string>>(SavedInfo).Except(new string[] { CurrentId }));
             }
         }
 
         public static void ClearAll()
         {
-            if(ApplicationData.Current.LocalSettings.Values.ContainsKey("LastActiveGuid"))
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("LastActiveGuid"))
             {
                 ApplicationData.Current.LocalSettings.Values.Remove("LastActiveGuid");
             }

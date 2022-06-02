@@ -1,25 +1,29 @@
-﻿###Novedades de la versión 7.7.1.0
+﻿###Novedades de la versión 7.7.3.0
 
 #####Actualización de funciones
 
->#####Admite acceso al servidor FTP
+>#####El modo de diseño "Detalles" ahora admite cambiar el tamaño del ancho de las columnas
 
->#####Se agregó una nueva configuración para controlar si se integra con el menú del Explorador de Windows
+>#####Ahora es compatible con el color de la etiqueta personalizada y el texto de la etiqueta del archivo
+
+>#####"Vista dividida vertical" ahora admite ajustar el número de pantallas al mismo tiempo
+
+>#####Ahora soporte para cambiar el comportamiento predeterminado del botón de cierre superior derecho
 
 #####IU actualizada
 
->#####Se modificó la interfaz de usuario del módulo para compartir bluetooth y se resolvieron muchos problemas relacionados
+>#####Se ha optimizado la animación de la "Vista dividida vertical"
+
+>#####Los archivos FTP y MTP y los archivos comprimidos ahora mostrarán miniaturas para cada tipo
 
 #####Corrección de errores
 
->#####Se solucionó el problema de que el contenido que se muestra en el cuadro de diálogo Abrir con puede no coincidir con la situación real
+>#####Se solucionó un problema por el cual los atajos de teclado seguían surtiendo efecto cuando la página de configuración estaba abierta
 
->#####Se solucionó un problema por el cual algunas funciones no disponibles no se ocultaban en los dispositivos MTP
+>#####Se solucionó un problema que podía provocar un bloqueo cuando las páginas de la papelera de reciclaje se ordenaban por su ruta original
 
->#####Se solucionó un problema por el cual el visor de archivos integrado podía bloquearse en algunos casos
+>#####Se solucionó un problema que podía provocar un bloqueo al hacer clic en el botón "Confirmar" del cuadro de diálogo Opciones de descompresión
 
->#####Se solucionó un problema por el cual parte del contenido de la pestaña "Seguridad" dentro de la ventana de propiedades podría no mostrarse correctamente en ciertos archivos
+>#####Se solucionó un problema por el cual los archivos FTP o MTP podrían no abrirse correctamente en algunos casos
 
->#####Se corrigieron algunos problemas relacionados con la "Integración con el componente del sistema"
-
->#####Se corrigieron algunos otros problemas
+>#####Se corrigieron algunos problemas que podrían causar fallas

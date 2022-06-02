@@ -1,6 +1,5 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Deferred;
-using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
@@ -256,7 +255,6 @@ namespace RX_Explorer.View
                 AlwaysExpanded = true,
                 ShouldConstrainToRootBounds = false
             };
-            Flyout.Opening += FileFlyout_Opening;
             Flyout.Closed += CommandBarFlyout_Closed;
             Flyout.Closing += CommandBarFlyout_Closing;
 
@@ -304,7 +302,7 @@ namespace RX_Explorer.View
                     }
                 }
             };
-            ToolTipService.SetToolTip(ColorTag, Globalization.GetString("TagEntry/ToolTipService/ToolTip"));
+            ToolTipService.SetToolTip(ColorTag, Globalization.GetString("AddLabel"));
             ColorTag.Tapped += ColorTag_Tapped;
 
             StackPanel StandardBarPanel = new StackPanel
@@ -326,69 +324,73 @@ namespace RX_Explorer.View
             #endregion
 
             #region PrimaryCommand -> TagBarContainer
-            AppBarButton UnTagButton = new AppBarButton
+            AppBarButton RemoveLabelButton = new AppBarButton
             {
-                Tag = "Transparent",
+                Tag = LabelKind.None,
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEA92"
                 }
             };
-            ToolTipService.SetToolTip(UnTagButton, Globalization.GetString("UnTag/ToolTipService/ToolTip"));
-            UnTagButton.Click += UnTag_Click;
+            ToolTipService.SetToolTip(RemoveLabelButton, Globalization.GetString("RemoveLabel"));
+            RemoveLabelButton.Click += RemoveLabel_Click;
 
-            AppBarButton OrangeTagButton = new AppBarButton
+            AppBarButton PredefineTag1Button = new AppBarButton
             {
-                Tag = "Orange",
-                Foreground = new SolidColorBrush(Colors.Orange),
+                Name = "PredefineTag1Button",
+                Tag = LabelKind.PredefineLabel1,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground1),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(OrangeTagButton, Globalization.GetString("OrangeTag/ToolTipService/ToolTip"));
-            OrangeTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag1Button, SettingPage.PredefineLabelText1);
+            PredefineTag1Button.Click += Label_Click;
 
-            AppBarButton GreenTagButton = new AppBarButton
+            AppBarButton PredefineTag2Button = new AppBarButton
             {
-                Tag = "Green",
-                Foreground = new SolidColorBrush("#22B324".ToColor()),
+                Name = "PredefineTag2Button",
+                Tag = LabelKind.PredefineLabel2,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground2),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(GreenTagButton, Globalization.GetString("GreenTag/ToolTipService/ToolTip"));
-            GreenTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag2Button, SettingPage.PredefineLabelText2);
+            PredefineTag2Button.Click += Label_Click;
 
-            AppBarButton PurpleTagButton = new AppBarButton
+            AppBarButton PredefineTag3Button = new AppBarButton
             {
-                Tag = "Purple",
-                Foreground = new SolidColorBrush("#CC6EFF".ToColor()),
+                Name = "PredefineTag3Button",
+                Tag = LabelKind.PredefineLabel3,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground3),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(PurpleTagButton, Globalization.GetString("PurpleTag/ToolTipService/ToolTip"));
-            PurpleTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag3Button, SettingPage.PredefineLabelText3);
+            PredefineTag3Button.Click += Label_Click;
 
-            AppBarButton BlueTagButton = new AppBarButton
+            AppBarButton PredefineTag4Button = new AppBarButton
             {
-                Tag = "Blue",
-                Foreground = new SolidColorBrush("#42C5FF".ToColor()),
+                Name = "PredefineTag4Button",
+                Tag = LabelKind.PredefineLabel4,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground4),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(BlueTagButton, Globalization.GetString("BlueTag/ToolTipService/ToolTip"));
-            BlueTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag4Button, SettingPage.PredefineLabelText4);
+            PredefineTag4Button.Click += Label_Click;
 
             Border ColorBackTag = new Border
             {
@@ -405,11 +407,11 @@ namespace RX_Explorer.View
             {
                 Orientation = Orientation.Horizontal
             };
-            TagBarPanel.Children.Add(UnTagButton);
-            TagBarPanel.Children.Add(OrangeTagButton);
-            TagBarPanel.Children.Add(GreenTagButton);
-            TagBarPanel.Children.Add(PurpleTagButton);
-            TagBarPanel.Children.Add(BlueTagButton);
+            TagBarPanel.Children.Add(RemoveLabelButton);
+            TagBarPanel.Children.Add(PredefineTag1Button);
+            TagBarPanel.Children.Add(PredefineTag2Button);
+            TagBarPanel.Children.Add(PredefineTag3Button);
+            TagBarPanel.Children.Add(PredefineTag4Button);
             TagBarPanel.Children.Add(ColorBackTag);
 
             AppBarElementContainer TagBar = new AppBarElementContainer
@@ -424,6 +426,7 @@ namespace RX_Explorer.View
                 Mode = BindingMode.TwoWay,
                 Converter = new InverseConverter()
             });
+            TagBar.RegisterPropertyChangedCallback(VisibilityProperty, new DependencyPropertyChangedCallback(OnTagBarVisibilityChanged));
 
             Flyout.PrimaryCommands.Add(TagBar);
             #endregion
@@ -734,7 +737,6 @@ namespace RX_Explorer.View
                 AlwaysExpanded = true,
                 ShouldConstrainToRootBounds = false
             };
-            Flyout.Opening += FolderFlyout_Opening;
             Flyout.Closed += CommandBarFlyout_Closed;
             Flyout.Closing += CommandBarFlyout_Closing;
 
@@ -782,7 +784,7 @@ namespace RX_Explorer.View
                     }
                 }
             };
-            ToolTipService.SetToolTip(ColorTag, Globalization.GetString("TagEntry/ToolTipService/ToolTip"));
+            ToolTipService.SetToolTip(ColorTag, Globalization.GetString("AddLabel"));
             ColorTag.Tapped += ColorTag_Tapped;
 
             StackPanel StandardBarPanel = new StackPanel
@@ -804,69 +806,73 @@ namespace RX_Explorer.View
             #endregion
 
             #region PrimaryCommand -> TagBarContainer
-            AppBarButton UnTagButton = new AppBarButton
+            AppBarButton RemoveLabelButton = new AppBarButton
             {
-                Tag = "Transparent",
+                Tag = LabelKind.None,
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEA92"
                 }
             };
-            ToolTipService.SetToolTip(UnTagButton, Globalization.GetString("UnTag/ToolTipService/ToolTip"));
-            UnTagButton.Click += UnTag_Click;
+            ToolTipService.SetToolTip(RemoveLabelButton, Globalization.GetString("RemoveLabel"));
+            RemoveLabelButton.Click += RemoveLabel_Click;
 
-            AppBarButton OrangeTagButton = new AppBarButton
+            AppBarButton PredefineTag1Button = new AppBarButton
             {
-                Tag = "Orange",
-                Foreground = new SolidColorBrush(Colors.Orange),
+                Name = "PredefineTag1Button",
+                Tag = LabelKind.PredefineLabel1,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground1),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(OrangeTagButton, Globalization.GetString("OrangeTag/ToolTipService/ToolTip"));
-            OrangeTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag1Button, SettingPage.PredefineLabelText1);
+            PredefineTag1Button.Click += Label_Click;
 
-            AppBarButton GreenTagButton = new AppBarButton
+            AppBarButton PredefineTag2Button = new AppBarButton
             {
-                Tag = "Green",
-                Foreground = new SolidColorBrush("#22B324".ToColor()),
+                Name = "PredefineTag2Button",
+                Tag = LabelKind.PredefineLabel2,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground2),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(GreenTagButton, Globalization.GetString("GreenTag/ToolTipService/ToolTip"));
-            GreenTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag2Button, SettingPage.PredefineLabelText2);
+            PredefineTag2Button.Click += Label_Click;
 
-            AppBarButton PurpleTagButton = new AppBarButton
+            AppBarButton PredefineTag3Button = new AppBarButton
             {
-                Tag = "Purple",
-                Foreground = new SolidColorBrush("#CC6EFF".ToColor()),
+                Name = "PredefineTag3Button",
+                Tag = LabelKind.PredefineLabel3,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground3),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(PurpleTagButton, Globalization.GetString("PurpleTag/ToolTipService/ToolTip"));
-            PurpleTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag3Button, SettingPage.PredefineLabelText3);
+            PredefineTag3Button.Click += Label_Click;
 
-            AppBarButton BlueTagButton = new AppBarButton
+            AppBarButton PredefineTag4Button = new AppBarButton
             {
-                Tag = "Blue",
-                Foreground = new SolidColorBrush("#42C5FF".ToColor()),
+                Name = "PredefineTag4Button",
+                Tag = LabelKind.PredefineLabel4,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground4),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(BlueTagButton, Globalization.GetString("BlueTag/ToolTipService/ToolTip"));
-            BlueTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag4Button, SettingPage.PredefineLabelText4);
+            PredefineTag4Button.Click += Label_Click;
 
             Border ColorBackTag = new Border
             {
@@ -883,17 +889,17 @@ namespace RX_Explorer.View
             {
                 Orientation = Orientation.Horizontal
             };
-            TagBarPanel.Children.Add(UnTagButton);
-            TagBarPanel.Children.Add(OrangeTagButton);
-            TagBarPanel.Children.Add(GreenTagButton);
-            TagBarPanel.Children.Add(PurpleTagButton);
-            TagBarPanel.Children.Add(BlueTagButton);
+            TagBarPanel.Children.Add(RemoveLabelButton);
+            TagBarPanel.Children.Add(PredefineTag1Button);
+            TagBarPanel.Children.Add(PredefineTag2Button);
+            TagBarPanel.Children.Add(PredefineTag3Button);
+            TagBarPanel.Children.Add(PredefineTag4Button);
             TagBarPanel.Children.Add(ColorBackTag);
 
             AppBarElementContainer TagBar = new AppBarElementContainer
             {
                 Name = "TagBar",
-                Content = TagBarPanel
+                Content = TagBarPanel,
             };
             TagBar.SetBinding(VisibilityProperty, new Binding
             {
@@ -902,6 +908,7 @@ namespace RX_Explorer.View
                 Mode = BindingMode.TwoWay,
                 Converter = new InverseConverter()
             });
+            TagBar.RegisterPropertyChangedCallback(VisibilityProperty, new DependencyPropertyChangedCallback(OnTagBarVisibilityChanged));
 
             Flyout.PrimaryCommands.Add(TagBar);
             #endregion
@@ -1118,7 +1125,7 @@ namespace RX_Explorer.View
                     }
                 }
             };
-            ToolTipService.SetToolTip(ColorTag, Globalization.GetString("TagEntry/ToolTipService/ToolTip"));
+            ToolTipService.SetToolTip(ColorTag, Globalization.GetString("AddLabel"));
             ColorTag.Tapped += ColorTag_Tapped;
 
             StackPanel StandardBarPanel = new StackPanel
@@ -1140,7 +1147,7 @@ namespace RX_Explorer.View
             #endregion
 
             #region PrimaryCommand -> TagBarContainer
-            AppBarButton UnTagButton = new AppBarButton
+            AppBarButton RemoveLabelButton = new AppBarButton
             {
                 Tag = "Transparent",
                 Icon = new FontIcon
@@ -1149,60 +1156,64 @@ namespace RX_Explorer.View
                     Glyph = "\uEA92"
                 }
             };
-            ToolTipService.SetToolTip(UnTagButton, Globalization.GetString("UnTag/ToolTipService/ToolTip"));
-            UnTagButton.Click += UnTag_Click;
+            ToolTipService.SetToolTip(RemoveLabelButton, Globalization.GetString("RemoveLabel"));
+            RemoveLabelButton.Click += RemoveLabel_Click;
 
-            AppBarButton OrangeTagButton = new AppBarButton
+            AppBarButton PredefineTag1Button = new AppBarButton
             {
-                Tag = "Orange",
-                Foreground = new SolidColorBrush(Colors.Orange),
+                Name = "PredefineTag1Button",
+                Tag = LabelKind.PredefineLabel1,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground1),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(OrangeTagButton, Globalization.GetString("OrangeTag/ToolTipService/ToolTip"));
-            OrangeTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag1Button, SettingPage.PredefineLabelText1);
+            PredefineTag1Button.Click += Label_Click;
 
-            AppBarButton GreenTagButton = new AppBarButton
+            AppBarButton PredefineTag2Button = new AppBarButton
             {
-                Tag = "Green",
-                Foreground = new SolidColorBrush("#22B324".ToColor()),
+                Name = "PredefineTag2Button",
+                Tag = LabelKind.PredefineLabel2,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground2),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(GreenTagButton, Globalization.GetString("GreenTag/ToolTipService/ToolTip"));
-            GreenTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag2Button, SettingPage.PredefineLabelText2);
+            PredefineTag2Button.Click += Label_Click;
 
-            AppBarButton PurpleTagButton = new AppBarButton
+            AppBarButton PredefineTag3Button = new AppBarButton
             {
-                Tag = "Purple",
-                Foreground = new SolidColorBrush("#CC6EFF".ToColor()),
+                Name = "PredefineTag3Button",
+                Tag = LabelKind.PredefineLabel3,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground3),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(PurpleTagButton, Globalization.GetString("PurpleTag/ToolTipService/ToolTip"));
-            PurpleTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag3Button, SettingPage.PredefineLabelText3);
+            PredefineTag3Button.Click += Label_Click;
 
-            AppBarButton BlueTagButton = new AppBarButton
+            AppBarButton PredefineTag4Button = new AppBarButton
             {
-                Tag = "Blue",
-                Foreground = new SolidColorBrush("#42C5FF".ToColor()),
+                Name = "PredefineTag4Button",
+                Tag = LabelKind.PredefineLabel4,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground4),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(BlueTagButton, Globalization.GetString("BlueTag/ToolTipService/ToolTip"));
-            BlueTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag4Button, SettingPage.PredefineLabelText4);
+            PredefineTag4Button.Click += Label_Click;
 
             Border ColorBackTag = new Border
             {
@@ -1219,11 +1230,11 @@ namespace RX_Explorer.View
             {
                 Orientation = Orientation.Horizontal
             };
-            TagBarPanel.Children.Add(UnTagButton);
-            TagBarPanel.Children.Add(OrangeTagButton);
-            TagBarPanel.Children.Add(GreenTagButton);
-            TagBarPanel.Children.Add(PurpleTagButton);
-            TagBarPanel.Children.Add(BlueTagButton);
+            TagBarPanel.Children.Add(RemoveLabelButton);
+            TagBarPanel.Children.Add(PredefineTag1Button);
+            TagBarPanel.Children.Add(PredefineTag2Button);
+            TagBarPanel.Children.Add(PredefineTag3Button);
+            TagBarPanel.Children.Add(PredefineTag4Button);
             TagBarPanel.Children.Add(ColorBackTag);
 
             AppBarElementContainer TagBar = new AppBarElementContainer
@@ -1238,6 +1249,7 @@ namespace RX_Explorer.View
                 Mode = BindingMode.TwoWay,
                 Converter = new InverseConverter()
             });
+            TagBar.RegisterPropertyChangedCallback(VisibilityProperty, new DependencyPropertyChangedCallback(OnTagBarVisibilityChanged));
 
             Flyout.PrimaryCommands.Add(TagBar);
             #endregion
@@ -1321,7 +1333,6 @@ namespace RX_Explorer.View
                 AlwaysExpanded = true,
                 ShouldConstrainToRootBounds = false
             };
-            Flyout.Opening += MixedFlyout_Opening;
             Flyout.Closed += CommandBarFlyout_Closed;
             Flyout.Closing += CommandBarFlyout_Closing;
 
@@ -1369,7 +1380,7 @@ namespace RX_Explorer.View
                     }
                 }
             };
-            ToolTipService.SetToolTip(ColorTag, Globalization.GetString("TagEntry/ToolTipService/ToolTip"));
+            ToolTipService.SetToolTip(ColorTag, Globalization.GetString("AddLabel"));
             ColorTag.Tapped += ColorTag_Tapped;
 
             StackPanel StandardBarPanel = new StackPanel
@@ -1391,69 +1402,73 @@ namespace RX_Explorer.View
             #endregion
 
             #region PrimaryCommand -> TagBarContainer
-            AppBarButton UnTagButton = new AppBarButton
+            AppBarButton RemoveLabelButton = new AppBarButton
             {
-                Tag = "Transparent",
+                Tag = LabelKind.None,
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEA92"
                 }
             };
-            ToolTipService.SetToolTip(UnTagButton, Globalization.GetString("UnTag/ToolTipService/ToolTip"));
-            UnTagButton.Click += UnTag_Click;
+            ToolTipService.SetToolTip(RemoveLabelButton, Globalization.GetString("RemoveLabel"));
+            RemoveLabelButton.Click += RemoveLabel_Click;
 
-            AppBarButton OrangeTagButton = new AppBarButton
+            AppBarButton PredefineTag1Button = new AppBarButton
             {
-                Tag = "Orange",
-                Foreground = new SolidColorBrush(Colors.Orange),
+                Name = "PredefineTag1Button",
+                Tag = LabelKind.PredefineLabel1,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground1),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(OrangeTagButton, Globalization.GetString("OrangeTag/ToolTipService/ToolTip"));
-            OrangeTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag1Button, SettingPage.PredefineLabelText1);
+            PredefineTag1Button.Click += Label_Click;
 
-            AppBarButton GreenTagButton = new AppBarButton
+            AppBarButton PredefineTag2Button = new AppBarButton
             {
-                Tag = "Green",
-                Foreground = new SolidColorBrush("#22B324".ToColor()),
+                Name = "PredefineTag2Button",
+                Tag = LabelKind.PredefineLabel2,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground2),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(GreenTagButton, Globalization.GetString("GreenTag/ToolTipService/ToolTip"));
-            GreenTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag2Button, SettingPage.PredefineLabelText2);
+            PredefineTag2Button.Click += Label_Click;
 
-            AppBarButton PurpleTagButton = new AppBarButton
+            AppBarButton PredefineTag3Button = new AppBarButton
             {
-                Tag = "Purple",
-                Foreground = new SolidColorBrush("#CC6EFF".ToColor()),
+                Name = "PredefineTag3Button",
+                Tag = LabelKind.PredefineLabel3,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground3),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(PurpleTagButton, Globalization.GetString("PurpleTag/ToolTipService/ToolTip"));
-            PurpleTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag3Button, SettingPage.PredefineLabelText3);
+            PredefineTag3Button.Click += Label_Click;
 
-            AppBarButton BlueTagButton = new AppBarButton
+            AppBarButton PredefineTag4Button = new AppBarButton
             {
-                Tag = "Blue",
-                Foreground = new SolidColorBrush("#42C5FF".ToColor()),
+                Name = "PredefineTag4Button",
+                Tag = LabelKind.PredefineLabel4,
+                Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground4),
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
-            ToolTipService.SetToolTip(BlueTagButton, Globalization.GetString("BlueTag/ToolTipService/ToolTip"));
-            BlueTagButton.Click += Color_Click;
+            ToolTipService.SetToolTip(PredefineTag4Button, SettingPage.PredefineLabelText4);
+            PredefineTag4Button.Click += Label_Click;
 
             Border ColorBackTag = new Border
             {
@@ -1470,11 +1485,11 @@ namespace RX_Explorer.View
             {
                 Orientation = Orientation.Horizontal
             };
-            TagBarPanel.Children.Add(UnTagButton);
-            TagBarPanel.Children.Add(OrangeTagButton);
-            TagBarPanel.Children.Add(GreenTagButton);
-            TagBarPanel.Children.Add(PurpleTagButton);
-            TagBarPanel.Children.Add(BlueTagButton);
+            TagBarPanel.Children.Add(RemoveLabelButton);
+            TagBarPanel.Children.Add(PredefineTag1Button);
+            TagBarPanel.Children.Add(PredefineTag2Button);
+            TagBarPanel.Children.Add(PredefineTag3Button);
+            TagBarPanel.Children.Add(PredefineTag4Button);
             TagBarPanel.Children.Add(ColorBackTag);
 
             AppBarElementContainer TagBar = new AppBarElementContainer
@@ -1489,6 +1504,7 @@ namespace RX_Explorer.View
                 Mode = BindingMode.TwoWay,
                 Converter = new InverseConverter()
             });
+            TagBar.RegisterPropertyChangedCallback(VisibilityProperty, new DependencyPropertyChangedCallback(OnTagBarVisibilityChanged));
 
             Flyout.PrimaryCommands.Add(TagBar);
             #endregion
@@ -1999,41 +2015,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void FolderFlyout_Opening(object sender, object e)
-        {
-            if (sender is CommandBarFlyout Flyout)
-            {
-                if (Flyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Item) => Item.Name == "OpenFolderInNewWindowButton") is AppBarButton NewWindowButton)
-                {
-                    if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
-                    {
-                        NewWindowButton.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        NewWindowButton.Visibility = Visibility.Visible;
-                    }
-                }
-
-                if (Flyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Item) => Item.Name == "SetAsQuickAccessButton") is AppBarButton QuickAccessButton)
-                {
-                    if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
-                    {
-                        QuickAccessButton.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        QuickAccessButton.Visibility = Visibility.Visible;
-                    }
-                }
-
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-                {
-                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
-                }
-            }
-        }
-
         private async void DirectoryWatcher_FileChanged(object sender, FileChangedDeferredEventArgs args)
         {
             EventDeferral Deferral = args.GetDeferral();
@@ -2408,7 +2389,8 @@ namespace RX_Explorer.View
                     && Container.Frame.Content is FileControl
                     && Container.Renderer == TabViewContainer.Current.CurrentTabRenderer
                     && !Container.ShouldNotAcceptShortcutKeyInput
-                    && !QueueContentDialog.IsRunningOrWaiting)
+                    && !QueueContentDialog.IsRunningOrWaiting
+                    && !SettingPage.IsOpened)
                 {
                     bool CtrlDown = sender.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
                     bool ShiftDown = sender.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
@@ -4658,17 +4640,9 @@ namespace RX_Explorer.View
                         OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
                     }
 
-                    FileSystemStorageItemBase TargetItem = null;
-
                     for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
                     {
-                        TargetItem = FileCollection.FirstOrDefault((Item) => Item == NewFolder);
-
-                        if (TargetItem == null)
-                        {
-                            await Task.Delay(500);
-                        }
-                        else
+                        if (FileCollection.FirstOrDefault((Item) => Item == NewFolder) is FileSystemStorageItemBase TargetItem)
                         {
                             SelectedItem = TargetItem;
                             ItemPresenter.ScrollIntoView(TargetItem);
@@ -4691,6 +4665,8 @@ namespace RX_Explorer.View
 
                             break;
                         }
+
+                        await Task.Delay(500);
                     }
                 }
                 else
@@ -6990,31 +6966,23 @@ namespace RX_Explorer.View
             }
         }
 
-        private void UnTag_Click(object sender, RoutedEventArgs e)
+        private void RemoveLabel_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            SelectedItem.ColorTag = ColorTag.Transparent;
-        }
-
-
-        private void MixUnTag_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-
-            foreach (FileSystemStorageItemBase Item in SelectedItems)
+            foreach (FileSystemStorageItemBase Item in SelectedItems.ToArray())
             {
-                Item.ColorTag = ColorTag.Transparent;
+                Item.Label = LabelKind.None;
             }
         }
 
-        private void Color_Click(object sender, RoutedEventArgs e)
+        private void Label_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
             if (sender is AppBarButton Btn)
             {
-                SelectedItem.ColorTag = Enum.Parse<ColorTag>(Convert.ToString(Btn.Tag));
+                SelectedItem.Label = (LabelKind)Btn.Tag;
             }
         }
 
@@ -7051,6 +7019,42 @@ namespace RX_Explorer.View
             }
         }
 
+        private void OnTagBarVisibilityChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            if (sender is AppBarElementContainer Container)
+            {
+                if (Container.Visibility == Visibility.Visible)
+                {
+                    if (Container.Content is StackPanel Panel)
+                    {
+                        if (Panel.Children.Cast<AppBarButton>().FirstOrDefault((Item) => Item.Name == "PredefineTag1Button") is AppBarButton PredefineTag1Button)
+                        {
+                            PredefineTag1Button.Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground1);
+                            ToolTipService.SetToolTip(PredefineTag1Button, SettingPage.PredefineLabelText1);
+                        }
+
+                        if (Panel.Children.Cast<AppBarButton>().FirstOrDefault((Item) => Item.Name == "PredefineTag2Button") is AppBarButton PredefineTag2Button)
+                        {
+                            PredefineTag2Button.Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground2);
+                            ToolTipService.SetToolTip(PredefineTag2Button, SettingPage.PredefineLabelText2);
+                        }
+
+                        if (Panel.Children.Cast<AppBarButton>().FirstOrDefault((Item) => Item.Name == "PredefineTag3Button") is AppBarButton PredefineTag3Button)
+                        {
+                            PredefineTag3Button.Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground3);
+                            ToolTipService.SetToolTip(PredefineTag3Button, SettingPage.PredefineLabelText3);
+                        }
+
+                        if (Panel.Children.Cast<AppBarButton>().FirstOrDefault((Item) => Item.Name == "PredefineTag4Button") is AppBarButton PredefineTag4Button)
+                        {
+                            PredefineTag4Button.Foreground = new SolidColorBrush(SettingPage.PredefineLabelForeground4);
+                            ToolTipService.SetToolTip(PredefineTag4Button, SettingPage.PredefineLabelText4);
+                        }
+                    }
+                }
+            }
+        }
+
         private void ColorBarBack_Tapped(object sender, TappedRoutedEventArgs e)
         {
             if (sender is FrameworkElement Element)
@@ -7066,12 +7070,11 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-
             if (sender is AppBarButton Btn)
             {
                 foreach (FileSystemStorageItemBase Item in SelectedItems)
                 {
-                    Item.ColorTag = Enum.Parse<ColorTag>(Convert.ToString(Btn.Tag));
+                    Item.Label = (LabelKind)Btn.Tag;
                 }
             }
         }
@@ -7664,9 +7667,60 @@ namespace RX_Explorer.View
             }
         }
 
-        private void FileFlyout_Opening(object sender, object e)
+        public async Task PrepareContextMenuAsync(CommandBarFlyout Flyout)
         {
-            if (sender is CommandBarFlyout Flyout)
+            if (Flyout == FolderFlyout)
+            {
+                if (Flyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Item) => Item.Name == "OpenFolderInNewWindowButton") is AppBarButton NewWindowButton)
+                {
+                    if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                    {
+                        NewWindowButton.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        NewWindowButton.Visibility = Visibility.Visible;
+                    }
+                }
+
+                if (Flyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Item) => Item.Name == "SetAsQuickAccessButton") is AppBarButton QuickAccessButton)
+                {
+                    if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                    {
+                        QuickAccessButton.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        QuickAccessButton.Visibility = Visibility.Visible;
+                    }
+                }
+
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
+                }
+            }
+            else if (Flyout == MixedFlyout)
+            {
+                AppBarButton MixedDecompression = MixedFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "MixedDecompression");
+
+                if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
+                {
+                    MixedDecompression.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    MixedDecompression.Visibility = Visibility.Collapsed;
+                }
+            }
+            else if (Flyout == FileFlyout)
             {
                 IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems.ToList();
 
@@ -7787,26 +7841,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private void MixedFlyout_Opening(object sender, object e)
-        {
-            AppBarButton MixedDecompression = MixedFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "MixedDecompression");
-
-            if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
-            {
-                MixedDecompression.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                MixedDecompression.Visibility = Visibility.Collapsed;
-            }
-        }
 
         private async void ViewControl_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
@@ -7836,6 +7870,7 @@ namespace RX_Explorer.View
                                 {
                                     try
                                     {
+                                        await PrepareContextMenuAsync(MixedFlyout);
                                         await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
                                                                                                         Position,
                                                                                                         ContextMenuCancellation.Token,
@@ -7866,6 +7901,7 @@ namespace RX_Explorer.View
                                     {
                                         try
                                         {
+                                            await PrepareContextMenuAsync(ContextFlyout);
                                             await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
                                                                                                               Position,
                                                                                                               ContextMenuCancellation.Token,
@@ -7892,6 +7928,7 @@ namespace RX_Explorer.View
                                     {
                                         try
                                         {
+                                            await PrepareContextMenuAsync(EmptyFlyout);
                                             await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
                                                                                                             Position,
                                                                                                             ContextMenuCancellation.Token,
@@ -7914,6 +7951,7 @@ namespace RX_Explorer.View
                             {
                                 try
                                 {
+                                    await PrepareContextMenuAsync(EmptyFlyout);
                                     await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
                                                                                                     Position,
                                                                                                     ContextMenuCancellation.Token,

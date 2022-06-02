@@ -100,19 +100,16 @@ namespace RX_Explorer.Class
                                             ? SortedFolderList.Concat(SortedFileList)
                                             : SortedFileList.Concat(SortedFolderList);
                     }
-                default:
+                case SortTarget.OriginPath:
                     {
-                        if (typeof(T) == typeof(IRecycleStorageItem))
-                        {
-                            return FolderList.OfType<IRecycleStorageItem>()
+                        return FolderList.OfType<IRecycleStorageItem>()
                                              .OrderByFastStringSortAlgorithm((Item) => Item.OriginPath, Direction)
                                              .Concat(FileList.OfType<IRecycleStorageItem>().OrderByFastStringSortAlgorithm((Item) => Item.OriginPath, Direction))
                                              .OfType<T>();
-                        }
-                        else
-                        {
-                            return null;
-                        }
+                    }
+                default:
+                    {
+                        throw new NotSupportedException($"{Target} is not supported");
                     }
             }
         }

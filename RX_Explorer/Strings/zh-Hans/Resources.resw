@@ -2605,29 +2605,11 @@
   <data name="SettingHideProtectedSystemItems.Text" xml:space="preserve">
     <value>隐藏受保护的系统文件(推荐)</value>
   </data>
-  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>蓝色标记</value>
-  </data>
-  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>绿色标记</value>
-  </data>
-  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>橙色标记</value>
-  </data>
-  <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>取消标记</value>
-  </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>准备中</value>
   </data>
   <data name="Operate_Text_Copy" xml:space="preserve">
     <value>复制</value>
-  </data>
-  <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
-    <value>标记</value>
-  </data>
-  <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>紫色标记</value>
   </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>压缩算法</value>
@@ -3552,5 +3534,32 @@
   </data>
   <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
     <value>垂直拆分窗口显示数量限制</value>
+  </data>
+  <data name="RemoveLabel" xml:space="preserve">
+    <value>移除标签</value>
+  </data>
+  <data name="CustomLabelColorAndLabel" xml:space="preserve">
+    <value>自定义标签和标签颜色</value>
+  </data>
+  <data name="CustomLabelColorAndLabelDescription" xml:space="preserve">
+    <value>根据个人喜好自定义标签和标签颜色</value>
+  </data>
+  <data name="CustomLabelColorAndLabelBox.PlaceholderText" xml:space="preserve">
+    <value>请输入您希望使用的标签文字</value>
+  </data>
+  <data name="PredefineLabelText1" xml:space="preserve">
+    <value>标签1</value>
+  </data>
+  <data name="PredefineLabelText2" xml:space="preserve">
+    <value>标签2</value>
+  </data>
+  <data name="PredefineLabelText3" xml:space="preserve">
+    <value>标签3</value>
+  </data>
+  <data name="PredefineLabelText4" xml:space="preserve">
+    <value>标签4</value>
+  </data>
+  <data name="AddLabel" xml:space="preserve">
+    <value>标签</value>
   </data>
 </root>

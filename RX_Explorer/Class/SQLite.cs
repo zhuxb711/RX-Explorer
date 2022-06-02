@@ -74,7 +74,7 @@ namespace RX_Explorer.Class
                    .Append("Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null Collate NoCase, IsDefault Text Default 'False' Check(IsDefault In ('True','False')), IsRecommanded Text Default 'False' Check(IsRecommanded In ('True','False')), Primary Key(FileType, Path));")
                    .Append("Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null Collate NoCase, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));")
                    .Append("Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), GroupColumn Text Default 'None' Check(GroupColumn In ('None','Name','ModifiedTime','Type','Size')), GroupDirection Text Default 'Ascending' Check(GroupDirection In ('Ascending','Descending')), Primary Key(Path));")
-                   .Append("Create Table If Not Exists FileTag (Path Text Not Null Collate NoCase, ColorTag Text Not Null, Primary Key (Path));");
+                   .Append("Create Table If Not Exists PathTagMapping (Path Text Not Null Collate NoCase, Label Text Not Null, Primary Key (Path));");
 
             InitCommand.CommandText = Builder.ToString();
             InitCommand.ExecuteNonQuery();
@@ -531,12 +531,12 @@ namespace RX_Explorer.Class
         /// <param name="Path">文件路径</param>
         /// <param name="Color">颜色</param>
         /// <returns></returns>
-        public void SetColorTag(string Path, ColorTag Tag)
+        public void SetLabelKindByPath(string Path, LabelKind Label)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into FileTag Values (@Path, @ColorTag)", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into PathTagMapping Values (@Path, @Label)", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
-                Command.Parameters.AddWithValue("@ColorTag", Enum.GetName(typeof(ColorTag), Tag));
+                Command.Parameters.AddWithValue("@Label", Enum.GetName(typeof(LabelKind), Label));
                 Command.ExecuteNonQuery();
             }
         }
@@ -545,9 +545,9 @@ namespace RX_Explorer.Class
         /// 获取所有文件颜色
         /// </summary>
         /// <returns></returns>
-        public ColorTag GetColorTag(string Path)
+        public LabelKind GetLabelKindFromPath(string Path)
         {
-            using (SqliteCommand Command = new SqliteCommand("Select ColorTag From FileTag Where Path = @Path", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Select Label From PathTagMapping Where Path = @Path", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
 
@@ -555,11 +555,11 @@ namespace RX_Explorer.Class
 
                 if (string.IsNullOrEmpty(Tag))
                 {
-                    return ColorTag.Transparent;
+                    return LabelKind.None;
                 }
                 else
                 {
-                    return Enum.Parse<ColorTag>(Tag);
+                    return Enum.Parse<LabelKind>(Tag);
                 }
             }
         }

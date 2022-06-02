@@ -167,6 +167,24 @@ namespace MaintenanceTask
                     }
                 }
 
+                using (SqliteCommand Command = new SqliteCommand("Create Table If Not Exists PathTagMapping (Path Text Not Null Collate NoCase, Label Text Not Null, Primary Key (Path))", Connection, Transaction))
+                {
+                    Command.ExecuteNonQuery();
+                }
+
+                using (SqliteCommand Command = new SqliteCommand("Select Count(*) From sqlite_master Where type = \"table\" And name = \"FileTag\"", Connection, Transaction))
+                {
+                    if (Convert.ToInt32(Command.ExecuteScalar()) > 0)
+                    {
+                        Builder.Append("Insert Or Ignore Into PathTagMapping (Path, Label) Select Path, ColorTag From FileTag;")
+                               .Append("Update PathTagMapping Set Label = 'PredefineLabel1' Where Label = 'Blue';")
+                               .Append("Update PathTagMapping Set Label = 'PredefineLabel2' Where Label = 'Green';")
+                               .Append("Update PathTagMapping Set Label = 'PredefineLabel3' Where Label = 'Orange';")
+                               .Append("Update PathTagMapping Set Label = 'PredefineLabel4' Where Label = 'Purple';")
+                               .Append("Drop Table FileTag;");
+                    }
+                }
+
                 bool HasGroupColumnColumn = false;
                 bool HasGroupDirectionColumn = false;
 

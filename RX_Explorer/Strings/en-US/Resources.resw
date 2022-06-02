@@ -2737,20 +2737,8 @@ Invalid names include
   <data name="SettingHideProtectedSystemItems.Text" xml:space="preserve">
     <value>Hide protected system files (Recommended)</value>
   </data>
-  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Blue tag</value>
-  </data>
-  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Green tag</value>
-  </data>
-  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Orange tag</value>
-  </data>
-  <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Untag</value>
-  </data>
-  <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Purple tag</value>
+  <data name="RemoveLabel" xml:space="preserve">
+    <value>Remove the label</value>
   </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>Preparing</value>
@@ -2758,8 +2746,8 @@ Invalid names include
   <data name="Operate_Text_Copy" xml:space="preserve">
     <value>Copy</value>
   </data>
-  <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Tag</value>
+  <data name="AddLabel" xml:space="preserve">
+    <value>Label</value>
   </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>Compression algorithm</value>
@@ -3657,5 +3645,26 @@ Invalid names include
   </data>
   <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
     <value>Vertical split view display limitation</value>
+  </data>
+  <data name="PredefineLabelText1" xml:space="preserve">
+    <value>Label 1</value>
+  </data>
+  <data name="PredefineLabelText2" xml:space="preserve">
+    <value>Label 2</value>
+  </data>
+  <data name="PredefineLabelText3" xml:space="preserve">
+    <value>Label 3</value>
+  </data>
+  <data name="PredefineLabelText4" xml:space="preserve">
+    <value>Label 4</value>
+  </data>
+  <data name="CustomLabelColorAndLabel" xml:space="preserve">
+    <value>Customize label and label colors</value>
+  </data>
+  <data name="CustomLabelColorAndLabelDescription" xml:space="preserve">
+    <value>Customize the label color and the labels according to your personal preferences</value>
+  </data>
+  <data name="CustomLabelColorAndLabelBox.PlaceholderText" xml:space="preserve">
+    <value>Please enter the text you wish to use</value>
   </data>
 </root>

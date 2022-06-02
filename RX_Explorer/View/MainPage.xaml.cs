@@ -123,7 +123,9 @@ namespace RX_Explorer.View
             bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
             bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
 
-            if (!QueueContentDialog.IsRunningOrWaiting && NavView.SelectedItem is NavigationViewItem NavItem)
+            if (!QueueContentDialog.IsRunningOrWaiting
+                && !SettingPage.IsOpened
+                && NavView.SelectedItem is NavigationViewItem NavItem)
             {
                 if (Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
                     && TabViewContainer.Current?.CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
@@ -287,7 +289,9 @@ namespace RX_Explorer.View
 
         private async void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
         {
-            if (!QueueContentDialog.IsRunningOrWaiting && NavView.SelectedItem is NavigationViewItem NavItem)
+            if (!QueueContentDialog.IsRunningOrWaiting 
+                && !SettingPage.IsOpened
+                && NavView.SelectedItem is NavigationViewItem NavItem)
             {
                 e.Handled = true;
 
@@ -363,7 +367,7 @@ namespace RX_Explorer.View
                 {
                     if (CurrentFrame.Content is not (FileControl or SearchPage))
                     {
-                        switch(SettingPage.ShutdownButtonBehavior)
+                        switch (SettingPage.ShutdownButtonBehavior)
                         {
                             case ShutdownBehaivor.CloseApplication:
                                 {
@@ -751,82 +755,89 @@ namespace RX_Explorer.View
 
         private async Task PinApplicationToTaskBarAsync()
         {
-            TaskbarManager BarManager = TaskbarManager.GetDefault();
-            StartScreenManager ScreenManager = StartScreenManager.GetDefault();
-
-            bool PinStartScreen = false, PinTaskBar = false;
-
-            if ((await Package.Current.GetAppListEntriesAsync()).FirstOrDefault() is AppListEntry Entry)
+            try
             {
-                if (ScreenManager.SupportsAppListEntry(Entry) && !await ScreenManager.ContainsAppListEntryAsync(Entry))
-                {
-                    PinStartScreen = true;
-                }
+                TaskbarManager BarManager = TaskbarManager.GetDefault();
+                StartScreenManager ScreenManager = StartScreenManager.GetDefault();
 
-                if (BarManager.IsPinningAllowed && !await BarManager.IsCurrentAppPinnedAsync())
-                {
-                    PinTaskBar = true;
-                }
+                bool PinStartScreen = false, PinTaskBar = false;
 
-                if (PinStartScreen && PinTaskBar)
+                if ((await Package.Current.GetAppListEntriesAsync()).FirstOrDefault() is AppListEntry Entry)
                 {
-                    PinTip.ActionButtonClick += async (s, e) =>
+                    if (ScreenManager.SupportsAppListEntry(Entry) && !await ScreenManager.ContainsAppListEntryAsync(Entry))
                     {
-                        s.IsOpen = false;
+                        PinStartScreen = true;
+                    }
 
-                        try
-                        {
-                            await BarManager.RequestPinCurrentAppAsync();
-                            await ScreenManager.RequestAddAppListEntryAsync(Entry);
-                        }
-                        catch (Exception)
-                        {
-                            //No need to handle this exception
-                        }
-                    };
-                }
-                else if (PinStartScreen && !PinTaskBar)
-                {
-                    PinTip.ActionButtonClick += async (s, e) =>
+                    if (BarManager.IsPinningAllowed && !await BarManager.IsCurrentAppPinnedAsync())
                     {
-                        s.IsOpen = false;
+                        PinTaskBar = true;
+                    }
 
-                        try
-                        {
-                            await ScreenManager.RequestAddAppListEntryAsync(Entry);
-                        }
-                        catch (Exception)
-                        {
-                            //No need to handle this exception
-                        }
-                    };
-                }
-                else if (!PinStartScreen && PinTaskBar)
-                {
-                    PinTip.ActionButtonClick += async (s, e) =>
+                    if (PinStartScreen && PinTaskBar)
                     {
-                        s.IsOpen = false;
+                        PinTip.ActionButtonClick += async (s, e) =>
+                        {
+                            s.IsOpen = false;
 
-                        try
-                        {
-                            await BarManager.RequestPinCurrentAppAsync();
-                        }
-                        catch (Exception)
-                        {
-                            //No need to handle this exception
-                        }
-                    };
-                }
-                else
-                {
-                    PinTip.ActionButtonClick += (s, e) =>
+                            try
+                            {
+                                await BarManager.RequestPinCurrentAppAsync();
+                                await ScreenManager.RequestAddAppListEntryAsync(Entry);
+                            }
+                            catch (Exception)
+                            {
+                                //No need to handle this exception
+                            }
+                        };
+                    }
+                    else if (PinStartScreen && !PinTaskBar)
                     {
-                        s.IsOpen = false;
-                    };
-                }
+                        PinTip.ActionButtonClick += async (s, e) =>
+                        {
+                            s.IsOpen = false;
 
-                PinTip.Subtitle = Globalization.GetString("TeachingTip_PinToMenu_Subtitle");
-                PinTip.IsOpen = true;
+                            try
+                            {
+                                await ScreenManager.RequestAddAppListEntryAsync(Entry);
+                            }
+                            catch (Exception)
+                            {
+                                //No need to handle this exception
+                            }
+                        };
+                    }
+                    else if (!PinStartScreen && PinTaskBar)
+                    {
+                        PinTip.ActionButtonClick += async (s, e) =>
+                        {
+                            s.IsOpen = false;
+
+                            try
+                            {
+                                await BarManager.RequestPinCurrentAppAsync();
+                            }
+                            catch (Exception)
+                            {
+                                //No need to handle this exception
+                            }
+                        };
+                    }
+                    else
+                    {
+                        PinTip.ActionButtonClick += (s, e) =>
+                        {
+                            s.IsOpen = false;
+                        };
+                    }
+
+                    PinTip.Subtitle = Globalization.GetString("TeachingTip_PinToMenu_Subtitle");
+                    PinTip.IsOpen = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not request to pin the application to task bar");
             }
         }
 

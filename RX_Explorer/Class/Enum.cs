@@ -90,13 +90,13 @@ namespace RX_Explorer.Class
         FullTrustBusy
     }
 
-    public enum ColorTag
+    public enum LabelKind
     {
-        Transparent,
-        Orange,
-        Green,
-        Purple,
-        Blue
+        None,
+        PredefineLabel1,
+        PredefineLabel2,
+        PredefineLabel3,
+        PredefineLabel4
     }
 
     public enum CommonChangeType
@@ -179,10 +179,10 @@ namespace RX_Explorer.Class
     public enum ColorFilterCondition
     {
         None = 0,
-        Orange = 1,
-        Green = 2,
-        Purple = 4,
-        Blue = 8
+        PredefineLabel1 = 1,
+        PredefineLabel2 = 2,
+        PredefineLabel3 = 4,
+        PredefineLabel4 = 8
     }
 
     [Flags]

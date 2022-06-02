@@ -334,7 +334,177 @@
                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
                                         </RelativePanel>
                                     </Border>
-
+                                    <muxc:Expander Margin="0,5,0,0"
+                                                   ExpandDirection="Down"
+                                                   HorizontalAlignment="Stretch"
+                                                   HorizontalContentAlignment="Stretch"
+                                                   VerticalContentAlignment="Stretch"
+                                                   Padding="0"
+                                                   MinHeight="60"
+                                                   Background="Transparent"
+                                                   CornerRadius="4,4,0,0">
+                                        <muxc:Expander.Header>
+                                            <StackPanel Padding="4,10,0,10">
+                                                <TextBlock Text="自定义标签颜色和文字"
+                                                           x:Uid="CustomLabelColorAndLabel"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           x:Uid="CustomLabelColorAndLabelDescription"
+                                                           Text="根据个人喜好自定义标签的颜色和文字" />
+                                            </StackPanel>
+                                        </muxc:Expander.Header>
+                                        <muxc:Expander.Content>
+                                            <StackPanel>
+                                                <Border Padding="40,10,10,10"
+                                                        CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="60" />
+                                                            <ColumnDefinition Width="10" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <control:ColorPickerButton Height="32"
+                                                                                   Margin="0,1,0,0"
+                                                                                   x:Name="PredefineTagColorPicker1"
+                                                                                   HorizontalAlignment="Stretch"
+                                                                                   VerticalAlignment="Center">
+                                                            <control:ColorPickerButton.ColorPickerStyle>
+                                                                <Style TargetType="control:ColorPicker">
+                                                                    <Setter Property="ColorSpectrumShape"
+                                                                            Value="Box" />
+                                                                    <Setter Property="IsAlphaEnabled"
+                                                                            Value="True" />
+                                                                    <Setter Property="IsHexInputVisible"
+                                                                            Value="True" />
+                                                                </Style>
+                                                            </control:ColorPickerButton.ColorPickerStyle>
+                                                        </control:ColorPickerButton>
+                                                        <TextBox Grid.Column="2"
+                                                                 Name="PredefineLabelBox1"
+                                                                 x:Uid="CustomLabelColorAndLabelBox"
+                                                                 PlaceholderText="请输入您希望使用的标签文字"
+                                                                 HorizontalAlignment="Stretch"
+                                                                 VerticalAlignment="Center"
+                                                                 LostFocus="PredefineLabelBox1_LostFocus"/>
+                                                    </Grid>
+                                                </Border>
+                                                <Border Padding="40,10,10,10"
+                                                        CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="60" />
+                                                            <ColumnDefinition Width="10" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <control:ColorPickerButton Height="32"
+                                                                                   Margin="0,1,0,0"
+                                                                                   x:Name="PredefineTagColorPicker2"
+                                                                                   HorizontalAlignment="Stretch"
+                                                                                   VerticalAlignment="Center">
+                                                            <control:ColorPickerButton.ColorPickerStyle>
+                                                                <Style TargetType="control:ColorPicker">
+                                                                    <Setter Property="ColorSpectrumShape"
+                                                                            Value="Box" />
+                                                                    <Setter Property="IsAlphaEnabled"
+                                                                            Value="True" />
+                                                                    <Setter Property="IsHexInputVisible"
+                                                                            Value="True" />
+                                                                </Style>
+                                                            </control:ColorPickerButton.ColorPickerStyle>
+                                                        </control:ColorPickerButton>
+                                                        <TextBox Grid.Column="2"
+                                                                 Name="PredefineLabelBox2"
+                                                                 x:Uid="CustomLabelColorAndLabelBox"
+                                                                 PlaceholderText="请输入您希望使用的标签文字"
+                                                                 HorizontalAlignment="Stretch"
+                                                                 VerticalAlignment="Center"
+                                                                 LostFocus="PredefineLabelBox2_LostFocus"/>
+                                                    </Grid>
+                                                </Border>
+                                                <Border Padding="40,10,10,10"
+                                                        CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="60" />
+                                                            <ColumnDefinition Width="10" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <control:ColorPickerButton Height="32"
+                                                                                   Margin="0,1,0,0"
+                                                                                   x:Name="PredefineTagColorPicker3"
+                                                                                   HorizontalAlignment="Stretch"
+                                                                                   VerticalAlignment="Center">
+                                                            <control:ColorPickerButton.ColorPickerStyle>
+                                                                <Style TargetType="control:ColorPicker">
+                                                                    <Setter Property="ColorSpectrumShape"
+                                                                            Value="Box" />
+                                                                    <Setter Property="IsAlphaEnabled"
+                                                                            Value="True" />
+                                                                    <Setter Property="IsHexInputVisible"
+                                                                            Value="True" />
+                                                                </Style>
+                                                            </control:ColorPickerButton.ColorPickerStyle>
+                                                        </control:ColorPickerButton>
+                                                        <TextBox Grid.Column="2"
+                                                                 Name="PredefineLabelBox3"
+                                                                 x:Uid="CustomLabelColorAndLabelBox"
+                                                                 PlaceholderText="请输入您希望使用的标签文字"
+                                                                 HorizontalAlignment="Stretch"
+                                                                 VerticalAlignment="Center"
+                                                                 LostFocus="PredefineLabelBox3_LostFocus"/>
+                                                    </Grid>
+                                                </Border>
+                                                <Border Padding="40,10,10,10"
+                                                        CornerRadius="0,0,4,4"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="60" />
+                                                            <ColumnDefinition Width="10" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <control:ColorPickerButton Height="32"
+                                                                                   Margin="0,1,0,0"
+                                                                                   x:Name="PredefineTagColorPicker4"
+                                                                                   HorizontalAlignment="Stretch"
+                                                                                   VerticalAlignment="Center">
+                                                            <control:ColorPickerButton.ColorPickerStyle>
+                                                                <Style TargetType="control:ColorPicker">
+                                                                    <Setter Property="ColorSpectrumShape"
+                                                                            Value="Box" />
+                                                                    <Setter Property="IsAlphaEnabled"
+                                                                            Value="True" />
+                                                                    <Setter Property="IsHexInputVisible"
+                                                                            Value="True" />
+                                                                </Style>
+                                                            </control:ColorPickerButton.ColorPickerStyle>
+                                                        </control:ColorPickerButton>
+                                                        <TextBox Grid.Column="2"
+                                                                 Name="PredefineLabelBox4"
+                                                                 x:Uid="CustomLabelColorAndLabelBox"
+                                                                 PlaceholderText="请输入您希望使用的标签文字"
+                                                                 HorizontalAlignment="Stretch"
+                                                                 VerticalAlignment="Center"
+                                                                 LosingFocus="PredefineLabelBox4_LosingFocus"/>
+                                                    </Grid>
+                                                </Border>
+                                            </StackPanel>
+                                        </muxc:Expander.Content>
+                                    </muxc:Expander>
                                     <muxc:Expander Margin="0,5,0,0"
                                                    ExpandDirection="Down"
                                                    HorizontalAlignment="Stretch"

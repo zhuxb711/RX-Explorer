@@ -110,20 +110,29 @@ namespace RX_Explorer.Class
 
         public static async Task<BackgroundPicture> CreateAsync(Uri PictureUri)
         {
-            StorageFile NewImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureUri);
-
-            BitmapImage Bitmap = new BitmapImage()
+            try
             {
-                DecodePixelHeight = 90,
-                DecodePixelWidth = 160
-            };
+                StorageFile NewImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureUri);
 
-            using (IRandomAccessStream Stream = await NewImageFile.OpenAsync(FileAccessMode.Read))
+                BitmapImage Bitmap = new BitmapImage()
+                {
+                    DecodePixelHeight = 90,
+                    DecodePixelWidth = 160
+                };
+
+                using (IRandomAccessStream Stream = await NewImageFile.OpenAsync(FileAccessMode.Read))
+                {
+                    await Bitmap.SetSourceAsync(Stream);
+                }
+
+                return new BackgroundPicture(Bitmap, PictureUri);
+            }
+            catch (Exception ex)
             {
-                await Bitmap.SetSourceAsync(Stream);
+                LogTracer.Log(ex, $"Could not create a new instance of {nameof(BackgroundPicture)}");
             }
 
-            return new BackgroundPicture(Bitmap, PictureUri);
+            return null;
         }
 
         /// <summary>

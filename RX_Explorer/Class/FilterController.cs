@@ -1,12 +1,18 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using RX_Explorer.View;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
+using Windows.Storage;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
@@ -620,11 +626,11 @@ namespace RX_Explorer.Class
 
                     if (colorFilterCheckBox1)
                     {
-                        AddColorCondition(ColorFilterCondition.Orange);
+                        AddColorCondition(ColorFilterCondition.PredefineLabel1);
                     }
                     else
                     {
-                        RemoveColorCondition(ColorFilterCondition.Orange);
+                        RemoveColorCondition(ColorFilterCondition.PredefineLabel1);
                     }
 
                     OnPropertyChanged();
@@ -647,11 +653,11 @@ namespace RX_Explorer.Class
 
                     if (colorFilterCheckBox2)
                     {
-                        AddColorCondition(ColorFilterCondition.Green);
+                        AddColorCondition(ColorFilterCondition.PredefineLabel2);
                     }
                     else
                     {
-                        RemoveColorCondition(ColorFilterCondition.Green);
+                        RemoveColorCondition(ColorFilterCondition.PredefineLabel2);
                     }
 
                     OnPropertyChanged();
@@ -674,11 +680,11 @@ namespace RX_Explorer.Class
 
                     if (colorFilterCheckBox3)
                     {
-                        AddColorCondition(ColorFilterCondition.Purple);
+                        AddColorCondition(ColorFilterCondition.PredefineLabel3);
                     }
                     else
                     {
-                        RemoveColorCondition(ColorFilterCondition.Purple);
+                        RemoveColorCondition(ColorFilterCondition.PredefineLabel3);
                     }
 
                     OnPropertyChanged();
@@ -701,11 +707,11 @@ namespace RX_Explorer.Class
 
                     if (colorFilterCheckBox4)
                     {
-                        AddColorCondition(ColorFilterCondition.Blue);
+                        AddColorCondition(ColorFilterCondition.PredefineLabel4);
                     }
                     else
                     {
-                        RemoveColorCondition(ColorFilterCondition.Blue);
+                        RemoveColorCondition(ColorFilterCondition.PredefineLabel4);
                     }
 
                     OnPropertyChanged();
@@ -713,6 +719,22 @@ namespace RX_Explorer.Class
                 }
             }
         }
+
+        public SolidColorBrush ColorFilterCheckBoxForeground1 => new SolidColorBrush(SettingPage.PredefineLabelForeground1);
+
+        public SolidColorBrush ColorFilterCheckBoxForeground2 => new SolidColorBrush(SettingPage.PredefineLabelForeground2);
+
+        public SolidColorBrush ColorFilterCheckBoxForeground3 => new SolidColorBrush(SettingPage.PredefineLabelForeground3);
+
+        public SolidColorBrush ColorFilterCheckBoxForeground4 => new SolidColorBrush(SettingPage.PredefineLabelForeground4);
+
+        public string ColorFilterCheckBoxContent1 => SettingPage.PredefineLabelText1;
+
+        public string ColorFilterCheckBoxContent2 => SettingPage.PredefineLabelText2;
+
+        public string ColorFilterCheckBoxContent3 => SettingPage.PredefineLabelText3;
+
+        public string ColorFilterCheckBoxContent4 => SettingPage.PredefineLabelText4;
 
         public async Task SetDataSourceAsync(IEnumerable<FileSystemStorageItemBase> DataSource)
         {
@@ -948,24 +970,24 @@ namespace RX_Explorer.Class
             {
                 ColorFilterResult = new List<FileSystemStorageItemBase>();
 
-                if (ColorCondition.HasFlag(ColorFilterCondition.Orange))
+                if (ColorCondition.HasFlag(ColorFilterCondition.PredefineLabel1))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.ColorTag == ColorTag.Orange));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.Label == LabelKind.PredefineLabel1));
                 }
 
-                if (ColorCondition.HasFlag(ColorFilterCondition.Green))
+                if (ColorCondition.HasFlag(ColorFilterCondition.PredefineLabel2))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.ColorTag == ColorTag.Green));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.Label == LabelKind.PredefineLabel2));
                 }
 
-                if (ColorCondition.HasFlag(ColorFilterCondition.Purple))
+                if (ColorCondition.HasFlag(ColorFilterCondition.PredefineLabel3))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.ColorTag == ColorTag.Purple));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.Label == LabelKind.PredefineLabel3));
                 }
 
-                if (ColorCondition.HasFlag(ColorFilterCondition.Blue))
+                if (ColorCondition.HasFlag(ColorFilterCondition.PredefineLabel4))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.ColorTag == ColorTag.Blue));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.Label == LabelKind.PredefineLabel4));
                 }
             }
 
@@ -1094,6 +1116,26 @@ namespace RX_Explorer.Class
             {
                 return new List<FileSystemStorageItemBase>(0);
             }
+        }
+
+        public FilterController()
+        {
+            ApplicationData.Current.DataChanged += Current_DataChanged;
+        }
+
+        private async void Current_DataChanged(ApplicationData sender, object args)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                OnPropertyChanged(nameof(ColorFilterCheckBoxForeground1));
+                OnPropertyChanged(nameof(ColorFilterCheckBoxForeground2));
+                OnPropertyChanged(nameof(ColorFilterCheckBoxForeground3));
+                OnPropertyChanged(nameof(ColorFilterCheckBoxForeground4));
+                OnPropertyChanged(nameof(ColorFilterCheckBoxContent1));
+                OnPropertyChanged(nameof(ColorFilterCheckBoxContent2));
+                OnPropertyChanged(nameof(ColorFilterCheckBoxContent3));
+                OnPropertyChanged(nameof(ColorFilterCheckBoxContent4));
+            });
         }
     }
 }

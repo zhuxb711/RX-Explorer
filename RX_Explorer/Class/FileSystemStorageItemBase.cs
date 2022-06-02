@@ -42,15 +42,15 @@ namespace RX_Explorer.Class
 
         public abstract string DisplayType { get; }
 
-        public ColorTag ColorTag
+        public LabelKind Label
         {
             get
             {
-                return SQLite.Current.GetColorTag(Path);
+                return SQLite.Current.GetLabelKindFromPath(Path);
             }
             set
             {
-                SQLite.Current.SetColorTag(Path, value);
+                SQLite.Current.SetLabelKindByPath(Path, value);
                 OnPropertyChanged();
             }
         }

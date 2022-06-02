@@ -3458,22 +3458,6 @@ Les noms non valides incluent
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">Masquer les fichiers système protégés (Recommandé)</target>
         </trans-unit>
-        <trans-unit id="BlueTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Blue tag</source>
-          <target state="translated">Étiquette bleue</target>
-        </trans-unit>
-        <trans-unit id="GreenTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Green tag</source>
-          <target state="translated">Étiquette verte</target>
-        </trans-unit>
-        <trans-unit id="OrangeTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Orange tag</source>
-          <target state="translated">Étiquette orange</target>
-        </trans-unit>
-        <trans-unit id="UnTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Untag</source>
-          <target state="translated">Détacher</target>
-        </trans-unit>
         <trans-unit id="TaskList_Task_Status_Preparing" translate="yes" xml:space="preserve">
           <source>Preparing</source>
           <target state="translated">En train de préparer</target>
@@ -3481,14 +3465,6 @@ Les noms non valides incluent
         <trans-unit id="Operate_Text_Copy" translate="yes" xml:space="preserve">
           <source>Copy</source>
           <target state="translated">Copie</target>
-        </trans-unit>
-        <trans-unit id="TagEntry.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Tag</source>
-          <target state="translated">Étiqueter</target>
-        </trans-unit>
-        <trans-unit id="PurpleTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Purple tag</source>
-          <target state="translated">Étiquette violette</target>
         </trans-unit>
         <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
           <source>Compression algorithm</source>
@@ -4720,6 +4696,42 @@ Les noms non valides incluent
         <trans-unit id="VerticalSplitViewLimitationLabel" translate="yes" xml:space="preserve">
           <source>Vertical split view display limitation</source>
           <target state="translated">Limitation de l'affichage de la vue fractionnée verticale</target>
+        </trans-unit>
+        <trans-unit id="RemoveLabel" translate="yes" xml:space="preserve">
+          <source>Remove the label</source>
+          <target state="translated">Retirer l'étiquette</target>
+        </trans-unit>
+        <trans-unit id="CustomLabelColorAndLabel" translate="yes" xml:space="preserve">
+          <source>Customize label and label colors</source>
+          <target state="translated">Personnaliser l'étiquette et les couleurs des étiquettes</target>
+        </trans-unit>
+        <trans-unit id="CustomLabelColorAndLabelDescription" translate="yes" xml:space="preserve">
+          <source>Customize the label color and the labels according to your personal preferences</source>
+          <target state="translated">Personnalisez la couleur de l'étiquette et les étiquettes selon vos préférences personnelles</target>
+        </trans-unit>
+        <trans-unit id="CustomLabelColorAndLabelBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter the text you wish to use</source>
+          <target state="translated">Veuillez entrer le texte que vous souhaitez utiliser</target>
+        </trans-unit>
+        <trans-unit id="PredefineLabelText1" translate="yes" xml:space="preserve">
+          <source>Label 1</source>
+          <target state="translated">Étiquette 1</target>
+        </trans-unit>
+        <trans-unit id="PredefineLabelText2" translate="yes" xml:space="preserve">
+          <source>Label 2</source>
+          <target state="translated">Étiquette 2</target>
+        </trans-unit>
+        <trans-unit id="PredefineLabelText3" translate="yes" xml:space="preserve">
+          <source>Label 3</source>
+          <target state="translated">Étiquette 3</target>
+        </trans-unit>
+        <trans-unit id="PredefineLabelText4" translate="yes" xml:space="preserve">
+          <source>Label 4</source>
+          <target state="translated">Étiquette 4</target>
+        </trans-unit>
+        <trans-unit id="AddLabel" translate="yes" xml:space="preserve">
+          <source>Label</source>
+          <target state="translated">Étiquette</target>
         </trans-unit>
       </group>
     </body>

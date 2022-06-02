@@ -63,7 +63,6 @@ namespace RX_Explorer.View
                 AlwaysExpanded = true,
                 ShouldConstrainToRootBounds = false
             };
-            Flyout.Opening += LibraryFlyout_Opening;
             Flyout.Closing += CommandBarFlyout_Closing;
 
             FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
@@ -420,32 +419,6 @@ namespace RX_Explorer.View
                 }
             }
         }
-
-        private async void LibraryFlyout_Opening(object sender, object e)
-        {
-            if (sender is CommandBarFlyout Flyout)
-            {
-                if (LibraryGrid.SelectedItem is LibraryStorageFolder Folder)
-                {
-                    AppBarButton RenameButton = Flyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "RenameButton");
-
-                    if (Folder.LibType == LibraryType.UserCustom)
-                    {
-                        RenameButton.IsEnabled = true;
-                    }
-                    else
-                    {
-                        RenameButton.IsEnabled = false;
-                    }
-                }
-
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-                {
-                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenInVerticalSplitView").Visibility = Visibility.Visible;
-                }
-            }
-        }
-
 
         private async void DriveRename_Click(object sender, RoutedEventArgs e)
         {
@@ -1820,6 +1793,31 @@ namespace RX_Explorer.View
             }
         }
 
+        public async Task PrepareContextMenuAsync(CommandBarFlyout Flyout)
+        {
+            if (Flyout == LibraryFlyout)
+            {
+                if (LibraryGrid.SelectedItem is LibraryStorageFolder Folder)
+                {
+                    AppBarButton RenameButton = Flyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "RenameButton");
+
+                    if (Folder.LibType == LibraryType.UserCustom)
+                    {
+                        RenameButton.IsEnabled = true;
+                    }
+                    else
+                    {
+                        RenameButton.IsEnabled = false;
+                    }
+                }
+
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenInVerticalSplitView").Visibility = Visibility.Visible;
+                }
+            }
+        }
+
         private async void LibraryGrid_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
             if (args.TryGetPosition(sender, out Point Position))
@@ -1843,6 +1841,7 @@ namespace RX_Explorer.View
                     {
                         try
                         {
+                            await PrepareContextMenuAsync(LibraryFlyout);
                             await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid,
                                                                                               Position,
                                                                                               ContextMenuCancellation.Token,
@@ -1899,6 +1898,7 @@ namespace RX_Explorer.View
                                 {
                                     try
                                     {
+                                        await PrepareContextMenuAsync(BitlockerDriveFlyout);
                                         await BitlockerDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
                                                                                                                  Position,
                                                                                                                  ContextMenuCancellation.Token,
@@ -1919,6 +1919,7 @@ namespace RX_Explorer.View
                                 {
                                     try
                                     {
+                                        await PrepareContextMenuAsync(PortableDriveFlyout);
                                         await PortableDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
                                                                                                                 Position,
                                                                                                                 ContextMenuCancellation.Token,
@@ -1939,6 +1940,7 @@ namespace RX_Explorer.View
                                 {
                                     try
                                     {
+                                        await PrepareContextMenuAsync(NormalDriveFlyout);
                                         await NormalDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
                                                                                                               Position,
                                                                                                               ContextMenuCancellation.Token,
