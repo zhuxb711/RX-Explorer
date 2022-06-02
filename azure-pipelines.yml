@@ -10,20 +10,21 @@ pr:
       - master
 
 variables:
-  - group: UWP-PipeLineVariable
-  - name: buildProject
+  - name: BuildProject
     value: "Package"
-  - name: solution
+  - name: Solution
     value: "**/*.sln"
-  - name: buildPlatform
+  - name: BuildPlatform
     value: "x64|ARM64"
-  - name: buildConfiguration
+  - name: BuildConfiguration
     value: "Release"
   - name: SideLoadPackageDir
-    value: '$(build.artifactStagingDirectory)\SideLoad\\'
+    value: '$(Build.ArtifactStagingDirectory)\SideLoad\\'
   - name: CIPackageDir
-    value: '$(build.artifactStagingDirectory)\CI\\'
-  - name: WindowsLatestSDKUrl
+    value: '$(Build.ArtifactStagingDirectory)\CI\\'
+  - name: TempDirectory
+    value: "$(Agent.TempDirectory)"
+  - name: WindowsSDKInstallerUrl
     value: "https://download.microsoft.com/download/f/6/7/f673df4b-4df9-4e1c-b6ce-2e6b4236c802/windowssdk/winsdksetup.exe"
   - name: WindowsSDKBaseLocation
     value: '$(Agent.TempDirectory)\WinSDK'
@@ -32,6 +33,7 @@ variables:
 
 jobs:
   - job: CIBuild
+    displayName: "Building CI Application"
     timeoutInMinutes: 0
     pool:
       vmImage: "windows-latest"
@@ -42,7 +44,7 @@ jobs:
         displayName: "Install .Net 6 SDK"
         inputs:
           packageType: sdk
-          installationPath: $(Agent.TempDirectory)
+          installationPath: $(TempDirectory)
           version: 6.x
 
       # Windows SDK 10.0.22621 is not pre-installed currently
@@ -52,8 +54,17 @@ jobs:
           targetType: "inline"
           script: |
             New-Item -Path $(WindowsSDKBaseLocation) -ItemType Directory
-            Start-BitsTransfer -Source $(WindowsLatestSDKUrl) -Destination $(WindowsSDKInstallerLocation);
+
+            Write-Host "Start downloading Windows SDK Installer using BitsTransfer..."
+
+            Start-BitsTransfer -Source $(WindowsSDKInstallerUrl) -Destination $(WindowsSDKInstallerLocation) -Description "Downloading Windows SDK..."
+
+            Write-Host "Windows SDK Installer download completed"
+            Write-Host "Start installing Windows SDK..."
+
             Start-Process $(WindowsSDKInstallerLocation) -ArgumentList "/q" -Wait
+
+            Write-Host "Windows SDK installed completed"
 
       - task: DownloadSecureFile@1
         name: secureFile
@@ -95,14 +106,14 @@ jobs:
 
       - task: NuGetCommand@2
         inputs:
-          restoreSolution: "$(solution)"
+          restoreSolution: "$(Solution)"
 
       - task: VSBuild@1
         displayName: "Build RX-Explorer"
         inputs:
-          solution: "$(solution)"
-          msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
-          configuration: "$(buildConfiguration)"
+          solution: "$(Solution)"
+          msbuildArgs: '/t:$(BuildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(BuildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+          configuration: "$(BuildConfiguration)"
           clean: true
           msbuildArchitecture: "x64"
 
@@ -113,6 +124,7 @@ jobs:
           PathtoPublish: "$(CIPackageDir)"
 
   - job: SideLoadBuild
+    displayName: "Building Sideload Application"
     timeoutInMinutes: 0
     pool:
       vmImage: "windows-latest"
@@ -123,7 +135,7 @@ jobs:
         displayName: "Install .Net 6 SDK"
         inputs:
           packageType: sdk
-          installationPath: $(Agent.TempDirectory)
+          installationPath: $(TempDirectory)
           version: 6.x
 
       # Windows SDK 10.0.22621 is not pre-installed currently
@@ -133,8 +145,17 @@ jobs:
           targetType: "inline"
           script: |
             New-Item -Path $(WindowsSDKBaseLocation) -ItemType Directory
-            Start-BitsTransfer -Source $(WindowsLatestSDKUrl) -Destination $(WindowsSDKInstallerLocation);
+
+            Write-Host "Start downloading Windows SDK Installer using BitsTransfer..."
+
+            Start-BitsTransfer -Source $(WindowsSDKInstallerUrl) -Destination $(WindowsSDKInstallerLocation) -Description "Downloading Windows SDK..."
+
+            Write-Host "Windows SDK Installer download completed"
+            Write-Host "Start installing Windows SDK..."
+
             Start-Process $(WindowsSDKInstallerLocation) -ArgumentList "/q" -Wait
+
+            Write-Host "Windows SDK installed completed"
 
       - task: DownloadSecureFile@1
         name: secureFile
@@ -176,14 +197,14 @@ jobs:
 
       - task: NuGetCommand@2
         inputs:
-          restoreSolution: "$(solution)"
+          restoreSolution: "$(Solution)"
 
       - task: VSBuild@1
         displayName: "Build RX-Explorer"
         inputs:
-          solution: "$(solution)"
-          msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(SideLoadPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
-          configuration: "$(buildConfiguration)"
+          solution: "$(Solution)"
+          msbuildArgs: '/t:$(BuildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(BuildPlatform)" /p:AppxPackageDir="$(SideLoadPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+          configuration: "$(BuildConfiguration)"
           clean: true
           restoreNugetPackages: true
           msbuildArchitecture: "x64"
