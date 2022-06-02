@@ -25,8 +25,10 @@ variables:
     value: '$(Build.ArtifactStagingDirectory)\CI\\'
   - name: TempDirectory
     value: "$(Agent.TempDirectory)"
-  - name: WindowsSDKInstallerUrl
-    value: "https://download.microsoft.com/download/f/6/7/f673df4b-4df9-4e1c-b6ce-2e6b4236c802/windowssdk/winsdksetup.exe"
+  - name: TargetWindowsSDKVersion
+    value: "10.0.22000.0"
+  - name: TargetWindowsSDKInstallerUrl #Windows SDK 10.22000.194
+    value: "https://download.microsoft.com/download/d/8/f/d8ff148b-450c-40b3-aeed-2a3944e66bbd/windowssdk/winsdksetup.exe"
   - name: WindowsSDKBaseLocation
     value: '$(Agent.TempDirectory)\WinSDK'
   - name: WindowsSDKInstallerLocation
@@ -48,24 +50,37 @@ jobs:
           installationPath: $(TempDirectory)
           version: 6.x
 
-      # Windows SDK 10.0.22621 is not pre-installed currently
+      # Detect if Windows SDK is installed as requirement. If not install the SDK as requirement
       - task: PowerShell@2
-        displayName: "Download And Install Latest Windows SDK"
+        displayName: "Download And Install Latest Windows SDK As Requirement"
         inputs:
           targetType: "inline"
           script: |
-            New-Item -Path $(WindowsSDKBaseLocation) -ItemType Directory
+            try {
+              $CurrentSDKVersion = $(Get-Item "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0").GetValue("ProductVersion")
+            } catch {
+              $CurrentSDKVersion = ''
+              Write-Host "Detect the installed Windows SDK failed. Installed Windows SDK Version is aligned with TargetSDKVersion. Skipping this check"
+            }
 
-            Write-Host "Start downloading Windows SDK Installer using BitsTransfer..."
+            if ($CurrentSDKVersion -ne '') {
+              if($CurrentSDKVersion -lt ($TargetWindowsSDKVersion)) {
+                New-Item -Path $(WindowsSDKBaseLocation) -ItemType Directory
 
-            Start-BitsTransfer -Source $(WindowsSDKInstallerUrl) -Destination $(WindowsSDKInstallerLocation) -Description "Downloading Windows SDK..."
+                Write-Host "Start downloading Windows SDK Installer using BitsTransfer..."
 
-            Write-Host "Windows SDK Installer download completed"
-            Write-Host "Start installing Windows SDK..."
+                Start-BitsTransfer -Source $(TargetWindowsSDKInstallerUrl) -Destination $(WindowsSDKInstallerLocation) -Description "Downloading Windows SDK..."
 
-            Start-Process $(WindowsSDKInstallerLocation) -ArgumentList "/q" -Wait
+                Write-Host "Windows SDK Installer download completed"
+                Write-Host "Start installing Windows SDK..."
 
-            Write-Host "Windows SDK installed completed"
+                Start-Process $(WindowsSDKInstallerLocation) -ArgumentList "/q" -Wait
+
+                Write-Host "Windows SDK installed completed"
+              } else {
+                Write-Host "Windows SDK meet the requeirement, skipping this task and no need to install the SDK"
+              }
+            }
 
       - task: DownloadSecureFile@1
         name: secureFile
@@ -139,24 +154,37 @@ jobs:
           installationPath: $(TempDirectory)
           version: 6.x
 
-      # Windows SDK 10.0.22621 is not pre-installed currently
+      # Detect if Windows SDK is installed as requirement. If not install the SDK as requirement
       - task: PowerShell@2
-        displayName: "Download And Install Latest Windows SDK"
+        displayName: "Download And Install Latest Windows SDK As Requirement"
         inputs:
           targetType: "inline"
           script: |
-            New-Item -Path $(WindowsSDKBaseLocation) -ItemType Directory
+            try {
+              $CurrentSDKVersion = $(Get-Item "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0").GetValue("ProductVersion")
+            } catch {
+              $CurrentSDKVersion = ''
+              Write-Host "Detect the installed Windows SDK failed. Installed Windows SDK Version is aligned with TargetSDKVersion. Skipping this check"
+            }
 
-            Write-Host "Start downloading Windows SDK Installer using BitsTransfer..."
+            if ($CurrentSDKVersion -ne '') {
+              if($CurrentSDKVersion -lt ($TargetWindowsSDKVersion)) {
+                New-Item -Path $(WindowsSDKBaseLocation) -ItemType Directory
 
-            Start-BitsTransfer -Source $(WindowsSDKInstallerUrl) -Destination $(WindowsSDKInstallerLocation) -Description "Downloading Windows SDK..."
+                Write-Host "Start downloading Windows SDK Installer using BitsTransfer..."
 
-            Write-Host "Windows SDK Installer download completed"
-            Write-Host "Start installing Windows SDK..."
+                Start-BitsTransfer -Source $(TargetWindowsSDKInstallerUrl) -Destination $(WindowsSDKInstallerLocation) -Description "Downloading Windows SDK..."
 
-            Start-Process $(WindowsSDKInstallerLocation) -ArgumentList "/q" -Wait
+                Write-Host "Windows SDK Installer download completed"
+                Write-Host "Start installing Windows SDK..."
 
-            Write-Host "Windows SDK installed completed"
+                Start-Process $(WindowsSDKInstallerLocation) -ArgumentList "/q" -Wait
+
+                Write-Host "Windows SDK installed completed"
+              } else {
+                Write-Host "Windows SDK meet the requeirement, skipping this task and no need to install the SDK"
+              }
+            }
 
       - task: DownloadSecureFile@1
         name: secureFile
