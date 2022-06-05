@@ -149,12 +149,12 @@ namespace RX_Explorer.Class
                         }
                     case ListViewLocation.RecycleBin:
                         {
-                            InnerData = new ColumnWidthData(4, 3, 2, 2, 1.5, 0, 0, 0);
+                            InnerData = new ColumnWidthData(4, 2, 2, 1.5, 3, 0, 0, 0);
                             break;
                         }
                     case ListViewLocation.Search:
                         {
-                            InnerData = new ColumnWidthData(4, 3, 2, 1.5, 0, 1, 0, 0);
+                            InnerData = new ColumnWidthData(4, 2, 1.5, 1, 0, 3, 0, 0);
                             break;
                         }
                     case ListViewLocation.Compression:

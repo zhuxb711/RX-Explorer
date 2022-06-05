@@ -1,4 +1,4 @@
-﻿###Novedades de la versión 7.7.3.0
+﻿###Novedades de la versión 7.7.4.0
 
 #####Actualización de funciones
 

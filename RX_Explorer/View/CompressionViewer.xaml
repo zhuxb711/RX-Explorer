@@ -72,23 +72,6 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid x:Name="ListViewGridHelper"
-              VerticalAlignment="Stretch"
-              HorizontalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{x:Bind ColumnWidthSaver.NameColumnWidth,Mode=TwoWay}" />
-                <ColumnDefinition Width="6" />
-                <ColumnDefinition Width="{x:Bind ColumnWidthSaver.ModifiedColumnWidth,Mode=TwoWay}" />
-                <ColumnDefinition Width="6" />
-                <ColumnDefinition Width="{x:Bind ColumnWidthSaver.TypeColumnWidth,Mode=TwoWay}" />
-                <ColumnDefinition Width="6" />
-                <ColumnDefinition Width="{x:Bind ColumnWidthSaver.CompressedSizeColumnWidth,Mode=TwoWay}" />
-                <ColumnDefinition Width="6" />
-                <ColumnDefinition Width="{x:Bind ColumnWidthSaver.SizeColumnWidth,Mode=TwoWay}" />
-                <ColumnDefinition Width="6" />
-                <ColumnDefinition Width="{x:Bind ColumnWidthSaver.CompressRateColumnWidth,Mode=TwoWay}" />
-            </Grid.ColumnDefinitions>
-        </Grid>
         <CommandBar DefaultLabelPosition="Right"
                     HorizontalContentAlignment="Stretch"
                     VerticalContentAlignment="Center"
@@ -141,359 +124,368 @@
                 </Grid>
             </CommandBar.Content>
         </CommandBar>
-        <ListView x:Name="ListViewControl"
-                  Grid.Row="1"
-                  SelectionMode="Extended"
-                  CanDrag="False"
-                  CanReorderItems="False"
-                  AllowDrop="True"
-                  IsItemClickEnabled="True"
-                  IsDoubleTapEnabled="True"
-                  ShowsScrollingPlaceholders="False"
-                  ContainerContentChanging="ListViewControl_ContainerContentChanging"
-                  ContextRequested="ListViewControl_ContextRequested"
-                  ContextCanceled="ListViewControl_ContextCanceled"
-                  DoubleTapped="ListViewControl_DoubleTapped"
-                  DragOver="ListViewControl_DragOver"
-                  Drop="ListViewControl_Drop"
-                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
-                  Style="{StaticResource ListViewStyleWithFixedHeader}"
-                  ItemsSource="{x:Bind EntryList}"
-                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="Cls:CompressionItemBase">
-                    <Grid>
+        <Grid x:Name="ListViewPanelRoot"
+              Grid.Row="1"
+              DataContext="{x:Bind ColumnWidthSaver}">
+            <ListView x:Name="ListViewControl"
+                      SelectionMode="Extended"
+                      CanDrag="False"
+                      CanReorderItems="False"
+                      AllowDrop="True"
+                      IsItemClickEnabled="True"
+                      IsDoubleTapEnabled="True"
+                      ShowsScrollingPlaceholders="False"
+                      ContainerContentChanging="ListViewControl_ContainerContentChanging"
+                      ContextRequested="ListViewControl_ContextRequested"
+                      ContextCanceled="ListViewControl_ContextCanceled"
+                      DoubleTapped="ListViewControl_DoubleTapped"
+                      DragOver="ListViewControl_DragOver"
+                      Drop="ListViewControl_Drop"
+                      Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                      Style="{StaticResource ListViewStyleWithFixedHeader}"
+                      ItemsSource="{x:Bind EntryList}"
+                      ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                <ListView.Header>
+                    <Grid Height="35"
+                          Background="{ThemeResource ElementCustomAcrylicBrush}"
+                          Windows11Present:Padding="12,0"
+                          Windows11NotPresent:Padding="0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[0].Width,Mode=OneWay}" />
+                            <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.NameColumnWidth,Mode=TwoWay}" />
                             <ColumnDefinition Width="6" />
-                            <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[2].Width,Mode=OneWay}" />
+                            <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.ModifiedColumnWidth,Mode=TwoWay}" />
                             <ColumnDefinition Width="6" />
-                            <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[4].Width,Mode=OneWay}" />
+                            <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.TypeColumnWidth,Mode=TwoWay}" />
                             <ColumnDefinition Width="6" />
-                            <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[6].Width,Mode=OneWay}" />
+                            <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.CompressedSizeColumnWidth,Mode=TwoWay}" />
                             <ColumnDefinition Width="6" />
-                            <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[8].Width,Mode=OneWay}" />
+                            <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.SizeColumnWidth,Mode=TwoWay}" />
                             <ColumnDefinition Width="6" />
-                            <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[10].Width,Mode=OneWay}" />
+                            <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.CompressRateColumnWidth,Mode=TwoWay}" />
                         </Grid.ColumnDefinitions>
+                        <Grid.Resources>
+                            <SolidColorBrush x:Key="SystemControlSplitterPointerOver"
+                                             Color="Transparent" />
+                            <SolidColorBrush x:Key="SystemControlSplitterPressed"
+                                             Color="Transparent" />
+                        </Grid.Resources>
+                        <Button Height="35"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                x:Name="ListHeaderName"
+                                Click="ListHeader_Click"
+                                Style="{StaticResource ListHeaderButtonStyle}">
+                            <RelativePanel>
+                                <TextBlock Text="名称"
+                                           x:Uid="SearchName"
+                                           TextTrimming="CharacterEllipsis"
+                                           RelativePanel.LeftOf="NameSortIndicator"
+                                           RelativePanel.AlignLeftWithPanel="True"
+                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                                         x:Name="NameSortIndicator"
+                                         Height="12"
+                                         Width="12" />
+                            </RelativePanel>
+                        </Button>
+                        <Border HorizontalAlignment="Center"
+                                VerticalAlignment="Stretch"
+                                Grid.Column="1"
+                                Width="1.5"
+                                Margin="0,5"
+                                Background="Gray" />
+                        <controls:GridSplitter Grid.Column="1"
+                                               MinWidth="0"
+                                               Background="Transparent"
+                                               ResizeBehavior="PreviousAndNext"
+                                               ResizeDirection="Auto"
+                                               IsTabStop="False">
+                            <controls:GridSplitter.Element>
+                                <StackPanel />
+                            </controls:GridSplitter.Element>
+                        </controls:GridSplitter>
+                        <Button Height="35"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Grid.Column="2"
+                                Click="ListHeader_Click"
+                                Name="ListHeaderModifiedTime"
+                                Style="{StaticResource ListHeaderButtonStyle}">
+                            <RelativePanel>
+                                <TextBlock Text="修改日期"
+                                           x:Uid="SearchModified"
+                                           TextTrimming="CharacterEllipsis"
+                                           RelativePanel.LeftOf="ModifiedTimeSortIndicator"
+                                           RelativePanel.AlignLeftWithPanel="True"
+                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                                         x:Name="ModifiedTimeSortIndicator"
+                                         Height="12"
+                                         Width="12" />
+                            </RelativePanel>
+                        </Button>
+                        <Border HorizontalAlignment="Center"
+                                VerticalAlignment="Stretch"
+                                Grid.Column="3"
+                                Width="1.5"
+                                Margin="0,5"
+                                Background="Gray" />
+                        <controls:GridSplitter Grid.Column="3"
+                                               MinWidth="0"
+                                               Background="Transparent"
+                                               ResizeBehavior="PreviousAndNext"
+                                               ResizeDirection="Auto"
+                                               IsTabStop="False">
+                            <controls:GridSplitter.Element>
+                                <StackPanel />
+                            </controls:GridSplitter.Element>
+                        </controls:GridSplitter>
+                        <Button Height="35"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Grid.Column="4"
+                                Click="ListHeader_Click"
+                                Name="ListHeaderType"
+                                Style="{StaticResource ListHeaderButtonStyle}">
+                            <RelativePanel>
+                                <TextBlock Text="类型"
+                                           x:Uid="SearchType"
+                                           TextTrimming="CharacterEllipsis"
+                                           RelativePanel.LeftOf="TypeSortIndicator"
+                                           RelativePanel.AlignLeftWithPanel="True"
+                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                                         x:Name="TypeSortIndicator"
+                                         Height="12"
+                                         Width="12" />
+                            </RelativePanel>
+                        </Button>
+                        <Border HorizontalAlignment="Center"
+                                VerticalAlignment="Stretch"
+                                Grid.Column="5"
+                                Width="1.5"
+                                Margin="0,5"
+                                Background="Gray" />
+                        <controls:GridSplitter Grid.Column="5"
+                                               MinWidth="0"
+                                               Background="Transparent"
+                                               ResizeBehavior="PreviousAndNext"
+                                               ResizeDirection="Auto"
+                                               IsTabStop="False">
+                            <controls:GridSplitter.Element>
+                                <StackPanel />
+                            </controls:GridSplitter.Element>
+                        </controls:GridSplitter>
+                        <Button Height="35"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Grid.Column="6"
+                                Click="ListHeader_Click"
+                                Name="ListHeaderCompressedSize"
+                                Style="{StaticResource ListHeaderButtonStyle}">
+                            <RelativePanel>
+                                <TextBlock Text="压缩大小"
+                                           x:Uid="CompressedSize"
+                                           TextTrimming="CharacterEllipsis"
+                                           RelativePanel.LeftOf="CompressedSizeSortIndicator"
+                                           RelativePanel.AlignLeftWithPanel="True"
+                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                                         x:Name="CompressedSizeSortIndicator"
+                                         Height="12"
+                                         Width="12" />
+                            </RelativePanel>
+                        </Button>
+                        <Border HorizontalAlignment="Center"
+                                VerticalAlignment="Stretch"
+                                Grid.Column="7"
+                                Width="1.5"
+                                Margin="0,5"
+                                Background="Gray" />
+                        <controls:GridSplitter Grid.Column="7"
+                                               MinWidth="0"
+                                               Background="Transparent"
+                                               ResizeBehavior="PreviousAndNext"
+                                               ResizeDirection="Auto"
+                                               IsTabStop="False">
+                            <controls:GridSplitter.Element>
+                                <StackPanel />
+                            </controls:GridSplitter.Element>
+                        </controls:GridSplitter>
+                        <Button Height="35"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Grid.Column="8"
+                                Name="ListHeaderSize"
+                                Click="ListHeader_Click"
+                                Style="{StaticResource ListHeaderButtonStyle}">
+                            <RelativePanel>
+                                <TextBlock Text="实际大小"
+                                           x:Uid="ActualSize"
+                                           TextTrimming="CharacterEllipsis"
+                                           RelativePanel.LeftOf="SizeSortIndicator"
+                                           RelativePanel.AlignLeftWithPanel="True"
+                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                                         x:Name="SizeSortIndicator"
+                                         Height="12"
+                                         Width="12" />
+                            </RelativePanel>
+                        </Button>
+                        <Border HorizontalAlignment="Center"
+                                VerticalAlignment="Stretch"
+                                Grid.Column="9"
+                                Width="1.5"
+                                Margin="0,5"
+                                Background="Gray" />
+                        <controls:GridSplitter Grid.Column="9"
+                                               MinWidth="0"
+                                               Background="Transparent"
+                                               ResizeBehavior="PreviousAndNext"
+                                               ResizeDirection="Auto"
+                                               IsTabStop="False">
+                            <controls:GridSplitter.Element>
+                                <StackPanel />
+                            </controls:GridSplitter.Element>
+                        </controls:GridSplitter>
+                        <Button Height="35"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Grid.Column="10"
+                                Name="ListHeaderCompressionRate"
+                                Click="ListHeader_Click"
+                                Style="{StaticResource ListHeaderButtonStyle}">
+                            <RelativePanel>
+                                <TextBlock Text="压缩比率"
+                                           x:Uid="CompressionRate"
+                                           TextTrimming="CharacterEllipsis"
+                                           RelativePanel.LeftOf="CompressionRateSortIndicator"
+                                           RelativePanel.AlignLeftWithPanel="True"
+                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                                         x:Name="CompressionRateSortIndicator"
+                                         Height="12"
+                                         Width="12" />
+                            </RelativePanel>
+                        </Button>
+                    </Grid>
+                </ListView.Header>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="Cls:CompressionItemBase">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="45" />
-                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.NameColumnWidth}" />
+                                <ColumnDefinition Width="6" />
+                                <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.ModifiedColumnWidth}" />
+                                <ColumnDefinition Width="6" />
+                                <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.TypeColumnWidth}" />
+                                <ColumnDefinition Width="6" />
+                                <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.CompressedSizeColumnWidth}" />
+                                <ColumnDefinition Width="6" />
+                                <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.SizeColumnWidth}" />
+                                <ColumnDefinition Width="6" />
+                                <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.CompressRateColumnWidth}" />
                             </Grid.ColumnDefinitions>
-                            <Image VerticalAlignment="Center"
-                                   HorizontalAlignment="Center"
-                                   Stretch="Uniform"
-                                   Source="{x:Bind Thumbnail,Mode=OneWay}"
-                                   Height="30"
-                                   Width="30" />
-                            <TextBlock VerticalAlignment="Center"
-                                       HorizontalAlignment="Left"
-                                       Grid.Column="1"
-                                       Text="{x:Bind Name}"
-                                       TextTrimming="CharacterEllipsis"
-                                       x:Name="NameLabel">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="45" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       Stretch="Uniform"
+                                       Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                       Height="30"
+                                       Width="30" />
+                                <TextBlock VerticalAlignment="Center"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="1"
+                                           Text="{x:Bind Name}"
+                                           TextTrimming="CharacterEllipsis"
+                                           x:Name="NameLabel">
                                 <ToolTipService.ToolTip>
                                     <ToolTip Content="{x:Bind Name}"
                                              Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                 </ToolTipService.ToolTip>
-                            </TextBlock>
-                        </Grid>
-                        <TextBlock VerticalAlignment="Center"
-                                   Padding="10,0,0,0"
-                                   HorizontalAlignment="Left"
-                                   Name="ModifiedTimeLabel"
-                                   Text="{x:Bind ModifiedTimeDescription}"
-                                   Grid.Column="2"
-                                   TextTrimming="CharacterEllipsis">
+                                </TextBlock>
+                            </Grid>
+                            <TextBlock VerticalAlignment="Center"
+                                       Padding="10,0,0,0"
+                                       HorizontalAlignment="Left"
+                                       Name="ModifiedTimeLabel"
+                                       Text="{x:Bind ModifiedTimeDescription}"
+                                       Grid.Column="2"
+                                       TextTrimming="CharacterEllipsis">
                             <ToolTipService.ToolTip>
                                 <ToolTip Content="{x:Bind ModifiedTimeDescription}"
                                          Visibility="{Binding ElementName=ModifiedTimeLabel,Path=IsTextTrimmed}" />
                             </ToolTipService.ToolTip>
-                        </TextBlock>
-                        <TextBlock VerticalAlignment="Center"
-                                   Padding="10,0,0,0"
-                                   HorizontalAlignment="Left"
-                                   Text="{x:Bind DisplayType,Mode=OneWay}"
-                                   Grid.Column="4"
-                                   Name="TypeLabel"
-                                   TextTrimming="CharacterEllipsis">
+                            </TextBlock>
+                            <TextBlock VerticalAlignment="Center"
+                                       Padding="10,0,0,0"
+                                       HorizontalAlignment="Left"
+                                       Text="{x:Bind DisplayType,Mode=OneWay}"
+                                       Grid.Column="4"
+                                       Name="TypeLabel"
+                                       TextTrimming="CharacterEllipsis">
                             <ToolTipService.ToolTip>
                                 <ToolTip Content="{x:Bind DisplayType,Mode=OneWay}"
                                          Visibility="{Binding ElementName=TypeLabel,Path=IsTextTrimmed}" />
                             </ToolTipService.ToolTip>
-                        </TextBlock>
-                        <TextBlock VerticalAlignment="Center"
-                                   Padding="10,0,0,0"
-                                   HorizontalAlignment="Left"
-                                   Text="{x:Bind CompressedSizeDescription}"
-                                   Name="CompressedSizeLabel"
-                                   TextTrimming="CharacterEllipsis"
-                                   Grid.Column="6">
+                            </TextBlock>
+                            <TextBlock VerticalAlignment="Center"
+                                       Padding="10,0,0,0"
+                                       HorizontalAlignment="Left"
+                                       Text="{x:Bind CompressedSizeDescription}"
+                                       Name="CompressedSizeLabel"
+                                       TextTrimming="CharacterEllipsis"
+                                       Grid.Column="6">
                             <ToolTipService.ToolTip>
                                 <ToolTip Content="{x:Bind CompressedSizeDescription}"
                                          Visibility="{Binding ElementName=CompressedSizeLabel,Path=IsTextTrimmed}" />
                             </ToolTipService.ToolTip>
-                        </TextBlock>
-                        <TextBlock VerticalAlignment="Center"
-                                   Padding="10,0,0,0"
-                                   HorizontalAlignment="Left"
-                                   Text="{x:Bind SizeDescription}"
-                                   TextTrimming="CharacterEllipsis"
-                                   Name="SizeLabel"
-                                   Grid.Column="8">
+                            </TextBlock>
+                            <TextBlock VerticalAlignment="Center"
+                                       Padding="10,0,0,0"
+                                       HorizontalAlignment="Left"
+                                       Text="{x:Bind SizeDescription}"
+                                       TextTrimming="CharacterEllipsis"
+                                       Name="SizeLabel"
+                                       Grid.Column="8">
                             <ToolTipService.ToolTip>
                                 <ToolTip Content="{x:Bind SizeDescription}"
                                          Visibility="{Binding ElementName=SizeLabel,Path=IsTextTrimmed}" />
                             </ToolTipService.ToolTip>
-                        </TextBlock>
-                        <TextBlock VerticalAlignment="Center"
-                                   Padding="10,0,0,0"
-                                   HorizontalAlignment="Left"
-                                   Text="{x:Bind CompressionRateDescription}"
-                                   TextTrimming="CharacterEllipsis"
-                                   Name="CompressionRateLabel"
-                                   Grid.Column="10">
+                            </TextBlock>
+                            <TextBlock VerticalAlignment="Center"
+                                       Padding="10,0,0,0"
+                                       HorizontalAlignment="Left"
+                                       Text="{x:Bind CompressionRateDescription}"
+                                       TextTrimming="CharacterEllipsis"
+                                       Name="CompressionRateLabel"
+                                       Grid.Column="10">
                             <ToolTipService.ToolTip>
                                 <ToolTip Content="{x:Bind CompressionRateDescription}"
                                          Visibility="{Binding ElementName=CompressionRateLabel,Path=IsTextTrimmed}" />
                             </ToolTipService.ToolTip>
-                        </TextBlock>
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-            <ListView.Header>
-                <Grid Height="35"
-                      Background="{ThemeResource ElementCustomAcrylicBrush}"
-                      Windows11Present:Padding="12,0"
-                      Windows11NotPresent:Padding="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[0].Width,Mode=TwoWay}" />
-                        <ColumnDefinition Width="6" />
-                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[2].Width,Mode=TwoWay}" />
-                        <ColumnDefinition Width="6" />
-                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[4].Width,Mode=TwoWay}" />
-                        <ColumnDefinition Width="6" />
-                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[6].Width,Mode=TwoWay}" />
-                        <ColumnDefinition Width="6" />
-                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[8].Width,Mode=TwoWay}" />
-                        <ColumnDefinition Width="6" />
-                        <ColumnDefinition Width="{Binding ElementName=ListViewGridHelper,Path=ColumnDefinitions[10].Width,Mode=TwoWay}" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.Resources>
-                        <SolidColorBrush x:Key="SystemControlSplitterPointerOver"
-                                         Color="Transparent" />
-                        <SolidColorBrush x:Key="SystemControlSplitterPressed"
-                                         Color="Transparent" />
-                    </Grid.Resources>
-                    <Button Height="35"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            x:Name="ListHeaderName"
-                            Click="ListHeader_Click"
-                            Style="{StaticResource ListHeaderButtonStyle}">
-                        <RelativePanel>
-                            <TextBlock Text="名称"
-                                       x:Uid="SearchName"
-                                       TextTrimming="CharacterEllipsis"
-                                       RelativePanel.LeftOf="NameSortIndicator"
-                                       RelativePanel.AlignLeftWithPanel="True"
-                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
-                            <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                     RelativePanel.AlignVerticalCenterWithPanel="True"
-                                     x:Name="NameSortIndicator"
-                                     Height="12"
-                                     Width="12" />
-                        </RelativePanel>
-                    </Button>
-                    <Border HorizontalAlignment="Center"
-                            VerticalAlignment="Stretch"
-                            Grid.Column="1"
-                            Width="1.5"
-                            Margin="0,5"
-                            Background="Gray" />
-                    <controls:GridSplitter Grid.Column="1"
-                                           MinWidth="0"
-                                           Background="Transparent"
-                                           ResizeBehavior="PreviousAndNext"
-                                           ResizeDirection="Auto"
-                                           IsTabStop="False">
-                        <controls:GridSplitter.Element>
-                            <StackPanel />
-                        </controls:GridSplitter.Element>
-                    </controls:GridSplitter>
-                    <Button Height="35"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Grid.Column="2"
-                            Click="ListHeader_Click"
-                            Name="ListHeaderModifiedTime"
-                            Style="{StaticResource ListHeaderButtonStyle}">
-                        <RelativePanel>
-                            <TextBlock Text="修改日期"
-                                       x:Uid="SearchModified"
-                                       TextTrimming="CharacterEllipsis"
-                                       RelativePanel.LeftOf="ModifiedTimeSortIndicator"
-                                       RelativePanel.AlignLeftWithPanel="True"
-                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
-                            <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                     RelativePanel.AlignVerticalCenterWithPanel="True"
-                                     x:Name="ModifiedTimeSortIndicator"
-                                     Height="12"
-                                     Width="12" />
-                        </RelativePanel>
-                    </Button>
-                    <Border HorizontalAlignment="Center"
-                            VerticalAlignment="Stretch"
-                            Grid.Column="3"
-                            Width="1.5"
-                            Margin="0,5"
-                            Background="Gray" />
-                    <controls:GridSplitter Grid.Column="3"
-                                           MinWidth="0"
-                                           Background="Transparent"
-                                           ResizeBehavior="PreviousAndNext"
-                                           ResizeDirection="Auto"
-                                           IsTabStop="False">
-                        <controls:GridSplitter.Element>
-                            <StackPanel />
-                        </controls:GridSplitter.Element>
-                    </controls:GridSplitter>
-                    <Button Height="35"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Grid.Column="4"
-                            Click="ListHeader_Click"
-                            Name="ListHeaderType"
-                            Style="{StaticResource ListHeaderButtonStyle}">
-                        <RelativePanel>
-                            <TextBlock Text="类型"
-                                       x:Uid="SearchType"
-                                       TextTrimming="CharacterEllipsis"
-                                       RelativePanel.LeftOf="TypeSortIndicator"
-                                       RelativePanel.AlignLeftWithPanel="True"
-                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
-                            <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                     RelativePanel.AlignVerticalCenterWithPanel="True"
-                                     x:Name="TypeSortIndicator"
-                                     Height="12"
-                                     Width="12" />
-                        </RelativePanel>
-                    </Button>
-                    <Border HorizontalAlignment="Center"
-                            VerticalAlignment="Stretch"
-                            Grid.Column="5"
-                            Width="1.5"
-                            Margin="0,5"
-                            Background="Gray" />
-                    <controls:GridSplitter Grid.Column="5"
-                                           MinWidth="0"
-                                           Background="Transparent"
-                                           ResizeBehavior="PreviousAndNext"
-                                           ResizeDirection="Auto"
-                                           IsTabStop="False">
-                        <controls:GridSplitter.Element>
-                            <StackPanel />
-                        </controls:GridSplitter.Element>
-                    </controls:GridSplitter>
-                    <Button Height="35"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Grid.Column="6"
-                            Click="ListHeader_Click"
-                            Name="ListHeaderCompressedSize"
-                            Style="{StaticResource ListHeaderButtonStyle}">
-                        <RelativePanel>
-                            <TextBlock Text="压缩大小"
-                                       x:Uid="CompressedSize"
-                                       TextTrimming="CharacterEllipsis"
-                                       RelativePanel.LeftOf="CompressedSizeSortIndicator"
-                                       RelativePanel.AlignLeftWithPanel="True"
-                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
-                            <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                     RelativePanel.AlignVerticalCenterWithPanel="True"
-                                     x:Name="CompressedSizeSortIndicator"
-                                     Height="12"
-                                     Width="12" />
-                        </RelativePanel>
-                    </Button>
-                    <Border HorizontalAlignment="Center"
-                            VerticalAlignment="Stretch"
-                            Grid.Column="7"
-                            Width="1.5"
-                            Margin="0,5"
-                            Background="Gray" />
-                    <controls:GridSplitter Grid.Column="7"
-                                           MinWidth="0"
-                                           Background="Transparent"
-                                           ResizeBehavior="PreviousAndNext"
-                                           ResizeDirection="Auto"
-                                           IsTabStop="False">
-                        <controls:GridSplitter.Element>
-                            <StackPanel />
-                        </controls:GridSplitter.Element>
-                    </controls:GridSplitter>
-                    <Button Height="35"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Grid.Column="8"
-                            Name="ListHeaderSize"
-                            Click="ListHeader_Click"
-                            Style="{StaticResource ListHeaderButtonStyle}">
-                        <RelativePanel>
-                            <TextBlock Text="实际大小"
-                                       x:Uid="ActualSize"
-                                       TextTrimming="CharacterEllipsis"
-                                       RelativePanel.LeftOf="SizeSortIndicator"
-                                       RelativePanel.AlignLeftWithPanel="True"
-                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
-                            <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                     RelativePanel.AlignVerticalCenterWithPanel="True"
-                                     x:Name="SizeSortIndicator"
-                                     Height="12"
-                                     Width="12" />
-                        </RelativePanel>
-                    </Button>
-                    <Border HorizontalAlignment="Center"
-                            VerticalAlignment="Stretch"
-                            Grid.Column="9"
-                            Width="1.5"
-                            Margin="0,5"
-                            Background="Gray" />
-                    <controls:GridSplitter Grid.Column="9"
-                                           MinWidth="0"
-                                           Background="Transparent"
-                                           ResizeBehavior="PreviousAndNext"
-                                           ResizeDirection="Auto"
-                                           IsTabStop="False">
-                        <controls:GridSplitter.Element>
-                            <StackPanel />
-                        </controls:GridSplitter.Element>
-                    </controls:GridSplitter>
-                    <Button Height="35"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            Grid.Column="10"
-                            Name="ListHeaderCompressionRate"
-                            Click="ListHeader_Click"
-                            Style="{StaticResource ListHeaderButtonStyle}">
-                        <RelativePanel>
-                            <TextBlock Text="压缩比率"
-                                       x:Uid="CompressionRate"
-                                       TextTrimming="CharacterEllipsis"
-                                       RelativePanel.LeftOf="CompressionRateSortIndicator"
-                                       RelativePanel.AlignLeftWithPanel="True"
-                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
-                            <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                     RelativePanel.AlignVerticalCenterWithPanel="True"
-                                     x:Name="CompressionRateSortIndicator"
-                                     Height="12"
-                                     Width="12" />
-                        </RelativePanel>
-                    </Button>
-                </Grid>
-            </ListView.Header>
-        </ListView>
+                            </TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Canvas Grid.Row="1">
+                <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
+                           Stroke="{ThemeResource SystemAccentColorLight2}"
+                           x:Name="DrawRectangle"
+                           Opacity="0.4" />
+            </Canvas>
+        </Grid>
         <TextBlock Name="HasFile"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
@@ -502,12 +494,6 @@
                    Grid.Row="1"
                    FontSize="18"
                    Visibility="Collapsed" />
-        <Canvas Grid.Row="1">
-            <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
-                       Stroke="{ThemeResource SystemAccentColorLight2}"
-                       x:Name="DrawRectangle"
-                       Opacity="0.4" />
-        </Canvas>
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"
                           Grid.RowSpan="2">
