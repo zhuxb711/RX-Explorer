@@ -96,7 +96,7 @@ jobs:
             Write-Host "Start importing the PFX file to the certificate store."
             Add-Type -AssemblyName System.Security
             $Cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-            $Cert.Import($(secureFile.secureFilePath), $(signingCert.password), [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
+            $Cert.Import('$(secureFile.secureFilePath)', '$(signingCert.password)', [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
             $Store = New-Object System.Security.Cryptography.X509Certificates.X509Store -ArgumentList "MY", CurrentUser
             $Store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
             $Store.Add($Cert)
@@ -198,7 +198,7 @@ jobs:
             Write-Host "Start importing the PFX file to the certificate store."
             Add-Type -AssemblyName System.Security
             $Cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-            $Cert.Import($(secureFile.secureFilePath), $(signingCert.password), [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
+            $Cert.Import('$(secureFile.secureFilePath)', '$(signingCert.password)', [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
             $Store = New-Object System.Security.Cryptography.X509Certificates.X509Store -ArgumentList "MY", CurrentUser
             $Store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
             $Store.Add($Cert)
