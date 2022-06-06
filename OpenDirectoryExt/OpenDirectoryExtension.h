@@ -3,7 +3,7 @@
 
 using namespace Microsoft::WRL;
 
-struct __declspec(uuid("e82bd2a8-8d63-42fd-b1ae-d364c201d8a7"))
+struct __declspec(uuid("B4CEA422-3911-4198-16CB-63345D563096"))
     OpenTerminalHere : public RuntimeClass<RuntimeClassFlags<ClassicCom | InhibitFtmBase>, IExplorerCommand>
 {
 #pragma region IExplorerCommand
@@ -22,8 +22,6 @@ struct __declspec(uuid("e82bd2a8-8d63-42fd-b1ae-d364c201d8a7"))
     STDMETHODIMP GetCanonicalName(GUID* pguidCommandName);
     STDMETHODIMP EnumSubCommands(IEnumExplorerCommand** ppEnum);
 #pragma endregion
-private:
-    std::wstring GetExecutablePath();
 };
 
 CoCreatableClass(OpenTerminalHere);

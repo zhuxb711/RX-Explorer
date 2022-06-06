@@ -12,23 +12,23 @@ pr:
 variables:
   - group: UWP-PipeLineVariable
   - name: BuildProject
-    value: 'Package'
+    value: "Package"
   - name: Solution
-    value: '**/*.sln'
+    value: "**/*.sln"
   - name: BuildPlatform
-    value: 'x64|ARM64'
+    value: "x64|ARM64"
   - name: BuildConfiguration
-    value: 'Release'
+    value: "Release"
   - name: SideloadBuildPublishLocation
     value: '$(Build.ArtifactStagingDirectory)\Sideload\\'
   - name: CIBuildPublishLocation
     value: '$(Build.ArtifactStagingDirectory)\CI\\'
   - name: TempDirectory
-    value: '$(Agent.TempDirectory)'
+    value: "$(Agent.TempDirectory)"
   - name: TargetWindowsSDKVersion
-    value: '10.0.22000.0'
+    value: "10.0.22000.0"
   - name: TargetWindowsSDKInstallerUrl # Windows SDK 10.22000.194
-    value: 'https://download.microsoft.com/download/d/8/f/d8ff148b-450c-40b3-aeed-2a3944e66bbd/windowssdk/winsdksetup.exe'
+    value: "https://download.microsoft.com/download/d/8/f/d8ff148b-450c-40b3-aeed-2a3944e66bbd/windowssdk/winsdksetup.exe"
   - name: WindowsSDKBaseLocation
     value: '$(Agent.TempDirectory)\WinSDK'
   - name: WindowsSDKInstallerLocation
@@ -36,15 +36,15 @@ variables:
 
 jobs:
   - job: CIBuild
-    displayName: 'Build CI Application'
+    displayName: "Build CI Application"
     timeoutInMinutes: 0
     pool:
-      vmImage: 'windows-latest'
+      vmImage: "windows-latest"
     steps:
       # UseDotNet@2 task to install .Net 6 environment because Azure Pipeline would not prepare the SDK we needed.
       # Maybe we could remove this task once Azure Pipeline install .Net 6 SDK by default.
       - task: UseDotNet@2
-        displayName: 'Install .Net 6 SDK'
+        displayName: "Install .Net 6 SDK"
         inputs:
           packageType: sdk
           installationPath: $(TempDirectory)
@@ -52,9 +52,9 @@ jobs:
 
       # Detect if Windows SDK is installed as requirement. If not install the SDK as requirement
       - task: PowerShell@2
-        displayName: 'Download And Install Latest Windows SDK As Requirement'
+        displayName: "Download And Install Latest Windows SDK As Requirement"
         inputs:
-          targetType: 'inline'
+          targetType: "inline"
           script: |
             try {
               $CurrentSDKVersion = $(Get-Item "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0").GetValue("ProductVersion")
@@ -84,32 +84,28 @@ jobs:
 
       - task: DownloadSecureFile@1
         name: secureFile
-        displayName: 'Download Publish Certificate'
+        displayName: "Download Publish Certificate"
         inputs:
-          secureFile: '$(signingCert.secureFileName)'
+          secureFile: "$(signingCert.secureFileName)"
 
       - task: PowerShell@2
-        displayName: 'Import Publish Certificate File'
+        displayName: "Import Publish Certificate File"
         inputs:
-          targetType: 'inline'
+          targetType: "inline"
           script: |
             Write-Host "Start importing the PFX file to the certificate store."
-
-            $pfxpath = '$(secureFile.secureFilePath)'
-            $password = '$(signingCert.password)'      
-
             Add-Type -AssemblyName System.Security
             $Cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-            $Cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
+            $Cert.Import($(secureFile.secureFilePath), $(signingCert.password), [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
             $Store = New-Object System.Security.Cryptography.X509Certificates.X509Store -ArgumentList "MY", CurrentUser
             $Store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
             $Store.Add($Cert)
             $Store.Close()
 
       - task: PowerShell@2
-        displayName: 'Add AppCenter Secret Value'
+        displayName: "Add AppCenter Secret Value"
         inputs:
-          targetType: 'inline'
+          targetType: "inline"
           script: |
             Write-Host "Start adding AppCenter Secret Value."
 
@@ -119,38 +115,38 @@ jobs:
             $Secret | Out-File -Encoding utf8 -FilePath $OutputPath
 
       - task: NuGetToolInstaller@1
-        displayName: 'Install Nuget ToolSet'
+        displayName: "Install Nuget ToolSet"
 
       - task: NuGetCommand@2
-        displayName: 'Restore Nuget Packages On Solution'
+        displayName: "Restore Nuget Packages On Solution"
         inputs:
-          restoreSolution: '$(Solution)'
+          restoreSolution: "$(Solution)"
 
       - task: VSBuild@1
-        displayName: 'Build RX-Explorer Project'
+        displayName: "Build RX-Explorer Project"
         inputs:
-          solution: '$(Solution)'
+          solution: "$(Solution)"
           msbuildArgs: '/t:$(BuildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(BuildPlatform)" /p:AppxPackageDir="$(CIBuildPublishLocation)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
-          configuration: '$(BuildConfiguration)'
+          configuration: "$(BuildConfiguration)"
           clean: true
-          msbuildArchitecture: 'x64'
+          msbuildArchitecture: "x64"
 
       - task: PublishBuildArtifacts@1
-        displayName: 'Publish And Upload Artifact'
+        displayName: "Publish And Upload Artifact"
         inputs:
-          ArtifactName: 'CIBuild'
-          PathtoPublish: '$(CIBuildPublishLocation)'
+          ArtifactName: "CIBuild"
+          PathtoPublish: "$(CIBuildPublishLocation)"
 
   - job: SideLoadBuild
-    displayName: 'Build Sideload Application'
+    displayName: "Build Sideload Application"
     timeoutInMinutes: 0
     pool:
-      vmImage: 'windows-latest'
+      vmImage: "windows-latest"
     steps:
       # UseDotNet@2 task to install .Net 6 environment because Azure Pipeline would not prepare the SDK we needed.
       # Maybe we could remove this task once Azure Pipeline install .Net 6 SDK by default.
       - task: UseDotNet@2
-        displayName: 'Install .Net 6 SDK'
+        displayName: "Install .Net 6 SDK"
         inputs:
           packageType: sdk
           installationPath: $(TempDirectory)
@@ -158,9 +154,9 @@ jobs:
 
       # Detect if Windows SDK is installed as requirement. If not install the SDK as requirement
       - task: PowerShell@2
-        displayName: 'Download And Install Latest Windows SDK As Requirement'
+        displayName: "Download And Install Latest Windows SDK As Requirement"
         inputs:
-          targetType: 'inline'
+          targetType: "inline"
           script: |
             try {
               $CurrentSDKVersion = $(Get-Item "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0").GetValue("ProductVersion")
@@ -188,28 +184,30 @@ jobs:
               }
             }
 
-      - task: PowerShell@2
-        displayName: 'Import Publish Certificate File'
+      - task: DownloadSecureFile@1
+        name: secureFile
+        displayName: "Download Publish Certificate"
         inputs:
-          targetType: 'inline'
+          secureFile: "$(signingCert.secureFileName)"
+
+      - task: PowerShell@2
+        displayName: "Import Publish Certificate File"
+        inputs:
+          targetType: "inline"
           script: |
             Write-Host "Start importing the PFX file to the certificate store."
-
-            $pfxpath = '$(secureFile.secureFilePath)'
-            $password = '$(signingCert.password)'      
-
             Add-Type -AssemblyName System.Security
             $Cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-            $Cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
+            $Cert.Import($(secureFile.secureFilePath), $(signingCert.password), [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
             $Store = New-Object System.Security.Cryptography.X509Certificates.X509Store -ArgumentList "MY", CurrentUser
             $Store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
             $Store.Add($Cert)
             $Store.Close()
 
       - task: PowerShell@2
-        displayName: 'Add AppCenter Secret Value'
+        displayName: "Add AppCenter Secret Value"
         inputs:
-          targetType: 'inline'
+          targetType: "inline"
           script: |
             Write-Host "Start adding AppCenter Secret Value."
 
@@ -219,25 +217,25 @@ jobs:
             $Secret | Out-File -Encoding utf8 -FilePath $OutputPath
 
       - task: NuGetToolInstaller@1
-        displayName: 'Install Nuget ToolSet'
+        displayName: "Install Nuget ToolSet"
 
       - task: NuGetCommand@2
-        displayName: 'Restore Nuget Packages On Solution'
+        displayName: "Restore Nuget Packages On Solution"
         inputs:
-          restoreSolution: '$(Solution)'
+          restoreSolution: "$(Solution)"
 
       - task: VSBuild@1
-        displayName: 'Build RX-Explorer Project'
+        displayName: "Build RX-Explorer Project"
         inputs:
-          solution: '$(Solution)'
+          solution: "$(Solution)"
           msbuildArgs: '/t:$(BuildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(BuildPlatform)" /p:AppxPackageDir="$(SideloadBuildPublishLocation)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
-          configuration: '$(BuildConfiguration)'
+          configuration: "$(BuildConfiguration)"
           clean: true
           restoreNugetPackages: true
-          msbuildArchitecture: 'x64'
+          msbuildArchitecture: "x64"
 
       - task: PublishBuildArtifacts@1
-        displayName: 'Publish And Upload Artifact'
+        displayName: "Publish And Upload Artifact"
         inputs:
-          ArtifactName: 'SideloadBuild'
-          PathtoPublish: '$(SideloadBuildPublishLocation)'
+          ArtifactName: "SideloadBuild"
+          PathtoPublish: "$(SideloadBuildPublishLocation)"

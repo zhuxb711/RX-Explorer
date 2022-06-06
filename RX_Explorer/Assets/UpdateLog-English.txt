@@ -1,29 +1,9 @@
-﻿###What's new in Ver.7.7.4.0
-
-#####Feature update
-
->#####"Details" layout mode now supports resizing column widths
-
->#####Now support custom label color and label text of file
-
->#####"Vertical Split View" now supports adjust the number of displays at the same time
-
->#####Now support to change the default behavior of the top right close button
-
-#####UI updated
-
->#####The animation of the "Vertical Split View" has been optimized
-
->#####FTP and MTP files and compressed files will now display thumbnails for each type
+﻿###What's new in Ver.7.7.5.0
 
 #####Bug Fixes
 
->#####Fixed an issue where keyboard shortcuts still take effect when the settings page was open
+>#####Fixed some issues in maintenance tasks that could cause the app to crash after an upgrade
 
->#####Fixed an issue that could cause a crash when recycle bin pages were sorted by their original path
+>#####Fixed an issue where "Open with RX-Explorer" could be displayed on some non-folder objects
 
->#####Fixed an issue that could cause a crash when clicking the "Confirm" button of the Decompression Options Dialog
-
->#####Fixed an issue where FTP files or MTP files might not be opened correctly in some cases
-
->#####Fixed some issues that could cause crashes
+>#####Fixed an issue that could attempt to access non-folder paths in startup parameters

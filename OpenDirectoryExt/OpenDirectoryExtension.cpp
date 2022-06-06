@@ -128,10 +128,8 @@ HRESULT OpenTerminalHere::GetState(IShellItemArray* psiItemArray,
 
 STDMETHODIMP_(HRESULT __stdcall) OpenTerminalHere::GetIcon(IShellItemArray* /*psiItemArray*/, LPWSTR* ppszIcon)
 {
-    //std::wstring IconPath = GetExecutablePath() + L"RX_Explorer.exe,-101";
-    //return SHStrDupW(IconPath.c_str(), ppszIcon);
     winrt::hstring BasePath = winrt::Windows::ApplicationModel::Package::Current().InstalledPath();
-    std::wstring LogoPath = std::wstring(BasePath.data(), BasePath.size()) + L"\\Assets\\AppLogo.png";
+    std::wstring LogoPath = std::wstring(BasePath.data(), BasePath.size()) + L"\\Assets\\StoreLogo.scale-150.png";
     return SHStrDupW(LogoPath.c_str(), ppszIcon);
 }
 
@@ -151,31 +149,4 @@ HRESULT OpenTerminalHere::EnumSubCommands(IEnumExplorerCommand** ppEnum)
 {
     *ppEnum = nullptr;
     return E_NOTIMPL;
-}
-
-std::wstring OpenTerminalHere::GetExecutablePath()
-{
-    std::wstring buffer;
-    size_t nextBufferLength = MAX_PATH;
-
-    while (true)
-    {
-        buffer.resize(nextBufferLength);
-        nextBufferLength *= 2;
-
-        SetLastError(ERROR_SUCCESS);
-
-        auto pathLength = GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), &buffer[0], static_cast<DWORD>(buffer.length()));
-
-        if (pathLength == 0)
-        {
-            throw std::exception("GetModuleFileName failed"); // You can call GetLastError() to get more info here
-        }
-
-        if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
-        {
-            buffer.resize(pathLength);
-            return buffer;
-        }
-    }
 }

@@ -24,7 +24,7 @@ namespace FullTrustProcess
         {
             "open","opennewprocess","pintohome","cut","copy","paste","delete","properties","openas",
             "link","runas","rename","pintostartscreen","windows.share","windows.modernshare",
-            "{e82bd2a8-8d63-42fd-b1ae-d364c201d8a7}", "copyaspath", "opencontaining"
+            "{B4CEA422-3911-4198-16CB-63345D563096}", "copyaspath", "opencontaining"
         };
 
         private static readonly HashSet<string> NameFilterHashSet = new HashSet<string>();

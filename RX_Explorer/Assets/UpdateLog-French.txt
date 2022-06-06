@@ -1,29 +1,9 @@
-﻿###Quoi de neuf dans la version 7.7.4.0
-
-#####Mise à jour des fonctionnalités
-
->#####Le mode de mise en page "Détails" prend désormais en charge le redimensionnement des largeurs de colonne
-
->#####Prend désormais en charge la couleur d'étiquette personnalisée et le texte d'étiquette du fichier
-
->#####"Vertical Split View" prend désormais en charge l'ajustement du nombre d'affichages en même temps
-
->#####Support maintenant pour changer le comportement par défaut du bouton de fermeture en haut à droite
-
-#####UI mise à jour
-
->#####L'animation de la "Vertical Split View" a été optimisée
-
->#####Les fichiers FTP et MTP et les fichiers compressés afficheront désormais des vignettes pour chaque type
+﻿###Quoi de neuf dans la version 7.7.5.0
 
 #####Corrections de bogues
 
->#####Correction d'un problème où les raccourcis clavier prennent toujours effet lorsque la page des paramètres est ouverte
+>#####Correction de certains problèmes dans les tâches de maintenance pouvant entraîner le blocage de l'application après une mise à niveau
 
->#####Correction d'un problème qui pouvait provoquer un plantage lorsque les pages de la corbeille étaient triées par leur chemin d'origine
+>#####Correction d'un problème où "Ouvrir avec RX-Explorer" pouvait être affiché sur certains objets non-dossier
 
->#####Correction d'un problème qui pouvait provoquer un plantage en cliquant sur le bouton "Confirmer" de la boîte de dialogue Options de décompression
-
->#####Correction d'un problème où les fichiers FTP ou les fichiers MTP pouvaient ne pas être ouverts correctement dans certains cas
-
->#####Correction de certains problèmes pouvant provoquer des plantages
+>#####Correction d'un problème qui pouvait tenter d'accéder à des chemins autres que des dossiers dans les paramètres de démarrage

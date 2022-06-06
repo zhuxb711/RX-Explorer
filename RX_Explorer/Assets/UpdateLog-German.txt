@@ -1,29 +1,9 @@
-﻿###Was ist neu in Ver.7.7.4.0
-
-#####Funktionsaktualisierung
-
->#####Der Layoutmodus "Details" unterstützt jetzt die Größenänderung von Spaltenbreiten
-
->#####Unterstützt jetzt benutzerdefinierte Etikettenfarbe und Etikettentext der Datei
-
->#####„Vertical Split View“ unterstützt jetzt die gleichzeitige Anpassung der Anzahl der Displays
-
->#####Unterstützt jetzt die Änderung des Standardverhaltens der Schließen-Schaltfläche oben rechts
-
-#####Benutzeroberfläche aktualisiert
-
->#####Die Animation der "Vertical Split View" wurde optimiert
-
->#####FTP- und MTP-Dateien und komprimierte Dateien zeigen jetzt Miniaturansichten für jeden Typ an
+﻿###Was ist neu in Ver.7.7.5.0
 
 #####Fehlerbehebung
 
->#####Es wurde ein Problem behoben, bei dem Tastenkombinationen immer noch wirksam sind, wenn die Einstellungsseite geöffnet war
+>#####Einige Probleme bei Wartungsaufgaben wurden behoben, die dazu führen konnten, dass die App nach einem Upgrade abstürzte
 
->#####Ein Problem wurde behoben, das zu einem Absturz führen konnte, wenn Papierkorbseiten nach ihrem ursprünglichen Pfad sortiert wurden
+>#####Es wurde ein Problem behoben, bei dem „Mit RX-Explorer öffnen“ für einige Nicht-Ordner-Objekte angezeigt werden konnte
 
->#####Ein Problem wurde behoben, das beim Klicken auf die Schaltfläche „Bestätigen“ im Dialogfeld „Dekomprimierungsoptionen“ zu einem Absturz führen konnte
-
->#####Ein Problem wurde behoben, bei dem FTP-Dateien oder MTP-Dateien in einigen Fällen möglicherweise nicht korrekt geöffnet wurden
-
->##### Einige Probleme behoben, die zu Abstürzen führen konnten
+>#####Es wurde ein Problem behoben, bei dem versucht werden konnte, auf Nicht-Ordnerpfade in Startparametern zuzugreifen
