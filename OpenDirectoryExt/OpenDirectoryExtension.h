@@ -22,6 +22,8 @@ struct __declspec(uuid("e82bd2a8-8d63-42fd-b1ae-d364c201d8a7"))
     STDMETHODIMP GetCanonicalName(GUID* pguidCommandName);
     STDMETHODIMP EnumSubCommands(IEnumExplorerCommand** ppEnum);
 #pragma endregion
+private:
+    std::wstring GetExecutablePath();
 };
 
 CoCreatableClass(OpenTerminalHere);

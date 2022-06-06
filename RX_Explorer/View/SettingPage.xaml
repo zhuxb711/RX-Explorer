@@ -1927,29 +1927,24 @@
                                                                                        x:Name="AccentColorLabel"
                                                                                        RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                                        RelativePanel.AlignLeftWithPanel="True"
-                                                                                       RelativePanel.LeftOf="AcrylicColor" />
-                                                                            <muxc:SplitButton Name="AcrylicColor"
-                                                                                              Padding="0"
-                                                                                              RelativePanel.AlignRightWithPanel="True"
-                                                                                              RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                                                <Border x:Name="CurrentColor"
-                                                                                        Height="30"
-                                                                                        Width="35"
-                                                                                        CornerRadius="4,0,0,4">
-                                                                                    <Border.Background>
-                                                                                        <SolidColorBrush Color="{x:Bind AcrylicColorPicker.Color,Mode=OneWay}" />
-                                                                                    </Border.Background>
-                                                                                </Border>
-                                                                                <muxc:SplitButton.Flyout>
-                                                                                    <Flyout Placement="Left">
-                                                                                        <muxc:ColorPicker ColorSpectrumShape="Box"
-                                                                                                          IsAlphaEnabled="True"
-                                                                                                          ColorChanged="AcrylicColorPicker_ColorChanged"
-                                                                                                          Color="{x:Bind Cls:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
-                                                                                                          x:Name="AcrylicColorPicker" />
-                                                                                    </Flyout>
-                                                                                </muxc:SplitButton.Flyout>
-                                                                            </muxc:SplitButton>
+                                                                                       RelativePanel.LeftOf="AcrylicColorPicker" />
+                                                                            <control:ColorPickerButton Height="30"
+                                                                                                       Width="60"
+                                                                                                       x:Name="AcrylicColorPicker"
+                                                                                                       SelectedColor="{x:Bind Cls:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
+                                                                                                       RelativePanel.AlignRightWithPanel="True"
+                                                                                                       RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                                <control:ColorPickerButton.ColorPickerStyle>
+                                                                                    <Style TargetType="control:ColorPicker">
+                                                                                        <Setter Property="ColorSpectrumShape"
+                                                                                                Value="Box" />
+                                                                                        <Setter Property="IsAlphaEnabled"
+                                                                                                Value="True" />
+                                                                                        <Setter Property="IsHexInputVisible"
+                                                                                                Value="True" />
+                                                                                    </Style>
+                                                                                </control:ColorPickerButton.ColorPickerStyle>
+                                                                            </control:ColorPickerButton>
                                                                         </RelativePanel>
                                                                     </Border>
 

@@ -172,11 +172,17 @@ namespace MaintenanceTask
                     Command.ExecuteNonQuery();
                 }
 
+                using (SqliteCommand Command = new SqliteCommand("Update PathTagMapping Set Label = 'None' Where Label = 'Transparent'", Connection, Transaction))
+                {
+                    Command.ExecuteNonQuery();
+                }
+
                 using (SqliteCommand Command = new SqliteCommand("Select Count(*) From sqlite_master Where type = \"table\" And name = \"FileTag\"", Connection, Transaction))
                 {
                     if (Convert.ToInt32(Command.ExecuteScalar()) > 0)
                     {
                         Builder.Append("Insert Or Ignore Into PathTagMapping (Path, Label) Select Path, ColorTag From FileTag;")
+                               .Append("Update PathTagMapping Set Label = 'None' Where Label = 'Transparent';")
                                .Append("Update PathTagMapping Set Label = 'PredefineLabel1' Where Label = 'Blue';")
                                .Append("Update PathTagMapping Set Label = 'PredefineLabel2' Where Label = 'Green';")
                                .Append("Update PathTagMapping Set Label = 'PredefineLabel3' Where Label = 'Orange';")

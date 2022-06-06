@@ -148,23 +148,15 @@
                                            Name="FromDescriptionLabel"
                                            TextTrimming="CharacterEllipsis"
                                            Visibility="{x:Bind FromDescription,Converter={StaticResource VisibilityConverter}}"
-                                           Text="{x:Bind FromDescription}">
-                                    <ToolTipService.ToolTip>
-                                        <ToolTip Content="{x:Bind FromDescription}"
-                                                 Visibility="{Binding ElementName=FromDescriptionLabel,Path=IsTextTrimmed}" />
-                                    </ToolTipService.ToolTip>
-                                </TextBlock>
+                                           Text="{x:Bind FromDescription}"
+                                           ToolTipService.ToolTip="{x:Bind FromDescription}" />
                                 <TextBlock Margin="0,5,0,0"
                                            FontSize="12"
                                            Name="ToDescriptionLabel"
                                            TextTrimming="CharacterEllipsis"
                                            Visibility="{x:Bind ToDescription,Converter={StaticResource VisibilityConverter}}"
-                                           Text="{x:Bind ToDescription}">
-                                     <ToolTipService.ToolTip>
-                                        <ToolTip Content="{x:Bind ToDescription}"
-                                                 Visibility="{Binding ElementName=ToDescriptionLabel,Path=IsTextTrimmed}" />
-                                    </ToolTipService.ToolTip>
-                                </TextBlock>
+                                           Text="{x:Bind ToDescription}"
+                                           ToolTipService.ToolTip="{x:Bind ToDescription}"/>
                                 <RelativePanel Margin="0,5,0,0">
                                     <muxc:ProgressBar RelativePanel.AlignLeftWithPanel="True"
                                                       RelativePanel.LeftOf="ProgressText"

@@ -24,7 +24,7 @@ namespace RX_Explorer.Class
         private static readonly BitmapImage DefaultThumbnuil = new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ?
                                                                                new Uri("ms-appx:///Assets/Page_Solid_White.png") :
                                                                                new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
-        private static readonly BitmapImage InnerViewerThumbnail = new BitmapImage(new Uri("ms-appx:///Assets/RX-icon.png"));
+        private static readonly BitmapImage InnerViewerThumbnail = new BitmapImage(new Uri("ms-appx:///Assets/AppLogo.png"));
 
         public static ProgramPickerItem InnerViewer { get; } = new ProgramPickerItem(InnerViewerThumbnail,
                                                                                      Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer"),

@@ -3,10 +3,11 @@
 #include <wil/filesystem.h>
 #include <winrt\Windows.Storage.h>
 #include <winrt\Windows.Foundation.Collections.h>
-#include "resource.h"
 
 static constexpr std::wstring_view VerbName{ L"RxExplorerOpenHere" };
 static constexpr std::wstring_view DefaultDisplayName{ L"Open in RX-Explorer" };
+
+extern "C" IMAGE_DOS_HEADER __ImageBase;
 
 // Method Description:
 // - This method is called when the user activates the context menu item. We'll
@@ -19,20 +20,34 @@ static constexpr std::wstring_view DefaultDisplayName{ L"Open in RX-Explorer" };
 HRESULT OpenTerminalHere::Invoke(IShellItemArray* psiItemArray,
     IBindCtx* /*pBindContext*/)
 {
-    DWORD count;
-    psiItemArray->GetCount(&count);
+    std::wstring cmdline = std::wstring(L"RX-Explorer.exe");
 
-    winrt::com_ptr<IShellItem> psi;
-    RETURN_IF_FAILED(psiItemArray->GetItemAt(0, psi.put()));
+    if (psiItemArray != nullptr) 
+    {
+        DWORD count;
+        psiItemArray->GetCount(&count);
 
-    wil::unique_cotaskmem_string pszName;
-    RETURN_IF_FAILED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszName));
+        for (DWORD index = 0; index < count; index++)
+        {
+            SFGAOF attributes;
+            winrt::com_ptr<IShellItem> psi;
+
+            RETURN_IF_FAILED(psiItemArray->GetItemAt(index, psi.put()));
+
+            if ((psi->GetAttributes(SFGAO_FILESYSTEM, &attributes) == S_OK) && (psi->GetAttributes(SFGAO_FOLDER, &attributes) == S_OK))
+            {
+                wil::unique_cotaskmem_string pszName;
+                RETURN_IF_FAILED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszName));
+
+                cmdline += L" \"" + std::wstring(pszName.get()) + L"\"";
+            }
+        }
+    }
 
     wil::unique_process_information _piClient;
-    STARTUPINFOEX siEx{ 0 };
-    siEx.StartupInfo.cb = sizeof(STARTUPINFOEX);
 
-    std::wstring cmdline = L"RX-Explorer.exe \"" + std::wstring(pszName.get()) + L"\"";
+    STARTUPINFOEX startInfoEx = STARTUPINFOEX();
+    startInfoEx.StartupInfo.cb = sizeof(STARTUPINFOEX);
 
     RETURN_IF_WIN32_BOOL_FALSE(CreateProcessW(
         nullptr, //lpApplicationName
@@ -43,7 +58,7 @@ HRESULT OpenTerminalHere::Invoke(IShellItemArray* psiItemArray,
         EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT, // dwCreationFlags
         nullptr, // lpEnvironment
         nullptr, //lpCurrentDictionary
-        &siEx.StartupInfo, // lpStartupInfo
+        &startInfoEx.StartupInfo, // lpStartupInfo
         &_piClient // lpProcessInformation
     ));
 
@@ -54,17 +69,17 @@ HRESULT OpenTerminalHere::GetToolTip(IShellItemArray* /*psiItemArray*/,
     LPWSTR* ppszInfoTip)
 {
     winrt::hstring DisplayName = winrt::unbox_value_or<winrt::hstring>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"GlobalizationStringForContextMenu"), DefaultDisplayName);
-    return SHStrDupW(DisplayName.data(), ppszInfoTip);
+    return SHStrDupW(DisplayName.c_str(), ppszInfoTip);
 }
 
 HRESULT OpenTerminalHere::GetTitle(IShellItemArray* /*psiItemArray*/,
     LPWSTR* ppszName)
 {
     winrt::hstring DisplayName = winrt::unbox_value_or<winrt::hstring>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"GlobalizationStringForContextMenu"), DefaultDisplayName);
-    return SHStrDupW(DisplayName.data(), ppszName);
+    return SHStrDupW(DisplayName.c_str(), ppszName);
 }
 
-HRESULT OpenTerminalHere::GetState(IShellItemArray* /*psiItemArray*/,
+HRESULT OpenTerminalHere::GetState(IShellItemArray* psiItemArray,
     BOOL /*fOkToBeSlow*/,
     EXPCMDSTATE* pCmdState)
 {
@@ -75,17 +90,49 @@ HRESULT OpenTerminalHere::GetState(IShellItemArray* /*psiItemArray*/,
 
     // We however don't need to bother with any of that, so we'll just return
     // ECS_ENABLED.
+    if (psiItemArray == nullptr) 
+    {
+        *pCmdState = ECS_HIDDEN;
+    }
+    else
+    {
+        *pCmdState = ECS_ENABLED;
 
-    const bool enabled = winrt::unbox_value_or<bool>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"IntegrateWithWindowsExplorerContextMenu"), true);
-    *pCmdState = enabled ? ECS_ENABLED : ECS_HIDDEN;
+        if (winrt::unbox_value_or<bool>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"IntegrateWithWindowsExplorerContextMenu"), true))
+        {
+            DWORD count;
+            psiItemArray->GetCount(&count);
+
+            for (DWORD index = 0; index < count; index++)
+            {
+                SFGAOF attributes;
+                winrt::com_ptr<IShellItem> psi;
+
+                psiItemArray->GetItemAt(index, psi.put());
+
+                if ((psi->GetAttributes(SFGAO_FILESYSTEM, &attributes) != S_OK) || (psi->GetAttributes(SFGAO_FOLDER, &attributes) != S_OK))
+                {
+                    *pCmdState = ECS_HIDDEN;
+                    break;
+                }
+            }
+        }
+        else 
+        {
+            *pCmdState = ECS_HIDDEN;
+        }
+    }
+
     return S_OK;
 }
 
-STDMETHODIMP_(HRESULT __stdcall) OpenTerminalHere::GetIcon(IShellItemArray* psiItemArray, LPWSTR* ppszIcon)
+STDMETHODIMP_(HRESULT __stdcall) OpenTerminalHere::GetIcon(IShellItemArray* /*psiItemArray*/, LPWSTR* ppszIcon)
 {
+    //std::wstring IconPath = GetExecutablePath() + L"RX_Explorer.exe,-101";
+    //return SHStrDupW(IconPath.c_str(), ppszIcon);
     winrt::hstring BasePath = winrt::Windows::ApplicationModel::Package::Current().InstalledPath();
-    std::wstring LogoPath = std::wstring(BasePath.data(), BasePath.size()) + L"\\Assets\\StoreLogo.scale-125.png";
-    return SHStrDupW(LogoPath.data(), ppszIcon);
+    std::wstring LogoPath = std::wstring(BasePath.data(), BasePath.size()) + L"\\Assets\\AppLogo.png";
+    return SHStrDupW(LogoPath.c_str(), ppszIcon);
 }
 
 HRESULT OpenTerminalHere::GetFlags(EXPCMDFLAGS* pFlags)
@@ -104,4 +151,31 @@ HRESULT OpenTerminalHere::EnumSubCommands(IEnumExplorerCommand** ppEnum)
 {
     *ppEnum = nullptr;
     return E_NOTIMPL;
+}
+
+std::wstring OpenTerminalHere::GetExecutablePath()
+{
+    std::wstring buffer;
+    size_t nextBufferLength = MAX_PATH;
+
+    while (true)
+    {
+        buffer.resize(nextBufferLength);
+        nextBufferLength *= 2;
+
+        SetLastError(ERROR_SUCCESS);
+
+        auto pathLength = GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), &buffer[0], static_cast<DWORD>(buffer.length()));
+
+        if (pathLength == 0)
+        {
+            throw std::exception("GetModuleFileName failed"); // You can call GetLastError() to get more info here
+        }
+
+        if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+        {
+            buffer.resize(pathLength);
+            return buffer;
+        }
+    }
 }

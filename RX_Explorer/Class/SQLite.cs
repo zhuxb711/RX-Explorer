@@ -551,16 +551,14 @@ namespace RX_Explorer.Class
             {
                 Command.Parameters.AddWithValue("@Path", Path);
 
-                string Tag = Convert.ToString(Command.ExecuteScalar());
+                string LabelRawString = Convert.ToString(Command.ExecuteScalar());
 
-                if (string.IsNullOrEmpty(Tag))
+                if (!string.IsNullOrEmpty(LabelRawString) && Enum.TryParse(LabelRawString, out LabelKind Label))
                 {
-                    return LabelKind.None;
+                    return Label;
                 }
-                else
-                {
-                    return Enum.Parse<LabelKind>(Tag);
-                }
+
+                return LabelKind.None;
             }
         }
 

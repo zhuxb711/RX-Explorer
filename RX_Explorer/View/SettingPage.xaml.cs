@@ -812,6 +812,7 @@ namespace RX_Explorer.View
         private long ColorPickerChangeRegisterToken2;
         private long ColorPickerChangeRegisterToken3;
         private long ColorPickerChangeRegisterToken4;
+        private long ColorPickerChangeRegisterToken5;
 
         private readonly SemaphoreSlim SyncLocker = new SemaphoreSlim(1, 1);
 
@@ -880,7 +881,7 @@ namespace RX_Explorer.View
         {
             PreventFallBack.IsEnabled = false;
             TintOpacitySlider.IsEnabled = false;
-            AcrylicColor.IsEnabled = false;
+            AcrylicColorPicker.IsEnabled = false;
             TintLuminositySlider.IsEnabled = false;
             PictureGirdView.IsEnabled = false;
             TintOpacitySliderLabel.Foreground = new SolidColorBrush(Colors.Gray);
@@ -901,7 +902,7 @@ namespace RX_Explorer.View
                     {
                         PreventFallBack.IsEnabled = true;
                         TintOpacitySlider.IsEnabled = true;
-                        AcrylicColor.IsEnabled = true;
+                        AcrylicColorPicker.IsEnabled = true;
                         TintLuminositySlider.IsEnabled = true;
                         TintOpacitySliderLabel.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
                         TintOpacitySliderValueText.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
@@ -1253,10 +1254,11 @@ namespace RX_Explorer.View
             ShowContextMenuWhenLoading.Checked -= ShowContextMenuWhenLoading_Checked;
             ShowContextMenuWhenLoading.Unchecked -= ShowContextMenuWhenLoading_Unchecked;
 
-            PredefineTagColorPicker1.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken1);
-            PredefineTagColorPicker2.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken2);
-            PredefineTagColorPicker3.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken3);
-            PredefineTagColorPicker4.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken4);
+            AcrylicColorPicker.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken1);
+            PredefineTagColorPicker1.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken2);
+            PredefineTagColorPicker2.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken3);
+            PredefineTagColorPicker3.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken4);
+            PredefineTagColorPicker4.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken5);
 
             LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
 
@@ -1451,10 +1453,16 @@ namespace RX_Explorer.View
             ShowContextMenuWhenLoading.Checked += ShowContextMenuWhenLoading_Checked;
             ShowContextMenuWhenLoading.Unchecked += ShowContextMenuWhenLoading_Unchecked;
 
-            ColorPickerChangeRegisterToken1 = PredefineTagColorPicker1.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker1SelectedColorChanged));
-            ColorPickerChangeRegisterToken2 = PredefineTagColorPicker2.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker2SelectedColorChanged));
-            ColorPickerChangeRegisterToken3 = PredefineTagColorPicker3.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker3SelectedColorChanged));
-            ColorPickerChangeRegisterToken4 = PredefineTagColorPicker4.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker4SelectedColorChanged));
+            ColorPickerChangeRegisterToken1 = AcrylicColorPicker.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnAcrylicColorPicker1SelectedColorChanged));
+            ColorPickerChangeRegisterToken2 = PredefineTagColorPicker1.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker1SelectedColorChanged));
+            ColorPickerChangeRegisterToken3 = PredefineTagColorPicker2.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker2SelectedColorChanged));
+            ColorPickerChangeRegisterToken4 = PredefineTagColorPicker3.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker3SelectedColorChanged));
+            ColorPickerChangeRegisterToken5 = PredefineTagColorPicker4.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker4SelectedColorChanged));
+        }
+
+        private void OnAcrylicColorPicker1SelectedColorChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            ApplicationData.Current.SignalDataChanged();
         }
 
         private void OnPredefineTagColorPicker1SelectedColorChanged(DependencyObject sender, DependencyProperty dp)
@@ -3726,11 +3734,6 @@ namespace RX_Explorer.View
         }
 
         private void CommonSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
-        {
-            ApplicationData.Current.SignalDataChanged();
-        }
-
-        private void AcrylicColorPicker_ColorChanged(Microsoft.UI.Xaml.Controls.ColorPicker sender, Microsoft.UI.Xaml.Controls.ColorChangedEventArgs args)
         {
             ApplicationData.Current.SignalDataChanged();
         }

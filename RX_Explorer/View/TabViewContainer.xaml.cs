@@ -783,7 +783,7 @@ namespace RX_Explorer.View
                 {
                     ValidPathArray.Add(RootStorageFolder.Current.Path);
                 }
-                else if (await FileSystemStorageItemBase.CheckExistsAsync(Path))
+                else if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder)
                 {
                     ValidPathArray.Add(Path);
                 }
