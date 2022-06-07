@@ -224,9 +224,9 @@ namespace RX_Explorer.Class
                             throw new Win32Exception(Marshal.GetLastWin32Error());
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        LogTracer.Log(ex, "Could not close the directory monitor handle as expected");
+                        //No need to handle this exception
                     }
                 }
             }

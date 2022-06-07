@@ -119,7 +119,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
-                        <RowDefinition Height="50" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <muxc:ProgressBar IsIndeterminate="True"

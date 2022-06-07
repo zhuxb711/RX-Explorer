@@ -187,7 +187,7 @@
                 <ScrollViewer VerticalScrollMode="Auto"
                               HorizontalScrollMode="Disabled">
                     <StackPanel Padding="20">
-                        <TextBlock FontSize="22"
+                        <TextBlock FontSize="18"
                                    Text="设置"
                                    x:Uid="SecureAreaSettingHeader" />
                         <StackPanel Margin="0,20,0,0">
@@ -246,7 +246,7 @@
                         </StackPanel>
                         <StackPanel  Margin="0,20,0,0">
                             <TextBlock Text="{x:Bind Cls:Globalization.GetString('SecureArea_StorageLocation_Title')}"
-                                       FontSize="22" />
+                                       FontSize="18" />
                             <TextBlock Margin="0,10"
                                        TextWrapping="Wrap"
                                        MaxLines="5"
@@ -262,7 +262,7 @@
                         <StackPanel Margin="0,20,0,0">
                             <TextBlock Text="关于"
                                        x:Uid="SecureAreaSettingAboutHeader"
-                                       FontSize="22" />
+                                       FontSize="18" />
                             <TextBlock Margin="0,20,0,0"
                                        Text="RX内建文件保险箱"
                                        x:Uid="SecureAreaSettingAboutText1" />

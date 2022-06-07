@@ -234,17 +234,21 @@ namespace FullTrustProcess
                 "S-1-3-0",
                 "S-1-5-11",
                 "S-1-5-18",
+                "S-1-15-2-1",
+                "S-1-15-2-2",
                 "S-1-5-32-544",
                 "S-1-5-32-546",
                 "S-1-5-32-545",
                 "S-1-5-21domain-500",
-                "S-1-5-21domain-501"
+                "S-1-5-21domain-501",
+                "S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464"
             };
 
             List<PermissionDataPackage> PermissionsResult = new List<PermissionDataPackage>();
 
-            foreach (IGrouping<IdentityReference, FileSystemAccessRule> RuleGroupByAccount in Security.GetAccessRules(true, true, typeof(NTAccount)).Cast<FileSystemAccessRule>()
-                                                                                                                                                    .GroupBy((Rule) => Rule.IdentityReference))
+            foreach (IGrouping<IdentityReference, FileSystemAccessRule> RuleGroupByAccount in Security.GetAccessRules(true, true, typeof(SecurityIdentifier))
+                                                                                                      .Cast<FileSystemAccessRule>()
+                                                                                                      .GroupBy((Rule) => Rule.IdentityReference))
             {
                 try
                 {
@@ -257,6 +261,7 @@ namespace FullTrustProcess
                     int CchRefDomainName = 256;
                     StringBuilder Name = new StringBuilder(CchName);
                     StringBuilder Domain = new StringBuilder(CchRefDomainName);
+
                     AccountType Type = AccountType.Unknown;
 
                     if (AdvApi32.LookupAccountSid(null, SidBuffer, Name, ref CchName, Domain, ref CchRefDomainName, out AdvApi32.SID_NAME_USE SidType))

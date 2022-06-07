@@ -951,41 +951,29 @@ namespace RX_Explorer.Class
 
         public virtual async Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
         {
-            async Task<SafeFileHandle> GetNativeHandleCoreAsync()
-            {
-                if (GetBulkAccessSharedController(out var ControllerRef))
-                {
-                    using (ControllerRef)
-                    {
-                        return await ControllerRef.Value.Controller.GetNativeHandleAsync(Path, Mode, Option);
-                    }
-                }
-                else
-                {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        return await Exclusive.Controller.GetNativeHandleAsync(Path, Mode, Option);
-                    }
-                }
-            }
-
             if (await GetStorageItemAsync() is IStorageItem Item)
             {
                 SafeFileHandle Handle = Item.GetSafeFileHandle(Mode, Option);
 
-                if (Handle.IsInvalid)
-                {
-                    return await GetNativeHandleCoreAsync();
-                }
-                else
+                if (!Handle.IsInvalid)
                 {
                     return Handle;
                 }
+            }
 
+            if (GetBulkAccessSharedController(out var ControllerRef))
+            {
+                using (ControllerRef)
+                {
+                    return await ControllerRef.Value.Controller.GetNativeHandleAsync(Path, Mode, Option);
+                }
             }
             else
             {
-                return await GetNativeHandleCoreAsync();
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    return await Exclusive.Controller.GetNativeHandleAsync(Path, Mode, Option);
+                }
             }
         }
 

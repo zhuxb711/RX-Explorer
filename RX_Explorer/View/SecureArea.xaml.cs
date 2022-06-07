@@ -432,8 +432,11 @@ namespace RX_Explorer.View
                                 {
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        ProBar.IsIndeterminate = false;
-                                        ProBar.Value = Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize));
+                                        if (TotalSize > 0)
+                                        {
+                                            ProBar.IsIndeterminate = false;
+                                            ProBar.Value = Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize));
+                                        }
                                     });
                                 });
 
@@ -443,7 +446,10 @@ namespace RX_Explorer.View
 
                                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
-                                    ProBar.Value = Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize));
+                                    if (TotalSize > 0)
+                                    {
+                                        ProBar.Value = Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize));
+                                    }
                                 });
                             }
 
@@ -1072,42 +1078,45 @@ namespace RX_Explorer.View
                 StorageLocation.Text = Folder.Path;
                 ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] = Folder.Path;
 
-                ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Transfering"));
-
-                try
+                if (SecureCollection.Count > 0)
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Transfering"));
+
+                    try
                     {
-                        await Exclusive.Controller.MoveAsync(SecureCollection.Select((Item) => Item.Path), Folder.Path, ProgressHandler: async (s, e) =>
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            await Exclusive.Controller.MoveAsync(SecureCollection.Select((Item) => Item.Path), Folder.Path, ProgressHandler: async (s, e) =>
                             {
-                                ProBar.IsIndeterminate = false;
-                                ProBar.Value = e.ProgressPercentage;
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    ProBar.IsIndeterminate = false;
+                                    ProBar.Value = e.ProgressPercentage;
+                                });
                             });
-                        });
+                        }
+
+                        await LoadSecureFileAsync();
                     }
-
-                    await LoadSecureFileAsync();
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Transferring in SecureArea failed for unexpected error");
-
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    catch (Exception ex)
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_SecureAreaTransferFileFailed_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
+                        LogTracer.Log(ex, "Transferring in SecureArea failed for unexpected error");
 
-                    await Dialog.ShowAsync();
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_SecureAreaTransferFileFailed_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
 
-                    await Launcher.LaunchFolderPathAsync(OldPath);
-                }
-                finally
-                {
-                    ActivateLoading(false);
+                        await Dialog.ShowAsync();
+
+                        await Launcher.LaunchFolderPathAsync(OldPath);
+                    }
+                    finally
+                    {
+                        ActivateLoading(false);
+                    }
                 }
             }
         }

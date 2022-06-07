@@ -27,8 +27,6 @@ namespace RX_Explorer.Class
 
         public bool IsEnabled { get; private set; }
 
-        private double HeaderHeight;
-
         private ListViewBase View;
 
         private Rectangle RectangleInCanvas;
@@ -291,7 +289,7 @@ namespace RX_Explorer.Class
         {
             if (IsEnabled)
             {
-                HeaderHeight = View.Header == null ? 0 : 35;
+                double HeaderHeight = View.Header == null ? 0 : 35;
 
                 if (StartPoint.X <= EndPoint.X)
                 {
