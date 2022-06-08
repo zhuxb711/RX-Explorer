@@ -850,11 +850,6 @@ namespace RX_Explorer.View
                 if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
                     VerticalSplitViewLimitationArea.Visibility = Visibility.Visible;
-
-                    if (SearchEngineConfig.Items.Count == 2)
-                    {
-                        SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseEverythingAsDefault"));
-                    }
                 }
                 else
                 {
@@ -863,6 +858,11 @@ namespace RX_Explorer.View
                     if (SearchEngineConfig.SelectedIndex == 2)
                     {
                         SearchEngineConfig.SelectedIndex = 0;
+                    }
+
+                    if (SearchEngineConfig.Items.Count == 3)
+                    {
+                        SearchEngineConfig.Items.RemoveAt(2);
                     }
                 }
 
@@ -1006,6 +1006,7 @@ namespace RX_Explorer.View
 
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_AlwaysPopup"));
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseBuildInAsDefault"));
+                SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseEverythingAsDefault"));
 
                 ShutdownButtonBehaviorCombox.Items.Add(Globalization.GetString("ShutdownButtonBehavior_CloseApplication"));
                 ShutdownButtonBehaviorCombox.Items.Add(Globalization.GetString("ShutdownButtonBehavior_CloseInnerViewer"));

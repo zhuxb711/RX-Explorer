@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using System.Windows;
@@ -80,7 +81,7 @@ namespace SystemLaunchHelper
 
                                     try
                                     {
-                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false))
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\shell\opennewwindow\command", RegistryRights.ReadKey))
                                         {
                                             if (Key != null)
                                             {
@@ -159,7 +160,7 @@ namespace SystemLaunchHelper
 
                                     try
                                     {
-                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Directory", false)?.OpenSubKey("shell", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Directory\shell\open\command", RegistryRights.ReadKey))
                                         {
                                             if (Key != null)
                                             {
@@ -170,7 +171,29 @@ namespace SystemLaunchHelper
                                             }
                                         }
 
-                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Drive", false)?.OpenSubKey("shell", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Drive\shell\open\command", RegistryRights.ReadKey))
+                                        {
+                                            if (Key != null)
+                                            {
+                                                if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    IsRegistryCheckingSuccess = false;
+                                                }
+                                            }
+                                        }
+
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\shell\explore\command", RegistryRights.ReadKey))
+                                        {
+                                            if (Key != null)
+                                            {
+                                                if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    IsRegistryCheckingSuccess = false;
+                                                }
+                                            }
+                                        }
+
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\shell\open\command", RegistryRights.ReadKey))
                                         {
                                             if (Key != null)
                                             {
@@ -222,7 +245,7 @@ namespace SystemLaunchHelper
 
                                 try
                                 {
-                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false))
+                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\shell\opennewwindow\command", RegistryRights.ReadKey))
                                     {
                                         if (Key != null)
                                         {
@@ -255,7 +278,7 @@ namespace SystemLaunchHelper
 
                                     try
                                     {
-                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("Directory", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\Directory\open\command", RegistryRights.ReadKey))
                                         {
                                             if (Key != null)
                                             {
@@ -266,7 +289,7 @@ namespace SystemLaunchHelper
                                             }
                                         }
 
-                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Drive", false)?.OpenSubKey("shell", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Drive\shell\open\command", RegistryRights.ReadKey))
                                         {
                                             if (Key != null)
                                             {
@@ -322,7 +345,7 @@ namespace SystemLaunchHelper
 
                                 try
                                 {
-                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("Directory", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\Directory\open\command", RegistryRights.ReadKey))
                                     {
                                         if (Key != null)
                                         {
@@ -333,7 +356,29 @@ namespace SystemLaunchHelper
                                         }
                                     }
 
-                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Drive", false)?.OpenSubKey("shell", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Drive\shell\open\command", RegistryRights.ReadKey))
+                                    {
+                                        if (Key != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
+                                            {
+                                                IsRegistryCheckingSuccess = false;
+                                            }
+                                        }
+                                    }
+
+                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\shell\open\command", RegistryRights.ReadKey))
+                                    {
+                                        if (Key != null)
+                                        {
+                                            if (Convert.ToString(Key.GetValue(string.Empty)) != Environment.ExpandEnvironmentVariables(@"%SystemRoot%\Explorer.exe"))
+                                            {
+                                                IsRegistryCheckingSuccess = false;
+                                            }
+                                        }
+                                    }
+
+                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\shell\explore\command", RegistryRights.ReadKey))
                                     {
                                         if (Key != null)
                                         {
@@ -366,7 +411,7 @@ namespace SystemLaunchHelper
 
                                     try
                                     {
-                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false))
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\shell\opennewwindow\command", RegistryRights.ReadKey))
                                         {
                                             if (Key != null)
                                             {
@@ -554,7 +599,7 @@ namespace SystemLaunchHelper
                                     }
                                 case 2:
                                     {
-                                        File.Create(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notification.lock")).Dispose();
+                                        File.OpenHandle(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notification.lock"), FileMode.OpenOrCreate).Dispose();
 
                                         goto case 1;
                                     }

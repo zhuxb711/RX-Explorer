@@ -11,3 +11,9 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\Directory\shell\open\command]
 @="<FillActualAliasPathInHere>"
+
+[HKEY_CLASSES_ROOT\Folder\shell\open\command]
+@="<FillActualAliasPathInHere>"
+
+[HKEY_CLASSES_ROOT\Folder\shell\explore\command]
+@="<FillActualAliasPathInHere>"
