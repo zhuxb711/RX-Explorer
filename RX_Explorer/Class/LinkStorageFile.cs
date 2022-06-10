@@ -73,14 +73,17 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override Task<IStorageItem> GetStorageItemAsync()
+        protected override Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
         {
             return Task.FromResult<IStorageItem>(null);
         }
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
-            RawData = await GetRawDataAsync();
+            if (RawData == null || ForceUpdate)
+            {
+                RawData = await GetRawDataAsync();
+            }
 
             if (!string.IsNullOrEmpty(RawData?.LinkTargetPath))
             {

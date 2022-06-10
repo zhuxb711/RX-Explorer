@@ -19,7 +19,7 @@
     <SplitView DisplayMode="Overlay"
                PanePlacement="Right"
                Name="TaskListPanel"
-               OpenPaneLength="380"
+               OpenPaneLength="350"
                PaneBackground="{ThemeResource ElementCustomAcrylicBrush}">
         <Grid>
             <Frame Name="BaseFrame"

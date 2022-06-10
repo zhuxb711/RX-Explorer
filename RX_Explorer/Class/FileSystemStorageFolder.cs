@@ -1,5 +1,4 @@
-﻿using RX_Explorer.Interface;
-using ShareClassLibrary;
+﻿using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,11 +16,11 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFolder : FileSystemStorageItemBase, ICoreStorageItem<StorageFolder>
+    public class FileSystemStorageFolder : FileSystemStorageItemBase
     {
         public override string Name => (System.IO.Path.GetPathRoot(Path)?.Equals(Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault() ? Path : System.IO.Path.GetFileName(Path);
 
-        public override string DisplayName => (StorageItem?.DisplayName) ?? Name;
+        public override string DisplayName => ((StorageItem as StorageFolder)?.DisplayName) ?? Name;
 
         public override string SizeDescription => string.Empty;
 
@@ -36,8 +35,6 @@ namespace RX_Explorer.Class
         public override BitmapImage Thumbnail => base.Thumbnail ??= new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
                                                                                        ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                                                        : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
-
-        public StorageFolder StorageItem { get; protected set; }
 
         public FileSystemStorageFolder(StorageFolder Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read, OptimizeOption.None), false)
         {
@@ -488,7 +485,7 @@ namespace RX_Explorer.Class
                     {
                         ModifiedTime = Data.ModifiedTime;
                     }
-                    else if (await GetStorageItemAsync() is StorageFolder Folder)
+                    else if (await GetStorageItemCoreAsync(true) is StorageFolder Folder)
                     {
                         ModifiedTime = await Folder.GetModifiedTimeAsync();
                     }
@@ -500,13 +497,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override async Task<IStorageItem> GetStorageItemAsync()
+        protected override async Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
         {
             try
             {
-                if (!IsHiddenItem && !IsSystemItem)
+                if (StorageItem == null || ForceUpdate)
                 {
-                    return StorageItem ??= await StorageFolder.GetFolderFromPathAsync(Path);
+                    StorageItem = await StorageFolder.GetFolderFromPathAsync(Path);
                 }
             }
             catch (FileNotFoundException)
@@ -522,7 +519,7 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"Could not get StorageFolder, path: {Path}");
             }
 
-            return null;
+            return StorageItem;
         }
 
         protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
@@ -829,7 +826,7 @@ namespace RX_Explorer.Class
 
         public static explicit operator StorageFolder(FileSystemStorageFolder File)
         {
-            return File.StorageItem;
+            return File.StorageItem as StorageFolder;
         }
     }
 }

@@ -2153,9 +2153,7 @@ namespace RX_Explorer.View
                                                 {
                                                     if (GroupCollection.FirstOrDefault((Group) => Group.Contains(OldItem)) is FileSystemStorageGroupItem CurrentGroup)
                                                     {
-                                                        string Key = GroupCollectionGenerator.SearchGroupBelonging(ModifiedItem, Config.GroupTarget.GetValueOrDefault());
-
-                                                        if (Key != CurrentGroup.Key)
+                                                        if (GroupCollectionGenerator.SearchGroupBelonging(ModifiedItem, Config.GroupTarget.GetValueOrDefault()) != CurrentGroup.Key)
                                                         {
                                                             FileCollection.Remove(OldItem);
 
@@ -2188,17 +2186,7 @@ namespace RX_Explorer.View
 
                                                 if (FileCollection.Contains(OldItem))
                                                 {
-                                                    int Index = FileCollection.IndexOf(OldItem);
-
-                                                    if (Index >= 0)
-                                                    {
-                                                        FileCollection.Remove(OldItem);
-
-                                                        if (await FileSystemStorageItemBase.OpenAsync(OldItem.Path) is FileSystemStorageItemBase RefreshedItem)
-                                                        {
-                                                            FileCollection.Insert(Index, RefreshedItem);
-                                                        }
-                                                    }
+                                                    await OldItem.RefreshAsync();
                                                 }
                                             }
                                             else

@@ -49,19 +49,15 @@ namespace RX_Explorer.Class
             return Task.CompletedTask;
         }
 
-        public override async Task<IStorageItem> GetStorageItemAsync()
+        protected override async Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
         {
             try
             {
-                if (StorageItem != null)
-                {
-                    return StorageItem;
-                }
-                else
+                if (StorageItem == null || ForceUpdate)
                 {
                     if (Path.Equals(DeviceId, StringComparison.OrdinalIgnoreCase))
                     {
-                        return StorageItem = await Task.Run(() => StorageDevice.FromId(DeviceId));
+                        StorageItem = await Task.Run(() => StorageDevice.FromId(DeviceId));
                     }
                     else if (ParentFolder != null)
                     {
@@ -69,13 +65,13 @@ namespace RX_Explorer.Class
                         {
                             if (await Folder.TryGetItemAsync(Name) is StorageFolder Item)
                             {
-                                return StorageItem = Item;
+                                StorageItem = Item;
                             }
                         }
                     }
                     else if (await Task.Run(() => StorageDevice.FromId(DeviceId)) is StorageFolder RootFolder)
                     {
-                        return StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFolder>(new PathAnalysis(Path, DeviceId));
+                        StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFolder>(new PathAnalysis(Path, DeviceId));
                     }
                 }
             }
@@ -84,7 +80,7 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"Could not get StorageFile, Path: {Path}");
             }
 
-            return null;
+            return StorageItem;
         }
 
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)

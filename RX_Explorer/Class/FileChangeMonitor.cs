@@ -119,7 +119,7 @@ namespace RX_Explorer.Class
 
                                     do
                                     {
-                                        CurrentPointer = (IntPtr)(Offset + CurrentPointer.ToInt64());
+                                        CurrentPointer = new IntPtr(Offset + CurrentPointer.ToInt64());
 
                                         // Read file length (in bytes) at offset 8
                                         int FileNameLength = Marshal.ReadInt32(CurrentPointer, 8);

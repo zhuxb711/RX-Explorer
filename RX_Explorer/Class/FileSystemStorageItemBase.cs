@@ -128,6 +128,8 @@ namespace RX_Explorer.Class
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
 
+        public IStorageItem StorageItem { get; protected set; }
+
         public static Task<EndUsageNotification> SetBulkAccessSharedControllerAsync<T>(T Item, FullTrustProcessController.ExclusiveUsage ExistingExclusiveUsage = null) where T : FileSystemStorageItemBase
         {
             return SetBulkAccessSharedControllerAsync(new T[] { Item }, ExistingExclusiveUsage);
@@ -871,9 +873,12 @@ namespace RX_Explorer.Class
                     {
                         using (EndUsageNotification Disposable = await SetBulkAccessSharedControllerAsync(this))
                         {
-                            await Task.WhenAll(LoadCoreAsync(false), GetStorageItemAsync(), GetThumbnailOverlayAsync());
+                            await LoadCoreAsync(false);
 
-                            List<Task> ParallelLoadTasks = new List<Task>(2);
+                            List<Task> ParallelLoadTasks = new List<Task>()
+                            {
+                                GetThumbnailOverlayAsync()
+                            };
 
                             if (ShouldGenerateThumbnail)
                             {
@@ -897,11 +902,15 @@ namespace RX_Explorer.Class
                     {
                         OnPropertyChanged(nameof(Name));
                         OnPropertyChanged(nameof(DisplayName));
-                        OnPropertyChanged(nameof(SizeDescription));
-                        OnPropertyChanged(nameof(DisplayType));
                         OnPropertyChanged(nameof(ModifiedTimeDescription));
                         OnPropertyChanged(nameof(ThumbnailOverlay));
                         OnPropertyChanged(nameof(SyncStatus));
+
+                        if (this is FileSystemStorageFile)
+                        {
+                            OnPropertyChanged(nameof(DisplayType));
+                            OnPropertyChanged(nameof(SizeDescription));
+                        }
 
                         if (ShouldGenerateThumbnail)
                         {
@@ -918,6 +927,27 @@ namespace RX_Explorer.Class
                 {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () => await LocalLoadAsync());
                 }
+            }
+        }
+
+        public async Task RefreshAsync()
+        {
+            try
+            {
+                await LoadCoreAsync(true);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not refresh the {nameof(FileSystemStorageItemBase)}, path: {Path}");
+            }
+            finally
+            {
+                if (this is FileSystemStorageFile)
+                {
+                    OnPropertyChanged(nameof(SizeDescription));
+                }
+
+                OnPropertyChanged(nameof(ModifiedTimeDescription));
             }
         }
 
@@ -1014,7 +1044,17 @@ namespace RX_Explorer.Class
 
         protected abstract Task LoadCoreAsync(bool ForceUpdate);
 
-        public abstract Task<IStorageItem> GetStorageItemAsync();
+        protected abstract Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate);
+
+        public async Task<IStorageItem> GetStorageItemAsync()
+        {
+            if (!IsHiddenItem && !IsSystemItem)
+            {
+                return await GetStorageItemCoreAsync(false);
+            }
+
+            return null;
+        }
 
         public async Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode)
         {

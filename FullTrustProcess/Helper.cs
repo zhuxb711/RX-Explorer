@@ -5,6 +5,7 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -26,6 +27,75 @@ namespace FullTrustProcess
 {
     public static class Helper
     {
+        public static IReadOnlyList<Process> GetLockingProcesses(string Path)
+        {
+            StringBuilder SessionKey = new StringBuilder(Guid.NewGuid().ToString());
+
+            if (RstrtMgr.RmStartSession(out uint SessionHandle, 0, SessionKey).Succeeded)
+            {
+                try
+                {
+                    string[] ResourcesFileName = new string[] { Path };
+
+                    if (RstrtMgr.RmRegisterResources(SessionHandle, (uint)ResourcesFileName.Length, ResourcesFileName, 0, null, 0, null).Succeeded)
+                    {
+                        uint pnProcInfo = 0;
+
+                        //Note: there's a race condition here -- the first call to RmGetList() returns
+                        //      the total number of process. However, when we call RmGetList() again to get
+                        //      the actual processes this number may have increased.
+                        Win32Error Error = RstrtMgr.RmGetList(SessionHandle, out uint pnProcInfoNeeded, ref pnProcInfo, null, out _);
+
+                        if (Error == Win32Error.ERROR_MORE_DATA)
+                        {
+                            RstrtMgr.RM_PROCESS_INFO[] ProcessInfo = new RstrtMgr.RM_PROCESS_INFO[pnProcInfoNeeded];
+
+                            if (RstrtMgr.RmGetList(SessionHandle, out _, ref pnProcInfoNeeded, ProcessInfo, out _).Succeeded)
+                            {
+                                List<Process> LockProcesses = new List<Process>((int)pnProcInfoNeeded);
+
+                                for (int i = 0; i < pnProcInfoNeeded; i++)
+                                {
+                                    try
+                                    {
+                                        LockProcesses.Add(Process.GetProcessById(Convert.ToInt32(ProcessInfo[i].Process.dwProcessId)));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, "Process is no longer running");
+                                    }
+                                }
+
+                                return LockProcesses;
+                            }
+                            else
+                            {
+                                LogTracer.Log("Could not list processes locking resource");
+                            }
+                        }
+                        else if (Error != Win32Error.ERROR_SUCCESS)
+                        {
+                            LogTracer.Log("Could not list processes locking resource. Failed to get size of result.");
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log("Could not register resource");
+                    }
+                }
+                finally
+                {
+                    RstrtMgr.RmEndSession(SessionHandle);
+                }
+            }
+            else
+            {
+                LogTracer.Log("Could not begin restart session. Unable to determine locking process");
+            }
+
+            return new List<Process>(0);
+        }
+
         public static ulong GetAllocationSize(string Path)
         {
             try
@@ -451,19 +521,26 @@ namespace FullTrustProcess
                     {
                         IEnumerable<ShellItem> SItemList = PathArray.Select((Path) => new ShellItem(Path));
 
-                        using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
+                        try
                         {
-                            try
+                            using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
                             {
-                                Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "Open", out uint ProcessId);
+                                List<Exception> ExceptionList = new List<Exception>();
 
-                                if (ProcessId > 0)
+                                try
                                 {
-                                    return true;
+                                    Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "open", out uint ProcessId);
+
+                                    if (ProcessId > 0)
+                                    {
+                                        return true;
+                                    }
                                 }
-                            }
-                            catch (Exception)
-                            {
+                                catch (Exception ex)
+                                {
+                                    ExceptionList.Add(ex);
+                                }
+
                                 try
                                 {
                                     Manager.ActivateForProtocol(AppUserModelId, ItemArray.IShellItemArray, out uint ProcessId);
@@ -473,7 +550,12 @@ namespace FullTrustProcess
                                         return true;
                                     }
                                 }
-                                catch (Exception)
+                                catch (Exception ex)
+                                {
+                                    ExceptionList.Add(ex);
+                                }
+
+                                try
                                 {
                                     Manager.ActivateApplication(AppUserModelId, string.Join(' ', PathArray.Select((Path) => $"\"{Path}\"")), Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
 
@@ -482,11 +564,17 @@ namespace FullTrustProcess
                                         return true;
                                     }
                                 }
+                                catch (Exception ex)
+                                {
+                                    ExceptionList.Add(ex);
+                                }
+
+                                throw new AggregateException(ExceptionList);
                             }
-                            finally
-                            {
-                                SItemList.ForEach((Item) => Item.Dispose());
-                            }
+                        }
+                        finally
+                        {
+                            SItemList.ForEach((Item) => Item.Dispose());
                         }
                     }
                     else

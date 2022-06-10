@@ -1,6 +1,5 @@
 ﻿using FluentFTP;
 using Microsoft.Win32.SafeHandles;
-using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.ComponentModel;
@@ -15,11 +14,11 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFile : FileSystemStorageItemBase, ICoreStorageItem<StorageFile>
+    public class FileSystemStorageFile : FileSystemStorageItemBase
     {
         public override string Type => string.IsNullOrEmpty(base.Type) ? Globalization.GetString("File_Admin_DisplayType") : base.Type;
 
-        public override string DisplayType => (StorageItem?.DisplayType) ?? Type;
+        public override string DisplayType => ((StorageItem as StorageFile)?.DisplayType) ?? Type;
 
         public override string DisplayName => Name;
 
@@ -43,8 +42,6 @@ namespace RX_Explorer.Class
         public override BitmapImage Thumbnail => base.Thumbnail ??= new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
                                                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
                                                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
-
-        public StorageFile StorageItem { get; protected set; }
 
         public FileSystemStorageFile(StorageFile Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read, OptimizeOption.None), false)
         {
@@ -189,13 +186,13 @@ namespace RX_Explorer.Class
 
                     if (Data.IsDataValid)
                     {
-                        ModifiedTime = Data.ModifiedTime;
                         Size = Data.Size;
+                        ModifiedTime = Data.ModifiedTime;
                     }
-                    else if (await GetStorageItemAsync() is StorageFile File)
+                    else if (await GetStorageItemCoreAsync(true) is StorageFile File)
                     {
-                        ModifiedTime = await File.GetModifiedTimeAsync();
                         Size = await File.GetSizeRawDataAsync();
+                        ModifiedTime = await File.GetModifiedTimeAsync();
                     }
                 }
                 catch (Exception ex)
@@ -205,13 +202,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async override Task<IStorageItem> GetStorageItemAsync()
+        protected override async Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
         {
             try
             {
-                if (!IsHiddenItem && !IsSystemItem)
+                if (StorageItem == null || ForceUpdate)
                 {
-                    return StorageItem ??= await StorageFile.GetFileFromPathAsync(Path);
+                    StorageItem = await StorageFile.GetFileFromPathAsync(Path);
                 }
             }
             catch (FileNotFoundException)
@@ -227,7 +224,7 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"Could not get StorageFile, path: {Path}");
             }
 
-            return null;
+            return StorageItem;
         }
 
         public override async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
@@ -346,7 +343,7 @@ namespace RX_Explorer.Class
 
         public static explicit operator StorageFile(FileSystemStorageFile File)
         {
-            return File.StorageItem;
+            return File.StorageItem as StorageFile;
         }
     }
 }

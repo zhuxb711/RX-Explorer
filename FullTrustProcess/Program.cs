@@ -2971,13 +2971,14 @@ namespace FullTrustProcess
                         case CommandType.UnlockOccupy:
                             {
                                 string Path = CommandValue["ExecutePath"];
-                                bool ForceClose = Convert.ToBoolean(CommandValue["ForceClose"]);
 
                                 if (File.Exists(Path))
                                 {
                                     if (StorageItemController.CheckCaptured(Path))
                                     {
-                                        IReadOnlyList<Process> LockingProcesses = StorageItemController.GetLockingProcesses(Path);
+                                        bool ForceClose = Convert.ToBoolean(CommandValue["ForceClose"]);
+
+                                        IReadOnlyList<Process> LockingProcesses = Helper.GetLockingProcesses(Path);
 
                                         try
                                         {

@@ -16,9 +16,9 @@ namespace RX_Explorer.Class
 
         public override string DisplayName => Name;
 
-        public override string DisplayType => (StorageItem?.DisplayType) ?? (string.IsNullOrEmpty(InnerDisplayType) ? Type : InnerDisplayType);
+        public override string DisplayType => ((StorageItem as StorageFile)?.DisplayType) ?? (string.IsNullOrEmpty(InnerDisplayType) ? Type : InnerDisplayType);
 
-        public override string Type => (StorageItem?.FileType) ?? System.IO.Path.GetExtension(OriginPath).ToUpper();
+        public override string Type => ((StorageItem as StorageFile)?.FileType) ?? System.IO.Path.GetExtension(OriginPath).ToUpper();
 
         private string InnerDisplayType;
 
@@ -60,7 +60,7 @@ namespace RX_Explorer.Class
             await base.LoadCoreAsync(ForceUpdate);
         }
 
-        public override Task<IStorageItem> GetStorageItemAsync()
+        protected override Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
         {
             if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
             {
@@ -68,7 +68,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                return base.GetStorageItemAsync();
+                return base.GetStorageItemCoreAsync(ForceUpdate);
             }
         }
 

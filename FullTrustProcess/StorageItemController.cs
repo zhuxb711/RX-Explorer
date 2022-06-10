@@ -16,89 +16,6 @@ namespace FullTrustProcess
 {
     public static class StorageItemController
     {
-        /// <summary>
-        /// Find out what process(es) have a lock on the specified file.
-        /// </summary>
-        /// <param name="path">Path of the file.</param>
-        /// <returns>Processes locking the file</returns>
-        public static IReadOnlyList<Process> GetLockingProcesses(string path)
-        {
-            StringBuilder SessionKey = new StringBuilder(Guid.NewGuid().ToString());
-
-            if (RstrtMgr.RmStartSession(out uint SessionHandle, 0, SessionKey).Succeeded)
-            {
-                try
-                {
-                    string[] ResourcesFileName = new string[] { path };
-
-                    if (RstrtMgr.RmRegisterResources(SessionHandle, (uint)ResourcesFileName.Length, ResourcesFileName, 0, null, 0, null).Succeeded)
-                    {
-                        uint pnProcInfo = 0;
-
-                        //Note: there's a race condition here -- the first call to RmGetList() returns
-                        //      the total number of process. However, when we call RmGetList() again to get
-                        //      the actual processes this number may have increased.
-                        Win32Error Error = RstrtMgr.RmGetList(SessionHandle, out uint pnProcInfoNeeded, ref pnProcInfo, null, out _);
-
-                        if (Error == Win32Error.ERROR_MORE_DATA)
-                        {
-                            RstrtMgr.RM_PROCESS_INFO[] ProcessInfo = new RstrtMgr.RM_PROCESS_INFO[pnProcInfoNeeded];
-
-                            pnProcInfo = pnProcInfoNeeded;
-
-                            if (RstrtMgr.RmGetList(SessionHandle, out pnProcInfoNeeded, ref pnProcInfo, ProcessInfo, out _).Succeeded)
-                            {
-                                List<Process> LockProcesses = new List<Process>((int)pnProcInfo);
-
-                                for (int i = 0; i < pnProcInfo; i++)
-                                {
-                                    try
-                                    {
-                                        LockProcesses.Add(Process.GetProcessById(Convert.ToInt32(ProcessInfo[i].Process.dwProcessId)));
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        LogTracer.Log(ex, "Process is no longer running");
-                                    }
-                                }
-
-                                return LockProcesses;
-                            }
-                            else
-                            {
-                                LogTracer.Log("Could not list processes locking resource");
-                                return new List<Process>(0);
-                            }
-                        }
-                        else if (Error != Win32Error.ERROR_SUCCESS)
-                        {
-                            LogTracer.Log("Could not list processes locking resource. Failed to get size of result.");
-                            return new List<Process>(0);
-                        }
-                        else
-                        {
-                            LogTracer.Log("Unknown error");
-                            return new List<Process>(0);
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log("Could not register resource");
-                        return new List<Process>(0);
-                    }
-                }
-                finally
-                {
-                    RstrtMgr.RmEndSession(SessionHandle);
-                }
-            }
-            else
-            {
-                LogTracer.Log("Could not begin restart session. Unable to determine file locker.");
-                return new List<Process>(0);
-            }
-        }
-
         public static bool CheckCaptured(string Path)
         {
             if (File.Exists(Path))
@@ -157,13 +74,7 @@ namespace FullTrustProcess
             }
             else if (Directory.Exists(Path))
             {
-                foreach (string SubFilePath in Directory.GetFiles(Path, "*", SearchOption.AllDirectories))
-                {
-                    if (CheckCaptured(SubFilePath))
-                    {
-                        return true;
-                    }
-                }
+                return Directory.EnumerateFiles(Path, "*", SearchOption.AllDirectories).Any((SubFilePath) => CheckCaptured(SubFilePath));
             }
 
             return false;

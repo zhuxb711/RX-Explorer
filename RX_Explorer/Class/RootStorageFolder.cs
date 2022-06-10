@@ -30,19 +30,19 @@ namespace RX_Explorer.Class
 
         public override string DisplayName => Name;
 
+        public override Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
+        {
+            return Task.FromResult((ulong)0);
+        }
+
         protected override Task LoadCoreAsync(bool ForceUpdate)
         {
             return Task.CompletedTask;
         }
 
-        public override Task<IStorageItem> GetStorageItemAsync()
+        protected override Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
         {
             return Task.FromResult<IStorageItem>(null);
-        }
-
-        public override Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
-        {
-            return Task.FromResult((ulong)0);
         }
 
         protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)

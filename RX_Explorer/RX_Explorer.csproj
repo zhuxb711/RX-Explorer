@@ -240,7 +240,6 @@
     <Compile Include="Dialog\SecureAreaChangeLocationDialog.xaml.cs">
       <DependentUpon>SecureAreaChangeLocationDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Interface\ICoreStorageItem.cs" />
     <Compile Include="Interface\IFTPStorageItem.cs" />
     <Compile Include="Interface\IMTPStorageItem.cs" />
     <Compile Include="Interface\IUnsupportedStorageItem.cs" />
