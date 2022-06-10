@@ -1,9 +1,15 @@
-﻿###Was ist neu in Ver.7.7.5.0
+﻿###Was ist neu in Ver.7.7.6.0
 
 #####Fehlerbehebung
 
->#####Einige Probleme bei Wartungsaufgaben wurden behoben, die dazu führen konnten, dass die App nach einem Upgrade abstürzte
+>#####Problem behoben, bei dem der Speicherort des „Sicherheitsbereichs“ nicht geändert werden kann, wenn sich keine Dateien im „Sicherheitsbereich“ befinden
 
->#####Es wurde ein Problem behoben, bei dem „Mit RX-Explorer öffnen“ für einige Nicht-Ordner-Objekte angezeigt werden konnte
+>#####Problem behoben, bei dem Dateien möglicherweise nicht in den „Sicherheitsbereich“ importiert werden können
 
->#####Es wurde ein Problem behoben, bei dem versucht werden konnte, auf Nicht-Ordnerpfade in Startparametern zuzugreifen
+>#####Es wurde ein Problem behoben, bei dem die Standardsuchmaschineneinstellungen nach dem Neustart der Anwendung möglicherweise zurückgesetzt wurden
+
+>#####Es wurde ein Problem behoben, bei dem einige Apps RX-Explorer nicht als Standard-Explorer zum Öffnen von Verzeichnissen verwenden konnten
+
+>>#####Die relevanten Unteroptionen von "In Systemkomponenten integrieren" müssen deaktiviert und wieder aktiviert werden
+
+>######Problem behoben, dass die Benutzeroberfläche schnell springt, wenn sich die Dateigröße oder das Änderungsdatum häufig ändert (z. B. beim Komprimieren von Dateien)

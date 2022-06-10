@@ -1,9 +1,15 @@
-﻿###What's new in Ver.7.7.5.0
+﻿###What's new in Ver.7.7.6.0
 
 #####Bug Fixes
 
->#####Fixed some issues in maintenance tasks that could cause the app to crash after an upgrade
+>#####Fixed an issue where the storage location of the "Security Area" cannot be changed if there are no files in the "Security Area"
 
->#####Fixed an issue where "Open with RX-Explorer" could be displayed on some non-folder objects
+>#####Fixed an issue where may not be able to importing files into "Security Area"
 
->#####Fixed an issue that could attempt to access non-folder paths in startup parameters
+>#####Fixed an issue where default search engine settings might be reset after application restart
+
+>#####Fixed an issue where some apps could not use RX-Explorer as the default explorer to open directory
+
+>>#####The relevant sub-options of "Integrate with system components" need to be turned off and turned on again
+
+>#####Fixed the problem that the UI jumps quickly when the file size or modified date changes frequently (for example: when compressing files)

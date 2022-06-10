@@ -1,9 +1,15 @@
-﻿###Quoi de neuf dans la version 7.7.5.0
+﻿###Quoi de neuf dans la version 7.7.6.0
 
 #####Corrections de bogues
 
->#####Correction de certains problèmes dans les tâches de maintenance pouvant entraîner le blocage de l'application après une mise à niveau
+>#####Correction d'un problème où l'emplacement de stockage de la "Zone de sécurité" ne peut pas être modifié s'il n'y a pas de fichiers dans la "Zone de sécurité"
 
->#####Correction d'un problème où "Ouvrir avec RX-Explorer" pouvait être affiché sur certains objets non-dossier
+>#####Correction d'un problème empêchant l'importation de fichiers dans la "Zone de sécurité"
 
->#####Correction d'un problème qui pouvait tenter d'accéder à des chemins autres que des dossiers dans les paramètres de démarrage
+>#####Correction d'un problème où les paramètres du moteur de recherche par défaut pouvaient être réinitialisés après le redémarrage de l'application
+
+>#####Correction d'un problème où certaines applications ne pouvaient pas utiliser RX-Explorer comme explorateur par défaut pour ouvrir le répertoire
+
+>>#####Les sous-options pertinentes de "Intégrer avec les composants du système" doivent être désactivées et réactivées
+
+>#####Correction du problème selon lequel l'interface utilisateur saute rapidement lorsque la taille du fichier ou la date de modification change fréquemment (par exemple : lors de la compression de fichiers)

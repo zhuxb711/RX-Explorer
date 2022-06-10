@@ -1,9 +1,15 @@
-﻿###Novedades de la versión 7.7.5.0
+﻿###Novedades de la versión 7.7.6.0
 
 #####Corrección de errores
 
->#####Se corrigieron algunos problemas en las tareas de mantenimiento que podían hacer que la aplicación fallara después de una actualización
+>#####Se solucionó un problema por el cual la ubicación de almacenamiento del "Área de seguridad" no se puede cambiar si no hay archivos en el "Área de seguridad"
 
->#####Se solucionó un problema por el que se podía mostrar "Abrir con RX-Explorer" en algunos objetos que no eran carpetas
+>#####Se solucionó un problema por el que es posible que no se puedan importar archivos en el "Área de seguridad"
 
->#####Se corrigió un problema que podía intentar acceder a rutas que no eran de carpetas en los parámetros de inicio
+>#####Se solucionó un problema por el cual la configuración predeterminada del motor de búsqueda podría restablecerse después de reiniciar la aplicación
+
+>#####Se solucionó un problema por el cual algunas aplicaciones no podían usar RX-Explorer como el explorador predeterminado para abrir el directorio
+
+>>#####Las subopciones relevantes de "Integrar con los componentes del sistema" deben desactivarse y activarse de nuevo
+
+>#####Se solucionó el problema de que la interfaz de usuario salta rápidamente cuando el tamaño del archivo o la fecha de modificación cambian con frecuencia (por ejemplo, al comprimir archivos)
