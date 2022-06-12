@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Deferred;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.System.UserProfile;
 
 namespace RX_Explorer.Class
@@ -9,7 +11,7 @@ namespace RX_Explorer.Class
     {
         public static event EventHandler<GroupStateChangedEventArgs> GroupStateChanged;
 
-        public static void SavePathGroupState(string Path, GroupTarget? Target = null, GroupDirection? Direction = null)
+        public static async Task SaveGroupStateOnPathAsync(string Path, GroupTarget? Target = null, GroupDirection? Direction = null)
         {
             PathConfiguration CurrentConfig = SQLite.Current.GetPathConfiguration(Path);
 
@@ -19,11 +21,15 @@ namespace RX_Explorer.Class
             if (CurrentConfig.GroupTarget != LocalTarget || CurrentConfig.GroupDirection != LocalDirection)
             {
                 SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, LocalTarget, LocalDirection));
-                GroupStateChanged?.Invoke(null, new GroupStateChangedEventArgs(Path, LocalTarget, LocalDirection));
+
+                if (GroupStateChanged != null)
+                {
+                    await GroupStateChanged.InvokeAsync(null, new GroupStateChangedEventArgs(Path, LocalTarget, LocalDirection));
+                }
             }
         }
 
-        public static string SearchGroupBelonging<T>(T Item, GroupTarget Target) where T : FileSystemStorageItemBase
+        public static async Task<string> SearchGroupBelongingAsync<T>(T Item, GroupTarget Target) where T : FileSystemStorageItemBase
         {
             switch (Target)
             {
@@ -56,7 +62,10 @@ namespace RX_Explorer.Class
                     }
                 case GroupTarget.Type:
                     {
-                        return Item.DisplayType;
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            return await Exclusive.Controller.GetFriendlyTypeNameAsync(Item.Type);
+                        }
                     }
                 case GroupTarget.ModifiedTime:
                     {
@@ -142,7 +151,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static IEnumerable<FileSystemStorageGroupItem> GetGroupedCollection<T>(IEnumerable<T> InputCollection, GroupTarget Target, GroupDirection Direction) where T : FileSystemStorageItemBase
+        public static async Task<IEnumerable<FileSystemStorageGroupItem>> GetGroupedCollectionAsync<T>(IEnumerable<T> InputCollection, GroupTarget Target, GroupDirection Direction) where T : FileSystemStorageItemBase
         {
             List<FileSystemStorageGroupItem> Result = new List<FileSystemStorageGroupItem>();
 
@@ -164,11 +173,12 @@ namespace RX_Explorer.Class
                     }
                 case GroupTarget.Type:
                     {
-                        IEnumerable<IGrouping<string, T>> GroupResult = InputCollection.GroupBy((Source) => Source.DisplayType);
-
-                        foreach (IGrouping<string, T> Group in GroupResult)
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            Result.Add(new FileSystemStorageGroupItem(Group.Key, Group));
+                            foreach (IGrouping<string, T> Group in InputCollection.GroupBy((Source) => Source.Type).OrderByFastStringSortAlgorithm((Group) => Group.Key, SortDirection.Ascending).ToList())
+                            {
+                                Result.Add(new FileSystemStorageGroupItem(await Exclusive.Controller.GetFriendlyTypeNameAsync(Group.Key), Group));
+                            }
                         }
 
                         break;

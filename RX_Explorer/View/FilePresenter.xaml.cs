@@ -2153,7 +2153,7 @@ namespace RX_Explorer.View
                                                 {
                                                     if (GroupCollection.FirstOrDefault((Group) => Group.Contains(OldItem)) is FileSystemStorageGroupItem CurrentGroup)
                                                     {
-                                                        if (GroupCollectionGenerator.SearchGroupBelonging(ModifiedItem, Config.GroupTarget.GetValueOrDefault()) != CurrentGroup.Key)
+                                                        if (await GroupCollectionGenerator.SearchGroupBelongingAsync(ModifiedItem, Config.GroupTarget.GetValueOrDefault()) != CurrentGroup.Key)
                                                         {
                                                             FileCollection.Remove(OldItem);
 
@@ -2321,6 +2321,8 @@ namespace RX_Explorer.View
                                     break;
                                 }
                         }
+
+                        await ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection);
                     }
                     catch (Exception ex)
                     {
@@ -2334,7 +2336,7 @@ namespace RX_Explorer.View
             });
         }
 
-        private void GroupCollectionGenerator_GroupStateChanged(object sender, GroupStateChangedEventArgs args)
+        private async void GroupCollectionGenerator_GroupStateChanged(object sender, GroupStateChangedEventArgs args)
         {
             if (args.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
             {
@@ -2358,7 +2360,7 @@ namespace RX_Explorer.View
 
                     GroupCollection.Clear();
 
-                    foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, args.Target, args.Direction))
+                    foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(FileCollection, args.Target, args.Direction))
                     {
                         GroupCollection.Add(GroupItem);
                     }
@@ -2768,7 +2770,7 @@ namespace RX_Explorer.View
 
                                     if (Config.GroupTarget != GroupTarget.None)
                                     {
-                                        foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
+                                        foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
                                         {
                                             GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
                                         }
@@ -3024,7 +3026,7 @@ namespace RX_Explorer.View
                             {
                                 if (GroupExpandedCollection.All((ExistItem) => ExistItem != Item))
                                 {
-                                    string Key = GroupCollectionGenerator.SearchGroupBelonging(Item, Config.GroupTarget.GetValueOrDefault());
+                                    string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
 
                                     if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
                                     {
@@ -3064,7 +3066,7 @@ namespace RX_Explorer.View
                             {
                                 if (GroupExpandedCollection.Any((ExistItem) => ExistItem == Item))
                                 {
-                                    string Key = GroupCollectionGenerator.SearchGroupBelonging(Item, Config.GroupTarget.GetValueOrDefault());
+                                    string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
 
                                     if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
                                     {
@@ -3077,7 +3079,7 @@ namespace RX_Explorer.View
                             {
                                 if (GroupExpandedCollection.All((ExistItem) => ExistItem != Item))
                                 {
-                                    string Key = GroupCollectionGenerator.SearchGroupBelonging(Item, Config.GroupTarget.GetValueOrDefault());
+                                    string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
 
                                     if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
                                     {
@@ -3102,6 +3104,20 @@ namespace RX_Explorer.View
                 if (e.Action != NotifyCollectionChangedAction.Reset)
                 {
                     HasFile.Visibility = FileCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+                    if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Remove)
+                    {
+                        string[] StatusTipsSplit = StatusTips.Text.Split("  |  ", StringSplitOptions.RemoveEmptyEntries);
+
+                        if (StatusTipsSplit.Length > 1)
+                        {
+                            StatusTips.Text = $"{Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString())}  |  {string.Join("  |  ", StatusTipsSplit.Skip(1))}";
+                        }
+                        else
+                        {
+                            StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -3896,23 +3912,19 @@ namespace RX_Explorer.View
 
                     if (SelectedItemsCopy.All((Item) => Item is FileSystemStorageFile))
                     {
-                        ulong TotalSize = 0;
-
-                        foreach (ulong Size in SelectedItemsCopy.Cast<FileSystemStorageFile>().Select((Item) => Item.Size).ToArray())
-                        {
-                            TotalSize += Size;
-                        }
-
-                        SizeInfo = $"  |  {TotalSize.GetSizeDescription()}";
+                        SizeInfo = Convert.ToUInt64(SelectedItemsCopy.Cast<FileSystemStorageFile>().Sum((Item) => Convert.ToInt64(Item.Size))).GetSizeDescription();
                     }
 
                     if (StatusTipsSplit.Length > 0)
                     {
-                        StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItemsCopy.Count.ToString())}{SizeInfo}";
-                    }
-                    else
-                    {
-                        StatusTips.Text += $"  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItemsCopy.Count.ToString())}{SizeInfo}";
+                        if (string.IsNullOrEmpty(SizeInfo))
+                        {
+                            StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItemsCopy.Count.ToString())}";
+                        }
+                        else
+                        {
+                            StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItemsCopy.Count.ToString())}  |  {SizeInfo}";
+                        }
                     }
 
                     if (SelectedItemsCopy.Count == 1 && SettingPage.IsQuicklookEnabled && !SettingPage.IsOpened)
@@ -6740,16 +6752,13 @@ namespace RX_Explorer.View
 
             if (IsGroupedEnable)
             {
-                foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(args.FilterCollection, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
+                foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(args.FilterCollection, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
                 {
                     GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
                 }
             }
 
-            foreach (FileSystemStorageItemBase Item in args.FilterCollection)
-            {
-                FileCollection.Add(Item);
-            }
+            FileCollection.AddRange(args.FilterCollection);
         }
 
         private async void OpenFolderInVerticalSplitView_Click(object sender, RoutedEventArgs e)
@@ -7186,46 +7195,46 @@ namespace RX_Explorer.View
             }
         }
 
-        private void GroupByName_Click(object sender, RoutedEventArgs e)
+        private async void GroupByName_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Name);
+            await GroupCollectionGenerator.SaveGroupStateOnPathAsync(CurrentFolder.Path, GroupTarget.Name);
         }
 
-        private void GroupByTime_Click(object sender, RoutedEventArgs e)
+        private async void GroupByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.ModifiedTime);
+            await GroupCollectionGenerator.SaveGroupStateOnPathAsync(CurrentFolder.Path, GroupTarget.ModifiedTime);
         }
 
-        private void GroupByType_Click(object sender, RoutedEventArgs e)
+        private async void GroupByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Type);
+            await GroupCollectionGenerator.SaveGroupStateOnPathAsync(CurrentFolder.Path, GroupTarget.Type);
         }
 
-        private void GroupBySize_Click(object sender, RoutedEventArgs e)
+        private async void GroupBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Size);
+            await GroupCollectionGenerator.SaveGroupStateOnPathAsync(CurrentFolder.Path, GroupTarget.Size);
         }
 
-        private void GroupAsc_Click(object sender, RoutedEventArgs e)
+        private async void GroupAsc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, Direction: GroupDirection.Ascending);
+            await GroupCollectionGenerator.SaveGroupStateOnPathAsync(CurrentFolder.Path, Direction: GroupDirection.Ascending);
         }
 
-        private void GroupDesc_Click(object sender, RoutedEventArgs e)
+        private async void GroupDesc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, Direction: GroupDirection.Descending);
+            await GroupCollectionGenerator.SaveGroupStateOnPathAsync(CurrentFolder.Path, Direction: GroupDirection.Descending);
         }
 
-        private void GroupNone_Click(object sender, RoutedEventArgs e)
+        private async void GroupNone_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.None, GroupDirection.Ascending);
+            await GroupCollectionGenerator.SaveGroupStateOnPathAsync(CurrentFolder.Path, GroupTarget.None, GroupDirection.Ascending);
         }
 
         private async void RootFolderControl_EnterActionRequested(object sender, string Path)

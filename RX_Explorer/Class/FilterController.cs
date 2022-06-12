@@ -78,7 +78,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -106,7 +106,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -135,7 +135,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -164,7 +164,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -192,7 +192,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -224,7 +224,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -243,7 +243,7 @@ namespace RX_Explorer.Class
 
                 if (NameFilterCheckBox6.GetValueOrDefault())
                 {
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -265,13 +265,13 @@ namespace RX_Explorer.Class
                         if (FromDate != null || ToDate != null)
                         {
                             AddModTimeCondition(ModTimeFilterCondition.Range, FromDate.GetValueOrDefault(), ToDate ?? DateTimeOffset.Now);
-                            FireRefreshEvent();
+                            RaiseRefreshEvent();
                         }
                     }
                     else
                     {
                         RemoveModTimeCondition(ModTimeFilterCondition.Range);
-                        FireRefreshEvent();
+                        RaiseRefreshEvent();
                     }
 
                     OnPropertyChanged();
@@ -301,7 +301,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -328,7 +328,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -355,7 +355,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -382,7 +382,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -409,7 +409,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -436,7 +436,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -463,7 +463,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -486,7 +486,7 @@ namespace RX_Explorer.Class
 
                     if (ModTimeFilterCheckBox1.GetValueOrDefault())
                     {
-                        FireRefreshEvent();
+                        RaiseRefreshEvent();
                     }
                 }
             }
@@ -517,7 +517,7 @@ namespace RX_Explorer.Class
 
                     if (ModTimeFilterCheckBox1.GetValueOrDefault())
                     {
-                        FireRefreshEvent();
+                        RaiseRefreshEvent();
                     }
                 }
             }
@@ -634,7 +634,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -661,7 +661,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -688,7 +688,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -715,7 +715,7 @@ namespace RX_Explorer.Class
                     }
 
                     OnPropertyChanged();
-                    FireRefreshEvent();
+                    RaiseRefreshEvent();
                 }
             }
         }
@@ -773,7 +773,7 @@ namespace RX_Explorer.Class
             return new List<FileSystemStorageItemBase>(OriginCopy);
         }
 
-        private void FireRefreshEvent()
+        private void RaiseRefreshEvent()
         {
             if (AnyConditionApplied)
             {
@@ -887,13 +887,13 @@ namespace RX_Explorer.Class
         private void AddTypeCondition(string Type)
         {
             TypeFilter.Add(Type);
-            FireRefreshEvent();
+            RaiseRefreshEvent();
         }
 
         private void RemoveTypeCondition(string Type)
         {
             TypeFilter.Remove(Type);
-            FireRefreshEvent();
+            RaiseRefreshEvent();
         }
 
         private void AddSizeCondition(SizeFilterCondition Condition)

@@ -1,6 +1,8 @@
-﻿namespace RX_Explorer.Class
+﻿using Microsoft.Toolkit.Deferred;
+
+namespace RX_Explorer.Class
 {
-    public sealed class GroupStateChangedEventArgs
+    public sealed class GroupStateChangedEventArgs: DeferredEventArgs
     {
         public GroupTarget Target { get; }
 
