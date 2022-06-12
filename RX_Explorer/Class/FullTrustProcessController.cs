@@ -2099,7 +2099,7 @@ namespace RX_Explorer.Class
                     }
                     else if (Response.ContainsKey("Error_Cancelled"))
                     {
-                        LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
+                        LogTracer.Log($"Operation was cancelled successfully in {nameof(MoveAsync)}");
                         throw new OperationCanceledException("Operation was cancelled");
                     }
                     else if (Response.TryGetValue("Error", out string ErrorMessage5))
@@ -2223,7 +2223,7 @@ namespace RX_Explorer.Class
                     }
                     else if (Response.ContainsKey("Error_Cancelled"))
                     {
-                        LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
+                        LogTracer.Log($"Operation was cancelled successfully in {nameof(CopyAsync)}");
                         throw new OperationCanceledException("Operation was cancelled");
                     }
                     else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))

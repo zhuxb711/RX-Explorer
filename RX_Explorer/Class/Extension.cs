@@ -5,7 +5,6 @@ using RX_Explorer.Interface;
 using RX_Explorer.View;
 using ShareClassLibrary;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -70,39 +69,6 @@ namespace RX_Explorer.Class
             return UniquePath;
         }
 
-        public static async Task<T> GetStorageItemByTraverse<T>(this StorageFolder RootFolder, PathAnalysis Analysis) where T : class, IStorageItem
-        {
-            if (Analysis.HasNextLevel)
-            {
-                switch (await RootFolder.TryGetItemAsync(Analysis.NextRelativePath()))
-                {
-                    case StorageFolder SubFolder:
-                        {
-                            if (Analysis.HasNextLevel)
-                            {
-                                return await SubFolder.GetStorageItemByTraverse<T>(Analysis);
-                            }
-                            else if (SubFolder is T)
-                            {
-                                return SubFolder as T;
-                            }
-
-                            break;
-                        }
-                    case StorageFile SubFile when !Analysis.HasNextLevel && SubFile is T:
-                        {
-                            return SubFile as T;
-                        }
-                }
-            }
-            else
-            {
-                return RootFolder as T;
-            }
-
-            return null;
-        }
-
         public static IEnumerable<T> GetElementAtPoint<T>(this UIElement Element, Point At, bool IncludeInvisble) where T : UIElement
         {
             return VisualTreeHelper.FindElementsInHostCoordinates(At, Element, IncludeInvisble).OfType<T>();
@@ -144,13 +110,16 @@ namespace RX_Explorer.Class
                             {
                                 if (File.Name.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, Guid.NewGuid().ToString(), NameCollisionOption.GenerateUniqueName);
+                                    string TempFilePath = Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N"));
 
-                                    try
+                                    using (Stream IncomeFileStream = await File.OpenStreamForReadAsync())
+                                    using (Stream TempFileStream = await FileSystemStorageItemBase.CreateLocalOneTimeFileStreamAsync(TempFilePath))
                                     {
+                                        await IncomeFileStream.CopyToAsync(TempFileStream);
+
                                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                         {
-                                            string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFile.Path);
+                                            string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFilePath);
 
                                             if (!string.IsNullOrWhiteSpace(UrlTarget))
                                             {
@@ -158,15 +127,23 @@ namespace RX_Explorer.Class
                                             }
                                         }
                                     }
-                                    finally
-                                    {
-                                        await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                    }
                                 }
                                 else if (!string.IsNullOrWhiteSpace(File.Name))
                                 {
-                                    StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-                                    PathList.Add(TempFile.Path);
+                                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, File.Name), CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
+                                    {
+                                        using (Stream IncomeFileStream = await File.OpenStreamForReadAsync())
+                                        using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                        {
+                                            await IncomeFileStream.CopyToAsync(TempFileStream);
+                                        }
+
+                                        PathList.Add(TempFile.Path);
+                                    }
+                                    else
+                                    {
+                                        throw new Exception($"Could not create a temp file named {File.Name} during analysis empty path file in clipboard");
+                                    }
                                 }
                             }
                             catch (Exception ex)
@@ -215,35 +192,27 @@ namespace RX_Explorer.Class
         {
             try
             {
+                IEnumerable<FileSystemStorageItemBase> SpecialItems = Collection.Where((Item) => Item is IFTPStorageItem or IMTPStorageItem);
+                IEnumerable<FileSystemStorageItemBase> NormalItems = Collection.Except(SpecialItems);
+
+                await Task.WhenAll(NormalItems.Select((Item) => Item.GetStorageItemAsync()));
+
+                IEnumerable<FileSystemStorageItemBase> HasStorageItemList = NormalItems.Where((Item) => Item.StorageItem != null);
+                IEnumerable<FileSystemStorageItemBase> NoStorageItemList = NormalItems.Except(HasStorageItemList);
+
+                if (HasStorageItemList.Any())
+                {
+                    Package.SetStorageItems(HasStorageItemList.Select((Item) => Item.StorageItem), false);
+                }
+
+                IEnumerable<string> PathOnlyList = NoStorageItemList.Select((Item) => Item.Path).Concat(SpecialItems.Select((Item) => Item.Path)).Where((Path) => !string.IsNullOrWhiteSpace(Path));
+
+                if (PathOnlyList.Any())
+                {
+                    Package.SetData(ExtendedDataFormats.NotSupportedStorageItem, new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(PathOnlyList))).AsRandomAccessStream());
+                }
+
                 Package.Properties.PackageFamilyName = Windows.ApplicationModel.Package.Current.Id.FamilyName;
-
-                ConcurrentBag<string> PathList = new ConcurrentBag<string>();
-                ConcurrentBag<IStorageItem> StorageItemList = new ConcurrentBag<IStorageItem>();
-
-                await Task.Run(() =>
-                {
-                    Parallel.ForEach(Collection, (Item) =>
-                    {
-                        if (Item.GetStorageItemAsync().Result is IStorageItem StorageItem)
-                        {
-                            StorageItemList.Add(StorageItem);
-                        }
-                        else
-                        {
-                            PathList.Add(Item.Path);
-                        }
-                    });
-                });
-
-                if (!StorageItemList.IsEmpty)
-                {
-                    Package.SetStorageItems(StorageItemList, false);
-                }
-
-                if (!PathList.IsEmpty)
-                {
-                    Package.SetData(ExtendedDataFormats.NotSupportedStorageItem, new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(PathList))).AsRandomAccessStream());
-                }
             }
             catch (Exception ex)
             {

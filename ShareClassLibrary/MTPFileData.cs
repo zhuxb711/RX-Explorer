@@ -27,7 +27,7 @@ namespace ShareClassLibrary
 
         public MTPFileData(string Path, ulong Size, FileAttributes Attributes, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
         {
-            this.Path = Path;
+            this.Path = Path.TrimEnd('\\');
             this.Size = Size;
             this.Attributes = Attributes;
             this.CreationTime = CreationTime;

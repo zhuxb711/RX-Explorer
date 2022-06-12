@@ -1381,7 +1381,7 @@ namespace FullTrustProcess
                                         {
                                             Result.Add(new MTPFileData(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), new DateTimeOffset(Item.CreationTime.GetValueOrDefault().ToLocalTime()), new DateTimeOffset(Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
 
-                                            if (CurrentTaskCancellation.Token.IsCancellationRequested)
+                                            if (Cancellation.Token.IsCancellationRequested)
                                             {
                                                 break;
                                             }
@@ -1447,7 +1447,7 @@ namespace FullTrustProcess
                                 {
                                     try
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveLabelData(Path, DriveLabelName), CancelToken: CurrentTaskCancellation.Token);
+                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveLabelData(Path, DriveLabelName), CancelToken: Cancellation.Token);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -1476,7 +1476,7 @@ namespace FullTrustProcess
                                 {
                                     try
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveIndexStatusData(Path, AllowIndex, ApplyToSubItems), CancelToken: CurrentTaskCancellation.Token);
+                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveIndexStatusData(Path, AllowIndex, ApplyToSubItems), CancelToken: Cancellation.Token);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -1520,7 +1520,7 @@ namespace FullTrustProcess
                                 {
                                     try
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveCompressStatusData(Path, IsSetCompressionStatus, ApplyToSubItems), CancelToken: CurrentTaskCancellation.Token);
+                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveCompressStatusData(Path, IsSetCompressionStatus, ApplyToSubItems), CancelToken: Cancellation.Token);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -1995,12 +1995,12 @@ namespace FullTrustProcess
                                                 }
                                             });
 
-                                            while (!ToolTipTask.IsCompleted && !CurrentTaskCancellation.Token.IsCancellationRequested)
+                                            while (!ToolTipTask.IsCompleted && !Cancellation.Token.IsCancellationRequested)
                                             {
                                                 await Task.Delay(300);
                                             }
 
-                                            if (CurrentTaskCancellation.Token.IsCancellationRequested)
+                                            if (Cancellation.Token.IsCancellationRequested)
                                             {
                                                 Value.Add("Success", string.Empty);
                                             }
@@ -2187,7 +2187,7 @@ namespace FullTrustProcess
                                     }
                                     else if (Marshal.GetLastWin32Error() == 5)
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken: CurrentTaskCancellation.Token);
+                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken: Cancellation.Token);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -2201,7 +2201,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken: CurrentTaskCancellation.Token);
+                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken: Cancellation.Token);
 
                                     foreach (KeyValuePair<string, string> Result in ResultMap)
                                     {
@@ -2261,7 +2261,7 @@ namespace FullTrustProcess
                                                 }
                                                 else if (Marshal.GetLastWin32Error() == 5)
                                                 {
-                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName), CancelToken: CurrentTaskCancellation.Token);
+                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName), CancelToken: Cancellation.Token);
 
                                                     foreach (KeyValuePair<string, string> Result in ResultMap)
                                                     {
@@ -2275,7 +2275,7 @@ namespace FullTrustProcess
                                             }
                                             else
                                             {
-                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName), CancelToken: CurrentTaskCancellation.Token);
+                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName), CancelToken: Cancellation.Token);
 
                                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                                 {
@@ -3047,21 +3047,24 @@ namespace FullTrustProcess
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
                                             && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
                                         {
-                                            IEnumerable<string> SourceRelativePathArray = SourcePathList.Select((Source) => new MTPPathAnalysis(Source).RelativePath);
+                                            IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToList();
 
                                             if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                             {
+                                                double CurrentPosition = 0;
+                                                double EachTaskStep = 100d / SourceRelativePathArray.Count;
+
                                                 foreach (string SourceRelativePath in SourceRelativePathArray)
                                                 {
-                                                    CurrentTaskCancellation.Token.ThrowIfCancellationRequested();
+                                                    Cancellation.Token.ThrowIfCancellationRequested();
 
                                                     if (SourceDevice.FileExists(SourceRelativePath))
                                                     {
                                                         using (FileStream Stream = File.Create(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")), 4096, FileOptions.DeleteOnClose | FileOptions.RandomAccess))
                                                         {
-                                                            SourceDevice.DownloadFile(SourceRelativePath, Stream, CurrentTaskCancellation.Token, (s, e) =>
+                                                            SourceDevice.DownloadFile(SourceRelativePath, Stream, Cancellation.Token, (s, e) =>
                                                             {
-                                                                PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
+                                                                PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                             });
 
                                                             string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
@@ -3082,9 +3085,9 @@ namespace FullTrustProcess
 
                                                             Stream.Seek(0, SeekOrigin.Begin);
 
-                                                            DestinationDevice.UploadFile(Stream, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                            DestinationDevice.UploadFile(Stream, TargetPath, Cancellation.Token, (s, e) =>
                                                             {
-                                                                PipeProgressWriterController?.SendData(Convert.ToString(50 + e.ProgressPercentage / 2));
+                                                                PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (EachTaskStep / 2) + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                             });
                                                         }
                                                     }
@@ -3092,9 +3095,9 @@ namespace FullTrustProcess
                                                     {
                                                         DirectoryInfo NewDirectory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")));
 
-                                                        SourceDevice.DownloadFolder(SourceRelativePath, NewDirectory.FullName, CurrentTaskCancellation.Token, (s, e) =>
+                                                        SourceDevice.DownloadFolder(SourceRelativePath, NewDirectory.FullName, Cancellation.Token, (s, e) =>
                                                         {
-                                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                         });
 
                                                         string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
@@ -3113,11 +3116,13 @@ namespace FullTrustProcess
                                                                 }
                                                         }
 
-                                                        DestinationDevice.UploadFolder(NewDirectory.FullName, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                        DestinationDevice.UploadFolder(NewDirectory.FullName, TargetPath, Cancellation.Token, (s, e) =>
                                                         {
-                                                            PipeProgressWriterController?.SendData(Convert.ToString(50 + e.ProgressPercentage / 2));
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (EachTaskStep / 2) + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                         });
                                                     }
+
+                                                    CurrentPosition += EachTaskStep;
                                                 }
 
                                                 Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
@@ -3140,9 +3145,12 @@ namespace FullTrustProcess
                                         {
                                             if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                             {
+                                                double CurrentPosition = 0;
+                                                double EachTaskStep = 100d / SourcePathList.Count;
+
                                                 foreach (string SourcePath in SourcePathList)
                                                 {
-                                                    CurrentTaskCancellation.Token.ThrowIfCancellationRequested();
+                                                    Cancellation.Token.ThrowIfCancellationRequested();
 
                                                     if (File.Exists(SourcePath))
                                                     {
@@ -3162,9 +3170,9 @@ namespace FullTrustProcess
                                                                 }
                                                         }
 
-                                                        DestinationDevice.UploadFile(SourcePath, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                        DestinationDevice.UploadFile(SourcePath, TargetPath, Cancellation.Token, (s, e) =>
                                                         {
-                                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                         });
                                                     }
                                                     else if (Directory.Exists(SourcePath))
@@ -3185,11 +3193,13 @@ namespace FullTrustProcess
                                                                 }
                                                         }
 
-                                                        DestinationDevice.UploadFolder(SourcePath, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                        DestinationDevice.UploadFolder(SourcePath, TargetPath, Cancellation.Token, (s, e) =>
                                                         {
-                                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                         });
                                                     }
+
+                                                    CurrentPosition += EachTaskStep;
                                                 }
 
                                                 Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
@@ -3210,13 +3220,16 @@ namespace FullTrustProcess
 
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
                                         {
-                                            IEnumerable<string> SourceRelativePathArray = SourcePathList.Select((Source) => new MTPPathAnalysis(Source).RelativePath);
+                                            IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToList();
 
                                             if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                             {
+                                                double CurrentPosition = 0;
+                                                double EachTaskStep = 100d / SourceRelativePathArray.Count;
+
                                                 foreach (string SourceRelativePath in SourceRelativePathArray)
                                                 {
-                                                    CurrentTaskCancellation.Token.ThrowIfCancellationRequested();
+                                                    Cancellation.Token.ThrowIfCancellationRequested();
 
                                                     if (SourceDevice.FileExists(SourceRelativePath))
                                                     {
@@ -3226,9 +3239,9 @@ namespace FullTrustProcess
                                                         {
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFile(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.File), CurrentTaskCancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFile(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.File), Cancellation.Token, (s, e) =>
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
 
                                                                     break;
@@ -3237,9 +3250,9 @@ namespace FullTrustProcess
                                                                 {
                                                                     using (FileStream Stream = File.Open(TargetPath, FileMode.Truncate))
                                                                     {
-                                                                        SourceDevice.DownloadFile(SourceRelativePath, Stream, CurrentTaskCancellation.Token, (s, e) =>
+                                                                        SourceDevice.DownloadFile(SourceRelativePath, Stream, Cancellation.Token, (s, e) =>
                                                                         {
-                                                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                         });
                                                                     }
 
@@ -3247,9 +3260,9 @@ namespace FullTrustProcess
                                                                 }
                                                             default:
                                                                 {
-                                                                    SourceDevice.DownloadFile(SourceRelativePath, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFile(SourceRelativePath, TargetPath, Cancellation.Token, (s, e) =>
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
 
                                                                     break;
@@ -3264,9 +3277,9 @@ namespace FullTrustProcess
                                                         {
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFolder(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.Folder), CurrentTaskCancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFolder(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.Folder), Cancellation.Token, (s, e) =>
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
 
                                                                     break;
@@ -3275,24 +3288,26 @@ namespace FullTrustProcess
                                                                 {
                                                                     Directory.Delete(SourceRelativePath, true);
 
-                                                                    SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, Cancellation.Token, (s, e) =>
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
 
                                                                     break;
                                                                 }
                                                             default:
                                                                 {
-                                                                    SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, Cancellation.Token, (s, e) =>
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
 
                                                                     break;
                                                                 }
                                                         }
                                                     }
+
+                                                    CurrentPosition += EachTaskStep;
                                                 }
 
                                                 Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
@@ -3317,7 +3332,7 @@ namespace FullTrustProcess
                                             {
                                                 if (StorageItemController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
                                                 {
-                                                    if (CurrentTaskCancellation.Token.IsCancellationRequested)
+                                                    if (Cancellation.Token.IsCancellationRequested)
                                                     {
                                                         throw new COMException(null, HRESULT.E_ABORT);
                                                     }
@@ -3353,7 +3368,7 @@ namespace FullTrustProcess
                                                     IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option), (s, e) =>
                                                     {
                                                         PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                                    }, CurrentTaskCancellation.Token);
+                                                    }, Cancellation.Token);
 
                                                     foreach (KeyValuePair<string, string> Result in ResultMap)
                                                     {
@@ -3375,7 +3390,7 @@ namespace FullTrustProcess
                                             IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option), (s, e) =>
                                             {
                                                 PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                            }, CurrentTaskCancellation.Token);
+                                            }, Cancellation.Token);
 
                                             foreach (KeyValuePair<string, string> Result in ResultMap)
                                             {
@@ -3414,21 +3429,24 @@ namespace FullTrustProcess
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
                                             && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
                                         {
-                                            IEnumerable<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => new MTPPathAnalysis(Source).RelativePath);
+                                            IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToList();
 
                                             if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                             {
+                                                double CurrentPosition = 0;
+                                                double EachTaskStep = 100d / SourceRelativePathArray.Count;
+
                                                 foreach (string SourceRelativePath in SourceRelativePathArray)
                                                 {
-                                                    CurrentTaskCancellation.Token.ThrowIfCancellationRequested();
+                                                    Cancellation.Token.ThrowIfCancellationRequested();
 
                                                     if (SourceDevice.FileExists(SourceRelativePath))
                                                     {
                                                         using (FileStream Stream = File.Create(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")), 4096, FileOptions.DeleteOnClose | FileOptions.RandomAccess))
                                                         {
-                                                            SourceDevice.DownloadFile(SourceRelativePath, Stream, CurrentTaskCancellation.Token, (s, e) =>
+                                                            SourceDevice.DownloadFile(SourceRelativePath, Stream, Cancellation.Token, (s, e) =>
                                                             {
-                                                                PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
+                                                                PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                             });
 
                                                             string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
@@ -3449,9 +3467,9 @@ namespace FullTrustProcess
 
                                                             Stream.Seek(0, SeekOrigin.Begin);
 
-                                                            DestinationDevice.UploadFile(Stream, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                            DestinationDevice.UploadFile(Stream, TargetPath, Cancellation.Token, (s, e) =>
                                                             {
-                                                                PipeProgressWriterController?.SendData(Convert.ToString(50 + e.ProgressPercentage / 2));
+                                                                PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (EachTaskStep / 2) + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                             });
 
                                                             SourceDevice.DeleteFile(SourceRelativePath);
@@ -3461,9 +3479,9 @@ namespace FullTrustProcess
                                                     {
                                                         DirectoryInfo NewDirectory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")));
 
-                                                        SourceDevice.DownloadFolder(SourceRelativePath, NewDirectory.FullName, CurrentTaskCancellation.Token, (s, e) =>
+                                                        SourceDevice.DownloadFolder(SourceRelativePath, NewDirectory.FullName, Cancellation.Token, (s, e) =>
                                                         {
-                                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage / 2));
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                         });
 
                                                         string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
@@ -3482,13 +3500,15 @@ namespace FullTrustProcess
                                                                 }
                                                         }
 
-                                                        DestinationDevice.UploadFolder(NewDirectory.FullName, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                        DestinationDevice.UploadFolder(NewDirectory.FullName, TargetPath, Cancellation.Token, (s, e) =>
                                                         {
-                                                            PipeProgressWriterController?.SendData(Convert.ToString(50 + e.ProgressPercentage / 2));
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (EachTaskStep / 2) + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                         });
 
                                                         SourceDevice.DeleteDirectory(SourceRelativePath, true);
                                                     }
+
+                                                    CurrentPosition += EachTaskStep;
                                                 }
 
                                                 Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
@@ -3511,9 +3531,12 @@ namespace FullTrustProcess
                                         {
                                             if (SourcePathList.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                             {
+                                                double CurrentPosition = 0;
+                                                double EachTaskStep = 100d / SourcePathList.Keys.Count;
+
                                                 foreach (string SourcePath in SourcePathList.Keys)
                                                 {
-                                                    CurrentTaskCancellation.Token.ThrowIfCancellationRequested();
+                                                    Cancellation.Token.ThrowIfCancellationRequested();
 
                                                     if (File.Exists(SourcePath))
                                                     {
@@ -3533,9 +3556,9 @@ namespace FullTrustProcess
                                                                 }
                                                         }
 
-                                                        DestinationDevice.UploadFile(SourcePath, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                        DestinationDevice.UploadFile(SourcePath, TargetPath, Cancellation.Token, (s, e) =>
                                                         {
-                                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                         });
 
                                                         File.Delete(SourcePath);
@@ -3558,13 +3581,15 @@ namespace FullTrustProcess
                                                                 }
                                                         }
 
-                                                        DestinationDevice.UploadFolder(SourcePath, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                        DestinationDevice.UploadFolder(SourcePath, TargetPath, Cancellation.Token, (s, e) =>
                                                         {
-                                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                         });
 
                                                         Directory.Delete(SourcePath, true);
                                                     }
+
+                                                    CurrentPosition += EachTaskStep;
                                                 }
 
                                                 Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
@@ -3585,13 +3610,16 @@ namespace FullTrustProcess
 
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
                                         {
-                                            IEnumerable<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => new MTPPathAnalysis(Source).RelativePath);
+                                            IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToList();
 
                                             if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                             {
+                                                double CurrentPosition = 0;
+                                                double EachTaskStep = 100d / SourceRelativePathArray.Count;
+
                                                 foreach (string SourceRelativePath in SourceRelativePathArray)
                                                 {
-                                                    CurrentTaskCancellation.Token.ThrowIfCancellationRequested();
+                                                    Cancellation.Token.ThrowIfCancellationRequested();
 
                                                     if (SourceDevice.FileExists(SourceRelativePath))
                                                     {
@@ -3601,9 +3629,9 @@ namespace FullTrustProcess
                                                         {
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFile(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.File), CurrentTaskCancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFile(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.File), Cancellation.Token, (s, e) =>
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
 
                                                                     break;
@@ -3612,9 +3640,9 @@ namespace FullTrustProcess
                                                                 {
                                                                     using (FileStream Stream = File.Open(TargetPath, FileMode.Truncate))
                                                                     {
-                                                                        SourceDevice.DownloadFile(SourceRelativePath, Stream, CurrentTaskCancellation.Token, (s, e) =>
+                                                                        SourceDevice.DownloadFile(SourceRelativePath, Stream, Cancellation.Token, (s, e) =>
                                                                         {
-                                                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                         });
                                                                     }
 
@@ -3622,9 +3650,9 @@ namespace FullTrustProcess
                                                                 }
                                                             default:
                                                                 {
-                                                                    SourceDevice.DownloadFile(SourceRelativePath, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFile(SourceRelativePath, TargetPath, Cancellation.Token, (s, e) =>
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
 
                                                                     break;
@@ -3641,9 +3669,9 @@ namespace FullTrustProcess
                                                         {
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFolder(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.Folder), CurrentTaskCancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFolder(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.Folder), Cancellation.Token, (s, e) =>
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
 
                                                                     break;
@@ -3652,18 +3680,18 @@ namespace FullTrustProcess
                                                                 {
                                                                     Directory.Delete(SourceRelativePath, true);
 
-                                                                    SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, Cancellation.Token, (s, e) =>
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
 
                                                                     break;
                                                                 }
                                                             default:
                                                                 {
-                                                                    SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, CurrentTaskCancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, Cancellation.Token, (s, e) =>
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
 
                                                                     break;
@@ -3672,6 +3700,8 @@ namespace FullTrustProcess
 
                                                         SourceDevice.DeleteDirectory(SourceRelativePath, true);
                                                     }
+
+                                                    CurrentPosition += EachTaskStep;
                                                 }
 
                                                 Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
@@ -3703,7 +3733,7 @@ namespace FullTrustProcess
                                                 {
                                                     if (StorageItemController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
                                                     {
-                                                        if (CurrentTaskCancellation.Token.IsCancellationRequested)
+                                                        if (Cancellation.Token.IsCancellationRequested)
                                                         {
                                                             throw new COMException(null, HRESULT.E_ABORT);
                                                         }
@@ -3746,7 +3776,7 @@ namespace FullTrustProcess
                                                         IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option), (s, e) =>
                                                         {
                                                             PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                                        }, CurrentTaskCancellation.Token);
+                                                        }, Cancellation.Token);
 
                                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                                         {
@@ -3768,7 +3798,7 @@ namespace FullTrustProcess
                                                 IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option), (s, e) =>
                                                 {
                                                     PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                                }, CurrentTaskCancellation.Token);
+                                                }, Cancellation.Token);
 
                                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                                 {
@@ -3805,13 +3835,16 @@ namespace FullTrustProcess
 
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice MTPDevice)
                                         {
-                                            IEnumerable<string> RelativePathArray = ExecutePathList.Select((Source) => new MTPPathAnalysis(Source).RelativePath);
+                                            IReadOnlyList<string> RelativePathArray = ExecutePathList.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToList();
 
                                             if (RelativePathArray.All((RelativePath) => MTPDevice.FileExists(RelativePath) || MTPDevice.DirectoryExists(RelativePath)))
                                             {
+                                                double CurrentPosition = 0;
+                                                double EachTaskStep = 100d / RelativePathArray.Count;
+
                                                 foreach (string Path in RelativePathArray)
                                                 {
-                                                    CurrentTaskCancellation.Token.ThrowIfCancellationRequested();
+                                                    Cancellation.Token.ThrowIfCancellationRequested();
 
                                                     if (MTPDevice.FileExists(Path))
                                                     {
@@ -3821,6 +3854,8 @@ namespace FullTrustProcess
                                                     {
                                                         MTPDevice.DeleteDirectory(Path, true);
                                                     }
+
+                                                    PipeProgressWriterController.SendData(Convert.ToString(CurrentPosition += EachTaskStep));
                                                 }
 
                                                 Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
@@ -3851,7 +3886,7 @@ namespace FullTrustProcess
                                                 {
                                                     if (StorageItemController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
                                                     {
-                                                        if (CurrentTaskCancellation.Token.IsCancellationRequested)
+                                                        if (Cancellation.Token.IsCancellationRequested)
                                                         {
                                                             throw new COMException(null, HRESULT.E_ABORT);
                                                         }
@@ -3880,7 +3915,7 @@ namespace FullTrustProcess
                                                         IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
                                                         {
                                                             PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                                        }, CurrentTaskCancellation.Token);
+                                                        }, Cancellation.Token);
 
                                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                                         {
@@ -3902,7 +3937,7 @@ namespace FullTrustProcess
                                                 IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
                                                 {
                                                     PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                                }, CurrentTaskCancellation.Token);
+                                                }, Cancellation.Token);
 
                                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                                 {
@@ -4142,7 +4177,7 @@ namespace FullTrustProcess
                                             {
                                                 ulong CurrentPosition = 0;
 
-                                                foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(CurrentTaskCancellation.Token))
+                                                foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(Cancellation.Token))
                                                 {
                                                     string TargetPath = Path.Combine(BaseFolderPath, Package.Name);
 
@@ -4161,7 +4196,7 @@ namespace FullTrustProcess
 
                                                                     using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
                                                                     {
-                                                                        FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), CurrentTaskCancellation.Token, (s, e) =>
+                                                                        FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
                                                                         {
                                                                             PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
                                                                         });
@@ -4205,7 +4240,7 @@ namespace FullTrustProcess
                                         IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRemoteCopyData(BaseFolderPath), (s, e) =>
                                         {
                                             PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                        }, CurrentTaskCancellation.Token);
+                                        }, Cancellation.Token);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {

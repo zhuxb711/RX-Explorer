@@ -217,6 +217,23 @@ namespace RX_Explorer.View
             Flyout.PrimaryCommands.Add(RemovePinButton);
             #endregion
 
+            #region SecondaryCommand -> OpenButton
+            AppBarButton OpenButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.OpenFile },
+                Label = Globalization.GetString("Operate_Text_Open"),
+                Width = 320
+            };
+            OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Key = VirtualKey.Enter,
+                IsEnabled = false
+            });
+            OpenButton.Click += OpenButton_Click;
+
+            Flyout.SecondaryCommands.Add(OpenButton);
+            #endregion
+
             #region SecondaryCommand -> OpenFolderInNewTabButton
             AppBarButton OpenFolderInNewTabButton = new AppBarButton
             {
@@ -326,6 +343,30 @@ namespace RX_Explorer.View
             return Flyout;
         }
 
+        private async void OpenButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
+            {
+                if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
+                {
+                    Node.IsExpanded = !Node.IsExpanded;
+                }
+                else if (CurrentPresenter != null)
+                {
+                    if (!await CurrentPresenter.DisplayItemsInFolder(Content.Path))
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
+                }
+            }
+        }
 
         private void RightTabFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
         {
@@ -1176,22 +1217,18 @@ namespace RX_Explorer.View
         {
             if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
-                {
-                    Node.IsExpanded = !Node.IsExpanded;
-                }
-                else if (CurrentPresenter != null)
+                if (CurrentPresenter != null)
                 {
                     if (!await CurrentPresenter.DisplayItemsInFolder(Content.Path))
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        await dialog.ShowAsync();
+                        await Dialog.ShowAsync();
                     }
                 }
             }

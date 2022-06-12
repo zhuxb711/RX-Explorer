@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Devices.Portable;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.UI.Xaml.Media.Imaging;
@@ -83,10 +84,31 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    if (InnerFolder != null
-                        && await InnerFolder.GetStorageItemAsync() is StorageFolder Folder)
+                    if (InnerFolder != null)
                     {
-                        DisplayName = Folder.DisplayName;
+                        if (InnerFolder is MTPStorageFolder MTPFolder)
+                        {
+                            if (MTPFolder.Path.TrimEnd('\\').Equals(MTPFolder.DeviceId, StringComparison.OrdinalIgnoreCase))
+                            {
+                                try
+                                {
+                                    StorageFolder Item = await Task.Run(() => StorageDevice.FromId(InnerFolder.Path));
+
+                                    if (Item != null)
+                                    {
+                                        DisplayName = Item.DisplayName;
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    //No need to handle this exception
+                                }
+                            }
+                        }
+                        else if (await InnerFolder.GetStorageItemAsync() is StorageFolder Folder)
+                        {
+                            DisplayName = Folder.DisplayName;
+                        }
                     }
                 }
                 catch (Exception ex)

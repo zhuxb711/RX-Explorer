@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Devices.Portable;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
@@ -17,7 +16,6 @@ namespace RX_Explorer.Class
     public class MTPStorageFile : FileSystemStorageFile, IMTPStorageItem
     {
         private string InnerDisplayType;
-        private readonly MTPStorageFolder Parent;
 
         public override string DisplayType => string.IsNullOrEmpty(InnerDisplayType) ? Type : InnerDisplayType;
 
@@ -171,69 +169,44 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (Parent != null)
+                    RandomAccessStreamReference Reference = null;
+
+                    try
                     {
-                        if (await Parent.GetStorageItemAsync() is StorageFolder Folder)
+                        Reference = RandomAccessStreamReference.CreateFromStream(await GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
+                    }
+                    catch (Exception)
+                    {
+                        //No need to handle this exception
+                    }
+
+                    StorageItem = await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
+                    {
+                        try
                         {
-                            if (await Folder.TryGetItemAsync(Name) is StorageFile Item)
+                            using (Stream TargetFileStream = Request.AsStreamForWrite())
+                            using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                             {
-                                StorageItem = Item;
+                                if (CurrentFileStream == null)
+                                {
+                                    throw new Exception($"Could not get the file stream from ftp file: {Path}");
+                                }
+
+                                await CurrentFileStream.CopyToAsync(TargetFileStream);
                             }
+
+                            Request.Dispose();
                         }
-                    }
-                    else if (await Task.Run(() => StorageDevice.FromId(DeviceId)) is StorageFolder RootFolder)
-                    {
-                        StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFile>(new PathAnalysis(Path, DeviceId));
-                    }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Could not create streamed file for mtp file: {Path}");
+                            Request.FailAndClose(StreamedFileFailureMode.Incomplete);
+                        }
+                    }, Reference);
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"Could not get StorageFile, Path: {Path}");
-                }
-
-                if (StorageItem == null)
-                {
-                    try
-                    {
-                        RandomAccessStreamReference Reference = null;
-
-                        try
-                        {
-                            Reference = RandomAccessStreamReference.CreateFromStream(await GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
-                        }
-                        catch (Exception)
-                        {
-                            //No need to handle this exception
-                        }
-
-                        StorageItem = await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
-                        {
-                            try
-                            {
-                                using (Stream TargetFileStream = Request.AsStreamForWrite())
-                                using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                {
-                                    if (CurrentFileStream == null)
-                                    {
-                                        throw new Exception($"Could not get the file stream from ftp file: {Path}");
-                                    }
-
-                                    await CurrentFileStream.CopyToAsync(TargetFileStream);
-                                }
-
-                                Request.Dispose();
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, $"Could not create streamed file for mtp file: {Path}");
-                                Request.FailAndClose(StreamedFileFailureMode.Incomplete);
-                            }
-                        }, Reference);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"Could not get the storage item for mtp file: {Path}");
-                    }
+                    LogTracer.Log(ex, $"Could not get the storage item for mtp file: {Path}");
                 }
             }
 
@@ -267,14 +240,9 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public MTPStorageFile(MTPFileData Data) : this(Data, null)
+        public MTPStorageFile(MTPFileData Data) : base(Data)
         {
 
-        }
-
-        public MTPStorageFile(MTPFileData Data, MTPStorageFolder Parent) : base(Data)
-        {
-            this.Parent = Parent;
         }
     }
 }

@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Devices.Portable;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
@@ -18,8 +17,6 @@ namespace RX_Explorer.Class
 {
     public class MTPStorageFolder : FileSystemStorageFolder, IMTPStorageItem
     {
-        private readonly MTPStorageFolder ParentFolder;
-
         public string DeviceId => @$"\\?\{new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()}";
 
         protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
@@ -49,38 +46,9 @@ namespace RX_Explorer.Class
             return Task.CompletedTask;
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
+        protected override Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
         {
-            try
-            {
-                if (StorageItem == null || ForceUpdate)
-                {
-                    if (Path.Equals(DeviceId, StringComparison.OrdinalIgnoreCase))
-                    {
-                        StorageItem = await Task.Run(() => StorageDevice.FromId(DeviceId));
-                    }
-                    else if (ParentFolder != null)
-                    {
-                        if (await ParentFolder.GetStorageItemAsync() is StorageFolder Folder)
-                        {
-                            if (await Folder.TryGetItemAsync(Name) is StorageFolder Item)
-                            {
-                                StorageItem = Item;
-                            }
-                        }
-                    }
-                    else if (await Task.Run(() => StorageDevice.FromId(DeviceId)) is StorageFolder RootFolder)
-                    {
-                        StorageItem = await RootFolder.GetStorageItemByTraverse<StorageFolder>(new PathAnalysis(Path, DeviceId));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not get StorageFile, Path: {Path}");
-            }
-
-            return StorageItem;
+            return Task.FromResult<IStorageItem>(null);
         }
 
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
@@ -101,11 +69,11 @@ namespace RX_Explorer.Class
                 {
                     if (Data.Attributes.HasFlag(System.IO.FileAttributes.Directory))
                     {
-                        yield return new MTPStorageFolder(Data, this);
+                        yield return new MTPStorageFolder(Data);
                     }
                     else
                     {
-                        yield return new MTPStorageFile(Data, this);
+                        yield return new MTPStorageFile(Data);
                     }
                 }
             }
@@ -144,11 +112,11 @@ namespace RX_Explorer.Class
                     {
                         case CreateType.File:
                             {
-                                return new MTPStorageFile(Data, this);
+                                return new MTPStorageFile(Data);
                             }
                         case CreateType.Folder:
                             {
-                                return new MTPStorageFolder(Data, this);
+                                return new MTPStorageFolder(Data);
                             }
                     }
                 }
@@ -204,14 +172,9 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public MTPStorageFolder(MTPFileData Data) : this(Data, null)
+        public MTPStorageFolder(MTPFileData Data) : base(Data)
         {
 
-        }
-
-        private MTPStorageFolder(MTPFileData Data, MTPStorageFolder Parent) : base(Data)
-        {
-            ParentFolder = Parent;
         }
     }
 }

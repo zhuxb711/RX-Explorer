@@ -236,25 +236,36 @@ namespace RX_Explorer.Class
 
         public static async IAsyncEnumerable<FileSystemStorageItemBase> OpenInBatchAsync(IEnumerable<string> PathArray, [EnumeratorCancellation] CancellationToken CancelToken = default)
         {
-            foreach (string Path in PathArray)
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                if (CancelToken.IsCancellationRequested)
+                foreach (string Path in PathArray)
                 {
-                    yield break;
-                }
+                    if (CancelToken.IsCancellationRequested)
+                    {
+                        yield break;
+                    }
 
-                if (await OpenAsync(Path) is FileSystemStorageItemBase Item)
-                {
-                    yield return Item;
-                }
-                else
-                {
-                    throw new FileNotFoundException(Path);
+                    if (await OpenCoreAsync(Path, Exclusive.Controller) is FileSystemStorageItemBase Item)
+                    {
+                        yield return Item;
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException(Path);
+                    }
                 }
             }
         }
 
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
+        {
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            {
+                return await OpenCoreAsync(Path, Exclusive.Controller);
+            }
+        }
+
+        private static async Task<FileSystemStorageItemBase> OpenCoreAsync(string Path, FullTrustProcessController Controller)
         {
             if (!string.IsNullOrEmpty(Path))
             {
@@ -262,18 +273,15 @@ namespace RX_Explorer.Class
                 {
                     if (Path.StartsWith(@"\\?\", StringComparison.OrdinalIgnoreCase))
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        if (await Controller.GetMTPItemDataAsync(Path) is MTPFileData Data)
                         {
-                            if (await Exclusive.Controller.GetMTPItemDataAsync(Path) is MTPFileData Data)
+                            if (Data.Attributes.HasFlag(System.IO.FileAttributes.Directory))
                             {
-                                if (Data.Attributes.HasFlag(System.IO.FileAttributes.Directory))
-                                {
-                                    return new MTPStorageFolder(Data);
-                                }
-                                else
-                                {
-                                    return new MTPStorageFile(Data);
-                                }
+                                return new MTPStorageFolder(Data);
+                            }
+                            else
+                            {
+                                return new MTPStorageFile(Data);
                             }
                         }
                     }
@@ -282,21 +290,21 @@ namespace RX_Explorer.Class
                     {
                         FTPPathAnalysis Analysis = new FTPPathAnalysis(Path);
 
-                        if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                        if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController FTPController)
                         {
                             if (Analysis.IsRootDirectory)
                             {
-                                return new FTPStorageFolder(Controller, new FTPFileData(Path));
+                                return new FTPStorageFolder(FTPController, new FTPFileData(Path));
                             }
-                            else if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                            else if (await FTPController.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
                             {
                                 if (Item.Type.HasFlag(FtpFileSystemObjectType.Directory))
                                 {
-                                    return new FTPStorageFolder(Controller, new FTPFileData(Path, Item));
+                                    return new FTPStorageFolder(FTPController, new FTPFileData(Path, Item));
                                 }
                                 else
                                 {
-                                    return new FTPStorageFile(Controller, new FTPFileData(Path, Item));
+                                    return new FTPStorageFile(FTPController, new FTPFileData(Path, Item));
                                 }
                             }
                         }
@@ -341,8 +349,7 @@ namespace RX_Explorer.Class
                             }
                             catch (Exception ex) when (ex is not (ArgumentException or FileNotFoundException or DirectoryNotFoundException))
                             {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                using (SafeFileHandle Handle = await Exclusive.Controller.GetNativeHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None))
+                                using (SafeFileHandle Handle = await Controller.GetNativeHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None))
                                 {
                                     if (Handle.IsInvalid)
                                     {
