@@ -1,5 +1,4 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
-using Microsoft.Toolkit.Uwp.UI.Animations;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using ShareClassLibrary;
@@ -17,9 +16,9 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System.UserProfile;
 using Windows.UI.Core;
-using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -31,9 +30,6 @@ namespace RX_Explorer.View
         private readonly ObservableCollection<PhotoDisplayItem> PhotoCollection = new ObservableCollection<PhotoDisplayItem>();
 
         private int LastSelectIndex;
-        private double OriginHorizonOffset;
-        private double OriginVerticalOffset;
-        private Point OriginMousePosition;
         private EndUsageNotification MTPEndOfShare;
         private CancellationTokenSource Cancellation;
 
@@ -221,123 +217,11 @@ namespace RX_Explorer.View
             }
         }
 
-        private void ScrollViewerMain_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private void ImageRotate_Click(object sender, RoutedEventArgs e)
         {
-            if (e.PointerDeviceType != Windows.Devices.Input.PointerDeviceType.Touch)
+            if ((sender as FrameworkElement)?.DataContext is PhotoDisplayItem Item)
             {
-                if (sender is ScrollViewer Viewer)
-                {
-                    Point TapPoint = e.GetPosition(Viewer);
-
-                    if (Math.Abs(Viewer.ZoomFactor - 1.0) < 1E-6)
-                    {
-                        Viewer.ChangeView(TapPoint.X, TapPoint.Y, 2);
-                    }
-                    else
-                    {
-                        Viewer.ChangeView(null, null, 1);
-                    }
-                }
-            }
-        }
-
-        private void ScrollViewerMain_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            if (sender is ScrollViewer Viewer)
-            {
-                if (Viewer.ZoomFactor != 1 && e.Pointer.PointerDeviceType != Windows.Devices.Input.PointerDeviceType.Touch)
-                {
-                    PointerPoint Point = e.GetCurrentPoint(Viewer);
-
-                    if (Point.Properties.IsLeftButtonPressed)
-                    {
-                        Viewer.ChangeView(OriginHorizonOffset + (OriginMousePosition.X - Point.Position.X), OriginVerticalOffset + (OriginMousePosition.Y - Point.Position.Y), null);
-                    }
-                }
-            }
-        }
-
-        private void ScrollViewerMain_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            if (sender is ScrollViewer Viewer)
-            {
-                if (Viewer.ZoomFactor != 1 && e.Pointer.PointerDeviceType != Windows.Devices.Input.PointerDeviceType.Touch)
-                {
-                    Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Hand, 0);
-
-                    PointerPoint Point = e.GetCurrentPoint(Viewer);
-
-                    if (Point.Properties.IsLeftButtonPressed)
-                    {
-                        OriginMousePosition = Point.Position;
-                        OriginHorizonOffset = Viewer.HorizontalOffset;
-                        OriginVerticalOffset = Viewer.VerticalOffset;
-                    }
-                }
-            }
-        }
-
-        private void ScrollViewerMain_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Arrow, 0);
-        }
-
-        private async void ImageRotate_Click(object sender, RoutedEventArgs e)
-        {
-            PhotoDisplayItem Item = PhotoCollection[PhotoFlip.SelectedIndex];
-
-            if (PhotoFlip.ContainerFromItem(Item) is FlipViewItem Container
-                && Container.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
-            {
-                VisualExtensions.SetNormalizedCenterPoint(Viewer, "0.5");
-
-                switch (Item.RotateAngle % 360)
-                {
-                    case 0:
-                    case 180:
-                        {
-                            DoubleAnimation WidthAnimation = new DoubleAnimation
-                            {
-                                From = Container.ActualWidth,
-                                To = Container.ActualHeight,
-                                Duration = TimeSpan.FromMilliseconds(300),
-                                EnableDependentAnimation = true,
-                                EasingFunction = new PowerEase { Power = 1, EasingMode = EasingMode.EaseOut }
-                            };
-
-                            Storyboard.SetTarget(WidthAnimation, Viewer);
-                            Storyboard.SetTargetProperty(WidthAnimation, "Width");
-
-                            await AnimationBuilder.Create()
-                                                  .ExternalAnimation(WidthAnimation)
-                                                  .RotationInDegrees(Item.RotateAngle += 90, duration: TimeSpan.FromMilliseconds(300), easingType: EasingType.Linear, easingMode: EasingMode.EaseOut)
-                                                  .StartAsync(Viewer);
-
-                            break;
-                        }
-                    case 90:
-                    case 270:
-                        {
-                            DoubleAnimation WidthAnimation = new DoubleAnimation
-                            {
-                                From = Container.ActualHeight,
-                                To = Container.ActualWidth,
-                                Duration = TimeSpan.FromMilliseconds(300),
-                                EnableDependentAnimation = true,
-                                EasingFunction = new PowerEase { Power = 1, EasingMode = EasingMode.EaseOut }
-                            };
-
-                            Storyboard.SetTarget(WidthAnimation, Viewer);
-                            Storyboard.SetTargetProperty(WidthAnimation, "Width");
-
-                            await AnimationBuilder.Create()
-                                                  .ExternalAnimation(WidthAnimation)
-                                                  .RotationInDegrees(Item.RotateAngle += 90, duration: TimeSpan.FromMilliseconds(300), easingType: EasingType.Linear, easingMode: EasingMode.EaseOut)
-                                                  .StartAsync(Viewer);
-
-                            break;
-                        }
-                }
+                Item.RotateAngle += 90;
             }
         }
 
@@ -541,6 +425,150 @@ namespace RX_Explorer.View
             {
                 PhotoFlip.SelectedIndex = sender.SelectedPageIndex;
             }
+        }
+
+        private void Image_ManipulationDelta(object sender, Windows.UI.Xaml.Input.ManipulationDeltaRoutedEventArgs e)
+        {
+            if (sender is Image ImageControl)
+            {
+                Point LeftTopPoint = ImageControl.TransformToVisual(PhotoFlip).TransformPoint(new Point(0, 0));
+
+                if (ImageControl.RenderTransform is CompositeTransform ScaleTransform)
+                {
+                    if (e.Delta.Translation.X > 0)
+                    {
+                        if (LeftTopPoint.X < 0)
+                        {
+                            ScaleTransform.TranslateX += e.Delta.Translation.X;
+                        }
+                    }
+                    else
+                    {
+                        if (LeftTopPoint.X + ImageControl.ActualWidth * ScaleTransform.ScaleX > PhotoFlip.ActualWidth)
+                        {
+                            ScaleTransform.TranslateX += e.Delta.Translation.X;
+                        }
+                    }
+
+                    if (e.Delta.Translation.Y > 0)
+                    {
+                        if (LeftTopPoint.Y < 0)
+                        {
+                            ScaleTransform.TranslateY += e.Delta.Translation.Y;
+                        }
+                    }
+                    else
+                    {
+                        if (LeftTopPoint.Y + ImageControl.ActualHeight * ScaleTransform.ScaleY > PhotoFlip.ActualHeight)
+                        {
+                            ScaleTransform.TranslateY += e.Delta.Translation.Y;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void Image_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        {
+            if (sender is Image ImageControl)
+            {
+                if (ImageControl.RenderTransform is CompositeTransform ScaleTransform)
+                {
+                    Storyboard Board = new Storyboard();
+
+                    DoubleAnimation ScaleXAnimation;
+                    DoubleAnimation ScaleYAnimation;
+
+                    if (ScaleTransform.ScaleX > 1 && ScaleTransform.ScaleY > 1)
+                    {
+                        ScaleXAnimation = new DoubleAnimation
+                        {
+                            From = 2,
+                            To = 1,
+                            Duration = TimeSpan.FromMilliseconds(300),
+                            EnableDependentAnimation = true
+                        };
+
+                        ScaleYAnimation = new DoubleAnimation
+                        {
+                            From = 2,
+                            To = 1,
+                            Duration = TimeSpan.FromMilliseconds(300),
+                            EnableDependentAnimation = true
+                        };
+
+                        DoubleAnimation TransformXAnimation = new DoubleAnimation
+                        {
+                            From = ScaleTransform.TranslateX,
+                            To = 0,
+                            Duration = TimeSpan.FromMilliseconds(300),
+                            EnableDependentAnimation = true
+                        };
+
+                        DoubleAnimation TransformYAnimation = new DoubleAnimation
+                        {
+                            From = ScaleTransform.TranslateY,
+                            To = 0,
+                            Duration = TimeSpan.FromMilliseconds(300),
+                            EnableDependentAnimation = true
+                        };
+
+                        Storyboard.SetTarget(TransformXAnimation, ImageControl);
+                        Storyboard.SetTargetProperty(TransformXAnimation, "(UIElement.RenderTransform).(CompositeTransform.TranslateX)");
+
+                        Storyboard.SetTarget(TransformYAnimation, ImageControl);
+                        Storyboard.SetTargetProperty(TransformYAnimation, "(UIElement.RenderTransform).(CompositeTransform.TranslateY)");
+
+                        Board.Children.Add(TransformXAnimation);
+                        Board.Children.Add(TransformYAnimation);
+                    }
+                    else
+                    {
+                        Point ClickPoint = e.GetPosition(ImageControl);
+                        Point RelatedPoint = e.GetPosition(PhotoFlip);
+
+                        ScaleTransform.CenterX = Math.Min(Math.Max(RelatedPoint.X - ClickPoint.X, ClickPoint.X), PhotoFlip.ActualWidth - 3 * (RelatedPoint.X - ClickPoint.X));
+                        ScaleTransform.CenterY = Math.Min(Math.Max(RelatedPoint.Y - ClickPoint.Y, ClickPoint.Y), PhotoFlip.ActualHeight - 3 * (RelatedPoint.Y - ClickPoint.Y));
+
+                        ScaleXAnimation = new DoubleAnimation
+                        {
+                            From = 1,
+                            To = 2,
+                            Duration = TimeSpan.FromMilliseconds(300),
+                            EnableDependentAnimation = true
+                        };
+
+                        ScaleYAnimation = new DoubleAnimation
+                        {
+                            From = 1,
+                            To = 2,
+                            Duration = TimeSpan.FromMilliseconds(300),
+                            EnableDependentAnimation = true
+                        };
+                    }
+
+                    Storyboard.SetTarget(ScaleXAnimation, ImageControl);
+                    Storyboard.SetTargetProperty(ScaleXAnimation, "(UIElement.RenderTransform).(CompositeTransform.ScaleX)");
+
+                    Storyboard.SetTarget(ScaleYAnimation, ImageControl);
+                    Storyboard.SetTargetProperty(ScaleYAnimation, "(UIElement.RenderTransform).(CompositeTransform.ScaleY)");
+
+                    Board.Children.Add(ScaleXAnimation);
+                    Board.Children.Add(ScaleYAnimation);
+
+                    Board.Begin();
+                }
+            }
+        }
+
+        private void Image_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Hand, 0);
+        }
+
+        private void Image_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Arrow, 0);
         }
     }
 }
