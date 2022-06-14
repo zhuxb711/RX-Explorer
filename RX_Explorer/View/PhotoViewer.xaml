@@ -13,13 +13,56 @@
 
     <Page.Resources>
         <Cls:InverseConverter x:Key="InverseConverter" />
+        <Storyboard x:Name="GridViewEnterAnimation">
+            <DoubleAnimation From="100"
+                             To="0"
+                             Duration="0:0:0.5"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="PhotoGridViewBorder"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)">
+                <DoubleAnimation.EasingFunction>
+                    <ExponentialEase EasingMode="EaseInOut" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation From="0"
+                             To="1"
+                             Duration="0:0:0.5"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="PhotoGridViewBorder"
+                             Storyboard.TargetProperty="Opacity">
+                <DoubleAnimation.EasingFunction>
+                    <ExponentialEase EasingMode="EaseInOut" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+        <Storyboard x:Name="GridViewExitAnimation">
+            <DoubleAnimation From="0"
+                             To="100"
+                             Duration="0:0:0.5"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="PhotoGridViewBorder"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)">
+                <DoubleAnimation.EasingFunction>
+                    <ExponentialEase EasingMode="EaseInOut" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation From="1"
+                             To="0"
+                             Duration="0:0:0.5"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="PhotoGridViewBorder"
+                             Storyboard.TargetProperty="Opacity">
+                <DoubleAnimation.EasingFunction>
+                    <ExponentialEase EasingMode="EaseInOut" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
     </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="160" />
         </Grid.RowDefinitions>
         <CommandBar Background="Transparent"
                     HorizontalAlignment="Center"
@@ -46,7 +89,7 @@
                                 Maximum="5"
                                 StepFrequency="1"
                                 Name="ZoomSlider"
-                                ValueChanged="ZoomSlider_ValueChanged"/>
+                                ValueChanged="ZoomSlider_ValueChanged" />
                     </Flyout>
                 </AppBarButton.Flyout>
             </AppBarButton>
@@ -60,11 +103,11 @@
                           x:Uid="PhotoViewerTranscodeButton"
                           x:Name="TranscodeImage"
                           Click="TranscodeImage_Click" />
-            <AppBarButton Icon="SetLockScreen" 
+            <AppBarButton Icon="SetLockScreen"
                           Label="Set as wallpaper"
                           x:Name="SetAsWallpaper"
                           x:Uid="SetAsWallpaper"
-                          Click="SetAsWallpaper_Click"/>
+                          Click="SetAsWallpaper_Click" />
         </CommandBar>
         <FlipView x:Name="PhotoFlip"
                   Grid.Row="1"
@@ -97,36 +140,42 @@
             </FlipView.ItemTemplate>
         </FlipView>
 
-        <GridView Name="PhotoGirdView"
-                  MaxWidth="500"
-                  Margin="10"
-                  Grid.Row="2"
-                  IsRightTapEnabled="True"
-                  HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  SelectionMode="Single"
-                  SelectionChanged="PhotoGirdView_SelectionChanged"
-                  ContainerContentChanging="PhotoGirdView_ContainerContentChanging"
-                  ItemsSource="{x:Bind PhotoCollection}"
-                  ScrollViewer.HorizontalScrollMode="Enabled"
-                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                  ScrollViewer.VerticalScrollMode="Disabled"
-                  ScrollViewer.VerticalScrollBarVisibility="Hidden">
-            <GridView.ItemTemplate>
-                <DataTemplate x:DataType="Cls:PhotoDisplayItem">
-                    <Image Width="80"
-                           Height="80"
-                           Stretch="Uniform"
-                           Source="{x:Bind ThumbnailSource,Mode=OneWay}" />
-                </DataTemplate>
-            </GridView.ItemTemplate>
-            <GridView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <ItemsStackPanel Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </GridView.ItemsPanel>
-        </GridView>
-        
+        <Border Grid.Row="1"
+                Padding="10"
+                MaxWidth="800"
+                Margin="10,10,10,20"
+                Name="PhotoGridViewBorder"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                CornerRadius="{StaticResource CustomCornerRadius}"
+                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+            <Border.RenderTransform>
+                <TranslateTransform />
+            </Border.RenderTransform>
+            <GridView Name="PhotoGirdView"
+                      SelectionMode="Single"
+                      ContainerContentChanging="PhotoGirdView_ContainerContentChanging"
+                      ItemsSource="{x:Bind PhotoCollection}"
+                      ScrollViewer.HorizontalScrollMode="Enabled"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ScrollViewer.VerticalScrollMode="Disabled"
+                      ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="Cls:PhotoDisplayItem">
+                        <Image Width="60"
+                               Height="60"
+                               Stretch="Uniform"
+                               Source="{x:Bind ThumbnailSource,Mode=OneWay}" />
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+                <GridView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsStackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </GridView.ItemsPanel>
+            </GridView>
+        </Border>
+
         <controls:Loading x:Name="TranscodeLoadingControl"
                           IsLoading="False"
                           Grid.RowSpan="2">

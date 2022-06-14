@@ -34,6 +34,7 @@ namespace RX_Explorer.View
         private Point LastZoomCenter;
         private EndUsageNotification MTPEndOfShare;
         private CancellationTokenSource Cancellation;
+        private CancellationTokenSource SingleClickCancellation;
         private readonly ObservableCollection<PhotoDisplayItem> PhotoCollection;
 
         public PhotoViewer()
@@ -82,10 +83,12 @@ namespace RX_Explorer.View
                                 }
 
                                 PhotoCollection.Add(new PhotoDisplayItem(Image));
+
+                                await Task.Delay(500);
+
+                                PhotoGirdView.SelectionChanged += PhotoGirdView_SelectionChanged;
                                 PhotoGirdView.SelectedIndex = -1;
                                 PhotoGirdView.SelectedIndex = 0;
-
-                                await Task.Delay(1000);
                             }
                             else
                             {
@@ -125,10 +128,12 @@ namespace RX_Explorer.View
 
                                 return new PhotoDisplayItem(Item);
                             }));
+
+                            await Task.Delay(500);
+
+                            PhotoGirdView.SelectionChanged += PhotoGirdView_SelectionChanged;
                             PhotoGirdView.SelectedIndex = -1;
                             PhotoGirdView.SelectedIndex = SelectedIndex;
-
-                            await Task.Delay(1000);
                         }
                         else
                         {
@@ -183,10 +188,15 @@ namespace RX_Explorer.View
             {
                 Cancellation?.Cancel();
                 Cancellation?.Dispose();
+                SingleClickCancellation?.Cancel();
+                SingleClickCancellation?.Dispose();
+
                 PhotoCollection.Clear();
                 MTPEndOfShare?.Dispose();
                 MTPEndOfShare = null;
                 Cancellation = null;
+
+                PhotoGirdView.SelectionChanged -= PhotoGirdView_SelectionChanged;
 
                 TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
             }
@@ -325,16 +335,16 @@ namespace RX_Explorer.View
 
                         if (Index >= 0 && Index < PhotoCollection.Count)
                         {
-                            if (Index + 1 < PhotoCollection.Count)
+                            PhotoCollection.RemoveAt(Index);
+
+                            if (Index < PhotoCollection.Count)
                             {
-                                PhotoGirdView.SelectedIndex = Index + 1;
+                                PhotoGirdView.SelectedIndex = Index;
                             }
                             else
                             {
                                 PhotoGirdView.SelectedIndex = Index - 1;
                             }
-
-                            PhotoCollection.RemoveAt(Index);
                         }
                     }
                 }
@@ -552,16 +562,28 @@ namespace RX_Explorer.View
 
         private void Image_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
+            SingleClickCancellation?.Cancel();
+
             if (sender is Image ImageControl)
             {
                 ZoomSlider.ValueChanged -= ZoomSlider_ValueChanged;
 
                 if (ZoomSlider.Value == 1)
                 {
+                    if (PhotoGridViewBorder.Opacity != 0)
+                    {
+                        GridViewExitAnimation.Begin();
+                    }
+
                     LastZoomCenter = ZoomTransform(ImageControl, e.GetPosition(ImageControl), 2);
                 }
                 else
                 {
+                    if (PhotoGridViewBorder.Opacity == 0)
+                    {
+                        GridViewEnterAnimation.Begin();
+                    }
+
                     LastZoomCenter = ZoomTransform(ImageControl, e.GetPosition(ImageControl), 1);
                 }
 
@@ -571,6 +593,25 @@ namespace RX_Explorer.View
 
         private void Image_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            SingleClickCancellation?.Cancel();
+            SingleClickCancellation?.Dispose();
+            SingleClickCancellation = new CancellationTokenSource();
+
+            Task.Delay(500).ContinueWith((_, Input) =>
+            {
+                if (Input is CancellationToken Token && !Token.IsCancellationRequested)
+                {
+                    if (PhotoGridViewBorder.Opacity == 0)
+                    {
+                        GridViewEnterAnimation.Begin();
+                    }
+                    else
+                    {
+                        GridViewExitAnimation.Begin();
+                    }
+                }
+            }, SingleClickCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
+
             Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Hand, 0);
         }
 
@@ -641,11 +682,18 @@ namespace RX_Explorer.View
                     if ((2 / (ZoomFactor - 1) + 2) * EmptyXWidth > PhotoFlip.ActualWidth)
                     {
                         ScaleTransform.CenterX = Element.ActualWidth / 2;
-                        ScaleTransform.CenterY = Element.ActualHeight / 2;
                     }
                     else
                     {
                         ScaleTransform.CenterX = Math.Min(Math.Max(EmptyXWidth / (ZoomFactor - 1), CenterPoint.X), PhotoFlip.ActualWidth - (1 / (ZoomFactor - 1) + 2) * EmptyXWidth);
+                    }
+
+                    if ((2 / (ZoomFactor - 1) + 2) * EmptyYWidth > PhotoFlip.ActualHeight)
+                    {
+                        ScaleTransform.CenterY = Element.ActualHeight / 2;
+                    }
+                    else
+                    {
                         ScaleTransform.CenterY = Math.Min(Math.Max(EmptyYWidth / (ZoomFactor - 1), CenterPoint.Y), PhotoFlip.ActualHeight - (1 / (ZoomFactor - 1) + 2) * EmptyYWidth);
                     }
 
