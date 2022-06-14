@@ -22,7 +22,8 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return new LibraryStorageFolder(LibType, await StorageFolder.GetFolderFromPathAsync(Path));
+                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
+                    return new LibraryStorageFolder(LibType, await Folder.GetNativeFileDataAsync());
                 }
             }
             catch (Exception ex)
@@ -31,11 +32,6 @@ namespace RX_Explorer.Class
             }
 
             return null;
-        }
-
-        private LibraryStorageFolder(LibraryType LibType, StorageFolder Folder) : base(Folder)
-        {
-            this.LibType = LibType;
         }
 
         private LibraryStorageFolder(LibraryType LibType, NativeFileData Data) : base(Data)

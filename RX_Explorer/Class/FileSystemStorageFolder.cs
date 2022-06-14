@@ -36,11 +36,6 @@ namespace RX_Explorer.Class
                                                                                        ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                                                        : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
 
-        public FileSystemStorageFolder(StorageFolder Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read, OptimizeOption.None), false)
-        {
-            StorageItem = Item;
-        }
-
         public FileSystemStorageFolder(NativeFileData Data) : base(Data)
         {
 
@@ -174,12 +169,12 @@ namespace RX_Explorer.Class
                                     {
                                         case StorageFolder SubFolder:
                                             {
-                                                yield return new FileSystemStorageFolder(SubFolder);
+                                                yield return new FileSystemStorageFolder(await SubFolder.GetNativeFileDataAsync());
                                                 break;
                                             }
                                         case StorageFile SubFile:
                                             {
-                                                yield return new FileSystemStorageFile(SubFile);
+                                                yield return new FileSystemStorageFile(await SubFile.GetNativeFileDataAsync());
                                                 break;
                                             }
                                     }
@@ -277,15 +272,18 @@ namespace RX_Explorer.Class
                                     {
                                         case CreateOption.GenerateUniqueName:
                                             {
-                                                return new FileSystemStorageFile(await Folder.CreateFileAsync(Name, CreationCollisionOption.GenerateUniqueName));
+                                                StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.GenerateUniqueName);
+                                                return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
                                             }
                                         case CreateOption.OpenIfExist:
                                             {
-                                                return new FileSystemStorageFile(await Folder.CreateFileAsync(Name, CreationCollisionOption.OpenIfExists));
+                                                StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.OpenIfExists);
+                                                return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
                                             }
                                         case CreateOption.ReplaceExisting:
                                             {
-                                                return new FileSystemStorageFile(await Folder.CreateFileAsync(Name, CreationCollisionOption.ReplaceExisting));
+                                                StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.ReplaceExisting);
+                                                return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
                                             }
                                         default:
                                             {
@@ -328,17 +326,17 @@ namespace RX_Explorer.Class
                                         case CreateOption.GenerateUniqueName:
                                             {
                                                 StorageFolder NewFolder = await Folder.CreateFolderAsync(Name, CreationCollisionOption.GenerateUniqueName);
-                                                return new FileSystemStorageFolder(NewFolder);
+                                                return new FileSystemStorageFolder(await NewFolder.GetNativeFileDataAsync());
                                             }
                                         case CreateOption.OpenIfExist:
                                             {
                                                 StorageFolder NewFolder = await Folder.CreateFolderAsync(Name, CreationCollisionOption.OpenIfExists);
-                                                return new FileSystemStorageFolder(NewFolder);
+                                                return new FileSystemStorageFolder(await NewFolder.GetNativeFileDataAsync());
                                             }
                                         case CreateOption.ReplaceExisting:
                                             {
                                                 StorageFolder NewFolder = await Folder.CreateFolderAsync(Name, CreationCollisionOption.ReplaceExisting);
-                                                return new FileSystemStorageFolder(NewFolder);
+                                                return new FileSystemStorageFolder(await NewFolder.GetNativeFileDataAsync());
                                             }
                                         default:
                                             {
@@ -410,11 +408,11 @@ namespace RX_Explorer.Class
                         {
                             if (Item is StorageFolder SubFolder)
                             {
-                                yield return new FileSystemStorageFolder(SubFolder);
+                                yield return new FileSystemStorageFolder(await SubFolder.GetNativeFileDataAsync());
                             }
                             else if (Item is StorageFile SubFile)
                             {
-                                yield return new FileSystemStorageFile(SubFile);
+                                yield return new FileSystemStorageFile(await SubFile.GetNativeFileDataAsync());
                             }
                         }
                     }

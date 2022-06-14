@@ -198,7 +198,7 @@ namespace RX_Explorer.Class
                 }
                 else if (System.IO.Path.IsPathRooted(DriveFolder.Path))
                 {
-                    return await CreateAsync(DriveType, new FileSystemStorageFolder(DriveFolder), DeviceInfo);
+                    return await CreateAsync(DriveType, new FileSystemStorageFolder(await DriveFolder.GetNativeFileDataAsync()), DeviceInfo);
                 }
             }
             catch (Exception ex)

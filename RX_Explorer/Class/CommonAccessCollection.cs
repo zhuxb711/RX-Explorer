@@ -280,7 +280,7 @@ namespace RX_Explorer.Class
                     {
                         foreach (StorageFolder WslFolder in await GetAvailableWslDriveAsync())
                         {
-                            Task LoadTask = DriveDataBase.CreateAsync(DriveType.Network, new FileSystemStorageFolder(WslFolder)).ContinueWith((PreviousTask) =>
+                            Task LoadTask = DriveDataBase.CreateAsync(DriveType.Network, new FileSystemStorageFolder(await WslFolder.GetNativeFileDataAsync())).ContinueWith((PreviousTask) =>
                             {
                                 if (PreviousTask.Exception is Exception Ex)
                                 {

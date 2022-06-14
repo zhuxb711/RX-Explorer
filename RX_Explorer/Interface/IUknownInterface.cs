@@ -9,6 +9,6 @@ namespace RX_Explorer.Interface
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     public interface IStorageItemHandleAccess
     {
-        uint Create(UWP_HANDLE_ACCESS_OPTIONS Access, UWP_HANDLE_SHARING_OPTIONS Sharing, UWP_HANDLE_OPTIONS Option, IntPtr OpLockHandler, out IntPtr Handle);
+        int Create(UWP_HANDLE_ACCESS_OPTIONS Access, UWP_HANDLE_SHARING_OPTIONS Sharing, UWP_HANDLE_OPTIONS Option, IntPtr OpLockHandler, out IntPtr Handle);
     };
 }

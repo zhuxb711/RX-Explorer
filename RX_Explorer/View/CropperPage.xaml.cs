@@ -197,7 +197,7 @@ namespace RX_Explorer.View
                 {
                     LoadingControl.IsLoading = true;
 
-                    await Task.WhenAll(SaveToFileAsync(new FileSystemStorageFile(File)), Task.Delay(1000));
+                    await Task.WhenAll(SaveToFileAsync(new FileSystemStorageFile(await File.GetNativeFileDataAsync())), Task.Delay(1000));
 
                     LoadingControl.IsLoading = false;
 

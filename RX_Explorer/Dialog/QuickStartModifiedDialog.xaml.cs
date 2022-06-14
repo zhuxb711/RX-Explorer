@@ -716,7 +716,7 @@ namespace RX_Explorer.Dialog
 
                 if (await Picker.PickSingleFileAsync() is StorageFile ExecuteFile)
                 {
-                    FileSystemStorageFile File = new FileSystemStorageFile(ExecuteFile);
+                    FileSystemStorageFile File = new FileSystemStorageFile(await ExecuteFile.GetNativeFileDataAsync());
 
                     IReadOnlyDictionary<string, string> PropertiesDic = await File.GetPropertiesAsync(new string[] { "System.FileDescription" });
 

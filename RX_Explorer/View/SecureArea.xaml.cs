@@ -413,7 +413,7 @@ namespace RX_Explorer.View
 
                 try
                 {
-                    IReadOnlyList<FileSystemStorageFile> NewFileList = FileList.Select((Item) => new FileSystemStorageFile(Item)).ToList();
+                    IReadOnlyList<FileSystemStorageFile> NewFileList = (await Task.WhenAll(FileList.Select((Item) => Item.GetNativeFileDataAsync()))).Select((Item) => new FileSystemStorageFile(Item)).ToList();
 
                     ulong CurrentPosition = 0;
                     ulong TotalSize = Convert.ToUInt64(NewFileList.Sum((Item) => Convert.ToInt64(Item.Size)));

@@ -1,6 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Runtime.InteropServices.ComTypes;
+using Windows.Storage;
+using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
 {
@@ -25,6 +26,13 @@ namespace RX_Explorer.Class
         public DateTimeOffset ModifiedTime { get; }
 
         public DateTimeOffset LastAccessTime { get; }
+
+        public IStorageItem StorageItem { get; private set; }
+
+        public void SetStorageItemOnAvailable(IStorageItem Item)
+        {
+            StorageItem = Item;
+        }
 
         public NativeFileData(string Path, NativeWin32API.WIN32_FIND_DATA Data)
         {

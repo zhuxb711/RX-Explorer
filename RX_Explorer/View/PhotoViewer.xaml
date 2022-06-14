@@ -74,9 +74,7 @@
             <FlipView.ItemTemplate>
                 <DataTemplate x:DataType="Cls:PhotoDisplayItem">
                     <Grid>
-                        <Image MaxWidth="{Binding Path=ViewportWidth,ElementName=ScrollViewerMain}"
-                               MaxHeight="{Binding Path=ViewportHeight,ElementName=ScrollViewerMain}"
-                               Source="{x:Bind ActualSource,Mode=OneWay,TargetNullValue={Binding ThumbnailSource}}"
+                        <Image Source="{x:Bind ActualSource,Mode=OneWay,TargetNullValue={Binding ThumbnailSource}}"
                                Stretch="Uniform"
                                IsDoubleTapEnabled="True"
                                PointerPressed="Image_PointerPressed"
@@ -99,47 +97,36 @@
             </FlipView.ItemTemplate>
         </FlipView>
 
-        <Grid Grid.Row="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <muxc:PipsPager Name="Pips"
-                            SelectedPageIndex="{x:Bind PhotoGirdView.SelectedIndex,Mode=TwoWay}"
-                            PreviousButtonVisibility="Visible"
-                            NextButtonVisibility="Visible"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center" />
-            <GridView Name="PhotoGirdView"
-                      MaxWidth="500"
-                      Margin="10"
-                      Grid.Row="1"
-                      IsRightTapEnabled="True"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      SelectionMode="Single"
-                      SelectionChanged="PhotoGirdView_SelectionChanged"
-                      ContainerContentChanging="PhotoGirdView_ContainerContentChanging"
-                      ItemsSource="{x:Bind PhotoCollection}"
-                      ScrollViewer.HorizontalScrollMode="Enabled"
-                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      ScrollViewer.VerticalScrollMode="Disabled"
-                      ScrollViewer.VerticalScrollBarVisibility="Hidden">
-                <GridView.ItemTemplate>
-                    <DataTemplate x:DataType="Cls:PhotoDisplayItem">
-                        <Image Width="80"
-                               Height="80"
-                               Stretch="Uniform"
-                               Source="{x:Bind ThumbnailSource,Mode=OneWay}" />
-                    </DataTemplate>
-                </GridView.ItemTemplate>
-                <GridView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <ItemsStackPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </GridView.ItemsPanel>
-            </GridView>
-        </Grid>
+        <GridView Name="PhotoGirdView"
+                  MaxWidth="500"
+                  Margin="10"
+                  Grid.Row="2"
+                  IsRightTapEnabled="True"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  SelectionMode="Single"
+                  SelectionChanged="PhotoGirdView_SelectionChanged"
+                  ContainerContentChanging="PhotoGirdView_ContainerContentChanging"
+                  ItemsSource="{x:Bind PhotoCollection}"
+                  ScrollViewer.HorizontalScrollMode="Enabled"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  ScrollViewer.VerticalScrollMode="Disabled"
+                  ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="Cls:PhotoDisplayItem">
+                    <Image Width="80"
+                           Height="80"
+                           Stretch="Uniform"
+                           Source="{x:Bind ThumbnailSource,Mode=OneWay}" />
+                </DataTemplate>
+            </GridView.ItemTemplate>
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsStackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
+        </GridView>
+        
         <controls:Loading x:Name="TranscodeLoadingControl"
                           IsLoading="False"
                           Grid.RowSpan="2">

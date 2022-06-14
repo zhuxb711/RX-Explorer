@@ -70,7 +70,7 @@ namespace RX_Explorer.Dialog
         {
             if (await Picker.PickSaveFileAsync() is StorageFile SaveFile)
             {
-                TargetFile = new FileSystemStorageFile(SaveFile);
+                TargetFile = new FileSystemStorageFile(await SaveFile.GetNativeFileDataAsync());
             }
         }
 

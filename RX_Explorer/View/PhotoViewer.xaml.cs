@@ -40,12 +40,6 @@ namespace RX_Explorer.View
         {
             InitializeComponent();
             PhotoCollection = new ObservableCollection<PhotoDisplayItem>();
-            PhotoCollection.CollectionChanged += PhotoCollection_CollectionChanged;
-        }
-
-        private void PhotoCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            Pips.NumberOfPages = PhotoCollection.Count;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -208,9 +202,7 @@ namespace RX_Explorer.View
                     {
                         if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
                         {
-                            Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
-                            ZoomTransform(ImageControl, CenterPoint, 1);
-                            LastZoomCenter = CenterPoint;
+                            LastZoomCenter = ZoomTransform(ImageControl, new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2), 1);
                         }
 
                         using (Stream FileStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.RandomAccess))
@@ -259,9 +251,7 @@ namespace RX_Explorer.View
                 {
                     if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
                     {
-                        Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
-                        ZoomTransform(ImageControl, CenterPoint, 1);
-                        LastZoomCenter = CenterPoint;
+                        LastZoomCenter = ZoomTransform(ImageControl, new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2), 1);
                     }
 
                     BitmapDecoder Decoder = null;
@@ -314,9 +304,7 @@ namespace RX_Explorer.View
             {
                 if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
                 {
-                    Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
-                    ZoomTransform(ImageControl, CenterPoint, 1);
-                    LastZoomCenter = CenterPoint;
+                    LastZoomCenter = ZoomTransform(ImageControl, new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2), 1);
                 }
 
                 try
@@ -372,9 +360,7 @@ namespace RX_Explorer.View
                 {
                     if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
                     {
-                        Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
-                        ZoomTransform(ImageControl, CenterPoint, 1);
-                        LastZoomCenter = CenterPoint;
+                        LastZoomCenter = ZoomTransform(ImageControl, new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2), 1);
                     }
 
                     if (AnimationController.Current.IsEnableAnimation)
@@ -403,9 +389,7 @@ namespace RX_Explorer.View
                     {
                         if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
                         {
-                            Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
-                            ZoomTransform(ImageControl, CenterPoint, 1);
-                            LastZoomCenter = CenterPoint;
+                            LastZoomCenter = ZoomTransform(ImageControl, new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2), 1);
                         }
 
                         if (await Item.PhotoFile.GetStorageItemAsync() is StorageFile File)
@@ -503,9 +487,7 @@ namespace RX_Explorer.View
                     {
                         if (PhotoFlip.ContainerFromIndex(LastIndex)?.FindChildOfType<Image>() is Image ImageControl)
                         {
-                            Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
-                            ZoomTransform(ImageControl, CenterPoint, 1);
-                            LastZoomCenter = CenterPoint;
+                            LastZoomCenter = ZoomTransform(ImageControl, new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2), 1);
                         }
                     }
 
@@ -576,14 +558,11 @@ namespace RX_Explorer.View
 
                 if (ZoomSlider.Value == 1)
                 {
-                    Point CurrentPoint = e.GetPosition(ImageControl);
-                    ZoomTransform(ImageControl, CurrentPoint, 2);
-                    LastZoomCenter = CurrentPoint;
+                    LastZoomCenter = ZoomTransform(ImageControl, e.GetPosition(ImageControl), 2);
                 }
                 else
                 {
-                    ZoomTransform(ImageControl, e.GetPosition(ImageControl), 1);
-                    LastZoomCenter = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
+                    LastZoomCenter = ZoomTransform(ImageControl, e.GetPosition(ImageControl), 1);
                 }
 
                 ZoomSlider.ValueChanged += ZoomSlider_ValueChanged;
@@ -608,9 +587,7 @@ namespace RX_Explorer.View
                 {
                     if (e.NewValue == 1)
                     {
-                        Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
-                        ZoomTransform(ImageControl, CenterPoint, 1);
-                        LastZoomCenter = CenterPoint;
+                        LastZoomCenter = ZoomTransform(ImageControl, new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2), 1);
                     }
                     else
                     {
@@ -619,13 +596,13 @@ namespace RX_Explorer.View
                             LastZoomCenter = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
                         }
 
-                        ZoomTransform(ImageControl, LastZoomCenter, e.NewValue);
+                        LastZoomCenter = ZoomTransform(ImageControl, LastZoomCenter, e.NewValue);
                     }
                 }
             }
         }
 
-        private void ZoomTransform(FrameworkElement Element, Point CenterPoint, double ZoomFactor)
+        private Point ZoomTransform(FrameworkElement Element, Point CenterPoint, double ZoomFactor)
         {
             ZoomSlider.Value = ZoomFactor;
 
@@ -723,7 +700,11 @@ namespace RX_Explorer.View
                 Board.Children.Add(TransformYAnimation);
 
                 Board.Begin();
+
+                return new Point(ScaleTransform.CenterX, ScaleTransform.CenterY);
             }
+
+            return new Point(Element.ActualWidth / 2, Element.ActualHeight / 2);
         }
     }
 }

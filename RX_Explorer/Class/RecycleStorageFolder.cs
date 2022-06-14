@@ -53,12 +53,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public RecycleStorageFolder(StorageFolder Folder, string OriginPath, DateTimeOffset DeleteTime) : base(Folder)
-        {
-            this.OriginPath = OriginPath;
-            ModifiedTime = DeleteTime.ToLocalTime();
-        }
-
         public RecycleStorageFolder(NativeFileData Data, string OriginPath, DateTimeOffset DeleteTime) : base(Data)
         {
             this.OriginPath = OriginPath;

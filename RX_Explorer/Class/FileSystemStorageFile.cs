@@ -43,11 +43,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public FileSystemStorageFile(StorageFile Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read, OptimizeOption.None), false)
-        {
-            StorageItem = Item;
-        }
-
         public FileSystemStorageFile(NativeFileData Data) : base(Data)
         {
 

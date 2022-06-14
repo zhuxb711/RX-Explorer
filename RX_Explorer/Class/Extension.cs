@@ -309,65 +309,90 @@ namespace RX_Explorer.Class
             });
         }
 
-        public static SafeFileHandle GetSafeFileHandle(this IStorageItem Item, AccessMode Mode, OptimizeOption Option)
+        public static async Task<NativeFileData> GetNativeFileDataAsync(this IStorageItem Item)
         {
-            UWP_HANDLE_ACCESS_OPTIONS Access = Mode switch
+            using (SafeFileHandle Handle = await Item.GetSafeFileHandleAsync(AccessMode.Read, OptimizeOption.None))
             {
-                AccessMode.Read => UWP_HANDLE_ACCESS_OPTIONS.READ,
-                AccessMode.ReadWrite or AccessMode.Exclusive => UWP_HANDLE_ACCESS_OPTIONS.READ | UWP_HANDLE_ACCESS_OPTIONS.WRITE,
-                AccessMode.Write => UWP_HANDLE_ACCESS_OPTIONS.WRITE,
-                _ => throw new NotSupportedException()
-            };
+                NativeFileData Data = await Task.Run(() => NativeWin32API.GetStorageItemRawDataFromHandle(Item.Path, Handle.DangerousGetHandle()));
+                Data.SetStorageItemOnAvailable(Item);
+                return Data;
+            }
+        }
 
-            UWP_HANDLE_SHARING_OPTIONS Share = Mode switch
+        public static Task<SafeFileHandle> GetSafeFileHandleAsync(this IStorageItem Item, AccessMode Mode, OptimizeOption Option)
+        {
+            return Task.Run(() =>
             {
-                AccessMode.Read => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ | UWP_HANDLE_SHARING_OPTIONS.SHARE_WRITE,
-                AccessMode.ReadWrite or AccessMode.Write => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ,
-                AccessMode.Exclusive => UWP_HANDLE_SHARING_OPTIONS.SHARE_NONE,
-                _ => throw new NotSupportedException()
-            };
+                UWP_HANDLE_ACCESS_OPTIONS Access = Mode switch
+                {
+                    AccessMode.Read => UWP_HANDLE_ACCESS_OPTIONS.READ,
+                    AccessMode.ReadWrite or AccessMode.Exclusive => UWP_HANDLE_ACCESS_OPTIONS.READ | UWP_HANDLE_ACCESS_OPTIONS.WRITE,
+                    AccessMode.Write => UWP_HANDLE_ACCESS_OPTIONS.WRITE,
+                    _ => throw new NotSupportedException()
+                };
 
-            UWP_HANDLE_OPTIONS Optimize = UWP_HANDLE_OPTIONS.OVERLAPPED | Option switch
-            {
-                OptimizeOption.None => UWP_HANDLE_OPTIONS.NONE,
-                OptimizeOption.Sequential => UWP_HANDLE_OPTIONS.SEQUENTIAL_SCAN,
-                OptimizeOption.RandomAccess => UWP_HANDLE_OPTIONS.RANDOM_ACCESS,
-                _ => throw new NotSupportedException()
-            };
+                UWP_HANDLE_SHARING_OPTIONS Share = Mode switch
+                {
+                    AccessMode.Read => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ | UWP_HANDLE_SHARING_OPTIONS.SHARE_WRITE,
+                    AccessMode.ReadWrite or AccessMode.Write => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ,
+                    AccessMode.Exclusive => UWP_HANDLE_SHARING_OPTIONS.SHARE_NONE,
+                    _ => throw new NotSupportedException()
+                };
 
-            try
-            {
-                IntPtr ComInterface = Marshal.GetComInterfaceForObject<IStorageItem, IStorageItemHandleAccess>(Item);
-                IStorageItemHandleAccess StorageHandleAccess = (IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
-                StorageHandleAccess.Create(Access, Share, Optimize, IntPtr.Zero, out IntPtr Handle);
-                return new SafeFileHandle(Handle, true);
-            }
-            catch (FileLoadException)
-            {
-                LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because file is used by anther process, path: \"{Item.Path}\"");
-            }
-            catch (DirectoryNotFoundException)
-            {
-                LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because directory is not found, path: \"{Item.Path}\"");
-            }
-            catch (FileNotFoundException)
-            {
-                LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because file is not found, path: \"{Item.Path}\"");
-            }
-            catch (UnauthorizedAccessException)
-            {
-                LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because do not have enough permission, path: \"{Item.Path}\"");
-            }
-            catch (BadImageFormatException)
-            {
-                LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because the file is damaged, path: \"{Item.Path}\"");
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not get handle from {nameof(IStorageItemHandleAccess)}, path: \"{Item.Path}\"");
-            }
+                UWP_HANDLE_OPTIONS Optimize = UWP_HANDLE_OPTIONS.OVERLAPPED | Option switch
+                {
+                    OptimizeOption.None => UWP_HANDLE_OPTIONS.NONE,
+                    OptimizeOption.Sequential => UWP_HANDLE_OPTIONS.SEQUENTIAL_SCAN,
+                    OptimizeOption.RandomAccess => UWP_HANDLE_OPTIONS.RANDOM_ACCESS,
+                    _ => throw new NotSupportedException()
+                };
 
-            return new SafeFileHandle(IntPtr.Zero, true);
+                try
+                {
+                    IntPtr ComInterface = Marshal.GetComInterfaceForObject<IStorageItem, IStorageItemHandleAccess>(Item);
+
+                    if (ComInterface.CheckIfValidPtr())
+                    {
+                        if (Marshal.GetObjectForIUnknown(ComInterface) is IStorageItemHandleAccess StorageHandleAccess)
+                        {
+                            int HResult = StorageHandleAccess.Create(Access, Share, Optimize, IntPtr.Zero, out IntPtr Handle);
+
+                            if (HResult != 0)
+                            {
+                                Marshal.ThrowExceptionForHR(HResult);
+                            }
+
+                            return new SafeFileHandle(Handle, true);
+                        }
+                    }
+                }
+                catch (FileLoadException)
+                {
+                    LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because file is used by anther process, path: \"{Item.Path}\"");
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because directory is not found, path: \"{Item.Path}\"");
+                }
+                catch (FileNotFoundException)
+                {
+                    LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because file is not found, path: \"{Item.Path}\"");
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because do not have enough permission, path: \"{Item.Path}\"");
+                }
+                catch (BadImageFormatException)
+                {
+                    LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because the file is damaged, path: \"{Item.Path}\"");
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not get handle from {nameof(IStorageItemHandleAccess)}, path: \"{Item.Path}\"");
+                }
+
+                return new SafeFileHandle(IntPtr.Zero, true);
+            });
         }
 
         public static async Task ShowCommandBarFlyoutWithExtraContextMenuItems(this CommandBarFlyout Flyout, FrameworkElement RelatedTo, Point ShowAt, CancellationToken CancelToken, params string[] PathArray)
@@ -1224,15 +1249,11 @@ namespace RX_Explorer.Class
                     {
                         StorageFolder Folder => Folder.GetThumbnailAsync(Mode, RequestSize, ThumbnailOptions.UseCurrentScale)
                                                        .AsTask(Cancellation.Token)
-                                                       .ContinueWith((PreviousTask) =>
+                                                       .ContinueWith((PreviousTask, Input) =>
                                                        {
                                                            try
                                                            {
-                                                               if (Cancellation.IsCancellationRequested)
-                                                               {
-                                                                   PreviousTask.Result?.Dispose();
-                                                               }
-                                                               else
+                                                               if (Input is CancellationToken Token && !Token.IsCancellationRequested)
                                                                {
                                                                    return PreviousTask.Result;
                                                                }
@@ -1243,18 +1264,14 @@ namespace RX_Explorer.Class
                                                            }
 
                                                            return null;
-                                                       }, TaskContinuationOptions.ExecuteSynchronously),
+                                                       }, Cancellation.Token, TaskContinuationOptions.ExecuteSynchronously),
                         StorageFile File => File.GetThumbnailAsync(Mode, RequestSize, ThumbnailOptions.UseCurrentScale)
                                                 .AsTask(Cancellation.Token)
-                                                .ContinueWith((PreviousTask) =>
+                                                .ContinueWith((PreviousTask, Input) =>
                                                 {
                                                     try
                                                     {
-                                                        if (Cancellation.IsCancellationRequested)
-                                                        {
-                                                            PreviousTask.Result?.Dispose();
-                                                        }
-                                                        else
+                                                        if (Input is CancellationToken Token && !Token.IsCancellationRequested)
                                                         {
                                                             return PreviousTask.Result;
                                                         }
@@ -1265,7 +1282,7 @@ namespace RX_Explorer.Class
                                                     }
 
                                                     return null;
-                                                }, TaskContinuationOptions.ExecuteSynchronously),
+                                                }, Cancellation.Token, TaskContinuationOptions.ExecuteSynchronously),
                         _ => throw new NotSupportedException("Not an valid storage item")
 
                     };
@@ -1308,15 +1325,11 @@ namespace RX_Explorer.Class
                     {
                         StorageFolder Folder => Folder.GetThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
                                                       .AsTask(Cancellation.Token)
-                                                      .ContinueWith((PreviousTask) =>
+                                                      .ContinueWith((PreviousTask, Input) =>
                                                       {
                                                           try
                                                           {
-                                                              if (Cancellation.IsCancellationRequested)
-                                                              {
-                                                                  PreviousTask.Result?.Dispose();
-                                                              }
-                                                              else
+                                                              if (Input is CancellationToken Token && !Token.IsCancellationRequested)
                                                               {
                                                                   return PreviousTask.Result;
                                                               }
@@ -1327,29 +1340,10 @@ namespace RX_Explorer.Class
                                                           }
 
                                                           return null;
-                                                      }, TaskContinuationOptions.ExecuteSynchronously),
+                                                      }, Cancellation.Token, TaskContinuationOptions.ExecuteSynchronously),
                         StorageFile File => File.GetThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale)
                                                 .AsTask(Cancellation.Token)
-                                                .ContinueWith((PreviousTask) =>
-                                                {
-                                                    try
-                                                    {
-                                                        if (Cancellation.IsCancellationRequested)
-                                                        {
-                                                            PreviousTask.Result?.Dispose();
-                                                        }
-                                                        else
-                                                        {
-                                                            return PreviousTask.Result;
-                                                        }
-                                                    }
-                                                    catch (Exception)
-                                                    {
-                                                        //No need to handle this exception
-                                                    }
-
-                                                    return null;
-                                                }, TaskContinuationOptions.ExecuteSynchronously),
+                                                .ContinueWith((PreviousTask, Input) => { try { if (Input is CancellationToken Token && !Token.IsCancellationRequested) { return PreviousTask.Result; } } catch (Exception) { } return null; }, Cancellation.Token, TaskContinuationOptions.ExecuteSynchronously),
                         _ => throw new NotSupportedException("Not an valid storage item")
                     };
 

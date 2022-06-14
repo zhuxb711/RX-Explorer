@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32.SafeHandles;
-using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
@@ -1869,9 +1868,9 @@ namespace RX_Explorer.Class
                 {
                     IReadOnlyList<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<IReadOnlyList<Dictionary<string, string>>>(Result);
 
-                    ConcurrentBag<FileSystemStorageItemBase> ResultBag = new ConcurrentBag<FileSystemStorageItemBase>();
+                    List<FileSystemStorageItemBase> ItemResult = new List<FileSystemStorageItemBase>(JsonList.Count);
 
-                    Parallel.ForEach(JsonList, (PropertyDic) =>
+                    foreach (Dictionary<string, string> PropertyDic in JsonList)
                     {
                         try
                         {
@@ -1879,25 +1878,37 @@ namespace RX_Explorer.Class
 
                             if (Data.IsDataValid)
                             {
-                                ResultBag.Add(Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
+                                ItemResult.Add(Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
                                                         ? new RecycleStorageFolder(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
                                                         : new RecycleStorageFile(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
 
                             }
                             else
                             {
-                                ResultBag.Add(Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
-                                                        ? new RecycleStorageFolder(StorageFolder.GetFolderFromPathAsync(PropertyDic["ActualPath"]).AsTask().Result, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
-                                                        : new RecycleStorageFile(StorageFile.GetFileFromPathAsync(PropertyDic["ActualPath"]).AsTask().Result, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                                switch (Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]))
+                                {
+                                    case StorageItemTypes.Folder:
+                                        {
+                                            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(PropertyDic["ActualPath"]);
+                                            ItemResult.Add(new RecycleStorageFolder(await Folder.GetNativeFileDataAsync(), PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                                            break;
+                                        }
+                                    case StorageItemTypes.File:
+                                        {
+                                            StorageFile File = await StorageFile.GetFileFromPathAsync(PropertyDic["ActualPath"]);
+                                            ItemResult.Add(new RecycleStorageFile(await File.GetNativeFileDataAsync(), PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                                            break;
+                                        }
+                                }
                             }
                         }
                         catch (Exception ex)
                         {
                             LogTracer.Log(ex, $"Could not load the recycle item, path: {PropertyDic["ActualPath"]}");
                         }
-                    });
+                    }
 
-                    return ResultBag.ToList();
+                    return ItemResult;
                 }
                 else
                 {
