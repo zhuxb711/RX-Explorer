@@ -61,39 +61,37 @@ namespace RX_Explorer.View
 
             try
             {
+                PhotoFlip.SelectedItem = null;
+
                 if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
                     using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                     {
                         if (!CancelToken.IsCancellationRequested)
                         {
-                            try
+                            SLEHeader Header = SLEHeader.GetHeader(Stream);
+
+                            if (Header.Version >= SLEVersion.Version_1_5_0)
                             {
-                                SLEHeader Header = SLEHeader.GetHeader(Stream);
+                                Adjust.IsEnabled = false;
+                                SetAsWallpaper.IsEnabled = false;
 
-                                if (Header.Version >= SLEVersion.Version_1_5_0)
+                                BitmapImage Image = new BitmapImage();
+
+                                using (IRandomAccessStream RandomStream = new SLEInputStream(Stream, SecureArea.AESKey).AsRandomAccessStream())
                                 {
-                                    Adjust.IsEnabled = false;
-                                    SetAsWallpaper.IsEnabled = false;
-
-                                    using (IRandomAccessStream RandomStream = new SLEInputStream(Stream, SecureArea.AESKey).AsRandomAccessStream())
-                                    {
-                                        BitmapImage Image = new BitmapImage();
-                                        await Image.SetSourceAsync(RandomStream);
-
-                                        PhotoCollection.Add(new PhotoDisplayItem(Image));
-                                    }
-
-                                    await Task.Delay(1000);
+                                    await Image.SetSourceAsync(RandomStream);
                                 }
-                                else
-                                {
-                                    throw new NotSupportedException();
-                                }
+
+                                PhotoCollection.Add(new PhotoDisplayItem(Image));
+                                PhotoFlip.SelectedItem = 0;
+                                Pips.NumberOfPages = PhotoCollection.Count;
+
+                                await Task.Delay(1000);
                             }
-                            finally
+                            else
                             {
-                                TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
+                                throw new NotSupportedException();
                             }
                         }
                     }
@@ -103,54 +101,50 @@ namespace RX_Explorer.View
                     Adjust.IsEnabled = true;
                     SetAsWallpaper.IsEnabled = true;
 
-                    if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(File.Path)) is FileSystemStorageFolder Item)
+                    if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(File.Path)) is FileSystemStorageFolder BaseFolder)
                     {
-                        try
-                        {
-                            IReadOnlyList<FileSystemStorageFile> SearchResult = await Item.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, CancelToken: CancelToken, AdvanceFilter: (Name) => Regex.IsMatch(Path.GetExtension(Name), @"\.(png|bmp|jpg|jpeg)$", RegexOptions.IgnoreCase)).Cast<FileSystemStorageFile>().ToListAsync();
+                        IReadOnlyList<FileSystemStorageFile> SearchResult = await BaseFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, CancelToken: CancelToken, AdvanceFilter: (Name) => Regex.IsMatch(Path.GetExtension(Name), @"\.(png|bmp|jpg|jpeg)$", RegexOptions.IgnoreCase)).Cast<FileSystemStorageFile>().ToListAsync();
 
-                            if (SearchResult.Count > 0)
+                        if (SearchResult.Count > 0)
+                        {
+                            if (BaseFolder is MTPStorageFolder MTPFolder)
                             {
-                                if (Item is MTPStorageFolder MTPFolder)
-                                {
-                                    MTPEndOfShare = await FileSystemStorageItemBase.SetBulkAccessSharedControllerAsync(SearchResult);
-                                }
-
-                                PathConfiguration Config = SQLite.Current.GetPathConfiguration(Path.GetDirectoryName(File.Path));
-
-                                PhotoCollection.AddRange((await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())).Select((Item) => new PhotoDisplayItem(Item)));
-                                PhotoFlip.SelectedItem = PhotoCollection.FirstOrDefault((Item) => Item.PhotoFile == File);
-                                Pips.NumberOfPages = PhotoCollection.Count;
-
-                                if (PhotoFlip.SelectedIndex == 0)
-                                {
-                                    await PhotoCollection[0].GenerateActualSourceAsync();
-                                }
-
-                                await Task.Delay(1000);
+                                MTPEndOfShare = await FileSystemStorageItemBase.SetBulkAccessSharedControllerAsync(SearchResult);
                             }
-                            else
+
+                            int SelectedIndex = 0;
+
+                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(BaseFolder.Path);
+
+                            IEnumerable<FileSystemStorageFile> SortedResult = await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                            PhotoCollection.AddRange(SortedResult.Select((Item, Index) =>
                             {
-                                await new QueueContentDialog
+                                if (Item == File)
                                 {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("Queue_Dialog_ImageReadError_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
-                                }.ShowAsync();
-
-                                if (Frame.CanGoBack)
-                                {
-                                    Frame.GoBack();
+                                    SelectedIndex = Index;
                                 }
+
+                                return new PhotoDisplayItem(Item);
+                            }));
+                            PhotoFlip.SelectedIndex = SelectedIndex;
+                            Pips.NumberOfPages = PhotoCollection.Count;
+
+                            await Task.Delay(1000);
+                        }
+                        else
+                        {
+                            await new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("Queue_Dialog_ImageReadError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                            }.ShowAsync();
+
+                            if (Frame.CanGoBack)
+                            {
+                                Frame.GoBack();
                             }
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            //No need to handle this exception
-                        }
-                        finally
-                        {
-                            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
                         }
                     }
                     else
@@ -158,8 +152,10 @@ namespace RX_Explorer.View
                         throw new FileNotFoundException();
                     }
                 }
-
-                await Task.Delay(1000);
+            }
+            catch (OperationCanceledException)
+            {
+                //No need to handle this exception
             }
             catch (Exception ex)
             {
@@ -176,6 +172,10 @@ namespace RX_Explorer.View
                 {
                     Frame.GoBack();
                 }
+            }
+            finally
+            {
+                TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
             }
         }
 
@@ -511,7 +511,7 @@ namespace RX_Explorer.View
         {
             if (!args.InRecycleQueue)
             {
-                if (args.Item is PhotoDisplayItem Item && !Cancellation.IsCancellationRequested)
+                if (args.Item is PhotoDisplayItem Item && !(Cancellation?.IsCancellationRequested).GetValueOrDefault(true))
                 {
                     await Item.GenerateThumbnailAsync().ConfigureAwait(false);
                 }

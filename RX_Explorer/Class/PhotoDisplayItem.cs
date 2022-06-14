@@ -56,10 +56,7 @@ namespace RX_Explorer.Class
                 {
                     using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                     {
-                        if (ActualStream != null)
-                        {
-                            await ActualSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
-                        }
+                        await ActualSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
                     }
                 }
                 catch (Exception ex)
@@ -92,10 +89,7 @@ namespace RX_Explorer.Class
                     {
                         using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                         {
-                            if (ActualStream != null)
-                            {
-                                await ThumbnailSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
-                            }
+                            await ThumbnailSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
                         }
                     }
                 }
