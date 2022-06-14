@@ -59,27 +59,20 @@
             <FlipView.ItemTemplate>
                 <DataTemplate x:DataType="Cls:PhotoDisplayItem">
                     <Grid>
-                        <ScrollViewer x:Name="ScrollViewerMain"
-                                      Visibility="{x:Bind IsErrorInLoading,Mode=OneWay,Converter={StaticResource InverseConverter}}"
-                                      IsDoubleTapEnabled="True"
-                                      DoubleTapped="ScrollViewerMain_DoubleTapped"
-                                      PointerMoved="ScrollViewerMain_PointerMoved"
-                                      PointerPressed="ScrollViewerMain_PointerPressed"
-                                      PointerReleased="ScrollViewerMain_PointerReleased"
-                                      ZoomMode="Enabled"
-                                      MinZoomFactor="0.5"
-                                      MaxZoomFactor="4"
-                                      HorizontalScrollMode="Enabled"
-                                      VerticalScrollMode="Enabled"
-                                      HorizontalScrollBarVisibility="Hidden"
-                                      VerticalScrollBarVisibility="Hidden"
-                                      HorizontalContentAlignment="Stretch"
-                                      VerticalContentAlignment="Stretch">
-                            <Image MaxWidth="{Binding Path=ViewportWidth,ElementName=ScrollViewerMain}"
-                                   MaxHeight="{Binding Path=ViewportHeight,ElementName=ScrollViewerMain}"
-                                   Source="{x:Bind ActualSource,Mode=OneWay,TargetNullValue={Binding ThumbnailSource}}"
-                                   Stretch="Uniform" />
-                        </ScrollViewer>
+                        <Image MaxWidth="{Binding Path=ViewportWidth,ElementName=ScrollViewerMain}"
+                               MaxHeight="{Binding Path=ViewportHeight,ElementName=ScrollViewerMain}"
+                               Source="{x:Bind ActualSource,Mode=OneWay,TargetNullValue={Binding ThumbnailSource}}"
+                               Stretch="Uniform"
+                               IsDoubleTapEnabled="True"
+                               PointerPressed="Image_PointerPressed"
+                               PointerReleased="Image_PointerReleased"
+                               DoubleTapped="Image_DoubleTapped"
+                               ManipulationMode="All"
+                               ManipulationDelta="Image_ManipulationDelta">
+                            <Image.RenderTransform>
+                                <CompositeTransform x:Name="ScaleTransform" />
+                            </Image.RenderTransform>
+                        </Image>
                         <TextBlock Visibility="{x:Bind IsErrorInLoading,Mode=OneWay}"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Center"

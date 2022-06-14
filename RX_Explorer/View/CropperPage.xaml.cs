@@ -11,6 +11,7 @@ using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -229,31 +230,30 @@ namespace RX_Explorer.View
 
         private async Task SaveToFileAsync(FileSystemStorageFile File)
         {
-            using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.RandomAccess))
+            using (InMemoryRandomAccessStream TempStream = new InMemoryRandomAccessStream())
+            using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.RandomAccess))
             {
-                Stream.SetLength(0);
-
                 switch (File.Type.ToLower())
                 {
                     case ".png":
                         {
-                            await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png);
+                            await Cropper.SaveAsync(TempStream, BitmapFileFormat.Png);
                             break;
                         }
                     case ".jpg":
                     case ".jpeg":
                         {
-                            await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Jpeg);
+                            await Cropper.SaveAsync(TempStream, BitmapFileFormat.Jpeg);
                             break;
                         }
                     case ".bmp":
                         {
-                            await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Bmp);
+                            await Cropper.SaveAsync(TempStream, BitmapFileFormat.Bmp);
                             break;
                         }
                     case ".tiff":
                         {
-                            await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Tiff);
+                            await Cropper.SaveAsync(TempStream, BitmapFileFormat.Tiff);
                             break;
                         }
                     default:
@@ -262,7 +262,10 @@ namespace RX_Explorer.View
                         }
                 }
 
-                await Stream.FlushAsync();
+                FileStream.SetLength(0);
+
+                await TempStream.AsStreamForRead().CopyToAsync(FileStream);
+                await FileStream.FlushAsync();
             }
         }
 
