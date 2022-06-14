@@ -29,6 +29,7 @@ using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -46,7 +47,6 @@ using ZXing.QrCode;
 using ZXing.QrCode.Internal;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using RefreshRequestedEventArgs = RX_Explorer.Class.RefreshRequestedEventArgs;
-using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer.View
@@ -2826,16 +2826,7 @@ namespace RX_Explorer.View
 
         private async Task SetExtraInformationOnCurrentFolderAsync()
         {
-            BitmapImage TabIconImage = await CurrentFolder.GetThumbnailAsync(ThumbnailMode.ListView);
-
-            if (TabIconImage != null)
-            {
-                Container.Renderer.TabItem.IconSource = new ImageIconSource { ImageSource = TabIconImage };
-            }
-            else
-            {
-                Container.Renderer.TabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
-            }
+            Container.Renderer.TabItem.IconSource = new ImageIconSource { ImageSource = await CurrentFolder.GetThumbnailAsync(ThumbnailMode.ListView) };
 
             if (await CurrentFolder.GetStorageItemAsync() is StorageFolder CoreItem && CoreItem.Name != CoreItem.DisplayName)
             {
@@ -4356,8 +4347,6 @@ namespace RX_Explorer.View
                             case ".bmp":
                             case ".jpg":
                             case ".jpeg":
-                            case ".heic":
-                            case ".tiff":
                                 {
                                     if (SelectedItem is FileSystemStorageFile File)
                                     {
@@ -4372,7 +4361,12 @@ namespace RX_Explorer.View
 
                                         if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                         {
-                                            await GeneralTransformer.TranscodeFromImageAsync(File, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
+                                            using (Stream SourceStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                                            using (IRandomAccessStream ResultStream = await GeneralTransformer.TranscodeFromImageAsync(SourceStream.AsRandomAccessStream(), Dialog.TargetFile.Type, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode))
+                                            using (Stream TargetStream = await Dialog.TargetFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                            {
+                                                await ResultStream.AsStreamForRead().CopyToAsync(TargetStream);
+                                            }
                                         }
                                     }
 
@@ -7759,8 +7753,6 @@ namespace RX_Explorer.View
                                     case ".bmp":
                                     case ".jpg":
                                     case ".jpeg":
-                                    case ".heic":
-                                    case ".tiff":
                                         {
                                             EditButton.Visibility = Visibility.Visible;
                                             TranscodeButton.Visibility = Visibility.Visible;

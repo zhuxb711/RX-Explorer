@@ -522,28 +522,27 @@ namespace RX_Explorer.Class
             return StorageItem;
         }
 
-        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
+        {
+            return await base.GetThumbnailCoreAsync(Mode, ForceUpdate)
+                                ?? new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                        ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                        : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+        }
+
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
             try
             {
-                try
-                {
-                    return await base.GetThumbnailRawStreamCoreAsync(Mode);
-                }
-                catch (Exception)
-                {
-                    StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
-                                                                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
-                    return await ThumbnailFile.OpenReadAsync();
-                }
+                return await base.GetThumbnailRawStreamCoreAsync(Mode, ForceUpdate);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                LogTracer.Log(ex, "Could not get the raw stream of thumbnail");
+                StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                                                            ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                                                            : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+                return await ThumbnailFile.OpenReadAsync();
             }
-
-            return null;
         }
 
         public override async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)

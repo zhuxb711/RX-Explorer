@@ -3562,4 +3562,10 @@
   <data name="AddLabel" xml:space="preserve">
     <value>標籤</value>
   </data>
+  <data name="QueueDialog_RotationFailed_Content" xml:space="preserve">
+    <value>圖片旋轉失敗</value>
+  </data>
+  <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
+    <value>縮放</value>
+  </data>
 </root>

@@ -24,6 +24,10 @@ namespace RX_Explorer.Class
 
         public override string SizeDescription => Size.GetSizeDescription();
 
+        public override BitmapImage Thumbnail => base.Thumbnail ??= new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
+                                                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+
         public override bool IsReadOnly
         {
             get
@@ -38,10 +42,6 @@ namespace RX_Explorer.Class
                 }
             }
         }
-
-        public override BitmapImage Thumbnail => base.Thumbnail ??= new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                                       ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                                       : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 
         public FileSystemStorageFile(StorageFile Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read, OptimizeOption.None), false)
         {
@@ -61,6 +61,14 @@ namespace RX_Explorer.Class
         public FileSystemStorageFile(FTPFileData Data) : base(Data)
         {
 
+        }
+
+        protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
+        {
+            return await base.GetThumbnailCoreAsync(Mode, ForceUpdate)
+                                ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
+                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
         }
 
         public async virtual Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
@@ -152,28 +160,19 @@ namespace RX_Explorer.Class
             return 0;
         }
 
-        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
             try
             {
-                try
-                {
-                    return await base.GetThumbnailRawStreamCoreAsync(Mode);
-                }
-                catch (Exception)
-                {
-                    StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                                                    ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                                                    : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
-                    return await ThumbnailFile.OpenReadAsync();
-                }
+                return await base.GetThumbnailRawStreamCoreAsync(Mode, ForceUpdate);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                LogTracer.Log(ex, "Could not get the raw stream of thumbnail");
+                StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                                                                ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
+                                                                                                : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                return await ThumbnailFile.OpenReadAsync();
             }
-
-            return null;
         }
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)

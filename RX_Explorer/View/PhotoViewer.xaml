@@ -35,6 +35,21 @@
                           x:Uid="PhotoViewerRotateButton"
                           x:Name="ImageRotate"
                           Click="ImageRotate_Click" />
+            <AppBarButton Icon="Zoom"
+                          Label="Zoom"
+                          x:Uid="PhotoViewerZoomButton"
+                          x:Name="ImageZoom">
+                <AppBarButton.Flyout>
+                    <Flyout Placement="Bottom">
+                        <Slider Width="300"
+                                Minimum="1"
+                                Maximum="5"
+                                StepFrequency="1"
+                                Name="ZoomSlider"
+                                ValueChanged="ZoomSlider_ValueChanged"/>
+                    </Flyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
             <AppBarButton Icon="Delete"
                           Label="Delete"
                           x:Name="Delete"
@@ -55,7 +70,7 @@
                   Grid.Row="1"
                   Background="Transparent"
                   ItemsSource="{x:Bind PhotoCollection}"
-                  SelectionChanged="PhotoFlip_SelectionChanged">
+                  SelectedIndex="{x:Bind PhotoGirdView.SelectedIndex,Mode=TwoWay}">
             <FlipView.ItemTemplate>
                 <DataTemplate x:DataType="Cls:PhotoDisplayItem">
                     <Grid>
@@ -90,12 +105,11 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <muxc:PipsPager Name="Pips"
-                            SelectedPageIndex="{x:Bind PhotoFlip.SelectedIndex,Mode=OneWay}"
+                            SelectedPageIndex="{x:Bind PhotoGirdView.SelectedIndex,Mode=TwoWay}"
                             PreviousButtonVisibility="Visible"
                             NextButtonVisibility="Visible"
                             HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            SelectedIndexChanged="Pips_SelectedIndexChanged" />
+                            VerticalAlignment="Center" />
             <GridView Name="PhotoGirdView"
                       MaxWidth="500"
                       Margin="10"
@@ -103,7 +117,6 @@
                       IsRightTapEnabled="True"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
-                      SelectedIndex="{x:Bind PhotoFlip.SelectedIndex,Mode=OneWay}"
                       SelectionMode="Single"
                       SelectionChanged="PhotoGirdView_SelectionChanged"
                       ContainerContentChanging="PhotoGirdView_ContainerContentChanging"

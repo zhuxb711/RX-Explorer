@@ -3562,4 +3562,10 @@ Les noms non valides incluent
   <data name="AddLabel" xml:space="preserve">
     <value>Étiquette</value>
   </data>
+  <data name="QueueDialog_RotationFailed_Content" xml:space="preserve">
+    <value>Échec de la rotation de l'image</value>
+  </data>
+  <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
 </root>

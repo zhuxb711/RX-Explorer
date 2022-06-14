@@ -3562,4 +3562,10 @@ Las denominaciones no válidas son:
   <data name="AddLabel" xml:space="preserve">
     <value>Etiqueta</value>
   </data>
+  <data name="QueueDialog_RotationFailed_Content" xml:space="preserve">
+    <value>Error al rotar la imagen</value>
+  </data>
+  <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
 </root>

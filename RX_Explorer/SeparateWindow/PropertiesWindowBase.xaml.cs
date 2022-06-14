@@ -1385,17 +1385,19 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                         if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
                                                         {
                                                             FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
+
                                                             IReadOnlyDictionary<string, string> PropertiesDic = await OpenWithFile.GetPropertiesAsync(new string[] { "System.FileDescription" });
 
-                                                            string AppName = PropertiesDic["System.FileDescription"];
-
-                                                            if (string.IsNullOrEmpty(AppName))
+                                                            if (PropertiesDic.TryGetValue("System.FileDescription", out string AppName))
                                                             {
-                                                                FileOpenWithContent.Text = OpenWithFile.DisplayName;
-                                                            }
-                                                            else
-                                                            {
-                                                                FileOpenWithContent.Text = AppName;
+                                                                if (string.IsNullOrEmpty(AppName))
+                                                                {
+                                                                    FileOpenWithContent.Text = OpenWithFile.DisplayName;
+                                                                }
+                                                                else
+                                                                {
+                                                                    FileOpenWithContent.Text = AppName;
+                                                                }
                                                             }
                                                         }
                                                         else
@@ -1420,17 +1422,19 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                             if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
                                             {
                                                 FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
+
                                                 IReadOnlyDictionary<string, string> PropertiesDic = await OpenWithFile.GetPropertiesAsync(new string[] { "System.FileDescription" });
 
-                                                string AppName = PropertiesDic["System.FileDescription"];
-
-                                                if (string.IsNullOrEmpty(AppName))
+                                                if (PropertiesDic.TryGetValue("System.FileDescription", out string AppName))
                                                 {
-                                                    FileOpenWithContent.Text = OpenWithFile.DisplayName;
-                                                }
-                                                else
-                                                {
-                                                    FileOpenWithContent.Text = AppName;
+                                                    if (string.IsNullOrEmpty(AppName))
+                                                    {
+                                                        FileOpenWithContent.Text = OpenWithFile.DisplayName;
+                                                    }
+                                                    else
+                                                    {
+                                                        FileOpenWithContent.Text = AppName;
+                                                    }
                                                 }
                                             }
                                             else
@@ -1759,7 +1763,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    SHA1Progress.Value = 0; 
+                    SHA1Progress.Value = 0;
                     SHA1Progress.IsIndeterminate = false;
 
                     SHA1TextBox.IsEnabled = false;

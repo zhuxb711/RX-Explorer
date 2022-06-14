@@ -4731,6 +4731,14 @@ Las denominaciones no válidas son:
           <source>Label</source>
           <target state="translated">Etiqueta</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_RotationFailed_Content" translate="yes" xml:space="preserve">
+          <source>Failed to rotate the image</source>
+          <target state="translated">Error al rotar la imagen</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerZoomButton.Label" translate="yes" xml:space="preserve">
+          <source>Zoom</source>
+          <target state="translated">Zoom</target>
+        </trans-unit>
       </group>
     </body>
   </file>

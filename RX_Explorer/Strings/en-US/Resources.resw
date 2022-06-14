@@ -3667,4 +3667,10 @@ Invalid names include
   <data name="CustomLabelColorAndLabelBox.PlaceholderText" xml:space="preserve">
     <value>Please enter the text you wish to use</value>
   </data>
+  <data name="QueueDialog_RotationFailed_Content" xml:space="preserve">
+    <value>Failed to rotate the image</value>
+  </data>
+  <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
 </root>

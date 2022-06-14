@@ -1,12 +1,10 @@
-﻿using ComputerVision;
-using ShareClassLibrary;
+﻿using ShareClassLibrary;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Graphics.Imaging;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
@@ -15,13 +13,11 @@ namespace RX_Explorer.Class
 {
     public sealed class PhotoDisplayItem : INotifyPropertyChanged
     {
-        public BitmapImage ActualSource { get; }
+        public BitmapImage ActualSource { get; private set; }
 
-        public BitmapImage ThumbnailSource { get; }
+        public BitmapImage ThumbnailSource { get; private set; }
 
         public string FileName => PhotoFile.Name;
-
-        public int RotateAngle { get; set; }
 
         public bool IsErrorInLoading { get; private set; }
 
@@ -32,122 +28,93 @@ namespace RX_Explorer.Class
         private int ActualLoaded;
         private int ThumbnailLoaded;
 
-        public PhotoDisplayItem(FileSystemStorageFile PhotoFile) : this()
+        public PhotoDisplayItem(FileSystemStorageFile PhotoFile)
         {
             this.PhotoFile = PhotoFile;
         }
 
-        public PhotoDisplayItem(BitmapImage Image) : this()
+        public PhotoDisplayItem(BitmapImage Image)
         {
             ActualSource = Image;
+            ThumbnailSource = Image;
+            Interlocked.Exchange(ref ActualLoaded, 1);
+            Interlocked.Exchange(ref ThumbnailLoaded, 1);
         }
 
-        private PhotoDisplayItem()
+        public async Task GenerateActualSourceAsync(bool ForceUpdate = false)
         {
-            ActualSource = new BitmapImage();
-            ThumbnailSource = new BitmapImage();
-        }
+            if (ForceUpdate)
+            {
+                Interlocked.CompareExchange(ref ActualLoaded, 0, 1);
+            }
 
-        public async Task GenerateActualSourceAsync()
-        {
             if (Interlocked.CompareExchange(ref ActualLoaded, 1, 0) == 0)
             {
-                try
+                if (PhotoFile != null)
                 {
-                    using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                    {
-                        await ActualSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
-                    }
-                }
-                catch (Exception ex)
-                {
-                    IsErrorInLoading = true;
-                    OnPropertyChanged(nameof(IsErrorInLoading));
-                    LogTracer.Log(ex, "Could not get the image data from file");
-                }
-                finally
-                {
-                    OnPropertyChanged(nameof(ActualSource));
-                }
-            }
-        }
+                    ActualSource = new BitmapImage();
 
-        public async Task GenerateThumbnailAsync()
-        {
-            if (Interlocked.CompareExchange(ref ThumbnailLoaded, 1, 0) == 0)
-            {
-                try
-                {
                     try
-                    {
-                        using (IRandomAccessStream ThumbnailStream = await PhotoFile.GetThumbnailRawStreamAsync(ThumbnailMode.PicturesView))
-                        {
-                            await ThumbnailSource.SetSourceAsync(ThumbnailStream);
-                        }
-                    }
-                    catch (Exception)
                     {
                         using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                         {
-                            await ThumbnailSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
+                            await ActualSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not get the thumbnail data from file");
-                }
-                finally
-                {
-                    OnPropertyChanged(nameof(ThumbnailSource));
+                    catch (Exception ex)
+                    {
+                        IsErrorInLoading = true;
+                        OnPropertyChanged(nameof(IsErrorInLoading));
+                        LogTracer.Log(ex, "Could not get the image data from file");
+                    }
+                    finally
+                    {
+                        OnPropertyChanged(nameof(ActualSource));
+                    }
                 }
             }
         }
 
-        public async Task<SoftwareBitmap> GenerateImageWithRotation()
+        public async Task GenerateThumbnailAsync(bool ForceUpdate = false)
         {
-            try
+            if (ForceUpdate)
             {
-                using (Stream Stream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                {
-                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream.AsRandomAccessStream());
+                Interlocked.CompareExchange(ref ThumbnailLoaded, 0, 1);
+            }
 
-                    switch (RotateAngle % 360)
+            if (Interlocked.CompareExchange(ref ThumbnailLoaded, 1, 0) == 0)
+            {
+                if (PhotoFile != null)
+                {
+                    try
                     {
-                        case 0:
+                        ThumbnailSource = new BitmapImage();
+
+                        try
+                        {
+                            using (IRandomAccessStream ThumbnailStream = await PhotoFile.GetThumbnailRawStreamAsync(ThumbnailMode.PicturesView, ForceUpdate))
                             {
-                                return await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+                                await ThumbnailSource.SetSourceAsync(ThumbnailStream);
                             }
-                        case 90:
+                        }
+                        catch (Exception)
+                        {
+                            using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                             {
-                                using (SoftwareBitmap Origin = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                {
-                                    return ComputerVisionProvider.RotateEffect(Origin, 90);
-                                }
+                                await ThumbnailSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
                             }
-                        case 180:
-                            {
-                                using (SoftwareBitmap Origin = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                {
-                                    return ComputerVisionProvider.RotateEffect(Origin, 180);
-                                }
-                            }
-                        case 270:
-                            {
-                                using (SoftwareBitmap Origin = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                {
-                                    return ComputerVisionProvider.RotateEffect(Origin, -90);
-                                }
-                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not get the thumbnail data from file");
+                    }
+                    finally
+                    {
+                        OnPropertyChanged(nameof(ThumbnailSource));
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not generate the image with specific rotation");
-            }
-
-            return null;
         }
 
         private void OnPropertyChanged([CallerMemberName] string PropertyName = null)

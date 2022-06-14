@@ -65,12 +65,9 @@ namespace RX_Explorer.Dialog
                 string DriveName = RenameDrive.Name;
                 DesireNameMap.Add(DriveName, DriveName);
                 Preview.Text = $"{DriveName}\r⋙⋙   ⋙⋙   ⋙⋙\r{DriveName}";
-                RenameText.SelectAll();
             }
             else
             {
-                FileSystemStorageItemBase BaseItem = RenameFileList.First();
-
                 if (RenameFileList.Count > 1)
                 {
                     foreach (FileSystemStorageItemBase Item in RenameFileList)
@@ -82,21 +79,9 @@ namespace RX_Explorer.Dialog
                 }
                 else
                 {
-                    string OriginName = BaseItem.Name;
+                    string OriginName = RenameFileList.Single().Name;
                     DesireNameMap.Add(OriginName, OriginName);
                     Preview.Text = $"{OriginName}\r⋙⋙   ⋙⋙   ⋙⋙\r{OriginName}";
-                }
-
-                if (BaseItem is FileSystemStorageFile File)
-                {
-                    if (File.Name != Path.GetExtension(File.Name))
-                    {
-                        RenameText.Select(0, File.Name.Length - Path.GetExtension(File.Name).Length);
-                    }
-                }
-                else
-                {
-                    RenameText.SelectAll();
                 }
             }
         }
@@ -120,86 +105,77 @@ namespace RX_Explorer.Dialog
 
         private async void RenameText_TextChanged(object sender, TextChangedEventArgs e)
         {
-            await TextChangeLock.WaitAsync();
-
-            try
+            if (string.IsNullOrWhiteSpace(RenameText.Text) || !FileSystemItemNameChecker.IsValid(RenameText.Text))
             {
-                DesireNameMap.Clear();
+                PreviewArea.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            }
+            else
+            {
+                await TextChangeLock.WaitAsync();
 
-                if (RenameDrive != null)
+                try
                 {
-                    string DriveName = RenameDrive.Name;
-                    DesireNameMap.Add(DriveName, RenameText.Text);
-                    Preview.Text = $"{DriveName}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";
-                }
-                else
-                {
-                    FileSystemStorageItemBase BaseItem = RenameFileList.First();
+                    DesireNameMap.Clear();
+                    PreviewArea.Visibility = Windows.UI.Xaml.Visibility.Visible;
 
-                    if (RenameFileList.Count > 1)
+                    if (RenameDrive != null)
                     {
-                        if (RenameText.Text == BaseItem.Name)
-                        {
-                            foreach (FileSystemStorageItemBase Item in RenameFileList)
-                            {
-                                DesireNameMap.Add(Item.Name, Item.Name);
-                            }
-                        }
-                        else
-                        {
-                            StorageItemTypes BaseTypes = BaseItem switch
-                            {
-                                FileSystemStorageFile => StorageItemTypes.File,
-                                FileSystemStorageFolder => StorageItemTypes.Folder,
-                                _ => StorageItemTypes.None
-                            };
-
-                            HashSet<string> ExceptPath = new HashSet<string>();
-
-                            foreach (FileSystemStorageItemBase Item in RenameFileList)
-                            {
-                                string UniquePath = await GenerateUniquePath(Path.Combine(Path.GetDirectoryName(BaseItem.Path), Path.GetFileNameWithoutExtension(RenameText.Text) + Path.GetExtension(Item.Path)), BaseTypes, ExceptPath);
-                                string UniqueName = Path.GetFileName(UniquePath);
-
-                                ExceptPath.Add(UniquePath);
-                                DesireNameMap.Add(Item.Name, UniqueName);
-                            }
-                        }
-
-                        Preview.Text = string.Join(Environment.NewLine + Environment.NewLine, DesireNameMap.Select((Pair) => $"{Pair.Key}\r⋙⋙   ⋙⋙   ⋙⋙\r{Pair.Value}"));
+                        string DriveName = RenameDrive.Name;
+                        DesireNameMap.Add(DriveName, RenameText.Text);
+                        Preview.Text = $"{DriveName}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";
                     }
                     else
                     {
-                        string OriginName = BaseItem.Name;
-                        DesireNameMap.Add(OriginName, RenameText.Text);
-                        Preview.Text = $"{OriginName}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";
+                        FileSystemStorageItemBase BaseItem = RenameFileList.First();
+
+                        if (RenameFileList.Count > 1)
+                        {
+                            if (RenameText.Text == BaseItem.Name)
+                            {
+                                foreach (FileSystemStorageItemBase Item in RenameFileList)
+                                {
+                                    DesireNameMap.Add(Item.Name, Item.Name);
+                                }
+                            }
+                            else
+                            {
+                                StorageItemTypes BaseTypes = BaseItem switch
+                                {
+                                    FileSystemStorageFile => StorageItemTypes.File,
+                                    FileSystemStorageFolder => StorageItemTypes.Folder,
+                                    _ => StorageItemTypes.None
+                                };
+
+                                HashSet<string> ExceptPath = new HashSet<string>();
+
+                                foreach (FileSystemStorageItemBase Item in RenameFileList)
+                                {
+                                    string UniquePath = await GenerateUniquePath(Path.Combine(Path.GetDirectoryName(BaseItem.Path), Path.GetFileNameWithoutExtension(RenameText.Text) + Path.GetExtension(Item.Path)), BaseTypes, ExceptPath);
+                                    string UniqueName = Path.GetFileName(UniquePath);
+
+                                    ExceptPath.Add(UniquePath);
+                                    DesireNameMap.Add(Item.Name, UniqueName);
+                                }
+                            }
+
+                            Preview.Text = string.Join(Environment.NewLine + Environment.NewLine, DesireNameMap.Select((Pair) => $"{Pair.Key}\r⋙⋙   ⋙⋙   ⋙⋙\r{Pair.Value}"));
+                        }
+                        else
+                        {
+                            string OriginName = BaseItem.Name;
+                            DesireNameMap.Add(OriginName, RenameText.Text);
+                            Preview.Text = $"{OriginName}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(RenameText_TextChanged)}");
-            }
-            finally
-            {
-                TextChangeLock?.Release();
-            }
-        }
-
-        private void RenameText_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
-        {
-            if (RenameDrive != null)
-            {
-                if (string.IsNullOrWhiteSpace(args.NewText))
+                catch (Exception ex)
                 {
-                    args.Cancel = true;
-                    InvalidNameTip.IsOpen = true;
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(RenameText_TextChanged)}");
                 }
-            }
-            else if (!FileSystemItemNameChecker.IsValid(args.NewText))
-            {
-                args.Cancel = true;
-                InvalidNameTip.IsOpen = true;
+                finally
+                {
+                    TextChangeLock?.Release();
+                }
             }
         }
 
@@ -223,6 +199,25 @@ namespace RX_Explorer.Dialog
             }
 
             return UniquePath;
+        }
+
+        private void RenameText_GotFocus(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            if (RenameDrive != null)
+            {
+                RenameText.SelectAll();
+            }
+            else if (RenameFileList.First() is FileSystemStorageFile File)
+            {
+                if (File.Name != Path.GetExtension(File.Name))
+                {
+                    RenameText.Select(0, File.Name.Length - Path.GetExtension(File.Name).Length);
+                }
+            }
+            else
+            {
+                RenameText.SelectAll();
+            }
         }
     }
 }

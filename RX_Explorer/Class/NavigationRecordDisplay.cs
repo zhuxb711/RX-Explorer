@@ -41,13 +41,6 @@ namespace RX_Explorer.Class
                             }
 
                             Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView);
-
-                            if (Thumbnail == null)
-                            {
-                                Thumbnail = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
-                                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
-                            }
                         }
                     }
                 }

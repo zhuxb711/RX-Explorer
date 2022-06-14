@@ -27,12 +27,14 @@ namespace RX_Explorer.Class
 
         public override string DisplayName => RelatedPath == @"\" ? ClientController.ServerHost : base.DisplayName;
 
-        protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
+        protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            return Task.FromResult<BitmapImage>(null);
+            return Task.FromResult(new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                            ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                            : new Uri("ms-appx:///Assets/FolderIcon_Win10.png")));
         }
 
-        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
             try
             {

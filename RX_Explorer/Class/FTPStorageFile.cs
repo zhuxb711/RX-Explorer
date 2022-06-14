@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -26,7 +27,7 @@ namespace RX_Explorer.Class
 
         public override string DisplayType => string.IsNullOrEmpty(InnerDisplayType) ? Type : InnerDisplayType;
 
-        protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
+        protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
             async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
             {
@@ -37,7 +38,9 @@ namespace RX_Explorer.Class
                     return Thumbnail;
                 }
 
-                return null;
+                return new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
+                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
             }
 
             if (GetBulkAccessSharedController(out var ControllerRef))
@@ -56,11 +59,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
             try
             {
-                async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
+                async Task<IRandomAccessStream> GetRawStreamCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
                 {
                     if (await Exclusive.Controller.GetThumbnailAsync(Type) is Stream ThumbnailStream)
                     {
@@ -74,14 +77,14 @@ namespace RX_Explorer.Class
                 {
                     using (ControllerRef)
                     {
-                        return await GetThumbnailRawStreamCoreAsync(ControllerRef.Value);
+                        return await GetRawStreamCoreAsync(ControllerRef.Value);
                     }
                 }
                 else
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        return await GetThumbnailRawStreamCoreAsync(Exclusive);
+                        return await GetRawStreamCoreAsync(Exclusive);
                     }
                 }
             }

@@ -83,11 +83,10 @@ namespace RX_Explorer.Class
         public static async Task<ProgramPickerItem> CreateAsync(FileSystemStorageFile File)
         {
             IReadOnlyDictionary<string, string> PropertiesDic = await File.GetPropertiesAsync(new string[] { "System.FileDescription" });
-            BitmapImage Thumbnail = await File.GetThumbnailAsync(ThumbnailMode.SingleItem);
 
             string ExtraAppName = PropertiesDic["System.FileDescription"];
 
-            return new ProgramPickerItem(Thumbnail,
+            return new ProgramPickerItem(await File.GetThumbnailAsync(ThumbnailMode.SingleItem),
                                          string.IsNullOrEmpty(ExtraAppName) ? File.DisplayName : ExtraAppName,
                                          Globalization.GetString("Application_Admin_Name"),
                                          File.Path);

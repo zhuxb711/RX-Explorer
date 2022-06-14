@@ -101,8 +101,6 @@ namespace RX_Explorer.Dialog
                     case ".jpeg":
                     case ".png":
                     case ".bmp":
-                    case ".heic":
-                    case ".tiff":
                     case ".mkv":
                     case ".mp4":
                     case ".mp3":

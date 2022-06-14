@@ -45,12 +45,12 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
+        protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
             return Task.FromResult(new BitmapImage(new Uri("ms-appx:///Assets/ThisPC.png")));
         }
 
-        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
             try
             {

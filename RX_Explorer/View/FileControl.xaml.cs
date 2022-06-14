@@ -992,16 +992,7 @@ namespace RX_Explorer.View
             {
                 if (CurrentPresenter?.CurrentFolder != null)
                 {
-                    BitmapImage TabIconImage = await CurrentPresenter.CurrentFolder.GetThumbnailAsync(ThumbnailMode.ListView);
-
-                    if (TabIconImage != null)
-                    {
-                        Renderer.TabItem.IconSource = new ImageIconSource { ImageSource = TabIconImage };
-                    }
-                    else
-                    {
-                        Renderer.TabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
-                    }
+                    Renderer.TabItem.IconSource = new ImageIconSource { ImageSource = await CurrentPresenter.CurrentFolder.GetThumbnailAsync(ThumbnailMode.ListView) };
                 }
                 else
                 {

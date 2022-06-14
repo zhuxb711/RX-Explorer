@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -98,8 +99,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
+        protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
+            if (ForceUpdate)
+            {
+                RawData = await GetRawDataAsync();
+            }
+
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
                 BitmapImage Thumbnail = new BitmapImage();
@@ -112,20 +118,30 @@ namespace RX_Explorer.Class
                 return Thumbnail;
             }
 
-            return null;
+            return new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
+                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
         }
 
-        protected override Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
+            if (ForceUpdate)
+            {
+                RawData = await GetRawDataAsync();
+            }
+
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
                 using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
                 {
-                    return Task.FromResult(IconStream.AsRandomAccessStream());
+                    return IconStream.AsRandomAccessStream();
                 }
             }
 
-            return null;
+            StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                                                                                ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
+                                                                                                                : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+            return await ThumbnailFile.OpenReadAsync();
         }
 
         public LinkStorageFile(NativeFileData Data) : base(Data)

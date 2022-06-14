@@ -18,6 +18,8 @@ using Windows.System.UserProfile;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
@@ -27,15 +29,23 @@ namespace RX_Explorer.View
 {
     public sealed partial class PhotoViewer : Page
     {
-        private readonly ObservableCollection<PhotoDisplayItem> PhotoCollection = new ObservableCollection<PhotoDisplayItem>();
-
         private int LastSelectIndex;
+        private int RotationLocker;
+        private Point LastZoomCenter;
         private EndUsageNotification MTPEndOfShare;
         private CancellationTokenSource Cancellation;
+        private readonly ObservableCollection<PhotoDisplayItem> PhotoCollection;
 
         public PhotoViewer()
         {
             InitializeComponent();
+            PhotoCollection = new ObservableCollection<PhotoDisplayItem>();
+            PhotoCollection.CollectionChanged += PhotoCollection_CollectionChanged;
+        }
+
+        private void PhotoCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            Pips.NumberOfPages = PhotoCollection.Count;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -57,8 +67,6 @@ namespace RX_Explorer.View
 
             try
             {
-                PhotoFlip.SelectedItem = null;
-
                 if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
                     using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
@@ -80,8 +88,8 @@ namespace RX_Explorer.View
                                 }
 
                                 PhotoCollection.Add(new PhotoDisplayItem(Image));
-                                PhotoFlip.SelectedItem = 0;
-                                Pips.NumberOfPages = PhotoCollection.Count;
+                                PhotoGirdView.SelectedIndex = -1;
+                                PhotoGirdView.SelectedIndex = 0;
 
                                 await Task.Delay(1000);
                             }
@@ -123,8 +131,8 @@ namespace RX_Explorer.View
 
                                 return new PhotoDisplayItem(Item);
                             }));
-                            PhotoFlip.SelectedIndex = SelectedIndex;
-                            Pips.NumberOfPages = PhotoCollection.Count;
+                            PhotoGirdView.SelectedIndex = -1;
+                            PhotoGirdView.SelectedIndex = SelectedIndex;
 
                             await Task.Delay(1000);
                         }
@@ -190,38 +198,56 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void PhotoFlip_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void ImageRotate_Click(object sender, RoutedEventArgs e)
         {
-            foreach (PhotoDisplayItem Item in e.AddedItems)
+            if (PhotoGirdView.SelectedItem is PhotoDisplayItem Item)
             {
-                int CurrentIndex = PhotoCollection.IndexOf(Item);
-
-                if (CurrentIndex >= 0 && CurrentIndex < PhotoCollection.Count)
+                if (Interlocked.CompareExchange(ref RotationLocker, 1, 0) == 0)
                 {
                     try
                     {
-                        int LastIndex = Interlocked.Exchange(ref LastSelectIndex, CurrentIndex);
-
-                        if (LastIndex >= 0 && LastIndex < PhotoCollection.Count)
+                        if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
                         {
-                            PhotoFlip.ContainerFromIndex(LastIndex)?.FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
+                            Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
+                            ZoomTransform(ImageControl, CenterPoint, 1);
+                            LastZoomCenter = CenterPoint;
                         }
 
-                        await PhotoCollection[CurrentIndex].GenerateActualSourceAsync();
+                        using (Stream FileStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.RandomAccess))
+                        using (InMemoryRandomAccessStream MemoryStream = new InMemoryRandomAccessStream())
+                        {
+                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(FileStream.AsRandomAccessStream());
+                            BitmapEncoder Encoder = await BitmapEncoder.CreateForTranscodingAsync(MemoryStream, Decoder);
+                            Encoder.BitmapTransform.Rotation = BitmapRotation.Clockwise90Degrees;
+
+                            await Encoder.FlushAsync();
+
+                            MemoryStream.Seek(0);
+                            FileStream.SetLength(0);
+
+                            await MemoryStream.AsStreamForRead().CopyToAsync(FileStream);
+                        }
+
+                        await Task.WhenAll(Item.GenerateActualSourceAsync(true), Item.GenerateThumbnailAsync(true));
                     }
                     catch (Exception ex)
                     {
-                        LogTracer.Log(ex, "Could not load the image on selection changed");
+                        LogTracer.Log(ex, "Could not rotate the image");
+
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_RotationFailed_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
+                    finally
+                    {
+                        Interlocked.Exchange(ref RotationLocker, 0);
                     }
                 }
-            }
-        }
-
-        private void ImageRotate_Click(object sender, RoutedEventArgs e)
-        {
-            if ((sender as FrameworkElement)?.DataContext is PhotoDisplayItem Item)
-            {
-                Item.RotateAngle += 90;
             }
         }
 
@@ -229,24 +255,42 @@ namespace RX_Explorer.View
         {
             try
             {
-                FileSystemStorageFile Item = PhotoCollection[PhotoFlip.SelectedIndex].PhotoFile;
-
-                BitmapDecoder Decoder = null;
-
-                using (Stream OriginStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                if (PhotoGirdView.SelectedItem is PhotoDisplayItem Item)
                 {
-                    Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
-                }
+                    if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
+                    {
+                        Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
+                        ZoomTransform(ImageControl, CenterPoint, 1);
+                        LastZoomCenter = CenterPoint;
+                    }
 
-                TranscodeImageDialog Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
+                    BitmapDecoder Decoder = null;
 
-                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                {
-                    TranscodeLoadingControl.IsLoading = true;
+                    using (Stream OriginStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    {
+                        Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
+                    }
 
-                    await Task.WhenAll(Task.Delay(500), GeneralTransformer.TranscodeFromImageAsync(Item, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode));
+                    TranscodeImageDialog Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
 
-                    TranscodeLoadingControl.IsLoading = false;
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        TranscodeLoadingControl.IsLoading = true;
+
+                        try
+                        {
+                            using (Stream SourceStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                            using (IRandomAccessStream ResultStream = await GeneralTransformer.TranscodeFromImageAsync(SourceStream.AsRandomAccessStream(), Dialog.TargetFile.Type, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode))
+                            using (Stream TargetStream = await Dialog.TargetFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                            {
+                                await ResultStream.AsStreamForRead().CopyToAsync(TargetStream);
+                            }
+                        }
+                        finally
+                        {
+                            TranscodeLoadingControl.IsLoading = false;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -266,12 +310,45 @@ namespace RX_Explorer.View
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            if (PhotoFlip.SelectedItem is PhotoDisplayItem Item)
+            if (PhotoGirdView.SelectedItem is PhotoDisplayItem Item)
             {
+                if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
+                {
+                    Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
+                    ZoomTransform(ImageControl, CenterPoint, 1);
+                    LastZoomCenter = CenterPoint;
+                }
+
                 try
                 {
-                    PhotoCollection.Remove(Item);
-                    await Item.PhotoFile.DeleteAsync(true);
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
+                        Content = Globalization.GetString("QueueDialog_DeleteFiles_Content")
+                    };
+
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        await Item.PhotoFile.DeleteAsync(false);
+
+                        int Index = PhotoCollection.IndexOf(Item);
+
+                        if (Index >= 0 && Index < PhotoCollection.Count)
+                        {
+                            if (Index + 1 < PhotoCollection.Count)
+                            {
+                                PhotoGirdView.SelectedIndex = Index + 1;
+                            }
+                            else
+                            {
+                                PhotoGirdView.SelectedIndex = Index - 1;
+                            }
+
+                            PhotoCollection.RemoveAt(Index);
+                        }
+                    }
                 }
                 catch (Exception)
                 {
@@ -291,9 +368,14 @@ namespace RX_Explorer.View
         {
             try
             {
-                if (PhotoCollection.Count > 0)
+                if (PhotoGirdView.SelectedItem is PhotoDisplayItem Item)
                 {
-                    PhotoDisplayItem Item = PhotoCollection[Math.Min(Math.Max(0, PhotoFlip.SelectedIndex), PhotoCollection.Count - 1)];
+                    if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
+                    {
+                        Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
+                        ZoomTransform(ImageControl, CenterPoint, 1);
+                        LastZoomCenter = CenterPoint;
+                    }
 
                     if (AnimationController.Current.IsEnableAnimation)
                     {
@@ -315,24 +397,20 @@ namespace RX_Explorer.View
         {
             try
             {
-                if (!UserProfilePersonalizationSettings.IsSupported())
+                if (UserProfilePersonalizationSettings.IsSupported())
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    if (PhotoGirdView.SelectedItem is PhotoDisplayItem Item)
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_SetWallpaperNotSupport_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    if (PhotoFlip.SelectedItem is PhotoDisplayItem Photo)
-                    {
-                        if (await Photo.PhotoFile.GetStorageItemAsync() is StorageFile File)
+                        if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
                         {
-                            StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.LocalFolder, Photo.PhotoFile.Name, NameCollisionOption.GenerateUniqueName);
+                            Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
+                            ZoomTransform(ImageControl, CenterPoint, 1);
+                            LastZoomCenter = CenterPoint;
+                        }
+
+                        if (await Item.PhotoFile.GetStorageItemAsync() is StorageFile File)
+                        {
+                            StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, Item.PhotoFile.Name, NameCollisionOption.GenerateUniqueName);
 
                             try
                             {
@@ -377,6 +455,17 @@ namespace RX_Explorer.View
                         }
                     }
                 }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_SetWallpaperNotSupport_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync().ConfigureAwait(false);
+                }
             }
             catch
             {
@@ -404,30 +493,41 @@ namespace RX_Explorer.View
 
         private async void PhotoGirdView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (PhotoGirdView.SelectedIndex >= 0)
+            foreach (PhotoDisplayItem Item in e.AddedItems)
             {
-                PhotoFlip.SelectedIndex = PhotoGirdView.SelectedIndex;
+                try
+                {
+                    int LastIndex = Interlocked.Exchange(ref LastSelectIndex, PhotoCollection.IndexOf(Item));
 
-                if (PhotoGirdView.IsLoaded)
-                {
-                    await PhotoGirdView.SmoothScrollIntoViewWithIndexAsync(PhotoGirdView.SelectedIndex, ScrollItemPlacement.Center);
+                    if (LastIndex >= 0 && LastIndex < PhotoCollection.Count)
+                    {
+                        if (PhotoFlip.ContainerFromIndex(LastIndex)?.FindChildOfType<Image>() is Image ImageControl)
+                        {
+                            Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
+                            ZoomTransform(ImageControl, CenterPoint, 1);
+                            LastZoomCenter = CenterPoint;
+                        }
+                    }
+
+                    await Item.GenerateActualSourceAsync();
+
+                    if (PhotoGirdView.IsLoaded)
+                    {
+                        await PhotoGirdView.SmoothScrollIntoViewWithItemAsync(Item, ScrollItemPlacement.Center);
+                    }
+                    else
+                    {
+                        PhotoGirdView.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    PhotoGirdView.ScrollIntoView(PhotoCollection[PhotoGirdView.SelectedIndex], ScrollIntoViewAlignment.Leading);
+                    LogTracer.Log(ex, "Could not load the image on selection changed");
                 }
             }
         }
 
-        private void Pips_SelectedIndexChanged(Microsoft.UI.Xaml.Controls.PipsPager sender, Microsoft.UI.Xaml.Controls.PipsPagerSelectedIndexChangedEventArgs args)
-        {
-            if (sender.SelectedPageIndex >= 0 && sender.SelectedPageIndex < PhotoCollection.Count)
-            {
-                PhotoFlip.SelectedIndex = sender.SelectedPageIndex;
-            }
-        }
-
-        private void Image_ManipulationDelta(object sender, Windows.UI.Xaml.Input.ManipulationDeltaRoutedEventArgs e)
+        private void Image_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
             if (sender is Image ImageControl)
             {
@@ -439,14 +539,14 @@ namespace RX_Explorer.View
                     {
                         if (LeftTopPoint.X < 0)
                         {
-                            ScaleTransform.TranslateX += e.Delta.Translation.X;
+                            ScaleTransform.TranslateX += Math.Min(Math.Abs(LeftTopPoint.X), e.Delta.Translation.X);
                         }
                     }
                     else
                     {
-                        if (LeftTopPoint.X + ImageControl.ActualWidth * ScaleTransform.ScaleX > PhotoFlip.ActualWidth)
+                        if (LeftTopPoint.X > PhotoFlip.ActualWidth - ImageControl.ActualWidth * ScaleTransform.ScaleX)
                         {
-                            ScaleTransform.TranslateX += e.Delta.Translation.X;
+                            ScaleTransform.TranslateX += Math.Max(PhotoFlip.ActualWidth - LeftTopPoint.X - ImageControl.ActualWidth * ScaleTransform.ScaleX, e.Delta.Translation.X);
                         }
                     }
 
@@ -454,121 +554,176 @@ namespace RX_Explorer.View
                     {
                         if (LeftTopPoint.Y < 0)
                         {
-                            ScaleTransform.TranslateY += e.Delta.Translation.Y;
+                            ScaleTransform.TranslateY += Math.Min(Math.Abs(LeftTopPoint.Y), e.Delta.Translation.Y);
                         }
                     }
                     else
                     {
                         if (LeftTopPoint.Y + ImageControl.ActualHeight * ScaleTransform.ScaleY > PhotoFlip.ActualHeight)
                         {
-                            ScaleTransform.TranslateY += e.Delta.Translation.Y;
+                            ScaleTransform.TranslateY += Math.Max(PhotoFlip.ActualHeight - LeftTopPoint.Y - ImageControl.ActualHeight * ScaleTransform.ScaleY, e.Delta.Translation.Y);
                         }
                     }
                 }
             }
         }
 
-        private void Image_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private void Image_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             if (sender is Image ImageControl)
             {
-                if (ImageControl.RenderTransform is CompositeTransform ScaleTransform)
+                ZoomSlider.ValueChanged -= ZoomSlider_ValueChanged;
+
+                if (ZoomSlider.Value == 1)
                 {
-                    Storyboard Board = new Storyboard();
-
-                    DoubleAnimation ScaleXAnimation;
-                    DoubleAnimation ScaleYAnimation;
-
-                    if (ScaleTransform.ScaleX > 1 && ScaleTransform.ScaleY > 1)
-                    {
-                        ScaleXAnimation = new DoubleAnimation
-                        {
-                            From = 2,
-                            To = 1,
-                            Duration = TimeSpan.FromMilliseconds(300),
-                            EnableDependentAnimation = true
-                        };
-
-                        ScaleYAnimation = new DoubleAnimation
-                        {
-                            From = 2,
-                            To = 1,
-                            Duration = TimeSpan.FromMilliseconds(300),
-                            EnableDependentAnimation = true
-                        };
-
-                        DoubleAnimation TransformXAnimation = new DoubleAnimation
-                        {
-                            From = ScaleTransform.TranslateX,
-                            To = 0,
-                            Duration = TimeSpan.FromMilliseconds(300),
-                            EnableDependentAnimation = true
-                        };
-
-                        DoubleAnimation TransformYAnimation = new DoubleAnimation
-                        {
-                            From = ScaleTransform.TranslateY,
-                            To = 0,
-                            Duration = TimeSpan.FromMilliseconds(300),
-                            EnableDependentAnimation = true
-                        };
-
-                        Storyboard.SetTarget(TransformXAnimation, ImageControl);
-                        Storyboard.SetTargetProperty(TransformXAnimation, "(UIElement.RenderTransform).(CompositeTransform.TranslateX)");
-
-                        Storyboard.SetTarget(TransformYAnimation, ImageControl);
-                        Storyboard.SetTargetProperty(TransformYAnimation, "(UIElement.RenderTransform).(CompositeTransform.TranslateY)");
-
-                        Board.Children.Add(TransformXAnimation);
-                        Board.Children.Add(TransformYAnimation);
-                    }
-                    else
-                    {
-                        Point ClickPoint = e.GetPosition(ImageControl);
-                        Point RelatedPoint = e.GetPosition(PhotoFlip);
-
-                        ScaleTransform.CenterX = Math.Min(Math.Max(RelatedPoint.X - ClickPoint.X, ClickPoint.X), PhotoFlip.ActualWidth - 3 * (RelatedPoint.X - ClickPoint.X));
-                        ScaleTransform.CenterY = Math.Min(Math.Max(RelatedPoint.Y - ClickPoint.Y, ClickPoint.Y), PhotoFlip.ActualHeight - 3 * (RelatedPoint.Y - ClickPoint.Y));
-
-                        ScaleXAnimation = new DoubleAnimation
-                        {
-                            From = 1,
-                            To = 2,
-                            Duration = TimeSpan.FromMilliseconds(300),
-                            EnableDependentAnimation = true
-                        };
-
-                        ScaleYAnimation = new DoubleAnimation
-                        {
-                            From = 1,
-                            To = 2,
-                            Duration = TimeSpan.FromMilliseconds(300),
-                            EnableDependentAnimation = true
-                        };
-                    }
-
-                    Storyboard.SetTarget(ScaleXAnimation, ImageControl);
-                    Storyboard.SetTargetProperty(ScaleXAnimation, "(UIElement.RenderTransform).(CompositeTransform.ScaleX)");
-
-                    Storyboard.SetTarget(ScaleYAnimation, ImageControl);
-                    Storyboard.SetTargetProperty(ScaleYAnimation, "(UIElement.RenderTransform).(CompositeTransform.ScaleY)");
-
-                    Board.Children.Add(ScaleXAnimation);
-                    Board.Children.Add(ScaleYAnimation);
-
-                    Board.Begin();
+                    Point CurrentPoint = e.GetPosition(ImageControl);
+                    ZoomTransform(ImageControl, CurrentPoint, 2);
+                    LastZoomCenter = CurrentPoint;
                 }
+                else
+                {
+                    ZoomTransform(ImageControl, e.GetPosition(ImageControl), 1);
+                    LastZoomCenter = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
+                }
+
+                ZoomSlider.ValueChanged += ZoomSlider_ValueChanged;
             }
         }
 
-        private void Image_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void Image_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Hand, 0);
         }
 
-        private void Image_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void Image_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Arrow, 0);
+        }
+
+        private void ZoomSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            if (PhotoGirdView?.SelectedItem is PhotoDisplayItem Item)
+            {
+                if (PhotoFlip.ContainerFromItem(Item).FindChildOfType<Image>() is Image ImageControl)
+                {
+                    if (e.NewValue == 1)
+                    {
+                        Point CenterPoint = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
+                        ZoomTransform(ImageControl, CenterPoint, 1);
+                        LastZoomCenter = CenterPoint;
+                    }
+                    else
+                    {
+                        if (LastZoomCenter == default)
+                        {
+                            LastZoomCenter = new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2);
+                        }
+
+                        ZoomTransform(ImageControl, LastZoomCenter, e.NewValue);
+                    }
+                }
+            }
+        }
+
+        private void ZoomTransform(FrameworkElement Element, Point CenterPoint, double ZoomFactor)
+        {
+            ZoomSlider.Value = ZoomFactor;
+
+            if (Element.RenderTransform is CompositeTransform ScaleTransform)
+            {
+                Storyboard Board = new Storyboard();
+
+                DoubleAnimation ScaleXAnimation;
+                DoubleAnimation ScaleYAnimation;
+
+                if (ZoomFactor == 1)
+                {
+                    ScaleXAnimation = new DoubleAnimation
+                    {
+                        From = ScaleTransform.ScaleX,
+                        To = 1,
+                        Duration = TimeSpan.FromMilliseconds(300),
+                        EnableDependentAnimation = true
+                    };
+
+                    ScaleYAnimation = new DoubleAnimation
+                    {
+                        From = ScaleTransform.ScaleY,
+                        To = 1,
+                        Duration = TimeSpan.FromMilliseconds(300),
+                        EnableDependentAnimation = true
+                    };
+                }
+                else
+                {
+                    Point RelatedPoint = Element.TransformToVisual(PhotoFlip).TransformPoint(CenterPoint);
+
+                    double EmptyXWidth = RelatedPoint.X - CenterPoint.X;
+                    double EmptyYWidth = RelatedPoint.Y - CenterPoint.Y;
+
+                    if ((2 / (ZoomFactor - 1) + 2) * EmptyXWidth > PhotoFlip.ActualWidth)
+                    {
+                        ScaleTransform.CenterX = Element.ActualWidth / 2;
+                        ScaleTransform.CenterY = Element.ActualHeight / 2;
+                    }
+                    else
+                    {
+                        ScaleTransform.CenterX = Math.Min(Math.Max(EmptyXWidth / (ZoomFactor - 1), CenterPoint.X), PhotoFlip.ActualWidth - (1 / (ZoomFactor - 1) + 2) * EmptyXWidth);
+                        ScaleTransform.CenterY = Math.Min(Math.Max(EmptyYWidth / (ZoomFactor - 1), CenterPoint.Y), PhotoFlip.ActualHeight - (1 / (ZoomFactor - 1) + 2) * EmptyYWidth);
+                    }
+
+                    ScaleXAnimation = new DoubleAnimation
+                    {
+                        From = ScaleTransform.ScaleX,
+                        To = ZoomFactor,
+                        Duration = TimeSpan.FromMilliseconds(300),
+                        EnableDependentAnimation = true
+                    };
+
+                    ScaleYAnimation = new DoubleAnimation
+                    {
+                        From = ScaleTransform.ScaleY,
+                        To = ZoomFactor,
+                        Duration = TimeSpan.FromMilliseconds(300),
+                        EnableDependentAnimation = true
+                    };
+                }
+
+                DoubleAnimation TransformXAnimation = new DoubleAnimation
+                {
+                    From = ScaleTransform.TranslateX,
+                    To = 0,
+                    Duration = TimeSpan.FromMilliseconds(300),
+                    EnableDependentAnimation = true
+                };
+
+                DoubleAnimation TransformYAnimation = new DoubleAnimation
+                {
+                    From = ScaleTransform.TranslateY,
+                    To = 0,
+                    Duration = TimeSpan.FromMilliseconds(300),
+                    EnableDependentAnimation = true
+                };
+
+                Storyboard.SetTarget(TransformXAnimation, Element);
+                Storyboard.SetTargetProperty(TransformXAnimation, "(UIElement.RenderTransform).(CompositeTransform.TranslateX)");
+
+                Storyboard.SetTarget(TransformYAnimation, Element);
+                Storyboard.SetTargetProperty(TransformYAnimation, "(UIElement.RenderTransform).(CompositeTransform.TranslateY)");
+
+                Storyboard.SetTarget(ScaleXAnimation, Element);
+                Storyboard.SetTargetProperty(ScaleXAnimation, "(UIElement.RenderTransform).(CompositeTransform.ScaleX)");
+
+                Storyboard.SetTarget(ScaleYAnimation, Element);
+                Storyboard.SetTargetProperty(ScaleYAnimation, "(UIElement.RenderTransform).(CompositeTransform.ScaleY)");
+
+                Board.Children.Add(ScaleXAnimation);
+                Board.Children.Add(ScaleYAnimation);
+                Board.Children.Add(TransformXAnimation);
+                Board.Children.Add(TransformYAnimation);
+
+                Board.Begin();
+            }
         }
     }
 }

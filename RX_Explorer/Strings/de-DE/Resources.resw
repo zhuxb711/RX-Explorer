@@ -3562,4 +3562,10 @@ Inkorrekte Namen sind
   <data name="AddLabel" xml:space="preserve">
     <value>Etikett</value>
   </data>
+  <data name="QueueDialog_RotationFailed_Content" xml:space="preserve">
+    <value>Das Bild konnte nicht gedreht werden</value>
+  </data>
+  <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
+    <value>Zoomen</value>
+  </data>
 </root>

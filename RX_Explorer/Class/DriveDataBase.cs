@@ -337,7 +337,7 @@ namespace RX_Explorer.Class
         {
             BitmapImage Thumbnail = await DriveFolder.GetThumbnailAsync(ThumbnailMode.SingleItem);
 
-            if (Thumbnail == null)
+            if (!string.IsNullOrEmpty(Thumbnail?.UriSource?.AbsoluteUri))
             {
                 switch (BitlockerStatusCode)
                 {

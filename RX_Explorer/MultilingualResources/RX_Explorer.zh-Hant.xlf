@@ -4733,6 +4733,14 @@ Invalid names include
           <source>Label</source>
           <target state="translated">標籤</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_RotationFailed_Content" translate="yes" xml:space="preserve">
+          <source>Failed to rotate the image</source>
+          <target state="translated">圖片旋轉失敗</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerZoomButton.Label" translate="yes" xml:space="preserve">
+          <source>Zoom</source>
+          <target state="translated">縮放</target>
+        </trans-unit>
       </group>
     </body>
   </file>

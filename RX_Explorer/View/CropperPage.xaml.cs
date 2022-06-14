@@ -49,8 +49,13 @@ namespace RX_Explorer.View
                 if (e.Parameter is PhotoDisplayItem Item)
                 {
                     OriginFile = Item.PhotoFile;
-                    OriginImage = await Item.GenerateImageWithRotation();
-                    OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
+
+                    using (Stream FileStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    {
+                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(FileStream.AsRandomAccessStream());
+                        OriginImage = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+                        OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
+                    }
 
                     WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
                     OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
@@ -249,11 +254,6 @@ namespace RX_Explorer.View
                     case ".bmp":
                         {
                             await Cropper.SaveAsync(TempStream, BitmapFileFormat.Bmp);
-                            break;
-                        }
-                    case ".tiff":
-                        {
-                            await Cropper.SaveAsync(TempStream, BitmapFileFormat.Tiff);
                             break;
                         }
                     default:

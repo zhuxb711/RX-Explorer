@@ -4731,6 +4731,14 @@ Inkorrekte Namen sind
           <source>Label</source>
           <target state="translated">Etikett</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_RotationFailed_Content" translate="yes" xml:space="preserve">
+          <source>Failed to rotate the image</source>
+          <target state="translated">Das Bild konnte nicht gedreht werden</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerZoomButton.Label" translate="yes" xml:space="preserve">
+          <source>Zoom</source>
+          <target state="translated">Zoomen</target>
+        </trans-unit>
       </group>
     </body>
   </file>

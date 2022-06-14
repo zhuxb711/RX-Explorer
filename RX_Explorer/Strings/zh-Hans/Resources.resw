@@ -3562,4 +3562,10 @@
   <data name="AddLabel" xml:space="preserve">
     <value>标签</value>
   </data>
+  <data name="QueueDialog_RotationFailed_Content" xml:space="preserve">
+    <value>无法旋转该图片</value>
+  </data>
+  <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
+    <value>缩放</value>
+  </data>
 </root>

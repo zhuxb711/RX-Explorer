@@ -68,24 +68,14 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (Thumbnail == null)
+                    if (InnerFolder != null)
                     {
-                        if (InnerFolder != null
+                        if (Thumbnail == null
                             && SettingPage.ContentLoadMode == LoadMode.All)
                         {
                             Thumbnail = await InnerFolder.GetThumbnailAsync(ThumbnailMode.ListView);
                         }
 
-                        if (Thumbnail == null)
-                        {
-                            Thumbnail = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
-                                                            ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                            : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
-                        }
-                    }
-
-                    if (InnerFolder != null)
-                    {
                         if (InnerFolder is MTPStorageFolder MTPFolder)
                         {
                             if (MTPFolder.Path.TrimEnd('\\').Equals(MTPFolder.DeviceId, StringComparison.OrdinalIgnoreCase))

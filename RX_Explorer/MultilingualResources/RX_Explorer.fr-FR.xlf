@@ -4733,6 +4733,14 @@ Les noms non valides incluent
           <source>Label</source>
           <target state="translated">Étiquette</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_RotationFailed_Content" translate="yes" xml:space="preserve">
+          <source>Failed to rotate the image</source>
+          <target state="translated">Échec de la rotation de l'image</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerZoomButton.Label" translate="yes" xml:space="preserve">
+          <source>Zoom</source>
+          <target state="translated">Zoom</target>
+        </trans-unit>
       </group>
     </body>
   </file>

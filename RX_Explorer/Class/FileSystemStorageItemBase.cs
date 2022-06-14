@@ -856,7 +856,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        Thumbnail = await GetThumbnailCoreAsync(Mode);
+                        Thumbnail = await GetThumbnailAsync(Mode, true);
                     }
                     catch (Exception ex)
                     {
@@ -884,7 +884,7 @@ namespace RX_Explorer.Class
 
                             List<Task> ParallelLoadTasks = new List<Task>()
                             {
-                                GetThumbnailOverlayAsync()
+                                GetThumbnailOverlayAsync(),
                             };
 
                             if (ShouldGenerateThumbnail)
@@ -913,15 +913,15 @@ namespace RX_Explorer.Class
                         OnPropertyChanged(nameof(ThumbnailOverlay));
                         OnPropertyChanged(nameof(SyncStatus));
 
+                        if (ShouldGenerateThumbnail)
+                        {
+                            OnPropertyChanged(nameof(Thumbnail));
+                        }
+
                         if (this is FileSystemStorageFile)
                         {
                             OnPropertyChanged(nameof(DisplayType));
                             OnPropertyChanged(nameof(SizeDescription));
-                        }
-
-                        if (ShouldGenerateThumbnail)
-                        {
-                            OnPropertyChanged(nameof(Thumbnail));
                         }
                     }
                 };
@@ -1053,27 +1053,27 @@ namespace RX_Explorer.Class
 
         protected abstract Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate);
 
-        public async Task<IStorageItem> GetStorageItemAsync()
+        public async Task<IStorageItem> GetStorageItemAsync(bool ForceUpdate = false)
         {
             if (!IsHiddenItem && !IsSystemItem)
             {
-                return await GetStorageItemCoreAsync(false);
+                return await GetStorageItemCoreAsync(ForceUpdate);
             }
 
             return null;
         }
 
-        public async Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode)
+        public async Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            if (Thumbnail == null || !string.IsNullOrEmpty(Thumbnail.UriSource?.AbsoluteUri))
+            if (Thumbnail == null || ForceUpdate || !string.IsNullOrEmpty(Thumbnail.UriSource?.AbsoluteUri))
             {
-                Thumbnail = await GetThumbnailCoreAsync(Mode);
+                Thumbnail = await GetThumbnailCoreAsync(Mode, ForceUpdate);
             }
 
             return Thumbnail;
         }
 
-        protected virtual async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
+        protected virtual async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
             async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
             {
@@ -1089,7 +1089,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (await GetStorageItemAsync() is IStorageItem Item)
+                if (await GetStorageItemAsync(ForceUpdate) is IStorageItem Item)
                 {
                     if (await Item.GetThumbnailBitmapAsync(Mode) is BitmapImage LocalThumbnail)
                     {
@@ -1121,14 +1121,14 @@ namespace RX_Explorer.Class
         }
 
 
-        public async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode)
+        public async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            return await GetThumbnailRawStreamCoreAsync(Mode) ?? throw new NotSupportedException("Could not get the thumbnail stream");
+            return await GetThumbnailRawStreamCoreAsync(Mode, ForceUpdate) ?? throw new NotSupportedException("Could not get the thumbnail stream");
         }
 
-        protected virtual async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        protected virtual async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            if (await GetStorageItemAsync() is IStorageItem Item)
+            if (await GetStorageItemAsync(ForceUpdate) is IStorageItem Item)
             {
                 return await Item.GetThumbnailRawStreamAsync(Mode);
             }

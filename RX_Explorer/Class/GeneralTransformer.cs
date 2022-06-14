@@ -10,6 +10,7 @@ using Windows.Media.Editing;
 using Windows.Media.MediaProperties;
 using Windows.Media.Transcoding;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
 
@@ -187,21 +188,21 @@ namespace RX_Explorer.Class
         /// <param name="ScaleHeight">缩放高度</param>
         /// <param name="InterpolationMode">插值模式</param>
         /// <returns></returns>
-        public static async Task TranscodeFromImageAsync(FileSystemStorageFile SourceFile, FileSystemStorageFile DestinationFile, bool IsEnableScale = false, uint ScaleWidth = default, uint ScaleHeight = default, BitmapInterpolationMode InterpolationMode = default)
+        public static async Task<IRandomAccessStream> TranscodeFromImageAsync(IRandomAccessStream Source, string TargetType, bool IsEnableScale = false, uint ScaleWidth = default, uint ScaleHeight = default, BitmapInterpolationMode InterpolationMode = default)
         {
             try
             {
                 IsAnyTransformTaskRunning = true;
 
                 using (ExtendedExecutionController ExtExecution = await ExtendedExecutionController.CreateExtendedExecutionAsync())
-                using (Stream OriginStream = await SourceFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                 {
-                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
+                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Source);
 
                     using (SoftwareBitmap TranscodeImage = await Decoder.GetSoftwareBitmapAsync())
-                    using (Stream TargetStream = await DestinationFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
                     {
-                        BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(DestinationFile.Type.ToLower() switch
+                        InMemoryRandomAccessStream ResultStream = new InMemoryRandomAccessStream();
+
+                        BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(TargetType.ToLower() switch
                         {
                             ".png" => BitmapEncoder.PngEncoderId,
                             ".jpg" or ".jpeg" => BitmapEncoder.JpegEncoderId,
@@ -209,7 +210,7 @@ namespace RX_Explorer.Class
                             ".heic" => BitmapEncoder.HeifEncoderId,
                             ".tiff" => BitmapEncoder.TiffEncoderId,
                             _ => throw new InvalidOperationException("Unsupport image format"),
-                        }, TargetStream.AsRandomAccessStream());
+                        }, ResultStream);
 
                         if (IsEnableScale)
                         {
@@ -221,12 +222,10 @@ namespace RX_Explorer.Class
                         Encoder.SetSoftwareBitmap(TranscodeImage);
 
                         await Encoder.FlushAsync();
+
+                        return ResultStream;
                     }
                 }
-            }
-            catch (Exception)
-            {
-                await DestinationFile.DeleteAsync(true);
             }
             finally
             {
