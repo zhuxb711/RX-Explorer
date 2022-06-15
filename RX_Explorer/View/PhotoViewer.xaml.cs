@@ -134,6 +134,11 @@ namespace RX_Explorer.View
                             PhotoGirdView.SelectionChanged += PhotoGirdView_SelectionChanged;
                             PhotoGirdView.SelectedIndex = -1;
                             PhotoGirdView.SelectedIndex = SelectedIndex;
+
+                            if (PhotoGridViewBorder.Opacity == 0)
+                            {
+                                GridViewEnterAnimation.Begin();
+                            }
                         }
                         else
                         {
@@ -195,6 +200,7 @@ namespace RX_Explorer.View
                 MTPEndOfShare?.Dispose();
                 MTPEndOfShare = null;
                 Cancellation = null;
+                SingleClickCancellation = null;
 
                 PhotoGirdView.SelectionChanged -= PhotoGirdView_SelectionChanged;
 
