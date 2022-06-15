@@ -2425,7 +2425,7 @@ namespace RX_Explorer.View
                                                                          .Cast<Frame>()
                                                                          .Select((Frame) => Frame.Content)
                                                                          .Cast<TabItemContentRenderer>()
-                                                                         .Select((Renderer) => Renderer.SetTreeViewStatusAsync(TreeViewDetach.IsOn)));
+                                                                         .Select((Renderer) => Renderer.SetTreeViewStatusAsync(TreeViewDetach.IsOn ? Visibility.Visible : Visibility.Collapsed)));
             }
             catch (Exception ex)
             {

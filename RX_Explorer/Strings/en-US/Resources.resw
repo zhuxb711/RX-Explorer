@@ -3658,10 +3658,10 @@ Invalid names include
   <data name="PredefineLabelText4" xml:space="preserve">
     <value>Label 4</value>
   </data>
-  <data name="CustomLabelColorAndLabel" xml:space="preserve">
+  <data name="CustomLabelColorAndLabel.Text" xml:space="preserve">
     <value>Customize label and label colors</value>
   </data>
-  <data name="CustomLabelColorAndLabelDescription" xml:space="preserve">
+  <data name="CustomLabelColorAndLabelDescription.Text" xml:space="preserve">
     <value>Customize the label color and the labels according to your personal preferences</value>
   </data>
   <data name="CustomLabelColorAndLabelBox.PlaceholderText" xml:space="preserve">
@@ -3672,5 +3672,8 @@ Invalid names include
   </data>
   <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
     <value>Zoom</value>
+  </data>
+  <data name="Properties_General_LastAccessTime" xml:space="preserve">
+    <value>Accessed:</value>
   </data>
 </root>

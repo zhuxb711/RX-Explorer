@@ -1878,22 +1878,22 @@ namespace RX_Explorer.Class
 
                             if (Data.IsDataValid)
                             {
-                                ItemResult.Add(Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
+                                ItemResult.Add(PropertyDic["StorageType"] == "Folder"
                                                         ? new RecycleStorageFolder(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
                                                         : new RecycleStorageFile(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
 
                             }
                             else
                             {
-                                switch (Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]))
+                                switch (PropertyDic["StorageType"])
                                 {
-                                    case StorageItemTypes.Folder:
+                                    case "Folder":
                                         {
                                             StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(PropertyDic["ActualPath"]);
                                             ItemResult.Add(new RecycleStorageFolder(await Folder.GetNativeFileDataAsync(), PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
                                             break;
                                         }
-                                    case StorageItemTypes.File:
+                                    case "File":
                                         {
                                             StorageFile File = await StorageFile.GetFileFromPathAsync(PropertyDic["ActualPath"]);
                                             ItemResult.Add(new RecycleStorageFile(await File.GetNativeFileDataAsync(), PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));

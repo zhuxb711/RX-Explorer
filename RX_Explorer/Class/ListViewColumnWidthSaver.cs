@@ -9,7 +9,7 @@ using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
 {
-    public class ListViewColumnWidthSaver : INotifyPropertyChanged
+    public sealed class ListViewColumnWidthSaver : INotifyPropertyChanged
     {
         private readonly string ResourceKey;
         private ColumnWidthData InnerData;

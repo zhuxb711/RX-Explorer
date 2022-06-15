@@ -141,14 +141,14 @@
         </FlipView>
 
         <Border Grid.Row="1"
-                Padding="10"
+                Padding="10,10,10,0"
                 MaxWidth="800"
-                Margin="10,10,10,20"
+                Margin="20,0,20,20"
                 Name="PhotoGridViewBorder"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
                 CornerRadius="{StaticResource CustomCornerRadius}"
-                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                Background="{ThemeResource SystemControlChromeMediumAcrylicElementMediumBrush}">
             <Border.RenderTransform>
                 <TranslateTransform />
             </Border.RenderTransform>

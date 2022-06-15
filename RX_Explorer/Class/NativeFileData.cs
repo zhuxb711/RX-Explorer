@@ -49,9 +49,14 @@ namespace RX_Explorer.Class
             {
                 CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
             }
+
+            if (NativeWin32API.FileTimeToSystemTime(ref Data.ftLastAccessTime, out NativeWin32API.SYSTEMTIME AccTime))
+            {
+                LastAccessTime = new DateTime(AccTime.Year, AccTime.Month, AccTime.Day, AccTime.Hour, AccTime.Minute, AccTime.Second, AccTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
         }
 
-        public NativeFileData(string Path, ulong Size, FileAttributes Attributes, FILETIME LWTime, FILETIME CTime)
+        public NativeFileData(string Path, ulong Size, FileAttributes Attributes, FILETIME LWTime, FILETIME CTime, FILETIME LAime)
         {
             this.Path = Path;
             this.Size = Size;
@@ -65,6 +70,11 @@ namespace RX_Explorer.Class
             if (NativeWin32API.FileTimeToSystemTime(ref CTime, out NativeWin32API.SYSTEMTIME CreTime))
             {
                 CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
+
+            if (NativeWin32API.FileTimeToSystemTime(ref LAime, out NativeWin32API.SYSTEMTIME AccTime))
+            {
+                LastAccessTime = new DateTime(AccTime.Year, AccTime.Month, AccTime.Day, AccTime.Hour, AccTime.Minute, AccTime.Second, AccTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
             }
         }
 

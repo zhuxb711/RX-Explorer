@@ -77,22 +77,15 @@ namespace RX_Explorer.View
             LoadingControl.IsLoading = ShowTips;
         }
 
-        public async Task SetTreeViewStatusAsync(bool IsOpened)
+        public async Task SetTreeViewStatusAsync(Visibility Visibility)
         {
             try
             {
                 if (BaseControl.CurrentPresenter?.CurrentFolder != null)
                 {
-                    if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
-                    {
-                        BaseControl.TreeViewGridCol.Width = IsOpened ? new GridLength(Scale * BaseControl.ActualWidth) : new GridLength(0);
-                    }
-                    else
-                    {
-                        BaseControl.TreeViewGridCol.Width = IsOpened ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-                    }
+                    TreeViewColumnWidthSaver.Current.SetTreeViewVisibility(Visibility);
 
-                    if (IsOpened)
+                    if (Visibility == Visibility.Visible)
                     {
                         BaseControl.FolderTree.RootNodes.Clear();
 

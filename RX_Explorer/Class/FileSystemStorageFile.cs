@@ -182,11 +182,13 @@ namespace RX_Explorer.Class
                     {
                         Size = Data.Size;
                         ModifiedTime = Data.ModifiedTime;
+                        LastAccessTime = Data.LastAccessTime;
                     }
                     else if (await GetStorageItemCoreAsync(true) is StorageFile File)
                     {
                         Size = await File.GetSizeRawDataAsync();
                         ModifiedTime = await File.GetModifiedTimeAsync();
+                        LastAccessTime = await File.GetLastAccessTimeAsync();
                     }
                 }
                 catch (Exception ex)

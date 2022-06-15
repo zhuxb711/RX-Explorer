@@ -570,7 +570,7 @@ namespace RX_Explorer.View
 
                 if (ZoomSlider.Value == 1)
                 {
-                    if (PhotoGridViewBorder.Opacity != 0)
+                    if (PhotoGridViewBorder.Opacity == 1)
                     {
                         GridViewExitAnimation.Begin();
                     }

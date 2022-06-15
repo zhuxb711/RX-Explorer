@@ -12,7 +12,6 @@
       Background="Transparent">
 
     <Page.Resources>
-        <Cls:SpliterConverter x:Key="Converter" />
         <Cls:InverseConverter x:Key="InverseConverter" />
         <Cls:NavigationRecordDataTemplateSelector x:Key="NavTemplateSelector"
                                                   NormalTemplate="{StaticResource NavNormalRecordTemplate}"
@@ -608,12 +607,9 @@
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="TreeViewGridCol"
-                                  x:FieldModifier="public"
-                                  Width="1*" />
-                <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}"
-                                  d:Width="8" />
-                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="{x:Bind Cls:TreeViewColumnWidthSaver.Current.TreeViewColumnWidth,Mode=TwoWay}" />
+                <ColumnDefinition Width="{x:Bind Cls:TreeViewColumnWidthSaver.Current.SpliterColumnWidth,Mode=OneWay}" />
+                <ColumnDefinition Width="{x:Bind Cls:TreeViewColumnWidthSaver.Current.BladeViewColumnWidth,Mode=TwoWay}" />
             </Grid.ColumnDefinitions>
             <controls:BladeView Grid.Column="2"
                                 BladeMode="Normal"
@@ -688,9 +684,9 @@
                                    Name="Splitter"
                                    HorizontalAlignment="Stretch"
                                    VerticalAlignment="Stretch"
-                                   PointerCaptureLost="GridSplitter_PointerCaptureLost"
                                    PointerPressed="GridSplitter_PointerPressed"
-                                   PointerReleased="GridSplitter_PointerReleased">
+                                   PointerReleased="GridSplitter_PointerReleased"
+                                   PointerCanceled="Splitter_PointerCanceled">
                 <controls:GridSplitter.Resources>
                     <SolidColorBrush x:Key="SystemControlSplitterPointerOver"
                                      Color="Transparent" />

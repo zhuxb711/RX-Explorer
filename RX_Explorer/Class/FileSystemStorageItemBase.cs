@@ -80,6 +80,23 @@ namespace RX_Explorer.Class
 
         public virtual DateTimeOffset ModifiedTime { get; protected set; }
 
+        public virtual DateTimeOffset LastAccessTime { get; protected set; }
+
+        public virtual string LastAccessTimeDescription
+        {
+            get
+            {
+                if (LastAccessTime == DateTimeOffset.MaxValue.ToLocalTime() || LastAccessTime == DateTimeOffset.MinValue.ToLocalTime())
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return LastAccessTime.ToString("G");
+                }
+            }
+        }
+
         public virtual string ModifiedTimeDescription
         {
             get
@@ -530,36 +547,46 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    if (NativeWin32API.CreateFileFromPath(Path, Option, out string NewPath))
+                                    try
                                     {
-                                        return await OpenAsync(NewPath);
-                                    }
-                                    else
-                                    {
-                                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
+                                        string NewPath = NativeWin32API.CreateFileFromPath(Path, Option);
 
-                                        switch (Option)
+                                        if (await OpenAsync(NewPath) is FileSystemStorageFile NewFile)
                                         {
-                                            case CreateOption.GenerateUniqueName:
-                                                {
-                                                    StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                                    return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
-                                                }
-                                            case CreateOption.OpenIfExist:
-                                                {
-                                                    StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                                    return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
-                                                }
-                                            case CreateOption.ReplaceExisting:
-                                                {
-                                                    StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                                    return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
-                                                }
-                                            default:
-                                                {
-                                                    break;
-                                                }
+                                            return NewFile;
                                         }
+
+                                        throw new Exception();
+                                    }
+                                    catch (Exception)
+                                    {
+                                        string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                                        if (!string.IsNullOrEmpty(DirectoryPath))
+                                        {
+                                            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
+
+                                            switch (Option)
+                                            {
+                                                case CreateOption.GenerateUniqueName:
+                                                    {
+                                                        StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
+                                                        return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
+                                                    }
+                                                case CreateOption.OpenIfExist:
+                                                    {
+                                                        StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
+                                                        return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
+                                                    }
+                                                case CreateOption.ReplaceExisting:
+                                                    {
+                                                        StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
+                                                        return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
+                                                    }
+                                            }
+                                        }
+
+                                        throw;
                                     }
                                 }
                                 catch (Exception)
@@ -781,6 +808,7 @@ namespace RX_Explorer.Class
                 IsHiddenItem = Data.IsHiddenItem;
                 ModifiedTime = Data.ModifiedTime;
                 CreationTime = Data.CreationTime;
+                LastAccessTime = Data.LastAccessTime;
             }
         }
 
@@ -794,6 +822,7 @@ namespace RX_Explorer.Class
                 IsHiddenItem = Data.IsHiddenItem;
                 ModifiedTime = Data.ModifiedTime;
                 CreationTime = Data.CreationTime;
+                LastAccessTime = DateTimeOffset.MinValue;
             }
         }
 
@@ -807,6 +836,7 @@ namespace RX_Explorer.Class
                 IsHiddenItem = Data.IsHiddenItem;
                 ModifiedTime = Data.ModifiedTime;
                 CreationTime = Data.CreationTime;
+                LastAccessTime = DateTimeOffset.MinValue;
             }
         }
 

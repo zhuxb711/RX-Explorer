@@ -4701,11 +4701,11 @@ Invalid names include
           <source>Remove the label</source>
           <target state="translated">移除標籤</target>
         </trans-unit>
-        <trans-unit id="CustomLabelColorAndLabel" translate="yes" xml:space="preserve">
+        <trans-unit id="CustomLabelColorAndLabel.Text" translate="yes" xml:space="preserve">
           <source>Customize label and label colors</source>
           <target state="translated">定制标签和标签颜色</target>
         </trans-unit>
-        <trans-unit id="CustomLabelColorAndLabelDescription" translate="yes" xml:space="preserve">
+        <trans-unit id="CustomLabelColorAndLabelDescription.Text" translate="yes" xml:space="preserve">
           <source>Customize the label color and the labels according to your personal preferences</source>
           <target state="translated">根据您的个人喜好定制标签颜色和标签</target>
         </trans-unit>
@@ -4740,6 +4740,10 @@ Invalid names include
         <trans-unit id="PhotoViewerZoomButton.Label" translate="yes" xml:space="preserve">
           <source>Zoom</source>
           <target state="translated">縮放</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_LastAccessTime" translate="yes" xml:space="preserve">
+          <source>Accessed:</source>
+          <target state="translated">訪問時間:</target>
         </trans-unit>
       </group>
     </body>

@@ -1195,12 +1195,18 @@ namespace RX_Explorer.Class
             try
             {
                 BasicProperties Properties = await Item.GetBasicPropertiesAsync();
-                return Convert.ToUInt64(Properties.Size);
+
+                if (Properties != null)
+                {
+                    return Convert.ToUInt64(Properties.Size);
+                }
             }
-            catch
+            catch (Exception)
             {
-                return 0;
+                //No need to handle this exception
             }
+
+            return 0;
         }
 
         /// <summary>
@@ -1219,12 +1225,47 @@ namespace RX_Explorer.Class
             {
                 BasicProperties Properties = await Item.GetBasicPropertiesAsync();
 
-                return Properties.DateModified;
+                if (Properties != null)
+                {
+                    return Properties.DateModified;
+                }
             }
-            catch
+            catch (Exception)
             {
-                return DateTimeOffset.MinValue;
+                //No need to handle this exception
             }
+
+            return DateTimeOffset.MinValue;
+        }
+
+        public static async Task<DateTimeOffset> GetLastAccessTimeAsync(this IStorageItemProperties Item)
+        {
+            if (Item == null)
+            {
+                throw new ArgumentNullException(nameof(Item), "Item could not be null");
+            }
+
+            try
+            {
+                IDictionary<string, object> ExtraProperties = await Item.Properties.RetrievePropertiesAsync(new string[] { "System.DateAccessed" });
+
+                if (ExtraProperties != null)
+                {
+                    if (ExtraProperties.TryGetValue("System.DateAccessed", out object DateAccessed))
+                    {
+                        if (DateAccessed is DateTimeOffset Time)
+                        {
+                            return Time;
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                //No need to handle this exception
+            }
+
+            return DateTimeOffset.MinValue;
         }
 
         /// <summary>

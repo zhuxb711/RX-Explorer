@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
-using Windows.Storage;
 
 namespace FullTrustProcess
 {
@@ -25,7 +24,7 @@ namespace FullTrustProcess
                 {
                     Dictionary<string, string> PropertyDic = new Dictionary<string, string>(4)
                     {
-                            { "ActualPath", Item.FileSystemPath }
+                        { "ActualPath", Item.FileSystemPath }
                     };
 
                     try
@@ -46,7 +45,7 @@ namespace FullTrustProcess
 
                     if (File.Exists(Item.FileSystemPath))
                     {
-                        PropertyDic.Add("StorageType", Enum.GetName(typeof(StorageItemTypes), StorageItemTypes.File));
+                        PropertyDic.Add("StorageType", "File");
 
                         if (Path.GetExtension(Item.Name).Equals(Item.FileInfo.Extension, StringComparison.OrdinalIgnoreCase))
                         {
@@ -62,7 +61,7 @@ namespace FullTrustProcess
                     else if (Directory.Exists(Item.FileSystemPath))
                     {
                         PropertyDic.Add("OriginPath", Item.Name);
-                        PropertyDic.Add("StorageType", Enum.GetName(typeof(StorageItemTypes), StorageItemTypes.Folder));
+                        PropertyDic.Add("StorageType", "Folder");
                         RecycleItemList.Add(PropertyDic);
                     }
                 }

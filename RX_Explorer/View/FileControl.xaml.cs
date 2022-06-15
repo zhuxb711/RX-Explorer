@@ -147,7 +147,6 @@ namespace RX_Explorer.View
             RightTapFlyout = CreateNewFolderContextMenu();
 
             Loaded += FileControl_Loaded;
-            Loaded += FileControl_Loaded1;
 
             AddressButtonContainer.RegisterPropertyChangedCallback(VisibilityProperty, new DependencyPropertyChangedCallback(OnAddressButtonContainerVisibiliyChanged));
 
@@ -381,19 +380,9 @@ namespace RX_Explorer.View
 
         private void FileControl_Loaded(object sender, RoutedEventArgs e)
         {
-            if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
-            {
-                TreeViewGridCol.Width = SettingPage.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(Scale * ActualWidth);
-            }
-            else
-            {
-                TreeViewGridCol.Width = SettingPage.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
-            }
-        }
+            Loaded -= FileControl_Loaded;
 
-        private void FileControl_Loaded1(object sender, RoutedEventArgs e)
-        {
-            Loaded -= FileControl_Loaded1;
+            TreeViewColumnWidthSaver.Current.SetTreeViewVisibility(SettingPage.IsDetachTreeViewAndPresenter ? Visibility.Collapsed : Visibility.Visible);
 
             if (FolderTree.FindChildOfType<TreeViewList>() is TreeViewList TList)
             {
@@ -3098,7 +3087,6 @@ namespace RX_Explorer.View
         private void GridSplitter_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             ((GridSplitter)sender).ReleasePointerCaptures();
-            ApplicationData.Current.LocalSettings.Values["GridSplitScale"] = TreeViewGridCol.ActualWidth / ActualWidth;
         }
 
         private void GridSplitter_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -3106,7 +3094,7 @@ namespace RX_Explorer.View
             ((GridSplitter)sender).CapturePointer(e.Pointer);
         }
 
-        private void GridSplitter_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
+        private void Splitter_PointerCanceled(object sender, PointerRoutedEventArgs e)
         {
             ((GridSplitter)sender).ReleasePointerCaptures();
         }

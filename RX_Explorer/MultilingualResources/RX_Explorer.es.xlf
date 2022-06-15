@@ -4699,11 +4699,11 @@ Las denominaciones no válidas son:
           <source>Remove the label</source>
           <target state="translated">Retire la etiqueta</target>
         </trans-unit>
-        <trans-unit id="CustomLabelColorAndLabel" translate="yes" xml:space="preserve">
+        <trans-unit id="CustomLabelColorAndLabel.Text" translate="yes" xml:space="preserve">
           <source>Customize label and label colors</source>
           <target state="translated">Personalizar etiquetas y colores de etiquetas</target>
         </trans-unit>
-        <trans-unit id="CustomLabelColorAndLabelDescription" translate="yes" xml:space="preserve">
+        <trans-unit id="CustomLabelColorAndLabelDescription.Text" translate="yes" xml:space="preserve">
           <source>Customize the label color and the labels according to your personal preferences</source>
           <target state="translated">Personaliza el color de la etiqueta y las etiquetas según tus preferencias personales</target>
         </trans-unit>
@@ -4738,6 +4738,10 @@ Las denominaciones no válidas son:
         <trans-unit id="PhotoViewerZoomButton.Label" translate="yes" xml:space="preserve">
           <source>Zoom</source>
           <target state="translated">Zoom</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_LastAccessTime" translate="yes" xml:space="preserve">
+          <source>Accessed:</source>
+          <target state="translated">Accedido:</target>
         </trans-unit>
       </group>
     </body>

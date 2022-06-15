@@ -3538,10 +3538,10 @@ Les noms non valides incluent
   <data name="RemoveLabel" xml:space="preserve">
     <value>Retirer l'étiquette</value>
   </data>
-  <data name="CustomLabelColorAndLabel" xml:space="preserve">
+  <data name="CustomLabelColorAndLabel.Text" xml:space="preserve">
     <value>Personnaliser l'étiquette et les couleurs des étiquettes</value>
   </data>
-  <data name="CustomLabelColorAndLabelDescription" xml:space="preserve">
+  <data name="CustomLabelColorAndLabelDescription.Text" xml:space="preserve">
     <value>Personnalisez la couleur de l'étiquette et les étiquettes selon vos préférences personnelles</value>
   </data>
   <data name="CustomLabelColorAndLabelBox.PlaceholderText" xml:space="preserve">
@@ -3567,5 +3567,8 @@ Les noms non valides incluent
   </data>
   <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
     <value>Zoom</value>
+  </data>
+  <data name="Properties_General_LastAccessTime" xml:space="preserve">
+    <value>Accédé:</value>
   </data>
 </root>

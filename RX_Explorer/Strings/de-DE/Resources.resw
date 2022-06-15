@@ -3538,10 +3538,10 @@ Inkorrekte Namen sind
   <data name="RemoveLabel" xml:space="preserve">
     <value>Entfernen Sie das Etikett</value>
   </data>
-  <data name="CustomLabelColorAndLabel" xml:space="preserve">
+  <data name="CustomLabelColorAndLabel.Text" xml:space="preserve">
     <value>Passen Sie Etiketten und Etikettenfarben an</value>
   </data>
-  <data name="CustomLabelColorAndLabelDescription" xml:space="preserve">
+  <data name="CustomLabelColorAndLabelDescription.Text" xml:space="preserve">
     <value>Passen Sie die Etikettenfarbe und die Etiketten nach Ihren persönlichen Vorlieben an</value>
   </data>
   <data name="CustomLabelColorAndLabelBox.PlaceholderText" xml:space="preserve">
@@ -3567,5 +3567,8 @@ Inkorrekte Namen sind
   </data>
   <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
     <value>Zoomen</value>
+  </data>
+  <data name="Properties_General_LastAccessTime" xml:space="preserve">
+    <value>Zugegriffen:</value>
   </data>
 </root>

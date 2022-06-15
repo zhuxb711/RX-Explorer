@@ -408,33 +408,6 @@ namespace RX_Explorer.Class
         }
     }
 
-    public sealed class SpliterConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is GridLength Length)
-            {
-                if (Length.Value == 0)
-                {
-                    return new GridLength(0);
-                }
-                else
-                {
-                    return new GridLength(8, GridUnitType.Pixel);
-                }
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public sealed class AlphaSliderValueConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)

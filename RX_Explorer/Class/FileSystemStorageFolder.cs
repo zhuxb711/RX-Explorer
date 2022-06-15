@@ -262,34 +262,42 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                if (NativeWin32API.CreateFileFromPath(SubItemPath, Option, out string NewPath))
+                                try
                                 {
-                                    return await OpenAsync(NewPath);
-                                }
-                                else if (await GetStorageItemAsync() is StorageFolder Folder)
-                                {
-                                    switch (Option)
+                                    string NewPath = NativeWin32API.CreateFileFromPath(SubItemPath, Option);
+
+                                    if (await OpenAsync(NewPath) is FileSystemStorageFile NewFile)
                                     {
-                                        case CreateOption.GenerateUniqueName:
-                                            {
-                                                StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.GenerateUniqueName);
-                                                return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
-                                            }
-                                        case CreateOption.OpenIfExist:
-                                            {
-                                                StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.OpenIfExists);
-                                                return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
-                                            }
-                                        case CreateOption.ReplaceExisting:
-                                            {
-                                                StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.ReplaceExisting);
-                                                return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
-                                            }
-                                        default:
-                                            {
-                                                break;
-                                            }
+                                        return NewFile;
                                     }
+
+                                    throw new Exception();
+                                }
+                                catch (Exception)
+                                {
+                                    if (await GetStorageItemAsync() is StorageFolder Folder)
+                                    {
+                                        switch (Option)
+                                        {
+                                            case CreateOption.GenerateUniqueName:
+                                                {
+                                                    StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.GenerateUniqueName);
+                                                    return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
+                                                }
+                                            case CreateOption.OpenIfExist:
+                                                {
+                                                    StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.OpenIfExists);
+                                                    return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
+                                                }
+                                            case CreateOption.ReplaceExisting:
+                                                {
+                                                    StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.ReplaceExisting);
+                                                    return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
+                                                }
+                                        }
+                                    }
+
+                                    throw;
                                 }
                             }
                             catch (Exception)
@@ -482,10 +490,12 @@ namespace RX_Explorer.Class
                     if (Data.IsDataValid)
                     {
                         ModifiedTime = Data.ModifiedTime;
+                        LastAccessTime = Data.LastAccessTime;
                     }
                     else if (await GetStorageItemCoreAsync(true) is StorageFolder Folder)
                     {
                         ModifiedTime = await Folder.GetModifiedTimeAsync();
+                        LastAccessTime = await Folder.GetLastAccessTimeAsync();
                     }
                 }
                 catch (Exception ex)

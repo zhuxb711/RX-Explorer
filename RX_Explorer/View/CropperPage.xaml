@@ -22,11 +22,13 @@
             <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
         <controls:ImageCropper Name="Cropper"
+                               Mask="{ThemeResource SystemControlChromeMediumAcrylicElementMediumBrush}"
+                               Background="Transparent"
                                CropShape="Rectangular"
                                ThumbPlacement="Corners"
                                PointerReleased="Cropper_PointerReleased" />
         <Grid Grid.Column="1"
-              Background="{ThemeResource SystemControlChromeMediumAcrylicElementMediumBrush}">
+              Background="{ThemeResource ElementCustomAcrylicBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="50" />

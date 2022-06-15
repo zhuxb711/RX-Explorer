@@ -3538,10 +3538,10 @@
   <data name="RemoveLabel" xml:space="preserve">
     <value>移除標籤</value>
   </data>
-  <data name="CustomLabelColorAndLabel" xml:space="preserve">
+  <data name="CustomLabelColorAndLabel.Text" xml:space="preserve">
     <value>定制标签和标签颜色</value>
   </data>
-  <data name="CustomLabelColorAndLabelDescription" xml:space="preserve">
+  <data name="CustomLabelColorAndLabelDescription.Text" xml:space="preserve">
     <value>根据您的个人喜好定制标签颜色和标签</value>
   </data>
   <data name="CustomLabelColorAndLabelBox.PlaceholderText" xml:space="preserve">
@@ -3567,5 +3567,8 @@
   </data>
   <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
     <value>縮放</value>
+  </data>
+  <data name="Properties_General_LastAccessTime" xml:space="preserve">
+    <value>訪問時間:</value>
   </data>
 </root>

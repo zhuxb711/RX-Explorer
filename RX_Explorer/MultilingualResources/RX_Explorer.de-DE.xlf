@@ -4699,11 +4699,11 @@ Inkorrekte Namen sind
           <source>Remove the label</source>
           <target state="translated">Entfernen Sie das Etikett</target>
         </trans-unit>
-        <trans-unit id="CustomLabelColorAndLabel" translate="yes" xml:space="preserve">
+        <trans-unit id="CustomLabelColorAndLabel.Text" translate="yes" xml:space="preserve">
           <source>Customize label and label colors</source>
           <target state="translated">Passen Sie Etiketten und Etikettenfarben an</target>
         </trans-unit>
-        <trans-unit id="CustomLabelColorAndLabelDescription" translate="yes" xml:space="preserve">
+        <trans-unit id="CustomLabelColorAndLabelDescription.Text" translate="yes" xml:space="preserve">
           <source>Customize the label color and the labels according to your personal preferences</source>
           <target state="translated">Passen Sie die Etikettenfarbe und die Etiketten nach Ihren persönlichen Vorlieben an</target>
         </trans-unit>
@@ -4738,6 +4738,10 @@ Inkorrekte Namen sind
         <trans-unit id="PhotoViewerZoomButton.Label" translate="yes" xml:space="preserve">
           <source>Zoom</source>
           <target state="translated">Zoomen</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_LastAccessTime" translate="yes" xml:space="preserve">
+          <source>Accessed:</source>
+          <target state="translated">Zugegriffen:</target>
         </trans-unit>
       </group>
     </body>

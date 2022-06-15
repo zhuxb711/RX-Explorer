@@ -32,6 +32,8 @@ namespace RX_Explorer.Interface
 
         public DateTimeOffset CreationTime { get; }
 
+        public DateTimeOffset LastAccessTime { get; }
+
         public SyncStatus SyncStatus { get; }
     }
 }

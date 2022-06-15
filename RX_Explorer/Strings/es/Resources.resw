@@ -3538,10 +3538,10 @@ Las denominaciones no válidas son:
   <data name="RemoveLabel" xml:space="preserve">
     <value>Retire la etiqueta</value>
   </data>
-  <data name="CustomLabelColorAndLabel" xml:space="preserve">
+  <data name="CustomLabelColorAndLabel.Text" xml:space="preserve">
     <value>Personalizar etiquetas y colores de etiquetas</value>
   </data>
-  <data name="CustomLabelColorAndLabelDescription" xml:space="preserve">
+  <data name="CustomLabelColorAndLabelDescription.Text" xml:space="preserve">
     <value>Personaliza el color de la etiqueta y las etiquetas según tus preferencias personales</value>
   </data>
   <data name="CustomLabelColorAndLabelBox.PlaceholderText" xml:space="preserve">
@@ -3567,5 +3567,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
     <value>Zoom</value>
+  </data>
+  <data name="Properties_General_LastAccessTime" xml:space="preserve">
+    <value>Accedido:</value>
   </data>
 </root>

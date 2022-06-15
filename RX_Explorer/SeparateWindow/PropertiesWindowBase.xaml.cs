@@ -1264,6 +1264,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileLocationContent.Text = Path.GetDirectoryName(File.Path) ?? File.Path;
                                     FileCreatedContent.Text = File.CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || File.CreationTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.CreationTime.ToString("F");
                                     FileModifiedContent.Text = File.ModifiedTime == DateTimeOffset.MaxValue.ToLocalTime() || File.ModifiedTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.ModifiedTime.ToString("F");
+                                    FileAccessedContent.Text = File.LastAccessTime == DateTimeOffset.MaxValue.ToLocalTime() || File.LastAccessTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.LastAccessTime.ToString("F");
                                     FileHiddenAttribute.IsChecked = File.IsHiddenItem;
                                     FileHiddenAttribute.IsEnabled = File is not (IMTPStorageItem or IFTPStorageItem);
                                     FileReadonlyAttribute.IsEnabled = File is not (IMTPStorageItem or IFTPStorageItem);
