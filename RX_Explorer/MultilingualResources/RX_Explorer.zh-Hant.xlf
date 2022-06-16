@@ -4745,6 +4745,23 @@ Invalid names include
           <source>Accessed:</source>
           <target state="translated">訪問時間:</target>
         </trans-unit>
+        <trans-unit id="ColumnDescription" translate="yes" xml:space="preserve">
+          <source>Column</source>
+          <target state="translated">列</target>
+        </trans-unit>
+        <trans-unit id="LineDescription" translate="yes" xml:space="preserve">
+          <source>Line</source>
+          <target state="translated">行</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_SelectedItem" translate="yes" xml:space="preserve">
+          <source>{ItemNum} selected</source>
+          <target state="translated">已選擇 {ItemNum} 個字符</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Do not modify {ItemNum}</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MixLineEnding_Content" translate="yes" xml:space="preserve">
+          <source>The text file has several different terminators, so the text will be automatically unified to CRLF when saved</source>
+          <target state="translated">文本文件有幾個不同的終止符，所以文本保存時會自動統一為CRLF</target>
+        </trans-unit>
       </group>
     </body>
   </file>

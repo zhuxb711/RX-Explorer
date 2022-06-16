@@ -942,6 +942,7 @@ namespace RX_Explorer.Class
                         OnPropertyChanged(nameof(Name));
                         OnPropertyChanged(nameof(DisplayName));
                         OnPropertyChanged(nameof(ModifiedTimeDescription));
+                        OnPropertyChanged(nameof(LastAccessTimeDescription));
                         OnPropertyChanged(nameof(ThumbnailOverlay));
                         OnPropertyChanged(nameof(SyncStatus));
 
@@ -973,11 +974,20 @@ namespace RX_Explorer.Class
         {
             try
             {
-                await LoadCoreAsync(true);
+                await GetStorageItemAsync(true);
+
+                if (ShouldGenerateThumbnail)
+                {
+                    await Task.WhenAll(LoadCoreAsync(true), GetThumbnailAsync(ThumbnailMode, true));
+                }
+                else
+                {
+                    await LoadCoreAsync(true);
+                }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Could not refresh the {nameof(FileSystemStorageItemBase)}, path: {Path}");
+                LogTracer.Log(ex, $"Could not refresh the {GetType().FullName}, path: {Path}");
             }
             finally
             {
@@ -986,7 +996,13 @@ namespace RX_Explorer.Class
                     OnPropertyChanged(nameof(SizeDescription));
                 }
 
+                if (ShouldGenerateThumbnail)
+                {
+                    OnPropertyChanged(nameof(Thumbnail));
+                }
+
                 OnPropertyChanged(nameof(ModifiedTimeDescription));
+                OnPropertyChanged(nameof(LastAccessTimeDescription));
             }
         }
 

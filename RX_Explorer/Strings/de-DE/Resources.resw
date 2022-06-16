@@ -1802,9 +1802,11 @@ Inkorrekte Namen sind
   </data>
   <data name="FilePresenterBottomStatusTip_SelectedItem" xml:space="preserve">
     <value>{ItemNum} Objekt(e) ausgewählt</value>
+    <comment>Do not modify {ItemNum}</comment>
   </data>
   <data name="FilePresenterBottomStatusTip_TotalItem" xml:space="preserve">
     <value>{ItemNum} Objekt(e)</value>
+    <comment>Do not modify {ItemNum}</comment>
   </data>
   <data name="TerminalArgumentErrorText.Text" xml:space="preserve">
     <value>Muss [CurrentLocation] enthalten. Dieser Parameter wird verwendet, um RX anzuweisen, wie der aktuelle Ordnerspeicherort ausgefüllt werden soll. Format: &lt;Switch to directory command&gt; [CurrentLocation]</value>
@@ -3570,5 +3572,18 @@ Inkorrekte Namen sind
   </data>
   <data name="Properties_General_LastAccessTime" xml:space="preserve">
     <value>Zugegriffen:</value>
+  </data>
+  <data name="ColumnDescription" xml:space="preserve">
+    <value>Spalte</value>
+  </data>
+  <data name="LineDescription" xml:space="preserve">
+    <value>Linie</value>
+  </data>
+  <data name="TextViewer_SelectedItem" xml:space="preserve">
+    <value>{ItemNum} ausgewählt</value>
+    <comment>Do not modify {ItemNum}</comment>
+  </data>
+  <data name="QueueDialog_MixLineEnding_Content" xml:space="preserve">
+    <value>Die Textdatei hat mehrere verschiedene Endzeichen, sodass der Text beim Speichern automatisch zu CRLF vereinheitlicht wird</value>
   </data>
 </root>

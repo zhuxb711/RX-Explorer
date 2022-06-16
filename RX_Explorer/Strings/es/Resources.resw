@@ -1799,9 +1799,11 @@ Las denominaciones no válidas son:
   </data>
   <data name="FilePresenterBottomStatusTip_SelectedItem" xml:space="preserve">
     <value>{ItemNum} ítem seleccionado</value>
+    <comment>Do not modify {ItemNum}</comment>
   </data>
   <data name="FilePresenterBottomStatusTip_TotalItem" xml:space="preserve">
     <value>{ItemNum} ítems</value>
+    <comment>Do not modify {ItemNum}</comment>
   </data>
   <data name="TerminalArgumentErrorText.Text" xml:space="preserve">
     <value>Debe contener [CurrentLocation]; este parámetro se usa para enseñar a RX a rellenar la ubicación actual de la carpeta. Formato: &lt;Switch to directory command&gt; [CurrentLocation]</value>
@@ -3570,5 +3572,18 @@ Las denominaciones no válidas son:
   </data>
   <data name="Properties_General_LastAccessTime" xml:space="preserve">
     <value>Accedido:</value>
+  </data>
+  <data name="ColumnDescription" xml:space="preserve">
+    <value>Columna</value>
+  </data>
+  <data name="LineDescription" xml:space="preserve">
+    <value>Línea</value>
+  </data>
+  <data name="TextViewer_SelectedItem" xml:space="preserve">
+    <value>{ItemNum} seleccionado</value>
+    <comment>Do not modify {ItemNum}</comment>
+  </data>
+  <data name="QueueDialog_MixLineEnding_Content" xml:space="preserve">
+    <value>El archivo de texto tiene varios terminadores diferentes, por lo que el texto se unificará automáticamente a CRLF cuando se guarde</value>
   </data>
 </root>

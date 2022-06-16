@@ -54,6 +54,10 @@ namespace RX_Explorer.View
                     await InitializeAsync(File, Cancellation.Token);
                 }
             }
+            else if (PhotoGirdView.SelectedItem is PhotoDisplayItem Item)
+            {
+                await Task.WhenAll(Item.GenerateActualSourceAsync(true), Item.GenerateThumbnailAsync(true));
+            }
         }
 
         private async Task InitializeAsync(FileSystemStorageFile File, CancellationToken CancelToken)

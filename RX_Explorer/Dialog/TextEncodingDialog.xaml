@@ -10,11 +10,13 @@
                         PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
                         CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}">
     <Grid>
-        <ComboBox Name="EncodingCombo"
+        <ComboBox Name="EncodingComboBox"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Stretch"
                   SelectionChanged="EncodingCombo_SelectionChanged"
                   DisplayMemberPath="EncodingName"
+                  IsEnabled="False"
+                  PlaceholderText="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}"
                   ItemsSource="{x:Bind AvailableEncodings}" />
     </Grid>
 </Cls:QueueContentDialog>

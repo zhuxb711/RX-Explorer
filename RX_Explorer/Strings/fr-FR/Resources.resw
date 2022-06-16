@@ -3571,4 +3571,17 @@ Les noms non valides incluent
   <data name="Properties_General_LastAccessTime" xml:space="preserve">
     <value>Accédé:</value>
   </data>
+  <data name="ColumnDescription" xml:space="preserve">
+    <value>Colonne</value>
+  </data>
+  <data name="LineDescription" xml:space="preserve">
+    <value>Ligne</value>
+  </data>
+  <data name="TextViewer_SelectedItem" xml:space="preserve">
+    <value>{ItemNum} sélectionné</value>
+    <comment>Do not modify {ItemNum}</comment>
+  </data>
+  <data name="QueueDialog_MixLineEnding_Content" xml:space="preserve">
+    <value>Le fichier texte a plusieurs terminateurs différents, de sorte que le texte sera automatiquement unifié au CRLF lors de l'enregistrement</value>
+  </data>
 </root>

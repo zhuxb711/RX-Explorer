@@ -2386,10 +2386,12 @@ Inkorrekte Namen sind
         <trans-unit id="FilePresenterBottomStatusTip_SelectedItem" translate="yes" xml:space="preserve">
           <source>{ItemNum} item selected</source>
           <target state="translated">{ItemNum} Objekt(e) ausgewählt</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Do not modify {ItemNum}</note>
         </trans-unit>
         <trans-unit id="FilePresenterBottomStatusTip_TotalItem" translate="yes" xml:space="preserve">
           <source>{ItemNum} items</source>
           <target state="translated">{ItemNum} Objekt(e)</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Do not modify {ItemNum}</note>
         </trans-unit>
         <trans-unit id="TerminalArgumentErrorText.Text" translate="yes" xml:space="preserve">
           <source>Must contain [CurrentLocation], this parameter is used to instruct RX how to fill in the current folder location. Format: <it id="1" pos="open">&lt;Switch to directory command&gt;</it> [CurrentLocation]</source>
@@ -4742,6 +4744,23 @@ Inkorrekte Namen sind
         <trans-unit id="Properties_General_LastAccessTime" translate="yes" xml:space="preserve">
           <source>Accessed:</source>
           <target state="translated">Zugegriffen:</target>
+        </trans-unit>
+        <trans-unit id="ColumnDescription" translate="yes" xml:space="preserve">
+          <source>Column</source>
+          <target state="translated">Spalte</target>
+        </trans-unit>
+        <trans-unit id="LineDescription" translate="yes" xml:space="preserve">
+          <source>Line</source>
+          <target state="translated">Linie</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_SelectedItem" translate="yes" xml:space="preserve">
+          <source>{ItemNum} selected</source>
+          <target state="translated">{ItemNum} ausgewählt</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Do not modify {ItemNum}</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MixLineEnding_Content" translate="yes" xml:space="preserve">
+          <source>The text file has several different terminators, so the text will be automatically unified to CRLF when saved</source>
+          <target state="translated">Die Textdatei hat mehrere verschiedene Endzeichen, sodass der Text beim Speichern automatisch zu CRLF vereinheitlicht wird</target>
         </trans-unit>
       </group>
     </body>

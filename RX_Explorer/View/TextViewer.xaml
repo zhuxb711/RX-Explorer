@@ -8,6 +8,12 @@
       Background="Transparent">
 
     <Page.Resources>
+        <AcrylicBrush x:Key="TextControlBackground"
+                      TintColor="{ThemeResource SystemAltHighColor}"
+                      TintOpacity="0.6" />
+        <AcrylicBrush x:Key="TextControlBackgroundPointerOver"
+                      TintColor="{ThemeResource SystemAltHighColor}"
+                      TintOpacity="0.6" />
         <AcrylicBrush x:Key="TextControlBackgroundFocused"
                       TintColor="{ThemeResource SystemAltHighColor}"
                       TintOpacity="0.6" />
@@ -16,7 +22,8 @@
     <Grid Padding="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <CommandBar VerticalAlignment="Stretch"
                     Name="CommandBarContorl"
@@ -42,10 +49,49 @@
                    Name="Title" />
         <TextBox Name="EditText"
                  Grid.Row="1"
+                 CornerRadius="4,4,2,2"
                  AcceptsReturn="True"
                  BorderThickness="1"
                  IsSpellCheckEnabled="False"
                  PreviewKeyDown="EditText_PreviewKeyDown"
-                 ScrollViewer.VerticalScrollBarVisibility="Visible" />
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 SelectionChanged="EditText_SelectionChanged"/>
+        <Grid Grid.Row="2"
+              Padding="5"
+              CornerRadius="0,0,4,4"
+              HorizontalAlignment="Stretch">
+            <Grid.Background>
+                <AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
+                              TintOpacity="0.6" />
+            </Grid.Background>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="Auto"
+                                  MinWidth="80"/>
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="Auto"
+                                  MinWidth="120"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Name="LineColumnDisplay" />
+            <Border Width="2"
+                    Grid.Column="1"
+                    Background="Gray"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Stretch"
+                    Margin="0,2"/>
+            <TextBlock Grid.Column="2"
+                       Margin="10,0"
+                       Name="LineBreakDisplay" />
+            <Border Width="2"
+                    Grid.Column="3"
+                    Background="Gray"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Stretch"
+                    Margin="0,2" />
+            <TextBlock Grid.Column="4"
+                       Margin="10,0"
+                       Name="EncodingDisplay"/>
+        </Grid>
     </Grid>
 </Page>

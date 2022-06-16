@@ -3571,4 +3571,17 @@
   <data name="Properties_General_LastAccessTime" xml:space="preserve">
     <value>訪問時間:</value>
   </data>
+  <data name="ColumnDescription" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="LineDescription" xml:space="preserve">
+    <value>行</value>
+  </data>
+  <data name="TextViewer_SelectedItem" xml:space="preserve">
+    <value>已選擇 {ItemNum} 個字符</value>
+    <comment>Do not modify {ItemNum}</comment>
+  </data>
+  <data name="QueueDialog_MixLineEnding_Content" xml:space="preserve">
+    <value>文本文件有幾個不同的終止符，所以文本保存時會自動統一為CRLF</value>
+  </data>
 </root>

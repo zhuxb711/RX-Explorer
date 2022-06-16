@@ -1581,7 +1581,7 @@ namespace FullTrustProcess
                                 DetectionResult Detection = CharsetDetector.DetectFromFile(Path);
                                 DetectionDetail Details = Detection.Detected;
 
-                                if ((Details?.Confidence).GetValueOrDefault() >= 0.8f)
+                                if ((Details?.Confidence).GetValueOrDefault() >= 0.7f)
                                 {
                                     Value.Add("Success", Convert.ToString(Details.Encoding.CodePage));
                                 }

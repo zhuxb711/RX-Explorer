@@ -1,9 +1,7 @@
 ﻿using RX_Explorer.Class;
-using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,24 +30,35 @@ namespace RX_Explorer.Dialog
 
         private async void TextEncodingDialog_Loading(FrameworkElement sender, object args)
         {
-            AvailableEncodings.AddRange(await GetAllEncodingsAsync());
-
-            Encoding DetectedEncoding = await DetectEncodingFromFileAsync();
-
-            if (DetectedEncoding != null)
+            try
             {
-                if (AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == DetectedEncoding.CodePage) is Encoding Coding)
+                AvailableEncodings.AddRange(await GetAllEncodingsAsync());
+
+                Encoding DetectedEncoding = await DetectEncodingFromFileAsync();
+
+                if (DetectedEncoding != null)
                 {
-                    EncodingCombo.SelectedItem = Coding;
+                    if (AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == DetectedEncoding.CodePage) is Encoding Coding)
+                    {
+                        EncodingComboBox.SelectedItem = Coding;
+                    }
+                    else
+                    {
+                        List<Encoding> TempList = AvailableEncodings.Append(DetectedEncoding).OrderByFastStringSortAlgorithm((Encoding) => Encoding.EncodingName, SortDirection.Ascending).ToList();
+                        AvailableEncodings.Insert(TempList.IndexOf(DetectedEncoding), DetectedEncoding);
+                        EncodingComboBox.SelectedItem = DetectedEncoding;
+                    }
                 }
                 else
                 {
-                    EncodingCombo.SelectedItem = AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == Encoding.UTF8.CodePage);
+                    EncodingComboBox.SelectedItem = AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == Encoding.UTF8.CodePage);
                 }
+
+                EncodingComboBox.IsEnabled = true;
             }
-            else
+            catch (Exception ex)
             {
-                EncodingCombo.SelectedItem = AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == Encoding.UTF8.CodePage);
+                LogTracer.Log(ex, "Unexpected exception was threw in loading the text encoding dialog");
             }
         }
 
@@ -65,8 +74,9 @@ namespace RX_Explorer.Dialog
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not get all encodings, fallback to base encodings");
-                return Encoding.GetEncodings().Select((Info) => Info.GetEncoding()).ToList();
             }
+
+            return Encoding.GetEncodings().Select((Info) => Info.GetEncoding()).ToList();
         }
 
         private async Task<Encoding> DetectEncodingFromFileAsync()
@@ -94,7 +104,7 @@ namespace RX_Explorer.Dialog
 
         private void EncodingCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (EncodingCombo.SelectedItem is Encoding Encoding)
+            if (EncodingComboBox.SelectedItem is Encoding Encoding)
             {
                 UserSelectedEncoding = Encoding;
             }

@@ -4745,6 +4745,23 @@ Les noms non valides incluent
           <source>Accessed:</source>
           <target state="translated">Accédé:</target>
         </trans-unit>
+        <trans-unit id="ColumnDescription" translate="yes" xml:space="preserve">
+          <source>Column</source>
+          <target state="translated">Colonne</target>
+        </trans-unit>
+        <trans-unit id="LineDescription" translate="yes" xml:space="preserve">
+          <source>Line</source>
+          <target state="translated">Ligne</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_SelectedItem" translate="yes" xml:space="preserve">
+          <source>{ItemNum} selected</source>
+          <target state="translated">{ItemNum} sélectionné</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Do not modify {ItemNum}</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MixLineEnding_Content" translate="yes" xml:space="preserve">
+          <source>The text file has several different terminators, so the text will be automatically unified to CRLF when saved</source>
+          <target state="translated">Le fichier texte a plusieurs terminateurs différents, de sorte que le texte sera automatiquement unifié au CRLF lors de l'enregistrement</target>
+        </trans-unit>
       </group>
     </body>
   </file>
