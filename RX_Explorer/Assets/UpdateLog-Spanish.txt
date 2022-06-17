@@ -1,15 +1,53 @@
-﻿###Novedades de la versión 7.7.6.0
+﻿###Novedades de la versión 7.7.8.0
+
+#####Actualización de la interfaz de usuario
+
+>#####Rehaga completamente la interfaz y la funcionalidad del visor de imágenes incorporado
+
+>#####Se ha actualizado la interfaz del visor de texto incorporado
+
+>#####La interfaz de la página de edición de imágenes ha sido actualizada
+
+#####Mejoras de rendimiento
+
+>#####Rendimiento mejorado al acceder a una gran cantidad de archivos en algunos casos
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el cual la ubicación de almacenamiento del "Área de seguridad" no se puede cambiar si no hay archivos en el "Área de seguridad"
+>#####Se solucionó un problema que podía causar que la interfaz de usuario se congelara durante un tiempo al iniciar
 
->#####Se solucionó un problema por el que es posible que no se puedan importar archivos en el "Área de seguridad"
+>#####Se solucionó el problema de que el ancho de la vista de árbol ya no cambia dinámicamente con el tamaño de la ventana después del ajuste
 
->#####Se solucionó un problema por el cual la configuración predeterminada del motor de búsqueda podría restablecerse después de reiniciar la aplicación
+>#####Se solucionó un problema por el cual el centro del zoom podía ser incorrecto al hacer doble clic para hacer zoom en el visor de imágenes incorporado
 
->#####Se solucionó un problema por el cual algunas aplicaciones no podían usar RX-Explorer como el explorador predeterminado para abrir el directorio
+>#####Se solucionó el problema de la falta de confirmación doble al eliminar imágenes en el visor de imágenes incorporado
 
->>#####Las subopciones relevantes de "Integrar con los componentes del sistema" deben desactivarse y activarse de nuevo
+>#####Se solucionó un problema por el cual las imágenes no se guardaban en la papelera de reciclaje cuando se eliminaban en el visor de imágenes incorporado
 
->#####Se solucionó el problema de que la interfaz de usuario salta rápidamente cuando el tamaño del archivo o la fecha de modificación cambian con frecuencia (por ejemplo, al comprimir archivos)
+>#####Se solucionó un problema que podía saltar a la primera imagen después de eliminar una imagen en el visor de imágenes incorporado
+
+>#####Se solucionó un problema que podía hacer que la interfaz de usuario se congelara durante un largo período de tiempo al cargar una gran cantidad de imágenes en el visor de imágenes incorporado
+
+>#####Se solucionó un problema que podía atascarse al transcodificar en el visor de imágenes integrado o al guardar en el editor de imágenes integrado
+
+>#####Se solucionó el problema de que la imagen no se actualizará automáticamente al volver al visor de imágenes integrado después de editar en el editor de imágenes integrado
+
+>#####Se solucionó el problema de que la miniatura de la lista de archivos no se actualizaba después de editar en el editor de imágenes incorporado
+
+>#####Se solucionó un problema por el cual el formato de codificación reconocido automáticamente podría no seleccionarse de forma predeterminada en el editor de texto incorporado
+
+>#####Se solucionó un problema por el cual el editor de texto incorporado no guardaba el texto en el final CRLF
+
+>#####Se solucionó un problema por el cual el nombre del archivo no se podía vaciar por completo al cambiar el nombre en el cuadro de diálogo
+
+>#####Se solucionó un problema por el cual algunos grupos podían mostrar nombres incorrectos cuando se agrupaban por tipo
+
+>#####Se solucionó un problema por el cual las estadísticas a continuación no se actualizaban cuando cambiaba la cantidad de archivos
+
+>#####Se solucionó un problema por el cual ciertos tipos de tareas no se podían cancelar correctamente
+
+>#####Se solucionó el problema de información de progreso incorrecta al copiar, mover y eliminar varios archivos de dispositivos MTP
+
+>#####Se solucionó un problema por el cual copiar una gran cantidad de archivos desde un dispositivo MTP tomaba mucho tiempo para recopilar información y, por lo tanto, evitaba que se realizara la copia de archivos
+
+>#####Se corrigieron algunos problemas de traducción

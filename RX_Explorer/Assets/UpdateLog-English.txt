@@ -1,15 +1,53 @@
-﻿###What's new in Ver.7.7.6.0
+﻿###What's new in Ver.7.7.8.0
+
+#####UI update
+
+>#####Remake the interface and functionality of the built-in picture viewer completely
+
+>#####The interface of the built-in text viewer has been updated
+
+>#####The interface of the picture editing page has been updated
+
+#####Performance Improvements
+
+>#####Improved performance when accessing large numbers of files in some cases
 
 #####Bug Fixes
 
->#####Fixed an issue where the storage location of the "Security Area" cannot be changed if there are no files in the "Security Area"
+>#####Fixed an issue that could cause the UI to freeze for a while on startup
 
->#####Fixed an issue where may not be able to importing files into "Security Area"
+>#####Fixed the problem that the width of tree view no longer changes dynamically with the window size after adjustment
 
->#####Fixed an issue where default search engine settings might be reset after application restart
+>#####Fixed an issue where the zoom center could be incorrect when double-clicking to zoom in the built-in picture viewer
 
->#####Fixed an issue where some apps could not use RX-Explorer as the default explorer to open directory
+>#####Fixed the issue of missing double confirmation when deleting pictures in the built-in picture viewer
 
->>#####The relevant sub-options of "Integrate with system components" need to be turned off and turned on again
+>#####Fixed an issue where pictures would not be saved to the recycle bin when deleted in the built-in picture viewer
 
->#####Fixed the problem that the UI jumps quickly when the file size or modified date changes frequently (for example: when compressing files)
+>#####Fixed an issue that could jump to the first picture after deleting a picture in the built-in picture viewer
+
+>#####Fixed an issue that could cause the UI to freeze for a long period of time when loading a large number of pictures in the built-in picture viewer
+
+>#####Fixed an issue that could get stuck when transcoding in the built-in picture viewer or saving in the built-in picture editor
+
+>#####Fixed the problem that the picture will not be updated automatically when returning to the built-in picture viewer after editing in the built-in picture editor
+
+>#####Fixed the problem that the thumbnail of the file list would not be updated after editing in the built-in image editor
+
+>#####Fixed an issue where the auto-recognized encoding format might not be selected by default in the built-in text editor
+
+>#####Fixed an issue where the built-in text editor would not save the text in CRLF ending
+
+>#####Fixed an issue where file name might not be emptied completely when renaming in the dialog
+
+>#####Fixed an issue where some groups could display incorrect names when grouped by type
+
+>#####Fixed an issue where the stats below would not be updated when the number of files changed
+
+>#####Fixed an issue where certain types of tasks could not be canceled correctly
+
+>#####Fixed the problem of incorrect progress information when copying, moving, deleting multiple files from MTP devices
+
+>#####Fixed an issue where copying a large number of files from an MTP device would take a lot of time to gather information and thus prevent file copying from being performed
+
+>#####Fixed some translation issues

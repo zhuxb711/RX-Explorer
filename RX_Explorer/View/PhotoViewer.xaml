@@ -141,7 +141,7 @@
         </FlipView>
 
         <Border Grid.Row="1"
-                Padding="10,10,10,0"
+                Padding="10,10,5,0"
                 MaxWidth="800"
                 Margin="20,0,20,20"
                 Name="PhotoGridViewBorder"

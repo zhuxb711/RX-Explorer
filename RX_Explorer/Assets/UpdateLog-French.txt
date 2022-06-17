@@ -1,15 +1,53 @@
-﻿###Quoi de neuf dans la version 7.7.6.0
+﻿###Quoi de neuf dans la version 7.7.8.0
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Refaire complètement l'interface et la fonctionnalité de la visionneuse d'images intégrée
+
+>#####L'interface de la visionneuse de texte intégrée a été mise à jour
+
+>#####L'interface de la page d'édition d'images a été mise à jour
+
+#####Amélioration des performances
+
+>#####Amélioration des performances lors de l'accès à un grand nombre de fichiers dans certains cas
 
 #####Corrections de bogues
 
->#####Correction d'un problème où l'emplacement de stockage de la "Zone de sécurité" ne peut pas être modifié s'il n'y a pas de fichiers dans la "Zone de sécurité"
+>#####Correction d'un problème pouvant entraîner le gel de l'interface utilisateur pendant un certain temps au démarrage
 
->#####Correction d'un problème empêchant l'importation de fichiers dans la "Zone de sécurité"
+>#####Correction du problème que la largeur de l'arborescence ne change plus dynamiquement avec la taille de la fenêtre après ajustement
 
->#####Correction d'un problème où les paramètres du moteur de recherche par défaut pouvaient être réinitialisés après le redémarrage de l'application
+>#####Correction d'un problème où le centre de zoom pouvait être incorrect lors d'un double-clic pour zoomer dans la visionneuse d'images intégrée
 
->#####Correction d'un problème où certaines applications ne pouvaient pas utiliser RX-Explorer comme explorateur par défaut pour ouvrir le répertoire
+>#####Correction du problème de double confirmation manquante lors de la suppression d'images dans la visionneuse d'images intégrée
 
->>#####Les sous-options pertinentes de "Intégrer avec les composants du système" doivent être désactivées et réactivées
+>#####Correction d'un problème où les images n'étaient pas enregistrées dans la corbeille lorsqu'elles étaient supprimées dans la visionneuse d'images intégrée
 
->#####Correction du problème selon lequel l'interface utilisateur saute rapidement lorsque la taille du fichier ou la date de modification change fréquemment (par exemple : lors de la compression de fichiers)
+>#####Correction d'un problème qui pouvait passer à la première image après avoir supprimé une image dans la visionneuse d'images intégrée
+
+>#####Correction d'un problème pouvant entraîner le gel de l'interface utilisateur pendant une longue période lors du chargement d'un grand nombre d'images dans la visionneuse d'images intégrée
+
+>#####Correction d'un problème qui pouvait rester bloqué lors du transcodage dans la visionneuse d'images intégrée ou de l'enregistrement dans l'éditeur d'images intégré
+
+>#####Correction du problème selon lequel l'image ne sera pas mise à jour automatiquement lors du retour à la visionneuse d'images intégrée après l'édition dans l'éditeur d'images intégré
+
+>#####Correction du problème que la vignette de la liste de fichiers ne serait pas mise à jour après l'édition dans l'éditeur d'image intégré
+
+>#####Correction d'un problème où le format d'encodage reconnu automatiquement pouvait ne pas être sélectionné par défaut dans l'éditeur de texte intégré
+
+>#####Correction d'un problème où l'éditeur de texte intégré n'enregistrait pas le texte dans la fin CRLF
+
+>#####Correction d'un problème où le nom du fichier pouvait ne pas être complètement vidé lors du changement de nom dans la boîte de dialogue
+
+>#####Correction d'un problème où certains groupes pouvaient afficher des noms incorrects lorsqu'ils étaient regroupés par type
+
+>#####Correction d'un problème où les statistiques ci-dessous n'étaient pas mises à jour lorsque le nombre de fichiers changeait
+
+>#####Correction d'un problème où certains types de tâches ne pouvaient pas être annulés correctement
+
+>#####Correction du problème des informations de progression incorrectes lors de la copie, du déplacement et de la suppression de plusieurs fichiers à partir d'appareils MTP
+
+>#####Correction d'un problème où la copie d'un grand nombre de fichiers à partir d'un périphérique MTP prenait beaucoup de temps pour recueillir des informations et empêchait ainsi la copie de fichiers d'être effectuée
+
+>#####Correction de quelques problèmes de traduction

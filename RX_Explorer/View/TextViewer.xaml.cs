@@ -37,10 +37,10 @@ namespace RX_Explorer.View
 
             if (await EncodingDialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                LineColumnDisplay.Text = $"{Globalization.GetString("LineDescription")} 1, {Globalization.GetString("ColumnDescription")} 1";
                 EncodingDisplay.Text = EncodingDialog.UserSelectedEncoding.EncodingName;
+                LineColumnDisplay.Text = $"{Globalization.GetString("LineDescription")} 1, {Globalization.GetString("ColumnDescription")} 1";
 
-                await LoadTextFromFileWithEncoding(TextFile, EncodingDialog.UserSelectedEncoding, CancelToken);
+                await LoadTextFromFileWithEncodingAsync(TextFile, EncodingDialog.UserSelectedEncoding, CancelToken);
             }
             else if (Frame.CanGoBack)
             {
@@ -72,7 +72,7 @@ namespace RX_Explorer.View
             EditText.Text = string.Empty;
         }
 
-        private async Task LoadTextFromFileWithEncoding(FileSystemStorageFile File, Encoding TextEncoding, CancellationToken CancelToken)
+        private async Task LoadTextFromFileWithEncodingAsync(FileSystemStorageFile File, Encoding TextEncoding, CancellationToken CancelToken)
         {
             TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
 
@@ -117,11 +117,17 @@ namespace RX_Explorer.View
 
                         SaveEncoding = TextEncoding;
 
+                        using (StreamReader Reader = new StreamReader(TextStream, TextEncoding, true, 1024, true))
+                        {
+                            EditText.Text = await Reader.ReadToEndAsync();
+                        }
+
+                        TextStream.Seek(0, SeekOrigin.Begin);
+
                         using (BinaryReader Reader = new BinaryReader(TextStream, TextEncoding, true))
                         {
                             LineData = await CollectLineDataAsync(new string(Reader.ReadChars(Convert.ToInt32(TextStream.Length))));
-                            EditText.Text = string.Join("\r", LineData.Values.Select((Data) => Data.LineText));
-                            LineBreakDisplay.Text = string.Join("\\", LineData.Values.Select((Data) => Data.LineBreakDescription).Where((Text) => !string.IsNullOrEmpty(Text)).Distinct());
+                            LineBreakDisplay.Text = string.Join(" \\ ", LineData.Values.Select((Data) => Data.LineBreakDescription).Where((Text) => !string.IsNullOrEmpty(Text)).Distinct());
                         }
 
                         if (LineBreakDisplay.Text.Contains("\\"))
@@ -330,7 +336,7 @@ namespace RX_Explorer.View
 
                 if (Builder.Length > 0)
                 {
-                    Result.Add(LineIndex, new TextLineData("", Builder.ToString()));
+                    Result.Add(LineIndex, new TextLineData(Result.Count > 0 ? string.Empty : "\r\n", Builder.ToString()));
                 }
 
                 return Result;
