@@ -1,18 +1,50 @@
-# RX文件管理器
+# RX 文件管理器
 
-[![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master) [![GitHub license](https://img.shields.io/github/license/zhuxb711/RX-Explorer?color=%2340C0D0&label=License)](https://github.com/zhuxb711/RX-Explorer/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/zhuxb711/RX-Explorer?color=orange&label=Issues)](https://github.com/zhuxb711/RX-Explorer/issues) [![GitHub Release](https://img.shields.io/github/v/release/zhuxb711/RX-Explorer?label=Release)](https://github.com/zhuxb711/RX-Explorer/releases)
+[![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master) [![GitHub license](https://img.shields.io/github/license/zhuxb711/RX-Explorer?color=%2340C0D0&label=License)](https://github.com/zhuxb711/RX-Explorer/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/zhuxb711/RX-Explorer?color=orange&label=Issues)](https://github.com/zhuxb711/RX-Explorer/issues) [![GitHub Release](https://img.shields.io/github/v/release/zhuxb711/RX-Explorer?label=Release)](https://github.com/zhuxb711/RX-Explorer/releases) [![Microsoft Store](https://img.shields.io/static/v1?label=Microsoft+Store&message=Install&color=ff69b4)](https://www.microsoft.com/store/productId/9N88QBQKF2RS) [![Stars](https://img.shields.io/github/stars/zhuxb711/RX-Explorer?color=%23A020F0&label=Stars)](https://github.com/zhuxb711/RX-Explorer)
 
-一款优雅的UWP文件管理器。
+RX 文件管理器是一款功能强大的 UWP 文件管理器，其 UI 广泛使用亚克力效果，拥有多彩的个性化系统
 
-该文件管理器能轻松管理文件系统，包括复制、粘贴、剪切、删除、搜索等基本操作，以及压缩/解压、蓝牙文件分享、WIFI文件分享、音视频文件转码、图片编辑裁剪和滤镜功能、图片转码、文件保险柜等。
+本应用以 Apache License 2.0 协议开源，欢迎各位 Star 或提交功能更新/错误修复。
 
-已为触摸屏优化。
+功能概况：
 
-Microsoft Store下载链接: https://www.microsoft.com/store/productId/9N88QBQKF2RS
+• 内置一些基础的文件查看器
 
+• 内置 Zip、Tar、Gz 格式的压缩和解压功能
+
+• 支持通过蓝牙或 WIFI 共享文件
+
+• 支持多标签页和多进程模式
+
+• 支持有限度替代 Windows Explorer
+
+• 支持网络驱动器、USB 设备和 MTP 设备
+
+• 基础的音视频文件转码功能
+
+• 图片编辑裁剪和滤镜功能
+
+• 单个标签页内可同时操作多个文件夹的的“垂直拆分窗口”
+
+• 支持 Quicklook 预览以及 Everything 搜索
+
+• 保管并加密文件的“安全域”
+
+个性化系统：
+
+• Acrylic 背景效果
+
+• 必应每日图片
+
+• Mica 背景效果
+
+• 图片背景效果
+
+---
 
 # UWP 应用隐私策略
-前注  本声明通用于Ruofan所发布的所有 UWP 应用，下文简称“应用”。
+
+前注 本声明通用于 Ruofan 所发布的所有 UWP 应用，下文简称“应用”。
 
 1、免责声明
 您在使用应用过程中，请遵守相关法律法规的各项规定。严禁将应用用于任何非法用途，一切因用户（主观或客观上）使用不当所带来的法律问题，开发者一概不负责。
@@ -45,58 +77,92 @@ App 访问网络仅仅用于获取所需数据，不会上传任何用户文件�
 当您从 Windows 应用商店安装并使用应用，即表明您已同意该策略的各项声明。
 
 Ruofan
-2019 年 6 月   
+2019 年 6 月
 
-*****
+---
+
 # RX Explorer
 
-[![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master) [![GitHub license](https://img.shields.io/github/license/zhuxb711/RX-Explorer?color=%2340C0D0&label=License)](https://github.com/zhuxb711/RX-Explorer/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/zhuxb711/RX-Explorer?color=orange&label=Issues)](https://github.com/zhuxb711/RX-Explorer/issues) [![GitHub Release](https://img.shields.io/github/v/release/zhuxb711/RX-Explorer?label=Release)](https://github.com/zhuxb711/RX-Explorer/releases)
+[![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master) [![GitHub license](https://img.shields.io/github/license/zhuxb711/RX-Explorer?color=%2340C0D0&label=License)](https://github.com/zhuxb711/RX-Explorer/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/zhuxb711/RX-Explorer?color=orange&label=Issues)](https://github.com/zhuxb711/RX-Explorer/issues) [![GitHub Release](https://img.shields.io/github/v/release/zhuxb711/RX-Explorer?label=Release)](https://github.com/zhuxb711/RX-Explorer/releases) [![Microsoft Store](https://img.shields.io/static/v1?label=Microsoft+Store&message=Install&color=ff69b4)](https://www.microsoft.com/store/productId/9N88QBQKF2RS) [![Stars](https://img.shields.io/github/stars/zhuxb711/RX-Explorer?color=%23A020F0&label=Stars)](https://github.com/zhuxb711/RX-Explorer)
 
-An elegant UWP explorer.
+RX-Explorer is a powerful UWP file explorer with extensive use of acrylic effects in its UI and a colorful personalization system
 
-The file manager can easily manage the file system, including copy, paste, cut, delete, search and other basic operations, as well as compression/decompression, Bluetooth file sharing, WIFI file sharing, audio and video file transcoding, image editing, cropping and filtering Mirror function, image transcoding, file safe, etc.
+This application is open sourced based on the Apache License 2.0. Welcome to Star or submit feature/bug fixes.
 
-Optimized for touch screen.
+Functional overview:
 
-Microsoft Store link: https://www.microsoft.com/store/productId/9N88QBQKF2RS
+• Built-in some basic viewers
+
+• Built-in support for Zip, Tar, Gz compression and decompression functions
+
+• Support file sharing via Bluetooth or WIFI
+
+• Supports multi-tab and multi-process
+
+• Supports replacement for Windows Explorer
+
+• Support for network drives, USB devices and MTP devices
+
+• Basic audio and video file transcoding
+
+• Image editing, cropping and filter functions
+
+• "Vertical Split View" for simultaneous manipulation of multiple folders within a single tab
+
+• Support Quicklook preview and Everything search
+
+• A “Secure Area” where files are kept and encrypted
+
+Personalization system:
+
+• Acrylic background
+
+• Bing image background
+
+• Mica background
+
+• Picture background
+
+---
 
 # UWP Application Privacy Policy
+
 Pre-Notes This statement applies to all UWP applications published by Ruofan, hereinafter referred to as "applications".
 
 1. Disclaimer
-When you use the application, please abide by the relevant laws and regulations. It is strictly forbidden to use the app for any illegal purpose, and the developer is not responsible for any legal problems caused by improper use by users (subjectively or objectively).
+   When you use the application, please abide by the relevant laws and regulations. It is strictly forbidden to use the app for any illegal purpose, and the developer is not responsible for any legal problems caused by improper use by users (subjectively or objectively).
 
 2. Network access
-App access to the network is only used to obtain the required data, and will not upload any user files and data. If you need to use a third-party sharing platform (such as Weibo, WeChat, etc.) to publish information, the content collected by the application is only used to pass it to the third-party platform API for use. The application does not contain any bundled plug-ins, nor does it download any additional installation packages in the background.
+   App access to the network is only used to obtain the required data, and will not upload any user files and data. If you need to use a third-party sharing platform (such as Weibo, WeChat, etc.) to publish information, the content collected by the application is only used to pass it to the third-party platform API for use. The application does not contain any bundled plug-ins, nor does it download any additional installation packages in the background.
 
 3. Local data access
-The application may access local files on your device (such as opening or saving) or files on other storage (such as mobile hard drives, flash memory cards, etc.), but the application will not collect these local data or upload them to any network. When accessing files on your device, the app will prompt you to make a choice, and the app will read and write these files only with your consent.
+   The application may access local files on your device (such as opening or saving) or files on other storage (such as mobile hard drives, flash memory cards, etc.), but the application will not collect these local data or upload them to any network. When accessing files on your device, the app will prompt you to make a choice, and the app will read and write these files only with your consent.
 
 4. No interference content
-The application will not send you any meaningless notifications, there is no third-party promotional information, and will not collect any user information in the background.
+   The application will not send you any meaningless notifications, there is no third-party promotional information, and will not collect any user information in the background.
 
 5. Access the sensor
-When the application needs to complete some specific functions, it may read the sensor data on your device (such as geographic location information, gravity accelerator readings, etc.). The application only uses these data to complete specific functions and will not share or sell it to anyone Individual or organization.
+   When the application needs to complete some specific functions, it may read the sensor data on your device (such as geographic location information, gravity accelerator readings, etc.). The application only uses these data to complete specific functions and will not share or sell it to anyone Individual or organization.
 
 6. Multimedia equipment
-Some functional applications need to access multimedia devices (such as cameras, microphones, etc.) on your device. The application does not collect any device manufacturer information, nor does it record any personal information generated during the use of the device.
+   Some functional applications need to access multimedia devices (such as cameras, microphones, etc.) on your device. The application does not collect any device manufacturer information, nor does it record any personal information generated during the use of the device.
 
 7. Third-party component declaration
-In order to complete specific functions, applications may call third-party extension components (hereinafter referred to as "components"). The final resolution right of the privacy policy associated with the component belongs to the component provider.
+   In order to complete specific functions, applications may call third-party extension components (hereinafter referred to as "components"). The final resolution right of the privacy policy associated with the component belongs to the component provider.
 
 8. Digital ink and voice recognition
-For the ink you input and the recognition results of the written content, the application is only used to complete the functional requirements and will not be transmitted over the network. You can clear the data through the application management function of the operating system at any time, and the application will not do any backup or retention. If the application provides integration with Cortana (Xiao Na) or auxiliary input function, you need to input voice information for recognition, the entire recognition process is completed by the system API, the application will not keep any records.
+   For the ink you input and the recognition results of the written content, the application is only used to complete the functional requirements and will not be transmitted over the network. You can clear the data through the application management function of the operating system at any time, and the application will not do any backup or retention. If the application provides integration with Cortana (Xiao Na) or auxiliary input function, you need to input voice information for recognition, the entire recognition process is completed by the system API, the application will not keep any records.
 
 9. Change description
-Once this privacy policy is changed, it will be updated on this page without notice. The final analysis right of this strategy belongs to the developer.
+   Once this privacy policy is changed, it will be updated on this page without notice. The final analysis right of this strategy belongs to the developer.
 
 10. Accept this strategy
-When you install and use the app from the Windows Store, it means that you have agreed to the statements of this policy.
+    When you install and use the app from the Windows Store, it means that you have agreed to the statements of this policy.
 
 Ruofan
 June 2019
 
-*****
+---
 
 ![image](https://github.com/zhuxb711/RX-Explorer/blob/master/RX_Explorer/Assets/Github-Intro1.png)
 
