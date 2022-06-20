@@ -535,8 +535,36 @@ namespace RX_Explorer.View
             {
                 try
                 {
-                    await TabViewContainer.Current.CreateNewTabAsync(Item.Path);
-                    await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Path.GetDirectoryName(Item.Path));
+                    await TabViewContainer.Current.CreateNewTabAsync(Path.GetDirectoryName(Item.Path));
+
+                    for (int Retry = 0; Retry < 3; Retry++)
+                    {
+                        await Task.Delay(500);
+
+                        if (TabViewContainer.Current.CurrentTabRenderer.Presenters.SingleOrDefault() is FilePresenter Presenter)
+                        {
+                            if (Presenter.FileCollection.FirstOrDefault((SItem) => SItem == Item) is FileSystemStorageItemBase Target)
+                            {
+                                Presenter.SelectedItem = Target;
+                                Presenter.ItemPresenter.ScrollIntoView(Target, ScrollIntoViewAlignment.Leading);
+                                break;
+                            }
+                        }
+                    }
+
+                    switch (SearchResultList.SelectedItem)
+                    {
+                        case FileSystemStorageFile:
+                            {
+                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Path.GetDirectoryName(Item.Path));
+                                break;
+                            }
+                        case FileSystemStorageFolder:
+                            {
+                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Item.Path);
+                                break;
+                            }
+                    }
                 }
                 catch (Exception ex)
                 {

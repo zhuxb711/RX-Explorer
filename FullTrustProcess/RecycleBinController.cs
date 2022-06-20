@@ -93,36 +93,41 @@ namespace FullTrustProcess
             return false;
         }
 
-        public static bool Restore(params string[] OriginPathList)
+        public static ShellItem GetItemFromOriginPath(string OriginPath)
         {
-            Dictionary<string, ShellItem> PathDic = new Dictionary<string, ShellItem>();
+            ArgumentNullException.ThrowIfNull(OriginPath);
+
+            IReadOnlyDictionary<string, ShellItem> PathItemMapping = GetAllPathItemMapping();
 
             try
             {
-                foreach (ShellItem Item in RecycleBin.GetItems())
+                if (PathItemMapping.TryGetValue(OriginPath, out ShellItem Item))
                 {
-                    if (File.Exists(Item.FileSystemPath))
-                    {
-                        if (Path.GetExtension(Item.Name).Equals(Item.FileInfo.Extension, StringComparison.OrdinalIgnoreCase))
-                        {
-                            PathDic.TryAdd(Item.Name, Item);
-                        }
-                        else
-                        {
-                            PathDic.TryAdd(Item.Name + Item.FileInfo.Extension, Item);
-                        }
-                    }
-                    else if (Directory.Exists(Item.FileSystemPath))
-                    {
-                        PathDic.TryAdd(Item.Name, Item);
-                    }
+                    return new ShellItem(Item.FileSystemPath);
                 }
 
+                return null;
+            }
+            finally
+            {
+                foreach (ShellItem Item in PathItemMapping.Values)
+                {
+                    Item.Dispose();
+                }
+            }
+        }
+
+        public static bool Restore(IEnumerable<string> OriginPathList)
+        {
+            IReadOnlyDictionary<string, ShellItem> PathItemMapping = GetAllPathItemMapping();
+
+            try
+            {
                 bool HasError = false;
 
                 foreach (string OriginPath in OriginPathList)
                 {
-                    if (PathDic.TryGetValue(OriginPath, out ShellItem SourceItem))
+                    if (PathItemMapping.TryGetValue(OriginPath, out ShellItem SourceItem))
                     {
                         Directory.CreateDirectory(Path.GetDirectoryName(SourceItem.Name));
 
@@ -157,7 +162,7 @@ namespace FullTrustProcess
             }
             finally
             {
-                foreach (ShellItem Item in PathDic.Values)
+                foreach (ShellItem Item in PathItemMapping.Values)
                 {
                     Item.Dispose();
                 }
@@ -195,6 +200,39 @@ namespace FullTrustProcess
                 LogTracer.Log(ex, $"An exception was threw in {nameof(Delete)}");
                 return false;
             }
+        }
+
+        private static IReadOnlyDictionary<string, ShellItem> GetAllPathItemMapping()
+        {
+            Dictionary<string, ShellItem> PathItemMapping = new Dictionary<string, ShellItem>();
+
+            try
+            {
+                foreach (ShellItem Item in RecycleBin.GetItems())
+                {
+                    if (File.Exists(Item.FileSystemPath))
+                    {
+                        if (Path.GetExtension(Item.Name).Equals(Item.FileInfo.Extension, StringComparison.OrdinalIgnoreCase))
+                        {
+                            PathItemMapping.TryAdd(Item.Name, Item);
+                        }
+                        else
+                        {
+                            PathItemMapping.TryAdd(Item.Name + Item.FileInfo.Extension, Item);
+                        }
+                    }
+                    else if (Directory.Exists(Item.FileSystemPath))
+                    {
+                        PathItemMapping.TryAdd(Item.Name, Item);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the path item mapping in recycle bin");
+            }
+
+            return PathItemMapping;
         }
     }
 }

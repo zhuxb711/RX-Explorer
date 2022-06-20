@@ -622,7 +622,10 @@ namespace RX_Explorer.View
                 }
             }, SingleClickCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
 
-            Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Hand, 0);
+            if (ZoomSlider.Value > 1)
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.SizeAll, 0);
+            }
         }
 
         private void Image_PointerReleased(object sender, PointerRoutedEventArgs e)

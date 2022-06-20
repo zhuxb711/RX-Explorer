@@ -629,7 +629,7 @@ namespace RX_Explorer.View
             }
             finally
             {
-                await Task.Delay(200).ContinueWith((_) => TabViewControl.SelectedIndex = TabCollection.Count - 1, TaskScheduler.FromCurrentSynchronizationContext());
+                await Task.Delay(300).ContinueWith((_) => TabViewControl.SelectedIndex = TabCollection.Count - 1, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -645,7 +645,7 @@ namespace RX_Explorer.View
             }
             finally
             {
-                await Task.Delay(200).ContinueWith((_) => TabViewControl.SelectedIndex = TabCollection.Count - 1, TaskScheduler.FromCurrentSynchronizationContext());
+                await Task.Delay(300).ContinueWith((_) => TabViewControl.SelectedIndex = TabCollection.Count - 1, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -663,7 +663,7 @@ namespace RX_Explorer.View
             }
             finally
             {
-                await Task.Delay(200).ContinueWith((_) => TabViewControl.SelectedIndex = Index, TaskScheduler.FromCurrentSynchronizationContext());
+                await Task.Delay(300).ContinueWith((_) => TabViewControl.SelectedIndex = Index, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -783,7 +783,7 @@ namespace RX_Explorer.View
                 {
                     ValidPathArray.Add(RootStorageFolder.Current.Path);
                 }
-                else if (await FileSystemStorageItemBase.CheckExistsAsync(Path))
+                else if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder)
                 {
                     ValidPathArray.Add(Path);
                 }

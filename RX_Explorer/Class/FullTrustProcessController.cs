@@ -481,6 +481,23 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<string> GetRecyclePathFromOriginPathAsync(string OriginPath)
+        {
+            if (await SendCommandAsync(CommandType.GetRecyclePathFromOriginPath, ("OriginPath", OriginPath)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return RawText;
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetRecyclePathFromOriginPathAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return string.Empty;
+        }
+
         public async Task<SafeFileHandle> CreateLocalOneTimeFileHandleAsync(string TempFilePath = null)
         {
             if (await SendCommandAsync(CommandType.CreateOneTimeFileHandle, ("TempFilePath", TempFilePath ?? string.Empty)) is IDictionary<string, string> Response)

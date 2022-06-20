@@ -2794,65 +2794,30 @@ namespace RX_Explorer.View
                     {
                         await Presenter.DisplayItemsInFolder(RootStorageFolder.Current);
                     }
+                    else if (await FileSystemStorageItemBase.OpenAsync(ItemPath) is FileSystemStorageFolder Folder)
+                    {
+                        if (!await Presenter.DisplayItemsInFolder(Folder))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Folder.Path}\"",
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                            };
+
+                            await Dialog.ShowAsync();
+                        }
+                    }
                     else
                     {
-                        switch (await FileSystemStorageItemBase.OpenAsync(ItemPath))
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            case FileSystemStorageFile File:
-                                {
-                                    string ParentFolderPath = Path.GetDirectoryName(ItemPath);
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{ItemPath}\"",
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                        };
 
-                                    if (await Presenter.DisplayItemsInFolder(ParentFolderPath))
-                                    {
-                                        if (Presenter.FileCollection.FirstOrDefault((SItem) => SItem == File) is FileSystemStorageItemBase Target)
-                                        {
-                                            Presenter.ItemPresenter.ScrollIntoView(Target);
-                                            Presenter.SelectedItem = Target;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{ParentFolderPath}\"",
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                                        };
-
-                                        await Dialog.ShowAsync();
-                                    }
-
-                                    break;
-                                }
-                            case FileSystemStorageFolder Folder:
-                                {
-                                    if (!await Presenter.DisplayItemsInFolder(Folder))
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Folder.Path}\"",
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                                        };
-
-                                        await Dialog.ShowAsync();
-                                    }
-                                    break;
-                                }
-                            default:
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{ItemPath}\"",
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                                    };
-
-                                    await Dialog.ShowAsync();
-
-                                    break;
-                                }
-                        }
+                        await Dialog.ShowAsync();
                     }
                 }
                 catch (Exception ex)

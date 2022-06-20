@@ -30,9 +30,16 @@ namespace RX_Explorer.Class
 
         protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
         {
+            string[] UndoRecyclePath;
+
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            {
+                UndoRecyclePath = await Task.WhenAll(UndoFrom.Select((Path) => Exclusive.Controller.GetRecyclePathFromOriginPathAsync(Path)));
+            }
+
             ulong TotalSize = 0;
 
-            await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(UndoFrom, Token))
+            await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(UndoRecyclePath, Token))
             {
                 switch (Item)
                 {

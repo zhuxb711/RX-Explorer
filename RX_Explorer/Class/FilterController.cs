@@ -1,11 +1,11 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using RX_Explorer.View;
+﻿using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -16,7 +16,7 @@ using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
-    public sealed class FilterController : INotifyPropertyChanged
+    public sealed class FilterController : INotifyPropertyChanged, IDisposable
     {
         private NameFilterCondition NameCondition;
         private ModTimeFilterCondition ModTimeCondition;
@@ -27,6 +27,7 @@ namespace RX_Explorer.Class
         private readonly List<string> TypeFilter = new List<string>();
         private readonly List<FileSystemStorageItemBase> OriginCopy = new List<FileSystemStorageItemBase>();
         private readonly Dictionary<string, string> DisplayTypeList = new Dictionary<string, string>();
+        private readonly SemaphoreSlim SourceChangeLock = new SemaphoreSlim(1, 1);
 
         private DateTimeOffset? fromDate;
         private DateTimeOffset fromDateMax = DateTimeOffset.Now;
@@ -738,34 +739,50 @@ namespace RX_Explorer.Class
 
         public async Task SetDataSourceAsync(IEnumerable<FileSystemStorageItemBase> DataSource)
         {
-            OriginCopy.Clear();
-            OriginCopy.AddRange(DataSource);
+            IReadOnlyList<FileSystemStorageItemBase> DataSourceCopy = new List<FileSystemStorageItemBase>(DataSource);
 
-            DisplayTypeList.Clear();
+            await SourceChangeLock.WaitAsync();
 
-            if (OriginCopy.OfType<FileSystemStorageFolder>().Any())
+            try
             {
-                DisplayTypeList.Add(Globalization.GetString("Folder_Admin_DisplayType"), Globalization.GetString("Folder_Admin_DisplayType"));
-            }
+                Dictionary<string, string> LocalDisplayTypeList = new Dictionary<string, string>();
 
-            string[] ExtensionArray = OriginCopy.OfType<FileSystemStorageFile>()
-                                                .Select((Source) => Source.Type)
-                                                .Where((Type) => !string.IsNullOrWhiteSpace(Type))
-                                                .OrderByFastStringSortAlgorithm((Type) => Type, SortDirection.Ascending)
-                                                .Distinct()
-                                                .ToArray();
-
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-            {
-                string[] FriendlyNameArray = await Task.WhenAll(ExtensionArray.Select((Ext) => Exclusive.Controller.GetFriendlyTypeNameAsync(Ext)));
-
-                for (int Index = 0; Index < Math.Min(ExtensionArray.Length, FriendlyNameArray.Length); Index++)
+                if (DataSourceCopy.OfType<FileSystemStorageFolder>().Any())
                 {
-                    DisplayTypeList.Add(ExtensionArray[Index], FriendlyNameArray[Index]);
+                    LocalDisplayTypeList.Add(Globalization.GetString("Folder_Admin_DisplayType"), Globalization.GetString("Folder_Admin_DisplayType"));
                 }
-            }
 
-            ResetAllSettings();
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    foreach (string Extension in DataSourceCopy.OfType<FileSystemStorageFile>()
+                                                               .Select((Source) => Source.Type)
+                                                               .Where((Type) => !string.IsNullOrWhiteSpace(Type))
+                                                               .Distinct()
+                                                               .OrderByFastStringSortAlgorithm((Type) => Type, SortDirection.Ascending)
+                                                               .ToArray())
+                    {
+                        if (DisplayTypeList.TryGetValue(Extension, out string DisplayName))
+                        {
+                            LocalDisplayTypeList.TryAdd(Extension, DisplayName);
+                        }
+                        else
+                        {
+                            LocalDisplayTypeList.TryAdd(Extension, await Exclusive.Controller.GetFriendlyTypeNameAsync(Extension));
+                        }
+                    }
+                }
+
+                OriginCopy.Clear();
+                OriginCopy.AddRange(DataSourceCopy);
+                DisplayTypeList.Clear();
+                DisplayTypeList.AddRange(LocalDisplayTypeList);
+
+                ResetAllSettings();
+            }
+            finally
+            {
+                SourceChangeLock.Release();
+            }
         }
 
         public List<FileSystemStorageItemBase> GetDataSource()
@@ -1136,6 +1153,20 @@ namespace RX_Explorer.Class
                 OnPropertyChanged(nameof(ColorFilterCheckBoxContent3));
                 OnPropertyChanged(nameof(ColorFilterCheckBoxContent4));
             });
+        }
+
+        public void Dispose()
+        {
+            TypeFilter.Clear();
+            OriginCopy.Clear();
+            DisplayTypeList.Clear();
+            SourceChangeLock.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        ~FilterController()
+        {
+            Dispose();
         }
     }
 }

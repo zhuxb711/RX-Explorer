@@ -3113,7 +3113,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, "Could not update the items on file list changed");
             }
             finally
             {
@@ -7989,6 +7989,7 @@ namespace RX_Explorer.View
             ContextMenuCancellation?.Dispose();
             EnterLock?.Dispose();
             CollectionChangeLock?.Dispose();
+            ListViewDetailHeader?.Dispose();
 
             WiFiProvider = null;
             SelectionExtension = null;

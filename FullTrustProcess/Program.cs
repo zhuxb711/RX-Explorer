@@ -825,6 +825,17 @@ namespace FullTrustProcess
                 {
                     switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                     {
+                        case CommandType.GetRecyclePathFromOriginPath:
+                            {
+                                string OriginPath = CommandValue["OriginPath"];
+
+                                using (ShellItem Item = RecycleBinController.GetItemFromOriginPath(OriginPath))
+                                {
+                                    Value.Add("Success", Item.FileSystemPath);
+                                }
+
+                                break;
+                            }
                         case CommandType.CreateOneTimeFileHandle:
                             {
                                 string TempFilePath = CommandValue["TempFilePath"];

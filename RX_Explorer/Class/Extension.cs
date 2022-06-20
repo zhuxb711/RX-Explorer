@@ -228,6 +228,14 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static void RemoveRange<T>(this ICollection<T> Collection, IEnumerable<T> InputCollection)
+        {
+            foreach (T Item in InputCollection)
+            {
+                Collection.Remove(Item);
+            }
+        }
+
         public static string ConvertTimeSpanToString(this TimeSpan Span)
         {
             if (Span == TimeSpan.MaxValue || Span == TimeSpan.MinValue)

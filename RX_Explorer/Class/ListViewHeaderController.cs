@@ -2,7 +2,7 @@
 
 namespace RX_Explorer.Class
 {
-    public sealed class ListViewHeaderController
+    public sealed class ListViewHeaderController : IDisposable
     {
         public FilterController Filter { get; private set; }
 
@@ -12,6 +12,17 @@ namespace RX_Explorer.Class
         {
             Filter = new FilterController();
             Indicator = new SortIndicatorController();
+        }
+
+        public void Dispose()
+        {
+            Filter.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        ~ListViewHeaderController()
+        {
+            Dispose();
         }
     }
 }

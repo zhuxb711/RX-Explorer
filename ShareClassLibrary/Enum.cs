@@ -134,6 +134,7 @@
         GetAvailableWslDrivePathList,
         GetRemoteClipboardRelatedData,
         CreateOneTimeFileHandle,
-        ConvertToLongPath
+        ConvertToLongPath,
+        GetRecyclePathFromOriginPath
     }
 }
