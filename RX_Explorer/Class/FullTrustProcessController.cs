@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -1751,7 +1752,7 @@ namespace RX_Explorer.Class
         {
             if (await SendCommandAsync(CommandType.RunExecutable,
                                        ("ExecutePath", Path),
-                                       ("ExecuteParameter", string.Join(' ', Parameters.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para))),
+                                       ("ExecuteParameter", string.Join(' ', Parameters.Select((Para) => Regex.IsMatch(Para, "^[^\"].*\\s+.*[^\"]$") ? $"\"{Para}\"" : Para))),
                                        ("ExecuteAuthority", RunAsAdmin ? "Administrator" : "Normal"),
                                        ("ExecuteCreateNoWindow", Convert.ToString(CreateNoWindow)),
                                        ("ExecuteShouldWaitForExit", Convert.ToString(ShouldWaitForExit)),

@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -163,8 +162,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                if (BaseControl.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content
-                                                                              && (Content.Path?.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode QuickAccessNode)
+                if (BaseControl.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
                 {
                     foreach (TreeViewNode Node in QuickAccessNode.Children)
                     {
@@ -172,8 +170,7 @@ namespace RX_Explorer.View
                     }
                 }
 
-                foreach (TreeViewNode RootNode in BaseControl.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content
-                                                                                                   && !(Content.Path?.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                foreach (TreeViewNode RootNode in BaseControl.FolderTree.RootNodes.Where((Node) => Node.Content != TreeViewNodeContent.QuickAccessNode))
                 {
                     await RootNode.UpdateAllSubNodeAsync();
                 }

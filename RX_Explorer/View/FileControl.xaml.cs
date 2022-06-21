@@ -346,7 +346,7 @@ namespace RX_Explorer.View
         {
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
+                if (Content == TreeViewNodeContent.QuickAccessNode)
                 {
                     Node.IsExpanded = !Node.IsExpanded;
                 }
@@ -869,33 +869,27 @@ namespace RX_Explorer.View
                 {
                     case CommonChangeType.Added:
                         {
-                            TreeViewNode QuickAccessNode;
-
-                            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode Node)
+                            if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
                             {
-                                QuickAccessNode = Node;
+                                if (QuickAccessNode.IsExpanded)
+                                {
+                                    TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(args.StorageItem);
+
+                                    QuickAccessNode.Children.Add(new TreeViewNode
+                                    {
+                                        IsExpanded = false,
+                                        Content = Content,
+                                        HasUnrealizedChildren = Content.HasChildren
+                                    });
+                                }
                             }
                             else
                             {
-                                QuickAccessNode = new TreeViewNode
+                                FolderTree.RootNodes.Add(new TreeViewNode
                                 {
                                     Content = TreeViewNodeContent.QuickAccessNode,
                                     IsExpanded = false,
                                     HasUnrealizedChildren = true
-                                };
-
-                                FolderTree.RootNodes.Add(QuickAccessNode);
-                            }
-
-                            if (QuickAccessNode.IsExpanded)
-                            {
-                                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(args.StorageItem);
-
-                                QuickAccessNode.Children.Add(new TreeViewNode
-                                {
-                                    IsExpanded = false,
-                                    Content = Content,
-                                    HasUnrealizedChildren = Content.HasChildren
                                 });
                             }
 
@@ -903,7 +897,7 @@ namespace RX_Explorer.View
                         }
                     case CommonChangeType.Removed:
                         {
-                            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                            if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
                             {
                                 if (QuickAccessNode.IsExpanded)
                                 {
@@ -1024,16 +1018,14 @@ namespace RX_Explorer.View
         {
             try
             {
-                if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                if (FolderTree.RootNodes.All((Node) => Node.Content != TreeViewNodeContent.QuickAccessNode))
                 {
-                    TreeViewNode RootNode = new TreeViewNode
+                    FolderTree.RootNodes.Add(new TreeViewNode
                     {
                         Content = TreeViewNodeContent.QuickAccessNode,
                         IsExpanded = false,
                         HasUnrealizedChildren = true
-                    };
-
-                    FolderTree.RootNodes.Add(RootNode);
+                    });
                 }
 
                 IReadOnlyList<Task<TreeViewNode>> SyncTreeViewFromDriveList(IEnumerable<FileSystemStorageFolder> DriveList)
@@ -1154,7 +1146,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                if ((args.Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
+                if (args.Node.Content == TreeViewNodeContent.QuickAccessNode)
                 {
                     if (CommonAccessCollection.LibraryList.Count > 0)
                     {
@@ -1197,7 +1189,11 @@ namespace RX_Explorer.View
         {
             if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                if (CurrentPresenter != null)
+                if (Content == TreeViewNodeContent.QuickAccessNode)
+                {
+                    Node.IsExpanded = !Node.IsExpanded;
+                }
+                else if (CurrentPresenter != null)
                 {
                     if (!await CurrentPresenter.DisplayItemsInFolder(Content.Path))
                     {
@@ -1271,7 +1267,7 @@ namespace RX_Explorer.View
                                         }
                                     }
 
-                                    if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                    if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
                                     {
                                         foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && TargetContent.Path.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
                                         {
@@ -1279,7 +1275,7 @@ namespace RX_Explorer.View
                                         }
                                     }
 
-                                    foreach (TreeViewNode RootNode in FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                    foreach (TreeViewNode RootNode in FolderTree.RootNodes.Where((Node) => Node.Content != TreeViewNodeContent.QuickAccessNode))
                                     {
                                         await RootNode.UpdateAllSubNodeAsync();
                                     }
@@ -1361,7 +1357,7 @@ namespace RX_Explorer.View
                                         {
                                             string ParentFolder = Path.GetDirectoryName(Folder.Path);
 
-                                            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                                            if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
                                             {
                                                 foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && ParentFolder.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
                                                 {
@@ -3541,7 +3537,7 @@ namespace RX_Explorer.View
         {
             if (Flyout == RightTapFlyout)
             {
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
                 {
                     AppBarButton RemovePinButton = Flyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "RemovePinButton");
 
@@ -3593,7 +3589,7 @@ namespace RX_Explorer.View
 
                         if (Node.Content is TreeViewNodeContent Content)
                         {
-                            if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
+                            if (Content == TreeViewNodeContent.QuickAccessNode)
                             {
                                 QuickAccessFlyout.ShowAt(FolderTree, new FlyoutShowOptions
                                 {

@@ -833,7 +833,7 @@
       <Version>2.8.0-prerelease.220601001</Version>
     </PackageReference>
     <PackageReference Include="SharpCompress">
-      <Version>0.32.0</Version>
+      <Version>0.32.1</Version>
     </PackageReference>
     <PackageReference Include="SharpDX.Direct2D1">
       <Version>4.2.0</Version>
