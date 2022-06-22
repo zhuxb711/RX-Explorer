@@ -2,27 +2,27 @@
 
 namespace RX_Explorer.Class
 {
-    public sealed class EndUsageNotification : IDisposable
+    public sealed class DisposeNotification : IDisposable
     {
         private readonly Action ActionOnDispose;
 
-        public EndUsageNotification(Action ActionOnDispose)
+        public DisposeNotification(Action ActionOnDispose)
         {
             this.ActionOnDispose = ActionOnDispose;
         }
 
-        public EndUsageNotification()
+        public DisposeNotification()
         {
 
         }
 
         public void Dispose()
         {
-            GC.SuppressFinalize(this);
             ActionOnDispose?.Invoke();
+            GC.SuppressFinalize(this);
         }
 
-        ~EndUsageNotification()
+        ~DisposeNotification()
         {
             Dispose();
         }

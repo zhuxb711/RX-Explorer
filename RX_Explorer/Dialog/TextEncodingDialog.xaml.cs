@@ -66,7 +66,7 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
                 {
                     return await Exclusive.Controller.GetAllEncodingsAsync();
                 }
@@ -87,7 +87,7 @@ namespace RX_Explorer.Dialog
                 {
                     if (TextFile.Size > 0)
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
                         {
                             return await Exclusive.Controller.DetectEncodingAsync(TextFile.Path);
                         }

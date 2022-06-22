@@ -29,7 +29,7 @@ namespace RX_Explorer.Class
 
         protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
+            async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.Exclusive Exclusive)
             {
                 if (await Exclusive.Controller.GetThumbnailAsync(Type) is Stream ThumbnailStream)
                 {
@@ -52,7 +52,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     return await InternalGetThumbnailAsync(Exclusive);
                 }
@@ -63,7 +63,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                async Task<IRandomAccessStream> GetRawStreamCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
+                async Task<IRandomAccessStream> GetRawStreamCoreAsync(FullTrustProcessController.Exclusive Exclusive)
                 {
                     if (await Exclusive.Controller.GetThumbnailAsync(Type) is Stream ThumbnailStream)
                     {
@@ -82,7 +82,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         return await GetRawStreamCoreAsync(Exclusive);
                     }
@@ -167,7 +167,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.Low))
                 {
                     InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
                 }

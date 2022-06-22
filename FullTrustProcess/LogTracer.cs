@@ -14,15 +14,13 @@ namespace FullTrustProcess
     {
         private static readonly string UniqueName = $"Log_GeneratedTime_{Guid.NewGuid():N}_[{DateTime.Now:yyyy-MM-dd HH-mm-ss.fff}].txt";
 
-        private static readonly ConcurrentQueue<string> LogQueue = new ConcurrentQueue<string>();
+        private static readonly BlockingCollection<string> LogCollection = new BlockingCollection<string>();
 
         private static readonly Thread BackgroundProcessThread = new Thread(LogProcessThread)
         {
             IsBackground = true,
             Priority = ThreadPriority.BelowNormal
         };
-
-        private static readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
 
         static LogTracer()
         {
@@ -192,8 +190,7 @@ namespace FullTrustProcess
         /// <returns></returns>
         private static void LogInternal(string Message)
         {
-            LogQueue.Enqueue(Message + Environment.NewLine);
-            ProcessSleepLocker.Set();
+            LogCollection.Add(Message + Environment.NewLine);
         }
 
         private static void LogProcessThread()
@@ -207,18 +204,14 @@ namespace FullTrustProcess
 
                     while (true)
                     {
-                        ProcessSleepLocker.WaitOne();
+                        string LogItem = LogCollection.Take();
 
-                        while (LogQueue.TryDequeue(out string LogItem))
-                        {
-                            Writer.WriteLine(LogItem);
+                        Writer.WriteLine(LogItem);
+                        Writer.Flush();
 
 #if DEBUG
-                            Debug.WriteLine(LogItem);
+                        Debug.WriteLine(LogItem);
 #endif
-                        }
-
-                        Writer.Flush();
                     }
                 }
             }
@@ -241,7 +234,6 @@ namespace FullTrustProcess
 
         public static bool MakeSureLogIsFlushed(int TimeoutMilliseconds)
         {
-            ProcessSleepLocker.Set();
             return SpinWait.SpinUntil(() => BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin), Math.Max(0, TimeoutMilliseconds));
         }
     }

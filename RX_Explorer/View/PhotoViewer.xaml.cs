@@ -32,7 +32,7 @@ namespace RX_Explorer.View
         private int LastSelectIndex;
         private int RotationLocker;
         private Point LastZoomCenter;
-        private EndUsageNotification MTPEndOfShare;
+        private IDisposable MTPEndOfShare;
         private CancellationTokenSource Cancellation;
         private CancellationTokenSource SingleClickCancellation;
         private readonly ObservableCollection<PhotoDisplayItem> PhotoCollection;
@@ -114,7 +114,7 @@ namespace RX_Explorer.View
                         {
                             if (BaseFolder is MTPStorageFolder MTPFolder)
                             {
-                                MTPEndOfShare = await FileSystemStorageItemBase.SetBulkAccessSharedControllerAsync(SearchResult);
+                                MTPEndOfShare = await FileSystemStorageItemBase.SelfCreateBulkAccessSharedControllerAsync(SearchResult);
                             }
 
                             int SelectedIndex = 0;

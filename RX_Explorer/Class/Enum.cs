@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum PriorityLevel
+    {
+        High = 0,
+        Normal = 1,
+        Low = 2,
+    }
 
     public enum ListViewLocation
     {

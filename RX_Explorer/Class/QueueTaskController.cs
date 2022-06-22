@@ -19,9 +19,8 @@ namespace RX_Explorer.Class
 {
     public static class QueueTaskController
     {
-        private static readonly ConcurrentQueue<OperationListBaseModel> OpeartionQueue = new ConcurrentQueue<OperationListBaseModel>();
+        private static readonly BlockingCollection<OperationListBaseModel> OpeartionQueue = new BlockingCollection<OperationListBaseModel>();
         private static readonly ConcurrentDictionary<OperationListBaseModel, EventHandler<PostProcessingDeferredEventArgs>> PostActionMap = new ConcurrentDictionary<OperationListBaseModel, EventHandler<PostProcessingDeferredEventArgs>>();
-        private static readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
         private static readonly Thread QueueProcessThread = new Thread(QueueProcessHandler)
         {
             IsBackground = true,
@@ -111,54 +110,46 @@ namespace RX_Explorer.Class
                 OperationExistsSinceLastExecution = ListItemSource.Count;
             }
 
+            OpeartionQueue.Add(Model);
             ListItemSource.Insert(0, Model);
-            OpeartionQueue.Enqueue(Model);
 
             if (SettingPage.OpenPanelWhenTaskIsCreated)
             {
                 TabViewContainer.Current.CurrentTabRenderer.SetPanelOpenStatus(true);
             }
-
-            ProcessSleepLocker.Set();
         }
 
         private static void QueueProcessHandler()
         {
             while (true)
             {
-                if (OpeartionQueue.IsEmpty)
-                {
-                    ProcessSleepLocker.WaitOne();
-                }
-
                 try
                 {
                     List<Task> RunningTask = new List<Task>();
 
-                    while (OpeartionQueue.TryDequeue(out OperationListBaseModel Model))
-                    {
-                    Retry:
-                        if (Model.Status != OperationStatus.Cancelled)
-                        {
-                            if (Model is not (OperationListCompressionModel or OperationListDecompressionModel))
-                            {
-                                if (FullTrustProcessController.AllControllersNum
-                                    - Math.Max(RunningTask.Count((Task) => !Task.IsCompleted), FullTrustProcessController.InUseControllersNum)
-                                    < FullTrustProcessController.DynamicBackupProcessNum)
-                                {
-                                    Thread.Sleep(1000);
-                                    goto Retry;
-                                }
-                            }
+                    OperationListBaseModel Model = OpeartionQueue.Take();
 
-                            if (SettingPage.AllowTaskParalledExecution)
+                Retry:
+                    if (Model.Status != OperationStatus.Cancelled)
+                    {
+                        if (Model is not (OperationListCompressionModel or OperationListDecompressionModel))
+                        {
+                            if (FullTrustProcessController.AllControllersNum
+                                - Math.Max(RunningTask.Count((Task) => !Task.IsCompleted), FullTrustProcessController.InUseControllersNum)
+                                < FullTrustProcessController.DynamicBackupProcessNum)
                             {
-                                RunningTask.Add(Task.Factory.StartNew(() => ExecuteSubTaskCore(Model), TaskCreationOptions.LongRunning));
+                                Thread.Sleep(1000);
+                                goto Retry;
                             }
-                            else
-                            {
-                                ExecuteSubTaskCore(Model);
-                            }
+                        }
+
+                        if (SettingPage.AllowTaskParalledExecution)
+                        {
+                            RunningTask.Add(Task.Factory.StartNew(() => ExecuteSubTaskCore(Model), TaskCreationOptions.LongRunning));
+                        }
+                        else
+                        {
+                            ExecuteSubTaskCore(Model);
                         }
                     }
                 }
@@ -205,7 +196,7 @@ namespace RX_Explorer.Class
                         {
                             case OperationListRemoteModel RModel:
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                                    using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
                                     {
                                         try
                                         {
@@ -690,7 +681,7 @@ namespace RX_Explorer.Class
                                 {
                                     try
                                     {
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
                                         {
                                             switch (UndoModel)
                                             {

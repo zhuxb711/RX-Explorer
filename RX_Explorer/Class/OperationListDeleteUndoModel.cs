@@ -32,7 +32,7 @@ namespace RX_Explorer.Class
         {
             string[] UndoRecyclePath;
 
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 UndoRecyclePath = await Task.WhenAll(UndoFrom.Select((Path) => Exclusive.Controller.GetRecyclePathFromOriginPathAsync(Path)));
             }

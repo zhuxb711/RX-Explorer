@@ -9,8 +9,7 @@ namespace RX_Explorer.Class
     public sealed class FTPClientController : IDisposable
     {
         private Thread ProcessThread;
-        private readonly ConcurrentQueue<FTPTaskData> TaskQueue;
-        private readonly AutoResetEvent ProcessSleepLocker;
+        private readonly BlockingCollection<FTPTaskData> TaskCollection;
         private readonly FtpClient Client;
         private readonly SemaphoreSlim Locker;
 
@@ -24,38 +23,32 @@ namespace RX_Explorer.Class
         {
             while (true)
             {
-                if (TaskQueue.IsEmpty)
-                {
-                    ProcessSleepLocker.WaitOne();
-                }
+                FTPTaskData Data = TaskCollection.Take();
 
-                while (TaskQueue.TryDequeue(out FTPTaskData Data))
+                try
                 {
-                    try
+                    if (ConnectAsync().Result)
                     {
-                        if (ConnectAsync().Result)
+                        object ExecuteResult = Data.Executor.DynamicInvoke(Client);
+
+                        if (ExecuteResult is Task AsyncTask)
                         {
-                            object ExecuteResult = Data.Executor.DynamicInvoke(Client);
+                            AsyncTask.Wait();
 
-                            if (ExecuteResult is Task AsyncTask)
+                            if (AsyncTask.Exception is Exception ex)
                             {
-                                AsyncTask.Wait();
-
-                                if (AsyncTask.Exception is Exception ex)
-                                {
-                                    Data.CompletionSource.SetException(ex);
-                                }
-                                else
-                                {
-                                    Data.CompletionSource.SetResult(AsyncTask.GetType().GetProperty("Result").GetValue(AsyncTask));
-                                }
+                                Data.TaskSource.SetException(ex);
+                            }
+                            else
+                            {
+                                Data.TaskSource.SetResult(AsyncTask.GetType().GetProperty("Result").GetValue(AsyncTask));
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Data.CompletionSource.SetException(ex);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Data.TaskSource.SetException(ex);
                 }
             }
         }
@@ -66,11 +59,9 @@ namespace RX_Explorer.Class
             {
                 FTPTaskData Data = new FTPTaskData(Executor);
 
-                TaskQueue.Enqueue(Data);
+                TaskCollection.Add(Data);
 
-                ProcessSleepLocker.Set();
-
-                return (T)await Data.CompletionSource.Task;
+                return (T)await Data.TaskSource.Task;
             }
             else
             {
@@ -84,11 +75,9 @@ namespace RX_Explorer.Class
             {
                 FTPTaskData Data = new FTPTaskData(Executor);
 
-                TaskQueue.Enqueue(Data);
+                TaskCollection.Add(Data);
 
-                ProcessSleepLocker.Set();
-
-                await Data.CompletionSource.Task;
+                await Data.TaskSource.Task;
             }
             else
             {
@@ -102,11 +91,9 @@ namespace RX_Explorer.Class
             {
                 FTPTaskData Data = new FTPTaskData(Executor);
 
-                TaskQueue.Enqueue(Data);
+                TaskCollection.Add(Data);
 
-                ProcessSleepLocker.Set();
-
-                return (T)await Data.CompletionSource.Task;
+                return (T)await Data.TaskSource.Task;
             }
             else
             {
@@ -120,11 +107,9 @@ namespace RX_Explorer.Class
             {
                 FTPTaskData Data = new FTPTaskData(Executor);
 
-                TaskQueue.Enqueue(Data);
+                TaskCollection.Add(Data);
 
-                ProcessSleepLocker.Set();
-
-                await Data.CompletionSource.Task;
+                await Data.TaskSource.Task;
             }
             else
             {
@@ -195,16 +180,21 @@ namespace RX_Explorer.Class
         public void Dispose()
         {
             GC.SuppressFinalize(this);
+
+            TaskCollection.CompleteAdding();
+            TaskCollection.Dispose();
+
             Client.Disconnect();
             Client.Dispose();
+
             Locker.Dispose();
         }
 
         public FTPClientController(string Host, int Port, string UserName, string Password)
         {
             Locker = new SemaphoreSlim(1, 1);
-            ProcessSleepLocker = new AutoResetEvent(false);
-            TaskQueue = new ConcurrentQueue<FTPTaskData>();
+            TaskCollection = new BlockingCollection<FTPTaskData>();
+
             Client = new FtpClient(Host, Port, UserName, Password)
             {
                 NoopInterval = 5000,
@@ -230,7 +220,7 @@ namespace RX_Explorer.Class
         {
             public Delegate Executor { get; }
 
-            public TaskCompletionSource<object> CompletionSource { get; } = new TaskCompletionSource<object>();
+            public TaskCompletionSource<object> TaskSource { get; } = new TaskCompletionSource<object>();
 
             public FTPTaskData(Delegate Executor)
             {

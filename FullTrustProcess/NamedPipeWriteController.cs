@@ -12,15 +12,13 @@ namespace FullTrustProcess
     {
         private readonly Thread ProcessThread;
         private readonly TaskCompletionSource<bool> ConnectionSet;
-        private readonly ConcurrentQueue<string> MessageQueue = new ConcurrentQueue<string>();
-        private readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
+        private readonly BlockingCollection<string> MessageCollection = new BlockingCollection<string>();
 
         public void SendData(string Data)
         {
-            if (IsConnected)
+            if (IsConnected && !MessageCollection.IsAddingCompleted)
             {
-                MessageQueue.Enqueue(Data);
-                ProcessSleepLocker.Set();
+                MessageCollection.Add(Data);
             }
             else
             {
@@ -53,15 +51,20 @@ namespace FullTrustProcess
 
                 while (IsConnected)
                 {
-                    if (MessageQueue.IsEmpty)
+                    string Message = null;
+
+                    try
                     {
-                        ProcessSleepLocker.WaitOne();
+                        Message = MessageCollection.Take();
+                    }
+                    catch (Exception)
+                    {
+                        //No need to handle this exception
                     }
 
-                    while (IsConnected && MessageQueue.TryDequeue(out string Message))
+                    if (!string.IsNullOrEmpty(Message))
                     {
                         byte[] ByteArray = Encoding.Unicode.GetBytes(Message);
-
                         PipeStream.Write(ByteArray, 0, ByteArray.Length);
                         PipeStream.WaitForPipeDrain();
                     }
@@ -81,11 +84,10 @@ namespace FullTrustProcess
         {
             if (!IsDisposed)
             {
-                ProcessSleepLocker.Dispose();
-                MessageQueue.Clear();
+                base.Dispose();
+                MessageCollection.CompleteAdding();
+                MessageCollection.Dispose();
             }
-
-            base.Dispose();
         }
 
         public override async Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds)

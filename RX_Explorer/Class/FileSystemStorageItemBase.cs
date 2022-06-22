@@ -28,7 +28,7 @@ namespace RX_Explorer.Class
     {
         private int IsContentLoaded;
         private double InnerThumbnailOpacity = 1;
-        private RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerSharedRef;
+        private RefSharedRegion<FullTrustProcessController.Exclusive> ControllerSharedRef;
 
         public string Path { get; protected set; }
 
@@ -147,24 +147,24 @@ namespace RX_Explorer.Class
 
         public IStorageItem StorageItem { get; protected set; }
 
-        public static Task<EndUsageNotification> SetBulkAccessSharedControllerAsync<T>(T Item, FullTrustProcessController.ExclusiveUsage ExistingExclusiveUsage = null) where T : FileSystemStorageItemBase
+        public static Task<IDisposable> SelfCreateBulkAccessSharedControllerAsync<T>(T Item, PriorityLevel Priority = PriorityLevel.Normal) where T : FileSystemStorageItemBase
         {
-            return SetBulkAccessSharedControllerAsync(new T[] { Item }, ExistingExclusiveUsage);
+            return SelfCreateBulkAccessSharedControllerAsync(new T[] { Item }, Priority);
         }
 
-        public static async Task<EndUsageNotification> SetBulkAccessSharedControllerAsync<T>(IEnumerable<T> Items, FullTrustProcessController.ExclusiveUsage ExistingExclusiveUsage = null) where T : FileSystemStorageItemBase
+        public static async Task<IDisposable> SelfCreateBulkAccessSharedControllerAsync<T>(IEnumerable<T> Items, PriorityLevel Priority = PriorityLevel.Normal) where T : FileSystemStorageItemBase
         {
             if (Items.Any())
             {
-                FullTrustProcessController.ExclusiveUsage Exclusive = ExistingExclusiveUsage ?? await FullTrustProcessController.GetAvailableControllerAsync();
-                RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRef = new RefSharedRegion<FullTrustProcessController.ExclusiveUsage>(Exclusive, ExistingExclusiveUsage == null);
+                FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(Priority);
+                RefSharedRegion<FullTrustProcessController.Exclusive> SharedRef = new RefSharedRegion<FullTrustProcessController.Exclusive>(Exclusive, true);
 
                 foreach (T Item in Items)
                 {
                     Item.SetBulkAccessSharedControllerCore(SharedRef);
                 }
 
-                return new EndUsageNotification(() =>
+                return new DisposeNotification(() =>
                 {
                     SharedRef.Dispose();
                 });
@@ -175,9 +175,36 @@ namespace RX_Explorer.Class
             }
         }
 
-        private void SetBulkAccessSharedControllerCore(RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRef)
+        public static IDisposable SetBulkAccessSharedController<T>(T Item, FullTrustProcessController.Exclusive Exclusive) where T : FileSystemStorageItemBase
         {
-            if (Interlocked.Exchange(ref ControllerSharedRef, SharedRef) is RefSharedRegion<FullTrustProcessController.ExclusiveUsage> PreviousRef)
+            return SetBulkAccessSharedController(new T[] { Item }, Exclusive);
+        }
+
+        public static IDisposable SetBulkAccessSharedController<T>(IEnumerable<T> Items, FullTrustProcessController.Exclusive Exclusive) where T : FileSystemStorageItemBase
+        {
+            if (Items.Any())
+            {
+                RefSharedRegion<FullTrustProcessController.Exclusive> SharedRef = new RefSharedRegion<FullTrustProcessController.Exclusive>(Exclusive, false);
+
+                foreach (T Item in Items)
+                {
+                    Item.SetBulkAccessSharedControllerCore(SharedRef);
+                }
+
+                return new DisposeNotification(() =>
+                {
+                    SharedRef.Dispose();
+                });
+            }
+            else
+            {
+                throw new ArgumentException("Input items should not be empty", nameof(Items));
+            }
+        }
+
+        private void SetBulkAccessSharedControllerCore(RefSharedRegion<FullTrustProcessController.Exclusive> SharedRef)
+        {
+            if (Interlocked.Exchange(ref ControllerSharedRef, SharedRef) is RefSharedRegion<FullTrustProcessController.Exclusive> PreviousRef)
             {
                 PreviousRef.Dispose();
             }
@@ -191,7 +218,7 @@ namespace RX_Explorer.Class
                 {
                     if (Path.StartsWith(@"\\?\", StringComparison.OrdinalIgnoreCase))
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
                             return await Exclusive.Controller.MTPCheckExistsAsync(Path);
                         }
@@ -253,7 +280,7 @@ namespace RX_Explorer.Class
 
         public static async IAsyncEnumerable<FileSystemStorageItemBase> OpenInBatchAsync(IEnumerable<string> PathArray, [EnumeratorCancellation] CancellationToken CancelToken = default)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 foreach (string Path in PathArray)
                 {
@@ -276,7 +303,7 @@ namespace RX_Explorer.Class
 
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 return await OpenCoreAsync(Path, Exclusive.Controller);
             }
@@ -401,7 +428,7 @@ namespace RX_Explorer.Class
 
             if (Handle.IsInvalid)
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     Handle = await Exclusive.Controller.CreateLocalOneTimeFileHandleAsync(TempFilePath);
                 }
@@ -421,7 +448,7 @@ namespace RX_Explorer.Class
             {
                 if (Path.StartsWith(@"\\?\", StringComparison.OrdinalIgnoreCase))
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         MTPFileData Data = await Exclusive.Controller.MTPCreateSubItemAsync(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path), ItemType, Option);
 
@@ -591,7 +618,7 @@ namespace RX_Explorer.Class
                                 }
                                 catch (Exception)
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
                                         string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, Path);
 
@@ -646,7 +673,7 @@ namespace RX_Explorer.Class
                                 }
                                 catch (Exception)
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
                                         string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, Path);
 
@@ -683,11 +710,11 @@ namespace RX_Explorer.Class
                 int Progress = 0;
                 int ItemCount = CopyFrom.Count();
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(CopyFrom, CancelToken))
                     {
-                        using (EndUsageNotification Disposable = await SetBulkAccessSharedControllerAsync(Item, Exclusive))
+                        using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
                         {
                             await Item.CopyAsync(CopyTo, Option, CancelToken, (s, e) =>
                             {
@@ -701,7 +728,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     await Exclusive.Controller.CopyAsync(CopyFrom, CopyTo, Option, false, CancelToken, ProgressHandler);
                 }
@@ -717,11 +744,11 @@ namespace RX_Explorer.Class
                 int Progress = 0;
                 int ItemCount = MoveFrom.Count();
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(MoveFrom, CancelToken))
                     {
-                        using (EndUsageNotification Disposable = await SetBulkAccessSharedControllerAsync(Item, Exclusive))
+                        using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
                         {
                             await Item.MoveAsync(MoveTo, Option, CancelToken, (s, e) =>
                             {
@@ -735,7 +762,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     await Exclusive.Controller.MoveAsync(MoveFrom, MoveTo, Option, false, CancelToken, ProgressHandler);
                 }
@@ -749,11 +776,11 @@ namespace RX_Explorer.Class
                 int Progress = 0;
                 int ItemCount = DeleteFrom.Count();
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(DeleteFrom, CancelToken))
                     {
-                        using (EndUsageNotification Disposable = await SetBulkAccessSharedControllerAsync(Item, Exclusive))
+                        using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
                         {
                             await Item.DeleteAsync(PermanentDelete, CancelToken, (s, e) =>
                             {
@@ -767,7 +794,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     await Exclusive.Controller.DeleteAsync(DeleteFrom, PermanentDelete, false, CancelToken, ProgressHandler);
                 }
@@ -790,7 +817,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     return await Exclusive.Controller.RenameAsync(Path, DesireName, true, CancelToken);
                 }
@@ -905,7 +932,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        using (EndUsageNotification Disposable = await SetBulkAccessSharedControllerAsync(this))
+                        using (IDisposable Disposable = await SelfCreateBulkAccessSharedControllerAsync(this, PriorityLevel.Low))
                         {
                             if (StorageItem == null)
                             {
@@ -1006,7 +1033,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected bool GetBulkAccessSharedController(out RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedController)
+        protected bool GetBulkAccessSharedController(out RefSharedRegion<FullTrustProcessController.Exclusive> SharedController)
         {
             return (SharedController = ControllerSharedRef?.CreateNew()) != null;
         }
@@ -1055,7 +1082,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     return await Exclusive.Controller.GetNativeHandleAsync(Path, Mode, Option);
                 }
@@ -1064,7 +1091,7 @@ namespace RX_Explorer.Class
 
         protected virtual async Task<BitmapImage> GetThumbnailOverlayAsync()
         {
-            async Task<BitmapImage> GetThumbnailOverlayCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
+            async Task<BitmapImage> GetThumbnailOverlayCoreAsync(FullTrustProcessController.Exclusive Exclusive)
             {
                 byte[] ThumbnailOverlayByteArray = await Exclusive.Controller.GetThumbnailOverlayAsync(Path);
 
@@ -1090,7 +1117,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     return ThumbnailOverlay = await GetThumbnailOverlayCoreAsync(Exclusive);
                 }
@@ -1123,7 +1150,7 @@ namespace RX_Explorer.Class
 
         protected virtual async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
+            async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.Exclusive Exclusive)
             {
                 if (await Exclusive.Controller.GetThumbnailAsync(Path) is Stream ThumbnailStream)
                 {
@@ -1154,7 +1181,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         return await InternalGetThumbnailAsync(Exclusive);
                     }
@@ -1182,7 +1209,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
+                async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(FullTrustProcessController.Exclusive Exclusive)
                 {
                     if (await Exclusive.Controller.GetThumbnailAsync(Path) is Stream ThumbnailStream)
                     {
@@ -1201,7 +1228,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         return await GetThumbnailRawStreamCoreAsync(Exclusive);
                     }
@@ -1223,7 +1250,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         return await Exclusive.Controller.GetPropertiesAsync(Path, Properties);
                     }
@@ -1290,7 +1317,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     await Exclusive.Controller.MoveAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler);
                 }
@@ -1308,7 +1335,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     await Exclusive.Controller.CopyAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler);
                 }
@@ -1328,7 +1355,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     string NewName = await Exclusive.Controller.RenameAsync(Path, DesireName, true, CancelToken);
                     Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
@@ -1348,7 +1375,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, true, CancelToken, ProgressHandler);
                 }

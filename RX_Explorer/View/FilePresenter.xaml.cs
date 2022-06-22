@@ -2399,7 +2399,7 @@ namespace RX_Explorer.View
                             {
                                 args.Handled = true;
 
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
                                 {
                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
@@ -3922,7 +3922,7 @@ namespace RX_Explorer.View
                     {
                         FileSystemStorageItemBase Item = SelectedItemsCopy.First();
 
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
                         {
                             if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                             {
@@ -4501,7 +4501,7 @@ namespace RX_Explorer.View
             {
                 CloseAllFlyout();
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     if (CurrentFolder is MTPStorageFolder)
                     {
@@ -4840,7 +4840,7 @@ namespace RX_Explorer.View
                         {
                             if (await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                             {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
                                     if (File is MTPStorageFile or FTPStorageFile)
                                     {
@@ -5403,7 +5403,7 @@ namespace RX_Explorer.View
 
                                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                         {
                                             if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                             {
@@ -5662,7 +5662,7 @@ namespace RX_Explorer.View
                             }
                         case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
                             {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
                                     if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, Parameters: PathList.ToArray()))
                                     {
@@ -5936,11 +5936,13 @@ namespace RX_Explorer.View
                         {
                             if (input is CancellationToken Token && !Token.IsCancellationRequested)
                             {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                                {
-                                    TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path, Token);
+                                PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
 
-                                    if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                                {
+                                    string ToolTip = await Exclusive.Controller.GetTooltipTextAsync(Item.Path, Token);
+
+                                    if (!string.IsNullOrWhiteSpace(ToolTip)
                                         && !Token.IsCancellationRequested
                                         && !Container.ShouldNotAcceptShortcutKeyInput
                                         && !FileFlyout.IsOpen
@@ -5949,10 +5951,8 @@ namespace RX_Explorer.View
                                         && !MixedFlyout.IsOpen
                                         && !LinkFlyout.IsOpen)
                                     {
-                                        PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
-
                                         TooltipFlyout.Hide();
-
+                                        TooltipFlyoutText.Text = ToolTip;
                                         TooltipFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
                                         {
                                             Position = new Point(Point.Position.X, Point.Position.Y + 25),
@@ -6240,7 +6240,7 @@ namespace RX_Explorer.View
             {
                 if (SQLite.Current.GetTerminalProfileByName(SettingPage.DefaultTerminalName) is TerminalProfile Profile)
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         string LaunchPath = string.Empty;
 
@@ -7338,7 +7338,7 @@ namespace RX_Explorer.View
 
                                 if (await FileSystemStorageItemBase.CheckExistsAsync(DesktopPath))
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
                                         if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                         {
@@ -7369,7 +7369,7 @@ namespace RX_Explorer.View
 
                                         if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Desktop))
                                         {
-                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
                                                 if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                                 {

@@ -12,8 +12,7 @@ namespace RX_Explorer.Class
         private readonly Thread ProcessThread;
         private readonly TaskCompletionSource<bool> ConnectionSet;
         private readonly CancellationTokenSource Cancellation;
-        private readonly ConcurrentQueue<string> MessageQueue;
-        private readonly AutoResetEvent ProcessSleepLocker;
+        private readonly BlockingCollection<string> MessageCollection;
 
         protected override int MaxAllowedConnection => 1;
 
@@ -48,15 +47,20 @@ namespace RX_Explorer.Class
 
                 while (IsConnected)
                 {
-                    if (MessageQueue.IsEmpty)
+                    string Message = null;
+
+                    try
                     {
-                        ProcessSleepLocker.WaitOne();
+                        Message = MessageCollection.Take();
+                    }
+                    catch (Exception)
+                    {
+                        //No need to handle this exception
                     }
 
-                    while (IsConnected && MessageQueue.TryDequeue(out string Message))
+                    if (!string.IsNullOrEmpty(Message))
                     {
                         byte[] ByteArray = Encoding.Unicode.GetBytes(Message);
-
                         PipeStream.Write(ByteArray, 0, ByteArray.Length);
                         PipeStream.WaitForPipeDrain();
                     }
@@ -74,10 +78,9 @@ namespace RX_Explorer.Class
 
         public void SendData(string Data)
         {
-            if (IsConnected)
+            if (IsConnected && !MessageCollection.IsAddingCompleted)
             {
-                MessageQueue.Enqueue(Data);
-                ProcessSleepLocker.Set();
+                MessageCollection.Add(Data);
             }
             else
             {
@@ -89,12 +92,11 @@ namespace RX_Explorer.Class
         {
             if (!IsDisposed)
             {
-                ProcessSleepLocker.Dispose();
-                MessageQueue.Clear();
+                base.Dispose();
+                MessageCollection.CompleteAdding();
+                MessageCollection.Dispose();
                 Cancellation.Dispose();
             }
-
-            base.Dispose();
         }
 
         public override async Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds)
@@ -125,10 +127,9 @@ namespace RX_Explorer.Class
 
         protected NamedPipeWriteController(string Id) : base(Id)
         {
-            MessageQueue = new ConcurrentQueue<string>();
+            MessageCollection = new BlockingCollection<string>();
             Cancellation = new CancellationTokenSource();
             ConnectionSet = new TaskCompletionSource<bool>();
-            ProcessSleepLocker = new AutoResetEvent(false);
 
             ProcessThread = new Thread(WriteProcess)
             {

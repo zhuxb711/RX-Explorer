@@ -302,7 +302,7 @@ namespace RX_Explorer.Class
                             }
                             catch (Exception)
                             {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
                                     string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, SubItemPath);
 
@@ -355,7 +355,7 @@ namespace RX_Explorer.Class
                             }
                             catch (Exception)
                             {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
                                     string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, SubItemPath);
 

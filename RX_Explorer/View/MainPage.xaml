@@ -343,22 +343,22 @@
     <Grid x:Name="RootGrid">
         <Grid x:Name="BackgroundEffectArea"
               Visibility="{x:Bind Cls:BackgroundController.Current.IsMicaEffectEnabled,Mode=OneWay,Converter={StaticResource InverseConverter}}">
-            <Grid Name="CompositorAcrylicBackground"
-                  Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicBackgroundEnabled,Mode=OneWay}" />
+            <Border Name="CompositorAcrylicBackground"
+                    Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicBackgroundEnabled,Mode=OneWay}" />
 
-            <Grid Name="NormalAcrylicBackground"
-                  Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicBackgroundEnabled,Mode=OneWay,Converter={StaticResource InverseConverter}}"
-                  Background="{x:Bind Cls:BackgroundController.Current.BackgroundBrush,Mode=OneWay}" />
+            <Border Name="NormalAcrylicBackground"
+                    Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicBackgroundEnabled,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                    Background="{x:Bind Cls:BackgroundController.Current.BackgroundBrush,Mode=OneWay}" />
 
-            <Grid Visibility="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay,Converter={StaticResource BrushTypeConverter}}">
-                <Grid.Background>
+            <Border Visibility="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay,Converter={StaticResource BrushTypeConverter}}">
+                <Border.Background>
                     <media:AcrylicBrush x:Name="BackgroundBlur"
                                         TintColor="Black"
                                         FallbackColor="Transparent"
                                         BlurAmount="{x:Bind Cls:BackgroundController.Current.BackgroundBlur,Mode=OneWay,Converter={StaticResource BlurConverter}}"
                                         TintOpacity="{x:Bind Cls:BackgroundController.Current.BackgroundLightness,Mode=OneWay,Converter={StaticResource LightnessConverter}}" />
-                </Grid.Background>
-            </Grid>
+                </Border.Background>
+            </Border>
         </Grid>
 
         <muxc:NavigationView Name="NavView"
@@ -447,7 +447,7 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <StackPanel Name="BannerPanel"
-                                ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"/>
+                                ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}" />
                     <Frame Name="Nav"
                            Navigating="Nav_Navigating"
                            Navigated="Nav_Navigated"
@@ -458,7 +458,7 @@
         </muxc:NavigationView>
 
         <local:SettingPage x:Name="Settings"
-                           Visibility="Collapsed"/>
+                           Visibility="Collapsed" />
 
         <Border x:Name="TitleBar"
                 Height="32"

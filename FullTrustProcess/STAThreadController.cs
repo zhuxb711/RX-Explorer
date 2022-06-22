@@ -10,10 +10,8 @@ namespace FullTrustProcess
     public sealed class STAThreadController
     {
         private readonly Thread STAThread;
-        private readonly ConcurrentQueue<STATaskData> TaskQueue;
-        private readonly AutoResetEvent ProcessSleepLocker;
+        private readonly BlockingCollection<STATaskData> TaskCollection;
         private readonly static object Locker = new object();
-        private bool IsCleanUp = false;
 
         private static STAThreadController Instance;
         public static STAThreadController Current
@@ -29,32 +27,20 @@ namespace FullTrustProcess
 
         public Task ExecuteOnSTAThreadAsync(Action Executer)
         {
-            if (IsCleanUp)
-            {
-                throw new InvalidOperationException("Already cleaned up");
-            }
+            STATaskData<object> Data = new STATaskData<object>(Executer);
 
-            TaskCompletionSource<object> CompletionSource = new TaskCompletionSource<object>();
+            TaskCollection.Add(Data);
 
-            TaskQueue.Enqueue(new STATaskData<object>(CompletionSource, Executer));
-            ProcessSleepLocker.Set();
-
-            return CompletionSource.Task;
+            return Data.TaskSource.Task;
         }
 
         public Task<T> ExecuteOnSTAThreadAsync<T>(Func<T> Executer)
         {
-            if (IsCleanUp)
-            {
-                throw new InvalidOperationException("Already cleaned up");
-            }
+            STATaskData<T> Data = new STATaskData<T>(Executer);
 
-            TaskCompletionSource<T> CompletionSource = new TaskCompletionSource<T>();
+            TaskCollection.Add(Data);
 
-            TaskQueue.Enqueue(new STATaskData<T>(CompletionSource, Executer));
-            ProcessSleepLocker.Set();
-
-            return CompletionSource.Task;
+            return Data.TaskSource.Task;
         }
 
         private void ThreadProcess()
@@ -63,54 +49,48 @@ namespace FullTrustProcess
 
             try
             {
-                while (!IsCleanUp)
+                while (true)
                 {
-                    if (TaskQueue.IsEmpty)
-                    {
-                        ProcessSleepLocker.WaitOne();
-                    }
-
                     try
                     {
-                        while (TaskQueue.TryDequeue(out STATaskData Core))
+                        STATaskData Data = TaskCollection.Take();
+
+                        object TaskSourceObject = Data.GetType()
+                                                      .GetProperty("TaskSource")
+                                                      .GetValue(Data);
+
+                        try
                         {
-                            object CompletionSourceObject = Core.GetType()
-                                                                .GetProperty("CompletionSource")
-                                                                .GetValue(Core);
+                            object ExecuterResult = ((Delegate)Data.GetType()
+                                                                   .GetProperty("Executer")
+                                                                   .GetValue(Data)).DynamicInvoke();
 
-                            try
+                            MethodInfo SetResultMethod = TaskSourceObject.GetType()
+                                                                         .GetMethod("SetResult");
+
+                            if (ExecuterResult != null)
                             {
-                                object ExecuterResult = ((Delegate)Core.GetType()
-                                                                       .GetProperty("Executer")
-                                                                       .GetValue(Core)).DynamicInvoke();
+                                SetResultMethod.Invoke(TaskSourceObject, new object[] { ExecuterResult });
+                            }
+                            else
+                            {
+                                Type ParameterType = SetResultMethod.GetParameters()[0].ParameterType;
 
-                                MethodInfo SetResultMethod = CompletionSourceObject.GetType()
-                                                                                   .GetMethod("SetResult");
-
-                                if (ExecuterResult != null)
+                                if (ParameterType.IsValueType)
                                 {
-                                    SetResultMethod.Invoke(CompletionSourceObject, new object[] { ExecuterResult });
+                                    SetResultMethod.Invoke(TaskSourceObject, new object[] { Activator.CreateInstance(ParameterType) });
                                 }
                                 else
                                 {
-                                    Type ParameterType = SetResultMethod.GetParameters()[0].ParameterType;
-
-                                    if (ParameterType.IsValueType)
-                                    {
-                                        SetResultMethod.Invoke(CompletionSourceObject, new object[] { Activator.CreateInstance(ParameterType) });
-                                    }
-                                    else
-                                    {
-                                        SetResultMethod.Invoke(CompletionSourceObject, new object[] { null });
-                                    }
+                                    SetResultMethod.Invoke(TaskSourceObject, new object[] { null });
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                CompletionSourceObject.GetType()
-                                                      .GetMethod("SetException", new Type[] { typeof(Exception) })
-                                                      .Invoke(CompletionSourceObject, new object[] { ex.InnerException ?? ex });
-                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            TaskSourceObject.GetType()
+                                            .GetMethod("SetException", new Type[] { typeof(Exception) })
+                                            .Invoke(TaskSourceObject, new object[] { ex.InnerException ?? ex });
                         }
                     }
                     catch (Exception ex)
@@ -127,24 +107,17 @@ namespace FullTrustProcess
 
         public void CleanUp()
         {
-            if (!IsCleanUp)
-            {
-                IsCleanUp = true;
+            GC.SuppressFinalize(this);
 
-                TaskQueue.Clear();
-                ProcessSleepLocker.Set();
-                ProcessSleepLocker.Dispose();
+            TaskCollection.CompleteAdding();
+            TaskCollection.Dispose();
 
-                GC.SuppressFinalize(this);
-
-                SpinWait.SpinUntil(() => STAThread.ThreadState.HasFlag(ThreadState.Stopped), 2000);
-            }
+            SpinWait.SpinUntil(() => STAThread.ThreadState.HasFlag(ThreadState.Stopped), 2000);
         }
 
         private STAThreadController()
         {
-            ProcessSleepLocker = new AutoResetEvent(false);
-            TaskQueue = new ConcurrentQueue<STATaskData>();
+            TaskCollection = new BlockingCollection<STATaskData>();
 
             STAThread = new Thread(ThreadProcess)
             {
@@ -158,6 +131,26 @@ namespace FullTrustProcess
         ~STAThreadController()
         {
             CleanUp();
+        }
+
+        private sealed class STATaskData<T> : STATaskData
+        {
+            public TaskCompletionSource<T> TaskSource { get; } = new TaskCompletionSource<T>();
+
+            public STATaskData(Delegate Executer) : base(Executer)
+            {
+
+            }
+        }
+
+        private abstract class STATaskData
+        {
+            public Delegate Executer { get; }
+
+            protected STATaskData(Delegate Executer)
+            {
+                this.Executer = Executer;
+            }
         }
     }
 }

@@ -10,11 +10,11 @@ namespace RX_Explorer.Class
         private TaskCompletionSource<bool> PauseSource;
         private bool IsCompleted;
 
-        public async Task<EndUsageNotification> SignalAndWaitTrappedAsync()
+        public async Task<DisposeNotification> SignalAndWaitTrappedAsync()
         {
             if (IsCompleted)
             {
-                return new EndUsageNotification();
+                return new DisposeNotification();
             }
             else
             {
@@ -33,7 +33,7 @@ namespace RX_Explorer.Class
 
                 await PauseSource.Task;
 
-                return new EndUsageNotification(() =>
+                return new DisposeNotification(() =>
                 {
                     WaitSource.TrySetResult(true);
                 });

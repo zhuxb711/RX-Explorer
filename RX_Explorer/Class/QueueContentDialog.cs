@@ -12,11 +12,9 @@ namespace RX_Explorer.Class
 {
     public class QueueContentDialog : ContentDialog
     {
-        public static bool IsRunningOrWaiting => !Queue.IsEmpty || InternalRunningStatus;
+        public static bool IsRunningOrWaiting => DialogCollection.Count > 0;
 
-        private static readonly ConcurrentQueue<QueueContentDialogInternalData> Queue = new ConcurrentQueue<QueueContentDialogInternalData>();
-
-        private static readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
+        private static readonly BlockingCollection<QueueContentDialogInternalData> DialogCollection = new BlockingCollection<QueueContentDialogInternalData>();
 
         private static readonly Thread BackgroundProcessThread = new Thread(ProcessThread)
         {
@@ -24,46 +22,36 @@ namespace RX_Explorer.Class
             Priority = ThreadPriority.BelowNormal
         };
 
-        private static bool InternalRunningStatus = false;
-
         private static void ProcessThread()
         {
             while (true)
             {
-                InternalRunningStatus = false;
+                QueueContentDialogInternalData Data = DialogCollection.Take();
 
-                ProcessSleepLocker.WaitOne();
+                TaskCompletionSource<ContentDialogResult> CompleteSource = new TaskCompletionSource<ContentDialogResult>();
 
-                InternalRunningStatus = true;
-
-                while (Queue.TryDequeue(out QueueContentDialogInternalData Data))
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
-                    TaskCompletionSource<ContentDialogResult> CompleteSource = new TaskCompletionSource<ContentDialogResult>();
-
-                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    try
                     {
-                        try
-                        {
-                            CompleteSource.SetResult(await Data.Instance.ShowAsync());
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, "Could not pop up the ContentDialog");
-                            CompleteSource.SetResult(ContentDialogResult.None);
-                        }
-                    }).AsTask().Wait();
+                        CompleteSource.SetResult(await Data.Instance.ShowAsync());
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not pop up the ContentDialog");
+                        CompleteSource.SetResult(ContentDialogResult.None);
+                    }
+                }).AsTask().Wait();
 
-                    Data.ResultSource.SetResult(CompleteSource.Task.Result);
-                }
+                Data.TaskSource.SetResult(CompleteSource.Task.Result);
             }
         }
 
         public new Task<ContentDialogResult> ShowAsync()
         {
-            TaskCompletionSource<ContentDialogResult> CompletionSource = new TaskCompletionSource<ContentDialogResult>();
-            Queue.Enqueue(new QueueContentDialogInternalData(this, CompletionSource));
-            ProcessSleepLocker.Set();
-            return CompletionSource.Task;
+            QueueContentDialogInternalData Data = new QueueContentDialogInternalData(this);
+            DialogCollection.Add(Data);
+            return Data.TaskSource.Task;
         }
 
         static QueueContentDialog()
@@ -102,12 +90,11 @@ namespace RX_Explorer.Class
         {
             public ContentDialog Instance { get; }
 
-            public TaskCompletionSource<ContentDialogResult> ResultSource { get; }
+            public TaskCompletionSource<ContentDialogResult> TaskSource { get; } = new TaskCompletionSource<ContentDialogResult>();
 
-            public QueueContentDialogInternalData(QueueContentDialog Instance, TaskCompletionSource<ContentDialogResult> ResultSource)
+            public QueueContentDialogInternalData(QueueContentDialog Instance)
             {
                 this.Instance = Instance;
-                this.ResultSource = ResultSource;
             }
         }
     }

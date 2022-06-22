@@ -141,7 +141,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exlusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exlusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         return await Exlusive.Controller.GetSizeOnDiskAsync(Path);
                     }

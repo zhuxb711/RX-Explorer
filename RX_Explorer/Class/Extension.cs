@@ -117,7 +117,7 @@ namespace RX_Explorer.Class
                                     {
                                         await IncomeFileStream.CopyToAsync(TempFileStream);
 
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
                                         {
                                             string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFilePath);
 
@@ -466,7 +466,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
                     {
                         if (PathArray.Length == 1
                             && Flyout.SecondaryCommands.OfType<AppBarButton>()
@@ -849,7 +849,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
                     {
                         return await Exclusive.Controller.OrderByNaturalStringSortAlgorithmAsync(Input, StringSelector, Direction);
                     }

@@ -13,7 +13,7 @@ namespace RX_Explorer.Class
 
         protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 RemoteClipboardRelatedData Data = await Exclusive.Controller.GetRemoteClipboardRelatedDataAsync();
 

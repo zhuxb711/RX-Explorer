@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32.SafeHandles;
+﻿using ConcurrentPriorityQueue.Core;
+using Microsoft.Win32.SafeHandles;
 using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
@@ -26,13 +27,13 @@ namespace RX_Explorer.Class
 
         public bool IsAnyCommandExecutingInCurrentController => CurrentControllerExecutingCommandNum > 0;
 
-        public static bool IsAnyCommandExecutingInAllControllers => AllControllerList.ToArray().Any((Controller) => Controller.IsAnyCommandExecutingInCurrentController);
+        public static bool IsAnyCommandExecutingInAllControllers => AllControllerCollection.ToArray().Any((Controller) => Controller.IsAnyCommandExecutingInCurrentController);
 
-        public static int InUseControllersNum => AllControllerList.Count - AvailableControllers.Count;
+        public static int InUseControllersNum => AllControllerCollection.Count - AvailableControllerCollection.Count;
 
-        public static int AllControllersNum => AllControllerList.Count;
+        public static int AllControllersNum => AllControllerCollection.Count;
 
-        public static int AvailableControllersNum => AvailableControllers.Count;
+        public static int AvailableControllersNum => AvailableControllerCollection.Count;
 
         private readonly static Thread DispatcherThread = new Thread(DispatcherCore)
         {
@@ -50,19 +51,17 @@ namespace RX_Explorer.Class
 
         private NamedPipeCommunicationBaseController PipeCommunicationBaseController;
 
-        private readonly ConcurrentQueue<Command> CommandQueue = new ConcurrentQueue<Command>();
+        private readonly ConcurrentQueue<InternalCommandQueueItem> CommandQueue = new ConcurrentQueue<InternalCommandQueueItem>();
 
-        private static readonly SynchronizedCollection<FullTrustProcessController> AllControllerList = new SynchronizedCollection<FullTrustProcessController>();
+        private static readonly SynchronizedCollection<FullTrustProcessController> AllControllerCollection = new SynchronizedCollection<FullTrustProcessController>();
 
-        private static readonly ConcurrentQueue<FullTrustProcessController> AvailableControllers = new ConcurrentQueue<FullTrustProcessController>();
+        private static readonly BlockingCollection<FullTrustProcessController> AvailableControllerCollection = new BlockingCollection<FullTrustProcessController>();
 
-        private static readonly ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>> WaitingTaskQueue = new ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>>();
+        private static readonly BlockingCollection<InternalExclusivePriorityQueueItem> ExclusivePriorityCollection = new ConcurrentPriorityQueue<InternalExclusivePriorityQueueItem, CustomPriority>().ToBlockingCollection();
 
         private static int ExpectedControllerNum;
 
         public static event EventHandler<bool> CurrentBusyStatus;
-
-        private static readonly AutoResetEvent DispatcherSleepLocker = new AutoResetEvent(false);
 
         private static readonly SemaphoreSlim ResizeTaskLocker = new SemaphoreSlim(1, 1);
 
@@ -77,25 +76,27 @@ namespace RX_Explorer.Class
 
         private FullTrustProcessController()
         {
-            AllControllerList.Add(this);
+            AllControllerCollection.Add(this);
         }
 
         private static void DispatcherCore()
         {
             while (true)
             {
-                if (WaitingTaskQueue.IsEmpty)
-                {
-                    DispatcherSleepLocker.WaitOne();
-                }
-
             NEXT:
-                while (WaitingTaskQueue.TryDequeue(out TaskCompletionSource<ExclusiveUsage> CompletionSource))
+                InternalExclusivePriorityQueueItem Item = ExclusivePriorityCollection.Take();
+
+                while (true)
                 {
-                    while (true)
+                    int WaitCount = 0;
+
+                REWAIT:
+                    using (CancellationTokenSource Cancellation = new CancellationTokenSource(10000))
                     {
-                        if (AvailableControllers.TryDequeue(out FullTrustProcessController Controller))
+                        try
                         {
+                            FullTrustProcessController Controller = AvailableControllerCollection.Take(Cancellation.Token);
+
                             if ((Controller?.IsDisposed).GetValueOrDefault(true) || Controller.SendCommandAsync(CommandType.Test).Result == null)
                             {
                                 LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
@@ -109,7 +110,7 @@ namespace RX_Explorer.Class
                                 {
                                     if (CreateAsync().Result is FullTrustProcessController NewController)
                                     {
-                                        AvailableControllers.Enqueue(NewController);
+                                        AvailableControllerCollection.Add(NewController);
                                         break;
                                     }
                                     else
@@ -120,38 +121,26 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                CompletionSource.SetResult(new ExclusiveUsage(Controller, ExtendedExecutionController.CreateExtendedExecutionAsync().Result));
+                                CurrentBusyStatus?.Invoke(null, false);
+                                Item.TaskSource.SetResult(new Exclusive(Controller, ExtendedExecutionController.CreateExtendedExecutionAsync().Result));
                                 break;
                             }
                         }
-                        else
+                        catch (OperationCanceledException)
                         {
-                            for (int WaitCount = 1; AvailableControllers.IsEmpty; WaitCount++)
+                            switch (++WaitCount)
                             {
-                                if (SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 2000))
-                                {
-                                    if (WaitCount > 5)
+                                case 1:
+                                    {
+                                        CurrentBusyStatus?.Invoke(null, true);
+                                        goto REWAIT;
+                                    }
+                                case 6:
                                     {
                                         CurrentBusyStatus?.Invoke(null, false);
+                                        Item.TaskSource.TrySetException(new TimeoutException("FullTrustProcessController Dispather Timeout"));
+                                        goto NEXT;
                                     }
-
-                                    break;
-                                }
-
-                                switch (WaitCount)
-                                {
-                                    case 5:
-                                        {
-                                            CurrentBusyStatus?.Invoke(null, true);
-                                            break;
-                                        }
-                                    case 30:
-                                        {
-                                            CurrentBusyStatus?.Invoke(null, false);
-                                            CompletionSource.TrySetException(new TimeoutException("Dispather timeout"));
-                                            goto NEXT;
-                                        }
-                                }
                             }
                         }
                     }
@@ -184,7 +173,7 @@ namespace RX_Explorer.Class
                         {
                             if (PreviousTask.Result is FullTrustProcessController NewController)
                             {
-                                AvailableControllers.Enqueue(NewController);
+                                AvailableControllerCollection.Add(NewController);
                             }
                         }));
                     }
@@ -197,7 +186,7 @@ namespace RX_Explorer.Class
 
                     for (int Counter = 0; Counter < RemoveCount; Counter++)
                     {
-                        if (AvailableControllers.TryDequeue(out FullTrustProcessController RemoveController))
+                        if (AvailableControllerCollection.TryTake(out FullTrustProcessController RemoveController))
                         {
                             RemoveController.Dispose();
                         }
@@ -215,15 +204,13 @@ namespace RX_Explorer.Class
         }
 
 
-        public static Task<ExclusiveUsage> GetAvailableControllerAsync()
+        public static Task<Exclusive> GetAvailableControllerAsync(PriorityLevel Priority = PriorityLevel.Normal)
         {
-            TaskCompletionSource<ExclusiveUsage> CompletionSource = new TaskCompletionSource<ExclusiveUsage>();
+            InternalExclusivePriorityQueueItem ExclusiveQueueItem = new InternalExclusivePriorityQueueItem(Priority);
 
-            WaitingTaskQueue.Enqueue(CompletionSource);
+            ExclusivePriorityCollection.Add(ExclusiveQueueItem);
 
-            DispatcherSleepLocker.Set();
-
-            return CompletionSource.Task;
+            return ExclusiveQueueItem.TaskSource.Task;
         }
 
         private static async Task<FullTrustProcessController> CreateAsync()
@@ -339,7 +326,7 @@ namespace RX_Explorer.Class
 
         private void PipeProgressReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
         {
-            if (CommandQueue.TryPeek(out Command CommandObject))
+            if (CommandQueue.TryPeek(out InternalCommandQueueItem CommandObject))
             {
                 if (e.ExtraException == null)
                 {
@@ -361,27 +348,27 @@ namespace RX_Explorer.Class
 
         private void PipeCommandReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
         {
-            if (CommandQueue.TryDequeue(out Command CommandObject))
+            if (CommandQueue.TryDequeue(out InternalCommandQueueItem CommandObject))
             {
                 bool ResponseSet;
 
                 if (e.ExtraException is Exception Ex)
                 {
-                    ResponseSet = CommandObject.ResultSetter.TrySetException(Ex);
+                    ResponseSet = CommandObject.TaskSource.TrySetException(Ex);
                 }
                 else
                 {
                     try
                     {
-                        ResponseSet = CommandObject.ResultSetter.TrySetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
+                        ResponseSet = CommandObject.TaskSource.TrySetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
                     }
                     catch (Exception ex)
                     {
-                        ResponseSet = CommandObject.ResultSetter.TrySetException(ex);
+                        ResponseSet = CommandObject.TaskSource.TrySetException(ex);
                     }
                 }
 
-                if (!ResponseSet && !CommandObject.ResultSetter.TrySetCanceled())
+                if (!ResponseSet && !CommandObject.TaskSource.TrySetCanceled())
                 {
                     LogTracer.Log("FullTrustProcessController could not set the response properly");
                 }
@@ -406,12 +393,11 @@ namespace RX_Explorer.Class
                         Command.Add(Argument.Item1, Convert.ToString(Argument.Item2));
                     }
 
-                    TaskCompletionSource<IDictionary<string, string>> CompletionSource = new TaskCompletionSource<IDictionary<string, string>>();
-
-                    CommandQueue.Enqueue(new Command(CompletionSource));
+                    InternalCommandQueueItem CommandItem = new InternalCommandQueueItem();
+                    CommandQueue.Enqueue(CommandItem);
                     PipeCommandWriteController.SendData(JsonSerializer.Serialize(Command));
 
-                    return await CompletionSource.Task;
+                    return await CommandItem.TaskSource.Task;
                 }
             }
             catch (Exception ex)
@@ -444,12 +430,11 @@ namespace RX_Explorer.Class
                         Command.Add(Argument.Item1, Argument.Item2);
                     }
 
-                    TaskCompletionSource<IDictionary<string, string>> CompletionSource = new TaskCompletionSource<IDictionary<string, string>>();
-
-                    CommandQueue.Enqueue(new Command(CompletionSource, ProgressHandler));
+                    InternalCommandQueueItem CommandItem = new InternalCommandQueueItem(ProgressHandler);
+                    CommandQueue.Enqueue(CommandItem);
                     PipeCommandWriteController.SendData(JsonSerializer.Serialize(Command));
 
-                    return await CompletionSource.Task;
+                    return await CommandItem.TaskSource.Task;
                 }
             }
             catch (Exception ex)
@@ -2426,7 +2411,7 @@ namespace RX_Explorer.Class
                 }
                 finally
                 {
-                    AllControllerList.Remove(this);
+                    AllControllerCollection.Remove(this);
                 }
             }
         }
@@ -2436,24 +2421,58 @@ namespace RX_Explorer.Class
             Dispose();
         }
 
-        private sealed class Command
+        private sealed class InternalCommandQueueItem
         {
             public ProgressChangedEventHandler ProgressHandler { get; }
 
-            public TaskCompletionSource<IDictionary<string, string>> ResultSetter { get; }
+            public TaskCompletionSource<IDictionary<string, string>> TaskSource { get; }
 
-            public Command(TaskCompletionSource<IDictionary<string, string>> ResultSetter)
-            {
-                this.ResultSetter = ResultSetter;
-            }
-
-            public Command(TaskCompletionSource<IDictionary<string, string>> ResultSetter, ProgressChangedEventHandler ProgressHandler) : this(ResultSetter)
+            public InternalCommandQueueItem(ProgressChangedEventHandler ProgressHandler = null) : this()
             {
                 this.ProgressHandler = ProgressHandler;
             }
+
+            private InternalCommandQueueItem()
+            {
+                TaskSource = new TaskCompletionSource<IDictionary<string, string>>();
+            }
         }
 
-        public sealed class ExclusiveUsage : IDisposable
+        private sealed class InternalExclusivePriorityQueueItem : IHavePriority<CustomPriority>
+        {
+            public CustomPriority Priority { get; set; }
+
+            public TaskCompletionSource<Exclusive> TaskSource { get; } = new TaskCompletionSource<Exclusive>();
+
+            public InternalExclusivePriorityQueueItem(PriorityLevel Priority)
+            {
+                this.Priority = new CustomPriority(Priority);
+            }
+        }
+
+        private class CustomPriority : IEquatable<CustomPriority>, IComparable<CustomPriority>
+        {
+            public PriorityLevel Priority { get; }
+
+            public override int GetHashCode() => Priority.GetHashCode();
+
+            public bool Equals(CustomPriority other)
+            {
+                return Priority.Equals(other.Priority);
+            }
+
+            public int CompareTo(CustomPriority other)
+            {
+                return Priority.CompareTo(other.Priority);
+            }
+
+            public CustomPriority(PriorityLevel Priority)
+            {
+                this.Priority = Priority;
+            }
+        }
+
+        public sealed class Exclusive : IDisposable
         {
             public FullTrustProcessController Controller { get; }
 
@@ -2463,7 +2482,7 @@ namespace RX_Explorer.Class
 
             private bool IsDisposed;
 
-            public ExclusiveUsage(FullTrustProcessController Controller, ExtendedExecutionController ExtExecution)
+            public Exclusive(FullTrustProcessController Controller, ExtendedExecutionController ExtExecution)
             {
                 this.Controller = Controller;
                 this.ExtExecution = ExtExecution;
@@ -2487,13 +2506,13 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            AvailableControllers.Enqueue(Controller);
+                            AvailableControllerCollection.Add(Controller);
                         }
                     }
                 }
             }
 
-            ~ExclusiveUsage()
+            ~Exclusive()
             {
                 Dispose();
             }

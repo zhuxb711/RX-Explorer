@@ -21,7 +21,7 @@ namespace RX_Explorer.Class
                 await BaseStream.CopyToAsync(TempStream, 1024, CancelToken);
                 await TempStream.FlushAsync();
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
                 {
                     await Exclusive.Controller.MTPReplaceWithNewFileAsync(Path, TempFilePath);
                 }
