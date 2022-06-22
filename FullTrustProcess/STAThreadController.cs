@@ -7,8 +7,9 @@ using Vanara.PInvoke;
 
 namespace FullTrustProcess
 {
-    public sealed class STAThreadController
+    public sealed class STAThreadController : IDisposable
     {
+        private bool IsDisposed;
         private readonly Thread STAThread;
         private readonly BlockingCollection<STATaskData> TaskCollection;
         private readonly static object Locker = new object();
@@ -49,48 +50,60 @@ namespace FullTrustProcess
 
             try
             {
-                while (true)
+                while (!IsDisposed)
                 {
                     try
                     {
-                        STATaskData Data = TaskCollection.Take();
-
-                        object TaskSourceObject = Data.GetType()
-                                                      .GetProperty("TaskSource")
-                                                      .GetValue(Data);
+                        STATaskData Data = null;
 
                         try
                         {
-                            object ExecuterResult = ((Delegate)Data.GetType()
-                                                                   .GetProperty("Executer")
-                                                                   .GetValue(Data)).DynamicInvoke();
+                            Data = TaskCollection.Take();
+                        }
+                        catch (Exception)
+                        {
+                            //No need to handle this exception
+                        }
 
-                            MethodInfo SetResultMethod = TaskSourceObject.GetType()
-                                                                         .GetMethod("SetResult");
+                        if (Data != null)
+                        {
+                            object TaskSourceObject = Data.GetType()
+                                                          .GetProperty("TaskSource")
+                                                          .GetValue(Data);
 
-                            if (ExecuterResult != null)
+                            try
                             {
-                                SetResultMethod.Invoke(TaskSourceObject, new object[] { ExecuterResult });
-                            }
-                            else
-                            {
-                                Type ParameterType = SetResultMethod.GetParameters()[0].ParameterType;
+                                object ExecuterResult = ((Delegate)Data.GetType()
+                                                                       .GetProperty("Executer")
+                                                                       .GetValue(Data)).DynamicInvoke();
 
-                                if (ParameterType.IsValueType)
+                                MethodInfo SetResultMethod = TaskSourceObject.GetType()
+                                                                             .GetMethod("SetResult");
+
+                                if (ExecuterResult != null)
                                 {
-                                    SetResultMethod.Invoke(TaskSourceObject, new object[] { Activator.CreateInstance(ParameterType) });
+                                    SetResultMethod.Invoke(TaskSourceObject, new object[] { ExecuterResult });
                                 }
                                 else
                                 {
-                                    SetResultMethod.Invoke(TaskSourceObject, new object[] { null });
+                                    Type ParameterType = SetResultMethod.GetParameters()[0].ParameterType;
+
+                                    if (ParameterType.IsValueType)
+                                    {
+                                        SetResultMethod.Invoke(TaskSourceObject, new object[] { Activator.CreateInstance(ParameterType) });
+                                    }
+                                    else
+                                    {
+                                        SetResultMethod.Invoke(TaskSourceObject, new object[] { null });
+                                    }
                                 }
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            TaskSourceObject.GetType()
-                                            .GetMethod("SetException", new Type[] { typeof(Exception) })
-                                            .Invoke(TaskSourceObject, new object[] { ex.InnerException ?? ex });
+                            catch (Exception ex)
+                            {
+                                TaskSourceObject.GetType()
+                                                .GetMethod("SetException", new Type[] { typeof(Exception) })
+                                                .Invoke(TaskSourceObject, new object[] { ex.InnerException ?? ex });
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -105,14 +118,19 @@ namespace FullTrustProcess
             }
         }
 
-        public void CleanUp()
+        public void Dispose()
         {
-            GC.SuppressFinalize(this);
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
 
-            TaskCollection.CompleteAdding();
-            TaskCollection.Dispose();
+                GC.SuppressFinalize(this);
 
-            SpinWait.SpinUntil(() => STAThread.ThreadState.HasFlag(ThreadState.Stopped), 2000);
+                TaskCollection.CompleteAdding();
+                TaskCollection.Dispose();
+
+                SpinWait.SpinUntil(() => STAThread.ThreadState.HasFlag(ThreadState.Stopped), 2000);
+            }
         }
 
         private STAThreadController()
@@ -130,7 +148,7 @@ namespace FullTrustProcess
 
         ~STAThreadController()
         {
-            CleanUp();
+            Dispose();
         }
 
         private sealed class STATaskData<T> : STATaskData

@@ -130,7 +130,7 @@ namespace RX_Explorer.Class
                         {
                             switch (++WaitCount)
                             {
-                                case 1:
+                                case < 6:
                                     {
                                         CurrentBusyStatus?.Invoke(null, true);
                                         goto REWAIT;

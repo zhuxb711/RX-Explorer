@@ -8,7 +8,8 @@ namespace RX_Explorer.Class
 {
     public sealed class FTPClientController : IDisposable
     {
-        private Thread ProcessThread;
+        private bool IsDisposed;
+        private readonly Thread ProcessThread;
         private readonly BlockingCollection<FTPTaskData> TaskCollection;
         private readonly FtpClient Client;
         private readonly SemaphoreSlim Locker;
@@ -21,34 +22,50 @@ namespace RX_Explorer.Class
 
         private void ProcessCore()
         {
-            while (true)
+            while (!IsDisposed)
             {
-                FTPTaskData Data = TaskCollection.Take();
+                FTPTaskData Data = null;
 
                 try
                 {
-                    if (ConnectAsync().Result)
+                    Data = TaskCollection.Take();
+                }
+                catch (Exception)
+                {
+                    //No need to handle this exception
+                }
+
+                if (Data != null)
+                {
+                    if (IsAvailable)
                     {
-                        object ExecuteResult = Data.Executor.DynamicInvoke(Client);
-
-                        if (ExecuteResult is Task AsyncTask)
+                        try
                         {
-                            AsyncTask.Wait();
+                            object ExecuteResult = Data.Executor.DynamicInvoke(Client);
 
-                            if (AsyncTask.Exception is Exception ex)
+                            if (ExecuteResult is Task AsyncTask)
                             {
-                                Data.TaskSource.SetException(ex);
-                            }
-                            else
-                            {
-                                Data.TaskSource.SetResult(AsyncTask.GetType().GetProperty("Result").GetValue(AsyncTask));
+                                AsyncTask.Wait();
+
+                                if (AsyncTask.Exception is Exception ex)
+                                {
+                                    Data.TaskSource.SetException(ex);
+                                }
+                                else
+                                {
+                                    Data.TaskSource.SetResult(AsyncTask.GetType().GetProperty("Result").GetValue(AsyncTask));
+                                }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            Data.TaskSource.SetException(ex);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Data.TaskSource.SetException(ex);
+                    else
+                    {
+                        Data.TaskSource.SetException(new FtpException("Connection lost"));
+                    }
                 }
             }
         }
@@ -146,7 +163,7 @@ namespace RX_Explorer.Class
                     }
                     catch (Exception)
                     {
-                        //Connection lost
+                        //Connection lost and we continue to try reconnect
                     }
                 }
 
@@ -154,8 +171,8 @@ namespace RX_Explorer.Class
                 {
                     if (IsAvailable)
                     {
+                        ProcessThread.Start();
                         LogTracer.Log($"Ftp server is connected, protocal: {Profile.Protocols}, encryption: {Profile.Encryption}, encoding: {Profile.Encoding.EncodingName}");
-
                         return true;
                     }
                 }
@@ -179,15 +196,20 @@ namespace RX_Explorer.Class
 
         public void Dispose()
         {
-            GC.SuppressFinalize(this);
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
 
-            TaskCollection.CompleteAdding();
-            TaskCollection.Dispose();
+                GC.SuppressFinalize(this);
 
-            Client.Disconnect();
-            Client.Dispose();
+                TaskCollection.CompleteAdding();
+                TaskCollection.Dispose();
 
-            Locker.Dispose();
+                Client.Disconnect();
+                Client.Dispose();
+
+                Locker.Dispose();
+            }
         }
 
         public FTPClientController(string Host, int Port, string UserName, string Password)
@@ -207,8 +229,6 @@ namespace RX_Explorer.Class
                 IsBackground = true,
                 Priority = ThreadPriority.Normal
             };
-
-            ProcessThread.Start();
         }
 
         ~FTPClientController()

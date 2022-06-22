@@ -643,7 +643,7 @@ namespace FullTrustProcess
 
                 LogTracer.MakeSureLogIsFlushed(2000);
 
-                STAThreadController.Current.CleanUp();
+                STAThreadController.Current.Dispose();
             }
         }
 

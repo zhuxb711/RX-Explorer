@@ -219,13 +219,8 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                if (PreviousTask.Result != null)
+                                if (PreviousTask.Result != null && !DriveList.Contains(PreviousTask.Result))
                                 {
-                                    if (DriveList.Contains(PreviousTask.Result))
-                                    {
-                                        DriveList.Remove(PreviousTask.Result);
-                                    }
-
                                     DriveList.Add(PreviousTask.Result);
                                 }
                                 else
@@ -253,13 +248,8 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    if (PreviousTask.Result != null)
+                                    if (PreviousTask.Result != null && !DriveList.Contains(PreviousTask.Result))
                                     {
-                                        if (DriveList.Contains(PreviousTask.Result))
-                                        {
-                                            DriveList.Remove(PreviousTask.Result);
-                                        }
-
                                         DriveList.Add(PreviousTask.Result);
                                     }
                                     else
