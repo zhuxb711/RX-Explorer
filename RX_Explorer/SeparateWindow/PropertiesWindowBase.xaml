@@ -29,12 +29,23 @@
                     <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="{Binding Key,Mode=OneTime}"
+                           Name="KeyLabel"
+                           TextTrimming="CharacterEllipsis"
                            HorizontalAlignment="Left"
-                           VerticalAlignment="Center" />
+                           VerticalAlignment="Center">
+                    <ToolTipService.ToolTip>
+                        <ToolTip Content="{Binding Key,Mode=OneTime}"
+                                 Visibility="{Binding ElementName=KeyLabel,Path=IsTextTrimmed}" />
+                    </ToolTipService.ToolTip>
+                </TextBlock>
                 <TextBlock Grid.Column="1"
                            Name="ValueLabel"
-                           Text="{Binding Value,Mode=OneTime}"
-                           TextWrapping="Wrap">
+                           MaxLines="3"
+                           TextWrapping="Wrap"
+                           TextTrimming="CharacterEllipsis"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           Text="{Binding Value,Mode=OneTime}">
                     <ToolTipService.ToolTip>
                         <ToolTip Content="{Binding Value,Mode=OneTime}"
                                  Visibility="{Binding ElementName=ValueLabel,Path=IsTextTrimmed}" />
@@ -50,8 +61,15 @@
                     <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="{Binding Key,Mode=OneTime}"
+                           Name="KeyLabel"
+                           TextTrimming="CharacterEllipsis"
                            HorizontalAlignment="Left"
-                           VerticalAlignment="Center" />
+                           VerticalAlignment="Center">
+                    <ToolTipService.ToolTip>
+                        <ToolTip Content="{Binding Key,Mode=OneTime}"
+                                 Visibility="{Binding ElementName=KeyLabel,Path=IsTextTrimmed}" />
+                    </ToolTipService.ToolTip>
+                </TextBlock>
                 <muxc:RatingControl Grid.Column="1"
                                     IsReadOnly="True"
                                     HorizontalAlignment="Left"
@@ -900,8 +918,8 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="35" />
-                        <RowDefinition Height="2*" />
-                        <RowDefinition Height="3*" />
+                        <RowDefinition Height="4*" />
+                        <RowDefinition Height="7*" />
                     </Grid.RowDefinitions>
                     <Grid Padding="2,0">
                         <Grid.ColumnDefinitions>
@@ -910,10 +928,12 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="对象名称:"
+                                   VerticalAlignment="Center"
                                    x:Uid="SecurityObjectNameLabel"
                                    x:Name="SecurityObjectNameLabel" />
                         <ScrollViewer Grid.Column="1"
                                       Margin="10,0,0,0"
+                                      VerticalAlignment="Center"
                                       HorizontalScrollMode="Enabled"
                                       VerticalScrollBarVisibility="Disabled"
                                       HorizontalScrollBarVisibility="Hidden"
@@ -927,7 +947,6 @@
                               BorderThickness="1"
                               BorderBrush="Gray"
                               CornerRadius="4"
-                              Padding="5"
                               MaxHeight="210"
                               x:Name="SecurityAccountList"
                               SelectionMode="Single"
@@ -961,13 +980,12 @@
                         </ListView.ItemTemplate>
                     </ListView>
                     <ListView Grid.Row="2"
-                              Margin="0,20,0,0"
+                              Margin="0,10,0,0"
                               x:Name="SecurityPermissionList"
                               SelectionMode="None"
                               BorderThickness="1"
                               BorderBrush="Gray"
                               CornerRadius="4"
-                              Padding="5"
                               Style="{StaticResource ListViewStyleWithFixedHeader}"
                               Windows11NotPresent:ItemContainerStyle="{StaticResource CustomListViewItemWithoutAnimationStyle}">
                         <ListView.Header>

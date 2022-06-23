@@ -39,7 +39,7 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     AvailableEncodings.AddRange(await Exclusive.Controller.GetAllEncodingsAsync());
                 }
@@ -50,6 +50,7 @@ namespace RX_Explorer.Dialog
                 AvailableEncodings.AddRange(Encoding.GetEncodings().Select((Info) => Info.GetEncoding()));
             }
 
+            EncodingOption.IsEnabled = true;
             EncodingOption.SelectedItem = AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == Encoding.UTF8.CodePage);
         }
 

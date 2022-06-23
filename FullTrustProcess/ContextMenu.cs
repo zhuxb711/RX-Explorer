@@ -20,14 +20,14 @@ namespace FullTrustProcess
         private const int BufferSize = 1024;
         private const uint CchMax = BufferSize - 1;
 
-        private static readonly HashSet<string> VerbFilterHashSet = new HashSet<string>
+        private static readonly HashSet<string> VerbFilterHashSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "open","opennewprocess","pintohome","cut","copy","paste","delete","properties","openas",
             "link","runas","rename","pintostartscreen","windows.share","windows.modernshare",
             "{B4CEA422-3911-4198-16CB-63345D563096}", "copyaspath", "opencontaining"
         };
 
-        private static readonly HashSet<string> NameFilterHashSet = new HashSet<string>();
+        private static readonly HashSet<string> NameFilterHashSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private static readonly object Locker = new object();
 
@@ -217,7 +217,7 @@ namespace FullTrustProcess
                                         }
                                     }
 
-                                    if (!VerbFilterHashSet.Contains(Verb.ToLower()) && !NameFilterHashSet.Contains(MenuItemName))
+                                    if (!VerbFilterHashSet.Contains(Verb) && !NameFilterHashSet.Contains(MenuItemName))
                                     {
                                         ContextMenuPackage Package = new ContextMenuPackage
                                         {

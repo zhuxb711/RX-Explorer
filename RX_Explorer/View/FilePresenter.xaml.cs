@@ -2669,7 +2669,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private async Task DisplayItemsInFolderCore(FileSystemStorageFolder Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false)
+        private async Task DisplayItemsInFolderCoreAsync(FileSystemStorageFolder Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false)
         {
             await EnterLock.WaitAsync();
 
@@ -2846,50 +2846,39 @@ namespace RX_Explorer.View
             }
         }
 
-        public async Task<bool> DisplayItemsInFolder(FileSystemStorageFolder Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false)
+        public Task<bool> DisplayItemsInFolderAsync(FileSystemStorageFolder Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false)
         {
             if (Folder == null)
             {
                 throw new ArgumentNullException(nameof(Folder), "Parameter could not be null or empty");
             }
 
-            try
+            return DisplayItemsInFolderCoreAsync(Folder, ForceRefresh, SkipNavigationRecord).ContinueWith((PreviousTask) =>
             {
-                await DisplayItemsInFolderCore(Folder, ForceRefresh, SkipNavigationRecord);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not display items in folder: \"{Folder.Path}\"");
-            }
+                if (PreviousTask.Exception is Exception Ex)
+                {
+                    LogTracer.Log(Ex, $"Could not display items in folder: \"{Folder.Path}\"");
+                    return false;
+                }
 
-            return false;
+                return true;
+            });
         }
 
-        public async Task<bool> DisplayItemsInFolder(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
+        public async Task<bool> DisplayItemsInFolderAsync(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
         {
             if (RootStorageFolder.Current.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
             {
-                await DisplayItemsInFolderCore(RootStorageFolder.Current, ForceRefresh, SkipNavigationRecord);
-                return true;
+                return await DisplayItemsInFolderAsync(RootStorageFolder.Current, ForceRefresh, SkipNavigationRecord);
+            }
+            else if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
+            {
+                return await DisplayItemsInFolderAsync(Folder, ForceRefresh, SkipNavigationRecord);
             }
             else
             {
-                if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
-                {
-                    try
-                    {
-                        await DisplayItemsInFolderCore(Folder, ForceRefresh, SkipNavigationRecord);
-                        return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"Could not display items in folder: \"{FolderPath}\"");
-                    }
-                }
+                return false;
             }
-
-            return false;
         }
 
         private void Presenter_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
@@ -4231,7 +4220,7 @@ namespace RX_Explorer.View
                 {
                     if (Path.GetPathRoot(CurrentFolder?.Path).Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
                     {
-                        await DisplayItemsInFolder(RootStorageFolder.Current);
+                        await DisplayItemsInFolderAsync(RootStorageFolder.Current);
                     }
                     else if (Container.GoParentFolder.IsEnabled)
                     {
@@ -4246,7 +4235,7 @@ namespace RX_Explorer.View
                                 DirectoryPath = RootStorageFolder.Current.Path;
                             }
 
-                            if (await DisplayItemsInFolder(DirectoryPath))
+                            if (await DisplayItemsInFolderAsync(DirectoryPath))
                             {
                                 if (FileCollection.OfType<FileSystemStorageFolder>().FirstOrDefault((Item) => Item.Path.Equals(CurrentFolderPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Folder)
                                 {
@@ -4548,7 +4537,7 @@ namespace RX_Explorer.View
                                 string NewName = await Folder.RenameAsync(e.NewName);
                                 string NewPath = Path.Combine(Path.GetDirectoryName(e.Path), NewName);
 
-                                if (!await DisplayItemsInFolder(NewPath, SkipNavigationRecord: true))
+                                if (!await DisplayItemsInFolderAsync(NewPath, SkipNavigationRecord: true))
                                 {
                                     QueueContentDialog dialog = new QueueContentDialog
                                     {
@@ -4782,7 +4771,7 @@ namespace RX_Explorer.View
 
             try
             {
-                if (!await DisplayItemsInFolder(CurrentFolder.Path, true))
+                if (!await DisplayItemsInFolderAsync(CurrentFolder.Path, true))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -4925,7 +4914,7 @@ namespace RX_Explorer.View
                                                             {
                                                                 case FileSystemStorageFolder:
                                                                     {
-                                                                        if (!await DisplayItemsInFolder(Item.LinkTargetPath))
+                                                                        if (!await DisplayItemsInFolderAsync(Item.LinkTargetPath))
                                                                         {
                                                                             throw new DirectoryNotFoundException();
                                                                         }
@@ -5011,7 +5000,7 @@ namespace RX_Explorer.View
                         }
                     case FileSystemStorageFolder Folder:
                         {
-                            if (!await DisplayItemsInFolder(Folder))
+                            if (!await DisplayItemsInFolderAsync(Folder))
                             {
                                 throw new DirectoryNotFoundException();
                             }
@@ -6621,7 +6610,7 @@ namespace RX_Explorer.View
                 {
                     string ParentFolderPath = Path.GetDirectoryName(Item.LinkTargetPath);
 
-                    if (await DisplayItemsInFolder(ParentFolderPath))
+                    if (await DisplayItemsInFolderAsync(ParentFolderPath))
                     {
                         if (FileCollection.FirstOrDefault((SItem) => SItem.Path.Equals(Item.LinkTargetPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Target)
                         {
@@ -7235,7 +7224,7 @@ namespace RX_Explorer.View
         {
             if (!Container.ShouldNotAcceptShortcutKeyInput)
             {
-                if (!await DisplayItemsInFolder(Path))
+                if (!await DisplayItemsInFolderAsync(Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -7458,7 +7447,7 @@ namespace RX_Explorer.View
         {
             if (Path.GetPathRoot(CurrentFolder?.Path).Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
             {
-                await DisplayItemsInFolder(RootStorageFolder.Current);
+                await DisplayItemsInFolderAsync(RootStorageFolder.Current);
             }
             else if (Container.GoParentFolder.IsEnabled)
             {
@@ -7473,7 +7462,7 @@ namespace RX_Explorer.View
                         DirectoryPath = RootStorageFolder.Current.Path;
                     }
 
-                    if (await DisplayItemsInFolder(DirectoryPath))
+                    if (await DisplayItemsInFolderAsync(DirectoryPath))
                     {
                         if (FileCollection.OfType<FileSystemStorageFolder>().FirstOrDefault((Item) => Item.Path.Equals(CurrentFolderPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Folder)
                         {

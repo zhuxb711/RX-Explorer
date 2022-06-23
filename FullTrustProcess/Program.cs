@@ -4184,7 +4184,7 @@ namespace FullTrustProcess
                                         {
                                             RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
 
-                                            if (RelatedData.ItemsCount > 0)
+                                            if ((RelatedData?.ItemsCount).GetValueOrDefault() > 0)
                                             {
                                                 ulong CurrentPosition = 0;
 

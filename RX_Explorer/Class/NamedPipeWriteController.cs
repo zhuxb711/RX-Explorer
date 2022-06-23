@@ -9,9 +9,9 @@ namespace RX_Explorer.Class
 {
     public class NamedPipeWriteController : NamedPipeControllerBase
     {
+        private CancellationTokenSource Cancellation;
         private readonly Thread ProcessThread;
         private readonly TaskCompletionSource<bool> ConnectionSet;
-        private readonly CancellationTokenSource Cancellation;
         private readonly BlockingCollection<string> MessageCollection;
 
         protected override int MaxAllowedConnection => 1;
@@ -26,7 +26,7 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            PipeStream.WaitForConnectionAsync(Cancellation.Token).Wait();
+                            PipeStream.WaitForConnectionAsync(LocalCancellation.Token).Wait();
                         }
                         catch (AggregateException ex) when (ex.InnerException is IOException)
                         {
@@ -96,6 +96,7 @@ namespace RX_Explorer.Class
                 MessageCollection.CompleteAdding();
                 MessageCollection.Dispose();
                 Cancellation.Dispose();
+                Cancellation = null;
             }
         }
 
@@ -137,6 +138,11 @@ namespace RX_Explorer.Class
                 IsBackground = true
             };
             ProcessThread.Start();
+        }
+
+        ~NamedPipeWriteController()
+        {
+            Dispose();
         }
     }
 }

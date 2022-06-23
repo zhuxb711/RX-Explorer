@@ -10,9 +10,9 @@ namespace RX_Explorer.Class
 {
     public class NamedPipeReadController : NamedPipeControllerBase
     {
+        private CancellationTokenSource Cancellation;
         private readonly Thread ProcessThread;
         private readonly TaskCompletionSource<bool> ConnectionSet;
-        private CancellationTokenSource Cancellation;
         public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
 
         protected override int MaxAllowedConnection => 1;
@@ -23,28 +23,24 @@ namespace RX_Explorer.Class
             {
                 if (!IsConnected)
                 {
-                    Cancellation = new CancellationTokenSource();
-
-                    try
+                    using (CancellationTokenSource LocalCancellation = CancellationTokenSource.CreateLinkedTokenSource(Cancellation.Token))
                     {
-                        PipeStream.WaitForConnectionAsync(Cancellation.Token).Wait();
-                    }
-                    catch (AggregateException ex) when (ex.InnerException is IOException)
-                    {
-                        LogTracer.Log("Could not read pipeline data because the pipeline is closed");
-                    }
-                    catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
-                    {
-                        LogTracer.Log("Could not read pipeline data because connection timeout");
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Could not read pipeline data because unknown exception");
-                    }
-                    finally
-                    {
-                        Cancellation?.Dispose();
-                        Cancellation = null;
+                        try
+                        {
+                            PipeStream.WaitForConnectionAsync(LocalCancellation.Token).Wait();
+                        }
+                        catch (AggregateException ex) when (ex.InnerException is IOException)
+                        {
+                            LogTracer.Log("Could not read pipeline data because the pipeline is closed");
+                        }
+                        catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
+                        {
+                            LogTracer.Log("Could not read pipeline data because connection timeout");
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "Could not read pipeline data because unknown exception");
+                        }
                     }
                 }
 
@@ -121,6 +117,7 @@ namespace RX_Explorer.Class
 
         protected NamedPipeReadController(string Id) : base(Id)
         {
+            Cancellation = new CancellationTokenSource();
             ConnectionSet = new TaskCompletionSource<bool>();
 
             ProcessThread = new Thread(ReadProcess)
@@ -135,11 +132,15 @@ namespace RX_Explorer.Class
         {
             if (!IsDisposed)
             {
-                Cancellation?.Dispose();
+                base.Dispose();
+                Cancellation.Dispose();
                 Cancellation = null;
             }
+        }
 
-            base.Dispose();
+        ~NamedPipeReadController()
+        {
+            Dispose();
         }
     }
 }

@@ -191,7 +191,7 @@ namespace RX_Explorer.View
                 {
                     if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
                     {
-                        ParallelTask.Add(Presenter.DisplayItemsInFolder(CurrentFolder, true));
+                        ParallelTask.Add(Presenter.DisplayItemsInFolderAsync(CurrentFolder, true));
                     }
                 }
 

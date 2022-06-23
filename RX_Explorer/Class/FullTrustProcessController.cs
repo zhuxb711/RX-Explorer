@@ -69,6 +69,8 @@ namespace RX_Explorer.Class
 
         private bool IsDisposed;
 
+        private const int PipeConnectionTimeout = 5000;
+
         static FullTrustProcessController()
         {
             DispatcherThread.Start();
@@ -91,57 +93,88 @@ namespace RX_Explorer.Class
                     int WaitCount = 0;
 
                 REWAIT:
-                    using (CancellationTokenSource Cancellation = new CancellationTokenSource(10000))
+                    try
                     {
-                        try
+                        using (CancellationTokenSource Cancellation = new CancellationTokenSource(10000))
                         {
                             FullTrustProcessController Controller = AvailableControllerCollection.Take(Cancellation.Token);
 
-                            if ((Controller?.IsDisposed).GetValueOrDefault(true) || Controller.SendCommandAsync(CommandType.Test).Result == null)
+                            if (Controller.IsDisposed)
                             {
-                                LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
-
-                                if (!Controller.IsDisposed)
+                                Task.Run(() =>
                                 {
-                                    Controller.Dispose();
-                                }
+                                    LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
 
-                                for (int Retry = 1; Retry <= 3; Retry++)
-                                {
-                                    if (CreateAsync().Result is FullTrustProcessController NewController)
+                                    for (int Retry = 1; Retry <= 3; Retry++)
                                     {
-                                        AvailableControllerCollection.Add(NewController);
-                                        break;
-                                    }
-                                    else
-                                    {
+                                        if (CreateAsync().Result is FullTrustProcessController NewController)
+                                        {
+                                            AvailableControllerCollection.Add(NewController);
+                                            break;
+                                        }
+
                                         LogTracer.Log($"Dispatcher found a controller was disposed, but could not recreate a new controller. Retrying execute {nameof(CreateAsync)} in {Retry} times");
                                     }
-                                }
+                                });
                             }
                             else
                             {
-                                CurrentBusyStatus?.Invoke(null, false);
-                                Item.TaskSource.SetResult(new Exclusive(Controller, ExtendedExecutionController.CreateExtendedExecutionAsync().Result));
-                                break;
+                                Task<IDictionary<string, string>> TestCommandTask = Controller.SendCommandAsync(CommandType.Test);
+
+                                if (Task.WhenAny(TestCommandTask, Task.Delay(1000)).Result == TestCommandTask)
+                                {
+                                    CurrentBusyStatus?.Invoke(null, false);
+                                    Item.TaskSource.SetResult(Exclusive.CreateAsync(Controller).Result);
+                                    break;
+                                }
+                                else
+                                {
+                                    TestCommandTask.ContinueWith((PreviousTask, Input) =>
+                                    {
+                                        if (Input is FullTrustProcessController PreviousController)
+                                        {
+                                            if ((PreviousTask.Result?.ContainsKey("Success")).GetValueOrDefault())
+                                            {
+                                                AvailableControllerCollection.Add(PreviousController);
+                                            }
+                                            else
+                                            {
+                                                PreviousController.Dispose();
+
+                                                LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
+
+                                                for (int Retry = 1; Retry <= 3; Retry++)
+                                                {
+                                                    if (CreateAsync().Result is FullTrustProcessController NewController)
+                                                    {
+                                                        AvailableControllerCollection.Add(NewController);
+                                                        break;
+                                                    }
+
+                                                    LogTracer.Log($"Dispatcher found a controller was disposed, but could not recreate a new controller. Retrying execute {nameof(CreateAsync)} in {Retry} times");
+                                                }
+                                            }
+                                        }
+                                    }, Controller);
+                                }
                             }
                         }
-                        catch (OperationCanceledException)
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        switch (++WaitCount)
                         {
-                            switch (++WaitCount)
-                            {
-                                case < 6:
-                                    {
-                                        CurrentBusyStatus?.Invoke(null, true);
-                                        goto REWAIT;
-                                    }
-                                case 6:
-                                    {
-                                        CurrentBusyStatus?.Invoke(null, false);
-                                        Item.TaskSource.TrySetException(new TimeoutException("FullTrustProcessController Dispather Timeout"));
-                                        goto NEXT;
-                                    }
-                            }
+                            case < 6:
+                                {
+                                    CurrentBusyStatus?.Invoke(null, true);
+                                    goto REWAIT;
+                                }
+                            case 6:
+                                {
+                                    CurrentBusyStatus?.Invoke(null, false);
+                                    Item.TaskSource.TrySetException(new TimeoutException("FullTrustProcessController Dispather Timeout"));
+                                    goto NEXT;
+                                }
                         }
                     }
                 }
@@ -175,7 +208,7 @@ namespace RX_Explorer.Class
                             {
                                 AvailableControllerCollection.Add(NewController);
                             }
-                        }));
+                        }, TaskContinuationOptions.ExecuteSynchronously));
                     }
 
                     await Task.WhenAll(ParallelList);
@@ -256,7 +289,7 @@ namespace RX_Explorer.Class
                 PipeCommunicationBaseController?.Dispose();
                 PipeCommunicationBaseController = new NamedPipeCommunicationBaseController();
 
-                if (await PipeCommunicationBaseController.WaitForConnectionAsync(10000))
+                if (await PipeCommunicationBaseController.WaitForConnectionAsync(PipeConnectionTimeout))
                 {
                     for (int RetryCount = 1; RetryCount <= 3; RetryCount++)
                     {
@@ -291,10 +324,10 @@ namespace RX_Explorer.Class
 
                         PipeCommunicationBaseController.SendData(JsonSerializer.Serialize(Command));
 
-                        if ((await Task.WhenAll(PipeCommandWriteController.WaitForConnectionAsync(5000),
-                                                PipeCommandReadController.WaitForConnectionAsync(5000),
-                                                PipeProgressReadController.WaitForConnectionAsync(5000),
-                                                PipeCancellationWriteController.WaitForConnectionAsync(5000)))
+                        if ((await Task.WhenAll(PipeCommandWriteController.WaitForConnectionAsync(PipeConnectionTimeout),
+                                                PipeCommandReadController.WaitForConnectionAsync(PipeConnectionTimeout),
+                                                PipeProgressReadController.WaitForConnectionAsync(PipeConnectionTimeout),
+                                                PipeCancellationWriteController.WaitForConnectionAsync(PipeConnectionTimeout)))
                                        .All((Connected) => Connected))
                         {
                             PipeCommandReadController.OnDataReceived += PipeCommandReadController_OnDataReceived;
@@ -2482,7 +2515,12 @@ namespace RX_Explorer.Class
 
             private bool IsDisposed;
 
-            public Exclusive(FullTrustProcessController Controller, ExtendedExecutionController ExtExecution)
+            public static async Task<Exclusive> CreateAsync(FullTrustProcessController Controller)
+            {
+                return new Exclusive(Controller, await ExtendedExecutionController.CreateExtendedExecutionAsync());
+            }
+
+            private Exclusive(FullTrustProcessController Controller, ExtendedExecutionController ExtExecution)
             {
                 this.Controller = Controller;
                 this.ExtExecution = ExtExecution;

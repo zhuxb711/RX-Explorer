@@ -113,5 +113,10 @@ namespace FullTrustProcess
             };
             ProcessThread.Start();
         }
+
+        ~NamedPipeWriteController()
+        {
+            Dispose();
+        }
     }
 }

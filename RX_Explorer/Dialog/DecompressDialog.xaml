@@ -36,6 +36,8 @@
                   SelectionChanged="EncodingOption_SelectionChanged"
                   Name="EncodingOption"
                   DisplayMemberPath="EncodingName"
+                  IsEnabled="False"
+                  PlaceholderText="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}"
                   ItemsSource="{x:Bind AvailableEncodings}" />
     </StackPanel>
 </Cls:QueueContentDialog>

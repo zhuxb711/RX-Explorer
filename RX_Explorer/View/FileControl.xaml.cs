@@ -352,7 +352,7 @@ namespace RX_Explorer.View
                 }
                 else if (CurrentPresenter != null)
                 {
-                    if (!await CurrentPresenter.DisplayItemsInFolder(Content.Path))
+                    if (!await CurrentPresenter.DisplayItemsInFolderAsync(Content.Path))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -766,7 +766,7 @@ namespace RX_Explorer.View
                         });
                     }
 
-                    if (await CurrentPresenter.DisplayItemsInFolder(CurrentRecord.Path, SkipNavigationRecord: true))
+                    if (await CurrentPresenter.DisplayItemsInFolderAsync(CurrentRecord.Path, SkipNavigationRecord: true))
                     {
                         if (!string.IsNullOrEmpty(CurrentRecord.SelectedItemPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(CurrentRecord.SelectedItemPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                         {
@@ -808,7 +808,7 @@ namespace RX_Explorer.View
                         });
                     }
 
-                    if (await CurrentPresenter.DisplayItemsInFolder(CurrentRecord.Path, SkipNavigationRecord: true))
+                    if (await CurrentPresenter.DisplayItemsInFolderAsync(CurrentRecord.Path, SkipNavigationRecord: true))
                     {
                         if (!string.IsNullOrEmpty(CurrentRecord.SelectedItemPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(CurrentRecord.SelectedItemPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                         {
@@ -1195,7 +1195,7 @@ namespace RX_Explorer.View
                 }
                 else if (CurrentPresenter != null)
                 {
-                    if (!await CurrentPresenter.DisplayItemsInFolder(Content.Path))
+                    if (!await CurrentPresenter.DisplayItemsInFolderAsync(Content.Path))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -1616,7 +1616,7 @@ namespace RX_Explorer.View
 
                         if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
                                 if (string.IsNullOrEmpty(StartupLocation))
                                 {
@@ -1650,7 +1650,7 @@ namespace RX_Explorer.View
                         }
                         else if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
                                 if (string.IsNullOrEmpty(StartupLocation))
                                 {
@@ -1684,7 +1684,7 @@ namespace RX_Explorer.View
                         }
                         else if (string.Equals(QueryText, "Wt", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Wt.exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
                                 switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
                                 {
@@ -1729,7 +1729,7 @@ namespace RX_Explorer.View
                         {
                             string TargetPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(QueryText);
 
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
                                 TargetPath = await Exclusive.Controller.ConvertShortPathToLongPathAsync(TargetPath);
                             }
@@ -1852,7 +1852,7 @@ namespace RX_Explorer.View
 
                                             await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
 
-                                            if (!await CurrentPresenter.DisplayItemsInFolder(Folder))
+                                            if (!await CurrentPresenter.DisplayItemsInFolderAsync(Folder))
                                             {
                                                 QueueContentDialog Dialog = new QueueContentDialog
                                                 {
@@ -2060,7 +2060,7 @@ namespace RX_Explorer.View
                     DirectoryPath = RootStorageFolder.Current.Path;
                 }
 
-                if (await CurrentPresenter.DisplayItemsInFolder(DirectoryPath))
+                if (await CurrentPresenter.DisplayItemsInFolderAsync(DirectoryPath))
                 {
                     if (CurrentPresenter.FileCollection.OfType<FileSystemStorageFolder>().FirstOrDefault((Item) => Item.Path.Equals(CurrentFolderPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Folder)
                     {
@@ -2118,7 +2118,7 @@ namespace RX_Explorer.View
                 && !Block.Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)
                 && (Block.Path.StartsWith(@"\\?\") || !Block.Path.StartsWith(@"\") || Block.Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).Length > 1))
             {
-                if (!await CurrentPresenter.DisplayItemsInFolder(Block.Path))
+                if (!await CurrentPresenter.DisplayItemsInFolderAsync(Block.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2190,7 +2190,7 @@ namespace RX_Explorer.View
 
             if (e.ClickedItem is FileSystemStorageFolder TargetFolder)
             {
-                if (!await CurrentPresenter.DisplayItemsInFolder(TargetFolder))
+                if (!await CurrentPresenter.DisplayItemsInFolderAsync(TargetFolder))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2778,11 +2778,11 @@ namespace RX_Explorer.View
 
                     if (RootStorageFolder.Current.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase))
                     {
-                        await Presenter.DisplayItemsInFolder(RootStorageFolder.Current);
+                        await Presenter.DisplayItemsInFolderAsync(RootStorageFolder.Current);
                     }
                     else if (await FileSystemStorageItemBase.OpenAsync(ItemPath) is FileSystemStorageFolder Folder)
                     {
-                        if (!await Presenter.DisplayItemsInFolder(Folder))
+                        if (!await Presenter.DisplayItemsInFolderAsync(Folder))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -3071,7 +3071,7 @@ namespace RX_Explorer.View
 
         private async void GoHome_Click(object sender, RoutedEventArgs e)
         {
-            await CurrentPresenter.DisplayItemsInFolder(RootStorageFolder.Current);
+            await CurrentPresenter.DisplayItemsInFolderAsync(RootStorageFolder.Current);
         }
 
         private void SearchSelectionDelete_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -3186,7 +3186,7 @@ namespace RX_Explorer.View
                     }).ToArray());
                 }
 
-                if (!await CurrentPresenter.DisplayItemsInFolder(Record.Path, true, true))
+                if (!await CurrentPresenter.DisplayItemsInFolderAsync(Record.Path, true, true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
