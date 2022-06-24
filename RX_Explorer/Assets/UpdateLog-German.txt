@@ -1,53 +1,17 @@
-﻿###Was ist neu in Ver.7.7.8.0
+﻿###Was ist neu in Ver.7.7.9.0
 
-#####UI-Update
+#####Leistungsverbesserung
 
->#####Überarbeiten Sie die Benutzeroberfläche und Funktionalität des integrierten Bildbetrachters vollständig
+>#####Reduzieren Sie die Zeit zwischen dem Finden und Neustarten eines Offline-Hilfsprozesses
 
->#####Die Oberfläche des eingebauten Textbetrachters wurde aktualisiert
+>#####Der Scheduling-Algorithmus des Hilfsprozess-Schedulers wurde verbessert, und der Fortschritt der Aufgabenwarteschlange wird nicht behindert, wenn ein Offline-Hilfsprozess angetroffen wird
 
->#####Die Oberfläche der Bildbearbeitungsseite wurde aktualisiert
-
-#####Leistungsverbesserungen
-
->#####Verbesserte Leistung beim Zugriff auf eine große Anzahl von Dateien in einigen Fällen
+>#####Führt eine Prioritätswarteschlange für den Hilfsprozess-Scheduler ein, wodurch die Reaktionsfähigkeit von Benutzeroperationen verbessert und die Zeit bei der Verarbeitung einer großen Anzahl von Dateien verkürzt wird
 
 #####Fehlerbehebung
 
->#####Ein Problem wurde behoben, das dazu führen konnte, dass die Benutzeroberfläche beim Start für eine Weile einfrierte
+>#####Es wurde ein Problem behoben, bei dem Dateispeicherorte nicht von der Suchseite aus geöffnet werden konnten
 
->#####Das Problem, dass sich die Breite der Baumansicht nach der Anpassung nicht mehr dynamisch mit der Fenstergröße ändert, wurde behoben
+>#####Ein Problem wurde behoben, bei dem Löschvorgänge nicht rückgängig gemacht werden konnten
 
->#####Es wurde ein Problem behoben, bei dem die Zoommitte beim Doppelklicken zum Zoomen im integrierten Bildbetrachter falsch sein konnte
-
->#####Das Problem der fehlenden doppelten Bestätigung beim Löschen von Bildern im integrierten Bildbetrachter wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem Bilder nicht im Papierkorb gespeichert wurden, wenn sie im integrierten Bildbetrachter gelöscht wurden
-
->#####Ein Problem wurde behoben, bei dem nach dem Löschen eines Bildes im integrierten Bildbetrachter zum ersten Bild gesprungen werden konnte
-
->#####Es wurde ein Problem behoben, das dazu führen konnte, dass die Benutzeroberfläche für längere Zeit einfrierte, wenn eine große Anzahl von Bildern in den integrierten Bildbetrachter geladen wurde
-
->#####Es wurde ein Problem behoben, das beim Umcodieren im integrierten Bildbetrachter oder beim Speichern im integrierten Bildeditor hängen bleiben konnte
-
->#####Das Problem, dass das Bild nicht automatisch aktualisiert wird, wenn es nach der Bearbeitung im integrierten Bildeditor zum integrierten Bildbetrachter zurückkehrt, wurde behoben
-
->#####Das Problem, dass die Miniaturansicht der Dateiliste nach der Bearbeitung im integrierten Bildeditor nicht aktualisiert wurde, wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem das automatisch erkannte Codierungsformat möglicherweise nicht standardmäßig im integrierten Texteditor ausgewählt wurde
-
->#####Es wurde ein Problem behoben, bei dem der integrierte Texteditor den Text nicht mit der CRLF-Endung speichern würde
-
->#####Problem behoben, bei dem der Dateiname beim Umbenennen im Dialog möglicherweise nicht vollständig geleert wurde
-
->#####Es wurde ein Problem behoben, bei dem einige Gruppen falsche Namen anzeigen konnten, wenn sie nach Typ gruppiert wurden
-
->#####Es wurde ein Problem behoben, bei dem die unten stehenden Statistiken nicht aktualisiert wurden, wenn sich die Anzahl der Dateien änderte
-
->#####Ein Problem wurde behoben, bei dem bestimmte Arten von Aufgaben nicht korrekt abgebrochen werden konnten
-
->#####Das Problem falscher Fortschrittsinformationen beim Kopieren, Verschieben und Löschen mehrerer Dateien von MTP-Geräten wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem das Kopieren einer großen Anzahl von Dateien von einem MTP-Gerät viel Zeit in Anspruch nahm, um Informationen zu sammeln und somit das Kopieren von Dateien zu verhindern
-
->#####Einige Übersetzungsprobleme behoben
+>#####Es wurde ein Problem behoben, bei dem eine Fehlermeldung angezeigt wurde, wenn auf den Knoten „Schnellzugriff“ geklickt wurde

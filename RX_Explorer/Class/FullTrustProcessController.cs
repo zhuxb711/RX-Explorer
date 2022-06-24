@@ -208,7 +208,7 @@ namespace RX_Explorer.Class
                             {
                                 AvailableControllerCollection.Add(NewController);
                             }
-                        }, TaskContinuationOptions.ExecuteSynchronously));
+                        }));
                     }
 
                     await Task.WhenAll(ParallelList);

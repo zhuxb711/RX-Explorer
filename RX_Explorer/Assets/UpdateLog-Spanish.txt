@@ -1,53 +1,17 @@
-﻿###Novedades de la versión 7.7.8.0
+﻿###Novedades de la versión 7.7.9.0
 
-#####Actualización de la interfaz de usuario
+#####Mejora del rendimiento
 
->#####Rehaga completamente la interfaz y la funcionalidad del visor de imágenes incorporado
+>#####Reducir el tiempo entre encontrar y reiniciar un proceso auxiliar fuera de línea
 
->#####Se ha actualizado la interfaz del visor de texto incorporado
+>#####El algoritmo de programación del programador de procesos auxiliares se ha mejorado y el progreso de la cola de tareas no se verá obstaculizado cuando se encuentre con un proceso auxiliar fuera de línea
 
->#####La interfaz de la página de edición de imágenes ha sido actualizada
-
-#####Mejoras de rendimiento
-
->#####Rendimiento mejorado al acceder a una gran cantidad de archivos en algunos casos
+>#####Introduce una cola de prioridad en el programador de procesos auxiliares, lo que mejora la capacidad de respuesta de las operaciones del usuario y reduce el tiempo de procesamiento de una gran cantidad de archivos
 
 #####Corrección de errores
 
->#####Se solucionó un problema que podía causar que la interfaz de usuario se congelara durante un tiempo al iniciar
+>#####Se solucionó un problema por el cual las ubicaciones de los archivos no se podían abrir desde la página de búsqueda
 
->#####Se solucionó el problema de que el ancho de la vista de árbol ya no cambia dinámicamente con el tamaño de la ventana después del ajuste
+>#####Se solucionó un problema por el cual las operaciones de eliminación no se podían deshacer
 
->#####Se solucionó un problema por el cual el centro del zoom podía ser incorrecto al hacer doble clic para hacer zoom en el visor de imágenes incorporado
-
->#####Se solucionó el problema de la falta de confirmación doble al eliminar imágenes en el visor de imágenes incorporado
-
->#####Se solucionó un problema por el cual las imágenes no se guardaban en la papelera de reciclaje cuando se eliminaban en el visor de imágenes incorporado
-
->#####Se solucionó un problema que podía saltar a la primera imagen después de eliminar una imagen en el visor de imágenes incorporado
-
->#####Se solucionó un problema que podía hacer que la interfaz de usuario se congelara durante un largo período de tiempo al cargar una gran cantidad de imágenes en el visor de imágenes incorporado
-
->#####Se solucionó un problema que podía atascarse al transcodificar en el visor de imágenes integrado o al guardar en el editor de imágenes integrado
-
->#####Se solucionó el problema de que la imagen no se actualizará automáticamente al volver al visor de imágenes integrado después de editar en el editor de imágenes integrado
-
->#####Se solucionó el problema de que la miniatura de la lista de archivos no se actualizaba después de editar en el editor de imágenes incorporado
-
->#####Se solucionó un problema por el cual el formato de codificación reconocido automáticamente podría no seleccionarse de forma predeterminada en el editor de texto incorporado
-
->#####Se solucionó un problema por el cual el editor de texto incorporado no guardaba el texto en el final CRLF
-
->#####Se solucionó un problema por el cual el nombre del archivo no se podía vaciar por completo al cambiar el nombre en el cuadro de diálogo
-
->#####Se solucionó un problema por el cual algunos grupos podían mostrar nombres incorrectos cuando se agrupaban por tipo
-
->#####Se solucionó un problema por el cual las estadísticas a continuación no se actualizaban cuando cambiaba la cantidad de archivos
-
->#####Se solucionó un problema por el cual ciertos tipos de tareas no se podían cancelar correctamente
-
->#####Se solucionó el problema de información de progreso incorrecta al copiar, mover y eliminar varios archivos de dispositivos MTP
-
->#####Se solucionó un problema por el cual copiar una gran cantidad de archivos desde un dispositivo MTP tomaba mucho tiempo para recopilar información y, por lo tanto, evitaba que se realizara la copia de archivos
-
->#####Se corrigieron algunos problemas de traducción
+>#####Se solucionó un problema por el que aparecía un mensaje de error al hacer clic en el nodo "Acceso rápido"

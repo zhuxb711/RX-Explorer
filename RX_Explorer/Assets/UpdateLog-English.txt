@@ -1,53 +1,17 @@
-﻿###What's new in Ver.7.7.8.0
+﻿###What's new in Ver.7.7.9.0
 
-#####UI update
+#####Performance improvement
 
->#####Remake the interface and functionality of the built-in picture viewer completely
+>#####Reduce the time between finding and restarting an offline auxiliary process
 
->#####The interface of the built-in text viewer has been updated
+>#####The scheduling algorithm of the auxiliary process scheduler has been improved, and the progress of the task queue will not be hindered when encountering an offline auxiliary process
 
->#####The interface of the picture editing page has been updated
-
-#####Performance Improvements
-
->#####Improved performance when accessing large numbers of files in some cases
+>#####Introduces a priority queue to the auxiliary process scheduler, improving the responsiveness of user operations and reducing the time when processing a large number of files
 
 #####Bug Fixes
 
->#####Fixed an issue that could cause the UI to freeze for a while on startup
+>#####Fixed an issue where file locations could not be opened from the search page
 
->#####Fixed the problem that the width of tree view no longer changes dynamically with the window size after adjustment
+>#####Fixed an issue where delete operations could not be undone
 
->#####Fixed an issue where the zoom center could be incorrect when double-clicking to zoom in the built-in picture viewer
-
->#####Fixed the issue of missing double confirmation when deleting pictures in the built-in picture viewer
-
->#####Fixed an issue where pictures would not be saved to the recycle bin when deleted in the built-in picture viewer
-
->#####Fixed an issue that could jump to the first picture after deleting a picture in the built-in picture viewer
-
->#####Fixed an issue that could cause the UI to freeze for a long period of time when loading a large number of pictures in the built-in picture viewer
-
->#####Fixed an issue that could get stuck when transcoding in the built-in picture viewer or saving in the built-in picture editor
-
->#####Fixed the problem that the picture will not be updated automatically when returning to the built-in picture viewer after editing in the built-in picture editor
-
->#####Fixed the problem that the thumbnail of the file list would not be updated after editing in the built-in image editor
-
->#####Fixed an issue where the auto-recognized encoding format might not be selected by default in the built-in text editor
-
->#####Fixed an issue where the built-in text editor would not save the text in CRLF ending
-
->#####Fixed an issue where file name might not be emptied completely when renaming in the dialog
-
->#####Fixed an issue where some groups could display incorrect names when grouped by type
-
->#####Fixed an issue where the stats below would not be updated when the number of files changed
-
->#####Fixed an issue where certain types of tasks could not be canceled correctly
-
->#####Fixed the problem of incorrect progress information when copying, moving, deleting multiple files from MTP devices
-
->#####Fixed an issue where copying a large number of files from an MTP device would take a lot of time to gather information and thus prevent file copying from being performed
-
->#####Fixed some translation issues
+>#####Fixed an issue that an error prompt pops up when clicking the "Quick Access" node
