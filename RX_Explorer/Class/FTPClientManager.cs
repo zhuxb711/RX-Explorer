@@ -39,23 +39,17 @@ namespace RX_Explorer.Class
                     ControllerList.Remove(ExistController);
                 }
 
-                TaskCompletionSource<FTPClientController> CompletionSource = new TaskCompletionSource<FTPClientController>();
-
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                FTPClientController NewClient = await CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
                 {
                     FTPCredentialDialog Dialog = new FTPCredentialDialog(Analysis);
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        CompletionSource.SetResult(Dialog.FtpController);
+                        return Dialog.FtpController;
                     }
-                    else
-                    {
-                        CompletionSource.SetResult(null);
-                    }
-                });
 
-                FTPClientController NewClient = await CompletionSource.Task;
+                    return null;
+                });
 
                 if (NewClient != null)
                 {

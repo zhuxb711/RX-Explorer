@@ -171,13 +171,12 @@ namespace RX_Explorer.Class
                 {
                     if (IsAvailable)
                     {
-                        ProcessThread.Start();
                         LogTracer.Log($"Ftp server is connected, protocal: {Profile.Protocols}, encryption: {Profile.Encryption}, encoding: {Profile.Encoding.EncodingName}");
                         return true;
                     }
                 }
             }
-            catch (Exception ex) when (ex is not FtpAuthenticationException)
+            catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Could not connect to the ftp server: {Client.Host}");
             }
@@ -229,6 +228,7 @@ namespace RX_Explorer.Class
                 IsBackground = true,
                 Priority = ThreadPriority.Normal
             };
+            ProcessThread.Start();
         }
 
         ~FTPClientController()

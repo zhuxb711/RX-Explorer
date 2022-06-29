@@ -97,9 +97,9 @@ namespace RX_Explorer.View
             {
                 PreviewTimer.Enabled = false;
 
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                try
                 {
-                    try
+                    await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                     {
                         if (TabViewControl.SelectedItem is TabViewItem Item
                             && Item.IsLoaded
@@ -117,16 +117,16 @@ namespace RX_Explorer.View
                                 }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Could not render a preview image");
-                    }
-                    finally
-                    {
-                        PreviewTimer.Enabled = true;
-                    }
-                });
+                    });
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not render a preview image for the tab");
+                }
+                finally
+                {
+                    PreviewTimer.Enabled = true;
+                }
             }
         }
 

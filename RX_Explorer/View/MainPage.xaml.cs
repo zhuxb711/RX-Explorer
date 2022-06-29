@@ -192,16 +192,16 @@ namespace RX_Explorer.View
                 {
                     if (View.IsPaneOpen)
                     {
-                        AppName.Translation = new System.Numerics.Vector3(0, 0, 0);
+                        TitleLayout.Translation = new System.Numerics.Vector3(0, 0, 0);
                     }
                     else
                     {
-                        AppName.Translation = new System.Numerics.Vector3(42, 0, 0);
+                        TitleLayout.Translation = new System.Numerics.Vector3(46, 0, 0);
                     }
                 }
                 else
                 {
-                    AppName.Translation = new System.Numerics.Vector3(0, 0, 0);
+                    TitleLayout.Translation = new System.Numerics.Vector3(0, 0, 0);
                 }
             }
         }
@@ -1246,28 +1246,34 @@ namespace RX_Explorer.View
 
         private async void Watcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
-                if (BluetoothAudioDeivceList.Items.OfType<BluetoothAudioDeviceData>().FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothAudioDeviceData Device)
+                using (BluetoothAudioDeviceData Device = BluetoothAudioDeivceList.Items.OfType<BluetoothAudioDeviceData>().FirstOrDefault((Device) => Device.Id == args.Id))
                 {
-                    BluetoothAudioDeivceList.Items.Remove(Device);
-                    Device.Dispose();
+                    if (Device != null)
+                    {
+                        BluetoothAudioDeivceList.Items.Remove(Device);
+                    }
                 }
             });
         }
 
         private async void Watcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
             {
                 if (BluetoothAudioDeivceList.Items.OfType<BluetoothAudioDeviceData>().All((Device) => Device.Id != args.Id))
                 {
                     using (DeviceThumbnail ThumbnailStream = await args.GetGlyphThumbnailAsync())
                     {
-
                         BitmapImage Thumbnail = new BitmapImage();
+
+                        if (ThumbnailStream != null)
+                        {
+                            await Thumbnail.SetSourceAsync(ThumbnailStream);
+                        }
+
                         BluetoothAudioDeivceList.Items.Add(new BluetoothAudioDeviceData(args, Thumbnail));
-                        await Thumbnail.SetSourceAsync(ThumbnailStream);
                     }
                 }
             });
@@ -1275,7 +1281,7 @@ namespace RX_Explorer.View
 
         private async void BluetoothAudioConnectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (((Button)sender).DataContext is BluetoothAudioDeviceData Device)
+            if ((sender as FrameworkElement)?.DataContext is BluetoothAudioDeviceData Device)
             {
                 if (Device.IsConnected)
                 {
@@ -1283,7 +1289,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    await Device.ConnectAsync().ConfigureAwait(false);
+                    await Device.ConnectAsync();
                 }
             }
         }
@@ -1555,7 +1561,7 @@ namespace RX_Explorer.View
         {
             if (sender.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact)
             {
-                AppName.Translation = new System.Numerics.Vector3(42, 0, 0);
+                TitleLayout.Translation = new System.Numerics.Vector3(46, 0, 0);
             }
         }
 
@@ -1563,7 +1569,7 @@ namespace RX_Explorer.View
         {
             if (sender.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact)
             {
-                AppName.Translation = new System.Numerics.Vector3(0, 0, 0);
+                TitleLayout.Translation = new System.Numerics.Vector3(0, 0, 0);
             }
         }
 

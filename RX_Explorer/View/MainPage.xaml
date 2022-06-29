@@ -457,6 +457,20 @@
             </muxc:NavigationView.Content>
         </muxc:NavigationView>
 
+        <Grid Height="32"
+              Name="TitleLayout"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Top"
+              Margin="10,0,0,0">
+            <Grid.TranslationTransition>
+                <Vector3Transition />
+            </Grid.TranslationTransition>
+            <TextBlock FontSize="12"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       Name="AppName" />
+        </Grid>
+
         <local:SettingPage x:Name="Settings"
                            Visibility="Collapsed" />
 
@@ -464,16 +478,6 @@
                 Height="32"
                 Background="Transparent"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Top">
-            <TextBlock VerticalAlignment="Center"
-                       HorizontalAlignment="Left"
-                       FontSize="13"
-                       Name="AppName"
-                       Margin="10,0,0,0">
-                <TextBlock.TranslationTransition>
-                    <Vector3Transition />
-                </TextBlock.TranslationTransition>
-            </TextBlock>
-        </Border>
+                VerticalAlignment="Top" />
     </Grid>
 </Page>

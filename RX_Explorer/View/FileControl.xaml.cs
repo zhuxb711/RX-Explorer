@@ -1107,37 +1107,24 @@ namespace RX_Explorer.View
             {
                 if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder Folder)
                 {
-                    TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
-
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                    await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                     {
-                        try
+                        await foreach (FileSystemStorageFolder StorageItem in Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder).Cast<FileSystemStorageFolder>())
                         {
-                            await foreach (FileSystemStorageFolder StorageItem in Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder).Cast<FileSystemStorageFolder>())
+                            if (!Node.IsExpanded || !Node.CanTraceToRootNode(FolderTree.RootNodes.ToArray()))
                             {
-                                if (!Node.IsExpanded || !Node.CanTraceToRootNode(FolderTree.RootNodes.ToArray()))
-                                {
-                                    break;
-                                }
-
-                                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(StorageItem);
-
-                                Node.Children.Add(new TreeViewNode
-                                {
-                                    Content = Content,
-                                    HasUnrealizedChildren = Content.HasChildren
-                                });
+                                break;
                             }
 
-                            CompletionSource.SetResult(true);
-                        }
-                        catch (Exception ex)
-                        {
-                            CompletionSource.SetException(ex);
+                            TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(StorageItem);
+
+                            Node.Children.Add(new TreeViewNode
+                            {
+                                Content = Content,
+                                HasUnrealizedChildren = Content.HasChildren
+                            });
                         }
                     });
-
-                    await CompletionSource.Task;
                 }
             }
         }
@@ -1249,10 +1236,11 @@ namespace RX_Explorer.View
                         {
                             EventDeferral Deferral = e.GetDeferral();
 
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                            try
                             {
-                                try
+                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                 {
+
                                     foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                               .Cast<Frame>()
                                                                                                               .Select((Frame) => Frame.Content)
@@ -1279,12 +1267,16 @@ namespace RX_Explorer.View
                                     {
                                         await RootNode.UpdateAllSubNodeAsync();
                                     }
-                                }
-                                finally
-                                {
-                                    Deferral.Complete();
-                                }
-                            });
+                                });
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(FolderDelete_Click)}");
+                            }
+                            finally
+                            {
+                                Deferral.Complete();
+                            }
                         });
 
                         QueueTaskController.EnqueueDeleteOpeartion(Model);
@@ -1349,9 +1341,9 @@ namespace RX_Explorer.View
                             {
                                 EventDeferral Deferral = e.GetDeferral();
 
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                try
                                 {
-                                    try
+                                    await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                     {
                                         if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                         {
@@ -1373,12 +1365,16 @@ namespace RX_Explorer.View
                                                 }
                                             }
                                         }
-                                    }
-                                    finally
-                                    {
-                                        Deferral.Complete();
-                                    }
-                                });
+                                    });
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(FolderRename_Click)}");
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
                             });
 
                             QueueTaskController.EnqueueRenameOpeartion(Model);

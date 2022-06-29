@@ -398,7 +398,9 @@ namespace RX_Explorer.Class
 
         public static bool CreateDirectoryFromPath(string Path, CreateOption Option, out string NewFolderPath)
         {
-            try
+            NewFolderPath = string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(Path))
             {
                 PathAnalysis Analysis = new PathAnalysis(Path);
 
@@ -441,20 +443,13 @@ namespace RX_Explorer.Class
                                 }
                             default:
                                 {
-                                    break;
+                                    throw new ArgumentException($"{Option} is not a valid parameter", nameof(Option));
                                 }
                         }
 
                         break;
                     }
                 }
-
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-            catch (Exception ex)
-            {
-                NewFolderPath = string.Empty;
-                LogTracer.Log(ex, $"An exception was threw when create directory, Path: \"{Path}\"");
             }
 
             return false;
@@ -465,73 +460,73 @@ namespace RX_Explorer.Class
             return CreateFileFromApp(string.IsNullOrEmpty(TempFilePath) ? Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N")) : TempFilePath, FILE_ACCESS.Generic_Read | FILE_ACCESS.File_Generic_Write, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Flag_Delete_On_Close | FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access, IntPtr.Zero);
         }
 
-        public static string CreateFileFromPath(string Path, CreateOption Option)
+        public static bool CreateFileFromPath(string Path, CreateOption Option, out string NewFilePath)
         {
-            string NewPath = string.Empty;
+            NewFilePath = string.Empty;
 
-            switch (Option)
+            if (!string.IsNullOrWhiteSpace(Path))
             {
-                case CreateOption.GenerateUniqueName:
-                    {
-                        if (CheckExists(Path))
+                switch (Option)
+                {
+                    case CreateOption.GenerateUniqueName:
                         {
-                            string UniquePath = GenerateUniquePath(Path, CreateType.File);
+                            if (CheckExists(Path))
+                            {
+                                string UniquePath = GenerateUniquePath(Path, CreateType.File);
 
-                            using (SafeFileHandle Handle = CreateFileFromApp(UniquePath, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
+                                using (SafeFileHandle Handle = CreateFileFromApp(UniquePath, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
+                                {
+                                    if (!Handle.IsInvalid)
+                                    {
+                                        NewFilePath = UniquePath;
+                                        return true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
+                                {
+                                    if (!Handle.IsInvalid)
+                                    {
+                                        NewFilePath = Path;
+                                        return true;
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
+                    case CreateOption.OpenIfExist:
+                        {
+                            using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Open_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                             {
                                 if (!Handle.IsInvalid)
                                 {
-                                    NewPath = UniquePath;
+                                    NewFilePath = Path;
+                                    return true;
                                 }
                             }
+
+                            break;
                         }
-                        else
+                    case CreateOption.ReplaceExisting:
                         {
-                            using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
+                            using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                             {
                                 if (!Handle.IsInvalid)
                                 {
-                                    NewPath = Path;
+                                    NewFilePath = Path;
+                                    return true;
                                 }
                             }
-                        }
 
-                        break;
-                    }
-                case CreateOption.OpenIfExist:
-                    {
-                        using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Open_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
-                        {
-                            if (!Handle.IsInvalid)
-                            {
-                                NewPath = Path;
-                            }
+                            break;
                         }
-
-                        break;
-                    }
-                case CreateOption.ReplaceExisting:
-                    {
-                        using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
-                        {
-                            if (!Handle.IsInvalid)
-                            {
-                                NewPath = Path;
-                            }
-                        }
-
-                        break;
-                    }
+                }
             }
 
-            if (string.IsNullOrEmpty(NewPath))
-            {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-            else
-            {
-                return NewPath;
-            }
+            return false;
         }
 
         private static string GenerateUniquePath(string Path, CreateType ItemType)

@@ -117,9 +117,9 @@ namespace RX_Explorer.View
             }
 #endif
 
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            try
             {
-                try
+                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
                 {
                     Task FullTrustProcessInitializeTask = FullTrustProcessController.InitializeAsync();
 
@@ -160,12 +160,12 @@ namespace RX_Explorer.View
                     {
                         Content = (Parameter?.Any()).GetValueOrDefault() ? new MainPage(Splash.ImageLocation, Parameter) : new MainPage(Splash.ImageLocation)
                     };
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An exception was threw in {nameof(DismissExtendedSplashAsync)}");
-                }
-            });
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(DismissExtendedSplashAsync)}");
+            }
         }
 
         private async void Screen_Dismissed(SplashScreen sender, object args)

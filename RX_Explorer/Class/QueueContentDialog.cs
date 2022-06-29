@@ -12,7 +12,9 @@ namespace RX_Explorer.Class
 {
     public class QueueContentDialog : ContentDialog
     {
-        public static bool IsRunningOrWaiting => DialogCollection.Count > 0;
+        public static bool IsRunningOrWaiting => DialogCollection.Count > 0 || InternalShowingDialogFlag;
+
+        private static bool InternalShowingDialogFlag;
 
         private static readonly BlockingCollection<QueueContentDialogInternalData> DialogCollection = new BlockingCollection<QueueContentDialogInternalData>();
 
@@ -28,22 +30,24 @@ namespace RX_Explorer.Class
             {
                 QueueContentDialogInternalData Data = DialogCollection.Take();
 
-                TaskCompletionSource<ContentDialogResult> CompleteSource = new TaskCompletionSource<ContentDialogResult>();
+                InternalShowingDialogFlag = true;
 
-                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                try
                 {
-                    try
+                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
                     {
-                        CompleteSource.SetResult(await Data.Instance.ShowAsync());
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Could not pop up the ContentDialog");
-                        CompleteSource.SetResult(ContentDialogResult.None);
-                    }
-                }).AsTask().Wait();
-
-                Data.TaskSource.SetResult(CompleteSource.Task.Result);
+                        Data.TaskSource.SetResult(await Data.Instance.ShowAsync());
+                    }).Wait();
+                }
+                catch (Exception ex)
+                {
+                    Data.TaskSource.SetResult(ContentDialogResult.None);
+                    LogTracer.Log(ex, "Could not pop the ContentDialog as expected");
+                }
+                finally
+                {
+                    InternalShowingDialogFlag = false;
+                }
             }
         }
 

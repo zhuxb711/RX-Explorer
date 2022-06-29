@@ -576,11 +576,12 @@ namespace RX_Explorer.Class
                                 {
                                     try
                                     {
-                                        string NewPath = NativeWin32API.CreateFileFromPath(Path, Option);
-
-                                        if (await OpenAsync(NewPath) is FileSystemStorageFile NewFile)
+                                        if (NativeWin32API.CreateFileFromPath(Path, Option, out string NewFilePath))
                                         {
-                                            return NewFile;
+                                            if (await OpenAsync(NewFilePath) is FileSystemStorageFile NewFile)
+                                            {
+                                                return NewFile;
+                                            }
                                         }
 
                                         throw new Exception();
@@ -639,13 +640,27 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    if (NativeWin32API.CreateDirectoryFromPath(Path, Option, out string NewPath))
+                                    try
                                     {
-                                        return await OpenAsync(NewPath);
+                                        if (NativeWin32API.CreateDirectoryFromPath(Path, Option, out string NewPath))
+                                        {
+                                            return await OpenAsync(NewPath);
+                                        }
+                                    }
+                                    catch (Exception ex) when (ex is not LocationNotAvailableException)
+                                    {
+                                        throw;
+                                    }
+
+                                    string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                                    if (string.IsNullOrEmpty(DirectoryPath))
+                                    {
+                                        throw new LocationNotAvailableException();
                                     }
                                     else
                                     {
-                                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
+                                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
 
                                         switch (Option)
                                         {
@@ -928,7 +943,7 @@ namespace RX_Explorer.Class
         {
             if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
             {
-                async Task LocalLoadAsync()
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                 {
                     try
                     {
@@ -984,16 +999,7 @@ namespace RX_Explorer.Class
                             OnPropertyChanged(nameof(SizeDescription));
                         }
                     }
-                };
-
-                if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
-                {
-                    await LocalLoadAsync();
-                }
-                else
-                {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () => await LocalLoadAsync());
-                }
+                });
             }
         }
 

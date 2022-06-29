@@ -43,6 +43,45 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
+        public static async Task RunAndWaitAsyncTask(this CoreDispatcher Dispatcher, CoreDispatcherPriority Priority, Func<Task> Executer)
+        {
+            TaskCompletionSource<bool> CompleteSource = new TaskCompletionSource<bool>();
+
+            await Dispatcher.RunAsync(Priority, async () =>
+            {
+                try
+                {
+                    await Executer();
+                    CompleteSource.SetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    CompleteSource.SetException(ex);
+                }
+            });
+
+            await CompleteSource.Task;
+        }
+
+        public static async Task<T> RunAndWaitAsyncTask<T>(this CoreDispatcher Dispatcher, CoreDispatcherPriority Priority, Func<Task<T>> Executer)
+        {
+            TaskCompletionSource<T> CompleteSource = new TaskCompletionSource<T>();
+
+            await Dispatcher.RunAsync(Priority, async () =>
+            {
+                try
+                {
+                    CompleteSource.SetResult(await Executer());
+                }
+                catch (Exception ex)
+                {
+                    CompleteSource.SetException(ex);
+                }
+            });
+
+            return await CompleteSource.Task;
+        }
+
         public static async Task<string> GenerateUniquePathAsync(this FtpClient Client, string Path, CreateType ItemType)
         {
             string UniquePath = Path;

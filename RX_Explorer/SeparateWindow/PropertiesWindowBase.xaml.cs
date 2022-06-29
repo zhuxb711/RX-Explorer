@@ -1948,7 +1948,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 await CloseWindowAsync(false);
 
-                await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                await CoreApplication.MainView.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
                 {
                     await new ProgramPickerDialog(File, true).ShowAsync();
                 });

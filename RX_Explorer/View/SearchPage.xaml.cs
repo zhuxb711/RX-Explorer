@@ -1245,9 +1245,9 @@ namespace RX_Explorer.View
                     {
                         EventDeferral Deferral = e.GetDeferral();
 
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        try
                         {
-                            try
+                            await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                             {
                                 foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                           .Cast<Frame>()
@@ -1265,12 +1265,16 @@ namespace RX_Explorer.View
                                         }
                                     }
                                 }
-                            }
-                            finally
-                            {
-                                Deferral.Complete();
-                            }
-                        });
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(Delete_Click)}");
+                        }
+                        finally
+                        {
+                            Deferral.Complete();
+                        }
                     });
 
                     QueueTaskController.EnqueueDeleteOpeartion(Model);
@@ -1445,11 +1449,11 @@ namespace RX_Explorer.View
                             {
                                 EventDeferral Deferral = e.GetDeferral();
 
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                try
                                 {
-                                    try
+                                    if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
                                     {
-                                        if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
+                                        await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                         {
                                             if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(FolderPath, NewName)) is FileSystemStorageItemBase NewItem)
                                             {
@@ -1474,13 +1478,17 @@ namespace RX_Explorer.View
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(SelectedItemsCopy.First().Path, NewName));
                                                 }
                                             }
-                                        }
+                                        });
                                     }
-                                    finally
-                                    {
-                                        Deferral.Complete();
-                                    }
-                                });
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(Rename_Click)}");
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
                             });
 
                             QueueTaskController.EnqueueRenameOpeartion(Model);
@@ -1498,11 +1506,11 @@ namespace RX_Explorer.View
                             {
                                 EventDeferral Deferral = e.GetDeferral();
 
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                try
                                 {
-                                    try
+                                    if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
                                     {
-                                        if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
+                                        await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                         {
                                             if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(FolderPath, NewName)) is FileSystemStorageItemBase NewItem)
                                             {
@@ -1527,13 +1535,17 @@ namespace RX_Explorer.View
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
                                                 }
                                             }
-                                        }
+                                        });
                                     }
-                                    finally
-                                    {
-                                        Deferral.Complete();
-                                    }
-                                });
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(Rename_Click)}");
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
                             });
 
                             QueueTaskController.EnqueueRenameOpeartion(Model);

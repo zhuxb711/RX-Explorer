@@ -83,7 +83,7 @@ namespace RX_Explorer.Dialog
 
         private async void BluetoothWatcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
             {
                 BluetoothDeviceCollection.Add(await BluetoothDeivceData.CreateAsync(args, ShareFile));
             });

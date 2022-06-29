@@ -1404,7 +1404,7 @@ namespace RX_Explorer.View
 
                     try
                     {
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                        await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
                         {
                             await ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
                         });
@@ -1450,7 +1450,7 @@ namespace RX_Explorer.View
                     }
                     finally
                     {
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                        await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
                         {
                             await ControlLoading(false);
                         });

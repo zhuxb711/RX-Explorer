@@ -164,10 +164,17 @@
                                                                HorizontalAlignment="Stretch" />
                                             </ItemsPanelTemplate>
                                         </GridView.ItemsPanel>
+                                        <Windows11Present:GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem"
+                                                   BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                                                <Setter Property="HorizontalContentAlignment"
+                                                        Value="Stretch" />
+                                            </Style>
+                                        </Windows11Present:GridView.ItemContainerStyle>
                                         <GridView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                                                 <Grid Padding="5"
-                                                      Width="220"
+                                                      Width="250"
                                                       Background="Transparent">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto" />
@@ -185,8 +192,7 @@
                                                                       Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
                                                         </Viewbox>
                                                     </Border>
-                                                    <Image VerticalAlignment="Center"
-                                                           HorizontalAlignment="Center"
+                                                    <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
                                                            Source="{x:Bind Thumbnail,Mode=OneWay}"
                                                            Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
@@ -323,15 +329,23 @@
                                                                HorizontalAlignment="Stretch" />
                                             </ItemsPanelTemplate>
                                         </GridView.ItemsPanel>
+                                        <Windows11Present:GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem"
+                                                   BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                                                <Setter Property="HorizontalContentAlignment"
+                                                        Value="Left" />
+                                            </Style>
+                                        </Windows11Present:GridView.ItemContainerStyle>
                                         <GridView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
-                                                <Grid Width="200"
-                                                      Background="Transparent"
-                                                      Padding="5">
+                                                <Grid Padding="5"
+                                                      Width="300"
+                                                      Background="Transparent">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="40" />
                                                         <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
                                                     <Border Padding="3,0"
@@ -390,6 +404,19 @@
                                                             Background="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToColorConverter}}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Stretch" />
+                                                    <TextBlock Grid.Column="4"
+                                                               Name="TagLabel"
+                                                               Margin="5,5,0,5"
+                                                               MaxWidth="100"
+                                                               VerticalAlignment="Stretch"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Foreground="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToColorConverter}}"
+                                                               Text="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToLabelConverter}}">
+                                                        <ToolTipService.ToolTip>
+                                                            <ToolTip Content="{Binding ElementName=TagLabel,Path=Text}"
+                                                                     Visibility="{Binding ElementName=TagLabel,Path=IsTextTrimmed}" />
+                                                        </ToolTipService.ToolTip>
+                                                    </TextBlock>
                                                 </Grid>
                                             </DataTemplate>
                                         </GridView.ItemTemplate>
@@ -462,14 +489,21 @@
                                                                HorizontalAlignment="Stretch" />
                                             </ItemsPanelTemplate>
                                         </GridView.ItemsPanel>
+                                        <Windows11Present:GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem"
+                                                   BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                                                <Setter Property="HorizontalContentAlignment"
+                                                        Value="Stretch" />
+                                            </Style>
+                                        </Windows11Present:GridView.ItemContainerStyle>
                                         <GridView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                                                 <Grid Padding="5"
                                                       Background="Transparent">
                                                     <Grid.RowDefinitions>
-                                                        <RowDefinition Height="220" />
+                                                        <RowDefinition Height="210" />
                                                         <RowDefinition Height="Auto" />
-                                                        <RowDefinition Height="8" />
+                                                        <RowDefinition Height="10" />
                                                     </Grid.RowDefinitions>
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
@@ -486,41 +520,43 @@
                                                            Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
                                                            Stretch="Uniform" />
                                                     <Grid Grid.Row="1"
-                                                          Margin="0,3,0,0"
                                                           MaxWidth="240"
                                                           HorizontalAlignment="Center">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto" />
                                                             <ColumnDefinition Width="*" />
                                                         </Grid.ColumnDefinitions>
-                                                        <Border Padding="8,0"
+                                                        <Border Height="15"
+                                                                Margin="0,2,5,0"
                                                                 ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
                                                                 Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
-                                                            <Viewbox MaxWidth="15"
-                                                                     HorizontalAlignment="Center"
+                                                            <Viewbox HorizontalAlignment="Center"
                                                                      VerticalAlignment="Center">
                                                                 <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
                                                                           Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
                                                             </Viewbox>
                                                         </Border>
-                                                        <TextBlock Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
-                                                                   Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
-                                                                   Grid.Column="1"
-                                                                   x:Name="NameLabel"
-                                                                   HorizontalTextAlignment="Center"
-                                                                   TextTrimming="CharacterEllipsis">
+                                                        <Grid MinHeight="32"
+                                                              Grid.Column="1">
+                                                            <TextBlock Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                                       Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                                                       x:Name="NameLabel"
+                                                                       VerticalAlignment="Center"
+                                                                       HorizontalTextAlignment="Center"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       PointerPressed="NameLabel_PointerPressed">
                                                             <ToolTipService.ToolTip>
                                                                 <ToolTip Content="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                          Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                                             </ToolTipService.ToolTip>
-                                                        </TextBlock>
-                                                        <TextBox VerticalAlignment="Center"
-                                                                 HorizontalAlignment="Stretch"
-                                                                 x:Name="NameEditBox"
-                                                                 Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
-                                                                 Grid.Column="1"
-                                                                 IsSpellCheckEnabled="False"
-                                                                 Visibility="Collapsed" />
+                                                            </TextBlock>
+                                                            <TextBox VerticalAlignment="Stretch"
+                                                                     HorizontalAlignment="Stretch"
+                                                                     x:Name="NameEditBox"
+                                                                     Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                                     IsSpellCheckEnabled="False"
+                                                                     Visibility="Collapsed" />
+                                                        </Grid>
                                                     </Grid>
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
@@ -601,14 +637,21 @@
                                                                HorizontalAlignment="Stretch" />
                                             </ItemsPanelTemplate>
                                         </GridView.ItemsPanel>
+                                        <Windows11Present:GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem"
+                                                   BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                                                <Setter Property="HorizontalContentAlignment"
+                                                        Value="Stretch" />
+                                            </Style>
+                                        </Windows11Present:GridView.ItemContainerStyle>
                                         <GridView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                                                 <Grid Padding="5"
                                                       Background="Transparent">
                                                     <Grid.RowDefinitions>
-                                                        <RowDefinition Height="140" />
+                                                        <RowDefinition Height="130" />
                                                         <RowDefinition Height="Auto" />
-                                                        <RowDefinition Height="8" />
+                                                        <RowDefinition Height="10" />
                                                     </Grid.RowDefinitions>
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
@@ -625,14 +668,14 @@
                                                            Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
                                                            Stretch="Uniform" />
                                                     <Grid Grid.Row="1"
-                                                          Margin="0,3,0,0"
                                                           MaxWidth="180"
                                                           HorizontalAlignment="Center">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto" />
                                                             <ColumnDefinition Width="*" />
                                                         </Grid.ColumnDefinitions>
-                                                        <Border Padding="8,0"
+                                                        <Border Height="15"
+                                                                Margin="0,2,5,0"
                                                                 ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
                                                                 Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
                                                             <Viewbox MaxWidth="15"
@@ -642,24 +685,27 @@
                                                                           Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
                                                             </Viewbox>
                                                         </Border>
-                                                        <TextBlock Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
-                                                                   Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
-                                                                   Grid.Column="1"
-                                                                   x:Name="NameLabel"
-                                                                   HorizontalTextAlignment="Center"
-                                                                   TextTrimming="CharacterEllipsis">
+                                                        <Grid Grid.Column="1"
+                                                              MinHeight="32">
+                                                            <TextBlock Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                                       Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                                                       x:Name="NameLabel"
+                                                                       VerticalAlignment="Center"
+                                                                       HorizontalTextAlignment="Center"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       PointerPressed="NameLabel_PointerPressed">
                                                             <ToolTipService.ToolTip>
                                                                 <ToolTip Content="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                          Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                                             </ToolTipService.ToolTip>
-                                                        </TextBlock>
-                                                        <TextBox VerticalAlignment="Center"
-                                                                 HorizontalAlignment="Stretch"
-                                                                 x:Name="NameEditBox"
-                                                                 Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
-                                                                 Grid.Column="1"
-                                                                 IsSpellCheckEnabled="False"
-                                                                 Visibility="Collapsed" />
+                                                            </TextBlock>
+                                                            <TextBox VerticalAlignment="Stretch"
+                                                                     HorizontalAlignment="Stretch"
+                                                                     x:Name="NameEditBox"
+                                                                     Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                                     IsSpellCheckEnabled="False"
+                                                                     Visibility="Collapsed" />
+                                                        </Grid>
                                                     </Grid>
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
@@ -740,14 +786,21 @@
                                                                HorizontalAlignment="Stretch" />
                                             </ItemsPanelTemplate>
                                         </GridView.ItemsPanel>
+                                        <Windows11Present:GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem"
+                                                   BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                                                <Setter Property="HorizontalContentAlignment"
+                                                        Value="Stretch" />
+                                            </Style>
+                                        </Windows11Present:GridView.ItemContainerStyle>
                                         <GridView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                                                 <Grid Padding="5"
                                                       Background="Transparent">
                                                     <Grid.RowDefinitions>
-                                                        <RowDefinition Height="80" />
+                                                        <RowDefinition Height="70" />
                                                         <RowDefinition Height="Auto" />
-                                                        <RowDefinition Height="8" />
+                                                        <RowDefinition Height="10" />
                                                     </Grid.RowDefinitions>
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
@@ -765,13 +818,13 @@
                                                            Stretch="Uniform" />
                                                     <Grid Grid.Row="1"
                                                           HorizontalAlignment="Center"
-                                                          Margin="0,3,0,0"
                                                           MaxWidth="120">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto" />
                                                             <ColumnDefinition Width="*" />
                                                         </Grid.ColumnDefinitions>
-                                                        <Border Padding="8,0"
+                                                        <Border Height="15"
+                                                                Margin="0,2,5,0"
                                                                 ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
                                                                 Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
                                                             <Viewbox MaxWidth="15"
@@ -781,24 +834,27 @@
                                                                           Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
                                                             </Viewbox>
                                                         </Border>
-                                                        <TextBlock Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
-                                                                   Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
-                                                                   Grid.Column="1"
-                                                                   x:Name="NameLabel"
-                                                                   HorizontalTextAlignment="Center"
-                                                                   TextTrimming="CharacterEllipsis">
+                                                        <Grid Grid.Column="1"
+                                                              MinHeight="32">
+                                                            <TextBlock Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                                       Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                                                       x:Name="NameLabel"
+                                                                       VerticalAlignment="Center"
+                                                                       HorizontalTextAlignment="Center"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       PointerPressed="NameLabel_PointerPressed">
                                                             <ToolTipService.ToolTip>
                                                                 <ToolTip Content="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                          Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                                             </ToolTipService.ToolTip>
-                                                        </TextBlock>
-                                                        <TextBox VerticalAlignment="Center"
-                                                                 HorizontalAlignment="Stretch"
-                                                                 x:Name="NameEditBox"
-                                                                 Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
-                                                                 Grid.Column="1"
-                                                                 IsSpellCheckEnabled="False"
-                                                                 Visibility="Collapsed" />
+                                                            </TextBlock>
+                                                            <TextBox VerticalAlignment="Stretch"
+                                                                     HorizontalAlignment="Stretch"
+                                                                     x:Name="NameEditBox"
+                                                                     Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                                     IsSpellCheckEnabled="False"
+                                                                     Visibility="Collapsed" />
+                                                        </Grid>
                                                     </Grid>
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
@@ -872,6 +928,13 @@
                                                   Header="{x:Bind ListViewDetailHeader}"
                                                   ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                                            <Windows11Present:ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem"
+                                                       BasedOn="{StaticResource DefaultListViewItemStyle}">
+                                                    <Setter Property="HorizontalContentAlignment"
+                                                            Value="Stretch" />
+                                                </Style>
+                                            </Windows11Present:ListView.ItemContainerStyle>
                                             <ListView.GroupStyle>
                                                 <GroupStyle HidesIfEmpty="True">
                                                     <GroupStyle.HeaderTemplate>
@@ -974,10 +1037,10 @@
                                                                        TextTrimming="CharacterEllipsis"
                                                                        Foreground="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToColorConverter}}"
                                                                        Text="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToLabelConverter}}">
-                                                            <ToolTipService.ToolTip>
-                                                                <ToolTip Content="{Binding ElementName=TagLabel,Path=Text}"
-                                                                         Visibility="{Binding ElementName=TagLabel,Path=IsTextTrimmed}" />
-                                                            </ToolTipService.ToolTip>
+                                                                <ToolTipService.ToolTip>
+                                                                    <ToolTip Content="{Binding ElementName=TagLabel,Path=Text}"
+                                                                             Visibility="{Binding ElementName=TagLabel,Path=IsTextTrimmed}" />
+                                                                </ToolTipService.ToolTip>
                                                             </TextBlock>
                                                         </Grid>
                                                         <TextBlock VerticalAlignment="Center"

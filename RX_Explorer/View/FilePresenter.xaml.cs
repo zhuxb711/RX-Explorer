@@ -1537,7 +1537,7 @@ namespace RX_Explorer.View
                     Glyph = "\uE7B8"
                 }
             };
-            MixedCompressionButton.Click += MixCompression_Click;
+            MixedCompressionButton.Click += MixedCompression_Click;
 
             Flyout.SecondaryCommands.Add(MixedCompressionButton);
             #endregion
@@ -2019,11 +2019,11 @@ namespace RX_Explorer.View
         {
             EventDeferral Deferral = args.GetDeferral();
 
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            try
             {
-                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                 {
-                    try
+                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                     {
                         switch (args)
                         {
@@ -2324,16 +2324,16 @@ namespace RX_Explorer.View
 
                         await ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection);
                     }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"{nameof(FileChangeMonitor)}: failed to modify the collection on file changes");
-                    }
-                    finally
-                    {
-                        Deferral.Complete();
-                    }
-                }
-            });
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Failed to modify the collection on file changes");
+            }
+            finally
+            {
+                Deferral.Complete();
+            }
         }
 
         private async void GroupCollectionGenerator_GroupStateChanged(object sender, GroupStateChangedEventArgs args)
@@ -3161,9 +3161,9 @@ namespace RX_Explorer.View
                                         {
                                             EventDeferral Deferral = e.GetDeferral();
 
-                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                            try
                                             {
-                                                try
+                                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                                 {
                                                     if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
@@ -3180,12 +3180,16 @@ namespace RX_Explorer.View
                                                             await RootNode.UpdateAllSubNodeAsync();
                                                         }
                                                     }
-                                                }
-                                                finally
-                                                {
-                                                    Deferral.Complete();
-                                                }
-                                            });
+                                                });
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(ExecuteUndoAsync)}");
+                                            }
+                                            finally
+                                            {
+                                                Deferral.Complete();
+                                            }
                                         });
 
                                         QueueTaskController.EnqueueDeleteUndoOpeartion(Model);
@@ -3202,9 +3206,9 @@ namespace RX_Explorer.View
                                         {
                                             EventDeferral Deferral = e.GetDeferral();
 
-                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                            try
                                             {
-                                                try
+                                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                                 {
                                                     if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
@@ -3221,12 +3225,16 @@ namespace RX_Explorer.View
                                                             await RootNode.UpdateAllSubNodeAsync();
                                                         }
                                                     }
-                                                }
-                                                finally
-                                                {
-                                                    Deferral.Complete();
-                                                }
-                                            });
+                                                });
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(ExecuteUndoAsync)}");
+                                            }
+                                            finally
+                                            {
+                                                Deferral.Complete();
+                                            }
                                         });
 
                                         QueueTaskController.EnqueueMoveUndoOpeartion(Model);
@@ -3241,9 +3249,9 @@ namespace RX_Explorer.View
                                         {
                                             EventDeferral Deferral = e.GetDeferral();
 
-                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                            try
                                             {
-                                                try
+                                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                                 {
                                                     if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
@@ -3260,12 +3268,16 @@ namespace RX_Explorer.View
                                                             await RootNode.UpdateAllSubNodeAsync();
                                                         }
                                                     }
-                                                }
-                                                finally
-                                                {
-                                                    Deferral.Complete();
-                                                }
-                                            });
+                                                });
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(ExecuteUndoAsync)}");
+                                            }
+                                            finally
+                                            {
+                                                Deferral.Complete();
+                                            }
                                         });
 
                                         QueueTaskController.EnqueueCopyUndoOpeartion(Model);
@@ -3280,9 +3292,9 @@ namespace RX_Explorer.View
                                         {
                                             EventDeferral Deferral = e.GetDeferral();
 
-                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                            try
                                             {
-                                                try
+                                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                                 {
                                                     if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
@@ -3299,12 +3311,16 @@ namespace RX_Explorer.View
                                                             await RootNode.UpdateAllSubNodeAsync();
                                                         }
                                                     }
-                                                }
-                                                finally
-                                                {
-                                                    Deferral.Complete();
-                                                }
-                                            });
+                                                });
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(ExecuteUndoAsync)}");
+                                            }
+                                            finally
+                                            {
+                                                Deferral.Complete();
+                                            }
                                         });
 
                                         QueueTaskController.EnqueueRenameUndoOpeartion(Model);
@@ -3319,9 +3335,9 @@ namespace RX_Explorer.View
                                         {
                                             EventDeferral Deferral = e.GetDeferral();
 
-                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                            try
                                             {
-                                                try
+                                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                                 {
                                                     if (e.Status == OperationStatus.Completed && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
@@ -3338,12 +3354,16 @@ namespace RX_Explorer.View
                                                             await RootNode.UpdateAllSubNodeAsync();
                                                         }
                                                     }
-                                                }
-                                                finally
-                                                {
-                                                    Deferral.Complete();
-                                                }
-                                            });
+                                                });
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(ExecuteUndoAsync)}");
+                                            }
+                                            finally
+                                            {
+                                                Deferral.Complete();
+                                            }
                                         });
 
                                         QueueTaskController.EnqueueNewUndoOpeartion(Model);
@@ -3442,12 +3462,13 @@ namespace RX_Explorer.View
                             {
                                 EventDeferral Deferral = e.GetDeferral();
 
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                try
                                 {
-                                    try
+                                    if (e.Status == OperationStatus.Completed)
                                     {
-                                        if (e.Status == OperationStatus.Completed)
+                                        await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                         {
+
                                             foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                                       .Cast<Frame>()
                                                                                                                       .Select((Frame) => Frame.Content)
@@ -3470,17 +3491,18 @@ namespace RX_Explorer.View
                                                     }
                                                 }
                                             }
-                                        }
+
+                                        });
                                     }
-                                    catch (Exception ex)
-                                    {
-                                        LogTracer.Log(ex);
-                                    }
-                                    finally
-                                    {
-                                        Deferral.Complete();
-                                    }
-                                });
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(Paste_Click)}");
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
                             });
 
                             QueueTaskController.EnqueueMoveOpeartion(Model);
@@ -3494,12 +3516,13 @@ namespace RX_Explorer.View
                         {
                             EventDeferral Deferral = e.GetDeferral();
 
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                            try
                             {
-                                try
+                                if (e.Status == OperationStatus.Completed)
                                 {
-                                    if (e.Status == OperationStatus.Completed)
+                                    await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                     {
+
                                         foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                                   .Cast<Frame>()
                                                                                                                   .Select((Frame) => Frame.Content)
@@ -3514,17 +3537,17 @@ namespace RX_Explorer.View
                                                 }
                                             }
                                         }
-                                    }
+                                    });
                                 }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex);
-                                }
-                                finally
-                                {
-                                    Deferral.Complete();
-                                }
-                            });
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(Paste_Click)}");
+                            }
+                            finally
+                            {
+                                Deferral.Complete();
+                            }
                         });
 
                         QueueTaskController.EnqueueCopyOpeartion(Model);
@@ -3667,9 +3690,9 @@ namespace RX_Explorer.View
                     {
                         EventDeferral Deferral = e.GetDeferral();
 
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        try
                         {
-                            try
+                            await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                             {
                                 foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                           .Cast<Frame>()
@@ -3686,12 +3709,16 @@ namespace RX_Explorer.View
                                         }
                                     }
                                 }
-                            }
-                            finally
-                            {
-                                Deferral.Complete();
-                            }
-                        });
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(Delete_Click)}");
+                        }
+                        finally
+                        {
+                            Deferral.Complete();
+                        }
                     });
 
                     QueueTaskController.EnqueueDeleteOpeartion(Model);
@@ -3741,11 +3768,11 @@ namespace RX_Explorer.View
                             {
                                 EventDeferral Deferral = e.GetDeferral();
 
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                try
                                 {
-                                    try
+                                    if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
                                     {
-                                        if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
+                                        await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                         {
                                             foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                                       .Cast<Frame>()
@@ -3770,13 +3797,17 @@ namespace RX_Explorer.View
 
                                                 await Task.Delay(500);
                                             }
-                                        }
+                                        });
                                     }
-                                    finally
-                                    {
-                                        Deferral.Complete();
-                                    }
-                                });
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(Rename_Click)}");
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
                             });
 
                             QueueTaskController.EnqueueRenameOpeartion(Model);
@@ -3792,11 +3823,11 @@ namespace RX_Explorer.View
                             {
                                 EventDeferral Deferral = e.GetDeferral();
 
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                try
                                 {
-                                    try
+                                    if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
                                     {
-                                        if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
+                                        await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                         {
                                             foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                                       .Cast<Frame>()
@@ -3809,13 +3840,17 @@ namespace RX_Explorer.View
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
                                                 }
                                             }
-                                        }
+                                        });
                                     }
-                                    finally
-                                    {
-                                        Deferral.Complete();
-                                    }
-                                });
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(Rename_Click)}");
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
                             });
 
                             QueueTaskController.EnqueueRenameOpeartion(Model);
@@ -4086,11 +4121,11 @@ namespace RX_Explorer.View
                     {
                         EventDeferral Deferral = e.GetDeferral();
 
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        try
                         {
-                            try
+                            if (e.Status == OperationStatus.Completed)
                             {
-                                if (e.Status == OperationStatus.Completed)
+                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                 {
                                     foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                               .Cast<Frame>()
@@ -4109,17 +4144,17 @@ namespace RX_Explorer.View
                                             }
                                         }
                                     }
-                                }
+                                });
                             }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex);
-                            }
-                            finally
-                            {
-                                Deferral.Complete();
-                            }
-                        });
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(Compression_Click)}");
+                        }
+                        finally
+                        {
+                            Deferral.Complete();
+                        }
                     });
 
                     QueueTaskController.EnqueueCompressionOpeartion(CModel);
@@ -4149,11 +4184,11 @@ namespace RX_Explorer.View
                     {
                         EventDeferral Deferral = e.GetDeferral();
 
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        try
                         {
-                            try
+                            if (e.Status == OperationStatus.Completed)
                             {
-                                if (e.Status == OperationStatus.Completed)
+                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                 {
                                     foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                               .Cast<Frame>()
@@ -4172,17 +4207,17 @@ namespace RX_Explorer.View
                                             }
                                         }
                                     }
-                                }
+                                });
                             }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex);
-                            }
-                            finally
-                            {
-                                Deferral.Complete();
-                            }
-                        });
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(Decompression_Click)}");
+                        }
+                        finally
+                        {
+                            Deferral.Complete();
+                        }
                     });
 
                     QueueTaskController.EnqueueDecompressionOpeartion(DModel);
@@ -4463,17 +4498,16 @@ namespace RX_Explorer.View
 
         private async void WiFiProvider_ThreadExitedUnexpectly(object sender, Exception e)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
             {
                 QRTeachTip.IsOpen = false;
 
-                QueueContentDialog dialog = new QueueContentDialog
+                await new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_WiFiError_Content") + e.Message,
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                await dialog.ShowAsync();
+                }.ShowAsync();
             });
         }
 
@@ -5515,11 +5549,11 @@ namespace RX_Explorer.View
                         {
                             EventDeferral Deferral = e.GetDeferral();
 
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                            try
                             {
-                                try
+                                if (e.Status == OperationStatus.Completed)
                                 {
-                                    if (e.Status == OperationStatus.Completed)
+                                    await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                     {
                                         foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                                   .Cast<Frame>()
@@ -5538,17 +5572,17 @@ namespace RX_Explorer.View
                                                 }
                                             }
                                         }
-                                    }
+                                    });
                                 }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex);
-                                }
-                                finally
-                                {
-                                    Deferral.Complete();
-                                }
-                            });
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(CompressFolder_Click)}");
+                            }
+                            finally
+                            {
+                                Deferral.Complete();
+                            }
                         });
 
                         QueueTaskController.EnqueueCompressionOpeartion(CModel);
@@ -5997,11 +6031,11 @@ namespace RX_Explorer.View
                             {
                                 EventDeferral Deferral = e.GetDeferral();
 
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                try
                                 {
-                                    try
+                                    if (e.Status == OperationStatus.Completed)
                                     {
-                                        if (e.Status == OperationStatus.Completed)
+                                        await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                         {
                                             foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                                       .Cast<Frame>()
@@ -6025,13 +6059,17 @@ namespace RX_Explorer.View
                                                     }
                                                 }
                                             }
-                                        }
+                                        });
                                     }
-                                    finally
-                                    {
-                                        Deferral.Complete();
-                                    }
-                                });
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(ViewControl_Drop)}");
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
                             });
 
                             QueueTaskController.EnqueueMoveOpeartion(Model);
@@ -6045,12 +6083,13 @@ namespace RX_Explorer.View
                         {
                             EventDeferral Deferral = e.GetDeferral();
 
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                            try
                             {
-                                try
+                                if (e.Status == OperationStatus.Completed)
                                 {
-                                    if (e.Status == OperationStatus.Completed)
+                                    await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                     {
+
                                         foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                                   .Cast<Frame>()
                                                                                                                   .Select((Frame) => Frame.Content)
@@ -6065,17 +6104,17 @@ namespace RX_Explorer.View
                                                 }
                                             }
                                         }
-                                    }
+                                    });
                                 }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex);
-                                }
-                                finally
-                                {
-                                    Deferral.Complete();
-                                }
-                            });
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(ViewControl_Drop)}");
+                            }
+                            finally
+                            {
+                                Deferral.Complete();
+                            }
                         });
 
                         QueueTaskController.EnqueueCopyOpeartion(Model);
@@ -6127,11 +6166,11 @@ namespace RX_Explorer.View
                 {
                     EventDeferral Deferral = e.GetDeferral();
 
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                    try
                     {
-                        try
+                        if (e.Status == OperationStatus.Completed)
                         {
-                            if (e.Status == OperationStatus.Completed)
+                            await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                             {
                                 foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                           .Cast<Frame>()
@@ -6150,24 +6189,24 @@ namespace RX_Explorer.View
                                         }
                                     }
                                 }
-                            }
+                            });
                         }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex);
-                        }
-                        finally
-                        {
-                            Deferral.Complete();
-                        }
-                    });
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(MixedDecompression_Click)}");
+                    }
+                    finally
+                    {
+                        Deferral.Complete();
+                    }
                 });
 
                 QueueTaskController.EnqueueDecompressionOpeartion(DModel);
             }
         }
 
-        private async void MixCompression_Click(object sender, RoutedEventArgs e)
+        private async void MixedCompression_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
@@ -6181,11 +6220,11 @@ namespace RX_Explorer.View
                 {
                     EventDeferral Deferral = e.GetDeferral();
 
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                    try
                     {
-                        try
+                        if (e.Status == OperationStatus.Completed)
                         {
-                            if (e.Status == OperationStatus.Completed)
+                            await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                             {
                                 foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                           .Cast<Frame>()
@@ -6204,17 +6243,17 @@ namespace RX_Explorer.View
                                         }
                                     }
                                 }
-                            }
+                            });
                         }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex);
-                        }
-                        finally
-                        {
-                            Deferral.Complete();
-                        }
-                    });
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(MixedCompression_Click)}");
+                    }
+                    finally
+                    {
+                        Deferral.Complete();
+                    }
                 });
 
                 QueueTaskController.EnqueueCompressionOpeartion(CModel);
@@ -6399,11 +6438,11 @@ namespace RX_Explorer.View
                     {
                         EventDeferral Deferral = e.GetDeferral();
 
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        try
                         {
-                            try
+                            if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
                             {
-                                if (e.Status == OperationStatus.Completed && e.Parameter is string NewName)
+                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                 {
                                     foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                               .Cast<Frame>()
@@ -6428,13 +6467,17 @@ namespace RX_Explorer.View
 
                                         await Task.Delay(500);
                                     }
-                                }
+                                });
                             }
-                            finally
-                            {
-                                Deferral.Complete();
-                            }
-                        });
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(EditBox_LostFocus)}");
+                        }
+                        finally
+                        {
+                            Deferral.Complete();
+                        }
                     });
 
                     QueueTaskController.EnqueueRenameOpeartion(Model);
@@ -6839,11 +6882,11 @@ namespace RX_Explorer.View
                             {
                                 EventDeferral Deferral = e.GetDeferral();
 
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                try
                                 {
-                                    try
+                                    if (e.Status == OperationStatus.Completed)
                                     {
-                                        if (e.Status == OperationStatus.Completed)
+                                        await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                         {
                                             foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                                       .Cast<Frame>()
@@ -6862,17 +6905,17 @@ namespace RX_Explorer.View
                                                     }
                                                 }
                                             }
-                                        }
+                                        });
                                     }
-                                    catch (Exception ex)
-                                    {
-                                        LogTracer.Log(ex);
-                                    }
-                                    finally
-                                    {
-                                        Deferral.Complete();
-                                    }
-                                });
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(DecompressOption_Click)}");
+                                }
+                                finally
+                                {
+                                    Deferral.Complete();
+                                }
                             });
 
                             QueueTaskController.EnqueueDecompressionOpeartion(DModel);
@@ -6905,11 +6948,11 @@ namespace RX_Explorer.View
                     {
                         EventDeferral Deferral = e.GetDeferral();
 
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        try
                         {
-                            try
+                            if (e.Status == OperationStatus.Completed)
                             {
-                                if (e.Status == OperationStatus.Completed)
+                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                 {
                                     foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                               .Cast<Frame>()
@@ -6928,17 +6971,17 @@ namespace RX_Explorer.View
                                             }
                                         }
                                     }
-                                }
+                                });
                             }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex);
-                            }
-                            finally
-                            {
-                                Deferral.Complete();
-                            }
-                        });
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Failed to execute the post action delegate of {nameof(MixedDecompressOption_Click)}");
+                        }
+                        finally
+                        {
+                            Deferral.Complete();
+                        }
                     });
 
                     QueueTaskController.EnqueueDecompressionOpeartion(DModel);

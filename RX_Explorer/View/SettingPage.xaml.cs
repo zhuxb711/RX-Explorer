@@ -30,6 +30,7 @@ using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -1042,9 +1043,9 @@ namespace RX_Explorer.View
         {
             await SyncLocker.WaitAsync();
 
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, async () =>
+            try
             {
-                try
+                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                 {
                     IEnumerable<TerminalProfile> CurrentTerminalProfiles = SQLite.Current.GetAllTerminalProfile();
 
@@ -1160,16 +1161,16 @@ namespace RX_Explorer.View
                                 }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An exception was threw in Current_DataChanged");
-                }
-                finally
-                {
-                    SyncLocker.Release();
-                }
-            });
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Current_DataChanged)}");
+            }
+            finally
+            {
+                SyncLocker.Release();
+            }
         }
 
         private Task ActivateAnimation(UIElement Element, TimeSpan Duration, TimeSpan DelayTime, float VerticalOffset, bool IsReverse)

@@ -300,17 +300,10 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                     {
                         await Task.WhenAll(LoadCoreAsync(), GetThumbnailAsync());
-                    }
-                    else
-                    {
-                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
-                        {
-                            await Task.WhenAll(LoadCoreAsync(), GetThumbnailAsync());
-                        });
-                    }
+                    });
                 }
                 catch (Exception ex)
                 {
