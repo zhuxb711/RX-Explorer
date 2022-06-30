@@ -27,6 +27,37 @@ namespace FullTrustProcess
 {
     public static class Helper
     {
+        public static string GetUWPActualNamedPipeName(string PipeId, string AppContainerName = null, int ProcessId = 0)
+        {
+            if (ProcessId > 0)
+            {
+                using (Process TargetProcess = Process.GetProcessById(ProcessId))
+                using (AdvApi32.SafeHTOKEN Token = AdvApi32.SafeHTOKEN.FromProcess(new HPROCESS(TargetProcess.Handle), AdvApi32.TokenAccess.TOKEN_ALL_ACCESS))
+                {
+                    return $@"Sessions\{TargetProcess.SessionId}\AppContainerNamedObjects\{string.Join("-", Token.GetInfo<AdvApi32.TOKEN_APPCONTAINER_INFORMATION>(AdvApi32.TOKEN_INFORMATION_CLASS.TokenAppContainerSid).TokenAppContainer.ToString("D").Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeId}";
+                }
+            }
+            else if(!string.IsNullOrEmpty(AppContainerName))
+            {
+                using (Process CurrentProcess = Process.GetCurrentProcess())
+                {
+                    if (UserEnv.DeriveAppContainerSidFromAppContainerName(AppContainerName, out AdvApi32.SafeAllocatedSID Sid).Succeeded)
+                    {
+                        try
+                        {
+                            return $@"Sessions\{CurrentProcess.SessionId}\AppContainerNamedObjects\{string.Join("-", ((PSID)Sid).ToString("D").Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeId}";
+                        }
+                        finally
+                        {
+                            Sid.Dispose();
+                        }
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
         public static IReadOnlyList<Process> GetLockingProcesses(string Path)
         {
             StringBuilder SessionKey = new StringBuilder(Guid.NewGuid().ToString());

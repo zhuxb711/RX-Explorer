@@ -69,7 +69,7 @@ namespace RX_Explorer.Class
 
         private bool IsDisposed;
 
-        private const int PipeConnectionTimeout = 5000;
+        private const int PipeConnectionTimeout = 10000;
 
         static FullTrustProcessController()
         {
@@ -99,64 +99,48 @@ namespace RX_Explorer.Class
                         {
                             FullTrustProcessController Controller = AvailableControllerCollection.Take(Cancellation.Token);
 
-                            if (Controller.IsDisposed)
+                            Task<IDictionary<string, string>> TestCommandTask = Controller.SendCommandAsync(CommandType.Test);
+
+                            if (Task.WhenAny(TestCommandTask, Task.Delay(1000)).Result == TestCommandTask)
                             {
-                                Task.Run(() =>
+                                if (WaitCount > 0)
                                 {
-                                    LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
+                                    CurrentBusyStatus?.Invoke(null, false);
+                                }
 
-                                    for (int Retry = 1; Retry <= 3; Retry++)
-                                    {
-                                        if (CreateAsync().Result is FullTrustProcessController NewController)
-                                        {
-                                            AvailableControllerCollection.Add(NewController);
-                                            break;
-                                        }
+                                Item.TaskSource.SetResult(Exclusive.CreateAsync(Controller).Result);
 
-                                        LogTracer.Log($"Dispatcher found a controller was disposed, but could not recreate a new controller. Retrying execute {nameof(CreateAsync)} in {Retry} times");
-                                    }
-                                });
+                                break;
                             }
                             else
                             {
-                                Task<IDictionary<string, string>> TestCommandTask = Controller.SendCommandAsync(CommandType.Test);
-
-                                if (Task.WhenAny(TestCommandTask, Task.Delay(1000)).Result == TestCommandTask)
+                                TestCommandTask.ContinueWith((PreviousTask, Input) =>
                                 {
-                                    CurrentBusyStatus?.Invoke(null, false);
-                                    Item.TaskSource.SetResult(Exclusive.CreateAsync(Controller).Result);
-                                    break;
-                                }
-                                else
-                                {
-                                    TestCommandTask.ContinueWith((PreviousTask, Input) =>
+                                    if (Input is FullTrustProcessController PreviousController)
                                     {
-                                        if (Input is FullTrustProcessController PreviousController)
+                                        if ((PreviousTask.Result?.ContainsKey("Success")).GetValueOrDefault())
                                         {
-                                            if ((PreviousTask.Result?.ContainsKey("Success")).GetValueOrDefault())
-                                            {
-                                                AvailableControllerCollection.Add(PreviousController);
-                                            }
-                                            else
-                                            {
-                                                PreviousController.Dispose();
+                                            AvailableControllerCollection.Add(PreviousController);
+                                        }
+                                        else
+                                        {
+                                            PreviousController.Dispose();
 
-                                                LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
+                                            LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
 
-                                                for (int Retry = 1; Retry <= 3; Retry++)
+                                            for (int Retry = 1; Retry <= 3; Retry++)
+                                            {
+                                                if (CreateAsync().Result is FullTrustProcessController NewController)
                                                 {
-                                                    if (CreateAsync().Result is FullTrustProcessController NewController)
-                                                    {
-                                                        AvailableControllerCollection.Add(NewController);
-                                                        break;
-                                                    }
-
-                                                    LogTracer.Log($"Dispatcher found a controller was disposed, but could not recreate a new controller. Retrying execute {nameof(CreateAsync)} in {Retry} times");
+                                                    AvailableControllerCollection.Add(NewController);
+                                                    break;
                                                 }
+
+                                                LogTracer.Log($"Could not recreate a new controller. Retrying execute {nameof(CreateAsync)} in {Retry} times");
                                             }
                                         }
-                                    }, Controller);
-                                }
+                                    }
+                                }, Controller);
                             }
                         }
                     }
@@ -261,7 +245,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not create FullTrustProcess properly");
+                LogTracer.Log(ex, "Could not create or connect to fullTrustProcess as expected");
             }
 
             Controller.Dispose();
@@ -339,20 +323,12 @@ namespace RX_Explorer.Class
                             LogTracer.Log($"Try connect to FullTrustProcess in {RetryCount} times");
                         }
                     }
-
-                    LogTracer.Log("Retry 3 times and still could not connect to FullTrustProcess, disposing this instance");
-                }
-                else
-                {
-                    LogTracer.Log("CommunicationBaseController is not connected, disposing this instance");
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An unexpected exception was threw in {nameof(ConnectRemoteAsync)}");
             }
-
-            Dispose();
 
             return false;
         }
@@ -432,17 +408,20 @@ namespace RX_Explorer.Class
 
                     return await CommandItem.TaskSource.Task;
                 }
+                else
+                {
+                    throw new Exception("Connection between fullTrustProcess was lost");
+                }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(SendCommandAsync)} throw An exception");
+                return null;
             }
             finally
             {
                 Interlocked.Decrement(ref CurrentControllerExecutingCommandNum);
             }
-
-            return null;
         }
 
         private async Task<IDictionary<string, string>> SendCommandAndReportProgressAsync(CommandType Type, ProgressChangedEventHandler ProgressHandler, params (string, string)[] Arguments)
@@ -469,17 +448,20 @@ namespace RX_Explorer.Class
 
                     return await CommandItem.TaskSource.Task;
                 }
+                else
+                {
+                    throw new Exception("Connection between fullTrustProcess was lost");
+                }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(SendCommandAndReportProgressAsync)} throw An exception");
+                return null;
             }
             finally
             {
                 Interlocked.Decrement(ref CurrentControllerExecutingCommandNum);
             }
-
-            return null;
         }
 
         private bool TryCancelCurrentOperation()

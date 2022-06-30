@@ -74,10 +74,6 @@ namespace FullTrustProcess
             {
                 LogTracer.Log(ex, "Could not send pipeline data");
             }
-            finally
-            {
-                Dispose();
-            }
         }
 
         public override void Dispose()

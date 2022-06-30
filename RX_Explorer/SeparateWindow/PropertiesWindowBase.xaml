@@ -90,7 +90,7 @@
         <Cls:InverseConverter x:Key="InverseConverter" />
         
         <Storyboard x:Name="CapacityRingStoryboard">
-            <DoubleAnimation Duration="0:0:1.2"
+            <DoubleAnimation Duration="0:0:1"
                              x:Name="CapacityRingDoubleAnimation"
                              EnableDependentAnimation="True"
                              From="0"
@@ -98,7 +98,7 @@
                              Storyboard.TargetName="CapacityProgress"
                              Storyboard.TargetProperty="Value">
                 <DoubleAnimation.EasingFunction>
-                    <CircleEase EasingMode="EaseInOut"></CircleEase>
+                    <CircleEase EasingMode="EaseInOut" />
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
         </Storyboard>
@@ -221,6 +221,22 @@
                                 Value="Collapsed" />
                         <Setter Target="HashKindLabel.Visibility"
                                 Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            <VisualStateGroup>
+                <VisualState x:Name="NormalCapacityStatus" />
+                <VisualState x:Name="RedCapacityStatus">
+                    <VisualState.StateTriggers>
+                        <Trigger:CompareStateTrigger Value="{x:Bind RootDrive.Percent,TargetNullValue=0}"
+                                                     To="0.85"
+                                                     Comparison="GreaterThanOrEqual" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CapacityProgress.Foreground"
+                                Value="Red"/>
+                        <Setter Target="CapacityPercentText.Foreground"
+                                Value="Red"/>
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>

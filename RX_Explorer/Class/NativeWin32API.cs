@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Windows.Storage;
@@ -238,6 +240,43 @@ namespace RX_Explorer.Class
             FileIdExtdDirectoryInfo,
             FileIdExtdDirectoryRestartInfo,
             MaximumFileInfoByHandlesClass,
+        }
+
+        [Flags]
+        private enum STARTF
+        {
+            STARTF_USESHOWWINDOW = 1,
+            STARTF_USESIZE = 2,
+            STARTF_USEPOSITION = 4,
+            STARTF_USECOUNTCHARS = 8,
+            STARTF_USEFILLATTRIBUTE = 16,
+            STARTF_RUNFULLSCREEN = 32,
+            STARTF_FORCEONFEEDBACK = 64,
+            STARTF_FORCEOFFFEEDBACK = 128,
+            STARTF_USESTDHANDLES = 256,
+            STARTF_USEHOTKEY = 512,
+            STARTF_TITLEISLINKNAME = 2048,
+            STARTF_TITLEISAPPID = 4096,
+            STARTF_PREVENTPINNING = 8192,
+            STARTF_UNTRUSTEDSOURCE = 32768
+        }
+
+        private enum ShowWindowCommand : ushort
+        {
+            SW_HIDE = 0,
+            SW_SHOWNORMAL = 1,
+            SW_NORMAL = 1,
+            SW_SHOWMINIMIZED = 2,
+            SW_SHOWMAXIMIZED = 3,
+            SW_MAXIMIZE = 3,
+            SW_SHOWNOACTIVATE = 4,
+            SW_SHOW = 5,
+            SW_MINIMIZE = 6,
+            SW_SHOWMINNOACTIVE = 7,
+            SW_SHOWNA = 8,
+            SW_RESTORE = 9,
+            SW_SHOWDEFAULT = 10,
+            SW_FORCEMINIMIZE = 11,
         }
 
         [StructLayout(LayoutKind.Sequential)]

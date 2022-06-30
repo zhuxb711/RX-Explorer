@@ -46,7 +46,7 @@ namespace FullTrustProcess
 
         private static NamedPipeReadController PipeCancellationReadController;
 
-        private static NamedPipeReadController PipeCommunicationBaseController;
+        private static NamedPipeCommunicationBaseController PipeCommunicationBaseController;
 
         private static CancellationTokenSource CurrentTaskCancellation;
 
@@ -610,7 +610,7 @@ namespace FullTrustProcess
                     };
                     AliveCheckTimer.Elapsed += AliveCheckTimer_Elapsed;
 
-                    PipeCommunicationBaseController = new NamedPipeReadController("Explorer_NamedPipe_CommunicationBase");
+                    PipeCommunicationBaseController = new NamedPipeCommunicationBaseController();
                     PipeCommunicationBaseController.OnDataReceived += PipeCommunicationBaseController_OnDataReceived;
 
                     if (PipeCommunicationBaseController.WaitForConnectionAsync(10000).Result)

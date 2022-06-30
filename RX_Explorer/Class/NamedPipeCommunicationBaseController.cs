@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace RX_Explorer.Class
+﻿namespace RX_Explorer.Class
 {
     public class NamedPipeCommunicationBaseController : NamedPipeWriteController
     {

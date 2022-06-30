@@ -83,10 +83,6 @@ namespace RX_Explorer.Class
             {
                 OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ex)).Wait();
             }
-            finally
-            {
-                Dispose();
-            }
         }
 
         public override async Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds)

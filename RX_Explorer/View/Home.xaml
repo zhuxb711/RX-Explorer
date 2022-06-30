@@ -220,10 +220,11 @@
                                         </Grid.ColumnDefinitions>
                                         <VisualStateManager.VisualStateGroups>
                                             <VisualStateGroup>
-                                                <VisualState x:Name="GreaterThanOrEqual">
+                                                <VisualState x:Name="NormalCapacityStatus"/>
+                                                <VisualState x:Name="RedCapacityStatus">
                                                     <VisualState.StateTriggers>
                                                         <Triggers:CompareStateTrigger Value="{x:Bind Percent,Mode=OneWay}"
-                                                                                      To="0.9"
+                                                                                      To="0.85"
                                                                                       Comparison="GreaterThanOrEqual" />
                                                     </VisualState.StateTriggers>
                                                     <VisualState.Setters>
@@ -253,10 +254,8 @@
                                             <muxc:ProgressBar x:Name="Pro"
                                                               HorizontalAlignment="Stretch"
                                                               Height="12"
-                                                              Margin="0,2,0,0"
                                                               Maximum="1"
-                                                              Minimum="0"
-                                                              Value="{x:Bind Percent,Mode=OneWay}" />
+                                                              Minimum="0" />
                                             <TextBlock FontSize="13"
                                                        HorizontalAlignment="Left"
                                                        TextTrimming="CharacterEllipsis"

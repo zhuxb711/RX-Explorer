@@ -70,10 +70,6 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, "Could not send pipeline data");
             }
-            finally
-            {
-                Dispose();
-            }
         }
 
         public void SendData(string Data)
@@ -95,7 +91,7 @@ namespace RX_Explorer.Class
                 base.Dispose();
                 MessageCollection.CompleteAdding();
                 MessageCollection.Dispose();
-                Cancellation.Dispose();
+                Cancellation?.Dispose();
                 Cancellation = null;
             }
         }

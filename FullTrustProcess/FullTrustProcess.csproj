@@ -34,7 +34,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
-    <PackageReference Include="System.Security.Permissions" Version="6.0.0" />
     <PackageReference Include="UTF.Unknown" Version="2.5.1" />
     <PackageReference Include="Vanara.PInvoke.CfgMgr32">
       <Version>3.4.3</Version>
