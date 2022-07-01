@@ -348,16 +348,14 @@ namespace FullTrustProcess
             {
                 Handle = User32.FindWindowEx(HWND.NULL, Handle, null, null);
 
-                if (Handle != HWND.NULL)
-                {
-                    if (User32.IsWindowVisible(Handle) && !User32.IsIconic(Handle))
-                    {
-                        HandleList.Add(Handle);
-                    }
-                }
-                else
+                if (Handle == HWND.NULL)
                 {
                     break;
+                }
+
+                if (User32.IsWindowVisible(Handle) && !User32.IsIconic(Handle))
+                {
+                    HandleList.Add(Handle);
                 }
             }
 

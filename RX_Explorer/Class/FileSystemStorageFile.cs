@@ -11,6 +11,7 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
+using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
 {
@@ -21,8 +22,6 @@ namespace RX_Explorer.Class
         public override string DisplayType => ((StorageItem as StorageFile)?.DisplayType) ?? Type;
 
         public override string DisplayName => Name;
-
-        public override string SizeDescription => Size.GetSizeDescription();
 
         public override BitmapImage Thumbnail => base.Thumbnail ??= new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
                                                                                         ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
@@ -181,14 +180,40 @@ namespace RX_Explorer.Class
                     if (Data.IsDataValid)
                     {
                         Size = Data.Size;
+                        IsReadOnly = Data.IsReadOnly;
+                        IsHiddenItem = Data.IsHiddenItem;
+                        IsSystemItem = Data.IsSystemItem;
                         ModifiedTime = Data.ModifiedTime;
                         LastAccessTime = Data.LastAccessTime;
                     }
-                    else if (await GetStorageItemCoreAsync(true) is StorageFile File)
+                    else if (await GetStorageItemCoreAsync() is StorageFile File)
                     {
                         Size = await File.GetSizeRawDataAsync();
                         ModifiedTime = await File.GetModifiedTimeAsync();
                         LastAccessTime = await File.GetLastAccessTimeAsync();
+
+                        if (GetBulkAccessSharedController(out var ControllerRef))
+                        {
+                            using (ControllerRef)
+                            {
+                                FileAttributes Attribute = await ControllerRef.Value.Controller.GetFileAttributeAsync(Path);
+
+                                IsReadOnly = Attribute.HasFlag(FileAttributes.ReadOnly);
+                                IsHiddenItem = Attribute.HasFlag(FileAttributes.Hidden);
+                                IsSystemItem = Attribute.HasFlag(FileAttributes.System);
+                            }
+                        }
+                        else
+                        {
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            {
+                                FileAttributes Attribute = await ControllerRef.Value.Controller.GetFileAttributeAsync(Path);
+
+                                IsReadOnly = Attribute.HasFlag(FileAttributes.ReadOnly);
+                                IsHiddenItem = Attribute.HasFlag(FileAttributes.Hidden);
+                                IsSystemItem = Attribute.HasFlag(FileAttributes.System);
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -198,14 +223,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
+        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
         {
             try
             {
-                if (StorageItem == null || ForceUpdate)
-                {
-                    StorageItem = await StorageFile.GetFileFromPathAsync(Path);
-                }
+                return await StorageFile.GetFileFromPathAsync(Path);
             }
             catch (FileNotFoundException)
             {
@@ -220,7 +242,7 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"Could not get StorageFile, path: {Path}");
             }
 
-            return StorageItem;
+            return null;
         }
 
         public override async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)

@@ -748,9 +748,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         { Globalization.GetString("Properties_Details_Name"), StorageItem.Name },
                         { Globalization.GetString("Properties_Details_ItemType"), StorageItem.DisplayType },
                         { Globalization.GetString("Properties_Details_FolderPath"), Path.GetDirectoryName(StorageItem.Path) },
-                        { Globalization.GetString("Properties_Details_Size"), StorageItem.SizeDescription },
-                        { Globalization.GetString("Properties_Details_DateCreated"), StorageItem.CreationTimeDescription },
-                        { Globalization.GetString("Properties_Details_DateModified"), StorageItem.ModifiedTimeDescription },
+                        { Globalization.GetString("Properties_Details_Size"), StorageItem.Size.GetFileSizeDescription() },
+                        { Globalization.GetString("Properties_Details_DateCreated"), StorageItem.CreationTime.GetDateTimeDescription() },
+                        { Globalization.GetString("Properties_Details_DateModified"), StorageItem.ModifiedTime.GetDateTimeDescription() },
                         { Globalization.GetString("Properties_Details_Availability"), string.Empty },
                         { Globalization.GetString("Properties_Details_OfflineAvailabilityStatus"), string.Empty },
                         { Globalization.GetString("Properties_Details_Owner"), string.Empty },
@@ -1194,11 +1194,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                             }), TaskCreationOptions.LongRunning);
 
                             MultiStorageItemName.Text = $"{FileCount} {Globalization.GetString("FolderInfo_File_Count")} , {FolderCount} {Globalization.GetString("FolderInfo_Folder_Count")}";
-                            MultiSizeContent.Text = $"{Convert.ToUInt64(TotalSize).GetSizeDescription()} ({TotalSize:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
+                            MultiSizeContent.Text = $"{Convert.ToUInt64(TotalSize).GetFileSizeDescription()} ({TotalSize:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
 
                             ulong[] SizeOnDiskResultArray = await Task.WhenAll(SizeOnDiskTaskList);
                             ulong SizeOnDisk = Convert.ToUInt64(SizeOnDiskResultArray.Sum((Result) => Convert.ToInt64(Result)));
-                            MultiSizeOnDiskContent.Text = SizeOnDisk > 0 ? $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Drive_Capacity_Unit")})" : Globalization.GetString("UnknownText");
+                            MultiSizeOnDiskContent.Text = SizeOnDisk > 0 ? $"{SizeOnDisk.GetFileSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Drive_Capacity_Unit")})" : Globalization.GetString("UnknownText");
                         }
                         catch (Exception ex)
                         {
@@ -1209,7 +1209,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     }
                 case 1:
                     {
-                        switch (StorageItems.First())
+                        switch (StorageItems.Single())
                         {
                             case FileSystemStorageFolder Folder:
                                 {
@@ -1222,8 +1222,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FolderCreatedContent.Text = Folder.CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || Folder.CreationTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : Folder.CreationTime.ToString("F");
                                     FolderHiddenAttribute.IsChecked = Folder.IsHiddenItem;
                                     FolderReadonlyAttribute.IsChecked = null;
-                                    FolderHiddenAttribute.IsEnabled = Folder is not (IMTPStorageItem or IFTPStorageItem);
                                     FolderReadonlyAttribute.IsEnabled = Folder is not (IMTPStorageItem or IFTPStorageItem);
+                                    FolderHiddenAttribute.IsEnabled = Folder is not (IMTPStorageItem or IFTPStorageItem);
 
                                     try
                                     {
@@ -1236,7 +1236,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                             Task SizeTask = CalculateFolderSize(Folder, Cancellation.Token).ContinueWith((PreviousTask) =>
                                             {
-                                                FolderSizeContent.Text = $"{PreviousTask.Result.GetSizeDescription()} ({PreviousTask.Result:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
+                                                FolderSizeContent.Text = $"{PreviousTask.Result.GetFileSizeDescription()} ({PreviousTask.Result:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
                                             }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
                                             await Task.WhenAll(CountTask, SizeTask);
@@ -1258,13 +1258,14 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileStorageItemName.Text = File.Name;
                                     FileThumbnail.Source = File.Thumbnail;
                                     FileReadonlyAttribute.IsChecked = File.IsReadOnly;
-                                    FileSizeContent.Text = $"{File.SizeDescription} ({File.Size:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
+                                    FileSizeContent.Text = $"{File.Size.GetFileSizeDescription()} ({File.Size:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
                                     FileLocationContent.Text = Path.GetDirectoryName(File.Path) ?? File.Path;
                                     FileCreatedContent.Text = File.CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || File.CreationTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.CreationTime.ToString("F");
                                     FileModifiedContent.Text = File.ModifiedTime == DateTimeOffset.MaxValue.ToLocalTime() || File.ModifiedTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.ModifiedTime.ToString("F");
                                     FileAccessedContent.Text = File.LastAccessTime == DateTimeOffset.MaxValue.ToLocalTime() || File.LastAccessTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.LastAccessTime.ToString("F");
                                     FileHiddenAttribute.IsChecked = File.IsHiddenItem;
                                     FileHiddenAttribute.IsEnabled = File is not (IMTPStorageItem or IFTPStorageItem);
+                                    FileReadonlyAttribute.IsChecked = File.IsReadOnly;
                                     FileReadonlyAttribute.IsEnabled = File is not (IMTPStorageItem or IFTPStorageItem);
                                     FileChangeOpenWithButton.Visibility = File is IMTPStorageItem or IFTPStorageItem ? Visibility.Collapsed : Visibility.Visible;
 
@@ -1297,7 +1298,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     }
 
                                     ulong SizeOnDisk = await File.GetSizeOnDiskAsync();
-                                    FileSizeOnDiskContent.Text = SizeOnDisk > 0 ? $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Drive_Capacity_Unit")})" : Globalization.GetString("UnknownText");
+                                    FileSizeOnDiskContent.Text = SizeOnDisk > 0 ? $"{SizeOnDisk.GetFileSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Drive_Capacity_Unit")})" : Globalization.GetString("UnknownText");
 
                                     bool IsDisplayTypeEmpty = string.IsNullOrEmpty(File.DisplayType);
                                     bool IsTypeEmpty = string.IsNullOrEmpty(File.Type);

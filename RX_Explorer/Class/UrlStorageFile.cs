@@ -55,7 +55,7 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        protected override Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
+        protected override Task<IStorageItem> GetStorageItemCoreAsync()
         {
             return Task.FromResult<IStorageItem>(null);
         }
@@ -66,6 +66,8 @@ namespace RX_Explorer.Class
             {
                 RawData = await GetRawDataAsync();
             }
+
+            await base.LoadCoreAsync(ForceUpdate);
         }
 
         protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)

@@ -106,7 +106,7 @@ namespace RX_Explorer.Class
             return Task.FromResult<BitmapImage>(null);
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
+        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
         {
             try
             {
@@ -121,39 +121,36 @@ namespace RX_Explorer.Class
                     //No need to handle this exception
                 }
 
-                if (StorageItem == null || ForceUpdate)
+                return await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
                 {
-                    StorageItem = await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
+                    try
                     {
-                        try
+                        using (Stream TargetFileStream = Request.AsStreamForWrite())
+                        using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                         {
-                            using (Stream TargetFileStream = Request.AsStreamForWrite())
-                            using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            if (CurrentFileStream == null)
                             {
-                                if (CurrentFileStream == null)
-                                {
-                                    throw new Exception($"Could not get the file stream from ftp file: {Path}");
-                                }
-
-                                await CurrentFileStream.CopyToAsync(TargetFileStream);
+                                throw new Exception($"Could not get the file stream from ftp file: {Path}");
                             }
 
-                            Request.Dispose();
+                            await CurrentFileStream.CopyToAsync(TargetFileStream);
                         }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"Could not create streamed file for ftp file: {Path}");
-                            Request.FailAndClose(StreamedFileFailureMode.Incomplete);
-                        }
-                    }, Reference);
-                }
+
+                        Request.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Could not create streamed file for ftp file: {Path}");
+                        Request.FailAndClose(StreamedFileFailureMode.Incomplete);
+                    }
+                }, Reference);
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Could not get the storage item for ftp file: {Path}");
             }
 
-            return StorageItem;
+            return null;
         }
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)

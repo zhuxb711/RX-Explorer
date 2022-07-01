@@ -32,8 +32,6 @@ namespace RX_Explorer.Class
 
         public string Path { get; protected set; }
 
-        public virtual string SizeDescription { get; }
-
         public virtual string Name => System.IO.Path.GetFileName(Path) ?? string.Empty;
 
         public virtual string Type => System.IO.Path.GetExtension(Path)?.ToUpper() ?? string.Empty;
@@ -57,21 +55,8 @@ namespace RX_Explorer.Class
 
         public double ThumbnailOpacity
         {
-            get
-            {
-                if (IsHiddenItem)
-                {
-                    return 0.5;
-                }
-                else
-                {
-                    return InnerThumbnailOpacity;
-                }
-            }
-            private set
-            {
-                InnerThumbnailOpacity = value;
-            }
+            get => IsHiddenItem ? 0.5 : InnerThumbnailOpacity;
+            private set => InnerThumbnailOpacity = value;
         }
 
         public virtual ulong Size { get; protected set; }
@@ -81,51 +66,6 @@ namespace RX_Explorer.Class
         public virtual DateTimeOffset ModifiedTime { get; protected set; }
 
         public virtual DateTimeOffset LastAccessTime { get; protected set; }
-
-        public virtual string LastAccessTimeDescription
-        {
-            get
-            {
-                if (LastAccessTime == DateTimeOffset.MaxValue.ToLocalTime() || LastAccessTime == DateTimeOffset.MinValue.ToLocalTime())
-                {
-                    return string.Empty;
-                }
-                else
-                {
-                    return LastAccessTime.ToString("G");
-                }
-            }
-        }
-
-        public virtual string ModifiedTimeDescription
-        {
-            get
-            {
-                if (ModifiedTime == DateTimeOffset.MaxValue.ToLocalTime() || ModifiedTime == DateTimeOffset.MinValue.ToLocalTime())
-                {
-                    return string.Empty;
-                }
-                else
-                {
-                    return ModifiedTime.ToString("G");
-                }
-            }
-        }
-
-        public virtual string CreationTimeDescription
-        {
-            get
-            {
-                if (CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || CreationTime == DateTimeOffset.MinValue.ToLocalTime())
-                {
-                    return string.Empty;
-                }
-                else
-                {
-                    return CreationTime.ToString("G");
-                }
-            }
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -145,7 +85,7 @@ namespace RX_Explorer.Class
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
 
-        public IStorageItem StorageItem { get; protected set; }
+        public IStorageItem StorageItem { get; private set; }
 
         public static Task<IDisposable> SelfCreateBulkAccessSharedControllerAsync<T>(T Item, PriorityLevel Priority = PriorityLevel.Normal) where T : FileSystemStorageItemBase
         {
@@ -983,8 +923,8 @@ namespace RX_Explorer.Class
                     {
                         OnPropertyChanged(nameof(Name));
                         OnPropertyChanged(nameof(DisplayName));
-                        OnPropertyChanged(nameof(ModifiedTimeDescription));
-                        OnPropertyChanged(nameof(LastAccessTimeDescription));
+                        OnPropertyChanged(nameof(ModifiedTime));
+                        OnPropertyChanged(nameof(LastAccessTime));
                         OnPropertyChanged(nameof(ThumbnailOverlay));
                         OnPropertyChanged(nameof(SyncStatus));
 
@@ -995,8 +935,8 @@ namespace RX_Explorer.Class
 
                         if (this is FileSystemStorageFile)
                         {
+                            OnPropertyChanged(nameof(Size));
                             OnPropertyChanged(nameof(DisplayType));
-                            OnPropertyChanged(nameof(SizeDescription));
                         }
                     }
                 });
@@ -1007,15 +947,18 @@ namespace RX_Explorer.Class
         {
             try
             {
-                await GetStorageItemAsync(true);
+                using (IDisposable Disposable = await SelfCreateBulkAccessSharedControllerAsync(this, PriorityLevel.Low))
+                {
+                    await GetStorageItemAsync(true);
 
-                if (ShouldGenerateThumbnail)
-                {
-                    await Task.WhenAll(LoadCoreAsync(true), GetThumbnailAsync(ThumbnailMode, true));
-                }
-                else
-                {
-                    await LoadCoreAsync(true);
+                    if (ShouldGenerateThumbnail)
+                    {
+                        await Task.WhenAll(LoadCoreAsync(true), GetThumbnailAsync(ThumbnailMode, true));
+                    }
+                    else
+                    {
+                        await LoadCoreAsync(true);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1026,7 +969,7 @@ namespace RX_Explorer.Class
             {
                 if (this is FileSystemStorageFile)
                 {
-                    OnPropertyChanged(nameof(SizeDescription));
+                    OnPropertyChanged(nameof(Size));
                 }
 
                 if (ShouldGenerateThumbnail)
@@ -1034,8 +977,9 @@ namespace RX_Explorer.Class
                     OnPropertyChanged(nameof(Thumbnail));
                 }
 
-                OnPropertyChanged(nameof(ModifiedTimeDescription));
-                OnPropertyChanged(nameof(LastAccessTimeDescription));
+                OnPropertyChanged(nameof(ThumbnailOpacity));
+                OnPropertyChanged(nameof(ModifiedTime));
+                OnPropertyChanged(nameof(LastAccessTime));
             }
         }
 
@@ -1132,16 +1076,19 @@ namespace RX_Explorer.Class
 
         protected abstract Task LoadCoreAsync(bool ForceUpdate);
 
-        protected abstract Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate);
+        protected abstract Task<IStorageItem> GetStorageItemCoreAsync();
 
         public async Task<IStorageItem> GetStorageItemAsync(bool ForceUpdate = false)
         {
             if (!IsHiddenItem && !IsSystemItem)
             {
-                return await GetStorageItemCoreAsync(ForceUpdate);
+                if (StorageItem == null || ForceUpdate)
+                {
+                    StorageItem = await GetStorageItemCoreAsync();
+                }
             }
 
-            return null;
+            return StorageItem;
         }
 
         public async Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode, bool ForceUpdate = false)

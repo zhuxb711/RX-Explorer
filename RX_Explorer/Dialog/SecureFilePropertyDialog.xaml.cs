@@ -21,7 +21,7 @@ namespace RX_Explorer.Dialog
 
             FileNameLabel.Text = SFile.DisplayName;
             FileTypeLabel.Text = SFile.DisplayType;
-            FileSizeLabel.Text = SFile.SizeDescription;
+            FileSizeLabel.Text = SFile.Size.GetFileSizeDescription();
             VersionLabel.Text = string.Join('.', Convert.ToString((int)Header.Version).ToCharArray());
             LevelLabel.Text = Header.KeySize switch
             {

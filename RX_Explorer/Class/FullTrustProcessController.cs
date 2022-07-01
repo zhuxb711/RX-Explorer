@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
+using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
 {
@@ -1252,6 +1253,23 @@ namespace RX_Explorer.Class
             }
 
             return false;
+        }
+
+        public async Task<FileAttributes> GetFileAttributeAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.GetFileAttribute, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return Enum.Parse<FileAttributes>(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetFileAttributeAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return FileAttributes.Normal;
         }
 
         public async Task SetFileAttributeAsync(string Path, params KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] Attribute)

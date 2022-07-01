@@ -103,7 +103,7 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] = value;
         }
 
-        public static bool IsDisplayProtectedSystemItems
+        public static bool IsDisplayProtectedSystemItemsEnabled
         {
             get
             {
@@ -183,7 +183,7 @@ namespace RX_Explorer.View
             }
         }
 
-        public static bool IsShowHiddenFilesEnabled
+        public static bool IsDisplayHiddenItemsEnabled
         {
             get
             {
@@ -1282,8 +1282,8 @@ namespace RX_Explorer.View
             FolderOpenMethod.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
             TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
             EnableQuicklook.IsOn = IsQuicklookEnabled;
-            DisplayHiddenItem.IsOn = IsShowHiddenFilesEnabled;
-            HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItems;
+            DisplayHiddenItem.IsOn = IsDisplayHiddenItemsEnabled;
+            HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItemsEnabled;
             TabPreviewSwitch.IsOn = IsTabPreviewEnabled;
             SearchHistory.IsOn = IsSearchHistoryEnabled;
             PathHistory.IsOn = IsPathHistoryEnabled;
@@ -2483,7 +2483,7 @@ namespace RX_Explorer.View
 
         private async void DisplayHiddenItem_Toggled(object sender, RoutedEventArgs e)
         {
-            IsShowHiddenFilesEnabled = DisplayHiddenItem.IsOn;
+            IsDisplayHiddenItemsEnabled = DisplayHiddenItem.IsOn;
 
             try
             {
@@ -3161,7 +3161,7 @@ namespace RX_Explorer.View
 
             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                IsDisplayProtectedSystemItems = true;
+                IsDisplayProtectedSystemItemsEnabled = true;
 
                 try
                 {
@@ -3199,7 +3199,7 @@ namespace RX_Explorer.View
 
         private async void HideProtectedSystemItems_Checked(object sender, RoutedEventArgs e)
         {
-            IsDisplayProtectedSystemItems = false;
+            IsDisplayProtectedSystemItemsEnabled = false;
 
             try
             {

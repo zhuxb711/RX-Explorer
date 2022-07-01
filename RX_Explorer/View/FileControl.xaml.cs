@@ -1109,7 +1109,7 @@ namespace RX_Explorer.View
                 {
                     await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                     {
-                        await foreach (FileSystemStorageFolder StorageItem in Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder).Cast<FileSystemStorageFolder>())
+                        await foreach (FileSystemStorageFolder StorageItem in Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, Filter: BasicFilters.Folder).Cast<FileSystemStorageFolder>())
                         {
                             if (!Node.IsExpanded || !Node.CanTraceToRootNode(FolderTree.RootNodes.ToArray()))
                             {
@@ -1981,8 +1981,8 @@ namespace RX_Explorer.View
                                         string FileName = Path.GetFileName(TargetPath);
 
                                         IAsyncEnumerable<FileSystemStorageItemBase> SuggestionResult = string.IsNullOrEmpty(FileName)
-                                                                                                        ? ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems)
-                                                                                                        : ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
+                                                                                                        ? ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled)
+                                                                                                        : ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
 
                                         await foreach (AddressSuggestionItem Item in SuggestionResult.Take(20).Select((Item) => new AddressSuggestionItem(Item.Path, Item.DisplayName, Visibility.Collapsed)))
                                         {
@@ -2009,7 +2009,7 @@ namespace RX_Explorer.View
 
                                         if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder VariableFolder)
                                         {
-                                            SuggestionResult = SuggestionResult.Concat(VariableFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, AdvanceFilter: (Name) => Name.StartsWith(TargetPath, StringComparison.OrdinalIgnoreCase)));
+                                            SuggestionResult = SuggestionResult.Concat(VariableFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, AdvanceFilter: (Name) => Name.StartsWith(TargetPath, StringComparison.OrdinalIgnoreCase)));
                                         }
                                     }
 
@@ -2144,7 +2144,7 @@ namespace RX_Explorer.View
                         }
                         else if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is FileSystemStorageFolder Folder)
                         {
-                            await foreach (FileSystemStorageFolder SubFolder in Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder).Cast<FileSystemStorageFolder>())
+                            await foreach (FileSystemStorageFolder SubFolder in Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, Filter: BasicFilters.Folder).Cast<FileSystemStorageFolder>())
                             {
                                 AddressExtensionList.Add(SubFolder);
                             }

@@ -14,6 +14,9 @@
       NavigationCacheMode="Required"
       Background="Transparent">
     <Page.Resources>
+        <Cls:SizeDescriptionConverter x:Key="SizeConverter" />
+        <Cls:SizeLabelVisibilityConverter x:Key="SizeVisibilityConverter" />
+        <Cls:DateTimeDescriptionConverter x:Key="DateTimeConverter" />
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
         <Cls:TagToColorConverter x:Key="TagToColorConverter" />
         <Cls:TagToLabelConverter x:Key="TagToLabelConverter" />
@@ -909,32 +912,53 @@
                             <TextBlock VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        Text="{x:Bind Path}"
+                                       Name="PathLabel"
                                        Padding="10,0,0,0"
-                                       ToolTipService.ToolTip="{x:Bind Path}"
                                        TextTrimming="CharacterEllipsis"
-                                       Grid.Column="2" />
+                                       Grid.Column="2">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip Content="x:Bind Path}"
+                                             Visibility="{Binding ElementName=PathLabel,Path=IsTextTrimmed}" />
+                                </ToolTipService.ToolTip>
+                            </TextBlock>
                             <TextBlock VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        Padding="10,0,0,0"
-                                       Text="{x:Bind ModifiedTimeDescription, Mode=OneWay}"
-                                       ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription, Mode=OneWay}"
+                                       Name="ModifiedTimeLabel"
+                                       Text="{x:Bind ModifiedTime,Mode=OneWay,Converter={StaticResource DateTimeConverter}}"
                                        Grid.Column="4"
-                                       TextTrimming="CharacterEllipsis" />
+                                       TextTrimming="CharacterEllipsis">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip Content="{x:Bind ModifiedTime,Mode=OneWay,Converter={StaticResource DateTimeConverter}}"
+                                             Visibility="{Binding ElementName=ModifiedTimeLabel,Path=IsTextTrimmed}" />
+                                </ToolTipService.ToolTip>
+                            </TextBlock>
                             <TextBlock VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        Padding="10,0,0,0"
                                        x:Phase="1"
-                                       Text="{x:Bind DisplayType, Mode=OneWay}"
-                                       ToolTipService.ToolTip="{x:Bind DisplayType, Mode=OneWay}"
+                                       Name="DisplayTypeLabel"
+                                       Text="{x:Bind DisplayType,Mode=OneWay}"
                                        Grid.Column="6"
-                                       TextTrimming="CharacterEllipsis" />
+                                       TextTrimming="CharacterEllipsis">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip Content="{x:Bind DisplayType,Mode=OneWay}"
+                                             Visibility="{Binding ElementName=DisplayTypeLabel,Path=IsTextTrimmed}" />
+                                </ToolTipService.ToolTip>
+                            </TextBlock>
                             <TextBlock VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        Padding="10,0,0,0"
-                                       Text="{x:Bind SizeDescription}"
-                                       ToolTipService.ToolTip="{x:Bind SizeDescription}"
+                                       Name="SizeLabel"
+                                       Text="{x:Bind Size,Converter={StaticResource SizeConverter}}"
+                                       Visibility="{Binding Mode=OneTime,Converter={StaticResource SizeVisibilityConverter}}"
                                        TextTrimming="CharacterEllipsis"
-                                       Grid.Column="8" />
+                                       Grid.Column="8">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip Content="{x:Bind Size,Converter={StaticResource SizeConverter}}"
+                                             Visibility="{Binding ElementName=SizeLabel,Path=IsTextTrimmed}" />
+                                </ToolTipService.ToolTip>
+                            </TextBlock>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

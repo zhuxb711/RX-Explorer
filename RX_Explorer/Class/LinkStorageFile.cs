@@ -74,7 +74,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
+        protected override Task<IStorageItem> GetStorageItemCoreAsync()
         {
             return Task.FromResult<IStorageItem>(null);
         }
@@ -97,6 +97,8 @@ namespace RX_Explorer.Class
                     LinkType = ShellLinkType.UWP;
                 }
             }
+
+            await base.LoadCoreAsync(ForceUpdate);
         }
 
         protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)

@@ -825,6 +825,25 @@ namespace FullTrustProcess
                 {
                     switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                     {
+                        case CommandType.GetFileAttribute:
+                            {
+                                string Path = CommandValue["Path"];
+
+                                if (File.Exists(Path))
+                                {
+                                    Value.Add("Success", Enum.GetName(File.GetAttributes(Path)));
+                                }
+                                else if (Directory.Exists(Path))
+                                {
+                                    Value.Add("Success", Enum.GetName(new DirectoryInfo(Path).Attributes));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Could not found the items according to the path");
+                                }
+
+                                break;
+                            }
                         case CommandType.GetRecyclePathFromOriginPath:
                             {
                                 string OriginPath = CommandValue["OriginPath"];
@@ -2478,9 +2497,9 @@ namespace FullTrustProcess
                                         {
                                             if (AttributePair.Value == FileAttributes.ReadOnly)
                                             {
-                                                foreach (string SubPath in Directory.GetFiles(ExecutePath, "*", SearchOption.AllDirectories))
+                                                foreach (FileInfo SubFile in Dir.EnumerateFiles("*", SearchOption.AllDirectories))
                                                 {
-                                                    new FileInfo(SubPath).Attributes |= AttributePair.Value;
+                                                    SubFile.Attributes |= AttributePair.Value;
                                                 }
                                             }
                                             else
@@ -2492,9 +2511,9 @@ namespace FullTrustProcess
                                         {
                                             if (AttributePair.Value == FileAttributes.ReadOnly)
                                             {
-                                                foreach (string SubPath in Directory.GetFiles(ExecutePath, "*", SearchOption.AllDirectories))
+                                                foreach (FileInfo SubFile in Dir.EnumerateFiles("*", SearchOption.AllDirectories))
                                                 {
-                                                    new FileInfo(SubPath).Attributes &= ~AttributePair.Value;
+                                                    SubFile.Attributes &= ~AttributePair.Value;
                                                 }
                                             }
                                             else
@@ -4329,78 +4348,78 @@ namespace FullTrustProcess
                 }
             }
 
-            try
+            if (!OtherProcess.HasExited)
             {
-                if (OtherProcess.WaitForInputIdle(5000))
+                try
                 {
-                    IntPtr MainWindowHandle = IntPtr.Zero;
-
-                    for (int i = 0; i < 10 && !OtherProcess.HasExited; i++)
+                    if (OtherProcess.WaitForInputIdle(5000))
                     {
-                        OtherProcess.Refresh();
+                        IntPtr MainWindowHandle = IntPtr.Zero;
 
-                        if (OtherProcess.MainWindowHandle.CheckIfValidPtr())
+                        for (int i = 0; i < 10 && !OtherProcess.HasExited; i++)
                         {
-                            MainWindowHandle = OtherProcess.MainWindowHandle;
-                            break;
+                            OtherProcess.Refresh();
+
+                            if (OtherProcess.MainWindowHandle.CheckIfValidPtr())
+                            {
+                                MainWindowHandle = OtherProcess.MainWindowHandle;
+                                break;
+                            }
+                            else
+                            {
+                                Thread.Sleep(500);
+                            }
+                        }
+
+                        if (MainWindowHandle.CheckIfValidPtr())
+                        {
+                            bool IsSuccess = true;
+
+                            uint ExecuteThreadId = User32.GetWindowThreadProcessId(MainWindowHandle, out _);
+                            uint ForegroundThreadId = User32.GetWindowThreadProcessId(User32.GetForegroundWindow(), out _);
+                            uint CurrentThreadId = Kernel32.GetCurrentThreadId();
+
+                            if (ForegroundThreadId != ExecuteThreadId)
+                            {
+                                User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, true);
+                                User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, true);
+                            }
+
+                            IsSuccess &= User32.ShowWindow(MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
+                            IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                            IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                            IsSuccess &= User32.SetForegroundWindow(MainWindowHandle);
+
+                            if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation UwpWindow && !UwpWindow.Handle.IsNull)
+                            {
+                                IsSuccess &= User32.SetWindowPos(UwpWindow.Handle, MainWindowHandle, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
+                            }
+
+                            if (ForegroundThreadId != ExecuteThreadId)
+                            {
+                                User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, false);
+                                User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, false);
+                            }
+
+                            if (!IsSuccess)
+                            {
+                                SetWindowsPosFallback(WindowsBeforeStartup);
+                            }
                         }
                         else
                         {
-                            Thread.Sleep(500);
-                        }
-                    }
-
-                    if (MainWindowHandle.CheckIfValidPtr())
-                    {
-                        bool IsSuccess = true;
-
-                        uint ExecuteThreadId = User32.GetWindowThreadProcessId(MainWindowHandle, out _);
-                        uint ForegroundThreadId = User32.GetWindowThreadProcessId(User32.GetForegroundWindow(), out _);
-                        uint CurrentThreadId = Kernel32.GetCurrentThreadId();
-
-                        if (ForegroundThreadId != ExecuteThreadId)
-                        {
-                            User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, true);
-                            User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, true);
-                        }
-
-                        IsSuccess &= User32.ShowWindow(MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
-                        IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
-                        IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
-                        IsSuccess &= User32.SetForegroundWindow(MainWindowHandle);
-
-                        if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation UwpWindow && !UwpWindow.Handle.IsNull)
-                        {
-                            IsSuccess &= User32.SetWindowPos(UwpWindow.Handle, MainWindowHandle, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
-                        }
-
-                        if (ForegroundThreadId != ExecuteThreadId)
-                        {
-                            User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, false);
-                            User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, false);
-                        }
-
-                        if (!IsSuccess)
-                        {
-                            LogTracer.Log("Could not switch to window because normal method failed, use fallback function");
                             SetWindowsPosFallback(WindowsBeforeStartup);
                         }
                     }
                     else
                     {
-                        LogTracer.Log("Could not switch to window because MainWindowHandle is invalid, use fallback function");
                         SetWindowsPosFallback(WindowsBeforeStartup);
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    LogTracer.Log("Could not switch to window because WaitForInputIdle is timeout after 5000ms, use fallback function");
-                    SetWindowsPosFallback(WindowsBeforeStartup);
+                    LogTracer.Log(ex, "Could not set the windows position");
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not set the windows position");
             }
         }
 

@@ -43,6 +43,18 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
+        public static string GetDateTimeDescription(this DateTimeOffset Time)
+        {
+            if (Time != DateTimeOffset.MaxValue.ToLocalTime()
+                && Time != DateTimeOffset.MinValue.ToLocalTime()
+                && Time != DateTimeOffset.FromFileTime(0))
+            {
+                return Time.ToString("G");
+            }
+
+            return string.Empty;
+        }
+
         public static async Task RunAndWaitAsyncTask(this CoreDispatcher Dispatcher, CoreDispatcherPriority Priority, Func<Task> Executer)
         {
             TaskCompletionSource<bool> CompleteSource = new TaskCompletionSource<bool>();
@@ -790,7 +802,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static string GetSizeDescription(this ulong SizeRaw)
+        public static string GetFileSizeDescription(this ulong SizeRaw)
         {
             if (SizeRaw > 0)
             {
@@ -968,7 +980,7 @@ namespace RX_Explorer.Class
                 {
                     if (Node.Children.Count > 0)
                     {
-                        IEnumerable<string> FolderPathList = await ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder).Select((Item) => Item.Path).ToArrayAsync();
+                        IEnumerable<string> FolderPathList = await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, Filter: BasicFilters.Folder).Select((Item) => Item.Path).ToArrayAsync();
                         IEnumerable<string> CurrentPathList = Node.Children.Select((Item) => Item.Content).OfType<TreeViewNodeContent>().Select((Content) => Content.Path).ToArray();
 
                         foreach (string AddPath in FolderPathList.Except(CurrentPathList))
@@ -1001,7 +1013,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+                        Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, BasicFilters.Folder);
                     }
                 }
             }

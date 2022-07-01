@@ -452,11 +452,9 @@
                                             Grid.ColumnSpan="2"
                                             Orientation="Horizontal">
                                     <CheckBox Content="Readonly"
-                                              IsThreeState="True"
                                               x:Uid="Properties_General_ReadonlyCheckbox"
                                               x:Name="FileReadonlyAttribute" />
                                     <CheckBox Content="Hidden"
-                                              IsThreeState="True"
                                               x:Name="FileHiddenAttribute"
                                               x:Uid="Properties_General_HiddenCheckbox"
                                               Margin="10,0,0,0" />
@@ -577,7 +575,6 @@
                                               x:Uid="Properties_General_ReadonlyCheckbox"
                                               x:Name="FolderReadonlyAttribute" />
                                     <CheckBox Content="Hidden"
-                                              IsThreeState="True"
                                               x:Name="FolderHiddenAttribute"
                                               x:Uid="Properties_General_HiddenCheckbox"
                                               Margin="10,0,0,0" />

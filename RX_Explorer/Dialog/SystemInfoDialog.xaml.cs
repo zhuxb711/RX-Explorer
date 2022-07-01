@@ -131,7 +131,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        public string CurrentMemoryUsage => $"{Globalization.GetString("SystemInfo_Dialog_Memory_Usage_Text")}: " + MemoryManager.AppMemoryUsage.GetSizeDescription();
+        public string CurrentMemoryUsage => $"{Globalization.GetString("SystemInfo_Dialog_Memory_Usage_Text")}: " + MemoryManager.AppMemoryUsage.GetFileSizeDescription();
 
         public string Resolution { get; }
 

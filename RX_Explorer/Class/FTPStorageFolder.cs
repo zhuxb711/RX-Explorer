@@ -51,7 +51,7 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        protected override Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
+        protected override Task<IStorageItem> GetStorageItemCoreAsync()
         {
             return Task.FromResult<IStorageItem>(null);
         }

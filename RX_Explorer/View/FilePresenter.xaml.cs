@@ -2033,9 +2033,9 @@ namespace RX_Explorer.View
                                     {
                                         if (await FileSystemStorageItemBase.OpenAsync(AddedArgs.Path) is FileSystemStorageItemBase NewItem)
                                         {
-                                            if (SettingPage.IsDisplayProtectedSystemItems || !NewItem.IsSystemItem)
+                                            if (SettingPage.IsDisplayProtectedSystemItemsEnabled || !NewItem.IsSystemItem)
                                             {
-                                                if ((NewItem.IsHiddenItem && SettingPage.IsShowHiddenFilesEnabled) || !NewItem.IsHiddenItem)
+                                                if ((NewItem.IsHiddenItem && SettingPage.IsDisplayHiddenItemsEnabled) || !NewItem.IsHiddenItem)
                                                 {
                                                     if (FileCollection.Any())
                                                     {
@@ -2149,53 +2149,61 @@ namespace RX_Explorer.View
                                         {
                                             if (ModifiedItem.GetType() == OldItem.GetType())
                                             {
-                                                if (IsGroupedEnable)
+                                                if ((ModifiedItem.IsHiddenItem && !SettingPage.IsDisplayHiddenItemsEnabled)
+                                                    || (ModifiedItem.IsSystemItem && !SettingPage.IsDisplayProtectedSystemItemsEnabled))
                                                 {
-                                                    if (GroupCollection.FirstOrDefault((Group) => Group.Contains(OldItem)) is FileSystemStorageGroupItem CurrentGroup)
+                                                    FileCollection.Remove(OldItem);
+                                                }
+                                                else
+                                                {
+                                                    if (IsGroupedEnable)
                                                     {
-                                                        if (await GroupCollectionGenerator.SearchGroupBelongingAsync(ModifiedItem, Config.GroupTarget.GetValueOrDefault()) != CurrentGroup.Key)
+                                                        if (GroupCollection.FirstOrDefault((Group) => Group.Contains(OldItem)) is FileSystemStorageGroupItem CurrentGroup)
                                                         {
-                                                            FileCollection.Remove(OldItem);
-
-                                                            if (FileCollection.Any())
+                                                            if (await GroupCollectionGenerator.SearchGroupBelongingAsync(ModifiedItem, Config.GroupTarget.GetValueOrDefault()) != CurrentGroup.Key)
                                                             {
-                                                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                                                                FileCollection.Remove(OldItem);
 
-                                                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                                if (FileCollection.Any())
                                                                 {
-                                                                    if (Index >= 0)
+                                                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                                                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                                     {
-                                                                        if (Index <= FileCollection.Count)
+                                                                        if (Index >= 0)
                                                                         {
-                                                                            FileCollection.Insert(Index, ModifiedItem);
+                                                                            if (Index <= FileCollection.Count)
+                                                                            {
+                                                                                FileCollection.Insert(Index, ModifiedItem);
+                                                                            }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            FileCollection.Add(ModifiedItem);
                                                                         }
                                                                     }
-                                                                    else
-                                                                    {
-                                                                        FileCollection.Add(ModifiedItem);
-                                                                    }
                                                                 }
-                                                            }
-                                                            else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                            {
-                                                                FileCollection.Add(ModifiedItem);
+                                                                else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                                {
+                                                                    FileCollection.Add(ModifiedItem);
+                                                                }
                                                             }
                                                         }
                                                     }
-                                                }
 
-                                                if (FileCollection.Contains(OldItem))
-                                                {
-                                                    await OldItem.RefreshAsync();
+                                                    if (FileCollection.Contains(OldItem))
+                                                    {
+                                                        await OldItem.RefreshAsync();
+                                                    }
                                                 }
                                             }
                                             else
                                             {
                                                 FileCollection.Remove(OldItem);
 
-                                                if (SettingPage.IsDisplayProtectedSystemItems || !ModifiedItem.IsSystemItem)
+                                                if (!ModifiedItem.IsSystemItem || SettingPage.IsDisplayProtectedSystemItemsEnabled)
                                                 {
-                                                    if ((ModifiedItem.IsHiddenItem && SettingPage.IsShowHiddenFilesEnabled) || !ModifiedItem.IsHiddenItem)
+                                                    if (!ModifiedItem.IsHiddenItem || (ModifiedItem.IsHiddenItem && SettingPage.IsDisplayHiddenItemsEnabled))
                                                     {
                                                         if (FileCollection.Any())
                                                         {
@@ -2260,9 +2268,9 @@ namespace RX_Explorer.View
 
                                     if (await FileSystemStorageItemBase.OpenAsync(NewPath) is FileSystemStorageItemBase Item)
                                     {
-                                        if (SettingPage.IsDisplayProtectedSystemItems || !Item.IsSystemItem)
+                                        if (SettingPage.IsDisplayProtectedSystemItemsEnabled || !Item.IsSystemItem)
                                         {
-                                            if ((Item.IsHiddenItem && SettingPage.IsShowHiddenFilesEnabled) || !Item.IsHiddenItem)
+                                            if ((Item.IsHiddenItem && SettingPage.IsDisplayHiddenItemsEnabled) || !Item.IsHiddenItem)
                                             {
                                                 foreach (FileSystemStorageItemBase ExistItem in FileCollection.Where((Item) => Item.Path.Equals(RenamedArgs.Path, StringComparison.OrdinalIgnoreCase)
                                                                                                                                || Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)).ToArray())
@@ -2762,7 +2770,7 @@ namespace RX_Explorer.View
 
                             try
                             {
-                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).ToListAsync();
+                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).ToListAsync();
 
                                 if (ChildItems.Count > 0)
                                 {
@@ -3484,7 +3492,7 @@ namespace RX_Explorer.View
 
                                                     if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
-                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                         {
                                                             await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                         }
@@ -3531,7 +3539,7 @@ namespace RX_Explorer.View
                                         {
                                             if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                 }
@@ -3927,7 +3935,7 @@ namespace RX_Explorer.View
 
                     if (SelectedItemsCopy.All((Item) => Item is FileSystemStorageFile))
                     {
-                        SizeInfo = Convert.ToUInt64(SelectedItemsCopy.Cast<FileSystemStorageFile>().Sum((Item) => Convert.ToInt64(Item.Size))).GetSizeDescription();
+                        SizeInfo = Convert.ToUInt64(SelectedItemsCopy.Cast<FileSystemStorageFile>().Sum((Item) => Convert.ToInt64(Item.Size))).GetFileSizeDescription();
                     }
 
                     if (StatusTipsSplit.Length > 0)
@@ -4137,7 +4145,7 @@ namespace RX_Explorer.View
                                         {
                                             if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                 }
@@ -4200,7 +4208,7 @@ namespace RX_Explorer.View
                                         {
                                             if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                 }
@@ -5565,7 +5573,7 @@ namespace RX_Explorer.View
                                             {
                                                 if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                    await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                     {
                                                         await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                     }
@@ -6052,7 +6060,7 @@ namespace RX_Explorer.View
 
                                                     if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
-                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                         {
                                                             await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                         }
@@ -6098,7 +6106,7 @@ namespace RX_Explorer.View
                                         {
                                             if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                 }
@@ -6182,7 +6190,7 @@ namespace RX_Explorer.View
                                     {
                                         if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                         {
-                                            await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                            await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                             {
                                                 await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                             }
@@ -6236,7 +6244,7 @@ namespace RX_Explorer.View
                                     {
                                         if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                         {
-                                            await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                            await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                             {
                                                 await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                             }
@@ -6898,7 +6906,7 @@ namespace RX_Explorer.View
                                                 {
                                                     if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
-                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                         {
                                                             await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                         }
@@ -6964,7 +6972,7 @@ namespace RX_Explorer.View
                                         {
                                             if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
                                                 }

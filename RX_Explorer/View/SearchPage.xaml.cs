@@ -287,8 +287,8 @@ namespace RX_Explorer.View
                             {
                                 await foreach (FileSystemStorageItemBase Item in Options.SearchFolder.SearchAsync(Options.SearchText,
                                                                                                                   Options.DeepSearch,
-                                                                                                                  SettingPage.IsShowHiddenFilesEnabled,
-                                                                                                                  SettingPage.IsDisplayProtectedSystemItems,
+                                                                                                                  SettingPage.IsDisplayHiddenItemsEnabled,
+                                                                                                                  SettingPage.IsDisplayProtectedSystemItemsEnabled,
                                                                                                                   Options.UseRegexExpression,
                                                                                                                   Options.UseAQSExpression,
                                                                                                                   Options.UseIndexerOnly,

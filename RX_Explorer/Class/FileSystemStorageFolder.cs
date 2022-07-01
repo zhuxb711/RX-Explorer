@@ -13,6 +13,7 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
+using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
 {
@@ -21,8 +22,6 @@ namespace RX_Explorer.Class
         public override string Name => (System.IO.Path.GetPathRoot(Path)?.Equals(Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault() ? Path : System.IO.Path.GetFileName(Path);
 
         public override string DisplayName => ((StorageItem as StorageFolder)?.DisplayName) ?? Name;
-
-        public override string SizeDescription => string.Empty;
 
         public override string DisplayType => Type;
 
@@ -498,13 +497,39 @@ namespace RX_Explorer.Class
 
                     if (Data.IsDataValid)
                     {
+                        IsReadOnly = Data.IsReadOnly;
+                        IsHiddenItem = Data.IsHiddenItem;
+                        IsSystemItem = Data.IsSystemItem;
                         ModifiedTime = Data.ModifiedTime;
                         LastAccessTime = Data.LastAccessTime;
                     }
-                    else if (await GetStorageItemCoreAsync(true) is StorageFolder Folder)
+                    else if (await GetStorageItemCoreAsync() is StorageFolder Folder)
                     {
                         ModifiedTime = await Folder.GetModifiedTimeAsync();
                         LastAccessTime = await Folder.GetLastAccessTimeAsync();
+
+                        if (GetBulkAccessSharedController(out var ControllerRef))
+                        {
+                            using (ControllerRef)
+                            {
+                                FileAttributes Attribute = await ControllerRef.Value.Controller.GetFileAttributeAsync(Path);
+
+                                IsReadOnly = Attribute.HasFlag(FileAttributes.ReadOnly);
+                                IsHiddenItem = Attribute.HasFlag(FileAttributes.Hidden);
+                                IsSystemItem = Attribute.HasFlag(FileAttributes.System);
+                            }
+                        }
+                        else
+                        {
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            {
+                                FileAttributes Attribute = await ControllerRef.Value.Controller.GetFileAttributeAsync(Path);
+
+                                IsReadOnly = Attribute.HasFlag(FileAttributes.ReadOnly);
+                                IsHiddenItem = Attribute.HasFlag(FileAttributes.Hidden);
+                                IsSystemItem = Attribute.HasFlag(FileAttributes.System);
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -514,14 +539,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
+        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
         {
             try
             {
-                if (StorageItem == null || ForceUpdate)
-                {
-                    StorageItem = await StorageFolder.GetFolderFromPathAsync(Path);
-                }
+                return await StorageFolder.GetFolderFromPathAsync(Path);
             }
             catch (FileNotFoundException)
             {
@@ -536,7 +558,7 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"Could not get StorageFolder, path: {Path}");
             }
 
-            return StorageItem;
+            return null;
         }
 
         protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)

@@ -14,6 +14,9 @@
       NavigationCacheMode="Required">
 
     <Page.Resources>
+        <Cls:SizeDescriptionConverter x:Key="SizeConverter" />
+        <Cls:SizeLabelVisibilityConverter x:Key="SizeVisibilityConverter" />
+        <Cls:DateTimeDescriptionConverter x:Key="DateTimeConverter" />
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
         <muxc:CommandBarFlyout x:Name="SelectFlyout"
@@ -354,21 +357,26 @@
                                        Grid.Column="2"
                                        Padding="10,0,0,0"
                                        TextTrimming="CharacterEllipsis">
-                            <ToolTipService.ToolTip>
-                                <ToolTip Content="{Binding OriginPath,Mode=OneTime}"
-                                         Visibility="{Binding ElementName=OriginPathLabel,Path=IsTextTrimmed}" />
-                            </ToolTipService.ToolTip>
+                                <ToolTipService.ToolTip>
+                                    <ToolTip Content="{Binding OriginPath,Mode=OneTime}"
+                                             Visibility="{Binding ElementName=OriginPathLabel,Path=IsTextTrimmed}" />
+                                </ToolTipService.ToolTip>
                             </TextBlock>
                             <TextBlock VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
-                                       Text="{x:Bind ModifiedTimeDescription}"
-                                       ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription}"
+                                       x:Name="DeleteTimeLabel"
+                                       Text="{Binding DeleteTime,Mode=OneTime,Converter={StaticResource DateTimeConverter}}"
                                        Grid.Column="4"
                                        Padding="10,0,0,0"
-                                       TextTrimming="CharacterEllipsis" />
+                                       TextTrimming="CharacterEllipsis">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip Content="{Binding DeleteTime,Mode=OneTime,Converter={StaticResource DateTimeConverter}}"
+                                             Visibility="{Binding ElementName=DeleteTimeLabel,Path=IsTextTrimmed}" />
+                                </ToolTipService.ToolTip>
+                            </TextBlock>
                             <TextBlock VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
-                                       Text="{x:Bind DisplayType, Mode=OneWay}"
+                                       Text="{x:Bind DisplayType,Mode=OneWay}"
                                        ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay}"
                                        Grid.Column="6"
                                        Padding="10,0,0,0"
@@ -376,11 +384,17 @@
                             <TextBlock VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        Padding="10,0,0,0"
-                                       Text="{x:Bind SizeDescription,Mode=OneWay}"
+                                       Name="SizeLabel"
+                                       Text="{x:Bind Size,Mode=OneWay,Converter={StaticResource SizeConverter}}"
+                                       Visibility="{Binding Mode=OneTime,Converter={StaticResource SizeVisibilityConverter}}"
                                        x:Phase="1"
-                                       ToolTipService.ToolTip="{x:Bind SizeDescription,Mode=OneWay}"
                                        TextTrimming="CharacterEllipsis"
-                                       Grid.Column="8" />
+                                       Grid.Column="8">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip Content="{x:Bind Size,Mode=OneWay,Converter={StaticResource SizeConverter}}"
+                                             Visibility="{Binding ElementName=SizeLabel,Path=IsTextTrimmed}" />
+                                </ToolTipService.ToolTip>
+                            </TextBlock>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

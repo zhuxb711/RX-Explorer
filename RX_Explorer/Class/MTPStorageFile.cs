@@ -157,54 +157,51 @@ namespace RX_Explorer.Class
             return Task.FromResult<IReadOnlyDictionary<string, string>>(new Dictionary<string, string>(Properties.Select((Prop) => new KeyValuePair<string, string>(Prop, string.Empty))));
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync(bool ForceUpdate)
+        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
         {
-            if (StorageItem == null || ForceUpdate)
+            try
             {
+                RandomAccessStreamReference Reference = null;
+
                 try
                 {
-                    RandomAccessStreamReference Reference = null;
+                    Reference = RandomAccessStreamReference.CreateFromStream(await GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
+                }
+                catch (Exception)
+                {
+                    //No need to handle this exception
+                }
 
+                return await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
+                {
                     try
                     {
-                        Reference = RandomAccessStreamReference.CreateFromStream(await GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
-                    }
-                    catch (Exception)
-                    {
-                        //No need to handle this exception
-                    }
-
-                    StorageItem = await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
-                    {
-                        try
+                        using (Stream TargetFileStream = Request.AsStreamForWrite())
+                        using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                         {
-                            using (Stream TargetFileStream = Request.AsStreamForWrite())
-                            using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            if (CurrentFileStream == null)
                             {
-                                if (CurrentFileStream == null)
-                                {
-                                    throw new Exception($"Could not get the file stream from ftp file: {Path}");
-                                }
-
-                                await CurrentFileStream.CopyToAsync(TargetFileStream);
+                                throw new Exception($"Could not get the file stream from ftp file: {Path}");
                             }
 
-                            Request.Dispose();
+                            await CurrentFileStream.CopyToAsync(TargetFileStream);
                         }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"Could not create streamed file for mtp file: {Path}");
-                            Request.FailAndClose(StreamedFileFailureMode.Incomplete);
-                        }
-                    }, Reference);
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"Could not get the storage item for mtp file: {Path}");
-                }
+
+                        Request.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Could not create streamed file for mtp file: {Path}");
+                        Request.FailAndClose(StreamedFileFailureMode.Incomplete);
+                    }
+                }, Reference);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not get the storage item for mtp file: {Path}");
             }
 
-            return StorageItem;
+            return null;
         }
 
         public async Task<MTPFileData> GetRawDataAsync()

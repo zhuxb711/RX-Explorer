@@ -15,11 +15,9 @@ namespace RX_Explorer.Class
 
         public override string DisplayType => Type;
 
-        public override string SizeDescription => string.Empty;
+        public override long Size => 0;
 
-        public override string CompressionRateDescription => string.Empty;
-
-        public override string CompressedSizeDescription => string.Empty;
+        public override long CompressedSize => 0;
 
         protected override Task LoadCoreAsync()
         {

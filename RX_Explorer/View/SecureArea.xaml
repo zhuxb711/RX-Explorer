@@ -12,6 +12,8 @@
       NavigationCacheMode="Required">
 
     <Page.Resources>
+        <Cls:SizeDescriptionConverter x:Key="SizeConverter" />
+
         <muxc:CommandBarFlyout x:Name="FileFlyout"
                                ShouldConstrainToRootBounds="False"
                                Placement="BottomEdgeAlignedLeft">
@@ -147,18 +149,23 @@
                         <StackPanel Orientation="Vertical"
                                     VerticalAlignment="Top"
                                     Margin="5,0,0,0">
-                            <TextBlock Text="{x:Bind Name, Mode=OneWay}"
-                                       ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}"
+                            <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                                       Name="NameLabel"
                                        TextTrimming="CharacterEllipsis"
                                        HorizontalAlignment="Left"
                                        MaxWidth="150"
-                                       FontSize="16" />
-                            <TextBlock Text="{x:Bind DisplayType, Mode=OneWay}"
+                                       FontSize="16">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                             Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                </ToolTipService.ToolTip>
+                            </TextBlock>
+                            <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
                                        TextTrimming="CharacterEllipsis"
                                        HorizontalAlignment="Left"
                                        MaxWidth="150"
                                        FontSize="13" />
-                            <TextBlock Text="{x:Bind SizeDescription}"
+                            <TextBlock Text="{x:Bind Size,Converter={StaticResource SizeConverter}}"
                                        TextTrimming="CharacterEllipsis"
                                        MaxWidth="150"
                                        HorizontalAlignment="Left"

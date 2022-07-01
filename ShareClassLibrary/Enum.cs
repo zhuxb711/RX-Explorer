@@ -135,6 +135,7 @@
         GetRemoteClipboardRelatedData,
         CreateOneTimeFileHandle,
         ConvertToLongPath,
-        GetRecyclePathFromOriginPath
+        GetRecyclePathFromOriginPath,
+        GetFileAttribute
     }
 }

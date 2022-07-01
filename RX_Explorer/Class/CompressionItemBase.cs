@@ -19,51 +19,16 @@ namespace RX_Explorer.Class
 
         public string Path { get; private set; }
 
-        public long CompressedSize { get; private set; }
-
-
-        public float CompressionRate
-        {
-            get
-            {
-                if (Size > 0)
-                {
-                    return 1 - Convert.ToSingle(Convert.ToDouble(CompressedSize) / Size);
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-        }
-
-        public long Size { get; private set; }
-
-        public DateTimeOffset ModifiedTime { get; private set; }
+        public virtual long Size { get; private set; }
 
         public virtual string Type => System.IO.Path.GetExtension(Name).ToUpper();
 
-        public virtual string SizeDescription => Size.GetFileSizeDescription();
+        public virtual long CompressedSize { get; private set; }
 
-        public virtual string ModifiedTimeDescription
-        {
-            get
-            {
-                if (ModifiedTime != DateTimeOffset.MaxValue.ToLocalTime()
-                    && ModifiedTime != DateTimeOffset.MinValue.ToLocalTime())
-                {
-                    return ModifiedTime.ToString("G");
-                }
-                else
-                {
-                    return string.Empty;
-                }
-            }
-        }
+        public float CompressionRate => Size > 0 ? 1 - Convert.ToSingle(Convert.ToDouble(CompressedSize) / Size) : 0;
 
-        public virtual string CompressionRateDescription => CompressionRate.ToString("P1");
 
-        public virtual string CompressedSizeDescription => CompressedSize.GetFileSizeDescription();
+        public DateTimeOffset ModifiedTime { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

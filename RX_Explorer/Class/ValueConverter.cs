@@ -1,10 +1,8 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using RX_Explorer.View;
+﻿using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -12,6 +10,92 @@ using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
+    public sealed class CompressionRateConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is float floatValue)
+            {
+                return floatValue.ToString("P1");
+            }
+
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class SizeLabelVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            switch (value)
+            {
+                case CompressionFolder:
+                case FileSystemStorageFolder:
+                    {
+                        return Visibility.Collapsed;
+                    }
+                default:
+                    {
+                        return Visibility.Visible;
+                    }
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class SizeDescriptionConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is ulong UlongSize)
+            {
+                return UlongSize.GetFileSizeDescription();
+            }
+            else if (value is long LongSize)
+            {
+                return LongSize.GetFileSizeDescription();
+            }
+            else
+            {
+                return value;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class DateTimeDescriptionConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is DateTimeOffset Time)
+            {
+                return Time.GetDateTimeDescription();
+            }
+            else
+            {
+                return value;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public sealed class NameExtensionsConverter : IValueConverter
     {
         public IReadOnlyList<FileSystemStorageItemBase> ItemsSource { get; set; }
