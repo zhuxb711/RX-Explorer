@@ -360,13 +360,16 @@ namespace RX_Explorer.Class
                                                     }).AsTask().Wait();
                                                 }
 
-                                                FileSystemStorageItemBase.CopyAsync(CModel.CopyFrom, CModel.CopyTo, Option, CancelToken, (s, e) =>
+                                                using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
                                                 {
-                                                    Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                    Exclusive.Controller.CopyAsync(CModel.CopyFrom, CModel.CopyTo, Option, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                                     {
-                                                        CModel.UpdateProgress(e.ProgressPercentage);
-                                                    }).AsTask(), ProgressChangedCoreAsync());
-                                                }).Wait();
+                                                        Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                        {
+                                                            CModel.UpdateProgress(e.ProgressPercentage);
+                                                        }).AsTask(), ProgressChangedCoreAsync());
+                                                    }).Wait();
+                                                }
                                             }
                                         }
                                     }
@@ -529,13 +532,16 @@ namespace RX_Explorer.Class
                                                     }).AsTask().Wait();
                                                 }
 
-                                                FileSystemStorageItemBase.MoveAsync(MModel.MoveFrom, MModel.MoveTo, Option, CancelToken, (s, e) =>
+                                                using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
                                                 {
-                                                    Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                    Exclusive.Controller.MoveAsync(MModel.MoveFrom, MModel.MoveTo, Option, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                                     {
-                                                        MModel.UpdateProgress(e.ProgressPercentage);
-                                                    }).AsTask(), ProgressChangedCoreAsync());
-                                                }).Wait();
+                                                        Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                        {
+                                                            MModel.UpdateProgress(e.ProgressPercentage);
+                                                        }).AsTask(), ProgressChangedCoreAsync());
+                                                    }).Wait();
+                                                }
                                             }
                                         }
                                     }
@@ -583,7 +589,10 @@ namespace RX_Explorer.Class
                                 {
                                     try
                                     {
-                                        ExtraParameter = FileSystemStorageItemBase.RenameAsync(RenameModel.RenameFrom, Path.GetFileName(RenameModel.RenameTo), CancelToken).Result;
+                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                                        {
+                                            ExtraParameter = Exclusive.Controller.RenameAsync(RenameModel.RenameFrom, Path.GetFileName(RenameModel.RenameTo), CancelToken: CancelToken).Result;
+                                        }
                                     }
                                     catch (AggregateException ex) when (ex.InnerExceptions.OfType<FileNotFoundException>().Any())
                                     {
@@ -629,13 +638,16 @@ namespace RX_Explorer.Class
                                 {
                                     try
                                     {
-                                        FileSystemStorageItemBase.DeleteAsync(DModel.DeleteFrom, DModel.IsPermanentDelete, CancelToken, (s, e) =>
+                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
                                         {
-                                            Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                            Exclusive.Controller.DeleteAsync(DModel.DeleteFrom, DModel.IsPermanentDelete, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
-                                                DModel.UpdateProgress(e.ProgressPercentage);
-                                            }).AsTask(), ProgressChangedCoreAsync());
-                                        }).Wait();
+                                                Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                {
+                                                    DModel.UpdateProgress(e.ProgressPercentage);
+                                                }).AsTask(), ProgressChangedCoreAsync());
+                                            }).Wait();
+                                        }
                                     }
                                     catch (AggregateException ex) when (ex.InnerExceptions.OfType<FileNotFoundException>().Any())
                                     {

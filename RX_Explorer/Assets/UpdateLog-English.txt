@@ -1,17 +1,23 @@
-﻿###What's new in Ver.7.7.9.0
+﻿###What's new in Ver.7.8.0.0
 
-#####Performance improvement
+#####UI updated
 
->#####Reduce the time between finding and restarting an offline auxiliary process
-
->#####The scheduling algorithm of the auxiliary process scheduler has been improved, and the progress of the task queue will not be hindered when encountering an offline auxiliary process
-
->#####Introduces a priority queue to the auxiliary process scheduler, improving the responsiveness of user operations and reducing the time when processing a large number of files
+>#####Some minor UI improvements
 
 #####Bug Fixes
 
->#####Fixed an issue where file locations could not be opened from the search page
+>#####Fixed an issue where the Bing image would not update correctly
 
->#####Fixed an issue where delete operations could not be undone
+>#####Fixed the problem that the shortcut keys still take effect in the pop-up dialog, which may affect the normal input of text seriously
 
->#####Fixed an issue that an error prompt pops up when clicking the "Quick Access" node
+>#####Fixed an issue where files could not be renamed by delayed click in layout mode with large, medium and small icons
+
+>#####Fixed an issue where hidden properties in the properties window could has a third state
+
+>#####Fixed the problem that the hidden properties in the properties window does not correctly reflect the hidden properties of the file
+
+>#####Fixed the problem that the file list could not correctly reflect the change of the hidden properties of the file and display the visual prompt
+
+>#####Fixed an issue where file changes were not correctly reflected in some grouping modes
+
+>#####Fixed an issue where renaming could not be undone

@@ -29,14 +29,20 @@ namespace RX_Explorer.Class
                         return ExistController;
                     }
 
-                    if (await ExistController.ConnectAsync())
+                    try
                     {
-                        return ExistController;
+                        if (await ExistController.ConnectAsync())
+                        {
+                            return ExistController;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        //No need to handle this exception
                     }
 
-                    ExistController.Dispose();
-
                     ControllerList.Remove(ExistController);
+                    ExistController.Dispose();
                 }
 
                 FTPClientController NewClient = await CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>

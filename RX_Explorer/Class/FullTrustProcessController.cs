@@ -104,7 +104,7 @@ namespace RX_Explorer.Class
 
                             if (Task.WhenAny(TestCommandTask, Task.Delay(1000)).Result == TestCommandTask)
                             {
-                                if (WaitCount > 0)
+                                if (WaitCount >= 3)
                                 {
                                     CurrentBusyStatus?.Invoke(null, false);
                                 }
@@ -149,7 +149,7 @@ namespace RX_Explorer.Class
                     {
                         switch (++WaitCount)
                         {
-                            case < 6:
+                            case 3:
                                 {
                                     CurrentBusyStatus?.Invoke(null, true);
                                     goto REWAIT;

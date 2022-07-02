@@ -27,21 +27,6 @@ namespace RX_Explorer.Class
                                                                                         ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
                                                                                         : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 
-        public override bool IsReadOnly
-        {
-            get
-            {
-                if (StorageItem == null)
-                {
-                    return base.IsReadOnly;
-                }
-                else
-                {
-                    return StorageItem.Attributes.HasFlag(Windows.Storage.FileAttributes.ReadOnly);
-                }
-            }
-        }
-
         public FileSystemStorageFile(NativeFileData Data) : base(Data)
         {
 

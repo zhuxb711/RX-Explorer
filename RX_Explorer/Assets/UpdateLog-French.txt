@@ -1,17 +1,23 @@
-﻿###Quoi de neuf dans la version 7.7.9.0
+﻿###Quoi de neuf dans la version 7.8.0.0
 
-#####Amélioration des performances
+#####UI mise à jour
 
->#####Réduire le temps entre la recherche et le redémarrage d'un processus auxiliaire hors ligne
-
->#####L'algorithme de planification du planificateur de processus auxiliaire a été amélioré et la progression de la file d'attente des tâches ne sera pas entravée lors de la rencontre d'un processus auxiliaire hors ligne
-
->#####Introduit une file d'attente prioritaire dans le planificateur de processus auxiliaire, améliorant la réactivité des opérations de l'utilisateur et réduisant le temps de traitement d'un grand nombre de fichiers
+>#####Quelques améliorations mineures de l'interface utilisateur
 
 #####Corrections de bogues
 
->#####Correction d'un problème où les emplacements de fichiers ne pouvaient pas être ouverts à partir de la page de recherche
+>#####Correction d'un problème où l'image Bing ne se mettait pas à jour correctement
 
->#####Correction d'un problème où les opérations de suppression ne pouvaient pas être annulées
+>#####Correction du problème selon lequel les touches de raccourci prennent toujours effet dans la boîte de dialogue contextuelle, ce qui peut sérieusement affecter la saisie normale de texte
 
->#####Résolution d'un problème d'affichage d'une invite d'erreur lorsque vous cliquez sur le nœud "Accès rapide"
+>#####Correction d'un problème où les fichiers ne pouvaient pas être renommés par un clic différé en mode mise en page avec des icônes grandes, moyennes et petites
+
+>#####Correction d'un problème où les propriétés masquées dans la fenêtre des propriétés pouvaient avoir un troisième état
+
+>#####Correction du problème que les propriétés cachées dans la fenêtre des propriétés ne reflètent pas correctement les propriétés cachées du fichier
+
+>#####Correction du problème que la liste de fichiers ne pouvait pas refléter correctement le changement des propriétés cachées du fichier et afficher l'invite visuelle
+
+>#####Correction d'un problème où les modifications de fichiers n'étaient pas correctement reflétées dans certains modes de regroupement
+
+>#####Correction d'un problème où le renommage ne pouvait pas être annulé

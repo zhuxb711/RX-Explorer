@@ -2368,9 +2368,11 @@ namespace RX_Explorer.View
 
                     GroupCollection.Clear();
 
+                    PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
                     foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(FileCollection, args.Target, args.Direction))
                     {
-                        GroupCollection.Add(GroupItem);
+                        GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
                     }
 
                     IsGroupedEnable = true;
@@ -2523,7 +2525,7 @@ namespace RX_Explorer.View
                                 CreateFolder_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.Z when CtrlDown && OperationRecorder.Current.IsNotEmpty:
+                        case VirtualKey.Z when CtrlDown && !OperationRecorder.Current.IsEmpty:
                             {
                                 args.Handled = true;
 
@@ -3027,6 +3029,15 @@ namespace RX_Explorer.View
                                         else
                                         {
                                             GroupItem.Add(Item);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        int Index = Array.IndexOf(GroupCollection.Select((Group) => Group.Key).Append(Key).OrderByFastStringSortAlgorithm((Key) => Key, SortDirection.Ascending).ToArray(), Key);
+
+                                        if (Index >= 0)
+                                        {
+                                            GroupCollection.Insert(Index, new FileSystemStorageGroupItem(Key, new FileSystemStorageItemBase[] { Item }));
                                         }
                                     }
                                 }
@@ -4749,14 +4760,7 @@ namespace RX_Explorer.View
                     PasteButton.IsEnabled = false;
                 }
 
-                if (OperationRecorder.Current.IsNotEmpty)
-                {
-                    UndoButton.IsEnabled = true;
-                }
-                else
-                {
-                    UndoButton.IsEnabled = false;
-                }
+                UndoButton.IsEnabled = !OperationRecorder.Current.IsEmpty;
             }
         }
 
@@ -6533,7 +6537,7 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-            if (OperationRecorder.Current.IsNotEmpty)
+            if (OperationRecorder.Current.IsEmpty)
             {
                 await ExecuteUndoAsync();
             }

@@ -1,17 +1,23 @@
-﻿###Novedades de la versión 7.7.9.0
+﻿###Novedades de la versión 7.8.0.0
 
-#####Mejora del rendimiento
+#####IU actualizada
 
->#####Reducir el tiempo entre encontrar y reiniciar un proceso auxiliar fuera de línea
-
->#####El algoritmo de programación del programador de procesos auxiliares se ha mejorado y el progreso de la cola de tareas no se verá obstaculizado cuando se encuentre con un proceso auxiliar fuera de línea
-
->#####Introduce una cola de prioridad en el programador de procesos auxiliares, lo que mejora la capacidad de respuesta de las operaciones del usuario y reduce el tiempo de procesamiento de una gran cantidad de archivos
+>#####Algunas mejoras menores en la interfaz de usuario
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el cual las ubicaciones de los archivos no se podían abrir desde la página de búsqueda
+>#####Se solucionó un problema por el cual la imagen de Bing no se actualizaba correctamente
 
->#####Se solucionó un problema por el cual las operaciones de eliminación no se podían deshacer
+>#####Se solucionó el problema de que las teclas de método abreviado aún tienen efecto en el cuadro de diálogo emergente, lo que puede afectar seriamente la entrada normal de texto
 
->#####Se solucionó un problema por el que aparecía un mensaje de error al hacer clic en el nodo "Acceso rápido"
+>#####Se solucionó un problema por el que no se podía cambiar el nombre de los archivos con un clic retrasado en el modo de diseño con iconos grandes, medianos y pequeños
+
+>#####Se solucionó un problema por el cual las propiedades ocultas en la ventana de propiedades podían tener un tercer estado
+
+>#####Se corrigió el problema de que las propiedades ocultas en la ventana de propiedades no reflejaban correctamente las propiedades ocultas del archivo
+
+>#####Se solucionó el problema de que la lista de archivos no podía reflejar correctamente el cambio de las propiedades ocultas del archivo y mostrar el aviso visual
+
+>#####Se solucionó un problema por el cual los cambios de archivos no se reflejaban correctamente en algunos modos de agrupación
+
+>#####Se solucionó un problema por el que no se podía deshacer el cambio de nombre

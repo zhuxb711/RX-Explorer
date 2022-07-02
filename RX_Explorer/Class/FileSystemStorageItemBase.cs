@@ -685,7 +685,7 @@ namespace RX_Explorer.Class
             {
                 using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    await Exclusive.Controller.CopyAsync(CopyFrom, CopyTo, Option, false, CancelToken, ProgressHandler);
+                    await Exclusive.Controller.CopyAsync(CopyFrom, CopyTo, Option, true, CancelToken, ProgressHandler);
                 }
             }
         }
@@ -719,7 +719,7 @@ namespace RX_Explorer.Class
             {
                 using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    await Exclusive.Controller.MoveAsync(MoveFrom, MoveTo, Option, false, CancelToken, ProgressHandler);
+                    await Exclusive.Controller.MoveAsync(MoveFrom, MoveTo, Option, true, CancelToken, ProgressHandler);
                 }
             }
         }
@@ -751,7 +751,7 @@ namespace RX_Explorer.Class
             {
                 using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    await Exclusive.Controller.DeleteAsync(DeleteFrom, PermanentDelete, false, CancelToken, ProgressHandler);
+                    await Exclusive.Controller.DeleteAsync(DeleteFrom, PermanentDelete, true, CancelToken, ProgressHandler);
                 }
             }
         }

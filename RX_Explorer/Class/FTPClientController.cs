@@ -176,7 +176,7 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not FtpAuthenticationException)
             {
                 LogTracer.Log(ex, $"Could not connect to the ftp server: {Client.Host}");
             }

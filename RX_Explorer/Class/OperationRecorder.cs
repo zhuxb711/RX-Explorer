@@ -11,6 +11,8 @@ namespace RX_Explorer.Class
 
         private static OperationRecorder Instance;
 
+        private static readonly object Locker = new object();
+
         public void Push(params string[] InputList)
         {
             if (InputList.Length > 0)
@@ -46,16 +48,19 @@ namespace RX_Explorer.Class
             }
         }
 
-        public bool IsNotEmpty 
+        public bool IsEmpty 
         { 
-            get => !Container.IsEmpty; 
+            get => Container.IsEmpty; 
         }
 
         public static OperationRecorder Current
         {
             get
             {
-                return Instance ??= new OperationRecorder();
+                lock (Locker)
+                {
+                    return Instance ??= new OperationRecorder();
+                }
             }
         }
 

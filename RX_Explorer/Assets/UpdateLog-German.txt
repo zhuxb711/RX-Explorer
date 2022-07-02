@@ -1,17 +1,23 @@
-﻿###Was ist neu in Ver.7.7.9.0
+﻿###Was ist neu in Ver.7.8.0.0
 
-#####Leistungsverbesserung
+#####UI aktualisiert
 
->#####Reduzieren Sie die Zeit zwischen dem Finden und Neustarten eines Offline-Hilfsprozesses
-
->#####Der Scheduling-Algorithmus des Hilfsprozess-Schedulers wurde verbessert, und der Fortschritt der Aufgabenwarteschlange wird nicht behindert, wenn ein Offline-Hilfsprozess angetroffen wird
-
->#####Führt eine Prioritätswarteschlange für den Hilfsprozess-Scheduler ein, wodurch die Reaktionsfähigkeit von Benutzeroperationen verbessert und die Zeit bei der Verarbeitung einer großen Anzahl von Dateien verkürzt wird
+>#####Einige kleinere Verbesserungen der Benutzeroberfläche
 
 #####Fehlerbehebung
 
->#####Es wurde ein Problem behoben, bei dem Dateispeicherorte nicht von der Suchseite aus geöffnet werden konnten
+>#####Es wurde ein Problem behoben, bei dem das Bing-Bild nicht korrekt aktualisiert wurde
 
->#####Ein Problem wurde behoben, bei dem Löschvorgänge nicht rückgängig gemacht werden konnten
+>#####Das Problem, dass die Tastenkombinationen im Popup-Dialog immer noch wirksam sind, wurde behoben, was die normale Eingabe von Text ernsthaft beeinträchtigen kann
 
->#####Es wurde ein Problem behoben, bei dem eine Fehlermeldung angezeigt wurde, wenn auf den Knoten „Schnellzugriff“ geklickt wurde
+>#####Es wurde ein Problem behoben, bei dem Dateien durch verzögertes Klicken im Layoutmodus mit großen, mittleren und kleinen Symbolen nicht umbenannt werden konnten
+
+>#####Es wurde ein Problem behoben, bei dem versteckte Eigenschaften im Eigenschaftenfenster einen dritten Zustand haben konnten
+
+>#####Das Problem, dass die versteckten Eigenschaften im Eigenschaftenfenster die versteckten Eigenschaften der Datei nicht korrekt widerspiegeln, wurde behoben
+
+>#####Das Problem, dass die Dateiliste die Änderung der versteckten Eigenschaften der Datei nicht korrekt widerspiegeln und die visuelle Eingabeaufforderung anzeigen konnte, wurde behoben
+
+>#####Ein Problem wurde behoben, bei dem Dateiänderungen in einigen Gruppierungsmodi nicht korrekt wiedergegeben wurden
+
+>#####Ein Problem wurde behoben, bei dem das Umbenennen nicht rückgängig gemacht werden konnte

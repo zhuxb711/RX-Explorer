@@ -24,7 +24,7 @@
                                ShouldConstrainToRootBounds="False">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}"
-                              MinWidth="200"
+                              MinWidth="220"
                               Click="Extract_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -34,7 +34,7 @@
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
                               Icon="Delete"
                               IsEnabled="{x:Bind IsReadonlyMode,Mode=OneWay,Converter={StaticResource InverseConverter}}"
-                              MinWidth="200"
+                              MinWidth="220"
                               Click="Delete_Click"/>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CopyFullName')}"
                               Click="CopyFullName_Click">
@@ -50,6 +50,7 @@
                                ShouldConstrainToRootBounds="False">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="全部解压"
+                              MinWidth="220"
                               x:Uid="ExtractAll"
                               Click="ExtractAll_Click">
                     <AppBarButton.Icon>
@@ -60,11 +61,11 @@
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFile')}"
                               Icon="OpenFile"
                               IsEnabled="{x:Bind IsReadonlyMode,Mode=OneWay,Converter={StaticResource InverseConverter}}"
-                              MinWidth="200" 
+                              MinWidth="220" 
                               Click="CreateNewFile_Click"/>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}"
                               Icon="NewFolder"
-                              MinWidth="200"
+                              MinWidth="220"
                               IsEnabled="{x:Bind IsReadonlyMode,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                               Click="CreateNewFolder_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
