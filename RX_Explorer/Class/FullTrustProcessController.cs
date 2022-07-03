@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -41,6 +42,10 @@ namespace RX_Explorer.Class
             IsBackground = true,
             Priority = ThreadPriority.Normal
         };
+
+        private SafeProcessHandle FullTrustProcessHandle;
+
+        private RegisteredWaitHandle RegisteredFullTrustProcessWaitHandle;
 
         private NamedPipeReadController PipeProgressReadController;
 
@@ -102,7 +107,8 @@ namespace RX_Explorer.Class
 
                             Task<IDictionary<string, string>> TestCommandTask = Controller.SendCommandAsync(CommandType.Test);
 
-                            if (Task.WhenAny(TestCommandTask, Task.Delay(1000)).Result == TestCommandTask)
+                            if (Task.WaitAny(TestCommandTask, Task.Delay(1000)) == 0
+                                && (TestCommandTask.Result?.ContainsKey("Success")).GetValueOrDefault())
                             {
                                 if (WaitCount >= 3)
                                 {
@@ -125,7 +131,10 @@ namespace RX_Explorer.Class
                                         }
                                         else
                                         {
-                                            PreviousController.Dispose();
+                                            if (!PreviousController.IsDisposed)
+                                            {
+                                                PreviousController.Dispose();
+                                            }
 
                                             LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
 
@@ -152,6 +161,10 @@ namespace RX_Explorer.Class
                             case 3:
                                 {
                                     CurrentBusyStatus?.Invoke(null, true);
+                                    goto REWAIT;
+                                }
+                            case < 6:
+                                {
                                     goto REWAIT;
                                 }
                             case 6:
@@ -241,6 +254,14 @@ namespace RX_Explorer.Class
 
                 if (await Controller.ConnectRemoteAsync())
                 {
+                    if (await Controller.SendCommandAsync(CommandType.GetProcessHandle) is IDictionary<string, string> Response)
+                    {
+                        if (Response.TryGetValue("Success", out string RawText))
+                        {
+                            Controller.SetFullTrustProcessHandle(new IntPtr(Convert.ToInt64(RawText)));
+                        }
+                    }
+
                     return Controller;
                 }
             }
@@ -252,6 +273,26 @@ namespace RX_Explorer.Class
             Controller.Dispose();
 
             return null;
+        }
+
+        public void SetFullTrustProcessHandle(IntPtr ProcessHandle)
+        {
+            FullTrustProcessHandle = new SafeProcessHandle(ProcessHandle, true);
+
+            if (!FullTrustProcessHandle.IsInvalid)
+            {
+                RegisteredFullTrustProcessWaitHandle = ThreadPool.RegisterWaitForSingleObject(new ProcessWaitHandle(FullTrustProcessHandle.DangerousGetHandle(), false), OnFullTrustProcessExited, null, -1, true);
+            }
+        }
+
+        private void OnFullTrustProcessExited(object state, bool timedOut)
+        {
+            RegisteredFullTrustProcessWaitHandle.Unregister(null);
+
+            if (!IsDisposed)
+            {
+                Dispose();
+            }
         }
 
         private async Task<bool> ConnectRemoteAsync()
@@ -2420,6 +2461,8 @@ namespace RX_Explorer.Class
 
                 try
                 {
+                    FullTrustProcessHandle?.Dispose();
+                    RegisteredFullTrustProcessWaitHandle?.Unregister(null);
                     PipeCommandReadController?.Dispose();
                     PipeCommandWriteController?.Dispose();
                     PipeProgressReadController?.Dispose();

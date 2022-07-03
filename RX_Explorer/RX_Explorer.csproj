@@ -188,6 +188,7 @@
     <Compile Include="Class\OperationListUndoModel.cs" />
     <Compile Include="Class\PortableImageDataPackage.cs" />
     <Compile Include="Class\PostProcessingDeferredEventArgs.cs" />
+    <Compile Include="Class\ProcessWaitHandle.cs" />
     <Compile Include="Class\ProgressCalculator.cs" />
     <Compile Include="Class\ProgressChangedDeferredArgs.cs" />
     <Compile Include="Class\PropertiesGroupItem.cs" />
@@ -803,7 +804,7 @@
       <Version>2.17.1</Version>
     </PackageReference>
     <PackageReference Include="FluentFTP">
-      <Version>37.0.4</Version>
+      <Version>37.0.5</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AppCenter.Crashes">
       <Version>4.5.1</Version>

@@ -825,6 +825,22 @@ namespace FullTrustProcess
                 {
                     switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                     {
+                        case CommandType.GetProcessHandle:
+                            {
+                                using (Process CurrentProcess = Process.GetCurrentProcess())
+                                {
+                                    if (Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), CurrentProcess.Handle, ExplorerProcess.Handle, out IntPtr TargetHandle, default, default, Kernel32.DUPLICATE_HANDLE_OPTIONS.DUPLICATE_SAME_ACCESS))
+                                    {
+                                        Value.Add("Success", Convert.ToString(TargetHandle.ToInt64()));
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error", "Could not duplicate the handle");
+                                    }
+                                }
+
+                                break;
+                            }
                         case CommandType.GetFileAttribute:
                             {
                                 string Path = CommandValue["Path"];

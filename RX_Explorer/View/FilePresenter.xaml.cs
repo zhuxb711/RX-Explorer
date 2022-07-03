@@ -150,6 +150,7 @@ namespace RX_Explorer.View
         private CancellationTokenSource DelayDragCancellation;
         private CancellationTokenSource DelayTooltipCancellation;
         private CancellationTokenSource ContextMenuCancellation;
+        private CancellationTokenSource DisplayItemsCancellation;
         private CommandBarFlyout FileFlyout;
         private CommandBarFlyout FolderFlyout;
         private CommandBarFlyout LinkFlyout;
@@ -2679,7 +2680,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private async Task DisplayItemsInFolderCoreAsync(FileSystemStorageFolder Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false)
+        private async Task DisplayItemsInFolderCoreAsync(FileSystemStorageFolder Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false, CancellationToken CancelToken = default)
         {
             await EnterLock.WaitAsync();
 
@@ -2743,6 +2744,8 @@ namespace RX_Explorer.View
                             }
                         }
 
+                        CancelToken.ThrowIfCancellationRequested();
+
                         if (Container.FolderTree.SelectedNode == null
                             && Container.FolderTree.RootNodes.FirstOrDefault((Node) => Path.GetPathRoot(Folder.Path).Equals((Node.Content as TreeViewNodeContent)?.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                         {
@@ -2760,19 +2763,18 @@ namespace RX_Explorer.View
                         TabViewContainer.Current.LayoutModeControl.CurrentPath = Config.Path;
                         TabViewContainer.Current.LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
 
-                        using (CancellationTokenSource LoadingTipCancellation = new CancellationTokenSource())
+                        try
                         {
-                            _ = Task.Delay(1500).ContinueWith((PreviousTask, Obj) =>
+                            using (CancellationTokenSource LoadingTipCancellation = new CancellationTokenSource(1500))
+                            using (CancellationTokenRegistration CancelRegistration = LoadingTipCancellation.Token.Register(async () =>
                             {
-                                if (Obj is CancellationToken CancelToken && !CancelToken.IsCancellationRequested)
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                                 {
                                     FileLoadProgress.Visibility = Visibility.Visible;
-                                }
-                            }, LoadingTipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
-
-                            try
+                                });
+                            }))
                             {
-                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).ToListAsync();
+                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, CancelToken: CancelToken).ToListAsync();
 
                                 if (ChildItems.Count > 0)
                                 {
@@ -2799,11 +2801,10 @@ namespace RX_Explorer.View
                                     HasFile.Visibility = Visibility.Visible;
                                 }
                             }
-                            finally
-                            {
-                                LoadingTipCancellation.Cancel();
-                                FileLoadProgress.Visibility = Visibility.Collapsed;
-                            }
+                        }
+                        finally
+                        {
+                            FileLoadProgress.Visibility = Visibility.Collapsed;
                         }
 
                         StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
@@ -2863,9 +2864,13 @@ namespace RX_Explorer.View
                 throw new ArgumentNullException(nameof(Folder), "Parameter could not be null or empty");
             }
 
-            return DisplayItemsInFolderCoreAsync(Folder, ForceRefresh, SkipNavigationRecord).ContinueWith((PreviousTask) =>
+            DisplayItemsCancellation?.Cancel();
+            DisplayItemsCancellation?.Dispose();
+            DisplayItemsCancellation = new CancellationTokenSource();
+
+            return DisplayItemsInFolderCoreAsync(Folder, ForceRefresh, SkipNavigationRecord, DisplayItemsCancellation.Token).ContinueWith((PreviousTask) =>
             {
-                if (PreviousTask.Exception is Exception Ex)
+                if (PreviousTask.Exception is Exception Ex && Ex is not OperationCanceledException)
                 {
                     LogTracer.Log(Ex, $"Could not display items in folder: \"{Folder.Path}\"");
                     return false;
@@ -7034,12 +7039,19 @@ namespace RX_Explorer.View
 
         private void CommandBarFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
         {
-            if (sender is CommandBarFlyout Flyout)
+            try
             {
-                foreach (FlyoutBase SubFlyout in Flyout.SecondaryCommands.OfType<AppBarButton>().Select((Btn) => Btn.Flyout).OfType<FlyoutBase>())
+                if (sender is CommandBarFlyout Flyout)
                 {
-                    SubFlyout.Hide();
+                    foreach (FlyoutBase SubFlyout in Flyout.SecondaryCommands.OfType<AppBarButton>().Select((Btn) => Btn.Flyout).OfType<FlyoutBase>())
+                    {
+                        SubFlyout.Hide();
+                    }
                 }
+            }
+            catch (Exception)
+            {
+                //No need to handle this exception
             }
         }
 
@@ -8031,6 +8043,7 @@ namespace RX_Explorer.View
             DelayTooltipCancellation?.Dispose();
             DelayDragCancellation?.Dispose();
             ContextMenuCancellation?.Dispose();
+            DisplayItemsCancellation?.Dispose();
             EnterLock?.Dispose();
             CollectionChangeLock?.Dispose();
             ListViewDetailHeader?.Dispose();

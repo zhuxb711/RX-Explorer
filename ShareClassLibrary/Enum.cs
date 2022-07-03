@@ -136,6 +136,7 @@
         CreateOneTimeFileHandle,
         ConvertToLongPath,
         GetRecyclePathFromOriginPath,
-        GetFileAttribute
+        GetFileAttribute,
+        GetProcessHandle
     }
 }
