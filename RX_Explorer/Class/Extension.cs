@@ -246,17 +246,19 @@ namespace RX_Explorer.Class
                 IEnumerable<FileSystemStorageItemBase> SpecialItems = Collection.Where((Item) => Item is IFTPStorageItem or IMTPStorageItem);
                 IEnumerable<FileSystemStorageItemBase> NormalItems = Collection.Except(SpecialItems);
 
-                await Task.WhenAll(NormalItems.Select((Item) => Item.GetStorageItemAsync()));
+                IEnumerable<IStorageItem> CoreStorageItemList = (await Task.WhenAll(NormalItems.Select((Item) => Item.GetStorageItemAsync()))).OfType<IStorageItem>();
 
-                IEnumerable<FileSystemStorageItemBase> HasStorageItemList = NormalItems.Where((Item) => Item.StorageItem != null);
-                IEnumerable<FileSystemStorageItemBase> NoStorageItemList = NormalItems.Except(HasStorageItemList);
+                IReadOnlyList<string> CoreStorageItemPathList = CoreStorageItemList.Select((Item) => Item.Path).ToList();
 
-                if (HasStorageItemList.Any())
+                IEnumerable<string> PathOnlyList = NormalItems.Select((Item) => Item.Path)
+                                                              .Where((Path) => !CoreStorageItemPathList.Contains(Path, StringComparer.OrdinalIgnoreCase))
+                                                              .Concat(SpecialItems.Select((Item) => Item.Path))
+                                                              .Where((Path) => !string.IsNullOrWhiteSpace(Path));
+
+                if (CoreStorageItemList.Any())
                 {
-                    Package.SetStorageItems(HasStorageItemList.Select((Item) => Item.StorageItem), false);
+                    Package.SetStorageItems(CoreStorageItemList, false);
                 }
-
-                IEnumerable<string> PathOnlyList = NoStorageItemList.Select((Item) => Item.Path).Concat(SpecialItems.Select((Item) => Item.Path)).Where((Path) => !string.IsNullOrWhiteSpace(Path));
 
                 if (PathOnlyList.Any())
                 {

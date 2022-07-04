@@ -209,6 +209,7 @@
     <Compile Include="Class\SLEInputStream.cs" />
     <Compile Include="Class\SLEOutputStream.cs" />
     <Compile Include="Class\SortStateChangedEventArgs.cs" />
+    <Compile Include="Class\SpecialPath.cs" />
     <Compile Include="Class\TextLineData.cs" />
     <Compile Include="Class\TreeViewColumnWidthSaver.cs" />
     <Compile Include="Class\UncPath.cs" />

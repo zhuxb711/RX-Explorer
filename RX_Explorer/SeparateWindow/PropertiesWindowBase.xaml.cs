@@ -474,38 +474,67 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                         using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            await Exclusive.Controller.SetFileAttributeAsync(StorageItem.Path, AttributeDic.ToArray());
-
-                            switch (StorageItem)
+                            if (AttributeDic.Any((Item) => Item.Key == ModifyAttributeAction.Remove && Item.Value == System.IO.FileAttributes.ReadOnly))
                             {
-                                case LinkStorageFile:
-                                    {
-                                        Match LinkTargetMatch = Regex.Match(ShortcutTargetContent.Text, "(?<=\")[\\s\\S]+(?=\")");
-                                        Match LinkWorkDirectoryMatch = Regex.Match(ShortcutStartInContent.Text, "(?<=\")[\\s\\S]+(?=\")");
+                                try
+                                {
+                                    await Exclusive.Controller.SetFileAttributeAsync(StorageItem.Path, AttributeDic.ToArray());
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Could not set the file attribute, details: {string.Join(" & ", AttributeDic.Select((Item) => $"{Enum.GetName(typeof(ModifyAttributeAction), Item.Key)}|{Enum.GetName(typeof(System.IO.FileAttributes), Item.Value)}"))}");
+                                }
+                            }
 
-                                        string LinkTargetPath = LinkTargetMatch.Success ? LinkTargetMatch.Value : ShortcutTargetContent.Text;
-                                        string LinkWorkDirectory = LinkWorkDirectoryMatch.Success ? LinkWorkDirectoryMatch.Value : ShortcutStartInContent.Text;
-
-                                        await Exclusive.Controller.UpdateLinkAsync(new LinkFileData
+                            try
+                            {
+                                switch (StorageItem)
+                                {
+                                    case LinkStorageFile:
                                         {
-                                            LinkPath = StorageItem.Path,
-                                            LinkTargetPath = LinkTargetPath,
-                                            Arguments = ShortcutTargetContent.Text.Remove(0, LinkTargetPath.Length + 2).Trim(' ').Split(' ', StringSplitOptions.RemoveEmptyEntries),
-                                            WorkDirectory = LinkWorkDirectory,
-                                            WindowState = (WindowState)ShortcutWindowsStateContent.SelectedIndex,
-                                            HotKey = ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (byte)VirtualKey.None : (byte)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
-                                            Comment = ShortcutCommentContent.Text,
-                                            NeedRunAsAdmin = RunAsAdmin.IsChecked.GetValueOrDefault()
-                                        });
+                                            Match LinkTargetMatch = Regex.Match(ShortcutTargetContent.Text, "(?<=\")[\\s\\S]+(?=\")");
+                                            Match LinkWorkDirectoryMatch = Regex.Match(ShortcutStartInContent.Text, "(?<=\")[\\s\\S]+(?=\")");
 
-                                        break;
-                                    }
-                                case UrlStorageFile UrlFile:
-                                    {
-                                        await Exclusive.Controller.UpdateUrlAsync(new UrlFileData(StorageItem.Path, ShortcutUrlContent.Text, Array.Empty<byte>()));
+                                            string LinkTargetPath = LinkTargetMatch.Success ? LinkTargetMatch.Value : ShortcutTargetContent.Text;
+                                            string LinkWorkDirectory = LinkWorkDirectoryMatch.Success ? LinkWorkDirectoryMatch.Value : ShortcutStartInContent.Text;
 
-                                        break;
-                                    }
+                                            await Exclusive.Controller.UpdateLinkAsync(new LinkFileData
+                                            {
+                                                LinkPath = StorageItem.Path,
+                                                LinkTargetPath = LinkTargetPath,
+                                                Arguments = ShortcutTargetContent.Text.Remove(0, LinkTargetPath.Length + 2).Trim(' ').Split(' ', StringSplitOptions.RemoveEmptyEntries),
+                                                WorkDirectory = LinkWorkDirectory,
+                                                WindowState = (WindowState)ShortcutWindowsStateContent.SelectedIndex,
+                                                HotKey = ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (byte)VirtualKey.None : (byte)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
+                                                Comment = ShortcutCommentContent.Text,
+                                                NeedRunAsAdmin = RunAsAdmin.IsChecked.GetValueOrDefault()
+                                            });
+
+                                            break;
+                                        }
+                                    case UrlStorageFile UrlFile:
+                                        {
+                                            await Exclusive.Controller.UpdateUrlAsync(new UrlFileData(StorageItem.Path, ShortcutUrlContent.Text, Array.Empty<byte>()));
+
+                                            break;
+                                        }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, $"Could not update file data of {StorageItem.GetType().FullName}");
+                            }
+
+                            if (AttributeDic.Any((Item) => Item.Key == ModifyAttributeAction.Add && Item.Value == System.IO.FileAttributes.ReadOnly))
+                            {
+                                try
+                                {
+                                    await Exclusive.Controller.SetFileAttributeAsync(StorageItem.Path, AttributeDic.ToArray());
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Could not set the file attribute, details: {string.Join(" & ", AttributeDic.Select((Item) => $"{Enum.GetName(typeof(ModifyAttributeAction), Item.Key)}|{Enum.GetName(typeof(System.IO.FileAttributes), Item.Value)}"))}");
+                                }
                             }
                         }
                     }
@@ -684,26 +713,16 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                 ShortcutStartInContent.Text = $"\"{LinkFile.WorkDirectory}\"";
                                 RunAsAdmin.IsChecked = LinkFile.NeedRunAsAdmin;
 
-                                if (await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath) is FileSystemStorageItemBase TargetItem)
+                                if (Path.HasExtension(LinkFile.LinkTargetPath))
                                 {
-                                    switch (await TargetItem.GetStorageItemAsync())
+                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
-                                        case StorageFile File:
-                                            {
-                                                ShortcutTargetTypeContent.Text = File.DisplayType;
-                                                break;
-                                            }
-                                        case StorageFolder Folder:
-                                            {
-                                                ShortcutTargetTypeContent.Text = Folder.DisplayType;
-                                                break;
-                                            }
-                                        default:
-                                            {
-                                                ShortcutTargetTypeContent.Text = TargetItem.DisplayType;
-                                                break;
-                                            }
+                                        ShortcutTargetTypeContent.Text = await Exclusive.Controller.GetFriendlyTypeNameAsync(Path.GetExtension(LinkFile.LinkTargetPath));
                                     }
+                                }
+                                else
+                                {
+                                    ShortcutTargetTypeContent.Text = Globalization.GetString("UnknownText");
                                 }
                             }
                             else

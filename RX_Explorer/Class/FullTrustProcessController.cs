@@ -1319,7 +1319,7 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(SetFileAttributeAsync)}, message: {ErrorMessage}");
+                    throw new Exception(ErrorMessage);
                 }
             }
         }
@@ -1570,7 +1570,7 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(UpdateLinkAsync)}, message: {ErrorMessage}");
+                    throw new Exception(ErrorMessage);
                 }
             }
         }
@@ -1581,7 +1581,7 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(UpdateUrlAsync)}, message: {ErrorMessage}");
+                    throw new Exception(ErrorMessage);
                 }
             }
         }

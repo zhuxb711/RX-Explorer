@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum SpecialPathEnum
+    {
+        OneDrive,
+        Dropbox
+    }
+
     public enum PriorityLevel
     {
         High = 0,
