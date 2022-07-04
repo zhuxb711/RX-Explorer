@@ -271,7 +271,7 @@ namespace RX_Explorer.View
 
         private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {
-            await FileSystemStorageItemBase.SpecialPath.InitializeAsync();
+            await SpecialPath.InitializeAsync();
 
             if (SQLite.Current.GetAllTerminalProfile().All((Profile) => !Path.GetFileName(Profile.Path).Equals("wt.exe", StringComparison.OrdinalIgnoreCase)))
             {

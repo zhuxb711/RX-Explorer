@@ -10,6 +10,29 @@ using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
+    public sealed class ThumbnailStatusConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is ThumbnailStatus Status)
+            {
+                return Status switch
+                {
+                    ThumbnailStatus.Normal => 1,
+                    ThumbnailStatus.HalfOpacity => 0.5,
+                    _ => throw new NotSupportedException()
+                };
+            }
+
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public sealed class CompressionRateConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)

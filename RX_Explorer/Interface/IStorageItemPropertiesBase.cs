@@ -1,5 +1,4 @@
-﻿using RX_Explorer.Class;
-using System;
+﻿using System;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Interface
@@ -33,7 +32,5 @@ namespace RX_Explorer.Interface
         public DateTimeOffset CreationTime { get; }
 
         public DateTimeOffset LastAccessTime { get; }
-
-        public SyncStatus SyncStatus { get; }
     }
 }

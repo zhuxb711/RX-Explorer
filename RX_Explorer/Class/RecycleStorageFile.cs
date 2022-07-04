@@ -47,11 +47,11 @@ namespace RX_Explorer.Class
             await base.LoadCoreAsync(ForceUpdate);
         }
 
-        protected override Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override Task<StorageFile> GetStorageItemCoreAsync()
         {
             if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
             {
-                return Task.FromResult<IStorageItem>(null);
+                return Task.FromResult<StorageFile>(null);
             }
             else
             {

@@ -684,26 +684,16 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                 ShortcutStartInContent.Text = $"\"{LinkFile.WorkDirectory}\"";
                                 RunAsAdmin.IsChecked = LinkFile.NeedRunAsAdmin;
 
-                                if (await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath) is FileSystemStorageItemBase TargetItem)
+                                if (Path.HasExtension(LinkFile.LinkTargetPath))
                                 {
-                                    switch (await TargetItem.GetStorageItemAsync())
+                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
-                                        case StorageFile File:
-                                            {
-                                                ShortcutTargetTypeContent.Text = File.DisplayType;
-                                                break;
-                                            }
-                                        case StorageFolder Folder:
-                                            {
-                                                ShortcutTargetTypeContent.Text = Folder.DisplayType;
-                                                break;
-                                            }
-                                        default:
-                                            {
-                                                ShortcutTargetTypeContent.Text = TargetItem.DisplayType;
-                                                break;
-                                            }
+                                        ShortcutTargetTypeContent.Text = await Exclusive.Controller.GetFriendlyTypeNameAsync(Path.GetExtension(LinkFile.LinkTargetPath));
                                     }
+                                }
+                                else
+                                {
+                                    ShortcutTargetTypeContent.Text = Globalization.GetString("UnknownText");
                                 }
                             }
                             else

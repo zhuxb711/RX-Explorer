@@ -15,6 +15,7 @@
       Background="Transparent">
 
     <Page.Resources>
+        <Cls:ThumbnailStatusConverter x:Key="ThumbnailStatusConverter" />
         <Cls:SizeDescriptionConverter x:Key="SizeConverter" />
         <Cls:SizeLabelVisibilityConverter x:Key="SizeVisibilityConverter" />
         <Cls:DateTimeDescriptionConverter x:Key="DateTimeConverter" />
@@ -198,7 +199,7 @@
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
                                                            Source="{x:Bind Thumbnail,Mode=OneWay}"
-                                                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                            Height="55"
                                                            Width="55"
                                                            Grid.Column="1"
@@ -211,6 +212,7 @@
                                                            Grid.Column="1"
                                                            x:Phase="1"
                                                            Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                            Stretch="Uniform" />
                                                     <StackPanel Orientation="Vertical"
                                                                 Grid.Column="2"
@@ -371,7 +373,7 @@
                                                     <Image VerticalAlignment="Center"
                                                            Stretch="Uniform"
                                                            Source="{x:Bind Thumbnail,Mode=OneWay}"
-                                                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                            Height="30"
                                                            Width="30"
                                                            Grid.Column="1"
@@ -386,6 +388,7 @@
                                                            Grid.Column="1"
                                                            x:Phase="1"
                                                            Source="{x:Bind ThumbnailOverlay, Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                            Stretch="Uniform" />
                                                     <TextBlock VerticalAlignment="Center"
                                                                HorizontalAlignment="Left"
@@ -518,7 +521,7 @@
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
                                                            Source="{x:Bind Thumbnail,Mode=OneWay}"
-                                                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                            x:Phase="1"
                                                            Width="260" />
                                                     <Image x:Name="ThumbnailOverlay"
@@ -528,6 +531,7 @@
                                                            VerticalAlignment="Bottom"
                                                            x:Phase="1"
                                                            Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                            Stretch="Uniform" />
                                                     <Grid Grid.Row="1"
                                                           MaxWidth="240"
@@ -666,7 +670,7 @@
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
                                                            Source="{x:Bind Thumbnail,Mode=OneWay}"
-                                                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                            Width="180"
                                                            x:Phase="1" />
                                                     <Image x:Name="ThumbnailOverlay"
@@ -676,6 +680,7 @@
                                                            VerticalAlignment="Bottom"
                                                            x:Phase="1"
                                                            Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                            Stretch="Uniform" />
                                                     <Grid Grid.Row="1"
                                                           MaxWidth="180"
@@ -815,7 +820,7 @@
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
                                                            Source="{x:Bind Thumbnail,Mode=OneWay}"
-                                                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                            Width="120"
                                                            x:Phase="1" />
                                                     <Image x:Name="ThumbnailOverlay"
@@ -825,6 +830,7 @@
                                                            VerticalAlignment="Bottom"
                                                            x:Phase="1"
                                                            Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                            Stretch="Uniform" />
                                                     <Grid Grid.Row="1"
                                                           HorizontalAlignment="Center"
@@ -985,7 +991,7 @@
                                                                    HorizontalAlignment="Center"
                                                                    Stretch="Uniform"
                                                                    Source="{x:Bind Thumbnail,Mode=OneWay}"
-                                                                   Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                                   Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                                    Height="30"
                                                                    Width="30"
                                                                    x:Phase="1"
@@ -998,7 +1004,7 @@
                                                                    VerticalAlignment="Bottom"
                                                                    x:Phase="1"
                                                                    Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
-                                                                   Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                                   Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                                    Stretch="Uniform" />
                                                             <TextBlock VerticalAlignment="Center"
                                                                        HorizontalAlignment="Left"

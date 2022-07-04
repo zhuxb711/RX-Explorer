@@ -157,7 +157,7 @@ namespace RX_Explorer.Class
             return Task.FromResult<IReadOnlyDictionary<string, string>>(new Dictionary<string, string>(Properties.Select((Prop) => new KeyValuePair<string, string>(Prop, string.Empty))));
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override async Task<StorageFile> GetStorageItemCoreAsync()
         {
             try
             {

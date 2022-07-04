@@ -9,7 +9,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -27,8 +26,9 @@ namespace RX_Explorer.Class
     public abstract class FileSystemStorageItemBase : IStorageItemPropertiesBase, INotifyPropertyChanged, IStorageItemOperation, IEquatable<FileSystemStorageItemBase>
     {
         private int IsContentLoaded;
-        private double InnerThumbnailOpacity = 1;
         private RefSharedRegion<FullTrustProcessController.Exclusive> ControllerSharedRef;
+        private ThumbnailStatus thumbnailStatus = ThumbnailStatus.Normal;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public string Path { get; protected set; }
 
@@ -39,6 +39,30 @@ namespace RX_Explorer.Class
         public abstract string DisplayName { get; }
 
         public abstract string DisplayType { get; }
+
+        public virtual ulong Size { get; protected set; }
+
+        public virtual DateTimeOffset CreationTime { get; protected set; }
+
+        public virtual DateTimeOffset ModifiedTime { get; protected set; }
+
+        public virtual DateTimeOffset LastAccessTime { get; protected set; }
+
+        public virtual BitmapImage Thumbnail { get; protected set; }
+
+        public virtual BitmapImage ThumbnailOverlay { get; protected set; }
+
+        public virtual SyncStatus SyncStatus { get; protected set; }
+
+        public virtual bool IsReadOnly { get; protected set; }
+
+        public virtual bool IsSystemItem { get; protected set; }
+
+        public virtual bool IsHiddenItem { get; protected set; }
+
+        protected virtual bool ShouldGenerateThumbnail => (this is FileSystemStorageFile && SettingPage.ContentLoadMode == LoadMode.OnlyFile) || SettingPage.ContentLoadMode == LoadMode.All;
+
+        protected virtual ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 
         public LabelKind Label
         {
@@ -53,39 +77,26 @@ namespace RX_Explorer.Class
             }
         }
 
-        public double ThumbnailOpacity
+        public ThumbnailStatus ThumbnailStatus
         {
-            get => IsHiddenItem ? 0.5 : InnerThumbnailOpacity;
-            private set => InnerThumbnailOpacity = value;
+            get
+            {
+                if (IsHiddenItem)
+                {
+                    return ThumbnailStatus.HalfOpacity;
+                }
+
+                return thumbnailStatus;
+            }
+            set
+            {
+                if (!IsHiddenItem && thumbnailStatus != value)
+                {
+                    thumbnailStatus = value;
+                    OnPropertyChanged();
+                }
+            }
         }
-
-        public virtual ulong Size { get; protected set; }
-
-        public virtual DateTimeOffset CreationTime { get; protected set; }
-
-        public virtual DateTimeOffset ModifiedTime { get; protected set; }
-
-        public virtual DateTimeOffset LastAccessTime { get; protected set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public virtual BitmapImage Thumbnail { get; protected set; }
-
-        public virtual BitmapImage ThumbnailOverlay { get; protected set; }
-
-        public virtual bool IsReadOnly { get; protected set; }
-
-        public virtual bool IsSystemItem { get; protected set; }
-
-        public virtual bool IsHiddenItem { get; protected set; }
-
-        protected virtual bool ShouldGenerateThumbnail => (this is FileSystemStorageFile && SettingPage.ContentLoadMode == LoadMode.OnlyFile) || SettingPage.ContentLoadMode == LoadMode.All;
-
-        protected ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
-
-        public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
-
-        public IStorageItem StorageItem { get; private set; }
 
         public static Task<IDisposable> SelfCreateBulkAccessSharedControllerAsync<T>(T Item, PriorityLevel Priority = PriorityLevel.Normal) where T : FileSystemStorageItemBase
         {
@@ -101,7 +112,7 @@ namespace RX_Explorer.Class
 
                 foreach (T Item in Items)
                 {
-                    Item.SetBulkAccessSharedControllerCore(SharedRef);
+                    Item.SetBulkAccessSharedController(SharedRef);
                 }
 
                 return new DisposeNotification(() =>
@@ -128,7 +139,7 @@ namespace RX_Explorer.Class
 
                 foreach (T Item in Items)
                 {
-                    Item.SetBulkAccessSharedControllerCore(SharedRef);
+                    Item.SetBulkAccessSharedController(SharedRef);
                 }
 
                 return new DisposeNotification(() =>
@@ -139,14 +150,6 @@ namespace RX_Explorer.Class
             else
             {
                 throw new ArgumentException("Input items should not be empty", nameof(Items));
-            }
-        }
-
-        private void SetBulkAccessSharedControllerCore(RefSharedRegion<FullTrustProcessController.Exclusive> SharedRef)
-        {
-            if (Interlocked.Exchange(ref ControllerSharedRef, SharedRef) is RefSharedRegion<FullTrustProcessController.Exclusive> PreviousRef)
-            {
-                PreviousRef.Dispose();
             }
         }
 
@@ -779,104 +782,17 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageItemBase(NativeFileData Data) : this(Data?.Path)
+        protected void SetBulkAccessSharedController(RefSharedRegion<FullTrustProcessController.Exclusive> SharedRef)
         {
-            if ((Data?.IsDataValid).GetValueOrDefault())
+            if (Interlocked.Exchange(ref ControllerSharedRef, SharedRef) is RefSharedRegion<FullTrustProcessController.Exclusive> PreviousRef)
             {
-                Size = Data.Size;
-                StorageItem = Data.StorageItem;
-                IsReadOnly = Data.IsReadOnly;
-                IsSystemItem = Data.IsSystemItem;
-                IsHiddenItem = Data.IsHiddenItem;
-                ModifiedTime = Data.ModifiedTime;
-                CreationTime = Data.CreationTime;
-                LastAccessTime = Data.LastAccessTime;
+                PreviousRef.Dispose();
             }
         }
 
-        protected FileSystemStorageItemBase(MTPFileData Data) : this(Data?.Path)
+        protected bool GetBulkAccessSharedController(out RefSharedRegion<FullTrustProcessController.Exclusive> SharedController)
         {
-            if (Data != null)
-            {
-                Size = Data.Size;
-                IsReadOnly = Data.IsReadOnly;
-                IsSystemItem = Data.IsSystemItem;
-                IsHiddenItem = Data.IsHiddenItem;
-                ModifiedTime = Data.ModifiedTime;
-                CreationTime = Data.CreationTime;
-                LastAccessTime = DateTimeOffset.MinValue;
-            }
-        }
-
-        protected FileSystemStorageItemBase(FTPFileData Data) : this(Data?.Path)
-        {
-            if (Data != null)
-            {
-                Size = Data.Size;
-                IsReadOnly = Data.IsReadOnly;
-                IsSystemItem = Data.IsSystemItem;
-                IsHiddenItem = Data.IsHiddenItem;
-                ModifiedTime = Data.ModifiedTime;
-                CreationTime = Data.CreationTime;
-                LastAccessTime = DateTimeOffset.MinValue;
-            }
-        }
-
-        protected FileSystemStorageItemBase(string Path)
-        {
-            this.Path = Path;
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-        }
-
-        public void SetThumbnailStatus(ThumbnailStatus Status)
-        {
-            if (!IsHiddenItem)
-            {
-                switch (Status)
-                {
-                    case ThumbnailStatus.Normal:
-                        {
-                            ThumbnailOpacity = 1;
-                            break;
-                        }
-                    case ThumbnailStatus.HalfOpacity:
-                        {
-                            ThumbnailOpacity = 0.5;
-                            break;
-                        }
-                }
-
-                OnPropertyChanged(nameof(ThumbnailOpacity));
-            }
-        }
-
-
-        public async Task SetThumbnailModeAsync(ThumbnailMode Mode)
-        {
-            if (ThumbnailMode != Mode)
-            {
-                ThumbnailMode = Mode;
-
-                if (ShouldGenerateThumbnail)
-                {
-                    try
-                    {
-                        Thumbnail = await GetThumbnailAsync(Mode, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
-                    }
-                    finally
-                    {
-                        OnPropertyChanged(nameof(Thumbnail));
-                    }
-                }
-            }
+            return (SharedController = ControllerSharedRef?.CreateNew()) != null;
         }
 
         public async Task LoadAsync()
@@ -889,11 +805,6 @@ namespace RX_Explorer.Class
                     {
                         using (IDisposable Disposable = await SelfCreateBulkAccessSharedControllerAsync(this, PriorityLevel.Low))
                         {
-                            if (StorageItem == null)
-                            {
-                                await GetStorageItemAsync();
-                            }
-
                             await LoadCoreAsync(false);
 
                             List<Task> ParallelLoadTasks = new List<Task>()
@@ -943,51 +854,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task RefreshAsync()
-        {
-            try
-            {
-                using (IDisposable Disposable = await SelfCreateBulkAccessSharedControllerAsync(this, PriorityLevel.Low))
-                {
-                    await GetStorageItemAsync(true);
-
-                    if (ShouldGenerateThumbnail)
-                    {
-                        await Task.WhenAll(LoadCoreAsync(true), GetThumbnailAsync(ThumbnailMode, true));
-                    }
-                    else
-                    {
-                        await LoadCoreAsync(true);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not refresh the {GetType().FullName}, path: {Path}");
-            }
-            finally
-            {
-                if (this is FileSystemStorageFile)
-                {
-                    OnPropertyChanged(nameof(Size));
-                }
-
-                if (ShouldGenerateThumbnail)
-                {
-                    OnPropertyChanged(nameof(Thumbnail));
-                }
-
-                OnPropertyChanged(nameof(ThumbnailOpacity));
-                OnPropertyChanged(nameof(ModifiedTime));
-                OnPropertyChanged(nameof(LastAccessTime));
-            }
-        }
-
-        protected bool GetBulkAccessSharedController(out RefSharedRegion<FullTrustProcessController.Exclusive> SharedController)
-        {
-            return (SharedController = ControllerSharedRef?.CreateNew()) != null;
-        }
-
         private async Task GetSyncStatusAsync()
         {
             IReadOnlyDictionary<string, string> Properties = await GetPropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
@@ -1011,328 +877,38 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
+        protected FileSystemStorageItemBase(string Path)
         {
-            if (await GetStorageItemAsync() is IStorageItem Item)
-            {
-                SafeFileHandle Handle = await Task.Run(() => Item.GetSafeFileHandleAsync(Mode, Option));
-
-                if (!Handle.IsInvalid)
-                {
-                    return Handle;
-                }
-            }
-
-            if (GetBulkAccessSharedController(out var ControllerRef))
-            {
-                using (ControllerRef)
-                {
-                    return await ControllerRef.Value.Controller.GetNativeHandleAsync(Path, Mode, Option);
-                }
-            }
-            else
-            {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                {
-                    return await Exclusive.Controller.GetNativeHandleAsync(Path, Mode, Option);
-                }
-            }
+            this.Path = Path;
         }
 
-        protected virtual async Task<BitmapImage> GetThumbnailOverlayAsync()
-        {
-            async Task<BitmapImage> GetThumbnailOverlayCoreAsync(FullTrustProcessController.Exclusive Exclusive)
-            {
-                byte[] ThumbnailOverlayByteArray = await Exclusive.Controller.GetThumbnailOverlayAsync(Path);
+        public abstract Task RefreshAsync();
 
-                if (ThumbnailOverlayByteArray.Length > 0)
-                {
-                    using (MemoryStream Ms = new MemoryStream(ThumbnailOverlayByteArray))
-                    {
-                        BitmapImage Overlay = new BitmapImage();
-                        await Overlay.SetSourceAsync(Ms.AsRandomAccessStream());
-                        return Overlay;
-                    }
-                }
+        public abstract Task SetThumbnailModeAsync(ThumbnailMode Mode);
 
-                return null;
-            }
+        public abstract Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option);
 
-            if (GetBulkAccessSharedController(out var ControllerRef))
-            {
-                using (ControllerRef)
-                {
-                    return ThumbnailOverlay = await GetThumbnailOverlayCoreAsync(ControllerRef.Value);
-                }
-            }
-            else
-            {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                {
-                    return ThumbnailOverlay = await GetThumbnailOverlayCoreAsync(Exclusive);
-                }
-            }
-        }
+        public abstract Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode, bool ForceUpdate = false);
+
+        public abstract Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode, bool ForceUpdate = false);
+
+        public abstract Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties);
+
+        public abstract Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null);
+
+        public abstract Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null);
+
+        public abstract Task<string> RenameAsync(string DesireName, CancellationToken CancelToken = default);
+
+        public abstract Task DeleteAsync(bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null);
+
+        protected abstract Task<BitmapImage> GetThumbnailOverlayAsync();
 
         protected abstract Task LoadCoreAsync(bool ForceUpdate);
 
-        protected abstract Task<IStorageItem> GetStorageItemCoreAsync();
-
-        public async Task<IStorageItem> GetStorageItemAsync(bool ForceUpdate = false)
+        protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
-            if (!IsHiddenItem && !IsSystemItem)
-            {
-                if (StorageItem == null || ForceUpdate)
-                {
-                    StorageItem = await GetStorageItemCoreAsync();
-                }
-            }
-
-            return StorageItem;
-        }
-
-        public async Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode, bool ForceUpdate = false)
-        {
-            if (Thumbnail == null || ForceUpdate || !string.IsNullOrEmpty(Thumbnail.UriSource?.AbsoluteUri))
-            {
-                Thumbnail = await GetThumbnailCoreAsync(Mode, ForceUpdate);
-            }
-
-            return Thumbnail;
-        }
-
-        protected virtual async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
-        {
-            async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.Exclusive Exclusive)
-            {
-                if (await Exclusive.Controller.GetThumbnailAsync(Path) is Stream ThumbnailStream)
-                {
-                    BitmapImage Thumbnail = new BitmapImage();
-                    await Thumbnail.SetSourceAsync(ThumbnailStream.AsRandomAccessStream());
-                    return Thumbnail;
-                }
-
-                return null;
-            }
-
-            try
-            {
-                if (await GetStorageItemAsync(ForceUpdate) is IStorageItem Item)
-                {
-                    if (await Item.GetThumbnailBitmapAsync(Mode) is BitmapImage LocalThumbnail)
-                    {
-                        return LocalThumbnail;
-                    }
-                }
-
-                if (GetBulkAccessSharedController(out var ControllerRef))
-                {
-                    using (ControllerRef)
-                    {
-                        return await InternalGetThumbnailAsync(ControllerRef.Value);
-                    }
-                }
-                else
-                {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        return await InternalGetThumbnailAsync(Exclusive);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not get thumbnail of path: \"{Path}\"");
-            }
-
-            return null;
-        }
-
-
-        public async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode, bool ForceUpdate = false)
-        {
-            return await GetThumbnailRawStreamCoreAsync(Mode, ForceUpdate) ?? throw new NotSupportedException("Could not get the thumbnail stream");
-        }
-
-        protected virtual async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
-        {
-            if (await GetStorageItemAsync(ForceUpdate) is IStorageItem Item)
-            {
-                return await Item.GetThumbnailRawStreamAsync(Mode);
-            }
-            else
-            {
-                async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(FullTrustProcessController.Exclusive Exclusive)
-                {
-                    if (await Exclusive.Controller.GetThumbnailAsync(Path) is Stream ThumbnailStream)
-                    {
-                        return ThumbnailStream.AsRandomAccessStream();
-                    }
-
-                    return null;
-                }
-
-                if (GetBulkAccessSharedController(out var ControllerRef))
-                {
-                    using (ControllerRef)
-                    {
-                        return await GetThumbnailRawStreamCoreAsync(ControllerRef.Value);
-                    }
-                }
-                else
-                {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        return await GetThumbnailRawStreamCoreAsync(Exclusive);
-                    }
-                }
-            }
-        }
-
-
-        public virtual async Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
-        {
-            async Task<IReadOnlyDictionary<string, string>> GetPropertiesCoreAsync(IEnumerable<string> Properties)
-            {
-                if (GetBulkAccessSharedController(out var ControllerRef))
-                {
-                    using (ControllerRef)
-                    {
-                        return await ControllerRef.Value.Controller.GetPropertiesAsync(Path, Properties);
-                    }
-                }
-                else
-                {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        return await Exclusive.Controller.GetPropertiesAsync(Path, Properties);
-                    }
-                }
-            }
-
-            IEnumerable<string> DistinctProperties = Properties.Distinct();
-
-            if (await GetStorageItemAsync() is IStorageItem Item)
-            {
-                try
-                {
-                    Dictionary<string, string> Result = new Dictionary<string, string>();
-
-                    BasicProperties Basic = await Item.GetBasicPropertiesAsync();
-                    IDictionary<string, object> UwpResult = await Basic.RetrievePropertiesAsync(DistinctProperties);
-
-                    List<string> MissingKeys = new List<string>(DistinctProperties.Except(UwpResult.Keys));
-
-                    foreach (KeyValuePair<string, object> Pair in UwpResult)
-                    {
-                        string Value = Pair.Value switch
-                        {
-                            IEnumerable<string> Array => string.Join(", ", Array),
-                            _ => Convert.ToString(Pair.Value)
-                        };
-
-                        if (string.IsNullOrEmpty(Value))
-                        {
-                            MissingKeys.Add(Pair.Key);
-                        }
-                        else
-                        {
-                            Result.Add(Pair.Key, Value);
-                        }
-                    }
-
-                    if (MissingKeys.Count > 0)
-                    {
-                        Result.AddRange(await GetPropertiesCoreAsync(MissingKeys));
-                    }
-
-                    return Result;
-                }
-                catch
-                {
-                    return await GetPropertiesCoreAsync(DistinctProperties);
-                }
-            }
-            else
-            {
-                return await GetPropertiesCoreAsync(DistinctProperties);
-            }
-        }
-
-        public virtual async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            if (GetBulkAccessSharedController(out var ControllerRef))
-            {
-                using (ControllerRef)
-                {
-                    await ControllerRef.Value.Controller.MoveAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler); ;
-                }
-            }
-            else
-            {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                {
-                    await Exclusive.Controller.MoveAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler);
-                }
-            }
-        }
-
-        public virtual async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            if (GetBulkAccessSharedController(out var ControllerRef))
-            {
-                using (ControllerRef)
-                {
-                    await ControllerRef.Value.Controller.CopyAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler);
-                }
-            }
-            else
-            {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                {
-                    await Exclusive.Controller.CopyAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler);
-                }
-            }
-        }
-
-        public async virtual Task<string> RenameAsync(string DesireName, CancellationToken CancelToken = default)
-        {
-            if (GetBulkAccessSharedController(out var ControllerRef))
-            {
-                using (ControllerRef)
-                {
-                    string NewName = await ControllerRef.Value.Controller.RenameAsync(Path, DesireName, true, CancelToken);
-                    Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
-                    return NewName;
-                }
-            }
-            else
-            {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                {
-                    string NewName = await Exclusive.Controller.RenameAsync(Path, DesireName, true, CancelToken);
-                    Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
-                    return NewName;
-                }
-            }
-        }
-
-        public virtual async Task DeleteAsync(bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            if (GetBulkAccessSharedController(out var ControllerRef))
-            {
-                using (ControllerRef)
-                {
-                    await ControllerRef.Value.Controller.DeleteAsync(Path, PermanentDelete, true, CancelToken, ProgressHandler);
-                }
-            }
-            else
-            {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                {
-                    await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, true, CancelToken, ProgressHandler);
-                }
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         public override string ToString()
@@ -1401,99 +977,6 @@ namespace RX_Explorer.Class
                 else
                 {
                     return !left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
-                }
-            }
-        }
-
-        public static class SpecialPath
-        {
-            private static IReadOnlyList<string> OneDrivePathCollection { get; } = new List<string>(3)
-            {
-                Environment.GetEnvironmentVariable("OneDriveConsumer"),
-                Environment.GetEnvironmentVariable("OneDriveCommercial"),
-                Environment.GetEnvironmentVariable("OneDrive")
-            };
-
-            private static IReadOnlyList<string> DropboxPathCollection { get; set; } = new List<string>(0);
-
-            public enum SpecialPathEnum
-            {
-                OneDrive,
-                Dropbox
-            }
-
-            public static async Task InitializeAsync()
-            {
-                static async Task<IReadOnlyList<string>> LocalLoadJsonAsync(string JsonPath)
-                {
-                    List<string> DropboxPathResult = new List<string>(2);
-
-                    try
-                    {
-                        if (await OpenAsync(JsonPath) is FileSystemStorageFile JsonFile)
-                        {
-                            using (Stream Stream = await JsonFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                            using (StreamReader Reader = new StreamReader(Stream, true))
-                            {
-                                var JsonObject = JsonSerializer.Deserialize<IDictionary<string, IDictionary<string, object>>>(Reader.ReadToEnd());
-
-                                if (JsonObject.TryGetValue("personal", out IDictionary<string, object> PersonalSubDic))
-                                {
-                                    DropboxPathResult.Add(Convert.ToString(PersonalSubDic["path"]));
-                                }
-
-                                if (JsonObject.TryGetValue("business", out IDictionary<string, object> BusinessSubDic))
-                                {
-                                    DropboxPathResult.Add(Convert.ToString(BusinessSubDic["path"]));
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Could not get the configuration from Dropbox info.json");
-                    }
-
-                    return DropboxPathResult;
-                }
-
-                string JsonPath1 = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(@"%APPDATA%\Dropbox\info.json");
-                string JsonPath2 = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(@"%LOCALAPPDATA%\Dropbox\info.json");
-
-                if (await CheckExistsAsync(JsonPath1))
-                {
-                    DropboxPathCollection = await LocalLoadJsonAsync(JsonPath1);
-                }
-                else if (await CheckExistsAsync(JsonPath2))
-                {
-                    DropboxPathCollection = await LocalLoadJsonAsync(JsonPath2);
-                }
-
-                if (DropboxPathCollection.Count == 0)
-                {
-                    DropboxPathCollection = new List<string>(1)
-                    {
-                        System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Dropbox")
-                    };
-                }
-            }
-
-            public static bool IsPathIncluded(string Path, SpecialPathEnum Enum)
-            {
-                switch (Enum)
-                {
-                    case SpecialPathEnum.OneDrive:
-                        {
-                            return OneDrivePathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((OneDrivePath) => Path.StartsWith(OneDrivePath, StringComparison.OrdinalIgnoreCase) && !Path.Equals(OneDrivePath, StringComparison.OrdinalIgnoreCase));
-                        }
-                    case SpecialPathEnum.Dropbox:
-                        {
-                            return DropboxPathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((DropboxPath) => Path.StartsWith(DropboxPath, StringComparison.OrdinalIgnoreCase) && !Path.Equals(DropboxPath, StringComparison.OrdinalIgnoreCase));
-                        }
-                    default:
-                        {
-                            return false;
-                        }
                 }
             }
         }

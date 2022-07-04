@@ -83,6 +83,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseDotNetNativeToolchain>false</UseDotNetNativeToolchain>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -111,6 +112,7 @@
   <ItemGroup>
     <Compile Include="Class\AddressBlock.cs" />
     <Compile Include="Class\ExtendedDataFormats.cs" />
+    <Compile Include="Class\FileSystemStorageItemBaseGeneric.cs" />
     <Compile Include="Class\FTPClientController.cs" />
     <Compile Include="Class\FTPClientManager.cs" />
     <Compile Include="Class\FTPFileData.cs" />
@@ -209,6 +211,7 @@
     <Compile Include="Class\SLEInputStream.cs" />
     <Compile Include="Class\SLEOutputStream.cs" />
     <Compile Include="Class\SortStateChangedEventArgs.cs" />
+    <Compile Include="Class\SpecialPath.cs" />
     <Compile Include="Class\TextLineData.cs" />
     <Compile Include="Class\TreeViewColumnWidthSaver.cs" />
     <Compile Include="Class\UncPath.cs" />
