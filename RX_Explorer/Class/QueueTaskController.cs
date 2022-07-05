@@ -196,7 +196,7 @@ namespace RX_Explorer.Class
                         {
                             case OperationListRemoteModel RModel:
                                 {
-                                    using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                                    using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
                                     {
                                         try
                                         {
@@ -360,7 +360,7 @@ namespace RX_Explorer.Class
                                                     }).AsTask().Wait();
                                                 }
 
-                                                using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                                                using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
                                                 {
                                                     Exclusive.Controller.CopyAsync(CModel.CopyFrom, CModel.CopyTo, Option, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                                     {
@@ -532,7 +532,7 @@ namespace RX_Explorer.Class
                                                     }).AsTask().Wait();
                                                 }
 
-                                                using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                                                using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
                                                 {
                                                     Exclusive.Controller.MoveAsync(MModel.MoveFrom, MModel.MoveTo, Option, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                                     {
@@ -589,7 +589,7 @@ namespace RX_Explorer.Class
                                 {
                                     try
                                     {
-                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
                                         {
                                             ExtraParameter = Exclusive.Controller.RenameAsync(RenameModel.RenameFrom, Path.GetFileName(RenameModel.RenameTo), CancelToken: CancelToken).Result;
                                         }
@@ -638,7 +638,7 @@ namespace RX_Explorer.Class
                                 {
                                     try
                                     {
-                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
                                         {
                                             Exclusive.Controller.DeleteAsync(DModel.DeleteFrom, DModel.IsPermanentDelete, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
@@ -693,7 +693,7 @@ namespace RX_Explorer.Class
                                 {
                                     try
                                     {
-                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
                                         {
                                             switch (UndoModel)
                                             {

@@ -47,7 +47,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                 {
                     return await InternalGetThumbnailAsync(Exclusive);
                 }
@@ -75,7 +75,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                 {
                     return await GetThumbnailRawStreamCoreAsync(Exclusive);
                 }
@@ -103,7 +103,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.Low))
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.Low))
                 {
                     InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
                 }
@@ -131,7 +131,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                 {
                     Handle = await Exclusive.Controller.MTPDownloadAndGetHandleAsync(Path, Mode, Option);
                 }
@@ -217,7 +217,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.Low))
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.Low))
                     {
                         return await Exclusive.Controller.GetMTPItemDataAsync(Path);
                     }

@@ -11,7 +11,7 @@ namespace RX_Explorer.Class
         {
             if (UncPath.StartsWith(@"\\"))
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                 {
                     IReadOnlyDictionary<string, string> MapResult = await Exclusive.Controller.MapToUNCPathAsync(SearchDriveRootPathList);
 

@@ -51,7 +51,7 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync()
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
             {
                 RawData = await Exclusive.Controller.GetMTPDriveVolumnDataAsync(Path);
             }

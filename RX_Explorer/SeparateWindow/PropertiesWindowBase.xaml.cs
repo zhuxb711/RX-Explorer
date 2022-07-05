@@ -472,7 +472,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                 }
                         }
 
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                         {
                             if (AttributeDic.Any((Item) => Item.Key == ModifyAttributeAction.Remove && Item.Value == System.IO.FileAttributes.ReadOnly))
                             {
@@ -545,7 +545,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     {
                         if (HandleRenameAutomatically)
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 await Exclusive.Controller.SetDriveLabelAsync(RootDrive.Path, RootDriveName.Text, CancelToken);
                             }
@@ -568,7 +568,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     if (CompressDrive.Tag is bool CompressOriginStatus && CompressDrive.IsChecked != CompressOriginStatus)
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                         {
                             await Exclusive.Controller.SetDriveCompressionStatusAsync(RootDrive.Path,
                                                                                       CompressDrive.IsChecked.GetValueOrDefault(),
@@ -579,7 +579,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     if (AllowIndex.Tag is bool AllowIndexOriginStatus && AllowIndex.IsChecked != AllowIndexOriginStatus)
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                         {
                             await Exclusive.Controller.SetDriveIndexStatusAsync(RootDrive.Path,
                                                                                 AllowIndex.IsChecked.GetValueOrDefault(),
@@ -656,7 +656,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     SecurityObjectNameContent.Text = SecurityObjectPath;
 
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                     {
                         foreach (PermissionDataPackage Data in await Exclusive.Controller.GetPermissionsAsync(SecurityObjectPath))
                         {
@@ -715,7 +715,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                 if (Path.HasExtension(LinkFile.LinkTargetPath))
                                 {
-                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                     {
                                         ShortcutTargetTypeContent.Text = await Exclusive.Controller.GetFriendlyTypeNameAsync(Path.GetExtension(LinkFile.LinkTargetPath));
                                     }
@@ -759,7 +759,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                 using (IDisposable Disposable = FileSystemStorageItemBase.SetBulkAccessSharedController(StorageItem, Exclusive))
                 {
                     Dictionary<string, object> BasicPropertiesDictionary = new Dictionary<string, object>(10)
@@ -1385,7 +1385,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                             }
                                                         }
                                                     }
-                                                    catch
+                                                    catch (Exception)
                                                     {
                                                         FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
                                                     }
@@ -1396,35 +1396,36 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                 {
                                                     try
                                                     {
-                                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                                                         {
                                                             AdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(File.Path);
                                                         }
 
-                                                        if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
+                                                        if (string.IsNullOrEmpty(AdminExecutablePath))
                                                         {
-                                                            FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
-
-                                                            IReadOnlyDictionary<string, string> PropertiesDic = await OpenWithFile.GetPropertiesAsync(new string[] { "System.FileDescription" });
-
-                                                            if (PropertiesDic.TryGetValue("System.FileDescription", out string AppName))
-                                                            {
-                                                                if (string.IsNullOrEmpty(AppName))
-                                                                {
-                                                                    FileOpenWithContent.Text = OpenWithFile.DisplayName;
-                                                                }
-                                                                else
-                                                                {
-                                                                    FileOpenWithContent.Text = AppName;
-                                                                }
-                                                            }
+                                                            FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
+                                                            FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
                                                         }
                                                         else
                                                         {
-                                                            throw new FileNotFoundException();
+                                                            if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
+                                                            {
+                                                                FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
+
+                                                                IReadOnlyDictionary<string, string> PropertiesDic = await OpenWithFile.GetPropertiesAsync(new string[] { "System.FileDescription" });
+
+                                                                if (PropertiesDic.TryGetValue("System.FileDescription", out string AppName))
+                                                                {
+                                                                    FileOpenWithContent.Text = string.IsNullOrEmpty(AppName) ? OpenWithFile.DisplayName : AppName;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                throw new FileNotFoundException(AdminExecutablePath);
+                                                            }
                                                         }
                                                     }
-                                                    catch
+                                                    catch (Exception)
                                                     {
                                                         FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
                                                         FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
@@ -1446,22 +1447,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                                 if (PropertiesDic.TryGetValue("System.FileDescription", out string AppName))
                                                 {
-                                                    if (string.IsNullOrEmpty(AppName))
-                                                    {
-                                                        FileOpenWithContent.Text = OpenWithFile.DisplayName;
-                                                    }
-                                                    else
-                                                    {
-                                                        FileOpenWithContent.Text = AppName;
-                                                    }
+                                                    FileOpenWithContent.Text = string.IsNullOrEmpty(AppName) ? OpenWithFile.DisplayName : AppName;
                                                 }
                                             }
                                             else
                                             {
-                                                throw new FileNotFoundException();
+                                                throw new FileNotFoundException(AdminExecutablePath);
                                             }
                                         }
-                                        catch
+                                        catch (Exception)
                                         {
                                             FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
                                             FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
@@ -1503,7 +1497,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                 FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
                                             }
                                         }
-                                        catch
+                                        catch (Exception)
                                         {
                                             FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
                                             FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
@@ -1548,7 +1542,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         }
                         else
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                             {
                                 bool IsCompressed = await Exclusive.Controller.GetDriveCompressionStatusAsync(RootDrive.Path);
                                 bool IsAllowIndex = await Exclusive.Controller.GetDriveIndexStatusAsync(RootDrive.Path);
@@ -1987,7 +1981,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     VisualStateManager.GoToState(this, "UnlockRunningStatus", true);
 
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                     {
                         if (await Exclusive.Controller.TryUnlockFileOccupy(File.Path, ((Button)sender).Name == "CloseForce"))
                         {
@@ -2094,7 +2088,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void DriveCleanup_Click(object sender, RoutedEventArgs e)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
             {
                 if (!await Exclusive.Controller.RunAsync("cleanmgr.exe", Parameters: new string[] { "/d", RootDrive.Path.TrimEnd('\\') }))
                 {
@@ -2170,7 +2164,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void DriveOptimize_Click(object sender, RoutedEventArgs e)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
             {
                 if (!await Exclusive.Controller.RunAsync("dfrgui.exe"))
                 {
@@ -2181,7 +2175,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void DriveErrorCheck_Click(object sender, RoutedEventArgs e)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
             {
                 if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: new string[] { $"-NoExit -Command \"chkdsk {RootDrive.Path.TrimEnd('\\')}\"" }))
                 {

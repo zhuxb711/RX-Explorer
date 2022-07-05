@@ -1324,7 +1324,7 @@ namespace RX_Explorer.View
                                     {
                                         try
                                         {
-                                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                             {
                                                 if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
                                                 {
@@ -1380,7 +1380,7 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                 {
                                     if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(Item.Protocol))
                                     {

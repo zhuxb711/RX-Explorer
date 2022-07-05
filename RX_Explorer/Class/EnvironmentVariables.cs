@@ -31,7 +31,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                 {
                     return await Exclusive.Controller.GetVariablePathListAsync(PartialVariablePath);
                 }
@@ -58,7 +58,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                         {
                             string ActualPath = await Exclusive.Controller.GetVariablePathAsync(Variable.Trim('%'));
 

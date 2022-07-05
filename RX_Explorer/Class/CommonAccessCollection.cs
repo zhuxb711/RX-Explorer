@@ -430,7 +430,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.Low))
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.Low))
                 {
                     foreach (string WslPath in await Exclusive.Controller.GetAvailableWslDrivePathListAsync())
                     {

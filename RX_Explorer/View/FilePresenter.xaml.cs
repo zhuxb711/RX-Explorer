@@ -2410,7 +2410,7 @@ namespace RX_Explorer.View
                             {
                                 args.Handled = true;
 
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                                 {
                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
@@ -3973,7 +3973,7 @@ namespace RX_Explorer.View
                     {
                         FileSystemStorageItemBase Item = SelectedItemsCopy.First();
 
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                         {
                             if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                             {
@@ -4551,7 +4551,7 @@ namespace RX_Explorer.View
             {
                 CloseAllFlyout();
 
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                 {
                     if (CurrentFolder is MTPStorageFolder)
                     {
@@ -4883,7 +4883,7 @@ namespace RX_Explorer.View
                         {
                             if (await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                             {
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                 {
                                     if (File is MTPStorageFile or FTPStorageFile)
                                     {
@@ -5452,7 +5452,7 @@ namespace RX_Explorer.View
 
                                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
-                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                         {
                                             if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                             {
@@ -5711,7 +5711,7 @@ namespace RX_Explorer.View
                             }
                         case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
                             {
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                 {
                                     if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, Parameters: PathList.ToArray()))
                                     {
@@ -5987,7 +5987,7 @@ namespace RX_Explorer.View
                             {
                                 PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
 
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                                 {
                                     string ToolTip = await Exclusive.Controller.GetTooltipTextAsync(Item.Path, Token);
 
@@ -6294,7 +6294,7 @@ namespace RX_Explorer.View
             {
                 if (SQLite.Current.GetTerminalProfileByName(SettingPage.DefaultTerminalName) is TerminalProfile Profile)
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                     {
                         string LaunchPath = string.Empty;
 
@@ -7403,7 +7403,7 @@ namespace RX_Explorer.View
 
                                 if (await FileSystemStorageItemBase.CheckExistsAsync(DesktopPath))
                                 {
-                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                     {
                                         if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                         {
@@ -7434,7 +7434,7 @@ namespace RX_Explorer.View
 
                                         if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Desktop))
                                         {
-                                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                             {
                                                 if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                                 {

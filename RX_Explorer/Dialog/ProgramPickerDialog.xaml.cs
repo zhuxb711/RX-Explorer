@@ -49,7 +49,7 @@ namespace RX_Explorer.Dialog
 
                 List<AssociationPackage> AssociationList = new List<AssociationPackage>();
 
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                 {
                     AssociationList.AddRange(await Exclusive.Controller.GetAssociationFromPathAsync(OpenFile.Path));
                 }
@@ -132,7 +132,7 @@ namespace RX_Explorer.Dialog
 
                 if (DefaultProgramCollection.Count == 0)
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                     {
                         string SystemAdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(OpenFile.Path);
 

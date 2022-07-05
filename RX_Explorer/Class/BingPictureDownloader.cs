@@ -112,6 +112,8 @@ namespace RX_Explorer.Class
                 await ResponseStream.CopyToAsync(MStream);
             }
 
+            MStream.Seek(0, SeekOrigin.Begin);
+
             return MStream;
         }
 
@@ -143,7 +145,7 @@ namespace RX_Explorer.Class
         {
             if (await FileSystemStorageItemBase.OpenAsync(PicturePath) is FileSystemStorageFile PictureFile)
             {
-                if (PictureFile.ModifiedTime < DateTimeOffset.Now.Date)
+                if (PictureFile.ModifiedTime < DateTimeOffset.Now.Date || PictureFile.Size == 0)
                 {
                     return true;
                 }

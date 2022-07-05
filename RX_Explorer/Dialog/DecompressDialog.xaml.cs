@@ -39,7 +39,7 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                 {
                     AvailableEncodings.AddRange(await Exclusive.Controller.GetAllEncodingsAsync());
                 }

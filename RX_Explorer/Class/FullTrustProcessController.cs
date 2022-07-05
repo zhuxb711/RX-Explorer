@@ -8,7 +8,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -234,8 +233,12 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static LazyExclusive GetLazyControllerExclusive(PriorityLevel Priority = PriorityLevel.Normal)
+        {
+            return new LazyExclusive(Priority);
+        }
 
-        public static Task<Exclusive> GetAvailableControllerAsync(PriorityLevel Priority = PriorityLevel.Normal)
+        public static Task<Exclusive> GetControllerExclusiveAsync(PriorityLevel Priority = PriorityLevel.Normal)
         {
             InternalExclusivePriorityQueueItem ExclusiveQueueItem = new InternalExclusivePriorityQueueItem(Priority);
 
@@ -2548,13 +2551,49 @@ namespace RX_Explorer.Class
             }
         }
 
+        public sealed class LazyExclusive : IDisposable
+        {
+            private Exclusive Exclusive;
+            private readonly PriorityLevel Priority;
+            private readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
+
+            public async Task<FullTrustProcessController> GetRealControllerAsync()
+            {
+                await Locker.WaitAsync();
+
+                try
+                {
+                    return (Exclusive ??= await GetControllerExclusiveAsync(Priority)).Controller;
+                }
+                finally
+                {
+                    Locker.Release();
+                }
+            }
+
+            public LazyExclusive(PriorityLevel Priority = PriorityLevel.Normal)
+            {
+                this.Priority = Priority;
+            }
+
+            public void Dispose()
+            {
+                Locker.Dispose();
+                Exclusive?.Dispose();
+                GC.SuppressFinalize(this);
+            }
+
+            ~LazyExclusive()
+            {
+                Dispose();
+            }
+        }
+
         public sealed class Exclusive : IDisposable
         {
             public FullTrustProcessController Controller { get; }
 
             private readonly ExtendedExecutionController ExtExecution;
-
-            private static readonly object DisposeSyncRoot = new object();
 
             private bool IsDisposed;
 
@@ -2578,18 +2617,7 @@ namespace RX_Explorer.Class
                     GC.SuppressFinalize(this);
 
                     ExtExecution?.Dispose();
-
-                    lock (DisposeSyncRoot)
-                    {
-                        if (ExpectedControllerNum < AllControllersNum - DynamicBackupProcessNum)
-                        {
-                            Controller.Dispose();
-                        }
-                        else
-                        {
-                            AvailableControllerCollection.Add(Controller);
-                        }
-                    }
+                    AvailableControllerCollection.Add(Controller);
                 }
             }
 

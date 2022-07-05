@@ -94,7 +94,7 @@ namespace RX_Explorer.Class
 
         public async Task<bool> LaunchAsync(string FilePath)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
             {
                 if (System.IO.Path.IsPathRooted(Path))
                 {

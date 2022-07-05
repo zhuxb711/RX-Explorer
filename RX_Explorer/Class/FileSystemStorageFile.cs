@@ -125,7 +125,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.Exclusive Exlusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exlusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                     {
                         return await Exlusive.Controller.GetSizeOnDiskAsync(Path);
                     }
@@ -190,7 +190,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 FileAttributes Attribute = await ControllerRef.Value.Controller.GetFileAttributeAsync(Path);
 

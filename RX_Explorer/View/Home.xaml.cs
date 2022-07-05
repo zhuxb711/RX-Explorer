@@ -437,7 +437,7 @@ namespace RX_Explorer.View
                     {
                         try
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 if (await Exclusive.Controller.SetDriveLabelAsync(RootDrive.Path, NewName))
                                 {
@@ -1311,7 +1311,7 @@ namespace RX_Explorer.View
                             }
                         }
 
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                         {
                             if (await Exclusive.Controller.EjectPortableDevice(Item.Path))
                             {
@@ -1616,7 +1616,7 @@ namespace RX_Explorer.View
 
                                     if (await FileSystemStorageItemBase.CheckExistsAsync(DesktopPath))
                                     {
-                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                         {
                                             if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                             {
@@ -1647,7 +1647,7 @@ namespace RX_Explorer.View
 
                                             if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Desktop))
                                             {
-                                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                                 {
                                                     if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                                     {
@@ -1748,7 +1748,7 @@ namespace RX_Explorer.View
             {
                 try
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                     {
                         if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                         {
@@ -1775,7 +1775,7 @@ namespace RX_Explorer.View
             {
                 try
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                     {
                         if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                         {

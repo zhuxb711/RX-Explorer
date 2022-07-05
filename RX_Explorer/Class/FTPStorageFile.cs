@@ -52,7 +52,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                 {
                     return await InternalGetThumbnailAsync(Exclusive);
                 }
@@ -82,7 +82,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                     {
                         return await GetRawStreamCoreAsync(Exclusive);
                     }
@@ -164,7 +164,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.Low))
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.Low))
                 {
                     InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
                 }

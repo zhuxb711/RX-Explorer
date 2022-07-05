@@ -168,7 +168,7 @@ namespace RX_Explorer.Class
                                     {
                                         await IncomeFileStream.CopyToAsync(TempFileStream);
 
-                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                                         {
                                             string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFilePath);
 
@@ -519,7 +519,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                     {
                         if (PathArray.Length == 1
                             && Flyout.SecondaryCommands.OfType<AppBarButton>()
@@ -900,16 +900,9 @@ namespace RX_Explorer.Class
         {
             if (Input.Any())
             {
-                try
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
-                    {
-                        return await Exclusive.Controller.OrderByNaturalStringSortAlgorithmAsync(Input, StringSelector, Direction);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not order the string with natural algorithm");
+                    return await Exclusive.Controller.OrderByNaturalStringSortAlgorithmAsync(Input, StringSelector, Direction);
                 }
             }
 
@@ -920,20 +913,13 @@ namespace RX_Explorer.Class
         {
             if (Input.Any())
             {
-                try
+                if (Direction == SortDirection.Ascending)
                 {
-                    if (Direction == SortDirection.Ascending)
-                    {
-                        return Input.OrderBy((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
-                    }
-                    else
-                    {
-                        return Input.OrderByDescending((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
-                    }
+                    return Input.OrderBy((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
                 }
-                catch (Exception ex)
+                else
                 {
-                    LogTracer.Log(ex, "Could not order the string with natural algorithm");
+                    return Input.OrderByDescending((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
                 }
             }
 
@@ -1476,18 +1462,34 @@ namespace RX_Explorer.Class
         {
             return Task.Factory.StartNew(() =>
             {
-                int CurrentProgressValue = 0;
+                long StreamLength = 0;
+
+                try
+                {
+                    StreamLength = InputStream.Length;
+                }
+                catch (Exception)
+                {
+                    //No need to handle this exception
+                }
+
+                InputStream.Seek(0, SeekOrigin.Begin);
+
                 byte[] Buffer = new byte[4096];
 
-                do
+                for (int CurrentProgressValue = 0; !Token.IsCancellationRequested;)
                 {
                     int CurrentReadCount = InputStream.Read(Buffer, 0, Buffer.Length);
-                    int NewProgressValue = Convert.ToInt32(Math.Round(InputStream.Position * 100d / InputStream.Length, MidpointRounding.AwayFromZero));
 
-                    if (NewProgressValue > CurrentProgressValue)
+                    if (StreamLength > 0)
                     {
-                        CurrentProgressValue = NewProgressValue;
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(NewProgressValue, null));
+                        int NewProgressValue = Math.Max(0, Math.Min(100, Convert.ToInt32(Math.Round(InputStream.Position * 100d / StreamLength, MidpointRounding.AwayFromZero))));
+
+                        if (NewProgressValue > CurrentProgressValue)
+                        {
+                            CurrentProgressValue = NewProgressValue;
+                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(NewProgressValue, null));
+                        }
                     }
 
                     if (CurrentReadCount < Buffer.Length)
@@ -1499,7 +1501,7 @@ namespace RX_Explorer.Class
                     {
                         Algorithm.TransformBlock(Buffer, 0, CurrentReadCount, Buffer, 0);
                     }
-                } while (!Token.IsCancellationRequested);
+                }
 
                 Token.ThrowIfCancellationRequested();
 

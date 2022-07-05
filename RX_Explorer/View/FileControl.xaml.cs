@@ -1500,7 +1500,7 @@ namespace RX_Explorer.View
                 {
                     if (Package.Current.Id.Architecture is ProcessorArchitecture.X64 or ProcessorArchitecture.X86OnArm64)
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync(PriorityLevel.High))
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
                         {
                             SearchInEverythingEngine.IsEnabled = await Exclusive.Controller.CheckIfEverythingIsAvailableAsync();
                         }
@@ -1612,7 +1612,7 @@ namespace RX_Explorer.View
 
                         if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 if (string.IsNullOrEmpty(StartupLocation))
                                 {
@@ -1646,7 +1646,7 @@ namespace RX_Explorer.View
                         }
                         else if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 if (string.IsNullOrEmpty(StartupLocation))
                                 {
@@ -1680,7 +1680,7 @@ namespace RX_Explorer.View
                         }
                         else if (string.Equals(QueryText, "Wt", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Wt.exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
                                 {
@@ -1725,7 +1725,7 @@ namespace RX_Explorer.View
                         {
                             string TargetPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(QueryText);
 
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 TargetPath = await Exclusive.Controller.ConvertShortPathToLongPathAsync(TargetPath);
                             }
@@ -1967,7 +1967,7 @@ namespace RX_Explorer.View
                             {
                                 string TargetPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(InputPath);
 
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                 {
                                     TargetPath = await Exclusive.Controller.ConvertShortPathToLongPathAsync(TargetPath);
                                 }
@@ -3322,7 +3322,7 @@ namespace RX_Explorer.View
 
                                 if (await FileSystemStorageItemBase.CheckExistsAsync(DesktopPath))
                                 {
-                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                     {
                                         if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                         {
@@ -3353,7 +3353,7 @@ namespace RX_Explorer.View
 
                                         if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Desktop))
                                         {
-                                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                                             {
                                                 if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                                 {
