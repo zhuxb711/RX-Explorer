@@ -28,7 +28,7 @@ namespace RX_Explorer.View
             InitializeComponent();
         }
 
-        private async Task InitializeAsync(FileSystemStorageFile TextFile, CancellationToken CancelToken)
+        private async Task InitializeAsync(FileSystemStorageFile TextFile, CancellationToken CancelToken = default)
         {
             Title.Text = TextFile.Name;
             TextFilePath = TextFile.Path;

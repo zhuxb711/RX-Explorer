@@ -52,13 +52,11 @@ namespace RX_Explorer.Class
             {
                 if (PhotoFile != null)
                 {
-                    ActualSource = new BitmapImage();
-
                     try
                     {
                         using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                         {
-                            await ActualSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
+                            ActualSource = await Helper.CreateBitmapImageAsync(ActualStream.AsRandomAccessStream());
                         }
                     }
                     catch (Exception ex)
@@ -88,20 +86,18 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        ThumbnailSource = new BitmapImage();
-
                         try
                         {
                             using (IRandomAccessStream ThumbnailStream = await PhotoFile.GetThumbnailRawStreamAsync(ThumbnailMode.PicturesView, ForceUpdate))
                             {
-                                await ThumbnailSource.SetSourceAsync(ThumbnailStream);
+                                ThumbnailSource = await Helper.CreateBitmapImageAsync(ThumbnailStream);
                             }
                         }
                         catch (Exception)
                         {
                             using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                             {
-                                await ThumbnailSource.SetSourceAsync(ActualStream.AsRandomAccessStream());
+                                ThumbnailSource = await Helper.CreateBitmapImageAsync(ActualStream.AsRandomAccessStream());
                             }
                         }
                     }

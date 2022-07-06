@@ -25,22 +25,19 @@ namespace RX_Explorer.Class
         {
             try
             {
-                BitmapImage Bitmap = new BitmapImage();
-
                 StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureUri);
 
                 using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                 {
-                    await Bitmap.SetSourceAsync(Stream);
+                    return await Helper.CreateBitmapImageAsync(Stream);
                 }
-
-                return Bitmap;
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(GetFullSizeBitmapImageAsync)}");
-                return null;
             }
+
+            return null;
         }
 
         public static bool operator ==(BackgroundPicture left, BackgroundPicture right)
@@ -114,18 +111,11 @@ namespace RX_Explorer.Class
             {
                 StorageFile NewImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureUri);
 
-                BitmapImage Bitmap = new BitmapImage()
-                {
-                    DecodePixelHeight = 90,
-                    DecodePixelWidth = 160
-                };
-
                 using (IRandomAccessStream Stream = await NewImageFile.OpenAsync(FileAccessMode.Read))
+                using (IRandomAccessStream ThumbnailStream = await Helper.GetThumbnailFromStreamAsync(Stream, 200))
                 {
-                    await Bitmap.SetSourceAsync(Stream);
+                    return new BackgroundPicture(await Helper.CreateBitmapImageAsync(ThumbnailStream), PictureUri);
                 }
-
-                return new BackgroundPicture(Bitmap, PictureUri);
             }
             catch (Exception ex)
             {

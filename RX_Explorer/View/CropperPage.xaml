@@ -23,7 +23,7 @@
         </Grid.ColumnDefinitions>
         <controls:ImageCropper Name="Cropper"
                                Mask="{ThemeResource SystemControlChromeMediumAcrylicElementMediumBrush}"
-                               Background="Transparent"
+                               Background="{ThemeResource ElementCustomAcrylicBrush}"
                                CropShape="Rectangular"
                                ThumbPlacement="Corners"
                                PointerReleased="Cropper_PointerReleased" />

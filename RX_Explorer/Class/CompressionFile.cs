@@ -1,7 +1,7 @@
 ﻿using ICSharpCode.SharpZipLib.Zip;
 using System;
-using System.IO;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -26,11 +26,16 @@ namespace RX_Explorer.Class
             {
                 InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
 
-                if (await Exclusive.Controller.GetThumbnailAsync(Type) is Stream ThumbnailStream)
+                try
                 {
-                    BitmapImage Thumbnail = new BitmapImage();
-                    await Thumbnail.SetSourceAsync(ThumbnailStream.AsRandomAccessStream());
-                    InnerThumbnail = Thumbnail;
+                    using (IRandomAccessStream ThumbnailStream = await Exclusive.Controller.GetThumbnailAsync(Type))
+                    {
+                        InnerThumbnail = await Helper.CreateBitmapImageAsync(ThumbnailStream);
+                    }
+                }
+                catch (Exception)
+                {
+                    //No need to handle this exception
                 }
             }
         }

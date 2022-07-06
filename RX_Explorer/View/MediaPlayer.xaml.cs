@@ -207,40 +207,22 @@ namespace RX_Explorer.View
                 {
                     using (TagLib.File TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FStream, FStream)))
                     {
-                        if (TagFile.Tag.Pictures != null && TagFile.Tag.Pictures.Length != 0)
+                        if ((TagFile.Tag.Pictures?.Length).GetValueOrDefault() > 0)
                         {
-                            byte[] ImageData = TagFile.Tag.Pictures[0].Data.Data;
-
-                            if (ImageData != null && ImageData.Length != 0)
+                            foreach (IPicture Picture in TagFile.Tag.Pictures)
                             {
-                                using (MemoryStream ImageStream = new MemoryStream(ImageData))
+                                byte[] ImageData = Picture.Data.Data;
+
+                                if ((ImageData?.Length).GetValueOrDefault() > 0)
                                 {
-                                    BitmapImage Bitmap = new BitmapImage
-                                    {
-                                        DecodePixelHeight = 250,
-                                        DecodePixelWidth = 250
-                                    };
-
-                                    await Bitmap.SetSourceAsync(ImageStream.AsRandomAccessStream());
-
-                                    return Bitmap;
+                                    return await Helper.CreateBitmapImageAsync(ImageData);
                                 }
                             }
-                            else
-                            {
-                                return null;
-                            }
-                        }
-                        else
-                        {
-                            return null;
                         }
                     }
                 }
-                else
-                {
-                    return null;
-                }
+
+                return null;
             }
             catch (Exception ex)
             {

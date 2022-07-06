@@ -104,7 +104,6 @@
                       ContainerContentChanging="AddressExtensionSubFolderList_ContainerContentChanging"
                       ItemClick="AddressExtensionSubFolderList_ItemClick"
                       ItemsSource="{x:Bind AddressExtensionList}"
-                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="Cls:FileSystemStorageFolder">

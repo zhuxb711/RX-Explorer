@@ -3523,18 +3523,6 @@
   <data name="ShutdownButtonBehavior_CloseInnerViewer" xml:space="preserve">
     <value>關閉內部查看器</value>
   </data>
-  <data name="ShutdownButtonBehaviorLabel" xml:space="preserve">
-    <value>定制关闭按钮的默认行为</value>
-  </data>
-  <data name="ShutdownButtonBehaviorLabelDescription" xml:space="preserve">
-    <value>指定關閉按鈕的默認行為以避免意外關閉應用程序</value>
-  </data>
-  <data name="VerticalSplitViewLimitationDescription" xml:space="preserve">
-    <value>指定同時顯示的垂直分屏的數量限制，超出部分需要滾動訪問。 注意：僅建議在更寬的屏幕上調整此設置，否則每個視圖的內容可能會變得無法識別</value>
-  </data>
-  <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
-    <value>垂直分屏显示限制</value>
-  </data>
   <data name="RemoveLabel" xml:space="preserve">
     <value>移除標籤</value>
   </data>
@@ -3583,5 +3571,8 @@
   </data>
   <data name="QueueDialog_MixLineEnding_Content" xml:space="preserve">
     <value>文本文件有幾個不同的終止符，所以文本保存時會自動統一為CRLF</value>
+  </data>
+  <data name="QueueDialog_CanNotAdjustSmallImage_Content" xml:space="preserve">
+    <value>無法調整分辨率過小的圖像</value>
   </data>
 </root>

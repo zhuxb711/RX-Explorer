@@ -16,7 +16,6 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Core;
-using Windows.UI.Xaml.Media.Imaging;
 using Timer = System.Timers.Timer;
 
 namespace RX_Explorer.Class
@@ -73,20 +72,16 @@ namespace RX_Explorer.Class
                             ImageFile = IconPath.StartsWith("ms-appx") ? await StorageFile.GetFileFromApplicationUriAsync(new Uri(IconPath))
                                                                        : await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, IconPath));
 
-                            BitmapImage Bitmap = new BitmapImage();
-
                             using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                             {
-                                await Bitmap.SetSourceAsync(Stream);
-                            }
-
-                            if (Enum.Parse<QuickStartType>(Type) == QuickStartType.Application)
-                            {
-                                QuickStartList.Add(new QuickStartItem(QuickStartType.Application, Bitmap, Protocal, IconPath, Name));
-                            }
-                            else
-                            {
-                                WebLinkList.Add(new QuickStartItem(QuickStartType.WebSite, Bitmap, Protocal, IconPath, Name));
+                                if (Enum.Parse<QuickStartType>(Type) == QuickStartType.Application)
+                                {
+                                    QuickStartList.Add(new QuickStartItem(QuickStartType.Application, await Helper.CreateBitmapImageAsync(Stream), Protocal, IconPath, Name));
+                                }
+                                else
+                                {
+                                    WebLinkList.Add(new QuickStartItem(QuickStartType.WebSite, await Helper.CreateBitmapImageAsync(Stream), Protocal, IconPath, Name));
+                                }
                             }
                         }
                         catch (Exception ex)

@@ -74,9 +74,46 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
         {
-            return Task.FromResult<IStorageItem>(null);
+            try
+            {
+                RandomAccessStreamReference Reference = null;
+
+                try
+                {
+                    Reference = RandomAccessStreamReference.CreateFromStream(await GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
+                }
+                catch (Exception)
+                {
+                    //No need to handle this exception
+                }
+
+                return await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
+                {
+                    try
+                    {
+                        using (Stream TargetFileStream = Request.AsStreamForWrite())
+                        using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                        {
+                            await CurrentFileStream.CopyToAsync(TargetFileStream);
+                        }
+
+                        Request.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Could not create streamed file for lnk file: {Path}");
+                        Request.FailAndClose(StreamedFileFailureMode.CurrentlyUnavailable);
+                    }
+                }, Reference);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not get the storage item for lnk file: {Path}");
+            }
+
+            return null;
         }
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
@@ -110,14 +147,7 @@ namespace RX_Explorer.Class
 
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
-                BitmapImage Thumbnail = new BitmapImage();
-
-                using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
-                {
-                    await Thumbnail.SetSourceAsync(IconStream.AsRandomAccessStream());
-                }
-
-                return Thumbnail;
+                return await Helper.CreateBitmapImageAsync(RawData.IconData);
             }
 
             return new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
@@ -134,10 +164,7 @@ namespace RX_Explorer.Class
 
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
-                using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
-                {
-                    return IconStream.AsRandomAccessStream();
-                }
+                return await Helper.CreateRandomAccessStreamAsync(RawData.IconData);
             }
 
             StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark

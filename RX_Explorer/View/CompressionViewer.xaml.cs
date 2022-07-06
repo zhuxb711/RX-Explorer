@@ -1483,7 +1483,7 @@ namespace RX_Explorer.View
                                 if (ChildItemsPath.Count > 0)
                                 {
                                     CancelToken.ThrowIfCancellationRequested();
-                                    Request.SetData(new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(ChildItemsPath))).AsRandomAccessStream());
+                                    Request.SetData(await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(ChildItemsPath))));
                                     return;
                                 }
                             }
@@ -1503,7 +1503,7 @@ namespace RX_Explorer.View
                             LogTracer.Log(ex, "Decompression failed for unknown exception");
                         }
 
-                        Request.SetData(new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Array.Empty<string>()))).AsRandomAccessStream());
+                        Request.SetData(await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Array.Empty<string>()))));
                     }
                     finally
                     {

@@ -2,13 +2,12 @@
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -74,16 +73,12 @@ namespace RX_Explorer.Class
                     };
                     FlyoutItem.Click += ClickHandler;
 
-                    if (SubItem.IconData.Length != 0)
+                    if (SubItem.IconData.Length > 0)
                     {
-                        using (MemoryStream Stream = new MemoryStream(SubItem.IconData))
+                        FlyoutItem.Icon = new ImageIcon
                         {
-                            BitmapImage Bitmap = new BitmapImage();
-
-                            await Bitmap.SetSourceAsync(Stream.AsRandomAccessStream());
-
-                            FlyoutItem.Icon = new ImageIcon { Source = Bitmap };
-                        }
+                            Source = await Helper.CreateBitmapImageAsync(SubItem.IconData)
+                        };
                     }
                     else
                     {
@@ -114,16 +109,12 @@ namespace RX_Explorer.Class
             };
             Button.Click += ClickHandler;
 
-            if (IconData.Length != 0)
+            if (IconData.Length > 0)
             {
-                using (MemoryStream Stream = new MemoryStream(IconData))
+                Button.Icon = new ImageIcon
                 {
-                    BitmapImage Bitmap = new BitmapImage();
-
-                    await Bitmap.SetSourceAsync(Stream.AsRandomAccessStream());
-
-                    Button.Icon = new ImageIcon { Source = Bitmap };
-                }
+                    Source = await Helper.CreateBitmapImageAsync(IconData)
+                };
             }
             else
             {

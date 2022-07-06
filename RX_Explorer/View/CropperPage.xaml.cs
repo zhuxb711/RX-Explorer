@@ -276,6 +276,7 @@ namespace RX_Explorer.View
 
             OriginImage?.Dispose();
             OriginImage = SoftwareBitmap.Copy(OriginBackupImage);
+
             WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
             OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
             Cropper.Source = WBitmap;

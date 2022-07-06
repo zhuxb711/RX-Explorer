@@ -22,7 +22,6 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace RX_Explorer.View
@@ -79,14 +78,10 @@ namespace RX_Explorer.View
                                 Adjust.IsEnabled = false;
                                 SetAsWallpaper.IsEnabled = false;
 
-                                BitmapImage Image = new BitmapImage();
-
                                 using (IRandomAccessStream RandomStream = new SLEInputStream(Stream, SecureArea.AESKey).AsRandomAccessStream())
                                 {
-                                    await Image.SetSourceAsync(RandomStream);
+                                    PhotoCollection.Add(new PhotoDisplayItem(await Helper.CreateBitmapImageAsync(RandomStream)));
                                 }
-
-                                PhotoCollection.Add(new PhotoDisplayItem(Image));
 
                                 await Task.Delay(500);
 
@@ -372,7 +367,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void Adjust_Click(object sender, RoutedEventArgs e)
+        private async void Adjust_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -381,6 +376,23 @@ namespace RX_Explorer.View
                     if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
                     {
                         LastZoomCenter = ZoomTransform(ImageControl, new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2), 1);
+                    }
+
+                    using (Stream FStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    {
+                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(FStream.AsRandomAccessStream());
+
+                        if (Decoder.PixelHeight <= 50 || Decoder.PixelWidth <= 50)
+                        {
+                            await new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                Content = Globalization.GetString("QueueDialog_CanNotAdjustSmallImage_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            }.ShowAsync();
+
+                            return;
+                        }
                     }
 
                     if (AnimationController.Current.IsEnableAnimation)
@@ -395,7 +407,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "An exception was threw when navigating to CropperPage");
+                LogTracer.Log(ex, $"An exception was threw when navigating to {nameof(CropperPage)}");
             }
         }
 

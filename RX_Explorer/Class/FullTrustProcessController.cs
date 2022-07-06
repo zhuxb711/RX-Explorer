@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
@@ -1477,7 +1478,7 @@ namespace RX_Explorer.Class
             return Array.Empty<InstalledApplication>();
         }
 
-        public async Task<Stream> GetThumbnailAsync(string Path)
+        public async Task<IRandomAccessStream> GetThumbnailAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetThumbnail, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
@@ -1487,7 +1488,7 @@ namespace RX_Explorer.Class
 
                     if (Data.Length > 0)
                     {
-                        return new MemoryStream(Data);
+                        return await Helper.CreateRandomAccessStreamAsync(Data);
                     }
                 }
                 else
@@ -1499,7 +1500,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return null;
+            throw new NotSupportedException("Could not get the thumbnail stream");
         }
 
         public async Task<IReadOnlyList<ContextMenuItem>> GetContextMenuItemsAsync(string[] PathArray, bool IncludeExtensionItem = false)

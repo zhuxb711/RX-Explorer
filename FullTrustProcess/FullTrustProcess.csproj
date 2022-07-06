@@ -36,25 +36,25 @@
     <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
     <PackageReference Include="UTF.Unknown" Version="2.5.1" />
     <PackageReference Include="Vanara.PInvoke.CfgMgr32">
-      <Version>3.4.3</Version>
+      <Version>3.4.4</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.Mpr">
-      <Version>3.4.3</Version>
+      <Version>3.4.4</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.Msi">
-      <Version>3.4.3</Version>
+      <Version>3.4.4</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.NtDll">
-      <Version>3.4.3</Version>
+      <Version>3.4.4</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.RstrtMgr">
-      <Version>3.4.3</Version>
+      <Version>3.4.4</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.UserEnv">
-      <Version>3.4.3</Version>
+      <Version>3.4.4</Version>
     </PackageReference>
     <PackageReference Include="Vanara.Windows.Shell">
-      <Version>3.4.3</Version>
+      <Version>3.4.4</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

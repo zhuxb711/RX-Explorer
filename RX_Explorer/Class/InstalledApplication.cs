@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -14,13 +15,18 @@ namespace RX_Explorer.Class
 
         public string AppFamilyName { get; private set; }
 
-        public BitmapImage Logo { get; private set; } = new BitmapImage();
+        public BitmapImage Logo { get; private set; }
 
         private byte[] LogoData { get; set; }
 
-        public Stream CreateStreamFromLogoData()
+        public async Task<IRandomAccessStream> CreateStreamFromLogoAsync()
         {
-            return LogoData.Length > 0 ? new MemoryStream(LogoData) : null;
+            if (LogoData.Length > 0)
+            {
+                return await Helper.CreateRandomAccessStreamAsync(LogoData);
+            }
+
+            throw new NotSupportedException("Could not generate the logo stream");
         }
 
         public static async Task<InstalledApplication> CreateAsync(InstalledApplicationPackage Pack)
@@ -35,9 +41,9 @@ namespace RX_Explorer.Class
 
             if (Pack.Logo.Length > 0)
             {
-                using (MemoryStream Stream = new MemoryStream(Pack.Logo))
+                using (IRandomAccessStream Stream = await Helper.CreateRandomAccessStreamAsync(Pack.Logo))
                 {
-                    await App.Logo.SetSourceAsync(Stream.AsRandomAccessStream());
+                    App.Logo = await Helper.CreateBitmapImageAsync(Stream);
                 }
             }
 

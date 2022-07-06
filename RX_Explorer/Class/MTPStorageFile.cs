@@ -26,16 +26,19 @@ namespace RX_Explorer.Class
         {
             async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.Exclusive Exclusive)
             {
-                if (await Exclusive.Controller.GetThumbnailAsync(Type) is Stream ThumbnailStream)
+                try
                 {
-                    BitmapImage Thumbnail = new BitmapImage();
-                    await Thumbnail.SetSourceAsync(ThumbnailStream.AsRandomAccessStream());
-                    return Thumbnail;
+                    using (IRandomAccessStream ThumbnailStream = await Exclusive.Controller.GetThumbnailAsync(Type))
+                    {
+                        return await Helper.CreateBitmapImageAsync(ThumbnailStream);
+                    }
                 }
-
-                return new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
+                catch (Exception)
+                {
+                    return new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
                                                         ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
                                                         : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                }
             }
 
             if (GetBulkAccessSharedController(out var ControllerRef))
@@ -56,28 +59,18 @@ namespace RX_Explorer.Class
 
         protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(FullTrustProcessController.Exclusive Exclusive)
-            {
-                if (await Exclusive.Controller.GetThumbnailAsync(Type) is Stream ThumbnailStream)
-                {
-                    return ThumbnailStream.AsRandomAccessStream();
-                }
-
-                throw new NotSupportedException();
-            }
-
             if (GetBulkAccessSharedController(out var ControllerRef))
             {
                 using (ControllerRef)
                 {
-                    return await GetThumbnailRawStreamCoreAsync(ControllerRef.Value);
+                    return await ControllerRef.Value.Controller.GetThumbnailAsync(Type);
                 }
             }
             else
             {
                 using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    return await GetThumbnailRawStreamCoreAsync(Exclusive);
+                    return await Exclusive.Controller.GetThumbnailAsync(Type);
                 }
             }
         }
@@ -192,7 +185,7 @@ namespace RX_Explorer.Class
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, $"Could not create streamed file for mtp file: {Path}");
-                        Request.FailAndClose(StreamedFileFailureMode.Incomplete);
+                        Request.FailAndClose(StreamedFileFailureMode.CurrentlyUnavailable);
                     }
                 }, Reference);
             }

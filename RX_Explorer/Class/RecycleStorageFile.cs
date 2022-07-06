@@ -1,10 +1,14 @@
 ﻿using RX_Explorer.Interface;
+using ShareClassLibrary;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.Streams;
+using Windows.Storage.FileProperties;
 
 namespace RX_Explorer.Class
 {
@@ -47,15 +51,52 @@ namespace RX_Explorer.Class
             await base.LoadCoreAsync(ForceUpdate);
         }
 
-        protected override Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
         {
             if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
             {
-                return Task.FromResult<IStorageItem>(null);
+                try
+                {
+                    RandomAccessStreamReference Reference = null;
+
+                    try
+                    {
+                        Reference = RandomAccessStreamReference.CreateFromStream(await GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
+                    }
+                    catch (Exception)
+                    {
+                        //No need to handle this exception
+                    }
+
+                    return await StorageFile.CreateStreamedFileAsync(Name, async (Request) =>
+                    {
+                        try
+                        {
+                            using (Stream TargetFileStream = Request.AsStreamForWrite())
+                            using (Stream CurrentFileStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            {
+                                await CurrentFileStream.CopyToAsync(TargetFileStream);
+                            }
+
+                            Request.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Could not create streamed file for the file: {Path}");
+                            Request.FailAndClose(StreamedFileFailureMode.CurrentlyUnavailable);
+                        }
+                    }, Reference);
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not get the storage item for the file: {Path}");
+                }
+
+                return null;
             }
             else
             {
-                return base.GetStorageItemCoreAsync();
+                return await base.GetStorageItemCoreAsync();
             }
         }
 

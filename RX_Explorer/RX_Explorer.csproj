@@ -118,6 +118,7 @@
     <Compile Include="Class\FTPPathAnalysis.cs" />
     <Compile Include="Class\FTPStorageFile.cs" />
     <Compile Include="Class\FTPStorageFolder.cs" />
+    <Compile Include="Class\Helper.cs" />
     <Compile Include="Class\LibraryFolderRecord.cs" />
     <Compile Include="Class\ListViewColumnWidthSaver.cs" />
     <Compile Include="Class\MTPDriveData.cs" />

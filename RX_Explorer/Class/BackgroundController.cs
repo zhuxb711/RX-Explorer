@@ -505,17 +505,13 @@ namespace RX_Explorer.Class
 
                             if (!string.IsNullOrEmpty(UriString))
                             {
-                                BitmapImage Bitmap = new BitmapImage();
-
-                                PictureBackgroundBrush.ImageSource = Bitmap;
-
                                 try
                                 {
                                     StorageFile File = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
 
                                     using (IRandomAccessStream Stream = await File.OpenReadAsync())
                                     {
-                                        await Bitmap.SetSourceAsync(Stream);
+                                        PictureBackgroundBrush.ImageSource = await Helper.CreateBitmapImageAsync(Stream);
                                     }
 
                                     OnPropertyChanged(nameof(BackgroundBrush));
@@ -537,13 +533,9 @@ namespace RX_Explorer.Class
                         {
                             if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile ImageFile)
                             {
-                                BitmapImage Bitmap = new BitmapImage();
-
-                                BingPictureBursh.ImageSource = Bitmap;
-
                                 using (Stream Stream = await ImageFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                                 {
-                                    await Bitmap.SetSourceAsync(Stream.AsRandomAccessStream());
+                                    BingPictureBursh.ImageSource = await Helper.CreateBitmapImageAsync(Stream.AsRandomAccessStream());
                                 }
 
                                 OnPropertyChanged(nameof(BackgroundBrush));

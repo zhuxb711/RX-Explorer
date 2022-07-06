@@ -87,21 +87,17 @@ namespace RX_Explorer.Class
 
         public static async Task<BluetoothDeivceData> CreateAsync(DeviceInformation DeviceInfo, StorageFile SharedFile)
         {
-            BitmapImage DeviceThumbnail = new BitmapImage();
-
             try
             {
                 using (DeviceThumbnail ThubnailStream = await DeviceInfo.GetGlyphThumbnailAsync())
                 {
-                    await DeviceThumbnail.SetSourceAsync(ThubnailStream);
+                    return new BluetoothDeivceData(DeviceInfo, SharedFile, await Helper.CreateBitmapImageAsync(ThubnailStream));
                 }
             }
             catch (Exception)
             {
-                //No need to handle this exception
+                return new BluetoothDeivceData(DeviceInfo, SharedFile);
             }
-
-            return new BluetoothDeivceData(DeviceInfo, DeviceThumbnail, SharedFile);
         }
 
         public void UpdateBasicInformation(DeviceInformationUpdate DeviceInfoUpdate = null)
@@ -446,10 +442,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        private BluetoothDeivceData(DeviceInformation DeviceInfo, BitmapImage DeviceThumbnail, StorageFile SharedFile)
+        private BluetoothDeivceData(DeviceInformation DeviceInfo, StorageFile SharedFile, BitmapImage DeviceThumbnail)
         {
             this.DeviceInfo = DeviceInfo;
             this.DeviceThumbnail = DeviceThumbnail;
+            this.SharedFile = SharedFile;
+        }
+
+        private BluetoothDeivceData(DeviceInformation DeviceInfo, StorageFile SharedFile)
+        {
+            this.DeviceInfo = DeviceInfo;
             this.SharedFile = SharedFile;
         }
     }

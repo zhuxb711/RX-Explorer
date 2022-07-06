@@ -202,9 +202,9 @@ namespace RX_Explorer.Class
                         }
 #endif
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        LogTracer.Log(ex, "Could not load MSStore data");
+                        LogTracer.Log("Could not load MSStore data");
                     }
                 }, TaskCreationOptions.LongRunning);
             }

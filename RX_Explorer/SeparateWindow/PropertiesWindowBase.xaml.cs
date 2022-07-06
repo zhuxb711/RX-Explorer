@@ -1375,13 +1375,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                             using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
                                                             {
                                                                 BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
-
                                                                 Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                                                
                                                                 await Encoder.FlushAsync();
 
-                                                                BitmapImage Image = new BitmapImage();
-                                                                FileOpenWithImage.Source = Image;
-                                                                await Image.SetSourceAsync(Stream);
+                                                                FileOpenWithImage.Source = await Helper.CreateBitmapImageAsync(Stream);
                                                             }
                                                         }
                                                     }
@@ -1480,13 +1478,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                     using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
                                                     {
                                                         BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
-
                                                         Encoder.SetSoftwareBitmap(ResizeBitmap);
+
                                                         await Encoder.FlushAsync();
 
-                                                        BitmapImage Image = new BitmapImage();
-                                                        FileOpenWithImage.Source = Image;
-                                                        await Image.SetSourceAsync(Stream);
+                                                        FileOpenWithImage.Source = await Helper.CreateBitmapImageAsync(Stream);
                                                     }
                                                 }
 

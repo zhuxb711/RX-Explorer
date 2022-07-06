@@ -4681,22 +4681,6 @@ Invalid names include
           <source>Close the inner viewer</source>
           <target state="translated">關閉內部查看器</target>
         </trans-unit>
-        <trans-unit id="ShutdownButtonBehaviorLabel" translate="yes" xml:space="preserve">
-          <source>Customize the default behavior of the close button</source>
-          <target state="translated">定制关闭按钮的默认行为</target>
-        </trans-unit>
-        <trans-unit id="ShutdownButtonBehaviorLabelDescription" translate="yes" xml:space="preserve">
-          <source>Specify the default behavior of the close button to avoid closing the application accidentally</source>
-          <target state="translated">指定關閉按鈕的默認行為以避免意外關閉應用程序</target>
-        </trans-unit>
-        <trans-unit id="VerticalSplitViewLimitationDescription" translate="yes" xml:space="preserve">
-          <source>Specify the limit of the number of vertical split views displayed at the same time, and the excess part needs to be accessed by scrolling. Note: Adjusting this setting is only recommended on wider screens, otherwise the contents of each view may become unrecognizable</source>
-          <target state="translated">指定同時顯示的垂直分屏的數量限制，超出部分需要滾動訪問。 注意：僅建議在更寬的屏幕上調整此設置，否則每個視圖的內容可能會變得無法識別</target>
-        </trans-unit>
-        <trans-unit id="VerticalSplitViewLimitationLabel" translate="yes" xml:space="preserve">
-          <source>Vertical split view display limitation</source>
-          <target state="translated">垂直分屏显示限制</target>
-        </trans-unit>
         <trans-unit id="RemoveLabel" translate="yes" xml:space="preserve">
           <source>Remove the label</source>
           <target state="translated">移除標籤</target>
@@ -4761,6 +4745,26 @@ Invalid names include
         <trans-unit id="QueueDialog_MixLineEnding_Content" translate="yes" xml:space="preserve">
           <source>The text file has several different terminators, so the text will be automatically unified to CRLF when saved</source>
           <target state="translated">文本文件有幾個不同的終止符，所以文本保存時會自動統一為CRLF</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CanNotAdjustSmallImage_Content" translate="yes" xml:space="preserve">
+          <source>Could not resize images with too small resolution</source>
+          <target state="translated">無法調整分辨率過小的圖像</target>
+        </trans-unit>
+        <trans-unit id="ShutdownButtonBehaviorLabel.Text" translate="yes" xml:space="preserve">
+          <source>Customize the default behavior of the close button</source>
+          <target state="new">Customize the default behavior of the close button</target>
+        </trans-unit>
+        <trans-unit id="ShutdownButtonBehaviorLabelDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify the default behavior of the close button to avoid closing the application accidentally</source>
+          <target state="new">Specify the default behavior of the close button to avoid closing the application accidentally</target>
+        </trans-unit>
+        <trans-unit id="VerticalSplitViewLimitationDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify the limit of the number of vertical split views displayed at the same time, and the excess part needs to be accessed by scrolling. Note: Adjusting this setting is only recommended on wider screens, otherwise the contents of each view may become unrecognizable</source>
+          <target state="new">Specify the limit of the number of vertical split views displayed at the same time, and the excess part needs to be accessed by scrolling. Note: Adjusting this setting is only recommended on wider screens, otherwise the contents of each view may become unrecognizable</target>
+        </trans-unit>
+        <trans-unit id="VerticalSplitViewLimitationLabel.Text" translate="yes" xml:space="preserve">
+          <source>Vertical split view display limitation</source>
+          <target state="new">Vertical split view display limitation</target>
         </trans-unit>
       </group>
     </body>

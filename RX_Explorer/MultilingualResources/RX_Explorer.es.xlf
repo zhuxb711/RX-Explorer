@@ -4681,19 +4681,19 @@ Las denominaciones no válidas son:
           <source>Close the inner viewer</source>
           <target state="translated">Cierra el visor interior</target>
         </trans-unit>
-        <trans-unit id="ShutdownButtonBehaviorLabel" translate="yes" xml:space="preserve">
+        <trans-unit id="ShutdownButtonBehaviorLabel.Text" translate="yes" xml:space="preserve">
           <source>Customize the default behavior of the close button</source>
           <target state="translated">Personaliza el comportamiento predeterminado del botón de cerrar</target>
         </trans-unit>
-        <trans-unit id="ShutdownButtonBehaviorLabelDescription" translate="yes" xml:space="preserve">
+        <trans-unit id="ShutdownButtonBehaviorLabelDescription.Text" translate="yes" xml:space="preserve">
           <source>Specify the default behavior of the close button to avoid closing the application accidentally</source>
           <target state="translated">Especifique el comportamiento predeterminado del botón de cerrar para evitar cerrar la aplicación accidentalmente</target>
         </trans-unit>
-        <trans-unit id="VerticalSplitViewLimitationDescription" translate="yes" xml:space="preserve">
+        <trans-unit id="VerticalSplitViewLimitationDescription.Text" translate="yes" xml:space="preserve">
           <source>Specify the limit of the number of vertical split views displayed at the same time, and the excess part needs to be accessed by scrolling. Note: Adjusting this setting is only recommended on wider screens, otherwise the contents of each view may become unrecognizable</source>
           <target state="translated">Especifique el límite de la cantidad de vistas divididas verticales que se muestran al mismo tiempo, y se debe acceder a la parte sobrante desplazándose. Nota: solo se recomienda ajustar esta configuración en pantallas más anchas, de lo contrario, el contenido de cada vista puede volverse irreconocible</target>
         </trans-unit>
-        <trans-unit id="VerticalSplitViewLimitationLabel" translate="yes" xml:space="preserve">
+        <trans-unit id="VerticalSplitViewLimitationLabel.Text" translate="yes" xml:space="preserve">
           <source>Vertical split view display limitation</source>
           <target state="translated">Limitación de visualización de vista dividida vertical</target>
         </trans-unit>
@@ -4761,6 +4761,10 @@ Las denominaciones no válidas son:
         <trans-unit id="QueueDialog_MixLineEnding_Content" translate="yes" xml:space="preserve">
           <source>The text file has several different terminators, so the text will be automatically unified to CRLF when saved</source>
           <target state="translated">El archivo de texto tiene varios terminadores diferentes, por lo que el texto se unificará automáticamente a CRLF cuando se guarde</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CanNotAdjustSmallImage_Content" translate="yes" xml:space="preserve">
+          <source>Could not resize images with too small resolution</source>
+          <target state="translated">No se pudo cambiar el tamaño de las imágenes con una resolución demasiado pequeña</target>
         </trans-unit>
       </group>
     </body>

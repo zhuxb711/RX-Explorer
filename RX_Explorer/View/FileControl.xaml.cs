@@ -1174,26 +1174,33 @@ namespace RX_Explorer.View
 
         private async void FolderTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
         {
-            if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
+            try
             {
-                if (Content == TreeViewNodeContent.QuickAccessNode)
+                if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
                 {
-                    Node.IsExpanded = !Node.IsExpanded;
-                }
-                else if (CurrentPresenter != null)
-                {
-                    if (!await CurrentPresenter.DisplayItemsInFolderAsync(Content.Path))
+                    if (Content == TreeViewNodeContent.QuickAccessNode)
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        Node.IsExpanded = !Node.IsExpanded;
+                    }
+                    else if (CurrentPresenter != null)
+                    {
+                        if (!await CurrentPresenter.DisplayItemsInFolderAsync(Content.Path))
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                        await Dialog.ShowAsync();
+                            await Dialog.ShowAsync();
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not enter to the node of folder tree");
             }
         }
 

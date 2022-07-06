@@ -2446,13 +2446,6 @@ namespace RX_Explorer.View
                                 await OpenSelectedItemAsync(Item);
                                 break;
                             }
-                        case VirtualKey.Back:
-                            {
-                                args.Handled = true;
-
-                                await Container.ExecuteGoBackActionIfAvailableAsync();
-                                break;
-                            }
                         case VirtualKey.L when CtrlDown:
                             {
                                 args.Handled = true;
@@ -8040,10 +8033,15 @@ namespace RX_Explorer.View
         {
             FileCollection.Clear();
             GroupCollection.Clear();
+            BackNavigationStack.Clear();
+            ForwardNavigationStack.Clear();
 
+            FileCollection.CollectionChanged -= FileCollection_CollectionChanged;
+            ListViewDetailHeader.Filter.RefreshListRequested -= Filter_RefreshListRequested;
+            RootFolderControl.EnterActionRequested -= RootFolderControl_EnterActionRequested;
             AreaWatcher.FileChanged -= DirectoryWatcher_FileChanged;
-            AreaWatcher.Dispose();
 
+            AreaWatcher.Dispose();
             WiFiProvider?.Dispose();
             SelectionExtension?.Dispose();
             DelayRenameCancellation?.Dispose();
@@ -8065,13 +8063,6 @@ namespace RX_Explorer.View
             DelayTooltipCancellation = null;
             DelayDragCancellation = null;
             ContextMenuCancellation = null;
-
-            BackNavigationStack.Clear();
-            ForwardNavigationStack.Clear();
-
-            FileCollection.CollectionChanged -= FileCollection_CollectionChanged;
-            ListViewDetailHeader.Filter.RefreshListRequested -= Filter_RefreshListRequested;
-            RootFolderControl.EnterActionRequested -= RootFolderControl_EnterActionRequested;
 
             Application.Current.Suspending -= Current_Suspending;
             Application.Current.Resuming -= Current_Resuming;

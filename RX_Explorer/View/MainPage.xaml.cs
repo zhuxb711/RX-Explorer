@@ -1266,14 +1266,14 @@ namespace RX_Explorer.View
                 {
                     using (DeviceThumbnail ThumbnailStream = await args.GetGlyphThumbnailAsync())
                     {
-                        BitmapImage Thumbnail = new BitmapImage();
-
-                        if (ThumbnailStream != null)
+                        if (ThumbnailStream == null)
                         {
-                            await Thumbnail.SetSourceAsync(ThumbnailStream);
+                            BluetoothAudioDeivceList.Items.Add(new BluetoothAudioDeviceData(args));
                         }
-
-                        BluetoothAudioDeivceList.Items.Add(new BluetoothAudioDeviceData(args, Thumbnail));
+                        else
+                        {
+                            BluetoothAudioDeivceList.Items.Add(new BluetoothAudioDeviceData(args, await Helper.CreateBitmapImageAsync(ThumbnailStream)));
+                        }
                     }
                 }
             });

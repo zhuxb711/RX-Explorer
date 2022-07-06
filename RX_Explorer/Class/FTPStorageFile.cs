@@ -31,16 +31,19 @@ namespace RX_Explorer.Class
         {
             async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.Exclusive Exclusive)
             {
-                if (await Exclusive.Controller.GetThumbnailAsync(Type) is Stream ThumbnailStream)
+                try
                 {
-                    BitmapImage Thumbnail = new BitmapImage();
-                    await Thumbnail.SetSourceAsync(ThumbnailStream.AsRandomAccessStream());
-                    return Thumbnail;
+                    using (IRandomAccessStream ThumbnailStream = await Exclusive.Controller.GetThumbnailAsync(Type))
+                    {
+                        return await Helper.CreateBitmapImageAsync(ThumbnailStream);
+                    }
                 }
-
-                return new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
+                catch (Exception)
+                {
+                    return new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
                                                         ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
                                                         : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                }
             }
 
             if (GetBulkAccessSharedController(out var ControllerRef))
@@ -61,39 +64,20 @@ namespace RX_Explorer.Class
 
         protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            try
+            if (GetBulkAccessSharedController(out var ControllerRef))
             {
-                async Task<IRandomAccessStream> GetRawStreamCoreAsync(FullTrustProcessController.Exclusive Exclusive)
+                using (ControllerRef)
                 {
-                    if (await Exclusive.Controller.GetThumbnailAsync(Type) is Stream ThumbnailStream)
-                    {
-                        return ThumbnailStream.AsRandomAccessStream();
-                    }
-
-                    return null;
-                }
-
-                if (GetBulkAccessSharedController(out var ControllerRef))
-                {
-                    using (ControllerRef)
-                    {
-                        return await GetRawStreamCoreAsync(ControllerRef.Value);
-                    }
-                }
-                else
-                {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
-                    {
-                        return await GetRawStreamCoreAsync(Exclusive);
-                    }
+                    return await ControllerRef.Value.Controller.GetThumbnailAsync(Type);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, "Could not get the raw stream of thumbnail");
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                {
+                    return await Exclusive.Controller.GetThumbnailAsync(Type);
+                }
             }
-
-            return null;
         }
 
         public override Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
@@ -141,7 +125,7 @@ namespace RX_Explorer.Class
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, $"Could not create streamed file for ftp file: {Path}");
-                        Request.FailAndClose(StreamedFileFailureMode.Incomplete);
+                        Request.FailAndClose(StreamedFileFailureMode.CurrentlyUnavailable);
                     }
                 }, Reference);
             }

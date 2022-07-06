@@ -6,7 +6,6 @@ using ShareClassLibrary;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
 using A = DocumentFormat.OpenXml.Drawing;
@@ -113,10 +112,7 @@ namespace RX_Explorer.Class
                         using (InMemoryRandomAccessStream MemoryStream = new InMemoryRandomAccessStream())
                         {
                             REB.Document.SaveToStream(Windows.UI.Text.TextGetOptions.FormatRtf, MemoryStream);
-                            using (Stream TempStream = MemoryStream.AsStreamForRead())
-                            {
-                                await TempStream.CopyToAsync(NewStream);
-                            }
+                            await MemoryStream.AsStreamForRead().CopyToAsync(NewStream);
                         }
 
                         await NewStream.FlushAsync();

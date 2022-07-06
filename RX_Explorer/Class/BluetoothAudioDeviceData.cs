@@ -216,10 +216,15 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public BluetoothAudioDeviceData(DeviceInformation DeviceInfo) : this(DeviceInfo, null)
+        {
+
+        }
+
         public BluetoothAudioDeviceData(DeviceInformation DeviceInfo, BitmapImage Glyph)
         {
-            this.DeviceInfo = DeviceInfo;
             this.Glyph = Glyph;
+            this.DeviceInfo = DeviceInfo;
 
             Status = Globalization.GetString("BluetoothAudio_Status_1");
             ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");

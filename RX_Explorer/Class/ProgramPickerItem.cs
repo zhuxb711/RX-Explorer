@@ -63,14 +63,11 @@ namespace RX_Explorer.Class
                     using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
                     {
                         BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
-
                         Encoder.SetSoftwareBitmap(ResizeBitmap);
+
                         await Encoder.FlushAsync();
 
-                        BitmapImage Logo = new BitmapImage();
-                        await Logo.SetSourceAsync(Stream);
-
-                        return new ProgramPickerItem(Logo, App.DisplayInfo.DisplayName, App.DisplayInfo.Description, App.PackageFamilyName);
+                        return new ProgramPickerItem(await Helper.CreateBitmapImageAsync(Stream), App.DisplayInfo.DisplayName, App.DisplayInfo.Description, App.PackageFamilyName);
                     }
                 }
             }

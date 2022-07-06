@@ -9,7 +9,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -246,10 +245,19 @@ namespace RX_Explorer.Class
 
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
         {
-            using (FullTrustProcessController.LazyExclusive LazyExclusive = FullTrustProcessController.GetLazyControllerExclusive())
+            try
             {
-                return await OpenCoreAsync(Path, LazyExclusive);
+                using (FullTrustProcessController.LazyExclusive LazyExclusive = FullTrustProcessController.GetLazyControllerExclusive())
+                {
+                    return await OpenCoreAsync(Path, LazyExclusive);
+                }
             }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not open the specific file: {Path}");
+            }
+
+            return null;
         }
 
         private static async Task<FileSystemStorageItemBase> OpenCoreAsync(string Path, FullTrustProcessController.LazyExclusive LazyExclusive)
@@ -820,11 +828,7 @@ namespace RX_Explorer.Class
                     {
                         using (IDisposable Disposable = await SelfCreateBulkAccessSharedControllerAsync(this, PriorityLevel.Low))
                         {
-                            if (StorageItem == null)
-                            {
-                                await GetStorageItemAsync();
-                            }
-
+                            await GetStorageItemAsync();
                             await LoadCoreAsync(false);
 
                             List<Task> ParallelLoadTasks = new List<Task>()
@@ -967,7 +971,7 @@ namespace RX_Explorer.Class
 
         public async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            return await GetThumbnailRawStreamCoreAsync(Mode, ForceUpdate) ?? throw new NotSupportedException("Could not get the thumbnail stream");
+            return await GetThumbnailRawStreamCoreAsync(Mode, ForceUpdate);
         }
 
         public virtual async Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
@@ -1189,12 +1193,7 @@ namespace RX_Explorer.Class
 
                 if (ThumbnailOverlayByteArray.Length > 0)
                 {
-                    using (MemoryStream Ms = new MemoryStream(ThumbnailOverlayByteArray))
-                    {
-                        BitmapImage Overlay = new BitmapImage();
-                        await Overlay.SetSourceAsync(Ms.AsRandomAccessStream());
-                        return Overlay;
-                    }
+                    return await Helper.CreateBitmapImageAsync(ThumbnailOverlayByteArray);
                 }
 
                 return null;
@@ -1222,18 +1221,6 @@ namespace RX_Explorer.Class
 
         protected virtual async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.Exclusive Exclusive)
-            {
-                if (await Exclusive.Controller.GetThumbnailAsync(Path) is Stream ThumbnailStream)
-                {
-                    BitmapImage Thumbnail = new BitmapImage();
-                    await Thumbnail.SetSourceAsync(ThumbnailStream.AsRandomAccessStream());
-                    return Thumbnail;
-                }
-
-                return null;
-            }
-
             try
             {
                 if (await GetStorageItemAsync(ForceUpdate) is IStorageItem Item)
@@ -1244,19 +1231,28 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                if (GetBulkAccessSharedController(out var ControllerRef))
+                try
                 {
-                    using (ControllerRef)
+                    if (GetBulkAccessSharedController(out var ControllerRef))
                     {
-                        return await InternalGetThumbnailAsync(ControllerRef.Value);
+                        using (ControllerRef)
+                        using (IRandomAccessStream ThumbnailStream = await ControllerRef.Value.Controller.GetThumbnailAsync(Path))
+                        {
+                            return await Helper.CreateBitmapImageAsync(ThumbnailStream);
+                        }
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                        using (IRandomAccessStream ThumbnailStream = await Exclusive.Controller.GetThumbnailAsync(Path))
+                        {
+                            return await Helper.CreateBitmapImageAsync(ThumbnailStream);
+                        }
                     }
                 }
-                else
+                catch (Exception)
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
-                    {
-                        return await InternalGetThumbnailAsync(Exclusive);
-                    }
+                    return null;
                 }
             }
             catch (Exception ex)
@@ -1275,28 +1271,18 @@ namespace RX_Explorer.Class
             }
             else
             {
-                async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(FullTrustProcessController.Exclusive Exclusive)
-                {
-                    if (await Exclusive.Controller.GetThumbnailAsync(Path) is Stream ThumbnailStream)
-                    {
-                        return ThumbnailStream.AsRandomAccessStream();
-                    }
-
-                    return null;
-                }
-
                 if (GetBulkAccessSharedController(out var ControllerRef))
                 {
                     using (ControllerRef)
                     {
-                        return await GetThumbnailRawStreamCoreAsync(ControllerRef.Value);
+                        return await ControllerRef.Value.Controller.GetThumbnailAsync(Path);
                     }
                 }
                 else
                 {
                     using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                     {
-                        return await GetThumbnailRawStreamCoreAsync(Exclusive);
+                        return await Exclusive.Controller.GetThumbnailAsync(Path);
                     }
                 }
             }

@@ -3525,16 +3525,16 @@ Inkorrekte Namen sind
   <data name="ShutdownButtonBehavior_CloseInnerViewer" xml:space="preserve">
     <value>Schließen Sie den inneren Viewer</value>
   </data>
-  <data name="ShutdownButtonBehaviorLabel" xml:space="preserve">
+  <data name="ShutdownButtonBehaviorLabel.Text" xml:space="preserve">
     <value>Passen Sie das Standardverhalten der Schließen-Schaltfläche an</value>
   </data>
-  <data name="ShutdownButtonBehaviorLabelDescription" xml:space="preserve">
+  <data name="ShutdownButtonBehaviorLabelDescription.Text" xml:space="preserve">
     <value>Legen Sie das Standardverhalten der Schließen-Schaltfläche fest, um ein versehentliches Schließen der Anwendung zu vermeiden</value>
   </data>
-  <data name="VerticalSplitViewLimitationDescription" xml:space="preserve">
+  <data name="VerticalSplitViewLimitationDescription.Text" xml:space="preserve">
     <value>Geben Sie das Limit für die Anzahl der gleichzeitig angezeigten vertikal geteilten Ansichten an, und auf den überschüssigen Teil muss durch Scrollen zugegriffen werden. Hinweis: Das Anpassen dieser Einstellung wird nur auf breiteren Bildschirmen empfohlen, da sonst der Inhalt jeder Ansicht unkenntlich werden kann</value>
   </data>
-  <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
+  <data name="VerticalSplitViewLimitationLabel.Text" xml:space="preserve">
     <value>Anzeigebeschränkung für vertikal geteilte Ansicht</value>
   </data>
   <data name="RemoveLabel" xml:space="preserve">
@@ -3585,5 +3585,8 @@ Inkorrekte Namen sind
   </data>
   <data name="QueueDialog_MixLineEnding_Content" xml:space="preserve">
     <value>Die Textdatei hat mehrere verschiedene Endzeichen, sodass der Text beim Speichern automatisch zu CRLF vereinheitlicht wird</value>
+  </data>
+  <data name="QueueDialog_CanNotAdjustSmallImage_Content" xml:space="preserve">
+    <value>Bilder mit zu geringer Auflösung konnten nicht skaliert werden</value>
   </data>
 </root>

@@ -3523,16 +3523,16 @@ Les noms non valides incluent
   <data name="ShutdownButtonBehavior_CloseInnerViewer" xml:space="preserve">
     <value>Fermez la visionneuse intérieure</value>
   </data>
-  <data name="ShutdownButtonBehaviorLabel" xml:space="preserve">
+  <data name="ShutdownButtonBehaviorLabel.Text" xml:space="preserve">
     <value>Personnaliser le comportement par défaut du bouton de fermeture</value>
   </data>
-  <data name="ShutdownButtonBehaviorLabelDescription" xml:space="preserve">
+  <data name="ShutdownButtonBehaviorLabelDescription.Text" xml:space="preserve">
     <value>Spécifiez le comportement par défaut du bouton de fermeture pour éviter de fermer accidentellement l'application</value>
   </data>
-  <data name="VerticalSplitViewLimitationDescription" xml:space="preserve">
+  <data name="VerticalSplitViewLimitationDescription.Text" xml:space="preserve">
     <value>Spécifiez la limite du nombre de vues fractionnées verticales affichées en même temps, et la partie excédentaire doit être accessible par défilement. Remarque : le réglage de ce paramètre n'est recommandé que sur des écrans plus larges, sinon le contenu de chaque vue peut devenir méconnaissable</value>
   </data>
-  <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
+  <data name="VerticalSplitViewLimitationLabel.Text" xml:space="preserve">
     <value>Limitation de l'affichage de la vue fractionnée verticale</value>
   </data>
   <data name="RemoveLabel" xml:space="preserve">
@@ -3583,5 +3583,8 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_MixLineEnding_Content" xml:space="preserve">
     <value>Le fichier texte a plusieurs terminateurs différents, de sorte que le texte sera automatiquement unifié au CRLF lors de l'enregistrement</value>
+  </data>
+  <data name="QueueDialog_CanNotAdjustSmallImage_Content" xml:space="preserve">
+    <value>Impossible de redimensionner les images avec une résolution trop petite</value>
   </data>
 </root>

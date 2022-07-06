@@ -119,9 +119,9 @@ namespace RX_Explorer.View
                         }
                     });
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    LogTracer.Log(ex, "Could not render a preview image for the tab");
+                    LogTracer.Log("Could not render a preview image for the tab control");
                 }
                 finally
                 {
@@ -196,8 +196,7 @@ namespace RX_Explorer.View
                 && !QueueContentDialog.IsRunningOrWaiting
                 && !SettingPage.IsOpened
                 && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
-                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
-                )
+                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
                 switch (args.VirtualKey)
                 {
@@ -327,6 +326,23 @@ namespace RX_Explorer.View
                                 else
                                 {
                                     TabViewControl.SelectedIndex = 0;
+                                }
+
+                                break;
+                            }
+                        case VirtualKey.Back:
+                        case VirtualKey.Escape:
+                            {
+                                if (CurrentTabRenderer?.RendererFrame is Frame BaseFrame)
+                                {
+                                    if (BaseFrame.Content is FileControl Control)
+                                    {
+                                        await Control.ExecuteGoBackActionIfAvailableAsync();
+                                    }
+                                    else if (BaseFrame.CanGoBack)
+                                    {
+                                        BaseFrame.GoBack();
+                                    }
                                 }
 
                                 break;
@@ -968,7 +984,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void TabViewControl_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
+        private async void TabViewControl_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
         {
             args.Data.RequestedOperation = DataPackageOperation.Copy;
 
@@ -976,11 +992,11 @@ namespace RX_Explorer.View
             {
                 if (Renderer.RendererFrame.Content is Home)
                 {
-                    args.Data.SetData(ExtendedDataFormats.TabItem, new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Array.Empty<string>()))).AsRandomAccessStream());
+                    args.Data.SetData(ExtendedDataFormats.TabItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Array.Empty<string>()))));
                 }
                 else if (Renderer.Presenters.Any())
                 {
-                    args.Data.SetData(ExtendedDataFormats.TabItem, new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)))).AsRandomAccessStream());
+                    args.Data.SetData(ExtendedDataFormats.TabItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)))));
                 }
                 else
                 {

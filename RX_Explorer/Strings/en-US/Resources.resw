@@ -3640,16 +3640,16 @@ Invalid names include
   <data name="ShutdownButtonBehavior_CloseInnerViewer" xml:space="preserve">
     <value>Close the inner viewer</value>
   </data>
-  <data name="ShutdownButtonBehaviorLabel" xml:space="preserve">
+  <data name="ShutdownButtonBehaviorLabel.Text" xml:space="preserve">
     <value>Customize the default behavior of the close button</value>
   </data>
-  <data name="ShutdownButtonBehaviorLabelDescription" xml:space="preserve">
+  <data name="ShutdownButtonBehaviorLabelDescription.Text" xml:space="preserve">
     <value>Specify the default behavior of the close button to avoid closing the application accidentally</value>
   </data>
-  <data name="VerticalSplitViewLimitationDescription" xml:space="preserve">
+  <data name="VerticalSplitViewLimitationDescription.Text" xml:space="preserve">
     <value>Specify the limit of the number of vertical split views displayed at the same time, and the excess part needs to be accessed by scrolling. Note: Adjusting this setting is only recommended on wider screens, otherwise the contents of each view may become unrecognizable</value>
   </data>
-  <data name="VerticalSplitViewLimitationLabel" xml:space="preserve">
+  <data name="VerticalSplitViewLimitationLabel.Text" xml:space="preserve">
     <value>Vertical split view display limitation</value>
   </data>
   <data name="PredefineLabelText1" xml:space="preserve">
@@ -3690,5 +3690,8 @@ Invalid names include
   </data>
   <data name="QueueDialog_MixLineEnding_Content" xml:space="preserve">
     <value>The text file has several different terminators, so the text will be automatically unified to CRLF when saved</value>
+  </data>
+  <data name="QueueDialog_CanNotAdjustSmallImage_Content" xml:space="preserve">
+    <value>Could not resize images with too small resolution</value>
   </data>
 </root>

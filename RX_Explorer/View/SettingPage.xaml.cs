@@ -2066,11 +2066,7 @@ namespace RX_Explorer.View
                 {
                     using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                     {
-                        BitmapImage Bitmap = new BitmapImage();
-
-                        await Bitmap.SetSourceAsync(FileStream.AsRandomAccessStream());
-
-                        BackgroundController.Current.SwitchTo(BackgroundBrushType.BingPicture, Bitmap);
+                        BackgroundController.Current.SwitchTo(BackgroundBrushType.BingPicture, await Helper.CreateBitmapImageAsync(FileStream.AsRandomAccessStream()));
 
                         if (DetectBrightnessNeeded)
                         {
