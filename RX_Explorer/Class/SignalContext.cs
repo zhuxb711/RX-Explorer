@@ -10,7 +10,7 @@ namespace RX_Explorer.Class
         private TaskCompletionSource<bool> PauseSource;
         private bool IsCompleted;
 
-        public async Task<DisposeNotification> SignalAndWaitTrappedAsync()
+        public async Task<IDisposable> SignalAndWaitTrappedAsync()
         {
             if (IsCompleted)
             {
@@ -53,7 +53,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void SetCompleted()
+        public void MarkAsCompleted()
         {
             IsCompleted = true;
         }

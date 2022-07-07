@@ -17,9 +17,11 @@ namespace RX_Explorer.Class
 {
     public class FileSystemStorageFile : FileSystemStorageItemBase
     {
+        private string InnerDisplayType;
+
         public override string Type => string.IsNullOrEmpty(base.Type) ? Globalization.GetString("File_Admin_DisplayType") : base.Type;
 
-        public override string DisplayType => ((StorageItem as StorageFile)?.DisplayType) ?? Type;
+        public override string DisplayType => ((StorageItem as StorageFile)?.DisplayType) ?? (string.IsNullOrEmpty(InnerDisplayType) ? Type : InnerDisplayType);
 
         public override string DisplayName => Name;
 
@@ -156,9 +158,27 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
-            if (ForceUpdate)
+            try
             {
-                try
+                if (StorageItem == null)
+                {
+                    if (GetBulkAccessSharedController(out var ControllerRef))
+                    {
+                        using (ControllerRef)
+                        {
+                            InnerDisplayType = await ControllerRef.Value.Controller.GetFriendlyTypeNameAsync(Type);
+                        }
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                        {
+                            InnerDisplayType = await ControllerRef.Value.Controller.GetFriendlyTypeNameAsync(Type);
+                        }
+                    }
+                }
+
+                if (ForceUpdate)
                 {
                     NativeFileData Data = NativeWin32API.GetStorageItemRawData(Path);
 
@@ -171,11 +191,14 @@ namespace RX_Explorer.Class
                         ModifiedTime = Data.ModifiedTime;
                         LastAccessTime = Data.LastAccessTime;
                     }
-                    else if (await GetStorageItemCoreAsync() is StorageFile File)
+                    else
                     {
-                        Size = await File.GetSizeRawDataAsync();
-                        ModifiedTime = await File.GetModifiedTimeAsync();
-                        LastAccessTime = await File.GetLastAccessTimeAsync();
+                        if (await GetStorageItemCoreAsync() is StorageFile File)
+                        {
+                            Size = await File.GetSizeRawDataAsync();
+                            ModifiedTime = await File.GetModifiedTimeAsync();
+                            LastAccessTime = await File.GetLastAccessTimeAsync();
+                        }
 
                         if (GetBulkAccessSharedController(out var ControllerRef))
                         {
@@ -201,10 +224,10 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An unexpected exception was threw in {nameof(LoadCoreAsync)}");
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An unexpected exception was threw in {nameof(LoadCoreAsync)}");
             }
         }
 

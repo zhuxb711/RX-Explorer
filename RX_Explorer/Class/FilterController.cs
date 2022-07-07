@@ -33,6 +33,7 @@ namespace RX_Explorer.Class
         private DateTimeOffset fromDateMax = DateTimeOffset.Now;
         private DateTimeOffset? toDate;
         private string regexExpression;
+        private bool IsDisposed;
 
         private bool nameFilterCheckBox1;
         private bool nameFilterCheckBox2;
@@ -862,7 +863,6 @@ namespace RX_Explorer.Class
             }
         }
 
-
         private void AddNameCondition(NameFilterCondition Condition)
         {
             NameCondition |= Condition;
@@ -1157,11 +1157,18 @@ namespace RX_Explorer.Class
 
         public void Dispose()
         {
-            TypeFilter.Clear();
-            OriginCopy.Clear();
-            DisplayTypeList.Clear();
-            SourceChangeLock.Dispose();
-            GC.SuppressFinalize(this);
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
+
+                GC.SuppressFinalize(this);
+
+                TypeFilter.Clear();
+                OriginCopy.Clear();
+                DisplayTypeList.Clear();
+
+                ApplicationData.Current.DataChanged -= Current_DataChanged;
+            }
         }
 
         ~FilterController()

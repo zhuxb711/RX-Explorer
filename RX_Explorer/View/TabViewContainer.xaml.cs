@@ -425,7 +425,7 @@ namespace RX_Explorer.View
                                             {
                                                 args.Handled = true;
 
-                                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                                 {
                                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                                     {

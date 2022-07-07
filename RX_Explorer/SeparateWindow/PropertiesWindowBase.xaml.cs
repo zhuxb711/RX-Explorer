@@ -124,7 +124,13 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 throw new ArgumentOutOfRangeException(nameof(StorageItems));
             }
 
-            await Task.WhenAll(StorageItems.Select((Item) => Item.LoadAsync()));
+            await Task.WhenAll(StorageItems.Select((Item) => Item.LoadAsync().ContinueWith((PreviousTask) =>
+            {
+                if (PreviousTask.Exception is Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not load the storage item, StorageType: {Item.GetType().FullName}, Path: {Item.Path}");
+                }
+            })));
 
             AppWindow CoreWindow = await InitializeWindowsAsync();
             PropertiesWindowBase PropertiesWindow = new PropertiesWindowBase(CoreWindow, StorageItems);
@@ -656,7 +662,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     SecurityObjectNameContent.Text = SecurityObjectPath;
 
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                     {
                         foreach (PermissionDataPackage Data in await Exclusive.Controller.GetPermissionsAsync(SecurityObjectPath))
                         {
@@ -759,7 +765,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                 using (IDisposable Disposable = FileSystemStorageItemBase.SetBulkAccessSharedController(StorageItem, Exclusive))
                 {
                     Dictionary<string, object> BasicPropertiesDictionary = new Dictionary<string, object>(10)
@@ -1376,7 +1382,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                             {
                                                                 BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
                                                                 Encoder.SetSoftwareBitmap(ResizeBitmap);
-                                                                
+
                                                                 await Encoder.FlushAsync();
 
                                                                 FileOpenWithImage.Source = await Helper.CreateBitmapImageAsync(Stream);
@@ -1394,7 +1400,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                 {
                                                     try
                                                     {
-                                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                                         {
                                                             AdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(File.Path);
                                                         }
@@ -1538,7 +1544,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         }
                         else
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                             {
                                 bool IsCompressed = await Exclusive.Controller.GetDriveCompressionStatusAsync(RootDrive.Path);
                                 bool IsAllowIndex = await Exclusive.Controller.GetDriveIndexStatusAsync(RootDrive.Path);

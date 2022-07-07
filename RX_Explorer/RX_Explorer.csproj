@@ -110,6 +110,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Class\AddressBlock.cs" />
+    <Compile Include="Class\DisposableObjectManager.cs" />
     <Compile Include="Class\ExtendedDataFormats.cs" />
     <Compile Include="Class\FTPClientController.cs" />
     <Compile Include="Class\FTPClientManager.cs" />

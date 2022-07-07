@@ -171,7 +171,7 @@ namespace RX_Explorer.View
                                                    && !SettingPage.IsOpened
                                                    && SearchResultList.SelectedItems.Count == 1:
                             {
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                 {
                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
@@ -374,7 +374,7 @@ namespace RX_Explorer.View
             }
             finally
             {
-                SignalControl.SetCompleted();
+                SignalControl.MarkAsCompleted();
                 SearchStatusBar.Visibility = Visibility.Collapsed;
                 SearchStatus.Text = $"{Globalization.GetString("SearchCompletedText")} ({SearchResult.Count} {Globalization.GetString("Items_Description")})";
             }
@@ -635,7 +635,14 @@ namespace RX_Explorer.View
                 {
                     if (e.Item is FileSystemStorageItemBase Item)
                     {
-                        await Item.LoadAsync().ConfigureAwait(false);
+                        try
+                        {
+                            await Item.LoadAsync().ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Could not load the storage item, StorageType: {Item.GetType().FullName}, Path: {Item.Path}");
+                        }
                     }
                 });
             }
@@ -689,7 +696,7 @@ namespace RX_Explorer.View
                             {
                                 PointerPoint Point = e.GetCurrentPoint(SearchResultList);
 
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                 {
                                     string Tooltip = await Exclusive.Controller.GetTooltipTextAsync(Item.Path, Token);
 
@@ -814,7 +821,7 @@ namespace RX_Explorer.View
                 {
                     if (sender is Button Btn)
                     {
-                        using (DisposeNotification Disposable = await SignalControl.SignalAndWaitTrappedAsync())
+                        using (IDisposable Disposable = await SignalControl.SignalAndWaitTrappedAsync())
                         {
                             SortTarget CTarget = Btn.Name switch
                             {
@@ -1332,7 +1339,7 @@ namespace RX_Explorer.View
             {
                 try
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                     {
                         if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                         {

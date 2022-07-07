@@ -70,6 +70,7 @@ namespace RX_Explorer.View
         private CancellationTokenSource DelayGoBackHoldCancel;
         private CancellationTokenSource DelayGoForwardHoldCancel;
         private CancellationTokenSource ContextMenuCancellation;
+        private CancellationTokenSource AddressExtensionCancellation;
 
         private volatile FilePresenter currentPresenter;
         public FilePresenter CurrentPresenter
@@ -410,9 +411,16 @@ namespace RX_Explorer.View
             {
                 args.RegisterUpdateCallback(async (s, e) =>
                 {
-                    if (e.Item is FileSystemStorageFolder Folder)
+                    if (e.Item is FileSystemStorageFolder Item)
                     {
-                        await Folder.LoadAsync().ConfigureAwait(false);
+                        try
+                        {
+                            await Item.LoadAsync().ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Could not load the storage item, StorageType: {Item.GetType().FullName}, Path: {Item.Path}");
+                        }
                     }
                 });
             }
@@ -1507,7 +1515,7 @@ namespace RX_Explorer.View
                 {
                     if (Package.Current.Id.Architecture is ProcessorArchitecture.X64 or ProcessorArchitecture.X86OnArm64)
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                         {
                             SearchInEverythingEngine.IsEnabled = await Exclusive.Controller.CheckIfEverythingIsAvailableAsync();
                         }
@@ -2141,7 +2149,7 @@ namespace RX_Explorer.View
             {
                 AddressExtensionList.Clear();
 
-                if (Btn.DataContext is AddressBlock Block)
+                if (Btn.DataContext is AddressBlock Block && Btn.Content is FrameworkElement DropDownElement)
                 {
                     try
                     {
@@ -2151,13 +2159,19 @@ namespace RX_Explorer.View
                         }
                         else if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is FileSystemStorageFolder Folder)
                         {
-                            await foreach (FileSystemStorageFolder SubFolder in Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, Filter: BasicFilters.Folder).Cast<FileSystemStorageFolder>())
+                            AddressExtensionCancellation?.Cancel();
+                            AddressExtensionCancellation?.Dispose();
+                            AddressExtensionCancellation = new CancellationTokenSource();
+
+                            IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, CancelToken: AddressExtensionCancellation.Token, Filter: BasicFilters.Folder).ToListAsync();
+
+                            if (ChildItems.Count > 0)
                             {
-                                AddressExtensionList.Add(SubFolder);
+                                AddressExtensionList.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(ChildItems.Cast<FileSystemStorageFolder>(), SortTarget.Name, SortDirection.Ascending));
                             }
                         }
 
-                        if (AddressExtensionList.Count > 0 && Btn.Content is FrameworkElement DropDownElement)
+                        if (AddressExtensionList.Count > 0)
                         {
                             Vector2 RotationCenter = new Vector2(Convert.ToSingle(DropDownElement.ActualWidth * 0.45), Convert.ToSingle(DropDownElement.ActualHeight * 0.57));
 
@@ -2166,6 +2180,10 @@ namespace RX_Explorer.View
                             FlyoutBase.SetAttachedFlyout(Btn, AddressExtensionFlyout);
                             FlyoutBase.ShowAttachedFlyout(Btn);
                         }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        //No need to handle this exception
                     }
                     catch (Exception ex)
                     {
@@ -3688,11 +3706,13 @@ namespace RX_Explorer.View
             DelayGoBackHoldCancel?.Dispose();
             DelayGoForwardHoldCancel?.Dispose();
             ContextMenuCancellation?.Dispose();
+            AddressExtensionCancellation?.Dispose();
 
             DelayEnterCancel = null;
             DelayGoBackHoldCancel = null;
             DelayGoForwardHoldCancel = null;
             ContextMenuCancellation = null;
+            AddressExtensionCancellation = null;
         }
     }
 }

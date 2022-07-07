@@ -102,12 +102,13 @@ namespace RX_Explorer.Class
                     try
                     {
                         using (CancellationTokenSource Cancellation = new CancellationTokenSource(10000))
+                        using (CancellationTokenSource CombineCancellation = CancellationTokenSource.CreateLinkedTokenSource(Cancellation.Token, Item.CancelToken))
                         {
-                            FullTrustProcessController Controller = AvailableControllerCollection.Take(Cancellation.Token);
+                            FullTrustProcessController Controller = AvailableControllerCollection.Take(CombineCancellation.Token);
 
                             Task<IDictionary<string, string>> TestCommandTask = Controller.SendCommandAsync(CommandType.Test);
 
-                            if (Task.WaitAny(TestCommandTask, Task.Delay(1000)) == 0
+                            if (Task.WaitAny(Task.Delay(1000), TestCommandTask) > 0
                                 && (TestCommandTask.Result?.ContainsKey("Success")).GetValueOrDefault())
                             {
                                 if (WaitCount >= 3)
@@ -115,7 +116,14 @@ namespace RX_Explorer.Class
                                     CurrentBusyStatus?.Invoke(null, false);
                                 }
 
-                                Item.TaskSource.SetResult(Exclusive.CreateAsync(Controller).Result);
+                                if (Item.CancelToken.IsCancellationRequested)
+                                {
+                                    Item.TaskSource.TrySetCanceled();
+                                }
+                                else
+                                {
+                                    Item.TaskSource.TrySetResult(Exclusive.CreateAsync(Controller).Result);
+                                }
 
                                 break;
                             }
@@ -156,23 +164,31 @@ namespace RX_Explorer.Class
                     }
                     catch (OperationCanceledException)
                     {
-                        switch (++WaitCount)
+                        if (Item.CancelToken.IsCancellationRequested)
                         {
-                            case 3:
-                                {
-                                    CurrentBusyStatus?.Invoke(null, true);
-                                    goto REWAIT;
-                                }
-                            case < 6:
-                                {
-                                    goto REWAIT;
-                                }
-                            case 6:
-                                {
-                                    CurrentBusyStatus?.Invoke(null, false);
-                                    Item.TaskSource.TrySetException(new TimeoutException("FullTrustProcessController Dispather Timeout"));
-                                    goto NEXT;
-                                }
+                            Item.TaskSource.TrySetCanceled();
+                            goto NEXT;
+                        }
+                        else
+                        {
+                            switch (++WaitCount)
+                            {
+                                case 3:
+                                    {
+                                        CurrentBusyStatus?.Invoke(null, true);
+                                        goto REWAIT;
+                                    }
+                                case < 6:
+                                    {
+                                        goto REWAIT;
+                                    }
+                                case 6:
+                                    {
+                                        CurrentBusyStatus?.Invoke(null, false);
+                                        Item.TaskSource.TrySetException(new TimeoutException("FullTrustProcessController Dispather Timeout"));
+                                        goto NEXT;
+                                    }
+                            }
                         }
                     }
                 }
@@ -239,9 +255,9 @@ namespace RX_Explorer.Class
             return new LazyExclusive(Priority);
         }
 
-        public static Task<Exclusive> GetControllerExclusiveAsync(PriorityLevel Priority = PriorityLevel.Normal)
+        public static Task<Exclusive> GetControllerExclusiveAsync(CancellationToken CancelToken = default, PriorityLevel Priority = PriorityLevel.Normal)
         {
-            InternalExclusivePriorityQueueItem ExclusiveQueueItem = new InternalExclusivePriorityQueueItem(Priority);
+            InternalExclusivePriorityQueueItem ExclusiveQueueItem = new InternalExclusivePriorityQueueItem(CancelToken, Priority);
 
             ExclusivePriorityCollection.Add(ExclusiveQueueItem);
 
@@ -2520,12 +2536,15 @@ namespace RX_Explorer.Class
 
         private sealed class InternalExclusivePriorityQueueItem : IHavePriority<CustomPriority>
         {
+            public CancellationToken CancelToken { get; }
+
             public CustomPriority Priority { get; set; }
 
             public TaskCompletionSource<Exclusive> TaskSource { get; } = new TaskCompletionSource<Exclusive>();
 
-            public InternalExclusivePriorityQueueItem(PriorityLevel Priority)
+            public InternalExclusivePriorityQueueItem(CancellationToken CancelToken, PriorityLevel Priority)
             {
+                this.CancelToken = CancelToken;
                 this.Priority = new CustomPriority(Priority);
             }
         }
@@ -2564,7 +2583,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    return (Exclusive ??= await GetControllerExclusiveAsync(Priority)).Controller;
+                    return (Exclusive ??= await GetControllerExclusiveAsync(Priority: Priority)).Controller;
                 }
                 finally
                 {

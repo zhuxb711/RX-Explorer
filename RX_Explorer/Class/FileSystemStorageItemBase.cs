@@ -97,16 +97,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static Task<IDisposable> SelfCreateBulkAccessSharedControllerAsync<T>(T Item, PriorityLevel Priority = PriorityLevel.Normal) where T : FileSystemStorageItemBase
+        public static Task<IDisposable> SelfCreateBulkAccessSharedControllerAsync<T>(T Item, CancellationToken CancelToken = default, PriorityLevel Priority = PriorityLevel.Normal) where T : FileSystemStorageItemBase
         {
-            return SelfCreateBulkAccessSharedControllerAsync(new T[] { Item }, Priority);
+            return SelfCreateBulkAccessSharedControllerAsync(new T[] { Item }, CancelToken, Priority);
         }
 
-        public static async Task<IDisposable> SelfCreateBulkAccessSharedControllerAsync<T>(IEnumerable<T> Items, PriorityLevel Priority = PriorityLevel.Normal) where T : FileSystemStorageItemBase
+        public static async Task<IDisposable> SelfCreateBulkAccessSharedControllerAsync<T>(IEnumerable<T> Items, CancellationToken CancelToken = default, PriorityLevel Priority = PriorityLevel.Normal) where T : FileSystemStorageItemBase
         {
             if (Items.Any())
             {
-                FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority);
+                FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(CancelToken, Priority);
                 RefSharedRegion<FullTrustProcessController.Exclusive> SharedRef = new RefSharedRegion<FullTrustProcessController.Exclusive>(Exclusive, true);
 
                 foreach (T Item in Items)
@@ -808,7 +808,7 @@ namespace RX_Explorer.Class
                     }
                     catch (Exception ex)
                     {
-                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                        LogTracer.Log(ex, $"An exception was threw in {nameof(SetThumbnailModeAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
                     }
                     finally
                     {
@@ -818,7 +818,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task LoadAsync()
+        public async Task LoadAsync(CancellationToken CancelToken = default)
         {
             if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
             {
@@ -826,7 +826,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        using (IDisposable Disposable = await SelfCreateBulkAccessSharedControllerAsync(this, PriorityLevel.Low))
+                        using (IDisposable Disposable = await SelfCreateBulkAccessSharedControllerAsync(this, CancelToken, PriorityLevel.Low))
                         {
                             await GetStorageItemAsync();
                             await LoadCoreAsync(false);
@@ -847,12 +847,10 @@ namespace RX_Explorer.Class
                                 ParallelLoadTasks.Add(GetSyncStatusAsync());
                             }
 
+                            CancelToken.ThrowIfCancellationRequested();
+
                             await Task.WhenAll(ParallelLoadTasks);
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
                     }
                     finally
                     {
@@ -882,7 +880,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (IDisposable Disposable = await SelfCreateBulkAccessSharedControllerAsync(this, PriorityLevel.Low))
+                using (IDisposable Disposable = await SelfCreateBulkAccessSharedControllerAsync(this, Priority: PriorityLevel.Low))
                 {
                     await GetStorageItemAsync(true);
 

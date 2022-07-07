@@ -65,7 +65,7 @@ namespace RX_Explorer.View
         private readonly FileControl Container;
         private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Presenter);
 
-        private readonly SemaphoreSlim EnterLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim DisplayItemLock = new SemaphoreSlim(1, 1);
         private readonly SemaphoreSlim CollectionChangeLock = new SemaphoreSlim(1, 1);
 
         private readonly ObservableCollection<FileSystemStorageGroupItem> GroupCollection = new ObservableCollection<FileSystemStorageGroupItem>();
@@ -2410,7 +2410,7 @@ namespace RX_Explorer.View
                             {
                                 args.Handled = true;
 
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                 {
                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
@@ -2675,7 +2675,7 @@ namespace RX_Explorer.View
 
         private async Task DisplayItemsInFolderCoreAsync(FileSystemStorageFolder Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false, CancellationToken CancelToken = default)
         {
-            await EnterLock.WaitAsync();
+            await DisplayItemLock.WaitAsync();
 
             try
             {
@@ -2824,7 +2824,7 @@ namespace RX_Explorer.View
             }
             finally
             {
-                EnterLock.Release();
+                DisplayItemLock.Release();
             }
         }
 
@@ -3966,7 +3966,7 @@ namespace RX_Explorer.View
                     {
                         FileSystemStorageItemBase Item = SelectedItemsCopy.First();
 
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                         {
                             if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                             {
@@ -5794,23 +5794,40 @@ namespace RX_Explorer.View
                 {
                     if (e.Item is FileSystemStorageItemBase Item)
                     {
-                        switch (TabViewContainer.Current.LayoutModeControl.ViewModeIndex)
+                        using (CancellationTokenSource Cancellation = CancellationTokenSource.CreateLinkedTokenSource(DisplayItemsCancellation.Token))
                         {
-                            case 0:
-                            case 1:
-                            case 2:
+                            if (!Cancellation.IsCancellationRequested)
+                            {
+                                try
                                 {
-                                    await Item.SetThumbnailModeAsync(ThumbnailMode.ListView);
-                                    break;
-                                }
-                            default:
-                                {
-                                    await Item.SetThumbnailModeAsync(ThumbnailMode.SingleItem);
-                                    break;
-                                }
-                        }
+                                    switch (TabViewContainer.Current.LayoutModeControl.ViewModeIndex)
+                                    {
+                                        case 0:
+                                        case 1:
+                                        case 2:
+                                            {
+                                                await Item.SetThumbnailModeAsync(ThumbnailMode.ListView);
+                                                break;
+                                            }
+                                        default:
+                                            {
+                                                await Item.SetThumbnailModeAsync(ThumbnailMode.SingleItem);
+                                                break;
+                                            }
+                                    }
 
-                        await Item.LoadAsync().ConfigureAwait(false);
+                                    await Item.LoadAsync(Cancellation.Token).ConfigureAwait(false);
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    //No need to handle this exception
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Could not load the storage item, StorageType: {Item.GetType().FullName}, Path: {Item.Path}");
+                                }
+                            }
+                        }
                     }
                 });
             }
@@ -5980,7 +5997,7 @@ namespace RX_Explorer.View
                             {
                                 PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
 
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                 {
                                     string ToolTip = await Exclusive.Controller.GetTooltipTextAsync(Item.Path, Token);
 
@@ -8040,6 +8057,11 @@ namespace RX_Explorer.View
             ListViewDetailHeader.Filter.RefreshListRequested -= Filter_RefreshListRequested;
             RootFolderControl.EnterActionRequested -= RootFolderControl_EnterActionRequested;
             AreaWatcher.FileChanged -= DirectoryWatcher_FileChanged;
+            Application.Current.Suspending -= Current_Suspending;
+            Application.Current.Resuming -= Current_Resuming;
+            SortCollectionGenerator.SortConfigChanged -= Current_SortConfigChanged;
+            GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
+            LayoutModeController.ViewModeChanged -= Current_ViewModeChanged;
 
             AreaWatcher.Dispose();
             WiFiProvider?.Dispose();
@@ -8051,9 +8073,10 @@ namespace RX_Explorer.View
             DelayDragCancellation?.Dispose();
             ContextMenuCancellation?.Dispose();
             DisplayItemsCancellation?.Dispose();
-            EnterLock?.Dispose();
-            CollectionChangeLock?.Dispose();
-            ListViewDetailHeader?.Dispose();
+
+            DisposableObjectManager.RegisterCallbackOnObjectDisposed(() => ListViewDetailHeader?.Dispose(),
+                                                                     DisposableObjectManager.DisposeObjectOnConditionSatisfied(DisplayItemLock, 1000, (Obj) => Obj.CurrentCount > 0),
+                                                                     DisposableObjectManager.DisposeObjectOnConditionSatisfied(CollectionChangeLock, 1000, (Obj) => Obj.CurrentCount > 0));
 
             WiFiProvider = null;
             SelectionExtension = null;
@@ -8063,12 +8086,7 @@ namespace RX_Explorer.View
             DelayTooltipCancellation = null;
             DelayDragCancellation = null;
             ContextMenuCancellation = null;
-
-            Application.Current.Suspending -= Current_Suspending;
-            Application.Current.Resuming -= Current_Resuming;
-            SortCollectionGenerator.SortConfigChanged -= Current_SortConfigChanged;
-            GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
-            LayoutModeController.ViewModeChanged -= Current_ViewModeChanged;
+            DisplayItemsCancellation = null;
         }
     }
 }

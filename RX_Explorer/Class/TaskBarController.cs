@@ -23,7 +23,7 @@ namespace RX_Explorer.Class
             {
                 LastTaskBarUpdatedTime = DateTimeOffset.Now;
 
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(PriorityLevel.High))
+                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                 {
                     return await Exclusive.Controller.SetTaskBarProgressAsync(Value);
                 }

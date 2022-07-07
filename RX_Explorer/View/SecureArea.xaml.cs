@@ -1058,7 +1058,14 @@ namespace RX_Explorer.View
         {
             if (args.Item is FileSystemStorageItemBase Item)
             {
-                await Item.LoadAsync().ConfigureAwait(false);
+                try
+                {
+                    await Item.LoadAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not load the storage item, StorageType: {Item.GetType().FullName}, Path: {Item.Path}");
+                }
             }
         }
 
