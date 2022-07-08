@@ -204,7 +204,10 @@ namespace RX_Explorer.View
                         {
                             args.Handled = true;
 
-                            await Control.ExecuteGoBackActionIfAvailableAsync();
+                            if (!Control.ShouldNotAcceptShortcutKeyInput)
+                            {
+                                await Control.ExecuteGoBackActionIfAvailableAsync();
+                            }
 
                             break;
                         }
@@ -212,7 +215,10 @@ namespace RX_Explorer.View
                         {
                             args.Handled = true;
 
-                            await Control.ExecuteGoForwardActionIfAvailableAsync();
+                            if (!Control.ShouldNotAcceptShortcutKeyInput)
+                            {
+                                await Control.ExecuteGoForwardActionIfAvailableAsync();
+                            }
 
                             break;
                         }
@@ -331,15 +337,26 @@ namespace RX_Explorer.View
                                 break;
                             }
                         case VirtualKey.Back:
-                        case VirtualKey.Escape:
                             {
+                                args.Handled = true;
+
                                 if (CurrentTabRenderer?.RendererFrame is Frame BaseFrame)
                                 {
-                                    if (BaseFrame.Content is FileControl Control)
+                                    if (BaseFrame.Content is FileControl Control && !Control.ShouldNotAcceptShortcutKeyInput)
                                     {
                                         await Control.ExecuteGoBackActionIfAvailableAsync();
                                     }
-                                    else if (BaseFrame.CanGoBack)
+                                }
+
+                                break;
+                            }
+                        case VirtualKey.Escape:
+                            {
+                                args.Handled = true;
+
+                                if (CurrentTabRenderer?.RendererFrame is Frame BaseFrame)
+                                {
+                                    if (BaseFrame.CanGoBack)
                                     {
                                         BaseFrame.GoBack();
                                     }

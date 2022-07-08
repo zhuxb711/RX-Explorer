@@ -1,23 +1,33 @@
-﻿###What's new in Ver.7.8.0.0
+﻿###What's new in Ver.7.8.2.0
 
-#####UI updated
+#####Performance improvement
 
->#####Some minor UI improvements
+>#####The scheduling logic of the auxiliary process has been improved, it will now be faster to detect a disconnected process and restart it
+
+>#####Improved performance when processing large numbers of files, eliminating an issue that could have caused performance regressions
+
+>#####Reduces the time it takes to jump to other folders from within a slow-loading folder
 
 #####Bug Fixes
 
->#####Fixed an issue where the Bing image would not update correctly
+>#####Fixed an issue that could cause folders not being opened when a worker process was busy, even though those folders might not depend on the auxiliary process
 
->#####Fixed the problem that the shortcut keys still take effect in the pop-up dialog, which may affect the normal input of text seriously
+>#####Fixed an issue where other changed properties might not be applied when setting or canceling read-only properties for lnk, url files via the properties window
 
->#####Fixed an issue where files could not be renamed by delayed click in layout mode with large, medium and small icons
+>#####Fixed an issue where Bing image backgrounds might not be able to enabled
 
->#####Fixed an issue where hidden properties in the properties window could has a third state
+>#####Fixed an issue that could cause a crash when operating MTP files or FTP files in some cases
 
->#####Fixed the problem that the hidden properties in the properties window does not correctly reflect the hidden properties of the file
+>#####Fixed an issue where the background of the built-in picture editor was completely transparent, which could interfere with the normal display of some pictures
 
->#####Fixed the problem that the file list could not correctly reflect the change of the hidden properties of the file and display the visual prompt
+>#####Fixed a possible crash when trying to edit very small pictures with the built-in picture editor
 
->#####Fixed an issue where file changes were not correctly reflected in some grouping modes
+>#####Fixed an issue that could cause a crash when attempting to close a tab that contained a folder that was updating file information
 
->#####Fixed an issue where renaming could not be undone
+>#####Fixed the issue that the backspace and escape keys did not work in the built-in viewer
+
+>#####Fixed an issue where changing the "read-only" and "hidden" properties of multiple files through the properties window may not take effect
+
+>#####Fixed the issue that the type of hidden files was not displayed correctly
+
+>#####Fixed some translation issues

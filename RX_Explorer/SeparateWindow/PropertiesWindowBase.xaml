@@ -764,10 +764,10 @@
                                             HorizontalAlignment="Left"
                                             Background="{ThemeResource SystemAccentColor}" />
                                     <TextBlock Text="已用空间"
-                                               VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis"
                                                x:Uid="DriveUsedSpace"
-                                               Grid.Column="1" />
+                                               Grid.Column="1"
+                                               VerticalAlignment="Center"/>
                                     <TextBlock x:Name="RootDriveUsedByte"
                                                Grid.Column="2"
                                                Padding="2,0,0,0"
@@ -785,11 +785,11 @@
                                             HorizontalAlignment="Left"
                                             Background="LightGray" />
                                     <TextBlock Text="可用空间"
-                                               VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis"
                                                x:Uid="DriveFreeSpace"
                                                Grid.Row="1"
-                                               Grid.Column="1" />
+                                               Grid.Column="1"
+                                               VerticalAlignment="Center"/>
                                     <TextBlock x:Name="RootDriveFreeByte"
                                                Grid.Row="1"
                                                Grid.Column="2"
@@ -807,6 +807,7 @@
                                                x:Uid="DriveCapacity"
                                                Grid.Row="2"
                                                Grid.Column="1"
+                                               VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis" />
                                     <TextBlock x:Name="RootDriveTotalByte"
                                                Grid.Row="2"

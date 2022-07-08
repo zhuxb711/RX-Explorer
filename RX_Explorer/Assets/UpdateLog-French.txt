@@ -1,23 +1,33 @@
-﻿###Quoi de neuf dans la version 7.8.0.0
+﻿###Quoi de neuf dans la version 7.8.2.0
 
-#####UI mise à jour
+#####Amélioration des performances
 
->#####Quelques améliorations mineures de l'interface utilisateur
+>#####La logique d'ordonnancement du processus auxiliaire a été améliorée, il sera désormais plus rapide de détecter un processus déconnecté et de le relancer
+
+>#####Amélioration des performances lors du traitement d'un grand nombre de fichiers, éliminant un problème qui aurait pu entraîner des régressions de performances
+
+>#####Réduit le temps nécessaire pour accéder à d'autres dossiers à partir d'un dossier à chargement lent
 
 #####Corrections de bogues
 
->#####Correction d'un problème où l'image Bing ne se mettait pas à jour correctement
+>#####Correction d'un problème qui pouvait empêcher l'ouverture de dossiers lorsqu'un processus de travail était occupé, même si ces dossiers ne dépendaient pas du processus auxiliaire
 
->#####Correction du problème selon lequel les touches de raccourci prennent toujours effet dans la boîte de dialogue contextuelle, ce qui peut sérieusement affecter la saisie normale de texte
+>#####Correction d'un problème où d'autres propriétés modifiées pouvaient ne pas être appliquées lors de la définition ou de l'annulation des propriétés en lecture seule pour les fichiers lnk, url via la fenêtre des propriétés
 
->#####Correction d'un problème où les fichiers ne pouvaient pas être renommés par un clic différé en mode mise en page avec des icônes grandes, moyennes et petites
+>#####Correction d'un problème où les arrière-plans d'images Bing pouvaient ne pas être activés
 
->#####Correction d'un problème où les propriétés masquées dans la fenêtre des propriétés pouvaient avoir un troisième état
+>#####Correction d'un problème qui pouvait provoquer un plantage lors de l'utilisation de fichiers MTP ou de fichiers FTP dans certains cas
 
->#####Correction du problème que les propriétés cachées dans la fenêtre des propriétés ne reflètent pas correctement les propriétés cachées du fichier
+>#####Correction d'un problème où l'arrière-plan de l'éditeur d'images intégré était complètement transparent, ce qui pouvait interférer avec l'affichage normal de certaines images
 
->#####Correction du problème que la liste de fichiers ne pouvait pas refléter correctement le changement des propriétés cachées du fichier et afficher l'invite visuelle
+>#####Correction d'un plantage possible lors de la tentative d'édition de très petites images avec l'éditeur d'images intégré
 
->#####Correction d'un problème où les modifications de fichiers n'étaient pas correctement reflétées dans certains modes de regroupement
+>#####Correction d'un problème qui pouvait provoquer un plantage lors de la tentative de fermeture d'un onglet contenant un dossier qui mettait à jour les informations de fichier
 
->#####Correction d'un problème où le renommage ne pouvait pas être annulé
+>#####Correction du problème que les touches de retour arrière et d'échappement ne fonctionnaient pas dans la visionneuse intégrée
+
+>#####Correction d'un problème où la modification des propriétés "lecture seule" et "cachée" de plusieurs fichiers via la fenêtre des propriétés peut ne pas prendre effet
+
+>#####Correction du problème selon lequel le type de fichiers cachés ne s'affichait pas correctement
+
+>#####Correction de quelques problèmes de traduction

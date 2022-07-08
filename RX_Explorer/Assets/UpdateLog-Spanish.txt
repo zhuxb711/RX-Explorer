@@ -1,23 +1,33 @@
-﻿###Novedades de la versión 7.8.0.0
+﻿###Novedades de la versión 7.8.2.0
 
-#####IU actualizada
+#####Mejora del rendimiento
 
->#####Algunas mejoras menores en la interfaz de usuario
+>#####Se ha mejorado la lógica de programación del proceso auxiliar, ahora será más rápido detectar un proceso desconectado y reiniciarlo
+
+>#####Rendimiento mejorado al procesar grandes cantidades de archivos, eliminando un problema que podría haber causado regresiones en el rendimiento
+
+>#####Reduce el tiempo que se tarda en saltar a otras carpetas desde dentro de una carpeta de carga lenta
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el cual la imagen de Bing no se actualizaba correctamente
+>#####Se solucionó un problema que podía causar que las carpetas no se abrieran cuando un proceso de trabajo estaba ocupado, aunque esas carpetas podrían no depender del proceso auxiliar
 
->#####Se solucionó el problema de que las teclas de método abreviado aún tienen efecto en el cuadro de diálogo emergente, lo que puede afectar seriamente la entrada normal de texto
+>#####Se solucionó un problema por el cual otras propiedades modificadas podrían no aplicarse al configurar o cancelar propiedades de solo lectura para archivos lnk, url a través de la ventana de propiedades
 
->#####Se solucionó un problema por el que no se podía cambiar el nombre de los archivos con un clic retrasado en el modo de diseño con iconos grandes, medianos y pequeños
+>#####Se solucionó un problema por el cual los fondos de imágenes de Bing podrían no estar habilitados
 
->#####Se solucionó un problema por el cual las propiedades ocultas en la ventana de propiedades podían tener un tercer estado
+>#####Se solucionó un problema que podía causar un bloqueo al operar archivos MTP o archivos FTP en algunos casos
 
->#####Se corrigió el problema de que las propiedades ocultas en la ventana de propiedades no reflejaban correctamente las propiedades ocultas del archivo
+>#####Se solucionó un problema por el cual el fondo del editor de imágenes incorporado era completamente transparente, lo que podía interferir con la visualización normal de algunas imágenes
 
->#####Se solucionó el problema de que la lista de archivos no podía reflejar correctamente el cambio de las propiedades ocultas del archivo y mostrar el aviso visual
+>#####Se solucionó un posible bloqueo al intentar editar imágenes muy pequeñas con el editor de imágenes incorporado
 
->#####Se solucionó un problema por el cual los cambios de archivos no se reflejaban correctamente en algunos modos de agrupación
+>#####Se solucionó un problema que podía causar un bloqueo al intentar cerrar una pestaña que contenía una carpeta que estaba actualizando la información del archivo
 
->#####Se solucionó un problema por el que no se podía deshacer el cambio de nombre
+>#####Se solucionó el problema de que las teclas de retroceso y escape no funcionaban en el visor incorporado
+
+>#####Se solucionó un problema por el que cambiar las propiedades "solo lectura" y "oculto" de varios archivos a través de la ventana de propiedades no surtía efecto
+
+>#####Se solucionó el problema de que el tipo de archivos ocultos no se mostraba correctamente
+
+>#####Se corrigieron algunos problemas de traducción

@@ -93,7 +93,7 @@ namespace RX_Explorer.View
                     SelectionExtension?.Dispose();
                     SelectionExtension = new ListViewBaseSelectionExtension(value, DrawRectangle);
 
-                    CollectionVS.Source = IsGroupedEnable ? GroupCollection : FileCollection;
+                    CollectionVS.Source = IsGroupedEnabled ? GroupCollection : FileCollection;
 
                     ViewModeSwitcher.Value = value.Name;
                 }
@@ -157,19 +157,19 @@ namespace RX_Explorer.View
         private CommandBarFlyout MixedFlyout;
         private CommandBarFlyout EmptyFlyout;
 
-        private bool GroupedEnable;
+        private bool isGroupedEnabled;
 
-        private bool IsGroupedEnable
+        private bool IsGroupedEnabled
         {
             get
             {
-                return GroupedEnable;
+                return isGroupedEnabled;
             }
             set
             {
-                if (GroupedEnable != value)
+                if (isGroupedEnabled != value)
                 {
-                    GroupedEnable = value;
+                    isGroupedEnabled = value;
                     CollectionVS.IsSourceGrouped = value;
 
                     CollectionVS.Source = value ? GroupCollection : FileCollection;
@@ -206,6 +206,7 @@ namespace RX_Explorer.View
             this.Container = Container;
 
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
+
             ListViewDetailHeader.Filter.RefreshListRequested += Filter_RefreshListRequested;
 
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
@@ -2026,61 +2027,290 @@ namespace RX_Explorer.View
                 {
                     if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                     {
-                        switch (args)
+                        FileCollection.CollectionChanged += FileCollection_CollectionChanged1;
+
+                        try
                         {
-                            case FileAddedDeferredEventArgs AddedArgs:
-                                {
-                                    if (FileCollection.All((Item) => !Item.Path.Equals(AddedArgs.Path, StringComparison.OrdinalIgnoreCase)))
+                            switch (args)
+                            {
+                                case FileAddedDeferredEventArgs AddedArgs:
                                     {
-                                        if (await FileSystemStorageItemBase.OpenAsync(AddedArgs.Path) is FileSystemStorageItemBase NewItem)
+                                        if (FileCollection.All((Item) => !Item.Path.Equals(AddedArgs.Path, StringComparison.OrdinalIgnoreCase)))
                                         {
-                                            if (SettingPage.IsDisplayProtectedSystemItemsEnabled || !NewItem.IsSystemItem)
+                                            if (await FileSystemStorageItemBase.OpenAsync(AddedArgs.Path) is FileSystemStorageItemBase NewItem)
                                             {
-                                                if ((NewItem.IsHiddenItem && SettingPage.IsDisplayHiddenItemsEnabled) || !NewItem.IsHiddenItem)
+                                                if (SettingPage.IsDisplayProtectedSystemItemsEnabled || !NewItem.IsSystemItem)
                                                 {
-                                                    if (FileCollection.Any())
+                                                    if ((NewItem.IsHiddenItem && SettingPage.IsDisplayHiddenItemsEnabled) || !NewItem.IsHiddenItem)
                                                     {
-                                                        if (NewItem is FileSystemStorageFolder
-                                                            && FileCollection.OfType<FileSystemStorageFile>().FirstOrDefault((Item) => Path.GetFileNameWithoutExtension(Item.Name) == NewItem.Name) is FileSystemStorageFile RelatedFile)
+                                                        if (FileCollection.Any())
                                                         {
-                                                            if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                            if (NewItem is FileSystemStorageFolder
+                                                                && FileCollection.OfType<FileSystemStorageFile>().FirstOrDefault((Item) => Path.GetFileNameWithoutExtension(Item.Name) == NewItem.Name) is FileSystemStorageFile RelatedFile)
                                                             {
-                                                                int Index = FileCollection.IndexOf(RelatedFile) + 1;
-
-                                                                if (Index >= 0 && Index <= FileCollection.Count)
+                                                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                                 {
-                                                                    FileCollection.Insert(Index, NewItem);
-                                                                }
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+                                                                    int Index = FileCollection.IndexOf(RelatedFile) + 1;
 
-                                                            int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                            if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                            {
-                                                                if (Index >= 0)
-                                                                {
-                                                                    if (Index <= FileCollection.Count)
+                                                                    if (Index >= 0 && Index <= FileCollection.Count)
                                                                     {
                                                                         FileCollection.Insert(Index, NewItem);
                                                                     }
                                                                 }
-                                                                else
+                                                            }
+                                                            else
+                                                            {
+                                                                PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+                                                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                                 {
-                                                                    FileCollection.Add(NewItem);
+                                                                    if (Index >= 0)
+                                                                    {
+                                                                        if (Index <= FileCollection.Count)
+                                                                        {
+                                                                            FileCollection.Insert(Index, NewItem);
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        FileCollection.Add(NewItem);
+                                                                    }
                                                                 }
+                                                            }
+                                                        }
+                                                        else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                        {
+                                                            FileCollection.Add(NewItem);
+                                                        }
+
+                                                        if (FileCollection.Contains(NewItem) && NewItem is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
+                                                        {
+                                                            if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
+                                                            {
+                                                                foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && CurrentFolder.Path.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
+                                                                {
+                                                                    await Node.UpdateAllSubNodeAsync();
+                                                                }
+                                                            }
+
+                                                            if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
+                                                            {
+                                                                if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
+                                                                {
+                                                                    await CurrentNode.UpdateAllSubNodeAsync();
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case FileRemovedDeferredEventArgs RemovedArgs:
+                                    {
+                                        bool ShouldRefreshTreeView = false;
+
+                                        foreach (FileSystemStorageItemBase Item in FileCollection.Where((Item) => Item.Path.Equals(RemovedArgs.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
+                                        {
+                                            FileCollection.Remove(Item);
+
+                                            if (Item is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
+                                            {
+                                                ShouldRefreshTreeView = true;
+                                            }
+                                        }
+
+                                        if (ShouldRefreshTreeView)
+                                        {
+                                            if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
+                                            {
+                                                foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && CurrentFolder.Path.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
+                                                {
+                                                    await Node.UpdateAllSubNodeAsync();
+                                                }
+                                            }
+
+                                            if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
+                                            {
+                                                if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
+                                                {
+                                                    await CurrentNode.UpdateAllSubNodeAsync();
+                                                }
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case FileModifiedDeferredEventArgs ModifiedArgs:
+                                    {
+                                        if (await FileSystemStorageItemBase.OpenAsync(ModifiedArgs.Path) is FileSystemStorageFile ModifiedItem)
+                                        {
+                                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+                                            if (FileCollection.FirstOrDefault((Item) => Item.Path.Equals(ModifiedArgs.Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OldItem)
+                                            {
+                                                if (ModifiedItem.GetType() == OldItem.GetType())
+                                                {
+                                                    if ((ModifiedItem.IsHiddenItem && !SettingPage.IsDisplayHiddenItemsEnabled)
+                                                        || (ModifiedItem.IsSystemItem && !SettingPage.IsDisplayProtectedSystemItemsEnabled))
+                                                    {
+                                                        FileCollection.Remove(OldItem);
+                                                    }
+                                                    else
+                                                    {
+                                                        if (IsGroupedEnabled)
+                                                        {
+                                                            if (GroupCollection.FirstOrDefault((Group) => Group.Contains(OldItem)) is FileSystemStorageGroupItem CurrentGroup)
+                                                            {
+                                                                if (await GroupCollectionGenerator.SearchGroupBelongingAsync(ModifiedItem, Config.GroupTarget.GetValueOrDefault()) != CurrentGroup.Key)
+                                                                {
+                                                                    FileCollection.Remove(OldItem);
+
+                                                                    if (FileCollection.Any())
+                                                                    {
+                                                                        int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                                                        if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                                        {
+                                                                            if (Index >= 0)
+                                                                            {
+                                                                                if (Index <= FileCollection.Count)
+                                                                                {
+                                                                                    FileCollection.Insert(Index, ModifiedItem);
+                                                                                }
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                FileCollection.Add(ModifiedItem);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                                    {
+                                                                        FileCollection.Add(ModifiedItem);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+
+                                                        if (FileCollection.Contains(OldItem))
+                                                        {
+                                                            await OldItem.RefreshAsync();
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    FileCollection.Remove(OldItem);
+
+                                                    if (!ModifiedItem.IsSystemItem || SettingPage.IsDisplayProtectedSystemItemsEnabled)
+                                                    {
+                                                        if (!ModifiedItem.IsHiddenItem || (ModifiedItem.IsHiddenItem && SettingPage.IsDisplayHiddenItemsEnabled))
+                                                        {
+                                                            if (FileCollection.Any())
+                                                            {
+                                                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                                {
+                                                                    if (Index >= 0)
+                                                                    {
+                                                                        if (Index <= FileCollection.Count)
+                                                                        {
+                                                                            FileCollection.Insert(Index, ModifiedItem);
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        FileCollection.Add(ModifiedItem);
+                                                                    }
+                                                                }
+                                                            }
+                                                            else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                            {
+                                                                FileCollection.Add(ModifiedItem);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else if (!ModifiedItem.IsHiddenItem)
+                                            {
+                                                if (FileCollection.Any())
+                                                {
+                                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        if (Index >= 0)
+                                                        {
+                                                            if (Index <= FileCollection.Count)
+                                                            {
+                                                                FileCollection.Insert(Index, ModifiedItem);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            FileCollection.Add(ModifiedItem);
+                                                        }
+                                                    }
+                                                }
+                                                else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    FileCollection.Add(ModifiedItem);
+                                                }
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case FileRenamedDeferredEventArgs RenamedArgs:
+                                    {
+                                        string NewPath = Path.Combine(CurrentFolder.Path, RenamedArgs.NewName);
+
+                                        if (await FileSystemStorageItemBase.OpenAsync(NewPath) is FileSystemStorageItemBase Item)
+                                        {
+                                            if (SettingPage.IsDisplayProtectedSystemItemsEnabled || !Item.IsSystemItem)
+                                            {
+                                                if ((Item.IsHiddenItem && SettingPage.IsDisplayHiddenItemsEnabled) || !Item.IsHiddenItem)
+                                                {
+                                                    foreach (FileSystemStorageItemBase ExistItem in FileCollection.Where((Item) => Item.Path.Equals(RenamedArgs.Path, StringComparison.OrdinalIgnoreCase)
+                                                                                                                                   || Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)).ToArray())
+                                                    {
+                                                        FileCollection.Remove(ExistItem);
+                                                    }
+
+                                                    if (FileCollection.Any())
+                                                    {
+                                                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+                                                        int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                                        if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                        {
+                                                            if (Index >= 0)
+                                                            {
+                                                                if (Index <= FileCollection.Count)
+                                                                {
+                                                                    FileCollection.Insert(Index, Item);
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                FileCollection.Add(Item);
                                                             }
                                                         }
                                                     }
                                                     else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                     {
-                                                        FileCollection.Add(NewItem);
+                                                        FileCollection.Add(Item);
                                                     }
 
-                                                    if (FileCollection.Contains(NewItem) && NewItem is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
+                                                    if (FileCollection.Contains(Item) && Item is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
                                                     {
                                                         if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
                                                         {
@@ -2101,237 +2331,17 @@ namespace RX_Explorer.View
                                                 }
                                             }
                                         }
+
+                                        break;
                                     }
+                            }
 
-                                    break;
-                                }
-                            case FileRemovedDeferredEventArgs RemovedArgs:
-                                {
-                                    bool ShouldRefreshTreeView = false;
-
-                                    foreach (FileSystemStorageItemBase Item in FileCollection.Where((Item) => Item.Path.Equals(RemovedArgs.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
-                                    {
-                                        FileCollection.Remove(Item);
-
-                                        if (Item is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
-                                        {
-                                            ShouldRefreshTreeView = true;
-                                        }
-                                    }
-
-                                    if (ShouldRefreshTreeView)
-                                    {
-                                        if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
-                                        {
-                                            foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && CurrentFolder.Path.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
-                                            {
-                                                await Node.UpdateAllSubNodeAsync();
-                                            }
-                                        }
-
-                                        if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
-                                        {
-                                            if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
-                                            {
-                                                await CurrentNode.UpdateAllSubNodeAsync();
-                                            }
-                                        }
-                                    }
-
-                                    break;
-                                }
-                            case FileModifiedDeferredEventArgs ModifiedArgs:
-                                {
-                                    if (await FileSystemStorageItemBase.OpenAsync(ModifiedArgs.Path) is FileSystemStorageFile ModifiedItem)
-                                    {
-                                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
-                                        if (FileCollection.FirstOrDefault((Item) => Item.Path.Equals(ModifiedArgs.Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OldItem)
-                                        {
-                                            if (ModifiedItem.GetType() == OldItem.GetType())
-                                            {
-                                                if ((ModifiedItem.IsHiddenItem && !SettingPage.IsDisplayHiddenItemsEnabled)
-                                                    || (ModifiedItem.IsSystemItem && !SettingPage.IsDisplayProtectedSystemItemsEnabled))
-                                                {
-                                                    FileCollection.Remove(OldItem);
-                                                }
-                                                else
-                                                {
-                                                    if (IsGroupedEnable)
-                                                    {
-                                                        if (GroupCollection.FirstOrDefault((Group) => Group.Contains(OldItem)) is FileSystemStorageGroupItem CurrentGroup)
-                                                        {
-                                                            if (await GroupCollectionGenerator.SearchGroupBelongingAsync(ModifiedItem, Config.GroupTarget.GetValueOrDefault()) != CurrentGroup.Key)
-                                                            {
-                                                                FileCollection.Remove(OldItem);
-
-                                                                if (FileCollection.Any())
-                                                                {
-                                                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                                    {
-                                                                        if (Index >= 0)
-                                                                        {
-                                                                            if (Index <= FileCollection.Count)
-                                                                            {
-                                                                                FileCollection.Insert(Index, ModifiedItem);
-                                                                            }
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            FileCollection.Add(ModifiedItem);
-                                                                        }
-                                                                    }
-                                                                }
-                                                                else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                                {
-                                                                    FileCollection.Add(ModifiedItem);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-
-                                                    if (FileCollection.Contains(OldItem))
-                                                    {
-                                                        await OldItem.RefreshAsync();
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                FileCollection.Remove(OldItem);
-
-                                                if (!ModifiedItem.IsSystemItem || SettingPage.IsDisplayProtectedSystemItemsEnabled)
-                                                {
-                                                    if (!ModifiedItem.IsHiddenItem || (ModifiedItem.IsHiddenItem && SettingPage.IsDisplayHiddenItemsEnabled))
-                                                    {
-                                                        if (FileCollection.Any())
-                                                        {
-                                                            int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                            if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                            {
-                                                                if (Index >= 0)
-                                                                {
-                                                                    if (Index <= FileCollection.Count)
-                                                                    {
-                                                                        FileCollection.Insert(Index, ModifiedItem);
-                                                                    }
-                                                                }
-                                                                else
-                                                                {
-                                                                    FileCollection.Add(ModifiedItem);
-                                                                }
-                                                            }
-                                                        }
-                                                        else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                        {
-                                                            FileCollection.Add(ModifiedItem);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        else if (!ModifiedItem.IsHiddenItem)
-                                        {
-                                            if (FileCollection.Any())
-                                            {
-                                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    if (Index >= 0)
-                                                    {
-                                                        if (Index <= FileCollection.Count)
-                                                        {
-                                                            FileCollection.Insert(Index, ModifiedItem);
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        FileCollection.Add(ModifiedItem);
-                                                    }
-                                                }
-                                            }
-                                            else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                FileCollection.Add(ModifiedItem);
-                                            }
-                                        }
-                                    }
-
-                                    break;
-                                }
-                            case FileRenamedDeferredEventArgs RenamedArgs:
-                                {
-                                    string NewPath = Path.Combine(CurrentFolder.Path, RenamedArgs.NewName);
-
-                                    if (await FileSystemStorageItemBase.OpenAsync(NewPath) is FileSystemStorageItemBase Item)
-                                    {
-                                        if (SettingPage.IsDisplayProtectedSystemItemsEnabled || !Item.IsSystemItem)
-                                        {
-                                            if ((Item.IsHiddenItem && SettingPage.IsDisplayHiddenItemsEnabled) || !Item.IsHiddenItem)
-                                            {
-                                                foreach (FileSystemStorageItemBase ExistItem in FileCollection.Where((Item) => Item.Path.Equals(RenamedArgs.Path, StringComparison.OrdinalIgnoreCase)
-                                                                                                                               || Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)).ToArray())
-                                                {
-                                                    FileCollection.Remove(ExistItem);
-                                                }
-
-                                                if (FileCollection.Any())
-                                                {
-                                                    PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
-                                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                    {
-                                                        if (Index >= 0)
-                                                        {
-                                                            if (Index <= FileCollection.Count)
-                                                            {
-                                                                FileCollection.Insert(Index, Item);
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            FileCollection.Add(Item);
-                                                        }
-                                                    }
-                                                }
-                                                else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    FileCollection.Add(Item);
-                                                }
-
-                                                if (FileCollection.Contains(Item) && Item is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
-                                                {
-                                                    if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
-                                                    {
-                                                        foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && CurrentFolder.Path.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
-                                                        {
-                                                            await Node.UpdateAllSubNodeAsync();
-                                                        }
-                                                    }
-
-                                                    if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
-                                                    {
-                                                        if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
-                                                        {
-                                                            await CurrentNode.UpdateAllSubNodeAsync();
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    break;
-                                }
+                            await ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection);
                         }
-
-                        await ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection);
+                        finally
+                        {
+                            FileCollection.CollectionChanged -= FileCollection_CollectionChanged1;
+                        }
                     }
                 });
             }
@@ -2358,7 +2368,7 @@ namespace RX_Explorer.View
                     GroupAscButton.IsEnabled = false;
                     GroupDescButton.IsEnabled = false;
 
-                    IsGroupedEnable = false;
+                    IsGroupedEnabled = false;
 
                     GroupCollection.Clear();
                 }
@@ -2376,7 +2386,7 @@ namespace RX_Explorer.View
                         GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
                     }
 
-                    IsGroupedEnable = true;
+                    IsGroupedEnabled = true;
                 }
             }
         }
@@ -2638,7 +2648,7 @@ namespace RX_Explorer.View
                 {
                     ListViewDetailHeader.Indicator.SetIndicatorStatus(args.Target, args.Direction);
 
-                    if (IsGroupedEnable)
+                    if (IsGroupedEnabled)
                     {
                         foreach (FileSystemStorageGroupItem GroupItem in GroupCollection)
                         {
@@ -2780,11 +2790,11 @@ namespace RX_Explorer.View
                                             GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
                                         }
 
-                                        IsGroupedEnable = true;
+                                        IsGroupedEnabled = true;
                                     }
                                     else
                                     {
-                                        IsGroupedEnable = false;
+                                        IsGroupedEnabled = false;
                                     }
 
                                     FileCollection.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
@@ -2996,23 +3006,49 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void FileCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void FileCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            await CollectionChangeLock.WaitAsync();
-
-            try
+            if (e.Action != NotifyCollectionChangedAction.Reset)
             {
-                PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+                int FileCountNumber = FileCollection.Count;
 
-                switch (e.Action)
+                HasFile.Visibility = FileCountNumber > 0 ? Visibility.Collapsed : Visibility.Visible;
+
+                if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Remove)
                 {
-                    case NotifyCollectionChangedAction.Add:
-                        {
-                            IEnumerable<FileSystemStorageItemBase> GroupExpandedCollection = GroupCollection.SelectMany((Group) => Group);
+                    string[] StatusTipsSplit = StatusTips.Text.Split("  |  ", StringSplitOptions.RemoveEmptyEntries);
 
-                            foreach (FileSystemStorageItemBase Item in e.NewItems)
+                    if (StatusTipsSplit.Length > 1)
+                    {
+                        StatusTips.Text = $"{Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCountNumber.ToString())}  |  {string.Join("  |  ", StatusTipsSplit.Skip(1))}";
+                    }
+                    else
+                    {
+                        StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCountNumber.ToString());
+                    }
+                }
+            }
+        }
+
+        private async void FileCollection_CollectionChanged1(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (IsGroupedEnabled
+                && (e.NewItems?.OfType<FileSystemStorageItemBase>()
+                    ?? Enumerable.Empty<FileSystemStorageItemBase>()).Concat((e.OldItems?.OfType<FileSystemStorageItemBase>() 
+                                                                              ?? Enumerable.Empty<FileSystemStorageItemBase>()))
+                                                                     .All((Item) => (CurrentFolder?.Path.Equals(Path.GetDirectoryName(Item.Path), StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+            {
+                await CollectionChangeLock.WaitAsync();
+
+                try
+                {
+                    PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+                    switch (e.Action)
+                    {
+                        case NotifyCollectionChangedAction.Add:
                             {
-                                if (GroupExpandedCollection.All((ExistItem) => ExistItem != Item))
+                                foreach (FileSystemStorageItemBase Item in e.NewItems.OfType<FileSystemStorageItemBase>().Except(GroupCollection.SelectMany((Group) => Group)).ToArray())
                                 {
                                     string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
 
@@ -3039,29 +3075,26 @@ namespace RX_Explorer.View
                                         }
                                     }
                                 }
-                            }
 
-                            break;
-                        }
-                    case NotifyCollectionChangedAction.Remove:
-                        {
-                            foreach (FileSystemStorageItemBase Item in e.OldItems)
+                                break;
+                            }
+                        case NotifyCollectionChangedAction.Remove:
                             {
-                                if (GroupCollection.FirstOrDefault((Group) => Group.Contains(Item)) is FileSystemStorageGroupItem GroupItem)
+                                foreach (FileSystemStorageItemBase Item in e.OldItems.OfType<FileSystemStorageItemBase>().ToArray())
                                 {
-                                    GroupItem.Remove(Item);
+                                    if (GroupCollection.FirstOrDefault((Group) => Group.Contains(Item)) is FileSystemStorageGroupItem GroupItem)
+                                    {
+                                        GroupItem.Remove(Item);
+                                    }
                                 }
+
+                                break;
                             }
-
-                            break;
-                        }
-                    case NotifyCollectionChangedAction.Replace:
-                        {
-                            IEnumerable<FileSystemStorageItemBase> GroupExpandedCollection = GroupCollection.SelectMany((Group) => Group);
-
-                            foreach (FileSystemStorageItemBase Item in e.OldItems)
+                        case NotifyCollectionChangedAction.Replace:
                             {
-                                if (GroupExpandedCollection.Any((ExistItem) => ExistItem == Item))
+                                IEnumerable<FileSystemStorageItemBase> GroupExpandedCollection = GroupCollection.SelectMany((Group) => Group);
+
+                                foreach (FileSystemStorageItemBase Item in e.OldItems.OfType<FileSystemStorageItemBase>().Where((Item) => GroupExpandedCollection.Contains(Item)).ToArray())
                                 {
                                     string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
 
@@ -3070,11 +3103,8 @@ namespace RX_Explorer.View
                                         GroupItem.Remove(Item);
                                     }
                                 }
-                            }
 
-                            foreach (FileSystemStorageItemBase Item in e.NewItems)
-                            {
-                                if (GroupExpandedCollection.All((ExistItem) => ExistItem != Item))
+                                foreach (FileSystemStorageItemBase Item in e.NewItems.OfType<FileSystemStorageItemBase>().Except(GroupExpandedCollection).ToArray())
                                 {
                                     string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
 
@@ -3092,38 +3122,19 @@ namespace RX_Explorer.View
                                         }
                                     }
                                 }
+
+                                break;
                             }
-
-                            break;
-                        }
-                }
-
-                if (e.Action != NotifyCollectionChangedAction.Reset)
-                {
-                    HasFile.Visibility = FileCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-
-                    if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Remove)
-                    {
-                        string[] StatusTipsSplit = StatusTips.Text.Split("  |  ", StringSplitOptions.RemoveEmptyEntries);
-
-                        if (StatusTipsSplit.Length > 1)
-                        {
-                            StatusTips.Text = $"{Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString())}  |  {string.Join("  |  ", StatusTipsSplit.Skip(1))}";
-                        }
-                        else
-                        {
-                            StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
-                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not update the items on file list changed");
-            }
-            finally
-            {
-                CollectionChangeLock.Release();
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not update the items on file list changed");
+                }
+                finally
+                {
+                    CollectionChangeLock.Release();
+                }
             }
         }
 
@@ -6812,7 +6823,7 @@ namespace RX_Explorer.View
             FileCollection.Clear();
             GroupCollection.Clear();
 
-            if (IsGroupedEnable)
+            if (IsGroupedEnabled)
             {
                 foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(args.FilterCollection, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
                 {

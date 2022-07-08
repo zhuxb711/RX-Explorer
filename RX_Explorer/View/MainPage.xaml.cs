@@ -130,22 +130,25 @@ namespace RX_Explorer.View
                 if (Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
                     && TabViewContainer.Current?.CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
                 {
-                    args.Handled = true;
+                    if (!Control.ShouldNotAcceptShortcutKeyInput)
+                    {
+                        args.Handled = true;
 
-                    if (BackButtonPressed)
-                    {
-                        if (!await Control.ExecuteGoBackActionIfAvailableAsync())
+                        if (BackButtonPressed)
                         {
-                            ExecuteGlobalGoBackAction();
+                            if (!await Control.ExecuteGoBackActionIfAvailableAsync())
+                            {
+                                ExecuteGlobalGoBackAction();
+                            }
                         }
-                    }
-                    else if (ForwardButtonPressed)
-                    {
-                        await Control.ExecuteGoForwardActionIfAvailableAsync();
-                    }
-                    else
-                    {
-                        args.Handled = false;
+                        else if (ForwardButtonPressed)
+                        {
+                            await Control.ExecuteGoForwardActionIfAvailableAsync();
+                        }
+                        else
+                        {
+                            args.Handled = false;
+                        }
                     }
                 }
                 else

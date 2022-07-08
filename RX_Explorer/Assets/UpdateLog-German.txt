@@ -1,23 +1,33 @@
-﻿###Was ist neu in Ver.7.8.0.0
+﻿###Was ist neu in Ver.7.8.2.0
 
-#####UI aktualisiert
+#####Leistungsverbesserung
 
->#####Einige kleinere Verbesserungen der Benutzeroberfläche
+>#####Die Scheduling-Logik des Hilfsprozesses wurde verbessert, es wird jetzt schneller sein, einen getrennten Prozess zu erkennen und ihn neu zu starten
+
+>#####Verbesserte Leistung bei der Verarbeitung einer großen Anzahl von Dateien, wodurch ein Problem beseitigt wurde, das zu Leistungsrückgängen hätte führen können
+
+>#####Reduziert die Zeit, die benötigt wird, um von einem langsam ladenden Ordner zu anderen Ordnern zu springen
 
 #####Fehlerbehebung
 
->#####Es wurde ein Problem behoben, bei dem das Bing-Bild nicht korrekt aktualisiert wurde
+>#####Es wurde ein Problem behoben, das dazu führen konnte, dass Ordner nicht geöffnet wurden, wenn ein Arbeitsprozess beschäftigt war, obwohl diese Ordner möglicherweise nicht vom Hilfsprozess abhängen
 
->#####Das Problem, dass die Tastenkombinationen im Popup-Dialog immer noch wirksam sind, wurde behoben, was die normale Eingabe von Text ernsthaft beeinträchtigen kann
+>#####Es wurde ein Problem behoben, bei dem andere geänderte Eigenschaften möglicherweise nicht angewendet wurden, wenn schreibgeschützte Eigenschaften für lnk- oder URL-Dateien über das Eigenschaftenfenster festgelegt oder aufgehoben wurden
 
->#####Es wurde ein Problem behoben, bei dem Dateien durch verzögertes Klicken im Layoutmodus mit großen, mittleren und kleinen Symbolen nicht umbenannt werden konnten
+>#####Es wurde ein Problem behoben, bei dem Bing-Bildhintergründe möglicherweise nicht aktiviert werden konnten
 
->#####Es wurde ein Problem behoben, bei dem versteckte Eigenschaften im Eigenschaftenfenster einen dritten Zustand haben konnten
+>#####Ein Problem wurde behoben, das in einigen Fällen zu einem Absturz beim Betrieb von MTP-Dateien oder FTP-Dateien führen konnte
 
->#####Das Problem, dass die versteckten Eigenschaften im Eigenschaftenfenster die versteckten Eigenschaften der Datei nicht korrekt widerspiegeln, wurde behoben
+>#####Es wurde ein Problem behoben, bei dem der Hintergrund des integrierten Bildeditors vollständig transparent war, was die normale Anzeige einiger Bilder beeinträchtigen konnte
 
->#####Das Problem, dass die Dateiliste die Änderung der versteckten Eigenschaften der Datei nicht korrekt widerspiegeln und die visuelle Eingabeaufforderung anzeigen konnte, wurde behoben
+>#####Ein möglicher Absturz beim Versuch, sehr kleine Bilder mit dem integrierten Bildeditor zu bearbeiten, wurde behoben
 
->#####Ein Problem wurde behoben, bei dem Dateiänderungen in einigen Gruppierungsmodi nicht korrekt wiedergegeben wurden
+>#####Es wurde ein Problem behoben, das einen Absturz verursachen konnte, wenn versucht wurde, eine Registerkarte zu schließen, die einen Ordner enthielt, der Dateiinformationen aktualisierte
 
->#####Ein Problem wurde behoben, bei dem das Umbenennen nicht rückgängig gemacht werden konnte
+>#####Das Problem, dass die Rücktaste und die Escape-Taste im integrierten Viewer nicht funktionierten, wurde behoben
+
+>#####Es wurde ein Problem behoben, bei dem das Ändern der Eigenschaften „schreibgeschützt“ und „versteckt“ mehrerer Dateien über das Eigenschaftenfenster möglicherweise nicht wirksam wird
+
+>#####Das Problem, dass der Typ versteckter Dateien nicht korrekt angezeigt wurde, wurde behoben
+
+>#####Einige Übersetzungsprobleme behoben
