@@ -7,8 +7,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.Streams;
 using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
 
 namespace RX_Explorer.Class
 {
@@ -97,6 +97,31 @@ namespace RX_Explorer.Class
             else
             {
                 return await base.GetStorageItemCoreAsync();
+            }
+        }
+
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
+        {
+            if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
+            {
+                if (GetBulkAccessSharedController(out var ControllerRef))
+                {
+                    using (ControllerRef)
+                    {
+                        return await ControllerRef.Value.Controller.GetThumbnailAsync(Type);
+                    }
+                }
+                else
+                {
+                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                    {
+                        return await Exclusive.Controller.GetThumbnailAsync(Type);
+                    }
+                }
+            }
+            else
+            {
+                return await base.GetThumbnailRawStreamCoreAsync(Mode, ForceUpdate);
             }
         }
 

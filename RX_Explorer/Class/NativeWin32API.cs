@@ -455,9 +455,9 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public static SafeFileHandle CreateLocalOneTimeFileHandle(string TempFilePath = null)
+        public static SafeFileHandle CreateTemporaryFileHandle(string TempFilePath = null)
         {
-            return CreateFileFromApp(string.IsNullOrEmpty(TempFilePath) ? Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N")) : TempFilePath, FILE_ACCESS.Generic_Read | FILE_ACCESS.File_Generic_Write, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Flag_Delete_On_Close | FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access, IntPtr.Zero);
+            return CreateFileFromApp(string.IsNullOrEmpty(TempFilePath) ? Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N")) : TempFilePath, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Flag_Delete_On_Close | FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access, IntPtr.Zero);
         }
 
         public static bool CreateFileFromPath(string Path, CreateOption Option, out string NewFilePath)

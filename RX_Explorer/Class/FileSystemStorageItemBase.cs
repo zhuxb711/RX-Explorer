@@ -377,15 +377,15 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public static async Task<Stream> CreateLocalOneTimeFileStreamAsync(string TempFilePath = null)
+        public static async Task<Stream> CreateTemporaryFileStreamAsync(string TempFilePath = null)
         {
-            SafeFileHandle Handle = NativeWin32API.CreateLocalOneTimeFileHandle(TempFilePath);
+            SafeFileHandle Handle = NativeWin32API.CreateTemporaryFileHandle(TempFilePath);
 
             if (Handle.IsInvalid)
             {
                 using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    Handle = await Exclusive.Controller.CreateLocalOneTimeFileHandleAsync(TempFilePath);
+                    Handle = await Exclusive.Controller.CreateTemporaryFileHandleAsync(TempFilePath);
                 }
             }
 
@@ -1234,7 +1234,7 @@ namespace RX_Explorer.Class
                     if (GetBulkAccessSharedController(out var ControllerRef))
                     {
                         using (ControllerRef)
-                        using (IRandomAccessStream ThumbnailStream = await ControllerRef.Value.Controller.GetThumbnailAsync(Path))
+                        using (IRandomAccessStream ThumbnailStream = await ControllerRef.Value.Controller.GetThumbnailAsync(Type))
                         {
                             return await Helper.CreateBitmapImageAsync(ThumbnailStream);
                         }
@@ -1242,7 +1242,7 @@ namespace RX_Explorer.Class
                     else
                     {
                         using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
-                        using (IRandomAccessStream ThumbnailStream = await Exclusive.Controller.GetThumbnailAsync(Path))
+                        using (IRandomAccessStream ThumbnailStream = await Exclusive.Controller.GetThumbnailAsync(Type))
                         {
                             return await Helper.CreateBitmapImageAsync(ThumbnailStream);
                         }
@@ -1273,14 +1273,14 @@ namespace RX_Explorer.Class
                 {
                     using (ControllerRef)
                     {
-                        return await ControllerRef.Value.Controller.GetThumbnailAsync(Path);
+                        return await ControllerRef.Value.Controller.GetThumbnailAsync(Type);
                     }
                 }
                 else
                 {
                     using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
                     {
-                        return await Exclusive.Controller.GetThumbnailAsync(Path);
+                        return await Exclusive.Controller.GetThumbnailAsync(Type);
                     }
                 }
             }

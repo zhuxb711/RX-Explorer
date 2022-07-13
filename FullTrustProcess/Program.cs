@@ -825,6 +825,50 @@ namespace FullTrustProcess
                 {
                     switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                     {
+                        case CommandType.SetWallpaperImage:
+                            {
+                                string Path = CommandValue["Path"];
+
+                                if (File.Exists(Path))
+                                {
+                                    using (Image TempImage = Image.FromFile(Path))
+                                    {
+                                        string TempBmpPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{Guid.NewGuid():N}.bmp");
+
+                                        try
+                                        {
+                                            using (Stream TempBmpStream = File.Create(TempBmpPath))
+                                            {
+                                                TempImage.Save(TempBmpStream, ImageFormat.Bmp);
+                                            }
+
+                                            IntPtr PathPointer = Marshal.StringToHGlobalUni(TempBmpPath);
+
+                                            try
+                                            {
+                                                Value.Add("Success", Convert.ToString(User32.SystemParametersInfo(User32.SPI.SPI_SETDESKWALLPAPER, 0, PathPointer, User32.SPIF.SPIF_SENDCHANGE | User32.SPIF.SPIF_UPDATEINIFILE)));
+                                            }
+                                            finally
+                                            {
+                                                Marshal.FreeHGlobal(PathPointer);
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            if (File.Exists(TempBmpPath))
+                                            {
+                                                File.Delete(TempBmpPath);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "File is not found");
+                                }
+
+                                break;
+                            }
                         case CommandType.GetProcessHandle:
                             {
                                 using (Process CurrentProcess = Process.GetCurrentProcess())
@@ -871,7 +915,7 @@ namespace FullTrustProcess
 
                                 break;
                             }
-                        case CommandType.CreateOneTimeFileHandle:
+                        case CommandType.CreateTemporaryFileHandle:
                             {
                                 string TempFilePath = CommandValue["TempFilePath"];
 

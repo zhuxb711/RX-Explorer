@@ -133,10 +133,11 @@
         GetSizeOnDisk,
         GetAvailableWslDrivePathList,
         GetRemoteClipboardRelatedData,
-        CreateOneTimeFileHandle,
+        CreateTemporaryFileHandle,
         ConvertToLongPath,
         GetRecyclePathFromOriginPath,
         GetFileAttribute,
-        GetProcessHandle
+        GetProcessHandle,
+        SetWallpaperImage
     }
 }

@@ -164,7 +164,7 @@ namespace RX_Explorer.Class
                                     string TempFilePath = Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N"));
 
                                     using (Stream IncomeFileStream = await File.OpenStreamForReadAsync())
-                                    using (Stream TempFileStream = await FileSystemStorageItemBase.CreateLocalOneTimeFileStreamAsync(TempFilePath))
+                                    using (Stream TempFileStream = await FileSystemStorageItemBase.CreateTemporaryFileStreamAsync(TempFilePath))
                                     {
                                         await IncomeFileStream.CopyToAsync(TempFileStream);
 

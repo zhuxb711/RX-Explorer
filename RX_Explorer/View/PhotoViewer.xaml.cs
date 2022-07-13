@@ -424,13 +424,15 @@ namespace RX_Explorer.View
                             LastZoomCenter = ZoomTransform(ImageControl, new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2), 1);
                         }
 
-                        if (await Item.PhotoFile.GetStorageItemAsync() is StorageFile File)
+                        using (Stream PhotoStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                         {
-                            StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, Item.PhotoFile.Name, NameCollisionOption.GenerateUniqueName);
+                            string TempFilePath = Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"{Guid.NewGuid():N}{Item.PhotoFile.Type.ToLower()}");
 
-                            try
+                            using (Stream TempStream = await FileSystemStorageItemBase.CreateTemporaryFileStreamAsync(TempFilePath))
                             {
-                                if (await UserProfilePersonalizationSettings.Current.TrySetWallpaperImageAsync(TempFile))
+                                await PhotoStream.CopyToAsync(TempStream);
+
+                                if (await UserProfilePersonalizationSettings.Current.TrySetWallpaperImageAsync(await StorageFile.GetFileFromPathAsync(TempFilePath)))
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
@@ -439,35 +441,43 @@ namespace RX_Explorer.View
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
-                                    await Dialog.ShowAsync().ConfigureAwait(false);
+                                    await Dialog.ShowAsync();
                                 }
                                 else
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_SetWallpaperFailure_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
+                                    PhotoStream.Seek(0, SeekOrigin.Begin);
 
-                                    await Dialog.ShowAsync().ConfigureAwait(false);
+                                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"{Guid.NewGuid():N}{Item.PhotoFile.Type.ToLower()}"), CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
+                                    {
+                                        try
+                                        {
+                                            using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                            {
+                                                await PhotoStream.CopyToAsync(TempFileStream);
+                                            }
+
+                                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                                            {
+                                                if (!await Exclusive.Controller.SetWallpaperImageAsync(TempFile.Path))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_SetWallpaperFailure_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            await TempFile.DeleteAsync(true);
+                                        }
+                                    }
                                 }
                             }
-                            finally
-                            {
-                                await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                            }
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_SetWallpaperFailure_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await Dialog.ShowAsync().ConfigureAwait(false);
                         }
                     }
                 }
@@ -480,7 +490,7 @@ namespace RX_Explorer.View
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    await Dialog.ShowAsync().ConfigureAwait(false);
+                    await Dialog.ShowAsync();
                 }
             }
             catch
@@ -492,7 +502,7 @@ namespace RX_Explorer.View
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                await Dialog.ShowAsync().ConfigureAwait(false);
+                await Dialog.ShowAsync();
             }
         }
 
@@ -502,7 +512,7 @@ namespace RX_Explorer.View
             {
                 if (args.Item is PhotoDisplayItem Item && !(Cancellation?.IsCancellationRequested).GetValueOrDefault(true))
                 {
-                    await Item.GenerateThumbnailAsync().ConfigureAwait(false);
+                    await Item.GenerateThumbnailAsync();
                 }
             }
         }

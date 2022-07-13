@@ -544,6 +544,23 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<bool> SetWallpaperImageAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.SetWallpaperImage, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string RawText))
+                {
+                    return Convert.ToBoolean(RawText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(SetWallpaperImageAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return false;
+        }
+
         public async Task<string> GetRecyclePathFromOriginPathAsync(string OriginPath)
         {
             if (await SendCommandAsync(CommandType.GetRecyclePathFromOriginPath, ("OriginPath", OriginPath)) is IDictionary<string, string> Response)
@@ -561,9 +578,9 @@ namespace RX_Explorer.Class
             return string.Empty;
         }
 
-        public async Task<SafeFileHandle> CreateLocalOneTimeFileHandleAsync(string TempFilePath = null)
+        public async Task<SafeFileHandle> CreateTemporaryFileHandleAsync(string TempFilePath = null)
         {
-            if (await SendCommandAsync(CommandType.CreateOneTimeFileHandle, ("TempFilePath", TempFilePath ?? string.Empty)) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.CreateTemporaryFileHandle, ("TempFilePath", TempFilePath ?? string.Empty)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string HandleString))
                 {
@@ -571,7 +588,7 @@ namespace RX_Explorer.Class
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(CreateLocalOneTimeFileHandleAsync)}, message: {ErrorMessage}");
+                    LogTracer.Log($"An unexpected error was threw in {nameof(CreateTemporaryFileHandleAsync)}, message: {ErrorMessage}");
                 }
             }
 

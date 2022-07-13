@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -117,6 +118,8 @@ namespace MaintenanceTask
                     FolderDepth = FolderDepth.Shallow
                 });
 
+                List<Task> ParallelTask = new List<Task>();
+
                 foreach (IStorageItem Item in await Query.GetItemsAsync())
                 {
                     if (CancelToken.IsCancellationRequested)
@@ -124,8 +127,10 @@ namespace MaintenanceTask
                         break;
                     }
 
-                    await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    ParallelTask.Add(Item.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask());
                 }
+
+                await Task.WhenAll(ParallelTask);
             }
         }
 

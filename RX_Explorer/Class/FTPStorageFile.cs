@@ -162,7 +162,7 @@ namespace RX_Explorer.Class
 
         public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
-            Stream Stream = await CreateLocalOneTimeFileStreamAsync();
+            Stream Stream = await CreateTemporaryFileStreamAsync();
 
             if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(Stream, RelatedPath)))
             {
@@ -202,7 +202,7 @@ namespace RX_Explorer.Class
 
                     if (await FTPClientManager.GetClientControllerAsync(TargetAnalysis) is FTPClientController TargetClientController)
                     {
-                        using (Stream TempFileStream = await CreateLocalOneTimeFileStreamAsync())
+                        using (Stream TempFileStream = await CreateTemporaryFileStreamAsync())
                         {
                             switch (Option)
                             {
