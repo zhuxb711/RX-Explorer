@@ -1142,17 +1142,24 @@ namespace RX_Explorer.Class
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            try
             {
-                OnPropertyChanged(nameof(ColorFilterCheckBoxForeground1));
-                OnPropertyChanged(nameof(ColorFilterCheckBoxForeground2));
-                OnPropertyChanged(nameof(ColorFilterCheckBoxForeground3));
-                OnPropertyChanged(nameof(ColorFilterCheckBoxForeground4));
-                OnPropertyChanged(nameof(ColorFilterCheckBoxContent1));
-                OnPropertyChanged(nameof(ColorFilterCheckBoxContent2));
-                OnPropertyChanged(nameof(ColorFilterCheckBoxContent3));
-                OnPropertyChanged(nameof(ColorFilterCheckBoxContent4));
-            });
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground1));
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground2));
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground3));
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground4));
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxContent1));
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxContent2));
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxContent3));
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxContent4));
+                });
+            }
+            catch (Exception)
+            {
+                //No need to handle this exception
+            }
         }
 
         public void Dispose()

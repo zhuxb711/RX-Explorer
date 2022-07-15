@@ -1,33 +1,9 @@
-﻿###Novedades de la versión 7.8.2.0
-
-#####Mejora del rendimiento
-
->#####Se ha mejorado la lógica de programación del proceso auxiliar, ahora será más rápido detectar un proceso desconectado y reiniciarlo
-
->#####Rendimiento mejorado al procesar grandes cantidades de archivos, eliminando un problema que podría haber causado regresiones en el rendimiento
-
->#####Reduce el tiempo que se tarda en saltar a otras carpetas desde dentro de una carpeta de carga lenta
+﻿###Novedades de la versión 7.8.3.0
 
 #####Corrección de errores
 
->#####Se solucionó un problema que podía causar que las carpetas no se abrieran cuando un proceso de trabajo estaba ocupado, aunque esas carpetas podrían no depender del proceso auxiliar
+>#####Se solucionó un problema que podía provocar un bloqueo cuando había archivos .lnk o .url en la papelera de reciclaje
 
->#####Se solucionó un problema por el cual otras propiedades modificadas podrían no aplicarse al configurar o cancelar propiedades de solo lectura para archivos lnk, url a través de la ventana de propiedades
+>#####Se solucionó el problema de no poder establecer una imagen como fondo de escritorio en el visor de imágenes incorporado
 
->#####Se solucionó un problema por el cual los fondos de imágenes de Bing podrían no estar habilitados
-
->#####Se solucionó un problema que podía causar un bloqueo al operar archivos MTP o archivos FTP en algunos casos
-
->#####Se solucionó un problema por el cual el fondo del editor de imágenes incorporado era completamente transparente, lo que podía interferir con la visualización normal de algunas imágenes
-
->#####Se solucionó un posible bloqueo al intentar editar imágenes muy pequeñas con el editor de imágenes incorporado
-
->#####Se solucionó un problema que podía causar un bloqueo al intentar cerrar una pestaña que contenía una carpeta que estaba actualizando la información del archivo
-
->#####Se solucionó el problema de que las teclas de retroceso y escape no funcionaban en el visor incorporado
-
->#####Se solucionó un problema por el que cambiar las propiedades "solo lectura" y "oculto" de varios archivos a través de la ventana de propiedades no surtía efecto
-
->#####Se solucionó el problema de que el tipo de archivos ocultos no se mostraba correctamente
-
->#####Se corrigieron algunos problemas de traducción
+>#####Se corrigieron algunos otros problemas que podrían causar fallas

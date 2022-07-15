@@ -1163,9 +1163,9 @@ namespace RX_Explorer.View
                     }
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(Current_DataChanged)}");
+                //No need to handle this exception
             }
             finally
             {

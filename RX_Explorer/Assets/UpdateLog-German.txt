@@ -1,33 +1,9 @@
-﻿###Was ist neu in Ver.7.8.2.0
-
-#####Leistungsverbesserung
-
->#####Die Scheduling-Logik des Hilfsprozesses wurde verbessert, es wird jetzt schneller sein, einen getrennten Prozess zu erkennen und ihn neu zu starten
-
->#####Verbesserte Leistung bei der Verarbeitung einer großen Anzahl von Dateien, wodurch ein Problem beseitigt wurde, das zu Leistungsrückgängen hätte führen können
-
->#####Reduziert die Zeit, die benötigt wird, um von einem langsam ladenden Ordner zu anderen Ordnern zu springen
+﻿###Was ist neu in Ver.7.8.3.0
 
 #####Fehlerbehebung
 
->#####Es wurde ein Problem behoben, das dazu führen konnte, dass Ordner nicht geöffnet wurden, wenn ein Arbeitsprozess beschäftigt war, obwohl diese Ordner möglicherweise nicht vom Hilfsprozess abhängen
+>#####Ein Problem wurde behoben, das zu einem Absturz führen konnte, wenn sich .lnk- oder .url-Dateien im Papierkorb befanden
 
->#####Es wurde ein Problem behoben, bei dem andere geänderte Eigenschaften möglicherweise nicht angewendet wurden, wenn schreibgeschützte Eigenschaften für lnk- oder URL-Dateien über das Eigenschaftenfenster festgelegt oder aufgehoben wurden
+>#####Das Problem, dass ein Bild im integrierten Bildbetrachter nicht als Desktop-Hintergrund festgelegt werden konnte, wurde behoben
 
->#####Es wurde ein Problem behoben, bei dem Bing-Bildhintergründe möglicherweise nicht aktiviert werden konnten
-
->#####Ein Problem wurde behoben, das in einigen Fällen zu einem Absturz beim Betrieb von MTP-Dateien oder FTP-Dateien führen konnte
-
->#####Es wurde ein Problem behoben, bei dem der Hintergrund des integrierten Bildeditors vollständig transparent war, was die normale Anzeige einiger Bilder beeinträchtigen konnte
-
->#####Ein möglicher Absturz beim Versuch, sehr kleine Bilder mit dem integrierten Bildeditor zu bearbeiten, wurde behoben
-
->#####Es wurde ein Problem behoben, das einen Absturz verursachen konnte, wenn versucht wurde, eine Registerkarte zu schließen, die einen Ordner enthielt, der Dateiinformationen aktualisierte
-
->#####Das Problem, dass die Rücktaste und die Escape-Taste im integrierten Viewer nicht funktionierten, wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem das Ändern der Eigenschaften „schreibgeschützt“ und „versteckt“ mehrerer Dateien über das Eigenschaftenfenster möglicherweise nicht wirksam wird
-
->#####Das Problem, dass der Typ versteckter Dateien nicht korrekt angezeigt wurde, wurde behoben
-
->#####Einige Übersetzungsprobleme behoben
+>#####Einige andere Probleme behoben, die zu Abstürzen führen konnten

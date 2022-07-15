@@ -170,22 +170,29 @@ namespace RX_Explorer.Class
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
-            if (ApplicationData.Current.LocalSettings.Values[ResourceKey] is string RawString)
+            try
             {
-                InnerData = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
-            }
+                if (ApplicationData.Current.LocalSettings.Values[ResourceKey] is string RawString)
+                {
+                    InnerData = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
+                }
 
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    OnPropertyChanged(nameof(NameColumnWidth));
+                    OnPropertyChanged(nameof(ModifiedColumnWidth));
+                    OnPropertyChanged(nameof(TypeColumnWidth));
+                    OnPropertyChanged(nameof(SizeColumnWidth));
+                    OnPropertyChanged(nameof(OriginPathColumnWidth));
+                    OnPropertyChanged(nameof(PathColumnWidth));
+                    OnPropertyChanged(nameof(CompressedSizeColumnWidth));
+                    OnPropertyChanged(nameof(CompressRateColumnWidth));
+                });
+            }
+            catch (Exception)
             {
-                OnPropertyChanged(nameof(NameColumnWidth));
-                OnPropertyChanged(nameof(ModifiedColumnWidth));
-                OnPropertyChanged(nameof(TypeColumnWidth));
-                OnPropertyChanged(nameof(SizeColumnWidth));
-                OnPropertyChanged(nameof(OriginPathColumnWidth));
-                OnPropertyChanged(nameof(PathColumnWidth));
-                OnPropertyChanged(nameof(CompressedSizeColumnWidth));
-                OnPropertyChanged(nameof(CompressRateColumnWidth));
-            });
+                //No need to handle this exception
+            }
         }
 
         private void OnPropertyChanged([CallerMemberName] string PropertyName = null)

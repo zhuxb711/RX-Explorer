@@ -432,33 +432,40 @@ namespace RX_Explorer.Class
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            try
             {
-                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosityValue"] is double Luminosity)
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    TintLuminosityOpacity = Luminosity;
-                }
+                    if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosityValue"] is double Luminosity)
+                    {
+                        TintLuminosityOpacity = Luminosity;
+                    }
 
-                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacityValue"] is double Opacity)
-                {
-                    TintOpacity = Opacity;
-                }
+                    if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacityValue"] is double Opacity)
+                    {
+                        TintOpacity = Opacity;
+                    }
 
-                if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
-                {
-                    this.AcrylicColor = AcrylicColor.ToColor();
-                }
+                    if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
+                    {
+                        this.AcrylicColor = AcrylicColor.ToColor();
+                    }
 
-                if (ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] is double BlurValue)
-                {
-                    BackgroundBlur = BlurValue;
-                }
+                    if (ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] is double BlurValue)
+                    {
+                        BackgroundBlur = BlurValue;
+                    }
 
-                if (ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] is double LightnessValue)
-                {
-                    BackgroundLightness = LightnessValue;
-                }
-            });
+                    if (ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] is double LightnessValue)
+                    {
+                        BackgroundLightness = LightnessValue;
+                    }
+                });
+            }
+            catch (Exception)
+            {
+                //No need to handle this exception
+            }
         }
 
         private async void UIS_ColorValuesChanged(UISettings sender, object args)

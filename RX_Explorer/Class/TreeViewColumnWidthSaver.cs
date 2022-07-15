@@ -123,16 +123,23 @@ namespace RX_Explorer.Class
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
-            if (ApplicationData.Current.LocalSettings.Values["TreeViewColumnWidthData"] is string RawString)
+            try
             {
-                InnerData = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
-            }
+                if (ApplicationData.Current.LocalSettings.Values["TreeViewColumnWidthData"] is string RawString)
+                {
+                    InnerData = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
+                }
 
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    OnPropertyChanged(nameof(TreeViewColumnWidth));
+                    OnPropertyChanged(nameof(BladeViewColumnWidth));
+                });
+            }
+            catch (Exception)
             {
-                OnPropertyChanged(nameof(TreeViewColumnWidth));
-                OnPropertyChanged(nameof(BladeViewColumnWidth));
-            });
+                //No need to handle this exception
+            }
         }
 
         private void OnPropertyChanged([CallerMemberName] string PropertyName = null)

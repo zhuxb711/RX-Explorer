@@ -240,28 +240,35 @@ namespace RX_Explorer.View
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            try
             {
-                if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    RecycleBinItem.Visibility = ShowRecycleBin ? Visibility.Visible : Visibility.Collapsed;
-                }
+                    if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
+                    {
+                        RecycleBinItem.Visibility = ShowRecycleBin ? Visibility.Visible : Visibility.Collapsed;
+                    }
 
-                if (ApplicationData.Current.LocalSettings.Values["ShouldShowQuickStartItem"] is bool ShowQuickStart)
-                {
-                    QuickStartItem.Visibility = ShowQuickStart ? Visibility.Visible : Visibility.Collapsed;
-                }
+                    if (ApplicationData.Current.LocalSettings.Values["ShouldShowQuickStartItem"] is bool ShowQuickStart)
+                    {
+                        QuickStartItem.Visibility = ShowQuickStart ? Visibility.Visible : Visibility.Collapsed;
+                    }
 
-                if (ApplicationData.Current.LocalSettings.Values["ShouldShowSecureAreaItem"] is bool ShowSecureArea)
-                {
-                    SecureAreaItem.Visibility = ShowSecureArea ? Visibility.Visible : Visibility.Collapsed;
-                }
+                    if (ApplicationData.Current.LocalSettings.Values["ShouldShowSecureAreaItem"] is bool ShowSecureArea)
+                    {
+                        SecureAreaItem.Visibility = ShowSecureArea ? Visibility.Visible : Visibility.Collapsed;
+                    }
 
-                if (ApplicationData.Current.LocalSettings.Values["ShouldShowBluetoothAudioItem"] is bool ShowBluetoothAudio)
-                {
-                    BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
-                }
-            });
+                    if (ApplicationData.Current.LocalSettings.Values["ShouldShowBluetoothAudioItem"] is bool ShowBluetoothAudio)
+                    {
+                        BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
+                    }
+                });
+            }
+            catch (Exception)
+            {
+                //No need to handle this exception
+            }
         }
 
         private void MainPage_Activated(object sender, WindowActivatedEventArgs e)

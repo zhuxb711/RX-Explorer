@@ -19,7 +19,7 @@ namespace RX_Explorer.Dialog
 
         private readonly IReadOnlyList<FileSystemStorageItemBase> RenameFileList;
 
-        private SemaphoreSlim TextChangeLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim TextChangeLock = new SemaphoreSlim(1, 1);
 
         public RenameDialog(DriveDataBase RootDrive) : this()
         {
@@ -49,11 +49,13 @@ namespace RX_Explorer.Dialog
 
             Loaded += RenameDialog_Loaded;
             Closed += RenameDialog_Closed;
+            RenameText.TextChanged += RenameText_TextChanged;
         }
 
         private void RenameDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
         {
-            TextChangeLock?.Dispose();
+            RenameText.TextChanged -= RenameText_TextChanged;
+            DisposableObjectManager.DisposeObjectOnConditionSatisfied(TextChangeLock, 1000, (Obj) => Obj.CurrentCount > 0);
         }
 
         private void RenameDialog_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)

@@ -1,33 +1,9 @@
-﻿###What's new in Ver.7.8.2.0
-
-#####Performance improvement
-
->#####The scheduling logic of the auxiliary process has been improved, it will now be faster to detect a disconnected process and restart it
-
->#####Improved performance when processing large numbers of files, eliminating an issue that could have caused performance regressions
-
->#####Reduces the time it takes to jump to other folders from within a slow-loading folder
+﻿###What's new in Ver.7.8.3.0
 
 #####Bug Fixes
 
->#####Fixed an issue that could cause folders not being opened when a worker process was busy, even though those folders might not depend on the auxiliary process
+>#####Fixed an issue that could cause a crash when there are .lnk or .url files in the recycle bin
 
->#####Fixed an issue where other changed properties might not be applied when setting or canceling read-only properties for lnk, url files via the properties window
+>#####Fixed the problem of not being able to set a picture as the desktop background in the built-in picture viewer
 
->#####Fixed an issue where Bing image backgrounds might not be able to enabled
-
->#####Fixed an issue that could cause a crash when operating MTP files or FTP files in some cases
-
->#####Fixed an issue where the background of the built-in picture editor was completely transparent, which could interfere with the normal display of some pictures
-
->#####Fixed a possible crash when trying to edit very small pictures with the built-in picture editor
-
->#####Fixed an issue that could cause a crash when attempting to close a tab that contained a folder that was updating file information
-
->#####Fixed the issue that the backspace and escape keys did not work in the built-in viewer
-
->#####Fixed an issue where changing the "read-only" and "hidden" properties of multiple files through the properties window may not take effect
-
->#####Fixed the issue that the type of hidden files was not displayed correctly
-
->#####Fixed some translation issues
+>#####Fixed some other issues that could cause crashes

@@ -266,12 +266,19 @@ namespace RX_Explorer.Class
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            try
             {
-                IsEnableAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["EnableAnimation"]);
-                IsDisableStartupAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"]);
-                IsDisableSelectionAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"]);
-            });
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    IsEnableAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["EnableAnimation"]);
+                    IsDisableStartupAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"]);
+                    IsDisableSelectionAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"]);
+                });
+            }
+            catch (Exception)
+            {
+                //No need to handle this exception
+            }
         }
     }
 }
