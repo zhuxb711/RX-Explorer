@@ -1829,10 +1829,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Unable to find some pinned folders, would you like to remove them automatically? Including:</source>
           <target state="translated">Impossible de trouver certains dossiers épinglés, souhaitez-vous les supprimer automatiquement ? Y compris:</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_RestartFail_Content" translate="yes" xml:space="preserve">
-          <source>There was a problem during the automatic restart, please restart the RX Explorer manually</source>
-          <target state="translated">Il y a eu un problème pendant le redémarrage automatique, veuillez redémarrer RX Explorateur manuellement</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_SecureAreaImportFiliter_Content" translate="yes" xml:space="preserve">
           <source>Security Area does not support importing folder, all folders have been filtered</source>
           <target state="translated">L'Espace Sécurisé ne prend pas en charge l'importation de dossiers, tous les dossiers ont été filtrés</target>
@@ -4765,6 +4761,22 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_CanNotAdjustSmallImage_Content" translate="yes" xml:space="preserve">
           <source>Could not resize images with too small resolution</source>
           <target state="translated">Impossible de redimensionner les images avec une résolution trop petite</target>
+        </trans-unit>
+        <trans-unit id="Toast_Restart_Common_Text_1" translate="yes" xml:space="preserve">
+          <source>RX-Explorer has been restarted</source>
+          <target state="translated">RX-Explorer a été redémarré</target>
+        </trans-unit>
+        <trans-unit id="Toast_Restart_Common_Text_2" translate="yes" xml:space="preserve">
+          <source>We have tried to restore the previous state!</source>
+          <target state="translated">Nous avons essayé de restaurer l'état précédent !</target>
+        </trans-unit>
+        <trans-unit id="Toast_Restart_Crash_Text" translate="yes" xml:space="preserve">
+          <source>RX crashes due to UWP framework or other unexpected exceptions</source>
+          <target state="translated">RX se bloque en raison du cadre UWP ou d'autres exceptions inattendues</target>
+        </trans-unit>
+        <trans-unit id="Toast_Restart_Hang_Text" translate="yes" xml:space="preserve">
+          <source>RX has stopped responding due to UWP framework or other reasons</source>
+          <target state="translated">RX a cessé de répondre en raison du cadre UWP ou d'autres raisons</target>
         </trans-unit>
       </group>
     </body>

@@ -1,4 +1,4 @@
-﻿using ShareClassLibrary;
+﻿using SharedLibrary;
 
 namespace RX_Explorer.Interface
 {

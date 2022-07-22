@@ -62,7 +62,7 @@ namespace RX_Explorer.Class
                     }
                 case GroupTarget.Type:
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                         {
                             return await Exclusive.Controller.GetFriendlyTypeNameAsync(Item.Type);
                         }
@@ -173,7 +173,7 @@ namespace RX_Explorer.Class
                     }
                 case GroupTarget.Type:
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                         {
                             foreach (IGrouping<string, T> Group in InputCollection.GroupBy((Source) => Source.Type).OrderByFastStringSortAlgorithm((Group) => Group.Key, SortDirection.Ascending).ToList())
                             {

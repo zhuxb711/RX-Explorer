@@ -5,7 +5,7 @@ using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -31,6 +31,7 @@ using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -843,7 +844,7 @@ namespace RX_Explorer.View
             {
                 await InitializeAsync();
 
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                 {
                     EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync();
                 }
@@ -1678,7 +1679,7 @@ namespace RX_Explorer.View
             {
                 IsWindowAlwaysOnTop = AlwaysOnTop.IsOn;
 
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
                     using Process CurrentProcess = Process.GetCurrentProcess();
 
@@ -1833,25 +1834,11 @@ namespace RX_Explorer.View
                     SQLite.Current.ClearAllData();
                     ApplicationData.Current.LocalSettings.Values.Clear();
 
-                    Window.Current.Activate();
+                    await MonitorTrustProcessController.SetRecoveryDataAsync(string.Empty);
 
-                    switch (await CoreApplication.RequestRestartAsync("Restart"))
+                    if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
                     {
-                        case AppRestartFailureReason.InvalidUser:
-                        case AppRestartFailureReason.NotInForeground:
-                        case AppRestartFailureReason.Other:
-                            {
-                                QueueContentDialog Dialog1 = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog1.ShowAsync();
-
-                                break;
-                            }
+                        Application.Current.Exit();
                     }
                 }
                 catch (Exception ex)
@@ -2540,7 +2527,7 @@ namespace RX_Explorer.View
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                         {
                             if (await Exclusive.Controller.InterceptWindowsPlusEAsync())
                             {
@@ -2572,7 +2559,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                     {
                         if (await Exclusive.Controller.RestoreWindowsPlusEInterceptionAsync())
                         {
@@ -3663,7 +3650,7 @@ namespace RX_Explorer.View
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                         {
                             if (await Exclusive.Controller.InterceptDesktopFolderAsync())
                             {
@@ -3695,7 +3682,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                     {
                         if (await Exclusive.Controller.RestoreFolderInterceptionAsync())
                         {

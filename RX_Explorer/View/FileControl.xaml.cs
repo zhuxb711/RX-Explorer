@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -78,7 +78,7 @@ namespace RX_Explorer.View
             get => currentPresenter;
             set
             {
-                if (value != currentPresenter)
+                if (currentPresenter != value)
                 {
                     if (BladeViewer.Items.Count > 1)
                     {
@@ -100,6 +100,9 @@ namespace RX_Explorer.View
                         }
                     }
 
+                    currentPresenter = value;
+                    TaskBarController.SetText(value?.CurrentFolder?.DisplayName);
+
                     if (value?.CurrentFolder is FileSystemStorageItemBase Folder)
                     {
                         RefreshAddressButton(Folder.Path);
@@ -109,15 +112,13 @@ namespace RX_Explorer.View
                         GoBackRecord.IsEnabled = !value.BackNavigationStack.IsEmpty;
                         GoForwardRecord.IsEnabled = !value.ForwardNavigationStack.IsEmpty;
 
+                        Renderer.TabItem.IconSource = new ImageIconSource { ImageSource = Folder.Thumbnail };
+
                         if (Renderer.TabItem.Header is TextBlock HeaderBlock)
                         {
                             HeaderBlock.Text = string.IsNullOrEmpty(Folder.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : Folder.DisplayName;
                         }
                     }
-
-                    TaskBarController.SetText(value?.CurrentFolder?.DisplayName);
-
-                    currentPresenter = value;
                 }
             }
         }
@@ -1509,7 +1510,7 @@ namespace RX_Explorer.View
                 {
                     if (Package.Current.Id.Architecture is ProcessorArchitecture.X64 or ProcessorArchitecture.X86OnArm64)
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                         {
                             SearchInEverythingEngine.IsEnabled = await Exclusive.Controller.CheckIfEverythingIsAvailableAsync();
                         }
@@ -1621,7 +1622,7 @@ namespace RX_Explorer.View
 
                         if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 if (string.IsNullOrEmpty(StartupLocation))
                                 {
@@ -1655,7 +1656,7 @@ namespace RX_Explorer.View
                         }
                         else if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 if (string.IsNullOrEmpty(StartupLocation))
                                 {
@@ -1689,7 +1690,7 @@ namespace RX_Explorer.View
                         }
                         else if (string.Equals(QueryText, "Wt", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Wt.exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
                                 {
@@ -1734,7 +1735,7 @@ namespace RX_Explorer.View
                         {
                             string TargetPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(QueryText);
 
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 TargetPath = await Exclusive.Controller.ConvertShortPathToLongPathAsync(TargetPath);
                             }
@@ -1976,7 +1977,7 @@ namespace RX_Explorer.View
                             {
                                 string TargetPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(InputPath);
 
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                 {
                                     TargetPath = await Exclusive.Controller.ConvertShortPathToLongPathAsync(TargetPath);
                                 }
@@ -2915,7 +2916,6 @@ namespace RX_Explorer.View
                     else
                     {
                         PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentPresenter.CurrentFolder.Path);
-
                         TabViewContainer.Current.LayoutModeControl.IsEnabled = true;
                         TabViewContainer.Current.LayoutModeControl.CurrentPath = Config.Path;
                         TabViewContainer.Current.LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
@@ -3341,7 +3341,7 @@ namespace RX_Explorer.View
 
                                 if (await FileSystemStorageItemBase.CheckExistsAsync(DesktopPath))
                                 {
-                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                     {
                                         if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                         {
@@ -3372,7 +3372,7 @@ namespace RX_Explorer.View
 
                                         if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Desktop))
                                         {
-                                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                             {
                                                 if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                                 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,7 +65,7 @@ namespace RX_Explorer.Class
                                                                                              BasicFilters Filter = BasicFilters.File | BasicFilters.Folder,
                                                                                              Func<string, bool> AdvanceFilter = null)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 foreach (MTPFileData Data in await Exclusive.Controller.GetMTPChildItemsDataAsync(Path, IncludeHiddenItems, IncludeSystemItems, IncludeAllSubItems, Filter, CancelToken))
                 {
@@ -104,7 +104,7 @@ namespace RX_Explorer.Class
 
         public override async Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, CreateType ItemType, CreateOption Option)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 MTPFileData Data = await Exclusive.Controller.MTPCreateSubItemAsync(Path, Name, ItemType, Option);
 
@@ -131,7 +131,7 @@ namespace RX_Explorer.Class
                                                                    bool IncludeSystemItems = false,
                                                                    BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 return await Exclusive.Controller.MTPCheckContainersAnyItemsAsync(Path, IncludeHiddenItems, IncludeSystemItems, Filter);
             }
@@ -160,7 +160,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
                     {
                         return await Exclusive.Controller.GetMTPItemDataAsync(Path);
                     }

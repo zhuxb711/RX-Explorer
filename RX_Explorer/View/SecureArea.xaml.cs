@@ -1,6 +1,6 @@
 ﻿using RX_Explorer.Class;
 using RX_Explorer.Dialog;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -1091,7 +1091,7 @@ namespace RX_Explorer.View
 
                     try
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                         {
                             await Exclusive.Controller.MoveAsync(SecureCollection.Select((Item) => Item.Path), Folder.Path, ProgressHandler: async (s, e) =>
                             {

@@ -8,7 +8,7 @@ namespace RX_Explorer.Class
     {
         public async Task<bool> UnlockAsync(string Password)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 return await Exclusive.Controller.RunAsync("powershell.exe",
                                                            RunAsAdmin: true,

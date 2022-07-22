@@ -1,6 +1,6 @@
 ﻿using Microsoft.Toolkit.Deferred;
 using RX_Explorer.View;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -134,9 +134,9 @@ namespace RX_Explorer.Class
                     {
                         if (Model is not (OperationListCompressionModel or OperationListDecompressionModel))
                         {
-                            if (FullTrustProcessController.AllControllersNum
-                                - Math.Max(RunningTask.Count((Task) => !Task.IsCompleted), FullTrustProcessController.InUseControllersNum)
-                                < FullTrustProcessController.DynamicBackupProcessNum)
+                            if (AuxiliaryTrustProcessController.AllControllersNum
+                                - Math.Max(RunningTask.Count((Task) => !Task.IsCompleted), AuxiliaryTrustProcessController.InUseControllersNum)
+                                < AuxiliaryTrustProcessController.DynamicBackupProcessNum)
                             {
                                 Thread.Sleep(1000);
                                 goto Retry;
@@ -164,10 +164,10 @@ namespace RX_Explorer.Class
         {
             Interlocked.Increment(ref RunningTaskCount);
 
+            CancellationToken CancelToken = (Model.Cancellation?.Token).GetValueOrDefault();
+
             try
             {
-                CancellationToken CancelToken = (Model.Cancellation?.Token).GetValueOrDefault();
-
                 Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
                     Model.UpdateStatus(OperationStatus.Preparing);
@@ -196,7 +196,7 @@ namespace RX_Explorer.Class
                         {
                             case OperationListRemoteModel RModel:
                                 {
-                                    using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
+                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
                                     {
                                         try
                                         {
@@ -360,7 +360,7 @@ namespace RX_Explorer.Class
                                                     }).AsTask().Wait();
                                                 }
 
-                                                using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
+                                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
                                                 {
                                                     Exclusive.Controller.CopyAsync(CModel.CopyFrom, CModel.CopyTo, Option, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                                     {
@@ -532,7 +532,7 @@ namespace RX_Explorer.Class
                                                     }).AsTask().Wait();
                                                 }
 
-                                                using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
+                                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
                                                 {
                                                     Exclusive.Controller.MoveAsync(MModel.MoveFrom, MModel.MoveTo, Option, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                                     {
@@ -589,7 +589,7 @@ namespace RX_Explorer.Class
                                 {
                                     try
                                     {
-                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
+                                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
                                         {
                                             ExtraParameter = Exclusive.Controller.RenameAsync(RenameModel.RenameFrom, Path.GetFileName(RenameModel.RenameTo), CancelToken: CancelToken).Result;
                                         }
@@ -638,7 +638,7 @@ namespace RX_Explorer.Class
                                 {
                                     try
                                     {
-                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
+                                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
                                         {
                                             Exclusive.Controller.DeleteAsync(DModel.DeleteFrom, DModel.IsPermanentDelete, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
@@ -693,7 +693,7 @@ namespace RX_Explorer.Class
                                 {
                                     try
                                     {
-                                        using (FullTrustProcessController.Exclusive Exclusive = FullTrustProcessController.GetControllerExclusiveAsync().Result)
+                                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
                                         {
                                             switch (UndoModel)
                                             {
@@ -967,6 +967,13 @@ namespace RX_Explorer.Class
                         PostAction.InvokeAsync(null, new PostProcessingDeferredEventArgs(Model.Status, ExtraParameter)).Wait();
                     }
                 }
+            }
+            catch (AggregateException ex) when (ex.InnerExceptions.OfType<OperationCanceledException>().Any() || CancelToken.IsCancellationRequested)
+            {
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                {
+                    Model.UpdateStatus(OperationStatus.Cancelled);
+                }).AsTask().Wait();
             }
             catch (Exception ex)
             {

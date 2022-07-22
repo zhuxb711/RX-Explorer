@@ -121,16 +121,16 @@ namespace RX_Explorer.View
             {
                 await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
                 {
-                    Task FullTrustProcessInitializeTask = FullTrustProcessController.InitializeAsync();
+                    Task TrustProcessInitializeTask = Task.WhenAll(AuxiliaryTrustProcessController.InitializeAsync(), MonitorTrustProcessController.InitializeAsync());
 
-                    if (await Task.WhenAny(FullTrustProcessInitializeTask, Task.Delay(2000)) != FullTrustProcessInitializeTask)
+                    if (await Task.WhenAny(TrustProcessInitializeTask, Task.Delay(2000)) != TrustProcessInitializeTask)
                     {
                         LoadingText.Text = Globalization.GetString("ExtendedSplashLoadingFullTrustText");
                         LoadingArea.Visibility = Visibility.Visible;
                         LoadingArea.UpdateLayout();
                         SetControlsPosition();
 
-                        await FullTrustProcessInitializeTask;
+                        await TrustProcessInitializeTask;
 
                         LoadingArea.Visibility = Visibility.Collapsed;
                     }
@@ -209,7 +209,10 @@ namespace RX_Explorer.View
 
         private async void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+            if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+            {
+                Application.Current.Exit();
+            }
         }
 
         private async void NavigationButton_Click(object sender, RoutedEventArgs e)
@@ -233,7 +236,10 @@ namespace RX_Explorer.View
             }
             finally
             {
-                await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+                if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                {
+                    Application.Current.Exit();
+                }
             }
         }
 

@@ -1451,9 +1451,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>No se pueden encontrar algunas carpetas ancladas, ¿le gustaría eliminarlas automáticamente? Incluido:</value>
   </data>
-  <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
-    <value>Se ha producido un problema durante el reinicio automático; por favor, reiniciar RX Explorer manualmente.</value>
-  </data>
   <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
     <value>El Área de seguridad no es compatible con la importación de carpetas; todas las carpetas se han filtrado.</value>
   </data>
@@ -3588,5 +3585,17 @@ Las denominaciones no válidas son:
   </data>
   <data name="QueueDialog_CanNotAdjustSmallImage_Content" xml:space="preserve">
     <value>No se pudo cambiar el tamaño de las imágenes con una resolución demasiado pequeña</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
+    <value>RX-Explorer se ha reiniciado</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
+    <value>¡Hemos intentado restaurar el estado anterior!</value>
+  </data>
+  <data name="Toast_Restart_Crash_Text" xml:space="preserve">
+    <value>RX se bloquea debido al marco UWP u otras excepciones inesperadas</value>
+  </data>
+  <data name="Toast_Restart_Hang_Text" xml:space="preserve">
+    <value>RX ha dejado de responder debido al marco UWP u otras razones</value>
   </data>
 </root>

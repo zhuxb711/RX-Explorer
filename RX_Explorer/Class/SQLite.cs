@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using RX_Explorer.View;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;

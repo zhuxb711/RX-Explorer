@@ -1,5 +1,5 @@
 ﻿using RX_Explorer.Interface;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -41,7 +41,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
                     {
                         InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
                     }
@@ -113,7 +113,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                     {
                         return await Exclusive.Controller.GetThumbnailAsync(Type);
                     }
@@ -127,7 +127,7 @@ namespace RX_Explorer.Class
 
         public override async Task DeleteAsync(bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 if (!await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path))
                 {
@@ -144,7 +144,7 @@ namespace RX_Explorer.Class
 
         public async Task<bool> RestoreAsync()
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 return await Exclusive.Controller.RestoreItemInRecycleBinAsync(OriginPath);
             }

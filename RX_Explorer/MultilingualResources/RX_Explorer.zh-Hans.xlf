@@ -1829,10 +1829,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Unable to find some pinned folders, would you like to remove them automatically? Including:</source>
           <target state="translated">无法找到一些已固定的文件夹，是否希望自动移除这些文件夹? 包括:</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_RestartFail_Content" translate="yes" xml:space="preserve">
-          <source>There was a problem during the automatic restart, please restart the RX Explorer manually</source>
-          <target state="translated">自动重新启动过程中出现问题，请手动重启RX文件管理器</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_SecureAreaImportFiliter_Content" translate="yes" xml:space="preserve">
           <source>Security Area does not support importing folder, all folders have been filtered</source>
           <target state="translated">安全域不支持导入文件夹类型，所有文件夹类型均已被过滤</target>
@@ -4765,6 +4761,22 @@ Invalid names include
         <trans-unit id="QueueDialog_CanNotAdjustSmallImage_Content" translate="yes" xml:space="preserve">
           <source>Could not resize images with too small resolution</source>
           <target state="translated">无法调整分辨率太小的图像</target>
+        </trans-unit>
+        <trans-unit id="Toast_Restart_Common_Text_1" translate="yes" xml:space="preserve">
+          <source>RX-Explorer has been restarted</source>
+          <target state="translated">RX文件管理器已经重新启动</target>
+        </trans-unit>
+        <trans-unit id="Toast_Restart_Common_Text_2" translate="yes" xml:space="preserve">
+          <source>We have tried to restore the previous state!</source>
+          <target state="translated">我们已尝试恢复之前的状态!</target>
+        </trans-unit>
+        <trans-unit id="Toast_Restart_Crash_Text" translate="yes" xml:space="preserve">
+          <source>RX crashes due to UWP framework or other unexpected exceptions</source>
+          <target state="translated">RX由于UWP框架或其他异常而崩溃</target>
+        </trans-unit>
+        <trans-unit id="Toast_Restart_Hang_Text" translate="yes" xml:space="preserve">
+          <source>RX has stopped responding due to UWP framework or other reasons</source>
+          <target state="translated">RX由于UWP框架或其他原因而停止响应</target>
         </trans-unit>
       </group>
     </body>

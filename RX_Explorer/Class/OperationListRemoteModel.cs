@@ -1,4 +1,4 @@
-﻿using ShareClassLibrary;
+﻿using SharedLibrary;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +13,7 @@ namespace RX_Explorer.Class
 
         protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 RemoteClipboardRelatedData Data = await Exclusive.Controller.GetRemoteClipboardRelatedDataAsync();
 

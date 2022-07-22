@@ -1,5 +1,5 @@
 ﻿using RX_Explorer.Interface;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -31,7 +31,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
                 {
                     return await Exclusive.Controller.GetUrlDataAsync(Path);
                 }

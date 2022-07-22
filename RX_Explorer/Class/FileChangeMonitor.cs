@@ -50,7 +50,7 @@ namespace RX_Explorer.Class
 
                 if (MonitorPointer.IsInvalid)
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                     {
                         MonitorPointer = await Exclusive.Controller.GetDirectoryMonitorHandleAsync(Path);
                     }

@@ -67,7 +67,12 @@
           <uap:Rotation Preference="landscape"/></uap:InitialRotationPreference>
       </uap:VisualElements>
       <Extensions>
-        <desktop:Extension Category="windows.fullTrustProcess" Executable="FullTrustProcess\FullTrustProcess.exe"/>
+		<desktop:Extension Category="windows.fullTrustProcess" Executable="TrustProcessLauncher\TrustProcessLauncher.exe">
+		  <desktop:FullTrustProcess>
+			<desktop:ParameterGroup GroupId="AuxiliaryTrustProcess" Parameters="/AuxiliaryTrustProcess"/>
+			<desktop:ParameterGroup GroupId="MonitorTrustProcess" Parameters="/MonitorTrustProcess"/>
+		  </desktop:FullTrustProcess>
+		</desktop:Extension>
         <uap5:Extension Category="windows.startupTask" EntryPoint="RX_Explorer.App" Executable="RX_Explorer.exe">
           <uap5:StartupTask DisplayName="ms-resource:AppDisplayName" Enabled="true" TaskId="RXExplorer"/>
         </uap5:Extension>

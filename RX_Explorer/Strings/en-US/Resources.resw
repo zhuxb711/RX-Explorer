@@ -1568,9 +1568,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>Unable to find some pinned folders, would you like to remove them automatically? Including:</value>
   </data>
-  <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
-    <value>There was a problem during the automatic restart, please restart the RX Explorer manually</value>
-  </data>
   <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
     <value>Security Area does not support importing folder, all folders have been filtered</value>
   </data>
@@ -3693,5 +3690,17 @@ Invalid names include
   </data>
   <data name="QueueDialog_CanNotAdjustSmallImage_Content" xml:space="preserve">
     <value>Could not resize images with too small resolution</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
+    <value>RX-Explorer has been restarted</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
+    <value>We have tried to restore the previous state!</value>
+  </data>
+  <data name="Toast_Restart_Crash_Text" xml:space="preserve">
+    <value>RX crashes due to UWP framework or other unexpected exceptions</value>
+  </data>
+  <data name="Toast_Restart_Hang_Text" xml:space="preserve">
+    <value>RX has stopped responding due to UWP framework or other reasons</value>
   </data>
 </root>

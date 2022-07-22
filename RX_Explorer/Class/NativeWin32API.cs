@@ -1,5 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

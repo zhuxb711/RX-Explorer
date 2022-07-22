@@ -1,7 +1,7 @@
 ﻿using FluentFTP;
 using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

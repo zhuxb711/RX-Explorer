@@ -49,6 +49,35 @@ namespace RX_Explorer.View
 
         public ObservableCollection<TabViewItem> TabCollection { get; } = new ObservableCollection<TabViewItem>();
 
+        public IReadOnlyList<string[]> OpenedPathList
+        {
+            get
+            {
+                List<string[]> PathList = new List<string[]>(TabCollection.Count);
+
+                foreach (TabItemContentRenderer Renderer in TabCollection.Select((Tab) => Tab.Content)
+                                                                         .Cast<Frame>()
+                                                                         .Select((Frame) => Frame.Content)
+                                                                         .Cast<TabItemContentRenderer>())
+                {
+                    string[] CurrentPathArray = Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
+                                                                   .Where((Path) => !string.IsNullOrWhiteSpace(Path))
+                                                                   .ToArray();
+
+                    if (CurrentPathArray.Length > 0)
+                    {
+                        PathList.Add(CurrentPathArray);
+                    }
+                    else
+                    {
+                        PathList.Add(Renderer.InitializePaths.ToArray());
+                    }
+                }
+
+                return PathList;
+            }
+        }
+
         private readonly Timer PreviewTimer = new Timer(5000)
         {
             AutoReset = true,
@@ -88,7 +117,8 @@ namespace RX_Explorer.View
 
         private async void TabCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            await FullTrustProcessController.SetExpectedControllerNumAsync(TabCollection.Count);
+            await AuxiliaryTrustProcessController.SetExpectedControllerNumAsync(TabCollection.Count);
+            await MonitorTrustProcessController.SetRecoveryDataAsync(JsonSerializer.Serialize(OpenedPathList));
         }
 
         private async void PreviewTimer_Tick(object sender, ElapsedEventArgs e)
@@ -442,7 +472,7 @@ namespace RX_Explorer.View
                                             {
                                                 args.Handled = true;
 
-                                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                                 {
                                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                                     {
@@ -1142,6 +1172,8 @@ namespace RX_Explorer.View
                         {
                             StartupModeController.SetLastOpenedPath(Enumerable.Empty<string[]>());
                         }
+
+                        await MonitorTrustProcessController.StopMonitorAsync();
 
                         if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
                         {

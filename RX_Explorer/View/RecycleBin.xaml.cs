@@ -201,7 +201,7 @@ namespace RX_Explorer.View
 
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
                     FileCollection.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending));
                 }
@@ -575,7 +575,7 @@ namespace RX_Explorer.View
 
                 try
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                     {
                         if (await Exclusive.Controller.EmptyRecycleBinAsync())
                         {
@@ -680,7 +680,7 @@ namespace RX_Explorer.View
 
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
                     foreach (FileSystemStorageItemBase Item in await SortCollectionGenerator.GetSortedCollectionAsync(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending))
                     {

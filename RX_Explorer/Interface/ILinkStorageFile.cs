@@ -1,5 +1,5 @@
 ﻿using RX_Explorer.Class;
-using ShareClassLibrary;
+using SharedLibrary;
 
 namespace RX_Explorer.Interface
 {

@@ -1,4 +1,4 @@
-﻿using ShareClassLibrary;
+﻿using SharedLibrary;
 using System.Collections.Generic;
 
 namespace RX_Explorer.Class

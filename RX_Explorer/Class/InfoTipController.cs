@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using Windows.ApplicationModel.Core;
 using Windows.System;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -114,7 +115,12 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                await CoreApplication.RequestRestartAsync("Restart");
+                                await MonitorTrustProcessController.SetRecoveryDataAsync(string.Empty);
+
+                                if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                                {
+                                    Application.Current.Exit();
+                                }
                             };
 
                             InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
@@ -133,7 +139,12 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                await CoreApplication.RequestRestartAsync("Restart");
+                                await MonitorTrustProcessController.SetRecoveryDataAsync(string.Empty);
+
+                                if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                                {
+                                    Application.Current.Exit();
+                                }
                             };
 
                             InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
@@ -152,7 +163,12 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                await CoreApplication.RequestRestartAsync("Restart");
+                                await MonitorTrustProcessController.SetRecoveryDataAsync(string.Empty);
+
+                                if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                                {
+                                    Application.Current.Exit();
+                                }
                             };
 
                             InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -456,7 +456,7 @@ namespace RX_Explorer.View
                                                 await PhotoStream.CopyToAsync(TempFileStream);
                                             }
 
-                                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                             {
                                                 if (!await Exclusive.Controller.SetWallpaperImageAsync(TempFile.Path))
                                                 {

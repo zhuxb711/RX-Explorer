@@ -753,7 +753,7 @@ namespace RX_Explorer.Class
                     LocalDisplayTypeList.Add(Globalization.GetString("Folder_Admin_DisplayType"), Globalization.GetString("Folder_Admin_DisplayType"));
                 }
 
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
                     foreach (string Extension in DataSourceCopy.OfType<FileSystemStorageFile>()
                                                                .Select((Source) => Source.Type)

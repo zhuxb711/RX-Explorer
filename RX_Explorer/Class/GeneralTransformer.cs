@@ -1,5 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.IO;
 using System.Threading;

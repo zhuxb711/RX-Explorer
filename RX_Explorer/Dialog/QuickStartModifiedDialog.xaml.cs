@@ -170,7 +170,7 @@ namespace RX_Explorer.Dialog
                                 }
                                 else
                                 {
-                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                     {
                                         if (await Exclusive.Controller.CheckIfPackageFamilyNameExist(Protocol.Text))
                                         {
@@ -411,7 +411,7 @@ namespace RX_Explorer.Dialog
                         }
                         else
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 if (await Exclusive.Controller.GetInstalledApplicationAsync(Protocol.Text) is InstalledApplication Pack)
                                 {
@@ -742,7 +742,7 @@ namespace RX_Explorer.Dialog
             UWPLoadingTip.Visibility = Visibility.Visible;
             PackageListView.Visibility = Visibility.Collapsed;
 
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 foreach (InstalledApplication Pack in await Exclusive.Controller.GetAllInstalledApplicationAsync())
                 {

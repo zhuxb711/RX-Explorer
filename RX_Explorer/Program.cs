@@ -23,6 +23,7 @@ namespace RX_Explorer
                     {
                         switch (ToastActivate.Argument)
                         {
+                            case "RecoveryRestartTips":
                             case "EnterBackgroundTips":
                                 {
                                     while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId))

@@ -5,7 +5,7 @@ using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.View;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -420,7 +420,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     });
                 }))
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                     {
                         if (!CancelToken.IsCancellationRequested)
                         {
@@ -693,7 +693,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     SecurityObjectNameContent.Text = SecurityObjectPath;
 
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                     {
                         foreach (PermissionDataPackage Data in await Exclusive.Controller.GetPermissionsAsync(SecurityObjectPath))
                         {
@@ -755,7 +755,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                 if (Path.HasExtension(LinkFile.LinkTargetPath))
                                 {
-                                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                     {
                                         ShortcutTargetTypeContent.Text = await Exclusive.Controller.GetFriendlyTypeNameAsync(Path.GetExtension(LinkFile.LinkTargetPath));
                                     }
@@ -799,7 +799,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                 using (IDisposable Disposable = FileSystemStorageItemBase.SetBulkAccessSharedController(StorageItem, Exclusive))
                 {
                     Dictionary<string, object> BasicPropertiesDictionary = new Dictionary<string, object>(10)
@@ -1434,7 +1434,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                 {
                                                     try
                                                     {
-                                                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                                                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                                         {
                                                             AdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(File.Path);
                                                         }
@@ -1578,7 +1578,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         }
                         else
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                             {
                                 bool IsCompressed = await Exclusive.Controller.GetDriveCompressionStatusAsync(RootDrive.Path);
                                 bool IsAllowIndex = await Exclusive.Controller.GetDriveIndexStatusAsync(RootDrive.Path);
@@ -2017,7 +2017,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     VisualStateManager.GoToState(this, "UnlockRunningStatus", true);
 
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                     {
                         if (await Exclusive.Controller.TryUnlockFileOccupy(File.Path, ((Button)sender).Name == "CloseForce"))
                         {
@@ -2124,7 +2124,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void DriveCleanup_Click(object sender, RoutedEventArgs e)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 if (!await Exclusive.Controller.RunAsync("cleanmgr.exe", Parameters: new string[] { "/d", RootDrive.Path.TrimEnd('\\') }))
                 {
@@ -2200,7 +2200,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void DriveOptimize_Click(object sender, RoutedEventArgs e)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 if (!await Exclusive.Controller.RunAsync("dfrgui.exe"))
                 {
@@ -2211,7 +2211,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void DriveErrorCheck_Click(object sender, RoutedEventArgs e)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: new string[] { $"-NoExit -Command \"chkdsk {RootDrive.Path.TrimEnd('\\')}\"" }))
                 {

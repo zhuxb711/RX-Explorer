@@ -1405,9 +1405,6 @@
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>無法找到一些釘選的資料夾，您想自動刪除它們嗎? 包含:</value>
   </data>
-  <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
-    <value>自動重啟過程中出現問題，請手動重啟RX 檔案總管</value>
-  </data>
   <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
     <value>加密庫不支持移入資料夾，所有資料夾均已篩選</value>
   </data>
@@ -3574,5 +3571,29 @@
   </data>
   <data name="QueueDialog_CanNotAdjustSmallImage_Content" xml:space="preserve">
     <value>無法調整分辨率過小的圖像</value>
+  </data>
+  <data name="ShutdownButtonBehaviorLabel.Text" xml:space="preserve">
+    <value>自定義關閉按鈕的默認行為</value>
+  </data>
+  <data name="ShutdownButtonBehaviorLabelDescription.Text" xml:space="preserve">
+    <value>指定關閉按鈕的默認行為以避免意外關閉應用程序</value>
+  </data>
+  <data name="VerticalSplitViewLimitationDescription.Text" xml:space="preserve">
+    <value>指定同時顯示的垂直分割視圖的數量限制，超出部分需要滾動訪問。 注意：僅建議在更寬的屏幕上調整此設置，否則每個視圖的內容可能會變得無法識別</value>
+  </data>
+  <data name="VerticalSplitViewLimitationLabel.Text" xml:space="preserve">
+    <value>垂直分屏显示限制</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
+    <value>RX档案管家已重新啟動</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
+    <value>我們已經嘗試恢復之前的狀態!</value>
+  </data>
+  <data name="Toast_Restart_Crash_Text" xml:space="preserve">
+    <value>RX 因UWP框架或其他意外異常而崩潰</value>
+  </data>
+  <data name="Toast_Restart_Hang_Text" xml:space="preserve">
+    <value>RX由於 UWP 框架或其他原因已停止響應</value>
   </data>
 </root>

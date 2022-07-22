@@ -1,5 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Connectivity;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.IO;
 using System.Net;

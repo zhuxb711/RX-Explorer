@@ -1,4 +1,4 @@
-﻿using ShareClassLibrary;
+﻿using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;

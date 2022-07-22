@@ -1,4 +1,4 @@
-﻿using ShareClassLibrary;
+﻿using SharedLibrary;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -51,7 +51,7 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync()
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 RawData = await Exclusive.Controller.GetMTPDriveVolumnDataAsync(Path);
             }

@@ -112,9 +112,11 @@
     <Content Include="Images\Wide310x150Logo.scale-400.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FullTrustProcess\FullTrustProcess.csproj" />
+    <ProjectReference Include="..\AuxiliaryTrustProcess\AuxiliaryTrustProcess.csproj" />
+    <ProjectReference Include="..\MonitorTrustProcess\MonitorTrustProcess.csproj" />
     <ProjectReference Include="..\RX_Explorer\RX_Explorer.csproj" />
     <ProjectReference Include="..\SystemLaunchHelper\SystemLaunchHelper.csproj" />
+    <ProjectReference Include="..\TrustProcessLauncher\TrustProcessLauncher.csproj" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
 </Project>

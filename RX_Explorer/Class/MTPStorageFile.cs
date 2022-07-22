@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,7 +24,7 @@ namespace RX_Explorer.Class
 
         protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.Exclusive Exclusive)
+            async Task<BitmapImage> InternalGetThumbnailAsync(AuxiliaryTrustProcessController.Exclusive Exclusive)
             {
                 try
                 {
@@ -50,7 +50,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
                     return await InternalGetThumbnailAsync(Exclusive);
                 }
@@ -68,7 +68,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
                     return await Exclusive.Controller.GetThumbnailAsync(Type);
                 }
@@ -96,7 +96,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
                 {
                     InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
                 }
@@ -124,7 +124,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
                     Handle = await Exclusive.Controller.MTPDownloadAndGetHandleAsync(Path, Mode, Option);
                 }
@@ -210,7 +210,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
                     {
                         return await Exclusive.Controller.GetMTPItemDataAsync(Path);
                     }

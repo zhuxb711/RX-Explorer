@@ -1,5 +1,5 @@
 ﻿using Microsoft.UI.Xaml.Controls;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -140,7 +140,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
                     return await Exclusive.Controller.InvokeContextMenuItemAsync(DataPackage).ConfigureAwait(false);
                 }

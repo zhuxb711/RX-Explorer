@@ -1,4 +1,4 @@
-﻿using ShareClassLibrary;
+﻿using SharedLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;

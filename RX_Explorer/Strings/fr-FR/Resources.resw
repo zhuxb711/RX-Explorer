@@ -1386,9 +1386,6 @@
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>Impossible de trouver certains dossiers épinglés, souhaitez-vous les supprimer automatiquement ? Y compris:</value>
   </data>
-  <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
-    <value>Il y a eu un problème pendant le redémarrage automatique, veuillez redémarrer RX Explorateur manuellement</value>
-  </data>
   <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
     <value>L'Espace Sécurisé ne prend pas en charge l'importation de dossiers, tous les dossiers ont été filtrés</value>
   </data>
@@ -3586,5 +3583,17 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_CanNotAdjustSmallImage_Content" xml:space="preserve">
     <value>Impossible de redimensionner les images avec une résolution trop petite</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
+    <value>RX-Explorer a été redémarré</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
+    <value>Nous avons essayé de restaurer l'état précédent !</value>
+  </data>
+  <data name="Toast_Restart_Crash_Text" xml:space="preserve">
+    <value>RX se bloque en raison du cadre UWP ou d'autres exceptions inattendues</value>
+  </data>
+  <data name="Toast_Restart_Hang_Text" xml:space="preserve">
+    <value>RX a cessé de répondre en raison du cadre UWP ou d'autres raisons</value>
   </data>
 </root>

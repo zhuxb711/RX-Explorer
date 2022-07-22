@@ -1,10 +1,10 @@
 ﻿namespace RX_Explorer.Class
 {
-    public class NamedPipeCommunicationBaseController : NamedPipeWriteController
+    public class NamedPipeAuxiliaryCommunicationBaseController : NamedPipeWriteController
     {
         protected override int MaxAllowedConnection => -1;
 
-        public NamedPipeCommunicationBaseController() : base("Explorer_NamedPipe_CommunicationBase")
+        public NamedPipeAuxiliaryCommunicationBaseController() : base("Explorer_NamedPipe_Auxiliary_CommunicationBase")
         {
 
         }

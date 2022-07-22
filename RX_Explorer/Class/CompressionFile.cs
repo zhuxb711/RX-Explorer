@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync()
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 InnerDisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
 

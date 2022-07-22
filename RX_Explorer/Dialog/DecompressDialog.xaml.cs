@@ -1,5 +1,5 @@
 ﻿using RX_Explorer.Class;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -39,7 +39,7 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
                     AvailableEncodings.AddRange(await Exclusive.Controller.GetAllEncodingsAsync());
                 }

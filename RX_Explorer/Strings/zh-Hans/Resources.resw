@@ -1386,9 +1386,6 @@
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>无法找到一些已固定的文件夹，是否希望自动移除这些文件夹? 包括:</value>
   </data>
-  <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
-    <value>自动重新启动过程中出现问题，请手动重启RX文件管理器</value>
-  </data>
   <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
     <value>安全域不支持导入文件夹类型，所有文件夹类型均已被过滤</value>
   </data>
@@ -3586,5 +3583,17 @@
   </data>
   <data name="QueueDialog_CanNotAdjustSmallImage_Content" xml:space="preserve">
     <value>无法调整分辨率太小的图像</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
+    <value>RX文件管理器已经重新启动</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
+    <value>我们已尝试恢复之前的状态!</value>
+  </data>
+  <data name="Toast_Restart_Crash_Text" xml:space="preserve">
+    <value>RX由于UWP框架或其他异常而崩溃</value>
+  </data>
+  <data name="Toast_Restart_Hang_Text" xml:space="preserve">
+    <value>RX由于UWP框架或其他原因而停止响应</value>
   </data>
 </root>

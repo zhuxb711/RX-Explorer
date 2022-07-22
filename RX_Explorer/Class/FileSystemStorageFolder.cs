@@ -1,4 +1,4 @@
-﻿using ShareClassLibrary;
+﻿using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -302,7 +302,7 @@ namespace RX_Explorer.Class
                             }
                             catch (Exception)
                             {
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                 {
                                     string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, SubItemPath);
 
@@ -363,7 +363,7 @@ namespace RX_Explorer.Class
                             }
                             catch (Exception)
                             {
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                 {
                                     string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, SubItemPath);
 
@@ -521,7 +521,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 FileAttributes Attribute = await ControllerRef.Value.Controller.GetFileAttributeAsync(Path);
 

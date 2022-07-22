@@ -33,7 +33,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using NavigationView = Microsoft.UI.Xaml.Controls.NavigationView;
 using NavigationViewBackRequestedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewBackRequestedEventArgs;
@@ -55,7 +54,7 @@ namespace RX_Explorer.View
 
         private readonly Task EntranceAnimationPreloadTask;
 
-        private DeviceWatcher BluetoothAudioWatcher;
+        private readonly DeviceWatcher BluetoothAudioWatcher;
 
         public MainPage(Rect Parameter, IReadOnlyList<string[]> ActivatePathArray = null)
         {
@@ -80,7 +79,7 @@ namespace RX_Explorer.View
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
             SystemNavigationManager.GetForCurrentView().BackRequested += MainPage_BackRequested;
             AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
-            FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
+            AuxiliaryTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
             CoreApplication.MainView.CoreWindow.PointerPressed += MainPage_PointerPressed;
 
             MSStoreHelper.Current.PreLoadStoreData();
@@ -110,6 +109,8 @@ namespace RX_Explorer.View
                 {typeof(SecureAreaContainer),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") },
                 {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
             };
+
+            BluetoothAudioWatcher = DeviceInformation.CreateWatcher(AudioPlaybackConnection.GetDeviceSelector());
 
             if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
             {
@@ -299,7 +300,7 @@ namespace RX_Explorer.View
 
         private async void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
         {
-            if (!QueueContentDialog.IsRunningOrWaiting 
+            if (!QueueContentDialog.IsRunningOrWaiting
                 && !SettingPage.IsOpened
                 && NavView.SelectedItem is NavigationViewItem NavItem)
             {
@@ -334,7 +335,7 @@ namespace RX_Explorer.View
 
         private void Current_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
         {
-            if (FullTrustProcessController.IsAnyCommandExecutingInAllControllers
+            if (AuxiliaryTrustProcessController.IsAnyCommandExecutingInAllControllers
                 || GeneralTransformer.IsAnyTransformTaskRunning
                 || QueueTaskController.IsAnyTaskRunningInController)
             {
@@ -460,7 +461,7 @@ namespace RX_Explorer.View
                 }
 
                 if (GeneralTransformer.IsAnyTransformTaskRunning
-                    || FullTrustProcessController.IsAnyCommandExecutingInAllControllers
+                    || AuxiliaryTrustProcessController.IsAnyCommandExecutingInAllControllers
                     || QueueTaskController.IsAnyTaskRunningInController)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
@@ -565,10 +566,10 @@ namespace RX_Explorer.View
 
                 if (StartupModeController.Mode == StartupMode.LastOpenedTab)
                 {
-                    SaveLastOpenedTab();
+                    StartupModeController.SetLastOpenedPath(TabViewContainer.Current.OpenedPathList);
                 }
 
-                await FTPClientManager.CloseAllClientAsync();
+                await Task.WhenAny(Task.WhenAll(MonitorTrustProcessController.StopMonitorAsync(), FTPClientManager.CloseAllClientAsync()), Task.Delay(5000));
             }
             catch (Exception ex)
             {
@@ -620,7 +621,7 @@ namespace RX_Explorer.View
                     await new WhatIsNew().ShowAsync();
                 }
 
-                await Task.WhenAll(RegisterBackgroundTaskAsync(), CheckUpdateIfExistAsync(), Settings.InitializeAsync());
+                await Task.WhenAll(RegisterBackgroundTaskAsync(), CheckUpdateIfExistAsync(), Settings.InitializeAsync(), MonitorTrustProcessController.StartMonitorAsync());
 
                 if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
@@ -1216,8 +1217,6 @@ namespace RX_Explorer.View
                 StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text_1");
                 BluetoothSearchProgress.IsActive = true;
 
-                BluetoothAudioWatcher = DeviceInformation.CreateWatcher(AudioPlaybackConnection.GetDeviceSelector());
-
                 BluetoothAudioWatcher.Added += Watcher_Added;
                 BluetoothAudioWatcher.Removed += Watcher_Removed;
                 BluetoothAudioWatcher.Updated += Watcher_Updated;
@@ -1334,7 +1333,7 @@ namespace RX_Explorer.View
                                     {
                                         try
                                         {
-                                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                             {
                                                 if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
                                                 {
@@ -1390,7 +1389,7 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                 {
                                     if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(Item.Protocol))
                                     {
@@ -1691,25 +1690,6 @@ namespace RX_Explorer.View
                         }
                 }
             }
-        }
-
-        private void SaveLastOpenedTab()
-        {
-            List<string[]> PathList = new List<string[]>();
-
-            foreach (TabItemContentRenderer Renderer in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
-                                                                                              .Cast<Frame>()
-                                                                                              .Select((Frame) => Frame.Content)
-                                                                                              .Cast<TabItemContentRenderer>())
-            {
-                string[] CurrentPathArray = Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
-                                                               .Where((Path) => !string.IsNullOrWhiteSpace(Path))
-                                                               .ToArray();
-
-                PathList.Add(CurrentPathArray.Length > 0 ? CurrentPathArray : Renderer.InitializePaths.ToArray());
-            }
-
-            StartupModeController.SetLastOpenedPath(PathList);
         }
     }
 }

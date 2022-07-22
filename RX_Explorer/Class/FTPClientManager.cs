@@ -78,20 +78,23 @@ namespace RX_Explorer.Class
 
         public static async Task CloseAllClientAsync()
         {
-            try
+            if (ControllerList.Count > 0)
             {
-                foreach (FTPClientController Client in ControllerList)
+                try
                 {
-                    await Task.Run(() => Client.Dispose());
+                    List<Task> ParallelTask = new List<Task>(ControllerList.Count);
+
+                    foreach (FTPClientController Client in ControllerList)
+                    {
+                        ParallelTask.Add(Task.Run(() => Client.Dispose()));
+                    }
+
+                    await Task.WhenAll(ParallelTask);
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not disconnect normally from ftp server");
-            }
-            finally
-            {
-                ControllerList.ForEach((Client) => Client.Dispose());
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not disconnect normally from ftp server");
+                }
             }
         }
     }

@@ -1451,9 +1451,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>Einige angeheftete Ordner können nicht gefunden werden. Möchten Sie sie automatisch entfernen? Einschließlich:</value>
   </data>
-  <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
-    <value>Es ist ein Problem während des automatischen Neustarts aufgetreten. Bitte starten Sie RX-Explorer manuell neu.</value>
-  </data>
   <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
     <value>Sicherheitsbereich ünterstützt das Importieren von Ordnern nicht. Alle Ordner wurden gefiltert.</value>
   </data>
@@ -3588,5 +3585,17 @@ Inkorrekte Namen sind
   </data>
   <data name="QueueDialog_CanNotAdjustSmallImage_Content" xml:space="preserve">
     <value>Bilder mit zu geringer Auflösung konnten nicht skaliert werden</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_1" xml:space="preserve">
+    <value>RX-Explorer wurde neu gestartet</value>
+  </data>
+  <data name="Toast_Restart_Common_Text_2" xml:space="preserve">
+    <value>Wir haben versucht, den vorherigen Zustand wiederherzustellen!</value>
+  </data>
+  <data name="Toast_Restart_Crash_Text" xml:space="preserve">
+    <value>RX stürzt aufgrund des UWP-Frameworks oder anderer unerwarteter Ausnahmen ab</value>
+  </data>
+  <data name="Toast_Restart_Hang_Text" xml:space="preserve">
+    <value>RX reagiert aufgrund des UWP-Frameworks oder aus anderen Gründen nicht mehr</value>
   </data>
 </root>

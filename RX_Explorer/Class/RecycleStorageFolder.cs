@@ -31,7 +31,7 @@ namespace RX_Explorer.Class
 
         public override async Task DeleteAsync(bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 if (!await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path))
                 {
@@ -48,7 +48,7 @@ namespace RX_Explorer.Class
 
         public async Task<bool> RestoreAsync()
         {
-            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
                 return await Exclusive.Controller.RestoreItemInRecycleBinAsync(OriginPath);
             }

@@ -122,10 +122,12 @@
     <Compile Include="Class\Helper.cs" />
     <Compile Include="Class\LibraryFolderRecord.cs" />
     <Compile Include="Class\ListViewColumnWidthSaver.cs" />
+    <Compile Include="Class\MonitorTrustProcessController.cs" />
     <Compile Include="Class\MTPDriveData.cs" />
     <Compile Include="Class\MTPFileSaveOnFlushStream.cs" />
     <Compile Include="Class\MTPStorageFile.cs" />
     <Compile Include="Class\MTPStorageFolder.cs" />
+    <Compile Include="Class\NamedPipeMonitorCommunicationBaseController.cs" />
     <Compile Include="Class\NavigationRecordDisplay.cs" />
     <Compile Include="Class\AddressSuggestionItem.cs" />
     <Compile Include="Class\AnimationController.cs" />
@@ -327,7 +329,7 @@
     <Compile Include="Dialog\WhatIsNew.xaml.cs">
       <DependentUpon>WhatIsNew.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Class\FullTrustProcessController.cs" />
+    <Compile Include="Class\AuxiliaryTrustProcessController.cs" />
     <Compile Include="Class\LogTracer.cs" />
     <Compile Include="Class\ProgramPickerItem.cs" />
     <Compile Include="Class\Extension.cs" />
@@ -807,7 +809,7 @@
       <Version>2.17.1</Version>
     </PackageReference>
     <PackageReference Include="FluentFTP">
-      <Version>37.1.0</Version>
+      <Version>37.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AppCenter.Crashes">
       <Version>4.5.1</Version>
@@ -837,7 +839,7 @@
       <Version>7.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.8.0-prerelease.220712001</Version>
+      <Version>2.8.0</Version>
     </PackageReference>
     <PackageReference Include="SharpCompress">
       <Version>0.32.1</Version>
@@ -881,9 +883,9 @@
       <Project>{db5f5aa6-13b4-458a-a6a9-e29238adae06}</Project>
       <Name>OpenDirectoryExt</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ShareClassLibrary\ShareClassLibrary.csproj">
+    <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj">
       <Project>{57848d87-5f61-4150-b6dc-56a87ac0aeae}</Project>
-      <Name>ShareClassLibrary</Name>
+      <Name>SharedLibrary</Name>
     </ProjectReference>
     <ProjectReference Include="..\SystemInformationProvider\SystemInformationProvider.vcxproj">
       <Project>{b7beef6e-1f7f-43b6-a1ec-f447b3f995df}</Project>

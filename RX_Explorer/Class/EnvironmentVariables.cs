@@ -1,4 +1,4 @@
-﻿using ShareClassLibrary;
+﻿using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -31,7 +31,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
                     return await Exclusive.Controller.GetVariablePathListAsync(PartialVariablePath);
                 }
@@ -58,7 +58,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                         {
                             string ActualPath = await Exclusive.Controller.GetVariablePathAsync(Variable.Trim('%'));
 

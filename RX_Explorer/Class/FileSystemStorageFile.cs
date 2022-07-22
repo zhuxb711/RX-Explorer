@@ -1,6 +1,6 @@
 ﻿using FluentFTP;
 using Microsoft.Win32.SafeHandles;
-using ShareClassLibrary;
+using SharedLibrary;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -127,7 +127,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    using (FullTrustProcessController.Exclusive Exlusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                    using (AuxiliaryTrustProcessController.Exclusive Exlusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                     {
                         return await Exlusive.Controller.GetSizeOnDiskAsync(Path);
                     }
@@ -171,7 +171,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                         {
                             InnerDisplayType = await ControllerRef.Value.Controller.GetFriendlyTypeNameAsync(Type);
                         }
@@ -213,7 +213,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            using (FullTrustProcessController.Exclusive Exclusive = await FullTrustProcessController.GetControllerExclusiveAsync())
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                             {
                                 FileAttributes Attribute = await ControllerRef.Value.Controller.GetFileAttributeAsync(Path);
 
