@@ -19,7 +19,7 @@ namespace RX_Explorer.Class
 
             if (await Controller.RunCommandAsync((Client) => Client.FileExistsAsync(Analysis.RelatedPath)))
             {
-                await Controller.RunCommandAsync((Client) => Client.UploadAsync(BaseStream, Analysis.RelatedPath, FtpRemoteExists.Overwrite));
+                await Controller.RunCommandAsync((Client) => Client.UploadStreamAsync(BaseStream, Analysis.RelatedPath, FtpRemoteExists.Overwrite));
             }
         }
 

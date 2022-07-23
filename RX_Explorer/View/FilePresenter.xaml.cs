@@ -6317,8 +6317,6 @@ namespace RX_Explorer.View
 
         private async void OpenInTerminal_Click(object sender, RoutedEventArgs e)
         {
-            Thread.Sleep(60000);
-
             CloseAllFlyout();
 
             try

@@ -77,7 +77,7 @@ namespace RX_Explorer.Class
             {
                 if ((AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true))
                 {
-                    if (Item.Type.HasFlag(FtpFileSystemObjectType.Directory))
+                    if (Item.Type.HasFlag(FtpObjectType.Directory))
                     {
                         if (Filter.HasFlag(BasicFilters.Folder))
                         {
@@ -199,7 +199,7 @@ namespace RX_Explorer.Class
                     {
                         case CreateOption.OpenIfExist:
                             {
-                                if (await ClientController.RunCommandAsync((Client) => Client.UploadAsync(Array.Empty<byte>(), TargetPath, FtpRemoteExists.Skip)) != FtpStatus.Failed)
+                                if (await ClientController.RunCommandAsync((Client) => Client.UploadBytesAsync(Array.Empty<byte>(), TargetPath, FtpRemoteExists.Skip)) != FtpStatus.Failed)
                                 {
                                     if (await ClientController.RunCommandAsync((Client) => Client.GetObjectInfoAsync(TargetPath, true)) is FtpListItem Item)
                                     {
@@ -213,7 +213,7 @@ namespace RX_Explorer.Class
                             {
                                 string UniquePath = await ClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetPath, CreateType.File));
 
-                                if (await ClientController.RunCommandAsync((Client) => Client.UploadAsync(Array.Empty<byte>(), UniquePath, FtpRemoteExists.NoCheck)) == FtpStatus.Success)
+                                if (await ClientController.RunCommandAsync((Client) => Client.UploadBytesAsync(Array.Empty<byte>(), UniquePath, FtpRemoteExists.NoCheck)) == FtpStatus.Success)
                                 {
                                     if (await ClientController.RunCommandAsync((Client) => Client.GetObjectInfoAsync(UniquePath, true)) is FtpListItem Item)
                                     {
@@ -225,7 +225,7 @@ namespace RX_Explorer.Class
                             }
                         case CreateOption.ReplaceExisting:
                             {
-                                if (await ClientController.RunCommandAsync((Client) => Client.UploadAsync(Array.Empty<byte>(), TargetPath, FtpRemoteExists.Overwrite)) == FtpStatus.Success)
+                                if (await ClientController.RunCommandAsync((Client) => Client.UploadBytesAsync(Array.Empty<byte>(), TargetPath, FtpRemoteExists.Overwrite)) == FtpStatus.Success)
                                 {
                                     if (await ClientController.RunCommandAsync((Client) => Client.GetObjectInfoAsync(TargetPath, true)) is FtpListItem Item)
                                     {
@@ -250,7 +250,7 @@ namespace RX_Explorer.Class
         {
             foreach (FtpListItem Item in await ClientController.RunCommandAsync((Client) => Client.GetListingAsync(RelatedPath)))
             {
-                if (Item.Type.HasFlag(FtpFileSystemObjectType.Directory))
+                if (Item.Type.HasFlag(FtpObjectType.Directory))
                 {
                     if (Filter.HasFlag(BasicFilters.Folder))
                     {

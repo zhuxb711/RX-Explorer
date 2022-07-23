@@ -164,7 +164,7 @@ namespace RX_Explorer.Class
         {
             Stream Stream = await CreateTemporaryFileStreamAsync();
 
-            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(Stream, RelatedPath)))
+            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(Stream, RelatedPath)))
             {
                 throw new InvalidDataException();
             }
@@ -208,11 +208,11 @@ namespace RX_Explorer.Class
                             {
                                 case CollisionOptions.OverrideOnCollision:
                                     {
-                                        if (await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(TempFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))), CancelToken)))
+                                        if (await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(TempFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))), CancelToken)))
                                         {
                                             TempFileStream.Seek(0, SeekOrigin.Begin);
 
-                                            if (await TargetClientController.RunCommandAsync((Client) => Client.UploadAsync(TempFileStream, TargetAnalysis.RelatedPath, FtpRemoteExists.Overwrite, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))), CancelToken)) == FtpStatus.Failed)
+                                            if (await TargetClientController.RunCommandAsync((Client) => Client.UploadStreamAsync(TempFileStream, TargetAnalysis.RelatedPath, FtpRemoteExists.Overwrite, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))), CancelToken)) == FtpStatus.Failed)
                                             {
                                                 throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}:{TargetClientController.ServerPort}");
                                             }
@@ -229,11 +229,11 @@ namespace RX_Explorer.Class
                                     {
                                         string UniquePath = await TargetClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
 
-                                        if (await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(TempFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))), CancelToken)))
+                                        if (await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(TempFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))), CancelToken)))
                                         {
                                             TempFileStream.Seek(0, SeekOrigin.Begin);
 
-                                            if (await TargetClientController.RunCommandAsync((Client) => Client.UploadAsync(TempFileStream, UniquePath, FtpRemoteExists.NoCheck, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))), CancelToken)) == FtpStatus.Failed)
+                                            if (await TargetClientController.RunCommandAsync((Client) => Client.UploadStreamAsync(TempFileStream, UniquePath, FtpRemoteExists.NoCheck, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))), CancelToken)) == FtpStatus.Failed)
                                             {
                                                 throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}:{TargetClientController.ServerPort}");
                                             }
@@ -247,11 +247,11 @@ namespace RX_Explorer.Class
                                     }
                                 case CollisionOptions.Skip:
                                     {
-                                        if (await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(TempFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))), CancelToken)))
+                                        if (await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(TempFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))), CancelToken)))
                                         {
                                             TempFileStream.Seek(0, SeekOrigin.Begin);
 
-                                            if (await TargetClientController.RunCommandAsync((Client) => Client.UploadAsync(TempFileStream, TargetAnalysis.RelatedPath, FtpRemoteExists.Skip, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))), CancelToken)) == FtpStatus.Failed)
+                                            if (await TargetClientController.RunCommandAsync((Client) => Client.UploadStreamAsync(TempFileStream, TargetAnalysis.RelatedPath, FtpRemoteExists.Skip, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))), CancelToken)) == FtpStatus.Failed)
                                             {
                                                 throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}:{TargetClientController.ServerPort}");
                                             }
@@ -283,7 +283,7 @@ namespace RX_Explorer.Class
                                 {
                                     using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     {
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
                                         {
                                             throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
                                         }
@@ -298,7 +298,7 @@ namespace RX_Explorer.Class
                                 {
                                     using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     {
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
                                         {
                                             throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
                                         }
@@ -315,7 +315,7 @@ namespace RX_Explorer.Class
                                     {
                                         using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                         {
-                                            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
+                                            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
                                             {
                                                 throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
                                             }
@@ -405,7 +405,7 @@ namespace RX_Explorer.Class
                                 {
                                     using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     {
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
                                         {
                                             throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
                                         }
@@ -420,7 +420,7 @@ namespace RX_Explorer.Class
                                 {
                                     using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     {
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
                                         {
                                             throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
                                         }
@@ -437,7 +437,7 @@ namespace RX_Explorer.Class
                                     {
                                         using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                         {
-                                            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))))
+                                            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))))
                                             {
                                                 throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
                                             }
