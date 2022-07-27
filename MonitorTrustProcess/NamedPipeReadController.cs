@@ -1,11 +1,10 @@
-﻿using Microsoft.Toolkit.Deferred;
-using SharedLibrary;
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vanara.PInvoke;
 
 namespace MonitorTrustProcess
 {
@@ -17,6 +16,8 @@ namespace MonitorTrustProcess
 
         private void ReadProcess()
         {
+            Ole32.OleInitialize();
+
             try
             {
                 if (!IsConnected)
@@ -58,14 +59,18 @@ namespace MonitorTrustProcess
 
                         if (!string.IsNullOrEmpty(ReadText))
                         {
-                            OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ReadText)).Wait();
+                            OnDataReceived?.Invoke(this, new NamedPipeDataReceivedArgs(ReadText));
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ex)).Wait();
+                OnDataReceived?.Invoke(this, new NamedPipeDataReceivedArgs(ex));
+            }
+            finally
+            {
+                Ole32.OleUninitialize();
             }
         }
 
@@ -81,7 +86,7 @@ namespace MonitorTrustProcess
             }
         }
 
-        public NamedPipeReadController(string PipeId) : base(PipeId)
+        public NamedPipeReadController(string PackageFamilyName, string PipeId) : base(PackageFamilyName, PipeId)
         {
             ConnectionSet = new TaskCompletionSource<bool>();
 
@@ -90,6 +95,7 @@ namespace MonitorTrustProcess
                 Priority = ThreadPriority.Normal,
                 IsBackground = true
             };
+            ProcessThread.SetApartmentState(ApartmentState.STA);
             ProcessThread.Start();
         }
     }

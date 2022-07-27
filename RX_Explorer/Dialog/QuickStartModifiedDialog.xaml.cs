@@ -107,7 +107,7 @@ namespace RX_Explorer.Dialog
             try
             {
                 if ((Type == QuickStartType.Application && CommonAccessCollection.QuickStartList.Any((Item) => Item.DisplayName == DisplayName.Text))
-                || (Type == QuickStartType.WebSite && CommonAccessCollection.WebLinkList.Any((Item) => Item.DisplayName == DisplayName.Text)))
+                    || (Type == QuickStartType.WebSite && CommonAccessCollection.WebLinkList.Any((Item) => Item.DisplayName == DisplayName.Text)))
                 {
                     ExistTip.IsOpen = true;
                     args.Cancel = true;
@@ -172,7 +172,7 @@ namespace RX_Explorer.Dialog
                                 {
                                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                     {
-                                        if (await Exclusive.Controller.CheckIfPackageFamilyNameExist(Protocol.Text))
+                                        if (await Exclusive.Controller.CheckIfPackageFamilyNameExistAsync(Protocol.Text))
                                         {
                                             if (IsUpdate)
                                             {
@@ -383,8 +383,8 @@ namespace RX_Explorer.Dialog
                                     }
                                     catch (Exception)
                                     {
-                                        StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark 
-                                                                                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png") 
+                                        StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                                                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
                                                                                                                         : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 
                                         using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
@@ -413,7 +413,7 @@ namespace RX_Explorer.Dialog
                         {
                             using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                             {
-                                if (await Exclusive.Controller.GetInstalledApplicationAsync(Protocol.Text) is InstalledApplication Pack)
+                                if (await Exclusive.Controller.GetSpecificInstalledUwpApplicationAsync(Protocol.Text) is InstalledApplication Pack)
                                 {
                                     StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
@@ -671,14 +671,20 @@ namespace RX_Explorer.Dialog
 
                 if (await Picker.PickSingleFileAsync() is StorageFile ExecuteFile)
                 {
+                    Protocol.Text = ExecuteFile.Path;
+
                     FileSystemStorageFile File = new FileSystemStorageFile(await ExecuteFile.GetNativeFileDataAsync());
 
                     IReadOnlyDictionary<string, string> PropertiesDic = await File.GetPropertiesAsync(new string[] { "System.FileDescription" });
 
-                    string ExtraAppName = PropertiesDic["System.FileDescription"];
-
-                    DisplayName.Text = string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName;
-                    Protocol.Text = ExecuteFile.Path;
+                    if (PropertiesDic.TryGetValue("System.FileDescription", out string AppName) && !string.IsNullOrEmpty(AppName))
+                    {
+                        DisplayName.Text = AppName;
+                    }
+                    else
+                    {
+                        DisplayName.Text = ExecuteFile.DisplayName;
+                    }
 
                     StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
@@ -709,8 +715,8 @@ namespace RX_Explorer.Dialog
                     }
                     catch (Exception)
                     {
-                        StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark 
-                                                                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png") 
+                        StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
                                                                                                         : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 
                         using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
@@ -744,7 +750,7 @@ namespace RX_Explorer.Dialog
 
             using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
-                foreach (InstalledApplication Pack in await Exclusive.Controller.GetAllInstalledApplicationAsync())
+                foreach (InstalledApplication Pack in await Exclusive.Controller.GetAllInstalledUwpApplicationAsync())
                 {
                     if (!UWPPickerTip.IsOpen)
                     {

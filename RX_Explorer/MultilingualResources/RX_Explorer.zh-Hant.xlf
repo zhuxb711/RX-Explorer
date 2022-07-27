@@ -4778,6 +4778,38 @@ Invalid names include
           <source>RX has stopped responding due to UWP framework or other reasons</source>
           <target state="translated">RX由於 UWP 框架或其他原因已停止響應</target>
         </trans-unit>
+        <trans-unit id="AppGuardContent.Text" translate="yes" xml:space="preserve">
+          <source>When this option is enabled, a daemon process will be used to continuously monitor the running status of this application. Note: It is recommended to enable this option to maximize reliability</source>
+          <target state="translated">啟用此選項後，將使用一個守護進程持續監控此應用程序的運行狀態。 注意：建議啟用此選項以最大限度地提高可靠性</target>
+        </trans-unit>
+        <trans-unit id="AppGuardLabel.Text" translate="yes" xml:space="preserve">
+          <source>Application daemon process</source>
+          <target state="translated">應用程序守護進程</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnCrashContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will allow the daemon process to restart the app once it detects a crash and restore the folder user was browsing before</source>
+          <target state="translated">啟用此選項將允許守護進程在檢測到崩潰後重新啟動應用程序並恢復用戶之前瀏覽的文件夾</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnCrashLabel.Text" translate="yes" xml:space="preserve">
+          <source>Recover and restart the app when it crashes</source>
+          <target state="translated">崩潰時恢復並重新啟動應用程序</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnFreezeContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will allow the daemon process to restart the app once it detects a freeze and restore the folder user was browsing before</source>
+          <target state="translated">啟用此選項將允許守護進程在檢測到凍結後重新啟動應用程序並恢復用戶之前瀏覽的文件夾</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnFreezeLabel.Text" translate="yes" xml:space="preserve">
+          <source>Recover and restart the app when it freezes</source>
+          <target state="translated">凍結時恢復並重新啟動應用程序</target>
+        </trans-unit>
+        <trans-unit id="AppGuardSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">已禁用</target>
+        </trans-unit>
+        <trans-unit id="AppGuardSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">已啟用</target>
+        </trans-unit>
       </group>
     </body>
   </file>

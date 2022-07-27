@@ -4778,6 +4778,38 @@ Las denominaciones no válidas son:
           <source>RX has stopped responding due to UWP framework or other reasons</source>
           <target state="translated">RX ha dejado de responder debido al marco UWP u otras razones</target>
         </trans-unit>
+        <trans-unit id="AppGuardContent.Text" translate="yes" xml:space="preserve">
+          <source>When this option is enabled, a daemon process will be used to continuously monitor the running status of this application. Note: It is recommended to enable this option to maximize reliability</source>
+          <target state="translated">Cuando esta opción está habilitada, se utilizará un proceso daemon para monitorear continuamente el estado de ejecución de esta aplicación. Nota: Se recomienda habilitar esta opción para maximizar la confiabilidad</target>
+        </trans-unit>
+        <trans-unit id="AppGuardLabel.Text" translate="yes" xml:space="preserve">
+          <source>Application daemon process</source>
+          <target state="translated">Proceso del demonio de aplicación</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnCrashContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will allow the daemon process to restart the app once it detects a crash and restore the folder user was browsing before</source>
+          <target state="translated">Habilitar esta opción permitirá que el proceso del demonio reinicie la aplicación una vez que detecte un bloqueo y restaurará la carpeta que el usuario estaba navegando antes.</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnCrashLabel.Text" translate="yes" xml:space="preserve">
+          <source>Recover and restart the app when it crashes</source>
+          <target state="translated">Recuperar y reiniciar la aplicación cuando falla</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnFreezeContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will allow the daemon process to restart the app once it detects a freeze and restore the folder user was browsing before</source>
+          <target state="translated">Habilitar esta opción permitirá que el proceso del demonio reinicie la aplicación una vez que detecte una congelación y restaure la carpeta que el usuario estaba navegando antes.</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnFreezeLabel.Text" translate="yes" xml:space="preserve">
+          <source>Recover and restart the app when it freezes</source>
+          <target state="translated">Recupera y reinicia la aplicación cuando se congela</target>
+        </trans-unit>
+        <trans-unit id="AppGuardSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Desactivado</target>
+        </trans-unit>
+        <trans-unit id="AppGuardSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -1,9 +1,8 @@
-﻿using Microsoft.Toolkit.Deferred;
-using System;
+﻿using System;
 
-namespace SharedLibrary
+namespace MonitorTrustProcess
 {
-    public sealed class NamedPipeDataReceivedArgs : DeferredEventArgs
+    public sealed class NamedPipeDataReceivedArgs
     {
         public string Data { get; }
 

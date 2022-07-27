@@ -54,20 +54,12 @@ namespace RX_Explorer.Class
 
         public async virtual Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
-            if (NativeWin32API.CreateStreamFromFile(Path, Mode, Option) is FileStream Stream)
+            try
             {
-                return Stream;
+                return NativeWin32API.CreateStreamFromFile(Path, Mode, Option);
             }
-            else
+            catch (Exception)
             {
-                FileAccess Access = Mode switch
-                {
-                    AccessMode.Read => FileAccess.Read,
-                    AccessMode.ReadWrite or AccessMode.Exclusive => FileAccess.ReadWrite,
-                    AccessMode.Write => FileAccess.Write,
-                    _ => throw new NotSupportedException()
-                };
-
                 SafeFileHandle Handle = await GetNativeHandleAsync(Mode, Option);
 
                 if ((Handle?.IsInvalid).GetValueOrDefault(true))
@@ -76,6 +68,14 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
+                    FileAccess Access = Mode switch
+                    {
+                        AccessMode.Read => FileAccess.Read,
+                        AccessMode.ReadWrite or AccessMode.Exclusive => FileAccess.ReadWrite,
+                        AccessMode.Write => FileAccess.Write,
+                        _ => throw new NotSupportedException()
+                    };
+
                     return new FileStream(Handle, Access, 4096, true);
                 }
             }

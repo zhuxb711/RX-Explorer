@@ -813,7 +813,7 @@
                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
                                         </RelativePanel>
                                     </Border>
-
+                                    
                                     <muxc:Expander Margin="0,5,0,0"
                                                    ExpandDirection="Down"
                                                    HorizontalAlignment="Stretch"
@@ -1046,6 +1046,93 @@
                                                                        FontSize="12"
                                                                        Foreground="Gray"
                                                                        x:Uid="SettingPageAlwaysLaunchNewDescription"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       TextWrapping="WrapWholeWords" />
+                                                        </StackPanel>
+                                                    </CheckBox>
+                                                </Border>
+                                            </StackPanel>
+                                        </muxc:Expander.Content>
+                                    </muxc:Expander>
+
+                                    <muxc:Expander Margin="0,5,0,0"
+                                                   ExpandDirection="Down"
+                                                   HorizontalAlignment="Stretch"
+                                                   HorizontalContentAlignment="Stretch"
+                                                   VerticalContentAlignment="Stretch"
+                                                   Padding="0"
+                                                   MinHeight="60"
+                                                   Background="Transparent"
+                                                   CornerRadius="4,4,0,0">
+                                        <muxc:Expander.Header>
+                                            <RelativePanel Padding="4,10,0,10">
+                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                            RelativePanel.LeftOf="AppGuardSwitch"
+                                                            Margin="0,0,20,0">
+                                                    <TextBlock Text="应用守护进程"
+                                                               x:Uid="AppGuardLabel"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="启用此选项后将使用守护进程持续监视本应用的运行状态。注意: 建议启用该选项以最大化可靠性"
+                                                               x:Uid="AppGuardContent"
+                                                               FontSize="12"
+                                                               Foreground="Gray"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               TextWrapping="WrapWholeWords" />
+                                                </StackPanel>
+                                                <ToggleSwitch OnContent="启用"
+                                                              OffContent="禁用"
+                                                              Name="AppGuardSwitch"
+                                                              x:Uid="AppGuardSwitch"
+                                                              Style="{StaticResource SettingToggleSwitchStyle}"
+                                                              RelativePanel.AlignRightWithPanel="True"
+                                                              RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                              Toggled="AppGuardSwitch_Toggled" />
+                                            </RelativePanel>
+                                        </muxc:Expander.Header>
+                                        <muxc:Expander.Content>
+                                            <StackPanel>
+                                                <Border Padding="40,10,10,10"
+                                                        MinHeight="45"
+                                                        BorderThickness="1"
+                                                        CornerRadius="0"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <CheckBox Name="GuardRestartOnCrash"
+                                                              IsEnabled="{x:Bind AppGuardSwitch.IsOn,Mode=OneWay}"
+                                                              Checked="GuardRestartOnCrash_Checked"
+                                                              Unchecked="GuardRestartOnCrash_Unchecked">
+                                                        <StackPanel>
+                                                            <TextBlock Text="崩溃时恢复并重启本应用"
+                                                                       x:Uid="AppGuardRestartOnCrashLabel"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Text="启用此选项后将允许守护进程在检测到本应用崩溃时尝试重启并恢复崩溃前正在浏览的文件夹数据"
+                                                                       x:Uid="AppGuardRestartOnCrashContent"
+                                                                       FontSize="12"
+                                                                       Foreground="Gray"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       TextWrapping="WrapWholeWords" />
+                                                        </StackPanel>
+                                                    </CheckBox>
+                                                </Border>
+                                                <Border Padding="40,10,10,10"
+                                                        MinHeight="45"
+                                                        BorderThickness="1"
+                                                        CornerRadius="0,0,4,4"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <CheckBox Name="GuardRestartOnFreeze"
+                                                              IsEnabled="{x:Bind AppGuardSwitch.IsOn,Mode=OneWay}"
+                                                              Checked="GuardRestartOnFreeze_Checked"
+                                                              Unchecked="GuardRestartOnFreeze_Unchecked">
+                                                        <StackPanel>
+                                                            <TextBlock Text="失去响应时恢复并重启本应用"
+                                                                       x:Uid="AppGuardRestartOnFreezeLabel"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Text="启用此选项后将允许守护进程在检测到本应用失去响应时尝试重启并恢复崩溃前正在浏览的文件夹数据"
+                                                                       x:Uid="AppGuardRestartOnFreezeContent"
+                                                                       FontSize="12"
+                                                                       Foreground="Gray"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        TextWrapping="WrapWholeWords" />
                                                         </StackPanel>

@@ -98,7 +98,7 @@ namespace AuxiliaryTrustProcess
             }
         }
 
-        public NamedPipeWriteController(string PipeId) : base(PipeId)
+        public NamedPipeWriteController(string PackageFamilyName, string PipeId) : base(PackageFamilyName, PipeId)
         {
             ConnectionSet = new TaskCompletionSource<bool>();
 

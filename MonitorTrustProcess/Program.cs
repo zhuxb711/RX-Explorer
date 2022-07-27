@@ -1,14 +1,11 @@
-﻿using Microsoft.Toolkit.Deferred;
-using SharedLibrary;
+﻿using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
-using System.Threading.Tasks;
 using Vanara.PInvoke;
-using Windows.ApplicationModel;
 using Timer = System.Timers.Timer;
 
 namespace MonitorTrustProcess
@@ -27,11 +24,23 @@ namespace MonitorTrustProcess
 
         private static Timer RespondingTimer;
 
-        private static bool IsCrashOrHangMonitorEnabled;
-
-        private static bool IsProcessMonitorIsBeingDebugged;
+        private static bool IsDebuggerAttachedToMonitorProcess;
 
         private static string RecoveryData;
+
+        private static readonly string ExplorerPackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t";
+
+        private static readonly Dictionary<MonitorFeature, bool> FeatureStatusMapping = new Dictionary<MonitorFeature, bool>
+        {
+            { MonitorFeature.CrashMonitor, false },
+            { MonitorFeature.FreezeMonitor, false }
+        };
+
+        private static bool IsMonitorEnabled { get; set; }
+
+        private static bool IsCrashMonitorEnabled => IsMonitorEnabled && FeatureStatusMapping[MonitorFeature.CrashMonitor];
+
+        private static bool IsFreezeMonitorEnabled => IsMonitorEnabled && FeatureStatusMapping[MonitorFeature.FreezeMonitor];
 
         [STAThread]
         static void Main(string[] args)
@@ -40,7 +49,7 @@ namespace MonitorTrustProcess
             {
                 ExitLocker = new ManualResetEvent(false);
 
-                PipeCommunicationBaseController = new NamedPipeMonitorCommunicationBaseController();
+                PipeCommunicationBaseController = new NamedPipeMonitorCommunicationBaseController(ExplorerPackageFamilyName);
                 PipeCommunicationBaseController.OnDataReceived += PipeCommunicationBaseController_OnDataReceived;
 
                 RespondingTimer = new Timer(15000)
@@ -72,14 +81,12 @@ namespace MonitorTrustProcess
                 PipeCommunicationBaseController?.Dispose();
 
                 LogTracer.MakeSureLogIsFlushed(2000);
-
-                STAThreadController.Current.Dispose();
             }
         }
 
-        private static async void RespondingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private static void RespondingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (IsCrashOrHangMonitorEnabled)
+            if (IsFreezeMonitorEnabled && !IsDebuggerAttachedToMonitorProcess)
             {
                 RespondingTimer.Enabled = false;
 
@@ -89,7 +96,7 @@ namespace MonitorTrustProcess
 
                     if (!(ExplorerProcess?.HasExited).GetValueOrDefault(true))
                     {
-                        if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation UwpInfo)
+                        if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation UwpInfo)
                         {
                             if (UwpInfo.IsValidInfomation)
                             {
@@ -99,7 +106,7 @@ namespace MonitorTrustProcess
                                 {
                                     if (User32.SendMessageTimeout(UwpInfo.CoreWindowHandle, 0x0000, fuFlags: User32.SMTO.SMTO_ABORTIFHUNG, uTimeout: 10000, lpdwResult: ref Result) == IntPtr.Zero)
                                     {
-                                        await CloseAndRestartApplicationAsync(RestartReason.Hang);
+                                        CloseAndRestartApplicationAsync(RestartReason.Hang);
                                     }
                                 }
                             }
@@ -125,11 +132,14 @@ namespace MonitorTrustProcess
             }
             else
             {
-                EventDeferral Deferral = e.GetDeferral();
-
                 try
                 {
                     IDictionary<string, string> Package = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
+
+                    if (Package.TryGetValue("LogRecordFolderPath", out string LogRecordPath))
+                    {
+                        LogTracer.SetLogRecordFolderPath(LogRecordPath);
+                    }
 
                     if (Package.TryGetValue("ProcessId", out string ProcessId))
                     {
@@ -138,8 +148,7 @@ namespace MonitorTrustProcess
                             ExplorerProcess = Process.GetProcessById(Convert.ToInt32(ProcessId));
                             ExplorerProcess.EnableRaisingEvents = true;
                             ExplorerProcess.Exited += ExplorerProcess_Exited;
-
-                            IsProcessMonitorIsBeingDebugged = Helper.CheckIfProcessIsBeingDebugged(ExplorerProcess.Handle);
+                            IsDebuggerAttachedToMonitorProcess = Helper.CheckIfDebuggerIsAttached(ExplorerProcess.Handle);
                         }
                     }
 
@@ -151,31 +160,25 @@ namespace MonitorTrustProcess
                     if (Package.TryGetValue("PipeCommandWriteId", out string PipeCommandWriteId))
                     {
                         PipeCommandReadController?.Dispose();
-                        PipeCommandReadController = new NamedPipeReadController(PipeCommandWriteId);
+                        PipeCommandReadController = new NamedPipeReadController(ExplorerPackageFamilyName, PipeCommandWriteId);
                         PipeCommandReadController.OnDataReceived += PipeCommandReadController_OnDataReceived;
                     }
 
                     if (Package.TryGetValue("PipeCommandReadId", out string PipeCommandReadId))
                     {
                         PipeCommandWriteController?.Dispose();
-                        PipeCommandWriteController = new NamedPipeWriteController(PipeCommandReadId);
+                        PipeCommandWriteController = new NamedPipeWriteController(ExplorerPackageFamilyName, PipeCommandReadId);
                     }
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, $"An exception was threw in get data in {nameof(PipeCommunicationBaseController_OnDataReceived)}");
                 }
-                finally
-                {
-                    Deferral.Complete();
-                }
             }
         }
 
         private static void PipeCommandReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
         {
-            EventDeferral Deferral = e.GetDeferral();
-
             try
             {
                 if (e.ExtraException is Exception Ex)
@@ -193,14 +196,26 @@ namespace MonitorTrustProcess
             {
                 LogTracer.Log(ex, "An exception was threw in responding pipe message");
             }
-            finally
-            {
-                Deferral.Complete();
-            }
         }
 
         private static IDictionary<string, string> HandleCommand(IDictionary<string, string> CommandValue)
         {
+#if DEBUG
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
+
+                throw new Exception("Not allowed to execute this function in modes rather than STA");
+            }
+#endif
+
             IDictionary<string, string> Value = new Dictionary<string, string>();
 
             try
@@ -214,15 +229,27 @@ namespace MonitorTrustProcess
                         }
                     case MonitorCommandType.StartMonitor:
                         {
-                            IsCrashOrHangMonitorEnabled = true;
+                            IsMonitorEnabled = true;
                             break;
                         }
                     case MonitorCommandType.StopMonitor:
                         {
-                            IsCrashOrHangMonitorEnabled = false;
+                            IsMonitorEnabled = false;
+                            break;
+                        }
+                    case MonitorCommandType.EnableFeature:
+                        {
+                            FeatureStatusMapping[Enum.Parse<MonitorFeature>(CommandValue["Feature"])] = true;
+                            break;
+                        }
+                    case MonitorCommandType.DisableFeature:
+                        {
+                            FeatureStatusMapping[Enum.Parse<MonitorFeature>(CommandValue["Feature"])] = false;
                             break;
                         }
                 }
+
+                Value.Add("Success", string.Empty);
             }
             catch (Exception ex)
             {
@@ -233,11 +260,11 @@ namespace MonitorTrustProcess
             return Value;
         }
 
-        private static async void ExplorerProcess_Exited(object sender, EventArgs e)
+        private static void ExplorerProcess_Exited(object sender, EventArgs e)
         {
-            if (IsCrashOrHangMonitorEnabled && !IsProcessMonitorIsBeingDebugged)
+            if (IsCrashMonitorEnabled && !IsDebuggerAttachedToMonitorProcess)
             {
-                await CloseAndRestartApplicationAsync(RestartReason.Crash);
+                CloseAndRestartApplicationAsync(RestartReason.Crash);
             }
             else
             {
@@ -245,25 +272,32 @@ namespace MonitorTrustProcess
             }
         }
 
-        private static async Task CloseAndRestartApplicationAsync(RestartReason Reason)
+        private static void CloseAndRestartApplicationAsync(RestartReason Reason)
         {
             try
             {
-                ExplorerProcess.EnableRaisingEvents = false;
-                ExplorerProcess.Exited -= ExplorerProcess_Exited;
-
-                ExplorerProcess?.Kill();
-
-                if (string.IsNullOrEmpty(RecoveryData))
+                if (Reason == RestartReason.Hang && ExplorerProcess != null)
                 {
-                    await Helper.LaunchApplicationFromPackageFamilyNameAsync(Package.Current.Id.FamilyName);
-                }
-                else
-                {
-                    await Helper.LaunchApplicationFromPackageFamilyNameAsync(Package.Current.Id.FamilyName, $"/Recovery:{Reason switch { RestartReason.Crash => "Crash", RestartReason.Hang => "Hang", _ => throw new NotSupportedException() }}", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                    ExplorerProcess.EnableRaisingEvents = false;
+                    ExplorerProcess.Exited -= ExplorerProcess_Exited;
+                    ExplorerProcess.Kill();
                 }
 
-                ExitLocker.Set();
+                try
+                {
+                    if (string.IsNullOrEmpty(RecoveryData))
+                    {
+                        Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName);
+                    }
+                    else
+                    {
+                        Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, $"/Recovery:{Reason switch { RestartReason.Crash => "Crash", RestartReason.Hang => "Freeze", _ => throw new NotSupportedException() }}", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                    }
+                }
+                finally
+                {
+                    ExitLocker.Set();
+                }
             }
             catch (Exception)
             {

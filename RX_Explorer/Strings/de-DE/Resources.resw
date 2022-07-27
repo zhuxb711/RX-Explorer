@@ -3598,4 +3598,28 @@ Inkorrekte Namen sind
   <data name="Toast_Restart_Hang_Text" xml:space="preserve">
     <value>RX reagiert aufgrund des UWP-Frameworks oder aus anderen Gründen nicht mehr</value>
   </data>
+  <data name="AppGuardContent.Text" xml:space="preserve">
+    <value>Wenn diese Option aktiviert ist, wird ein Daemon-Prozess verwendet, um den Ausführungsstatus dieser Anwendung kontinuierlich zu überwachen. Hinweis: Es wird empfohlen, diese Option zu aktivieren, um die Zuverlässigkeit zu maximieren</value>
+  </data>
+  <data name="AppGuardLabel.Text" xml:space="preserve">
+    <value>Anwendungs-Daemon-Prozess</value>
+  </data>
+  <data name="AppGuardRestartOnCrashContent.Text" xml:space="preserve">
+    <value>Wenn Sie diese Option aktivieren, kann der Daemon-Prozess die App neu starten, sobald er einen Absturz erkennt, und den Ordner wiederherstellen, den der Benutzer zuvor durchsucht hat</value>
+  </data>
+  <data name="AppGuardRestartOnCrashLabel.Text" xml:space="preserve">
+    <value>Stellen Sie die App wieder her und starten Sie sie neu, wenn sie abstürzt</value>
+  </data>
+  <data name="AppGuardRestartOnFreezeContent.Text" xml:space="preserve">
+    <value>Wenn Sie diese Option aktivieren, kann der Daemon-Prozess die App neu starten, sobald er ein Einfrieren erkennt, und den Ordner wiederherstellen, den der Benutzer zuvor durchsucht hat</value>
+  </data>
+  <data name="AppGuardRestartOnFreezeLabel.Text" xml:space="preserve">
+    <value>Stellen Sie die App wieder her und starten Sie sie neu, wenn sie einfriert</value>
+  </data>
+  <data name="AppGuardSwitch.OffContent" xml:space="preserve">
+    <value>Deaktiviert</value>
+  </data>
+  <data name="AppGuardSwitch.OnContent" xml:space="preserve">
+    <value>Ermöglicht</value>
+  </data>
 </root>

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO.Pipes;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 
 namespace MonitorTrustProcess
 {
@@ -17,10 +16,10 @@ namespace MonitorTrustProcess
 
         public abstract Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds);
 
-        protected NamedPipeControllerBase(string Id)
+        protected NamedPipeControllerBase(string PackageFamilyName, string Id)
         {
             PipeId = Id;
-            PipeStream = new NamedPipeClientStream(".", Helper.GetUWPActualNamedPipeName(PipeId, Package.Current.Id.Name), PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+            PipeStream = new NamedPipeClientStream(".", Helper.GetActualNamedPipeNameFromUwpApplication(PipeId, Helper.GetPackageNameFromPackageFamilyName(PackageFamilyName)), PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
         }
 
         public virtual void Dispose()

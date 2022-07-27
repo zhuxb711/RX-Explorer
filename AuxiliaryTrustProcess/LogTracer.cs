@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-using Windows.Storage;
+using System.Threading.Tasks;
 
 namespace AuxiliaryTrustProcess
 {
@@ -15,6 +15,8 @@ namespace AuxiliaryTrustProcess
         private static readonly string UniqueName = $"Log_GeneratedTime_{Guid.NewGuid():N}_[{DateTime.Now:yyyy-MM-dd HH-mm-ss.fff}].txt";
 
         private static readonly BlockingCollection<string> LogCollection = new BlockingCollection<string>();
+
+        private static readonly TaskCompletionSource<string> LogRecordPathCompletionSource = new TaskCompletionSource<string>();
 
         private static readonly Thread BackgroundProcessThread = new Thread(LogProcessThread)
         {
@@ -183,6 +185,14 @@ namespace AuxiliaryTrustProcess
             }
         }
 
+        public static void SetLogRecordFolderPath(string Path)
+        {
+            if (Directory.Exists(Path))
+            {
+                LogRecordPathCompletionSource.TrySetResult(Path);
+            }
+        }
+
         /// <summary>
         /// 记录错误
         /// </summary>
@@ -197,7 +207,7 @@ namespace AuxiliaryTrustProcess
         {
             try
             {
-                using (FileStream LogFileStream = File.Open(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
+                using (FileStream LogFileStream = File.Open(Path.Combine(LogRecordPathCompletionSource.Task.Result, UniqueName), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
                 using (StreamWriter Writer = new StreamWriter(LogFileStream, Encoding.Unicode, 1024, true))
                 {
                     LogFileStream.Seek(0, SeekOrigin.End);

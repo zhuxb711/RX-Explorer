@@ -133,11 +133,11 @@ namespace AuxiliaryTrustProcess
 
                         if (File.Exists(SourceItem.FileSystemPath))
                         {
-                            File.Move(SourceItem.FileSystemPath, Helper.StorageGenerateUniquePath(OriginPath, CreateType.File));
+                            File.Move(SourceItem.FileSystemPath, Helper.GenerateUniquePathOnLocal(OriginPath, CreateType.File));
                         }
                         else if (Directory.Exists(SourceItem.FileSystemPath))
                         {
-                            Directory.Move(SourceItem.FileSystemPath, Helper.StorageGenerateUniquePath(OriginPath, CreateType.Folder));
+                            Directory.Move(SourceItem.FileSystemPath, Helper.GenerateUniquePathOnLocal(OriginPath, CreateType.Folder));
                         }
 
                         string ExtraInfoPath = Path.Combine(Path.GetDirectoryName(SourceItem.FileSystemPath), Path.GetFileName(SourceItem.FileSystemPath).Replace("$R", "$I"));

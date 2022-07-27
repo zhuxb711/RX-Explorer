@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net6.0-windows10.0.19041</TargetFramework>
+		<TargetFramework>net6.0-windows</TargetFramework>
 		<OutputType>WinExe</OutputType>
 		<LangVersion>9.0</LangVersion>
 		<Platforms>x64;ARM64</Platforms>

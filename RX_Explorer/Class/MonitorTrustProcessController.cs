@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
@@ -17,6 +18,8 @@ namespace RX_Explorer.Class
         private static NamedPipeWriteController PipeCommandWriteController;
         private static NamedPipeMonitorCommunicationBaseController PipeCommunicationBaseController;
         private readonly static ConcurrentQueue<InternalCommandQueueItem> CommandQueue = new ConcurrentQueue<InternalCommandQueueItem>();
+
+        public static bool IsConnected => (PipeCommandWriteController?.IsConnected).GetValueOrDefault() && (PipeCommandReadController?.IsConnected).GetValueOrDefault();
 
         public static async Task InitializeAsync()
         {
@@ -86,11 +89,45 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public static async Task<bool> EnableFeatureAsync(MonitorFeature Feature)
+        {
+            if (await SendCommandAsync(MonitorCommandType.EnableFeature, ("Feature", Enum.GetName(typeof(MonitorFeature), Feature))) is IDictionary<string, string> Response)
+            {
+                if (Response.ContainsKey("Success"))
+                {
+                    return true;
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(EnableFeatureAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return false;
+        }
+
+        public static async Task<bool> DisableFeatureAsync(MonitorFeature Feature)
+        {
+            if (await SendCommandAsync(MonitorCommandType.DisableFeature, ("Feature", Enum.GetName(typeof(MonitorFeature), Feature))) is IDictionary<string, string> Response)
+            {
+                if (Response.ContainsKey("Success"))
+                {
+                    return true;
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(DisableFeatureAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return false;
+        }
+
         private static async Task<IDictionary<string, string>> SendCommandAsync(MonitorCommandType Type, params (string, string)[] Arguments)
         {
             try
             {
-                if (await ConnectRemoteAsync())
+                if (IsConnected)
                 {
                     Dictionary<string, string> Command = new Dictionary<string, string>
                     {
@@ -115,7 +152,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(SendCommandAsync)} throw An exception");
+                LogTracer.Log(ex, $"{nameof(SendCommandAsync)} throw an exception");
             }
 
             return null;
@@ -125,8 +162,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if ((PipeCommandWriteController?.IsConnected).GetValueOrDefault()
-                     && (PipeCommandReadController?.IsConnected).GetValueOrDefault())
+                if (IsConnected)
                 {
                     return true;
                 }
@@ -153,7 +189,8 @@ namespace RX_Explorer.Class
                         {
                             { "ProcessId", Convert.ToString(Process.GetCurrentProcess().Id) },
                             { "PipeCommandReadId", PipeCommandReadController.PipeId },
-                            { "PipeCommandWriteId", PipeCommandWriteController.PipeId }
+                            { "PipeCommandWriteId", PipeCommandWriteController.PipeId },
+                            { "LogRecordFolderPath", ApplicationData.Current.TemporaryFolder.Path }
                         };
 
                         PipeCommunicationBaseController.SendData(JsonSerializer.Serialize(Command));

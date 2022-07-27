@@ -3596,4 +3596,28 @@ Les noms non valides incluent
   <data name="Toast_Restart_Hang_Text" xml:space="preserve">
     <value>RX a cessé de répondre en raison du cadre UWP ou d'autres raisons</value>
   </data>
+  <data name="AppGuardContent.Text" xml:space="preserve">
+    <value>Lorsque cette option est activée, un processus démon sera utilisé pour surveiller en permanence l'état de fonctionnement de cette application. Remarque : Il est recommandé d'activer cette option pour optimiser la fiabilité</value>
+  </data>
+  <data name="AppGuardLabel.Text" xml:space="preserve">
+    <value>Processus du démon d'application</value>
+  </data>
+  <data name="AppGuardRestartOnCrashContent.Text" xml:space="preserve">
+    <value>L'activation de cette option permettra au processus démon de redémarrer l'application une fois qu'il détecte un plantage et de restaurer le dossier que l'utilisateur parcourait auparavant</value>
+  </data>
+  <data name="AppGuardRestartOnCrashLabel.Text" xml:space="preserve">
+    <value>Récupérer et redémarrer l'application en cas de plantage</value>
+  </data>
+  <data name="AppGuardRestartOnFreezeContent.Text" xml:space="preserve">
+    <value>L'activation de cette option permettra au processus démon de redémarrer l'application une fois qu'il détecte un gel et de restaurer le dossier que l'utilisateur parcourait auparavant</value>
+  </data>
+  <data name="AppGuardRestartOnFreezeLabel.Text" xml:space="preserve">
+    <value>Récupérer et redémarrer l'application lorsqu'elle se bloque</value>
+  </data>
+  <data name="AppGuardSwitch.OffContent" xml:space="preserve">
+    <value>Handicapé</value>
+  </data>
+  <data name="AppGuardSwitch.OnContent" xml:space="preserve">
+    <value>Activé</value>
+  </data>
 </root>

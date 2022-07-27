@@ -525,6 +525,8 @@ namespace RX_Explorer.Class
                             && Flyout.SecondaryCommands.OfType<AppBarButton>()
                                                        .FirstOrDefault((Item) => Item.Name == "OpenWithButton")?.Flyout is MenuFlyout OpenWithFlyout)
                         {
+                            string FilePath = PathArray.Single();
+
                             Type GetInnerViewerType(string Path)
                             {
                                 return System.IO.Path.GetExtension(Path).ToLower() switch
@@ -565,15 +567,13 @@ namespace RX_Explorer.Class
                                 }
                             }
 
-                            async Task<MenuFlyoutItem> GenerateOpenWithItemAsync(string ExePath)
+                            async Task<MenuFlyoutItem> GenerateOpenWithItemAsync(string FilePath, string ExecutePath)
                             {
                                 try
                                 {
-                                    string OriginPath = PathArray.First();
-
-                                    if (Path.IsPathRooted(ExePath))
+                                    if (Path.IsPathRooted(ExecutePath))
                                     {
-                                        if (await FileSystemStorageItemBase.OpenAsync(ExePath) is FileSystemStorageFile ExeFile)
+                                        if (await FileSystemStorageItemBase.OpenAsync(ExecutePath) is FileSystemStorageFile ExeFile)
                                         {
                                             ProgramPickerItem Item = await ProgramPickerItem.CreateAsync(ExeFile);
 
@@ -581,7 +581,7 @@ namespace RX_Explorer.Class
                                             {
                                                 Text = Item.Name,
                                                 Icon = new ImageIcon { Source = Item.Thumbnuil },
-                                                Tag = (OriginPath, Item),
+                                                Tag = (FilePath, Item),
                                                 MinWidth = 150,
                                                 MaxWidth = 300,
                                                 FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
@@ -593,9 +593,9 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        IReadOnlyList<AppInfo> Apps = await Launcher.FindFileHandlersAsync(Path.GetExtension(OriginPath).ToLower());
+                                        IReadOnlyList<AppInfo> Apps = await Launcher.FindFileHandlersAsync(Path.GetExtension(FilePath));
 
-                                        if (Apps.FirstOrDefault((App) => App.PackageFamilyName == ExePath) is AppInfo Info)
+                                        if (Apps.FirstOrDefault((App) => App.PackageFamilyName.Equals(ExecutePath, StringComparison.OrdinalIgnoreCase)) is AppInfo Info)
                                         {
                                             ProgramPickerItem Item = await ProgramPickerItem.CreateAsync(Info);
 
@@ -603,7 +603,7 @@ namespace RX_Explorer.Class
                                             {
                                                 Text = Item.Name,
                                                 Icon = new ImageIcon { Source = Item.Thumbnuil },
-                                                Tag = (OriginPath, Item),
+                                                Tag = (FilePath, Item),
                                                 MinWidth = 150,
                                                 MaxWidth = 300,
                                                 FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
@@ -622,9 +622,11 @@ namespace RX_Explorer.Class
                                 return null;
                             }
 
-                            if (PathArray.All((Path) => Path.StartsWith(@"\\?\") || Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)))
+                            if (FilePath.StartsWith(@"\\?\")
+                                || FilePath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                                || FilePath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                             {
-                                if (GetInnerViewerType(PathArray.First()) != null)
+                                if (GetInnerViewerType(FilePath) is not null)
                                 {
                                     ProgramPickerItem Item = ProgramPickerItem.InnerViewer;
 
@@ -632,7 +634,7 @@ namespace RX_Explorer.Class
                                     {
                                         Text = Item.Name,
                                         Icon = new ImageIcon { Source = Item.Thumbnuil },
-                                        Tag = (PathArray.First(), Item),
+                                        Tag = (FilePath, Item),
                                         MinWidth = 150,
                                         MaxWidth = 300,
                                         FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
@@ -644,20 +646,20 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                IReadOnlyList<AssociationPackage> SystemAssocAppList = await Exclusive.Controller.GetAssociationFromPathAsync(PathArray.First());
-                                IEnumerable<MenuFlyoutItem> OpenWithItemsRaw = await Task.WhenAll(SystemAssocAppList.Where((Assoc) => Assoc.IsRecommanded).Select((Package) => GenerateOpenWithItemAsync(Package.ExecutablePath)));
-                                IEnumerable<MenuFlyoutItem> OpenWithItems = OpenWithItemsRaw.Reverse().OfType<MenuFlyoutItem>();
+                                IEnumerable<MenuFlyoutItem> OpenWithItemsRaw = await Task.WhenAll((await Exclusive.Controller.GetAssociationFromExtensionAsync(Path.GetExtension(FilePath))).Where((Assoc) => Assoc.IsRecommanded)
+                                                                                                                    .Select((Package) => GenerateOpenWithItemAsync(FilePath, Package.ExecutablePath))
+                                                                                                                    .Concat((await Launcher.FindFileHandlersAsync(Path.GetExtension(FilePath))).Select((Item) => GenerateOpenWithItemAsync(FilePath, Item.PackageFamilyName))));
 
                                 if (!CancelToken.IsCancellationRequested)
                                 {
                                     CleanUpContextMenuOpenWithFlyoutItems();
 
-                                    foreach (MenuFlyoutItem Item in OpenWithItems)
+                                    foreach (MenuFlyoutItem Item in OpenWithItemsRaw.Reverse().OfType<MenuFlyoutItem>())
                                     {
                                         OpenWithFlyout.Items.Insert(0, Item);
                                     }
 
-                                    if (GetInnerViewerType(PathArray.First()) != null)
+                                    if (GetInnerViewerType(FilePath) is not null)
                                     {
                                         ProgramPickerItem Item = ProgramPickerItem.InnerViewer;
 
@@ -665,7 +667,7 @@ namespace RX_Explorer.Class
                                         {
                                             Text = Item.Name,
                                             Icon = new ImageIcon { Source = Item.Thumbnuil },
-                                            Tag = (PathArray.First(), Item),
+                                            Tag = (FilePath, Item),
                                             MinWidth = 150,
                                             MaxWidth = 300,
                                             FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
@@ -675,7 +677,7 @@ namespace RX_Explorer.Class
                                         OpenWithFlyout.Items.Insert(0, MenuItem);
                                     }
 
-                                    string DefaultProgramPath = SQLite.Current.GetDefaultProgramPickerRecord(Path.GetExtension(PathArray.First()));
+                                    string DefaultProgramPath = SQLite.Current.GetDefaultProgramPickerRecord(Path.GetExtension(FilePath));
 
                                     if (!string.IsNullOrEmpty(DefaultProgramPath)
                                         && !ProgramPickerItem.InnerViewer.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase)
@@ -685,7 +687,7 @@ namespace RX_Explorer.Class
                                                                .Select((Data) => Data.PickerItem)
                                                                .All((PickerItem) => !DefaultProgramPath.Equals(PickerItem.Path, StringComparison.OrdinalIgnoreCase)))
                                     {
-                                        OpenWithFlyout.Items.Insert(0, await GenerateOpenWithItemAsync(DefaultProgramPath));
+                                        OpenWithFlyout.Items.Insert(0, await GenerateOpenWithItemAsync(FilePath, DefaultProgramPath));
                                     }
 
                                     if (OpenWithFlyout.Items.Count > 2)
@@ -1418,7 +1420,7 @@ namespace RX_Explorer.Class
                                                       }
                                                       catch (Exception)
                                                       {
-                                                              //No need to handle this exception
+                                                          //No need to handle this exception
                                                       }
 
                                                       return null;

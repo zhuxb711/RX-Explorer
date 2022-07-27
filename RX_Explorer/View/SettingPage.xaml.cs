@@ -19,7 +19,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Imaging;
 using Windows.Security.ExchangeActiveSyncProvisioning;
@@ -49,11 +48,6 @@ namespace RX_Explorer.View
 {
     public sealed partial class SettingPage : UserControl
     {
-        private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
-        private readonly ObservableCollection<TerminalProfile> TerminalList = new ObservableCollection<TerminalProfile>();
-        private int AnimationLocker = 0;
-        private bool RefreshPresenterOnClose;
-
         public static bool AllowTaskParalledExecution
         {
             get
@@ -805,6 +799,63 @@ namespace RX_Explorer.View
             }
         }
 
+        public static bool IsApplicationGuardEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["AppGuardEnabled"] is bool IsAppGuardEnabled)
+                {
+                    return IsAppGuardEnabled;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["AppGuardEnabled"] = value;
+            }
+        }
+
+        public static bool IsMonitorFreezeEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["MonitorFreezeEnabled"] is bool IsFreezeMonitorEnabled)
+                {
+                    return IsFreezeMonitorEnabled;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["MonitorFreezeEnabled"] = value;
+            }
+        }
+
+        public static bool IsMonitorCrashEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["MonitorCrashEnabled"] is bool IsCrashMonitorEnabled)
+                {
+                    return IsCrashMonitorEnabled;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["MonitorCrashEnabled"] = value;
+            }
+        }
+
         public static bool IsOpened { get; private set; }
 
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
@@ -815,7 +866,11 @@ namespace RX_Explorer.View
         private long ColorPickerChangeRegisterToken3;
         private long ColorPickerChangeRegisterToken4;
         private long ColorPickerChangeRegisterToken5;
-
+        private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
+        private readonly ObservableCollection<TerminalProfile> TerminalList = new ObservableCollection<TerminalProfile>();
+        private int AnimationLocker = 0;
+        private bool RefreshPresenterOnClose;
+        private readonly SemaphoreSlim ApplySettingLocker = new SemaphoreSlim(1, 1);
         private readonly SemaphoreSlim SyncLocker = new SemaphoreSlim(1, 1);
 
         public SettingPage()
@@ -1227,240 +1282,252 @@ namespace RX_Explorer.View
 
         private async Task ApplyLocalSettingsAsync()
         {
-            DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
-            UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-            InterceptFolderSwitch.Toggled -= InterceptFolder_Toggled;
-            AutoBoot.Toggled -= AutoBoot_Toggled;
-            WindowsExplorerContextMenu.Toggled -= WindowsExplorerContextMenu_Toggled;
-            HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
-            HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
-            DefaultDisplayMode.SelectionChanged -= DefaultDisplayMode_SelectionChanged;
-            VerticalSplitViewLimitationCombox.SelectionChanged -= VerticalSplitViewLimitationCombox_SelectionChanged;
-            ShutdownButtonBehaviorCombox.SelectionChanged -= ShutdownButtonBehaviorCombox_SelectionChanged;
+            await ApplySettingLocker.WaitAsync();
 
-            BuiltInEngineIgnoreCase.Checked -= SeachEngineOptionSave_Checked;
-            BuiltInEngineIgnoreCase.Unchecked -= SeachEngineOptionSave_UnChecked;
-            BuiltInEngineIncludeRegex.Checked -= SeachEngineOptionSave_Checked;
-            BuiltInEngineIncludeRegex.Unchecked -= SeachEngineOptionSave_UnChecked;
-            BuiltInSearchAllSubFolders.Checked -= SeachEngineOptionSave_Checked;
-            BuiltInSearchAllSubFolders.Unchecked -= SeachEngineOptionSave_UnChecked;
-            BuiltInEngineIncludeAQS.Checked -= SeachEngineOptionSave_Checked;
-            BuiltInEngineIncludeAQS.Unchecked -= SeachEngineOptionSave_UnChecked;
-            BuiltInSearchUseIndexer.Checked -= SeachEngineOptionSave_Checked;
-            BuiltInSearchUseIndexer.Unchecked -= SeachEngineOptionSave_UnChecked;
-            EverythingEngineIgnoreCase.Checked -= SeachEngineOptionSave_Checked;
-            EverythingEngineIgnoreCase.Unchecked -= SeachEngineOptionSave_UnChecked;
-            EverythingEngineIncludeRegex.Checked -= SeachEngineOptionSave_Checked;
-            EverythingEngineIncludeRegex.Unchecked -= SeachEngineOptionSave_UnChecked;
-            EverythingEngineSearchGloble.Checked -= SeachEngineOptionSave_Checked;
-            EverythingEngineSearchGloble.Unchecked -= SeachEngineOptionSave_UnChecked;
-            ShowContextMenuWhenLoading.Checked -= ShowContextMenuWhenLoading_Checked;
-            ShowContextMenuWhenLoading.Unchecked -= ShowContextMenuWhenLoading_Unchecked;
-
-            AcrylicColorPicker.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken1);
-            PredefineTagColorPicker1.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken2);
-            PredefineTagColorPicker2.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken3);
-            PredefineTagColorPicker3.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken4);
-            PredefineTagColorPicker4.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken5);
-
-            LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
-
-            FontFamilyComboBox.SelectedIndex = ApplicationData.Current.LocalSettings.Values["DefaultFontFamilyOverride"] is string OverrideString
-                                                  ? Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), JsonSerializer.Deserialize<InstalledFonts>(OverrideString))
-                                                  : Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), FontFamilyController.Default);
-
-            BackgroundBlurSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
-            BackgroundLightSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]);
-
-            AutoBoot.IsOn = (await StartupTask.GetAsync("RXExplorer")).State switch
+            try
             {
-                StartupTaskState.DisabledByPolicy
-                or StartupTaskState.DisabledByUser
-                or StartupTaskState.Disabled => false,
-                _ => true
-            };
+                DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
+                UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                InterceptFolderSwitch.Toggled -= InterceptFolder_Toggled;
+                AutoBoot.Toggled -= AutoBoot_Toggled;
+                WindowsExplorerContextMenu.Toggled -= WindowsExplorerContextMenu_Toggled;
+                HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
+                HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
+                DefaultDisplayMode.SelectionChanged -= DefaultDisplayMode_SelectionChanged;
+                VerticalSplitViewLimitationCombox.SelectionChanged -= VerticalSplitViewLimitationCombox_SelectionChanged;
+                ShutdownButtonBehaviorCombox.SelectionChanged -= ShutdownButtonBehaviorCombox_SelectionChanged;
 
-            FolderOpenMethod.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
-            TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
-            EnableQuicklook.IsOn = IsQuicklookEnabled;
-            DisplayHiddenItem.IsOn = IsDisplayHiddenItemsEnabled;
-            HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItemsEnabled;
-            TabPreviewSwitch.IsOn = IsTabPreviewEnabled;
-            SearchHistory.IsOn = IsSearchHistoryEnabled;
-            PathHistory.IsOn = IsPathHistoryEnabled;
-            NavigationViewLayout.IsOn = LayoutMode == NavigationViewPaneDisplayMode.LeftCompact;
-            AlwaysLaunchNew.IsChecked = IsAlwaysLaunchNewProcess;
-            AlwaysOnTop.IsOn = IsWindowAlwaysOnTop;
-            WindowsExplorerContextMenu.IsOn = IsWindowsExplorerContextMenuIntegrated;
-            ContextMenuExtSwitch.IsOn = IsContextMenuExtensionEnabled;
-            FileExtensionSwitch.IsOn = IsShowFileExtensionsEnabled;
-            ShowContextMenuWhenLoading.IsChecked = !IsParallelShowContextMenu;
-            LoadWSLOnStartup.IsOn = IsLoadWSLFolderOnStartupEnabled;
-            AvoidRecycleBin.IsChecked = IsAvoidRecycleBinEnabled;
-            DeleteConfirmSwitch.IsOn = IsDoubleConfirmOnDeletionEnabled;
-            DefaultDisplayMode.SelectedIndex = DefaultDisplayModeIndex;
-            VerticalSplitViewLimitationCombox.SelectedIndex = VerticalSplitViewLimitation - 1;
-            PredefineTagColorPicker1.SelectedColor = PredefineLabelForeground1;
-            PredefineTagColorPicker2.SelectedColor = PredefineLabelForeground2;
-            PredefineTagColorPicker3.SelectedColor = PredefineLabelForeground3;
-            PredefineTagColorPicker4.SelectedColor = PredefineLabelForeground4;
-            PredefineLabelBox1.Text = PredefineLabelText1;
-            PredefineLabelBox2.Text = PredefineLabelText2;
-            PredefineLabelBox3.Text = PredefineLabelText3;
-            PredefineLabelBox4.Text = PredefineLabelText4;
-            ShutdownButtonBehaviorCombox.SelectedIndex = ShutdownButtonBehavior switch
-            {
-                ShutdownBehaivor.CloseApplication => 0,
-                ShutdownBehaivor.CloseInnerViewer => 1,
-                _ => 2
-            };
+                BuiltInEngineIgnoreCase.Checked -= SeachEngineOptionSave_Checked;
+                BuiltInEngineIgnoreCase.Unchecked -= SeachEngineOptionSave_UnChecked;
+                BuiltInEngineIncludeRegex.Checked -= SeachEngineOptionSave_Checked;
+                BuiltInEngineIncludeRegex.Unchecked -= SeachEngineOptionSave_UnChecked;
+                BuiltInSearchAllSubFolders.Checked -= SeachEngineOptionSave_Checked;
+                BuiltInSearchAllSubFolders.Unchecked -= SeachEngineOptionSave_UnChecked;
+                BuiltInEngineIncludeAQS.Checked -= SeachEngineOptionSave_Checked;
+                BuiltInEngineIncludeAQS.Unchecked -= SeachEngineOptionSave_UnChecked;
+                BuiltInSearchUseIndexer.Checked -= SeachEngineOptionSave_Checked;
+                BuiltInSearchUseIndexer.Unchecked -= SeachEngineOptionSave_UnChecked;
+                EverythingEngineIgnoreCase.Checked -= SeachEngineOptionSave_Checked;
+                EverythingEngineIgnoreCase.Unchecked -= SeachEngineOptionSave_UnChecked;
+                EverythingEngineIncludeRegex.Checked -= SeachEngineOptionSave_Checked;
+                EverythingEngineIncludeRegex.Unchecked -= SeachEngineOptionSave_UnChecked;
+                EverythingEngineSearchGloble.Checked -= SeachEngineOptionSave_Checked;
+                EverythingEngineSearchGloble.Unchecked -= SeachEngineOptionSave_UnChecked;
+                ShowContextMenuWhenLoading.Checked -= ShowContextMenuWhenLoading_Checked;
+                ShowContextMenuWhenLoading.Unchecked -= ShowContextMenuWhenLoading_Unchecked;
+
+                AcrylicColorPicker.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken1);
+                PredefineTagColorPicker1.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken2);
+                PredefineTagColorPicker2.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken3);
+                PredefineTagColorPicker3.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken4);
+                PredefineTagColorPicker4.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken5);
+
+                LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
+
+                FontFamilyComboBox.SelectedIndex = ApplicationData.Current.LocalSettings.Values["DefaultFontFamilyOverride"] is string OverrideString
+                                                      ? Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), JsonSerializer.Deserialize<InstalledFonts>(OverrideString))
+                                                      : Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), FontFamilyController.Default);
+
+                BackgroundBlurSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
+                BackgroundLightSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]);
+
+                AutoBoot.IsOn = (await StartupTask.GetAsync("RXExplorer")).State switch
+                {
+                    StartupTaskState.DisabledByPolicy
+                    or StartupTaskState.DisabledByUser
+                    or StartupTaskState.Disabled => false,
+                    _ => true
+                };
+
+                FolderOpenMethod.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
+                TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
+                EnableQuicklook.IsOn = IsQuicklookEnabled;
+                DisplayHiddenItem.IsOn = IsDisplayHiddenItemsEnabled;
+                HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItemsEnabled;
+                TabPreviewSwitch.IsOn = IsTabPreviewEnabled;
+                SearchHistory.IsOn = IsSearchHistoryEnabled;
+                PathHistory.IsOn = IsPathHistoryEnabled;
+                NavigationViewLayout.IsOn = LayoutMode == NavigationViewPaneDisplayMode.LeftCompact;
+                AlwaysLaunchNew.IsChecked = IsAlwaysLaunchNewProcess;
+                AlwaysOnTop.IsOn = IsWindowAlwaysOnTop;
+                WindowsExplorerContextMenu.IsOn = IsWindowsExplorerContextMenuIntegrated;
+                ContextMenuExtSwitch.IsOn = IsContextMenuExtensionEnabled;
+                FileExtensionSwitch.IsOn = IsShowFileExtensionsEnabled;
+                AppGuardSwitch.IsOn = IsApplicationGuardEnabled;
+                GuardRestartOnCrash.IsChecked = IsMonitorCrashEnabled;
+                GuardRestartOnFreeze.IsChecked = IsMonitorFreezeEnabled;
+                ShowContextMenuWhenLoading.IsChecked = !IsParallelShowContextMenu;
+                LoadWSLOnStartup.IsOn = IsLoadWSLFolderOnStartupEnabled;
+                AvoidRecycleBin.IsChecked = IsAvoidRecycleBinEnabled;
+                DeleteConfirmSwitch.IsOn = IsDoubleConfirmOnDeletionEnabled;
+                DefaultDisplayMode.SelectedIndex = DefaultDisplayModeIndex;
+                VerticalSplitViewLimitationCombox.SelectedIndex = VerticalSplitViewLimitation - 1;
+                PredefineTagColorPicker1.SelectedColor = PredefineLabelForeground1;
+                PredefineTagColorPicker2.SelectedColor = PredefineLabelForeground2;
+                PredefineTagColorPicker3.SelectedColor = PredefineLabelForeground3;
+                PredefineTagColorPicker4.SelectedColor = PredefineLabelForeground4;
+                PredefineLabelBox1.Text = PredefineLabelText1;
+                PredefineLabelBox2.Text = PredefineLabelText2;
+                PredefineLabelBox3.Text = PredefineLabelText3;
+                PredefineLabelBox4.Text = PredefineLabelText4;
+                ShutdownButtonBehaviorCombox.SelectedIndex = ShutdownButtonBehavior switch
+                {
+                    ShutdownBehaivor.CloseApplication => 0,
+                    ShutdownBehaivor.CloseInnerViewer => 1,
+                    _ => 2
+                };
 
 #if DEBUG
-            SettingShareData.IsOn = false;
+                SettingShareData.IsOn = false;
 #else
             SettingShareData.IsOn = await Microsoft.AppCenter.AppCenter.IsEnabledAsync();
 #endif
 
-            UIMode.SelectedIndex = BackgroundController.Current.CurrentType switch
-            {
-                BackgroundBrushType.DefaultAcrylic => 0,
-                BackgroundBrushType.SolidColor => 1,
-                _ => 2
-            };
-
-            if (TerminalList.FirstOrDefault((Profile) => Profile.Name == DefaultTerminalName) is TerminalProfile Profile)
-            {
-                DefaultTerminal.SelectedItem = Profile;
-            }
-            else if (TerminalList.Count > 0)
-            {
-                DefaultTerminal.SelectedIndex = 0;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsInterceptedWinE)
-            {
-                UseWinAndEActivate.IsOn = IsInterceptedWinE;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"] is bool IsInterceptedDesktopFolder)
-            {
-                InterceptFolderSwitch.IsOn = IsInterceptedDesktopFolder;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["FileLoadMode"] is int SelectedIndex)
-            {
-                FileLoadMode.SelectedIndex = SelectedIndex;
-            }
-            else
-            {
-                FileLoadMode.SelectedIndex = 1;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] is int FlyoutModeIndex)
-            {
-                if (FlyoutModeIndex >= SearchEngineConfig.Items.Count)
+                UIMode.SelectedIndex = BackgroundController.Current.CurrentType switch
                 {
-                    SearchEngineConfig.SelectedIndex = 0;
+                    BackgroundBrushType.DefaultAcrylic => 0,
+                    BackgroundBrushType.SolidColor => 1,
+                    _ => 2
+                };
+
+                if (TerminalList.FirstOrDefault((Profile) => Profile.Name == DefaultTerminalName) is TerminalProfile Profile)
+                {
+                    DefaultTerminal.SelectedItem = Profile;
+                }
+                else if (TerminalList.Count > 0)
+                {
+                    DefaultTerminal.SelectedIndex = 0;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsInterceptedWinE)
+                {
+                    UseWinAndEActivate.IsOn = IsInterceptedWinE;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"] is bool IsInterceptedDesktopFolder)
+                {
+                    InterceptFolderSwitch.IsOn = IsInterceptedDesktopFolder;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["FileLoadMode"] is int SelectedIndex)
+                {
+                    FileLoadMode.SelectedIndex = SelectedIndex;
                 }
                 else
                 {
-                    SearchEngineConfig.SelectedIndex = FlyoutModeIndex;
+                    FileLoadMode.SelectedIndex = 1;
                 }
-            }
-            else
-            {
-                SearchEngineConfig.SelectedIndex = 0;
-            }
 
-            switch (SearchEngineConfig.SelectedIndex)
-            {
-                case 1:
+                if (ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] is int FlyoutModeIndex)
+                {
+                    if (FlyoutModeIndex >= SearchEngineConfig.Items.Count)
                     {
-                        SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.BuiltInEngine);
-                        BuiltInEngineIgnoreCase.IsChecked = Options.IgnoreCase;
-                        BuiltInEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
-                        BuiltInSearchAllSubFolders.IsChecked = Options.DeepSearch;
-                        BuiltInEngineIncludeAQS.IsChecked = Options.UseAQSExpression;
-                        BuiltInSearchUseIndexer.IsChecked = Options.UseIndexerOnly;
-                        break;
+                        SearchEngineConfig.SelectedIndex = 0;
                     }
-                case 2:
+                    else
                     {
-                        SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.EverythingEngine);
-                        EverythingEngineIgnoreCase.IsChecked = Options.IgnoreCase;
-                        EverythingEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
-                        EverythingEngineSearchGloble.IsChecked = Options.DeepSearch;
-                        break;
+                        SearchEngineConfig.SelectedIndex = FlyoutModeIndex;
                     }
-            }
+                }
+                else
+                {
+                    SearchEngineConfig.SelectedIndex = 0;
+                }
 
-            switch (StartupModeController.Mode)
-            {
-                case StartupMode.CreateNewTab:
-                    {
-                        StartupWithNewTab.IsChecked = true;
-                        break;
-                    }
-                case StartupMode.SpecificTab:
-                    {
-                        StartupSpecificTab.IsChecked = true;
-
-                        IEnumerable<string> PathArray = await StartupModeController.GetAllPathAsync(StartupMode.SpecificTab).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
-
-                        foreach (string AddItem in PathArray.Except(SpecificTabListView.Items.Cast<string>()))
+                switch (SearchEngineConfig.SelectedIndex)
+                {
+                    case 1:
                         {
-                            SpecificTabListView.Items.Add(AddItem);
+                            SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.BuiltInEngine);
+                            BuiltInEngineIgnoreCase.IsChecked = Options.IgnoreCase;
+                            BuiltInEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
+                            BuiltInSearchAllSubFolders.IsChecked = Options.DeepSearch;
+                            BuiltInEngineIncludeAQS.IsChecked = Options.UseAQSExpression;
+                            BuiltInSearchUseIndexer.IsChecked = Options.UseIndexerOnly;
+                            break;
                         }
-
-                        foreach (string RemoveItem in SpecificTabListView.Items.Cast<string>().Except(PathArray))
+                    case 2:
                         {
-                            SpecificTabListView.Items.Remove(RemoveItem);
+                            SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.EverythingEngine);
+                            EverythingEngineIgnoreCase.IsChecked = Options.IgnoreCase;
+                            EverythingEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
+                            EverythingEngineSearchGloble.IsChecked = Options.DeepSearch;
+                            break;
                         }
+                }
 
-                        break;
-                    }
-                case StartupMode.LastOpenedTab:
-                    {
-                        StartupWithLastTab.IsChecked = true;
-                        break;
-                    }
+                switch (StartupModeController.Mode)
+                {
+                    case StartupMode.CreateNewTab:
+                        {
+                            StartupWithNewTab.IsChecked = true;
+                            break;
+                        }
+                    case StartupMode.SpecificTab:
+                        {
+                            StartupSpecificTab.IsChecked = true;
+
+                            IEnumerable<string> PathArray = await StartupModeController.GetAllPathAsync(StartupMode.SpecificTab).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
+
+                            foreach (string AddItem in PathArray.Except(SpecificTabListView.Items.Cast<string>()))
+                            {
+                                SpecificTabListView.Items.Add(AddItem);
+                            }
+
+                            foreach (string RemoveItem in SpecificTabListView.Items.Cast<string>().Except(PathArray))
+                            {
+                                SpecificTabListView.Items.Remove(RemoveItem);
+                            }
+
+                            break;
+                        }
+                    case StartupMode.LastOpenedTab:
+                        {
+                            StartupWithLastTab.IsChecked = true;
+                            break;
+                        }
+                }
+
+                UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                InterceptFolderSwitch.Toggled += InterceptFolder_Toggled;
+                DefaultTerminal.SelectionChanged += DefaultTerminal_SelectionChanged;
+                AutoBoot.Toggled += AutoBoot_Toggled;
+                WindowsExplorerContextMenu.Toggled += WindowsExplorerContextMenu_Toggled;
+                HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
+                HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
+                DefaultDisplayMode.SelectionChanged += DefaultDisplayMode_SelectionChanged;
+                VerticalSplitViewLimitationCombox.SelectionChanged += VerticalSplitViewLimitationCombox_SelectionChanged;
+                ShutdownButtonBehaviorCombox.SelectionChanged += ShutdownButtonBehaviorCombox_SelectionChanged;
+
+                BuiltInEngineIgnoreCase.Checked += SeachEngineOptionSave_Checked;
+                BuiltInEngineIgnoreCase.Unchecked += SeachEngineOptionSave_UnChecked;
+                BuiltInEngineIncludeRegex.Checked += SeachEngineOptionSave_Checked;
+                BuiltInEngineIncludeRegex.Unchecked += SeachEngineOptionSave_UnChecked;
+                BuiltInSearchAllSubFolders.Checked += SeachEngineOptionSave_Checked;
+                BuiltInSearchAllSubFolders.Unchecked += SeachEngineOptionSave_UnChecked;
+                BuiltInEngineIncludeAQS.Checked += SeachEngineOptionSave_Checked;
+                BuiltInEngineIncludeAQS.Unchecked += SeachEngineOptionSave_UnChecked;
+                BuiltInSearchUseIndexer.Checked += SeachEngineOptionSave_Checked;
+                BuiltInSearchUseIndexer.Unchecked += SeachEngineOptionSave_UnChecked;
+                EverythingEngineIgnoreCase.Checked += SeachEngineOptionSave_Checked;
+                EverythingEngineIgnoreCase.Unchecked += SeachEngineOptionSave_UnChecked;
+                EverythingEngineIncludeRegex.Checked += SeachEngineOptionSave_Checked;
+                EverythingEngineIncludeRegex.Unchecked += SeachEngineOptionSave_UnChecked;
+                EverythingEngineSearchGloble.Checked += SeachEngineOptionSave_Checked;
+                EverythingEngineSearchGloble.Unchecked += SeachEngineOptionSave_UnChecked;
+                ShowContextMenuWhenLoading.Checked += ShowContextMenuWhenLoading_Checked;
+                ShowContextMenuWhenLoading.Unchecked += ShowContextMenuWhenLoading_Unchecked;
+
+                ColorPickerChangeRegisterToken1 = AcrylicColorPicker.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnAcrylicColorPicker1SelectedColorChanged));
+                ColorPickerChangeRegisterToken2 = PredefineTagColorPicker1.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker1SelectedColorChanged));
+                ColorPickerChangeRegisterToken3 = PredefineTagColorPicker2.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker2SelectedColorChanged));
+                ColorPickerChangeRegisterToken4 = PredefineTagColorPicker3.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker3SelectedColorChanged));
+                ColorPickerChangeRegisterToken5 = PredefineTagColorPicker4.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker4SelectedColorChanged));
             }
-
-            UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
-            InterceptFolderSwitch.Toggled += InterceptFolder_Toggled;
-            DefaultTerminal.SelectionChanged += DefaultTerminal_SelectionChanged;
-            AutoBoot.Toggled += AutoBoot_Toggled;
-            WindowsExplorerContextMenu.Toggled += WindowsExplorerContextMenu_Toggled;
-            HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
-            HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
-            DefaultDisplayMode.SelectionChanged += DefaultDisplayMode_SelectionChanged;
-            VerticalSplitViewLimitationCombox.SelectionChanged += VerticalSplitViewLimitationCombox_SelectionChanged;
-            ShutdownButtonBehaviorCombox.SelectionChanged += ShutdownButtonBehaviorCombox_SelectionChanged;
-
-            BuiltInEngineIgnoreCase.Checked += SeachEngineOptionSave_Checked;
-            BuiltInEngineIgnoreCase.Unchecked += SeachEngineOptionSave_UnChecked;
-            BuiltInEngineIncludeRegex.Checked += SeachEngineOptionSave_Checked;
-            BuiltInEngineIncludeRegex.Unchecked += SeachEngineOptionSave_UnChecked;
-            BuiltInSearchAllSubFolders.Checked += SeachEngineOptionSave_Checked;
-            BuiltInSearchAllSubFolders.Unchecked += SeachEngineOptionSave_UnChecked;
-            BuiltInEngineIncludeAQS.Checked += SeachEngineOptionSave_Checked;
-            BuiltInEngineIncludeAQS.Unchecked += SeachEngineOptionSave_UnChecked;
-            BuiltInSearchUseIndexer.Checked += SeachEngineOptionSave_Checked;
-            BuiltInSearchUseIndexer.Unchecked += SeachEngineOptionSave_UnChecked;
-            EverythingEngineIgnoreCase.Checked += SeachEngineOptionSave_Checked;
-            EverythingEngineIgnoreCase.Unchecked += SeachEngineOptionSave_UnChecked;
-            EverythingEngineIncludeRegex.Checked += SeachEngineOptionSave_Checked;
-            EverythingEngineIncludeRegex.Unchecked += SeachEngineOptionSave_UnChecked;
-            EverythingEngineSearchGloble.Checked += SeachEngineOptionSave_Checked;
-            EverythingEngineSearchGloble.Unchecked += SeachEngineOptionSave_UnChecked;
-            ShowContextMenuWhenLoading.Checked += ShowContextMenuWhenLoading_Checked;
-            ShowContextMenuWhenLoading.Unchecked += ShowContextMenuWhenLoading_Unchecked;
-
-            ColorPickerChangeRegisterToken1 = AcrylicColorPicker.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnAcrylicColorPicker1SelectedColorChanged));
-            ColorPickerChangeRegisterToken2 = PredefineTagColorPicker1.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker1SelectedColorChanged));
-            ColorPickerChangeRegisterToken3 = PredefineTagColorPicker2.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker2SelectedColorChanged));
-            ColorPickerChangeRegisterToken4 = PredefineTagColorPicker3.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker3SelectedColorChanged));
-            ColorPickerChangeRegisterToken5 = PredefineTagColorPicker4.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker4SelectedColorChanged));
+            finally
+            {
+                ApplySettingLocker.Release();
+            }
         }
 
         private void OnAcrylicColorPicker1SelectedColorChanged(DependencyObject sender, DependencyProperty dp)
@@ -3581,22 +3648,26 @@ namespace RX_Explorer.View
 
         private async Task<IReadOnlyList<BackgroundPicture>> GetCustomPictureAsync()
         {
-            List<BackgroundPicture> PictureList = new List<BackgroundPicture>();
+            List<Task<BackgroundPicture>> ParallelTaskList = new List<Task<BackgroundPicture>>();
 
             foreach (Uri ImageUri in SQLite.Current.GetBackgroundPicture())
             {
-                try
+                ParallelTaskList.Add(BackgroundPicture.CreateAsync(ImageUri).ContinueWith((PreviousTask) =>
                 {
-                    PictureList.Add(await BackgroundPicture.CreateAsync(ImageUri));
-                }
-                catch (Exception ex)
-                {
-                    SQLite.Current.DeleteBackgroundPicture(ImageUri);
-                    LogTracer.Log(ex, "Error when loading background pictures, the file might lost");
-                }
+                    if (PreviousTask.Exception is Exception Ex)
+                    {
+                        SQLite.Current.DeleteBackgroundPicture(ImageUri);
+                        LogTracer.Log(Ex, "Error when loading background pictures, the file might no longer exists");
+                        return null;
+                    }
+                    else
+                    {
+                        return PreviousTask.Result;
+                    }
+                }));
             }
 
-            return PictureList;
+            return (await Task.WhenAll(ParallelTaskList)).OfType<BackgroundPicture>().ToList();
         }
 
         private async void NavigatePrivacyLink_Click(object sender, RoutedEventArgs e)
@@ -3889,6 +3960,99 @@ namespace RX_Explorer.View
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(PredefineLabelBox4_LosingFocus)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private async void AppGuardSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsApplicationGuardEnabled = AppGuardSwitch.IsOn;
+
+                if (AppGuardSwitch.IsOn)
+                {
+                    await MonitorTrustProcessController.StartMonitorAsync();
+                }
+                else
+                {
+                    await MonitorTrustProcessController.StopMonitorAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(AppGuardSwitch_Toggled)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private async void GuardRestartOnCrash_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsMonitorCrashEnabled = true;
+                await MonitorTrustProcessController.EnableFeatureAsync(MonitorFeature.CrashMonitor);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(GuardRestartOnCrash_Checked)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private async void GuardRestartOnCrash_Unchecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsMonitorCrashEnabled = false;
+                await MonitorTrustProcessController.DisableFeatureAsync(MonitorFeature.CrashMonitor);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(GuardRestartOnCrash_Unchecked)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private async void GuardRestartOnFreeze_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsMonitorFreezeEnabled = true;
+                await MonitorTrustProcessController.EnableFeatureAsync(MonitorFeature.FreezeMonitor);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(GuardRestartOnFreeze_Checked)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private async void GuardRestartOnFreeze_Unchecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsMonitorFreezeEnabled = false;
+                await MonitorTrustProcessController.DisableFeatureAsync(MonitorFeature.FreezeMonitor);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(GuardRestartOnFreeze_Unchecked)}");
             }
             finally
             {

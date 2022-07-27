@@ -3598,4 +3598,28 @@ Las denominaciones no válidas son:
   <data name="Toast_Restart_Hang_Text" xml:space="preserve">
     <value>RX ha dejado de responder debido al marco UWP u otras razones</value>
   </data>
+  <data name="AppGuardContent.Text" xml:space="preserve">
+    <value>Cuando esta opción está habilitada, se utilizará un proceso daemon para monitorear continuamente el estado de ejecución de esta aplicación. Nota: Se recomienda habilitar esta opción para maximizar la confiabilidad</value>
+  </data>
+  <data name="AppGuardLabel.Text" xml:space="preserve">
+    <value>Proceso del demonio de aplicación</value>
+  </data>
+  <data name="AppGuardRestartOnCrashContent.Text" xml:space="preserve">
+    <value>Habilitar esta opción permitirá que el proceso del demonio reinicie la aplicación una vez que detecte un bloqueo y restaurará la carpeta que el usuario estaba navegando antes.</value>
+  </data>
+  <data name="AppGuardRestartOnCrashLabel.Text" xml:space="preserve">
+    <value>Recuperar y reiniciar la aplicación cuando falla</value>
+  </data>
+  <data name="AppGuardRestartOnFreezeContent.Text" xml:space="preserve">
+    <value>Habilitar esta opción permitirá que el proceso del demonio reinicie la aplicación una vez que detecte una congelación y restaure la carpeta que el usuario estaba navegando antes.</value>
+  </data>
+  <data name="AppGuardRestartOnFreezeLabel.Text" xml:space="preserve">
+    <value>Recupera y reinicia la aplicación cuando se congela</value>
+  </data>
+  <data name="AppGuardSwitch.OffContent" xml:space="preserve">
+    <value>Desactivado</value>
+  </data>
+  <data name="AppGuardSwitch.OnContent" xml:space="preserve">
+    <value>Activado</value>
+  </data>
 </root>

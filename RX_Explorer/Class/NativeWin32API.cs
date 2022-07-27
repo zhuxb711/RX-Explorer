@@ -354,46 +354,37 @@ namespace RX_Explorer.Class
 
         public static FileStream CreateStreamFromFile(string Path, AccessMode AccessMode, OptimizeOption Option)
         {
-            try
+            FILE_ATTRIBUTE_FLAG Flags = FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | Option switch
             {
-                FILE_ATTRIBUTE_FLAG Flags = FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | Option switch
-                {
-                    OptimizeOption.None => FILE_ATTRIBUTE_FLAG.File_Attribute_Normal,
-                    OptimizeOption.Sequential => FILE_ATTRIBUTE_FLAG.File_Flag_Sequential_Scan,
-                    OptimizeOption.RandomAccess => FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access,
-                    _ => throw new NotSupportedException()
-                };
+                OptimizeOption.None => FILE_ATTRIBUTE_FLAG.File_Attribute_Normal,
+                OptimizeOption.Sequential => FILE_ATTRIBUTE_FLAG.File_Flag_Sequential_Scan,
+                OptimizeOption.RandomAccess => FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access,
+                _ => throw new NotSupportedException()
+            };
 
-                SafeFileHandle Handle = AccessMode switch
-                {
-                    AccessMode.Read => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
-                    AccessMode.ReadWrite => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.Read, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
-                    AccessMode.Write => CreateFileFromApp(Path, FILE_ACCESS.Generic_Write, FILE_SHARE.Read, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
-                    AccessMode.Exclusive => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.None, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
-                    _ => throw new NotSupportedException()
-                };
-
-                if (Handle.IsInvalid)
-                {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
-
-                FileAccess Access = AccessMode switch
-                {
-                    AccessMode.Read => FileAccess.Read,
-                    AccessMode.ReadWrite or AccessMode.Exclusive => FileAccess.ReadWrite,
-                    AccessMode.Write => FileAccess.Write,
-                    _ => throw new NotSupportedException()
-                };
-
-                return new FileStream(Handle, Access, 4096, true);
-            }
-            catch (Exception ex)
+            SafeFileHandle Handle = AccessMode switch
             {
-                LogTracer.Log(ex, $"Could not create filestream from file, path: {Path}");
+                AccessMode.Read => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                AccessMode.ReadWrite => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.Read, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                AccessMode.Write => CreateFileFromApp(Path, FILE_ACCESS.Generic_Write, FILE_SHARE.Read, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                AccessMode.Exclusive => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.None, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                _ => throw new NotSupportedException()
+            };
+
+            if (Handle.IsInvalid)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
             }
 
-            return null;
+            FileAccess Access = AccessMode switch
+            {
+                AccessMode.Read => FileAccess.Read,
+                AccessMode.ReadWrite or AccessMode.Exclusive => FileAccess.ReadWrite,
+                AccessMode.Write => FileAccess.Write,
+                _ => throw new NotSupportedException()
+            };
+
+            return new FileStream(Handle, Access, 4096, true);
         }
 
         public static bool CreateDirectoryFromPath(string Path, CreateOption Option, out string NewFolderPath)

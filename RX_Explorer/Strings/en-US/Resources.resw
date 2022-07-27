@@ -3703,4 +3703,28 @@ Invalid names include
   <data name="Toast_Restart_Hang_Text" xml:space="preserve">
     <value>RX has stopped responding due to UWP framework or other reasons</value>
   </data>
+  <data name="AppGuardContent.Text" xml:space="preserve">
+    <value>When this option is enabled, a daemon process will be used to continuously monitor the running status of this application. Note: It is recommended to enable this option to maximize reliability</value>
+  </data>
+  <data name="AppGuardLabel.Text" xml:space="preserve">
+    <value>Application daemon process</value>
+  </data>
+  <data name="AppGuardRestartOnCrashContent.Text" xml:space="preserve">
+    <value>Enabling this option will allow the daemon process to restart the app once it detects a crash and restore the folder user was browsing before</value>
+  </data>
+  <data name="AppGuardRestartOnCrashLabel.Text" xml:space="preserve">
+    <value>Recover and restart the app when it crashes</value>
+  </data>
+  <data name="AppGuardRestartOnFreezeContent.Text" xml:space="preserve">
+    <value>Enabling this option will allow the daemon process to restart the app once it detects a freeze and restore the folder user was browsing before</value>
+  </data>
+  <data name="AppGuardRestartOnFreezeLabel.Text" xml:space="preserve">
+    <value>Recover and restart the app when it freezes</value>
+  </data>
+  <data name="AppGuardSwitch.OffContent" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="AppGuardSwitch.OnContent" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
 </root>

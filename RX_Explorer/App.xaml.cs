@@ -241,7 +241,7 @@ namespace RX_Explorer
 
                                                     break;
                                                 }
-                                            case "Hang":
+                                            case "Freeze":
                                                 {
                                                     ToastContentBuilder Builder = new ToastContentBuilder()
                                                                                   .SetToastScenario(ToastScenario.Reminder)

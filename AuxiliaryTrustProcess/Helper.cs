@@ -1,9 +1,9 @@
 ﻿using MediaDevices;
+using Microsoft.Win32;
 using Microsoft.Win32.SafeHandles;
 using MimeTypes;
 using SharedLibrary;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -12,32 +12,34 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Xml;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Core;
-using Windows.Management.Deployment;
-using Windows.Storage.Streams;
 
 namespace AuxiliaryTrustProcess
 {
     public static class Helper
     {
-        public static string GetUWPActualNamedPipeName(string PipeId, string AppContainerName = null, int ProcessId = 0)
+        [DllImport("kernelbase.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern Win32Error GetStagedPackageOrigin(string packageFullName, out Kernel32.PackageOrigin origin);
+
+        public static string GetActualNamedPipeNameFromUwpApplication(string PipeId, string AppContainerName = null, int ProcessId = 0)
         {
             if (ProcessId > 0)
             {
                 using (Process TargetProcess = Process.GetProcessById(ProcessId))
-                using (AdvApi32.SafeHTOKEN Token = AdvApi32.SafeHTOKEN.FromProcess(new HPROCESS(TargetProcess.Handle), AdvApi32.TokenAccess.TOKEN_ALL_ACCESS))
+                using (AdvApi32.SafeHTOKEN Token = AdvApi32.SafeHTOKEN.FromProcess(TargetProcess, AdvApi32.TokenAccess.TOKEN_ALL_ACCESS))
                 {
-                    return $@"Sessions\{TargetProcess.SessionId}\AppContainerNamedObjects\{string.Join("-", Token.GetInfo<AdvApi32.TOKEN_APPCONTAINER_INFORMATION>(AdvApi32.TOKEN_INFORMATION_CLASS.TokenAppContainerSid).TokenAppContainer.ToString("D").Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeId}";
+                    if (!Token.IsInvalid && !Token.IsNull)
+                    {
+                        return $@"Sessions\{TargetProcess.SessionId}\AppContainerNamedObjects\{string.Join("-", Token.GetInfo<AdvApi32.TOKEN_APPCONTAINER_INFORMATION>(AdvApi32.TOKEN_INFORMATION_CLASS.TokenAppContainerSid).TokenAppContainer.ToString("D").Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeId}";
+                    }
                 }
             }
-            else if(!string.IsNullOrEmpty(AppContainerName))
+
+            if (!string.IsNullOrEmpty(AppContainerName))
             {
                 using (Process CurrentProcess = Process.GetCurrentProcess())
                 {
@@ -45,7 +47,10 @@ namespace AuxiliaryTrustProcess
                     {
                         try
                         {
-                            return $@"Sessions\{CurrentProcess.SessionId}\AppContainerNamedObjects\{string.Join("-", ((PSID)Sid).ToString("D").Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeId}";
+                            if (!Sid.IsInvalid && !Sid.IsNull)
+                            {
+                                return $@"Sessions\{CurrentProcess.SessionId}\AppContainerNamedObjects\{string.Join("-", ((PSID)Sid).ToString("D").Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeId}";
+                            }
                         }
                         finally
                         {
@@ -58,7 +63,7 @@ namespace AuxiliaryTrustProcess
             return string.Empty;
         }
 
-        public static IReadOnlyList<Process> GetLockingProcesses(string Path)
+        public static IReadOnlyList<Process> GetLockingProcessesList(string Path)
         {
             StringBuilder SessionKey = new StringBuilder(Guid.NewGuid().ToString());
 
@@ -264,7 +269,7 @@ namespace AuxiliaryTrustProcess
             return UniquePath;
         }
 
-        public static string StorageGenerateUniquePath(string Path, CreateType Type)
+        public static string GenerateUniquePathOnLocal(string Path, CreateType Type)
         {
             string UniquePath = Path;
 
@@ -379,7 +384,7 @@ namespace AuxiliaryTrustProcess
             }
         }
 
-        public static WindowInformation GetUWPWindowInformation(string PackageFamilyName, uint KnownProcessId = 0)
+        public static WindowInformation GetWindowInformationFromUwpApplication(string PackageFamilyName, uint KnownProcessId = 0)
         {
             WindowInformation Info = null;
 
@@ -516,114 +521,106 @@ namespace AuxiliaryTrustProcess
             return Info;
         }
 
-        public static string GetPackageFamilyNameFromUWPShellLink(string LinkPath)
+        public static string GetPackageFamilyNameFromShellLink(string LinkPath)
         {
-            using (ShellItem LinkItem = new ShellItem(LinkPath))
+            try
             {
-                return LinkItem.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetParsingPath).Split('!').FirstOrDefault();
-            }
-        }
-
-        public static async Task<byte[]> GetIconDataFromPackageFamilyNameAsync(string PackageFamilyName)
-        {
-            PackageManager Manager = new PackageManager();
-
-            if (Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageFamilyName, PackageTypes.Main).FirstOrDefault() is Package Pack)
-            {
-                try
+                using (ShellItem LinkItem = new ShellItem(LinkPath))
                 {
-                    if (Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150)) is RandomAccessStreamReference Reference)
+                    string AUMID = LinkItem.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetParsingPath);
+
+                    uint PackageFamilyNameLength = 0;
+                    uint PackageRelativeIdLength = 0;
+
+                    if (Kernel32.ParseApplicationUserModelId(AUMID, ref PackageFamilyNameLength, null, ref PackageRelativeIdLength) == Win32Error.ERROR_INSUFFICIENT_BUFFER)
                     {
-                        IRandomAccessStreamWithContentType IconStream = await Reference.OpenReadAsync();
+                        StringBuilder PackageFamilyNameBuilder = new StringBuilder(Convert.ToInt32(PackageFamilyNameLength));
+                        StringBuilder PackageRelativeIdBuilder = new StringBuilder(Convert.ToInt32(PackageRelativeIdLength));
 
-                        if (IconStream != null)
+                        if (Kernel32.ParseApplicationUserModelId(AUMID, ref PackageFamilyNameLength, PackageFamilyNameBuilder, ref PackageRelativeIdLength, PackageRelativeIdBuilder).Succeeded)
                         {
-                            try
-                            {
-                                using (Stream Stream = IconStream.AsStreamForRead())
-                                {
-                                    byte[] Logo = new byte[IconStream.Size];
-
-                                    Stream.Read(Logo, 0, (int)IconStream.Size);
-
-                                    return Logo;
-                                }
-                            }
-                            finally
-                            {
-                                IconStream.Dispose();
-                            }
+                            return PackageFamilyNameBuilder.ToString();
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"Could not get logo from PackageFamilyName: \"{PackageFamilyName}\"");
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the package family name from the shell link");
             }
 
-            return Array.Empty<byte>();
+            return string.Empty;
         }
 
         public static bool CheckIfPackageFamilyNameExist(string PackageFamilyName)
         {
-            return new PackageManager().FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageFamilyName, PackageTypes.Main).Any();
-        }
-
-        public static Task<bool> LaunchApplicationFromAUMIDAsync(string AppUserModelId, params string[] Arguments)
-        {
-            return STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
+            if (!string.IsNullOrWhiteSpace(PackageFamilyName))
             {
                 try
                 {
-                    Shell32.IApplicationActivationManager Manager = (Shell32.IApplicationActivationManager)new Shell32.ApplicationActivationManager();
+                    uint FullNameCount = 0;
+                    uint FullNameBufferLength = 0;
 
-                    IEnumerable<string> AvailableArguments = Arguments.Where((Item) => !string.IsNullOrEmpty(Item));
+                    return Kernel32.FindPackagesByPackageFamily(PackageFamilyName, Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_HEAD | Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_DIRECT, ref FullNameCount, IntPtr.Zero, ref FullNameBufferLength, IntPtr.Zero, IntPtr.Zero) == Win32Error.ERROR_INSUFFICIENT_BUFFER;
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not get the package full name from the package family name");
+                }
+            }
 
-                    if (AvailableArguments.Any())
+            return false;
+        }
+
+        public static bool LaunchApplicationFromPackageFamilyName(string PackageFamilyName, params string[] Arguments)
+        {
+            string AppUserModelId = GetAppUserModeIdFromPackageFullName(GetPackageFullNameFromPackageFamilyName(PackageFamilyName));
+
+            if (!string.IsNullOrEmpty(AppUserModelId))
+            {
+                return LaunchApplicationFromAppUserModelId(AppUserModelId, Arguments);
+            }
+
+            return false;
+        }
+
+        public static bool LaunchApplicationFromAppUserModelId(string AppUserModelId, params string[] Arguments)
+        {
+            try
+            {
+                Shell32.IApplicationActivationManager Manager = (Shell32.IApplicationActivationManager)new Shell32.ApplicationActivationManager();
+
+                IEnumerable<string> AvailableArguments = Arguments.Where((Item) => !string.IsNullOrEmpty(Item));
+
+                if (AvailableArguments.Any())
+                {
+                    List<Exception> ExceptionList = new List<Exception>();
+
+                    if (AvailableArguments.All((Item) => File.Exists(Item) || Directory.Exists(Item)))
                     {
-                        List<Exception> ExceptionList = new List<Exception>();
+                        IEnumerable<ShellItem> SItemList = AvailableArguments.Select((Item) => new ShellItem(Item));
 
-                        if (AvailableArguments.All((Item) => File.Exists(Item) || Directory.Exists(Item)))
+                        try
                         {
-                            IEnumerable<ShellItem> SItemList = AvailableArguments.Select((Item) => new ShellItem(Item));
-
-                            try
+                            using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
                             {
-                                using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
+                                try
                                 {
-                                    try
-                                    {
-                                        Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "open", out uint ProcessId);
+                                    Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "open", out uint ProcessId);
 
-                                        if (ProcessId > 0)
-                                        {
-                                            return true;
-                                        }
-                                    }
-                                    catch (Exception ex)
+                                    if (ProcessId > 0)
                                     {
-                                        ExceptionList.Add(ex);
+                                        return true;
                                     }
-
-                                    try
-                                    {
-                                        Manager.ActivateForProtocol(AppUserModelId, ItemArray.IShellItemArray, out uint ProcessId);
-
-                                        if (ProcessId > 0)
-                                        {
-                                            return true;
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        ExceptionList.Add(ex);
-                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    ExceptionList.Add(ex);
                                 }
 
                                 try
                                 {
-                                    Manager.ActivateApplication(AppUserModelId, string.Join(' ', AvailableArguments.Select((Path) => $"\"{Path}\"")), Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
+                                    Manager.ActivateForProtocol(AppUserModelId, ItemArray.IShellItemArray, out uint ProcessId);
 
                                     if (ProcessId > 0)
                                     {
@@ -635,16 +632,10 @@ namespace AuxiliaryTrustProcess
                                     ExceptionList.Add(ex);
                                 }
                             }
-                            finally
-                            {
-                                SItemList.ForEach((Item) => Item.Dispose());
-                            }
-                        }
-                        else
-                        {
+
                             try
                             {
-                                Manager.ActivateApplication(AppUserModelId, string.Join(' ', AvailableArguments.Select((Item) => $"\"{Item}\"")), Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
+                                Manager.ActivateApplication(AppUserModelId, string.Join(' ', AvailableArguments.Select((Path) => $"\"{Path}\"")), Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
 
                                 if (ProcessId > 0)
                                 {
@@ -656,132 +647,449 @@ namespace AuxiliaryTrustProcess
                                 ExceptionList.Add(ex);
                             }
                         }
-
-                        throw new AggregateException(ExceptionList);
+                        finally
+                        {
+                            SItemList.ForEach((Item) => Item.Dispose());
+                        }
                     }
                     else
                     {
-                        Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
-
-                        if (ProcessId > 0)
+                        try
                         {
-                            return true;
+                            Manager.ActivateApplication(AppUserModelId, string.Join(' ', AvailableArguments.Select((Item) => $"\"{Item}\"")), Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
+
+                            if (ProcessId > 0)
+                            {
+                                return true;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            ExceptionList.Add(ex);
                         }
                     }
+
+                    throw new AggregateException(ExceptionList);
                 }
-                catch (Exception ex)
+                else
                 {
-                    LogTracer.Log(ex, "Could not launch the application from AUMID");
+                    Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
+
+                    if (ProcessId > 0)
+                    {
+                        return true;
+                    }
                 }
-
-                return false;
-            });
-        }
-
-        public static async Task<bool> LaunchApplicationFromPackageFamilyNameAsync(string PackageFamilyName, params string[] Arguments)
-        {
-            PackageManager Manager = new PackageManager();
-
-            if (Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageFamilyName, PackageTypes.Main).FirstOrDefault() is Package Pack)
+            }
+            catch (Exception ex)
             {
-                foreach (AppListEntry Entry in await Pack.GetAppListEntriesAsync())
-                {
-                    if (Arguments.Length == 0)
-                    {
-                        if (await Entry.LaunchAsync())
-                        {
-                            return true;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(Entry.AppUserModelId))
-                    {
-                        return await LaunchApplicationFromAUMIDAsync(Entry.AppUserModelId, Arguments);
-                    }
-                }
+                LogTracer.Log(ex, "Could not launch the application from AUMID");
             }
 
             return false;
         }
 
-        public static async Task<InstalledApplicationPackage> GetInstalledApplicationAsync(string PackageFamilyName)
+        public static InstalledApplicationPackage GetSpecificInstalledUwpApplication(string PackageFamilyName)
         {
-            PackageManager Manager = new PackageManager();
+            static string GetBestMatchLogoPath(string LogoPath)
+            {
+                int LargestSize = 0;
 
-            if (Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageFamilyName, PackageTypes.Main).FirstOrDefault() is Package Pack)
+                string ReturnValue = LogoPath;
+                string BaseDirectory = Path.GetDirectoryName(LogoPath);
+
+                if (Directory.Exists(BaseDirectory))
+                {
+                    foreach (string TargetLogoPath in Directory.EnumerateFiles(BaseDirectory, $"{Path.GetFileNameWithoutExtension(LogoPath)}.scale-*{Path.GetExtension(LogoPath)}"))
+                    {
+                        string SizeText = Path.GetFileNameWithoutExtension(TargetLogoPath).Split(".scale-", StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+
+                        if (int.TryParse(SizeText, out int Size) && Size > LargestSize)
+                        {
+                            ReturnValue = TargetLogoPath;
+                        }
+                    }
+                }
+
+                return ReturnValue;
+            }
+
+            if (!string.IsNullOrEmpty(PackageFamilyName))
             {
                 try
                 {
-                    if (Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150)) is RandomAccessStreamReference Reference)
+                    string PackageFullName = GetPackageFullNameFromPackageFamilyName(PackageFamilyName);
+
+                    if (!string.IsNullOrEmpty(PackageFullName))
                     {
-                        if (await Reference.OpenReadAsync() is IRandomAccessStreamWithContentType IconStream)
+                        if (GetStagedPackageOrigin(PackageFullName, out Kernel32.PackageOrigin Origin).Succeeded)
                         {
-                            try
+                            switch (Origin)
                             {
-                                using (Stream Stream = IconStream.AsStreamForRead())
-                                using (BinaryReader Reader = new BinaryReader(Stream, Encoding.Default, true))
-                                {
-                                    return new InstalledApplicationPackage(Pack.DisplayName, Pack.PublisherDisplayName, Pack.Id.FamilyName, Reader.ReadBytes(Convert.ToInt32(IconStream.Size)));
-                                }
-                            }
-                            finally
-                            {
-                                IconStream.Dispose();
+                                case Kernel32.PackageOrigin.PackageOrigin_Inbox:
+                                case Kernel32.PackageOrigin.PackageOrigin_Store:
+                                case Kernel32.PackageOrigin.PackageOrigin_DeveloperSigned:
+                                case Kernel32.PackageOrigin.PackageOrigin_LineOfBusiness:
+                                    {
+                                        string InstalledPath = GetInstalledPathFromPackageFullName(PackageFullName);
+
+                                        if (!string.IsNullOrEmpty(InstalledPath))
+                                        {
+                                            string AppxManifestPath = Path.Combine(InstalledPath, "AppXManifest.xml");
+
+                                            if (File.Exists(AppxManifestPath))
+                                            {
+                                                XmlDocument Document = new XmlDocument();
+
+                                                using (XmlTextReader DocReader = new XmlTextReader(AppxManifestPath) { Namespaces = false })
+                                                {
+                                                    Document.Load(DocReader);
+
+                                                    string Logo = Document.SelectSingleNode("/Package/Properties/Logo")?.InnerText;
+                                                    string DisplayName = Document.SelectSingleNode("/Package/Properties/DisplayName")?.InnerText;
+                                                    string PublisherDisplayName = Document.SelectSingleNode("/Package/Properties/PublisherDisplayName")?.InnerText;
+
+                                                    if (Uri.TryCreate(DisplayName, UriKind.Absolute, out Uri DisplayNameResourceUri))
+                                                    {
+                                                        DisplayName = ExtractResourceFromPackageFullName(PackageFullName, DisplayNameResourceUri);
+                                                    }
+
+                                                    if (!string.IsNullOrEmpty(DisplayName))
+                                                    {
+                                                        if (Uri.TryCreate(PublisherDisplayName, UriKind.Absolute, out Uri PublisherDisplayNameResourceUri))
+                                                        {
+                                                            PublisherDisplayName = ExtractResourceFromPackageFullName(PackageFullName, PublisherDisplayNameResourceUri);
+                                                        }
+
+                                                        string LogoPath = GetBestMatchLogoPath(Path.Combine(InstalledPath, Logo));
+
+                                                        if (File.Exists(LogoPath))
+                                                        {
+                                                            return new InstalledApplicationPackage(DisplayName, PublisherDisplayName, PackageFamilyName, File.ReadAllBytes(LogoPath));
+                                                        }
+                                                        else
+                                                        {
+                                                            return new InstalledApplicationPackage(DisplayName, PublisherDisplayName, PackageFamilyName, Array.Empty<byte>());
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        break;
+                                    }
                             }
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    LogTracer.Log(ex, $"Could not get logo from PackageFamilyName: \"{PackageFamilyName}\"");
+                    //No need to handle this exception
                 }
             }
 
             return null;
         }
 
-        public static async Task<IEnumerable<InstalledApplicationPackage>> GetInstalledApplicationAsync()
+        public static IReadOnlyList<InstalledApplicationPackage> GetAllInstalledUwpApplication()
         {
-            ConcurrentBag<InstalledApplicationPackage> Result = new ConcurrentBag<InstalledApplicationPackage>();
+            HashSet<string> FilterAppFamilyName = new HashSet<string>(1)
+            {
+                "Microsoft.MicrosoftEdge_8wekyb3d8bbwe"
+            };
 
-            PackageManager Manager = new PackageManager();
+            List<InstalledApplicationPackage> Result = new List<InstalledApplicationPackage>();
 
-            await Task.Run(() => Parallel.ForEach(Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageTypes.Main)
-                                                         .Where((Pack) => !string.IsNullOrWhiteSpace(Pack.DisplayName)
-                                                                             && Pack.Status.VerifyIsOK()
-                                                                             && Pack.SignatureKind is PackageSignatureKind.Developer
-                                                                                                   or PackageSignatureKind.Enterprise
-                                                                                                   or PackageSignatureKind.Store),
-                                                  (Pack) =>
-                                                  {
-                                                      try
-                                                      {
-                                                          if (Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150)) is RandomAccessStreamReference Reference)
-                                                          {
-                                                              if (Reference.OpenReadAsync().AsTask().Result is IRandomAccessStreamWithContentType IconStream)
-                                                              {
-                                                                  try
-                                                                  {
-                                                                      using (Stream Stream = IconStream.AsStreamForRead())
-                                                                      using (BinaryReader Reader = new BinaryReader(Stream, Encoding.Default, true))
-                                                                      {
-                                                                          Result.Add(new InstalledApplicationPackage(Pack.DisplayName, Pack.PublisherDisplayName, Pack.Id.FamilyName, Reader.ReadBytes(Convert.ToInt32(IconStream.Size))));
-                                                                      }
-                                                                  }
-                                                                  finally
-                                                                  {
-                                                                      IconStream.Dispose();
-                                                                  }
-                                                              }
-                                                          }
-                                                      }
-                                                      catch (Exception ex)
-                                                      {
-                                                          LogTracer.Log(ex, $"Could not get logo from PackageFamilyName: \"{Pack.Id.FamilyName}\"");
-                                                      }
-                                                  }));
+            try
+            {
+                using (ShellFolder AppsFolder = new ShellFolder(Shell32.KNOWNFOLDERID.FOLDERID_AppsFolder))
+                {
+                    foreach (ShellItem Item in AppsFolder.EnumerateChildren(FolderItemFilter.NonFolders))
+                    {
+                        try
+                        {
+                            string AUMID = Item.ParsingName;
 
-            return Result.OrderBy((Pack) => Pack.AppDescription).ThenBy((Pack) => Pack.AppName);
+                            if (!string.IsNullOrEmpty(AUMID))
+                            {
+                                uint PackageFamilyNameLength = 0;
+                                uint PackageRelativeIdLength = 0;
+
+                                if (Kernel32.ParseApplicationUserModelId(AUMID, ref PackageFamilyNameLength, null, ref PackageRelativeIdLength) == Win32Error.ERROR_INSUFFICIENT_BUFFER)
+                                {
+                                    StringBuilder PackageFamilyNameBuilder = new StringBuilder(Convert.ToInt32(PackageFamilyNameLength));
+                                    StringBuilder PackageRelativeIdBuilder = new StringBuilder(Convert.ToInt32(PackageRelativeIdLength));
+
+                                    if (Kernel32.ParseApplicationUserModelId(AUMID, ref PackageFamilyNameLength, PackageFamilyNameBuilder, ref PackageRelativeIdLength, PackageRelativeIdBuilder).Succeeded)
+                                    {
+                                        string PackageFamilyName = PackageFamilyNameBuilder.ToString();
+
+                                        if (!FilterAppFamilyName.Contains(PackageFamilyName)
+                                            && Result.All((Item) => !Item.AppFamilyName.Equals(PackageFamilyName, StringComparison.OrdinalIgnoreCase))
+                                            && GetSpecificInstalledUwpApplication(PackageFamilyName) is InstalledApplicationPackage Package)
+                                        {
+                                            Result.Add(Package);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //No need to handle this exception
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the installed uwp applications");
+            }
+
+            return Result;
+        }
+
+        public static string GetPackageFullNameFromPackageFamilyName(string PackageFamilyName)
+        {
+            if (!string.IsNullOrWhiteSpace(PackageFamilyName))
+            {
+                try
+                {
+                    uint FullNameCount = 0;
+                    uint FullNameBufferLength = 0;
+
+                    if (Kernel32.FindPackagesByPackageFamily(PackageFamilyName, Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_HEAD | Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_DIRECT, ref FullNameCount, IntPtr.Zero, ref FullNameBufferLength, IntPtr.Zero, IntPtr.Zero) == Win32Error.ERROR_INSUFFICIENT_BUFFER)
+                    {
+                        IntPtr PackageFullNamePtr = Marshal.AllocHGlobal(Convert.ToInt32(FullNameCount * IntPtr.Size));
+                        IntPtr PackageFullNameBufferPtr = Marshal.AllocHGlobal(Convert.ToInt32(FullNameBufferLength * 2));
+
+                        try
+                        {
+                            if (Kernel32.FindPackagesByPackageFamily(PackageFamilyName, Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_HEAD | Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_DIRECT, ref FullNameCount, PackageFullNamePtr, ref FullNameBufferLength, PackageFullNameBufferPtr, IntPtr.Zero).Succeeded)
+                            {
+                                return Marshal.PtrToStringUni(Marshal.ReadIntPtr(PackageFullNamePtr));
+                            }
+                        }
+                        finally
+                        {
+                            Marshal.FreeHGlobal(PackageFullNamePtr);
+                            Marshal.FreeHGlobal(PackageFullNameBufferPtr);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not get the package full name from the package family name");
+                }
+            }
+
+            return string.Empty;
+        }
+
+        public static string GetAppUserModeIdFromPackageFullName(string PackageFullName)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(PackageFullName))
+                {
+                    try
+                    {
+                        Kernel32.PACKAGE_INFO_REFERENCE Reference = new Kernel32.PACKAGE_INFO_REFERENCE();
+
+                        if (Kernel32.OpenPackageInfoByFullName(PackageFullName, 0, ref Reference).Succeeded)
+                        {
+                            try
+                            {
+                                uint AppIdBufferLength = 0;
+
+                                if (Kernel32.GetPackageApplicationIds(Reference, ref AppIdBufferLength, IntPtr.Zero, out _) == Win32Error.ERROR_INSUFFICIENT_BUFFER)
+                                {
+                                    IntPtr AppIdBufferPtr = Marshal.AllocHGlobal(Convert.ToInt32(AppIdBufferLength));
+
+                                    try
+                                    {
+                                        if (Kernel32.GetPackageApplicationIds(Reference, ref AppIdBufferLength, AppIdBufferPtr, out uint AppIdCount).Succeeded && AppIdCount > 0)
+                                        {
+                                            return Marshal.PtrToStringUni(Marshal.ReadIntPtr(AppIdBufferPtr));
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        Marshal.FreeHGlobal(AppIdBufferPtr);
+                                    }
+                                }
+                            }
+                            finally
+                            {
+                                Kernel32.ClosePackageInfo(Reference);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // No need to handle this exception
+                    }
+
+                    string InstalledPath = GetInstalledPathFromPackageFullName(PackageFullName);
+
+                    if (!string.IsNullOrEmpty(InstalledPath))
+                    {
+                        string AppxManifestPath = Path.Combine(InstalledPath, "AppXManifest.xml");
+
+                        if (File.Exists(AppxManifestPath))
+                        {
+                            XmlDocument Document = new XmlDocument();
+
+                            using (XmlTextReader DocReader = new XmlTextReader(AppxManifestPath) { Namespaces = false })
+                            {
+                                Document.Load(DocReader);
+
+                                string AppId = Document.SelectSingleNode("/Package/Applications/Application")?.Attributes?.GetNamedItem("Id")?.InnerText;
+
+                                if (!string.IsNullOrEmpty(AppId))
+                                {
+                                    return $"{GetPackageFamilyNameFromPackageFullName(PackageFullName)}!{AppId}";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the AUMID from the package full name");
+            }
+
+            return string.Empty;
+        }
+
+        public static string GetInstalledPathFromPackageFullName(string PackageFullName)
+        {
+            try
+            {
+                uint PathLength = 0;
+
+                if (Kernel32.GetStagedPackagePathByFullName(PackageFullName, ref PathLength) == Win32Error.ERROR_INSUFFICIENT_BUFFER)
+                {
+                    StringBuilder Builder = new StringBuilder(Convert.ToInt32(PathLength));
+
+                    if (Kernel32.GetStagedPackagePathByFullName(PackageFullName, ref PathLength, Builder).Succeeded)
+                    {
+                        return Builder.ToString();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get installed path from package full name");
+            }
+
+            return string.Empty;
+        }
+
+        public static string GetPackageNameFromPackageFamilyName(string PackageFamilyName)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(PackageFamilyName))
+                {
+                    uint PackageNameLength = 0;
+                    uint PackagePublisherIdLength = 0;
+
+                    if (Kernel32.PackageNameAndPublisherIdFromFamilyName(PackageFamilyName, ref PackageNameLength, null, ref PackagePublisherIdLength) == Win32Error.ERROR_INSUFFICIENT_BUFFER)
+                    {
+                        StringBuilder PackageNameBuilder = new StringBuilder(Convert.ToInt32(PackageNameLength));
+                        StringBuilder PackagePublisherIdBuilder = new StringBuilder(Convert.ToInt32(PackagePublisherIdLength));
+
+                        if (Kernel32.PackageNameAndPublisherIdFromFamilyName(PackageFamilyName, ref PackageNameLength, PackageNameBuilder, ref PackagePublisherIdLength, PackagePublisherIdBuilder).Succeeded)
+                        {
+                            return PackageNameBuilder.ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the AUMID from the package family name");
+            }
+
+            return string.Empty;
+        }
+
+        public static string GetPackageFamilyNameFromPackageFullName(string PackageFullName)
+        {
+            if (!string.IsNullOrEmpty(PackageFullName))
+            {
+                try
+                {
+                    uint NameLength = 0;
+
+                    if (Kernel32.PackageFamilyNameFromFullName(PackageFullName, ref NameLength) == Win32Error.ERROR_INSUFFICIENT_BUFFER)
+                    {
+                        StringBuilder Builder = new StringBuilder(Convert.ToInt32(NameLength));
+
+                        if (Kernel32.PackageFamilyNameFromFullName(PackageFullName, ref NameLength, Builder).Succeeded)
+                        {
+                            return Builder.ToString();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not get the package family name from package full name");
+                }
+            }
+
+            return string.Empty;
+        }
+
+        public static string ExtractResourceFromPackageFullName(string PackageFullName, Uri ResourceUri)
+        {
+            static string ExtractResourceCore(string PackageFullName, string Resource)
+            {
+                StringBuilder Builder = new StringBuilder(1024);
+
+                if (ShlwApi.SHLoadIndirectString($"@{{{PackageFullName}?{Resource}}}", Builder, Convert.ToUInt32(Builder.Capacity)).Succeeded)
+                {
+                    return Builder.ToString();
+                }
+
+                return string.Empty;
+            }
+
+            if (!string.IsNullOrEmpty(PackageFullName))
+            {
+                try
+                {
+                    string PackageName = GetPackageNameFromPackageFamilyName(GetPackageFamilyNameFromPackageFullName(PackageFullName));
+
+                    if (!string.IsNullOrEmpty(PackageName))
+                    {
+                        string ExtractedValue = ExtractResourceCore(PackageFullName, $"ms-resource://{PackageName}/resources/{ResourceUri.Segments.LastOrDefault()}");
+
+                        if (string.IsNullOrEmpty(ExtractedValue))
+                        {
+                            ExtractedValue = ExtractResourceCore(PackageFullName, $"ms-resource://{PackageName}/{string.Concat(ResourceUri.Segments.Skip(1))}");
+                        }
+
+                        return ExtractedValue;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not extract the resource from pri file");
+                }
+            }
+
+            return string.Empty;
+        }
+
+        public static string GetDefaultUwpPackageInstallationRoot()
+        {
+            using (RegistryKey Key = Registry.LocalMachine.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Appx"))
+            {
+                return Convert.ToString(Key.GetValue("PackageRoot"));
+            }
         }
     }
 }

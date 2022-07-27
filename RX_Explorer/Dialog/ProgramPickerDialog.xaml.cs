@@ -47,14 +47,10 @@ namespace RX_Explorer.Dialog
                 List<ProgramPickerItem> LocalNotRecommandList = new List<ProgramPickerItem>();
                 List<ProgramPickerItem> LocalRecommandList = new List<ProgramPickerItem>();
 
-                List<AssociationPackage> AssociationList = new List<AssociationPackage>();
-
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    AssociationList.AddRange(await Exclusive.Controller.GetAssociationFromPathAsync(OpenFile.Path));
+                    SQLite.Current.UpdateProgramPickerRecord(await Exclusive.Controller.GetAssociationFromExtensionAsync(OpenFile.Type));
                 }
-
-                SQLite.Current.UpdateProgramPickerRecord(AssociationList);
 
                 foreach (AppInfo App in await Launcher.FindFileHandlersAsync(OpenFile.Type.ToLower()))
                 {
@@ -177,60 +173,67 @@ namespace RX_Explorer.Dialog
 
         private async void BrowserApp_Click(object sender, RoutedEventArgs e)
         {
-            FileOpenPicker Picker = new FileOpenPicker
+            try
             {
-                SuggestedStartLocation = PickerLocationId.ComputerFolder,
-                ViewMode = PickerViewMode.List
-            };
-
-            Picker.FileTypeFilter.Add(".exe");
-            Picker.FileTypeFilter.Add(".lnk");
-
-            if ((await Picker.PickSingleFileAsync()) is StorageFile ExecuteFile)
-            {
-                string ExecutablePath = ExecuteFile.Path;
-
-                if (ExecuteFile.FileType.Equals(".lnk", StringComparison.OrdinalIgnoreCase))
+                FileOpenPicker Picker = new FileOpenPicker
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(ExecutablePath) is LinkStorageFile LinkFile)
+                    SuggestedStartLocation = PickerLocationId.ComputerFolder,
+                    ViewMode = PickerViewMode.List
+                };
+
+                Picker.FileTypeFilter.Add(".exe");
+                Picker.FileTypeFilter.Add(".lnk");
+
+                if ((await Picker.PickSingleFileAsync()) is StorageFile ExecuteFile)
+                {
+                    string ExecutablePath = ExecuteFile.Path;
+
+                    if (ExecuteFile.FileType.Equals(".lnk", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (await LinkFile.GetRawDataAsync() is LinkFileData Package && !string.IsNullOrEmpty(Package.LinkTargetPath))
+                        if (await FileSystemStorageItemBase.OpenAsync(ExecutablePath) is LinkStorageFile LinkFile)
                         {
-                            ExecutablePath = Package.LinkTargetPath;
+                            if (await LinkFile.GetRawDataAsync() is LinkFileData Package && !string.IsNullOrEmpty(Package.LinkTargetPath))
+                            {
+                                ExecutablePath = Package.LinkTargetPath;
+                            }
                         }
                     }
-                }
 
-                SQLite.Current.UpdateProgramPickerRecord(new AssociationPackage[] { new AssociationPackage(OpenFile.Type, ExecutablePath, true) });
+                    SQLite.Current.UpdateProgramPickerRecord(new AssociationPackage[] { new AssociationPackage(OpenFile.Type, ExecutablePath, true) });
 
-                if (DefaultProgramCollection.FirstOrDefault((Item) => Item.Path.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item1)
-                {
-                    CurrentUseProgramList.SelectedItem = Item1;
-                }
-                else if (OtherProgramCollection.FirstOrDefault((Item) => Item.Path.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item2)
-                {
-                    OtherProgramList.SelectedItem = Item2;
-                    OtherProgramList.ScrollIntoView(Item2);
-                }
-                else if (NotRecommandList.FirstOrDefault((Item) => Item.Path.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item3)
-                {
-                    if (ShowMore.Visibility == Visibility.Visible)
+                    if (DefaultProgramCollection.FirstOrDefault((Item) => Item.Path.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item1)
                     {
-                        VisualStateManager.GoToState(RootControl, "RemoveMoreButtonState", true);
-                        OtherProgramCollection.AddRange(NotRecommandList);
+                        CurrentUseProgramList.SelectedItem = Item1;
                     }
+                    else if (OtherProgramCollection.FirstOrDefault((Item) => Item.Path.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item2)
+                    {
+                        OtherProgramList.SelectedItem = Item2;
+                        OtherProgramList.ScrollIntoView(Item2);
+                    }
+                    else if (NotRecommandList.FirstOrDefault((Item) => Item.Path.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item3)
+                    {
+                        if (ShowMore.Visibility == Visibility.Visible)
+                        {
+                            VisualStateManager.GoToState(RootControl, "RemoveMoreButtonState", true);
+                            OtherProgramCollection.AddRange(NotRecommandList);
+                        }
 
-                    OtherProgramList.SelectedItem = Item3;
-                    OtherProgramList.ScrollIntoView(Item3);
-                }
-                else if (await FileSystemStorageItemBase.OpenAsync(ExecutablePath) is FileSystemStorageFile File)
-                {
-                    ProgramPickerItem NewItem = await ProgramPickerItem.CreateAsync(File);
+                        OtherProgramList.SelectedItem = Item3;
+                        OtherProgramList.ScrollIntoView(Item3);
+                    }
+                    else if (await FileSystemStorageItemBase.OpenAsync(ExecutablePath) is FileSystemStorageFile File)
+                    {
+                        ProgramPickerItem NewItem = await ProgramPickerItem.CreateAsync(File);
 
-                    OtherProgramCollection.Add(NewItem);
-                    OtherProgramList.SelectedItem = NewItem;
-                    OtherProgramList.ScrollIntoView(NewItem);
+                        OtherProgramCollection.Add(NewItem);
+                        OtherProgramList.SelectedItem = NewItem;
+                        OtherProgramList.ScrollIntoView(NewItem);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not browser the app in program picker dialog");
             }
         }
 

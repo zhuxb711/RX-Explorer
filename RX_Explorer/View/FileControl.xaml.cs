@@ -3217,35 +3217,42 @@ namespace RX_Explorer.View
 
         private async void AddQuickAccessButton_Click(object sender, RoutedEventArgs e)
         {
-            FolderPicker Picker = new FolderPicker
+            try
             {
-                ViewMode = PickerViewMode.List,
-                SuggestedStartLocation = PickerLocationId.ComputerFolder
-            };
-            Picker.FileTypeFilter.Add("*");
-
-            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
-            {
-                if (CommonAccessCollection.LibraryList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                FolderPicker Picker = new FolderPicker
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
+                    ViewMode = PickerViewMode.List,
+                    SuggestedStartLocation = PickerLocationId.ComputerFolder
+                };
+                Picker.FileTypeFilter.Add("*");
 
-                    await Dialog.ShowAsync();
-                }
-                else if (!string.IsNullOrEmpty(Folder.Path))
+                if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
                 {
-                    if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
+                    if (CommonAccessCollection.LibraryList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        CommonAccessCollection.LibraryList.Add(LibFolder);
-                        SQLite.Current.SetLibraryPathRecord(LibraryType.UserCustom, Folder.Path);
-                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
+                    else if (!string.IsNullOrEmpty(Folder.Path))
+                    {
+                        if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
+                        {
+                            CommonAccessCollection.LibraryList.Add(LibFolder);
+                            SQLite.Current.SetLibraryPathRecord(LibraryType.UserCustom, Folder.Path);
+                            await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not add the folder to quick access");
             }
         }
 

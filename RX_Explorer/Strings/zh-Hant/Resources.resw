@@ -3596,4 +3596,28 @@
   <data name="Toast_Restart_Hang_Text" xml:space="preserve">
     <value>RX由於 UWP 框架或其他原因已停止響應</value>
   </data>
+  <data name="AppGuardContent.Text" xml:space="preserve">
+    <value>啟用此選項後，將使用一個守護進程持續監控此應用程序的運行狀態。 注意：建議啟用此選項以最大限度地提高可靠性</value>
+  </data>
+  <data name="AppGuardLabel.Text" xml:space="preserve">
+    <value>應用程序守護進程</value>
+  </data>
+  <data name="AppGuardRestartOnCrashContent.Text" xml:space="preserve">
+    <value>啟用此選項將允許守護進程在檢測到崩潰後重新啟動應用程序並恢復用戶之前瀏覽的文件夾</value>
+  </data>
+  <data name="AppGuardRestartOnCrashLabel.Text" xml:space="preserve">
+    <value>崩潰時恢復並重新啟動應用程序</value>
+  </data>
+  <data name="AppGuardRestartOnFreezeContent.Text" xml:space="preserve">
+    <value>啟用此選項將允許守護進程在檢測到凍結後重新啟動應用程序並恢復用戶之前瀏覽的文件夾</value>
+  </data>
+  <data name="AppGuardRestartOnFreezeLabel.Text" xml:space="preserve">
+    <value>凍結時恢復並重新啟動應用程序</value>
+  </data>
+  <data name="AppGuardSwitch.OffContent" xml:space="preserve">
+    <value>已禁用</value>
+  </data>
+  <data name="AppGuardSwitch.OnContent" xml:space="preserve">
+    <value>已啟用</value>
+  </data>
 </root>

@@ -4778,6 +4778,38 @@ Inkorrekte Namen sind
           <source>RX has stopped responding due to UWP framework or other reasons</source>
           <target state="translated">RX reagiert aufgrund des UWP-Frameworks oder aus anderen Gründen nicht mehr</target>
         </trans-unit>
+        <trans-unit id="AppGuardContent.Text" translate="yes" xml:space="preserve">
+          <source>When this option is enabled, a daemon process will be used to continuously monitor the running status of this application. Note: It is recommended to enable this option to maximize reliability</source>
+          <target state="translated">Wenn diese Option aktiviert ist, wird ein Daemon-Prozess verwendet, um den Ausführungsstatus dieser Anwendung kontinuierlich zu überwachen. Hinweis: Es wird empfohlen, diese Option zu aktivieren, um die Zuverlässigkeit zu maximieren</target>
+        </trans-unit>
+        <trans-unit id="AppGuardLabel.Text" translate="yes" xml:space="preserve">
+          <source>Application daemon process</source>
+          <target state="translated">Anwendungs-Daemon-Prozess</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnCrashContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will allow the daemon process to restart the app once it detects a crash and restore the folder user was browsing before</source>
+          <target state="translated">Wenn Sie diese Option aktivieren, kann der Daemon-Prozess die App neu starten, sobald er einen Absturz erkennt, und den Ordner wiederherstellen, den der Benutzer zuvor durchsucht hat</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnCrashLabel.Text" translate="yes" xml:space="preserve">
+          <source>Recover and restart the app when it crashes</source>
+          <target state="translated">Stellen Sie die App wieder her und starten Sie sie neu, wenn sie abstürzt</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnFreezeContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will allow the daemon process to restart the app once it detects a freeze and restore the folder user was browsing before</source>
+          <target state="translated">Wenn Sie diese Option aktivieren, kann der Daemon-Prozess die App neu starten, sobald er ein Einfrieren erkennt, und den Ordner wiederherstellen, den der Benutzer zuvor durchsucht hat</target>
+        </trans-unit>
+        <trans-unit id="AppGuardRestartOnFreezeLabel.Text" translate="yes" xml:space="preserve">
+          <source>Recover and restart the app when it freezes</source>
+          <target state="translated">Stellen Sie die App wieder her und starten Sie sie neu, wenn sie einfriert</target>
+        </trans-unit>
+        <trans-unit id="AppGuardSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Deaktiviert</target>
+        </trans-unit>
+        <trans-unit id="AppGuardSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Ermöglicht</target>
+        </trans-unit>
       </group>
     </body>
   </file>

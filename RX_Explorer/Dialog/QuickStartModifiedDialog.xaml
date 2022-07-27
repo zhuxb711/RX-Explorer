@@ -105,7 +105,8 @@
                     </ListView.ItemTemplate>
                 </ListView>
 
-                <StackPanel VerticalAlignment="Center"
+                <StackPanel Padding="0,40,0,40"
+                            VerticalAlignment="Center"
                             HorizontalAlignment="Center"
                             Name="UWPLoadingTip">
                     <TextBlock Name="ProgressInfo"
@@ -113,7 +114,7 @@
                                VerticalAlignment="Center"
                                TextAlignment="Center" />
                     <controls:ProgressBar IsIndeterminate="True"
-                                          Width="150"
+                                          Width="200"
                                           Name="ProBar"
                                           Minimum="0"
                                           Maximum="100"

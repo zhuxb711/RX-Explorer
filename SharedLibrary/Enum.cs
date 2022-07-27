@@ -62,7 +62,15 @@
     {
         SetRecoveryData,
         StartMonitor,
-        StopMonitor
+        StopMonitor,
+        EnableFeature,
+        DisableFeature
+    }
+
+    public enum MonitorFeature
+    {
+        CrashMonitor,
+        FreezeMonitor
     }
 
     public enum AuxiliaryTrustProcessCommandType
@@ -81,7 +89,7 @@
         ToggleQuicklook,
         SwitchQuicklook,
         Check_Quicklook,
-        Get_Association,
+        GetAssociation,
         Default_Association,
         GetRecycleBinItems,
         RestoreRecycleItem,
@@ -113,9 +121,9 @@
         SetFileAttribute,
         GetMIMEContentType,
         GetUrlTargetPath,
-        GetAllInstalledApplication,
+        GetAllInstalledUwpApplication,
         CheckPackageFamilyNameExist,
-        GetInstalledApplication,
+        GetSpecificInstalledUwpApplication,
         GetDocumentProperties,
         LaunchUWP,
         GetThumbnailOverlay,

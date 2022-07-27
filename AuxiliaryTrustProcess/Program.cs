@@ -1,5 +1,4 @@
 ﻿using MediaDevices;
-using Microsoft.Toolkit.Deferred;
 using SharedLibrary;
 using System;
 using System.Collections;
@@ -23,7 +22,6 @@ using System.Threading.Tasks;
 using UtfUnknown;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
-using Windows.ApplicationModel;
 using Timer = System.Timers.Timer;
 
 namespace AuxiliaryTrustProcess
@@ -49,6 +47,8 @@ namespace AuxiliaryTrustProcess
         private static NamedPipeAuxiliaryCommunicationBaseController PipeCommunicationBaseController;
 
         private static CancellationTokenSource CurrentTaskCancellation;
+
+        private static readonly string ExplorerPackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t";
 
         private static IEnumerable<MediaDevice> MTPDeviceList => MediaDevice.GetDevices().ForEach((Device) => Device.Connect());
 
@@ -109,79 +109,76 @@ namespace AuxiliaryTrustProcess
                                             {
                                                 case ElevationRemoteCopyData RemoteData:
                                                     {
-                                                        STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
+                                                        try
                                                         {
-                                                            try
+                                                            RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
+
+                                                            if (RelatedData.ItemsCount > 0)
                                                             {
-                                                                RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
+                                                                ulong CurrentPosition = 0;
 
-                                                                if (RelatedData.ItemsCount > 0)
+                                                                foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(Cancellation.Token))
                                                                 {
-                                                                    ulong CurrentPosition = 0;
+                                                                    string TargetPath = Path.Combine(RemoteData.BaseFolderPath, Package.Name);
 
-                                                                    foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(Cancellation.Token))
+                                                                    try
                                                                     {
-                                                                        string TargetPath = Path.Combine(RemoteData.BaseFolderPath, Package.Name);
-
-                                                                        try
+                                                                        switch (Package)
                                                                         {
-                                                                            switch (Package)
-                                                                            {
-                                                                                case RemoteClipboardFileData FileData:
+                                                                            case RemoteClipboardFileData FileData:
+                                                                                {
+                                                                                    if (!Directory.Exists(RemoteData.BaseFolderPath))
                                                                                     {
-                                                                                        if (!Directory.Exists(RemoteData.BaseFolderPath))
-                                                                                        {
-                                                                                            Directory.CreateDirectory(RemoteData.BaseFolderPath);
-                                                                                        }
-
-                                                                                        string UniqueName = Helper.StorageGenerateUniquePath(TargetPath, CreateType.File);
-
-                                                                                        using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
-                                                                                        {
-                                                                                            FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
-                                                                                            {
-                                                                                                ProgressWriter.WriteLine(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
-                                                                                                ProgressWriter.Flush();
-                                                                                            });
-                                                                                        }
-
-                                                                                        CurrentPosition += FileData.Size;
-
-                                                                                        break;
+                                                                                        Directory.CreateDirectory(RemoteData.BaseFolderPath);
                                                                                     }
-                                                                                case RemoteClipboardFolderData:
+
+                                                                                    string UniqueName = Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File);
+
+                                                                                    using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
                                                                                     {
-                                                                                        if (!Directory.Exists(TargetPath))
+                                                                                        FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
                                                                                         {
-                                                                                            Directory.CreateDirectory(TargetPath);
-                                                                                        }
+                                                                                            ProgressWriter.WriteLine(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
+                                                                                            ProgressWriter.Flush();
+                                                                                        });
+                                                                                    }
 
-                                                                                        break;
-                                                                                    }
-                                                                                default:
+                                                                                    CurrentPosition += FileData.Size;
+
+                                                                                    break;
+                                                                                }
+                                                                            case RemoteClipboardFolderData:
+                                                                                {
+                                                                                    if (!Directory.Exists(TargetPath))
                                                                                     {
-                                                                                        throw new NotSupportedException();
+                                                                                        Directory.CreateDirectory(TargetPath);
                                                                                     }
-                                                                            }
-                                                                        }
-                                                                        finally
-                                                                        {
-                                                                            Package.Dispose();
+
+                                                                                    break;
+                                                                                }
+                                                                            default:
+                                                                                {
+                                                                                    throw new NotSupportedException();
+                                                                                }
                                                                         }
                                                                     }
+                                                                    finally
+                                                                    {
+                                                                        Package.Dispose();
+                                                                    }
+                                                                }
 
-                                                                    Value.Add("Success", string.Empty);
-                                                                }
-                                                                else
-                                                                {
-                                                                    Value.Add("Error", "No remote data object is available");
-                                                                }
+                                                                Value.Add("Success", string.Empty);
                                                             }
-                                                            catch (OperationCanceledException)
+                                                            else
                                                             {
-                                                                //No need to handle this exception
+                                                                Value.Add("Error", "No remote data object is available");
                                                             }
-                                                        }).Wait();
+                                                        }
+                                                        catch (OperationCanceledException)
+                                                        {
+                                                            //No need to handle this exception
+                                                        }
 
                                                         break;
                                                     }
@@ -610,7 +607,7 @@ namespace AuxiliaryTrustProcess
                     };
                     AliveCheckTimer.Elapsed += AliveCheckTimer_Elapsed;
 
-                    PipeCommunicationBaseController = new NamedPipeAuxiliaryCommunicationBaseController();
+                    PipeCommunicationBaseController = new NamedPipeAuxiliaryCommunicationBaseController(ExplorerPackageFamilyName);
                     PipeCommunicationBaseController.OnDataReceived += PipeCommunicationBaseController_OnDataReceived;
 
                     if (PipeCommunicationBaseController.WaitForConnectionAsync(10000).Result)
@@ -642,8 +639,6 @@ namespace AuxiliaryTrustProcess
                 MTPDeviceList.ForEach((Item) => Item.Dispose());
 
                 LogTracer.MakeSureLogIsFlushed(2000);
-
-                STAThreadController.Current.Dispose();
             }
         }
 
@@ -681,11 +676,14 @@ namespace AuxiliaryTrustProcess
             }
             else
             {
-                EventDeferral Deferral = e.GetDeferral();
-
                 try
                 {
                     IDictionary<string, string> Package = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
+
+                    if (Package.TryGetValue("LogRecordFolderPath", out string LogRecordPath))
+                    {
+                        LogTracer.SetLogRecordFolderPath(LogRecordPath);
+                    }
 
                     if (Package.TryGetValue("ProcessId", out string ProcessId))
                     {
@@ -710,36 +708,32 @@ namespace AuxiliaryTrustProcess
                     if (Package.TryGetValue("PipeCommandWriteId", out string PipeCommandWriteId))
                     {
                         PipeCommandReadController?.Dispose();
-                        PipeCommandReadController = new NamedPipeReadController(PipeCommandWriteId);
+                        PipeCommandReadController = new NamedPipeReadController(ExplorerPackageFamilyName, PipeCommandWriteId);
                         PipeCommandReadController.OnDataReceived += PipeReadController_OnDataReceived;
                     }
 
                     if (Package.TryGetValue("PipeCommandReadId", out string PipeCommandReadId))
                     {
                         PipeCommandWriteController?.Dispose();
-                        PipeCommandWriteController = new NamedPipeWriteController(PipeCommandReadId);
+                        PipeCommandWriteController = new NamedPipeWriteController(ExplorerPackageFamilyName, PipeCommandReadId);
                     }
 
                     if (Package.TryGetValue("PipeProgressReadId", out string PipeProgressReadId))
                     {
                         PipeProgressWriterController?.Dispose();
-                        PipeProgressWriterController = new NamedPipeWriteController(PipeProgressReadId);
+                        PipeProgressWriterController = new NamedPipeWriteController(ExplorerPackageFamilyName, PipeProgressReadId);
                     }
 
                     if (Package.TryGetValue("PipeCancellationWriteId", out string PipeCancellationReadId))
                     {
                         PipeCancellationReadController?.Dispose();
-                        PipeCancellationReadController = new NamedPipeReadController(PipeCancellationReadId);
+                        PipeCancellationReadController = new NamedPipeReadController(ExplorerPackageFamilyName, PipeCancellationReadId);
                         PipeCancellationReadController.OnDataReceived += PipeCancellationController_OnDataReceived;
                     }
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, $"An exception was threw in get data in {nameof(PipeCommunicationBaseController_OnDataReceived)}");
-                }
-                finally
-                {
-                    Deferral.Complete();
                 }
             }
         }
@@ -768,10 +762,8 @@ namespace AuxiliaryTrustProcess
             }
         }
 
-        private static async void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+        private static void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
         {
-            EventDeferral Deferral = e.GetDeferral();
-
             try
             {
                 if (e.ExtraException is Exception Ex)
@@ -781,17 +773,13 @@ namespace AuxiliaryTrustProcess
                 else
                 {
                     IDictionary<string, string> Request = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
-                    IDictionary<string, string> Response = await HandleCommand(Request);
+                    IDictionary<string, string> Response = HandleCommand(Request);
                     PipeCommandWriteController?.SendData(JsonSerializer.Serialize(Response));
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An exception was threw in responding pipe message");
-            }
-            finally
-            {
-                Deferral.Complete();
             }
         }
 
@@ -815,8 +803,24 @@ namespace AuxiliaryTrustProcess
             }
         }
 
-        private async static Task<IDictionary<string, string>> HandleCommand(IDictionary<string, string> CommandValue)
+        private static IDictionary<string, string> HandleCommand(IDictionary<string, string> CommandValue)
         {
+#if DEBUG
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
+
+                throw new Exception("Not allowed to execute this function in modes rather than STA");
+            }
+#endif
+
             IDictionary<string, string> Value = new Dictionary<string, string>();
 
             using (CancellationTokenSource Cancellation = CancellationTokenSource.CreateLinkedTokenSource(CurrentTaskCancellation.Token))
@@ -1537,7 +1541,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     try
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveLabelData(Path, DriveLabelName), CancelToken: Cancellation.Token);
+                                        IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationSetDriveLabelData(Path, DriveLabelName), CancelToken: Cancellation.Token);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -1566,7 +1570,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     try
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveIndexStatusData(Path, AllowIndex, ApplyToSubItems), CancelToken: Cancellation.Token);
+                                        IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationSetDriveIndexStatusData(Path, AllowIndex, ApplyToSubItems), CancelToken: Cancellation.Token);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -1610,7 +1614,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     try
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationSetDriveCompressStatusData(Path, IsSetCompressionStatus, ApplyToSubItems), CancelToken: Cancellation.Token);
+                                        IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationSetDriveCompressStatusData(Path, IsSetCompressionStatus, ApplyToSubItems), CancelToken: Cancellation.Token);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -1740,7 +1744,7 @@ namespace AuxiliaryTrustProcess
                             {
                                 ulong ProgressValue = Math.Min(100, Math.Max(0, Convert.ToUInt64(CommandValue["ProgressValue"])));
 
-                                if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation Info)
+                                if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation Info)
                                 {
                                     if (Info.IsValidInfomation)
                                     {
@@ -2027,7 +2031,7 @@ namespace AuxiliaryTrustProcess
                                     }
                                     else
                                     {
-                                        if (await Helper.LaunchApplicationFromPackageFamilyNameAsync(PackageFamilyName, PathArray))
+                                        if (Helper.LaunchApplicationFromPackageFamilyName(PackageFamilyName, PathArray))
                                         {
                                             Value.Add("Success", string.Empty);
                                         }
@@ -2045,7 +2049,7 @@ namespace AuxiliaryTrustProcess
                                     }
                                     else
                                     {
-                                        if (await Helper.LaunchApplicationFromAUMIDAsync(AppUserModelId, PathArray))
+                                        if (Helper.LaunchApplicationFromAppUserModelId(AppUserModelId, PathArray))
                                         {
                                             Value.Add("Success", string.Empty);
                                         }
@@ -2088,12 +2092,16 @@ namespace AuxiliaryTrustProcess
                                                 }
                                             });
 
-                                            while (!ToolTipTask.IsCompleted && !Cancellation.Token.IsCancellationRequested)
+                                            try
                                             {
-                                                await Task.Delay(300);
+                                                ToolTipTask.Wait(Cancellation.Token);
+                                            }
+                                            catch (Exception)
+                                            {
+                                                //No need to handle this exception
                                             }
 
-                                            if (Cancellation.Token.IsCancellationRequested)
+                                            if (Cancellation.IsCancellationRequested)
                                             {
                                                 Value.Add("Success", string.Empty);
                                             }
@@ -2172,7 +2180,14 @@ namespace AuxiliaryTrustProcess
                             {
                                 string[] ExecutePath = JsonSerializer.Deserialize<string[]>(CommandValue["ExecutePath"]);
 
-                                Value.Add("Success", await STAThreadController.Current.ExecuteOnSTAThreadAsync(() => JsonSerializer.Serialize(ContextMenu.Current.GetContextMenuItems(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"])))));
+                                if (ExecutePath.Length > 0)
+                                {
+                                    Value.Add("Success", JsonSerializer.Serialize(ContextMenu.Current.GetContextMenuItems(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"]))));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Argument could not be empty");
+                                }
 
                                 break;
                             }
@@ -2180,7 +2195,7 @@ namespace AuxiliaryTrustProcess
                             {
                                 ContextMenuPackage Package = JsonSerializer.Deserialize<ContextMenuPackage>(CommandValue["DataPackage"]);
 
-                                if (await STAThreadController.Current.ExecuteOnSTAThreadAsync(() => ContextMenu.Current.InvokeVerb(Package)))
+                                if (ContextMenu.Current.InvokeVerb(Package))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
@@ -2202,7 +2217,7 @@ namespace AuxiliaryTrustProcess
                                     Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(' ') ? $"\"{Para.Trim('\"')}\"" : Para));
                                 }
 
-                                using (ShellLink Link = ShellLink.Create(Helper.StorageGenerateUniquePath(Package.LinkPath, CreateType.File), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
+                                using (ShellLink Link = ShellLink.Create(Helper.GenerateUniquePathOnLocal(Package.LinkPath, CreateType.File), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
                                 {
                                     Link.ShowState = Package.WindowState switch
                                     {
@@ -2270,7 +2285,7 @@ namespace AuxiliaryTrustProcess
                                 CreateType Type = Enum.Parse<CreateType>(CommandValue["Type"]);
 
                                 string CreateNewPath = CommandValue["NewPath"];
-                                string UniquePath = Helper.StorageGenerateUniquePath(CreateNewPath, Type);
+                                string UniquePath = Helper.GenerateUniquePathOnLocal(CreateNewPath, Type);
 
                                 if (StorageItemController.CheckPermission(Path.GetDirectoryName(UniquePath) ?? UniquePath, Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
                                 {
@@ -2280,7 +2295,7 @@ namespace AuxiliaryTrustProcess
                                     }
                                     else if (Marshal.GetLastWin32Error() == 5)
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken: Cancellation.Token);
+                                        IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationCreateNewData(Type, UniquePath), CancelToken: Cancellation.Token);
 
                                         foreach (KeyValuePair<string, string> Result in ResultMap)
                                         {
@@ -2294,7 +2309,7 @@ namespace AuxiliaryTrustProcess
                                 }
                                 else
                                 {
-                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCreateNewData(Type, UniquePath), CancelToken: Cancellation.Token);
+                                    IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationCreateNewData(Type, UniquePath), CancelToken: Cancellation.Token);
 
                                     foreach (KeyValuePair<string, string> Result in ResultMap)
                                     {
@@ -2354,7 +2369,7 @@ namespace AuxiliaryTrustProcess
                                                 }
                                                 else if (Marshal.GetLastWin32Error() == 5)
                                                 {
-                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName), CancelToken: Cancellation.Token);
+                                                    IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationRenameData(ExecutePath, DesireName), CancelToken: Cancellation.Token);
 
                                                     foreach (KeyValuePair<string, string> Result in ResultMap)
                                                     {
@@ -2368,7 +2383,7 @@ namespace AuxiliaryTrustProcess
                                             }
                                             else
                                             {
-                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRenameData(ExecutePath, DesireName), CancelToken: Cancellation.Token);
+                                                IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationRenameData(ExecutePath, DesireName), CancelToken: Cancellation.Token);
 
                                                 foreach (KeyValuePair<string, string> Result in ResultMap)
                                                 {
@@ -2389,34 +2404,46 @@ namespace AuxiliaryTrustProcess
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.GetInstalledApplication:
+                        case AuxiliaryTrustProcessCommandType.GetSpecificInstalledUwpApplication:
                             {
-                                string PFN = CommandValue["PackageFamilyName"];
+                                string PackageFamilyName = CommandValue["PackageFamilyName"];
 
-                                InstalledApplicationPackage Pack = await Helper.GetInstalledApplicationAsync(PFN);
-
-                                if (Pack != null)
+                                if (!string.IsNullOrEmpty(PackageFamilyName))
                                 {
-                                    Value.Add("Success", JsonSerializer.Serialize(Pack));
+                                    if (Helper.GetSpecificInstalledUwpApplication(PackageFamilyName) is InstalledApplicationPackage Package)
+                                    {
+                                        Value.Add("Success", JsonSerializer.Serialize(Package));
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error", "Could not found the package with family name");
+                                    }
                                 }
                                 else
                                 {
-                                    Value.Add("Error", "Could not found the package with PFN");
+                                    Value.Add("Error", "Could not found the package with family name");
                                 }
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.GetAllInstalledApplication:
+                        case AuxiliaryTrustProcessCommandType.GetAllInstalledUwpApplication:
                             {
-                                Value.Add("Success", JsonSerializer.Serialize(await Helper.GetInstalledApplicationAsync()));
+                                Value.Add("Success", JsonSerializer.Serialize(Helper.GetAllInstalledUwpApplication()));
 
                                 break;
                             }
                         case AuxiliaryTrustProcessCommandType.CheckPackageFamilyNameExist:
                             {
-                                string PFN = CommandValue["PackageFamilyName"];
+                                string PackageFamilyName = CommandValue["PackageFamilyName"];
 
-                                Value.Add("Success", Convert.ToString(Helper.CheckIfPackageFamilyNameExist(PFN)));
+                                if (!string.IsNullOrEmpty(PackageFamilyName))
+                                {
+                                    Value.Add("Success", Convert.ToString(Helper.CheckIfPackageFamilyNameExist(PackageFamilyName)));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Could not found the package with family name");
+                                }
 
                                 break;
                             }
@@ -2719,7 +2746,7 @@ namespace AuxiliaryTrustProcess
 
                                             if (string.IsNullOrEmpty(Link.TargetPath))
                                             {
-                                                string PackageFamilyName = Helper.GetPackageFamilyNameFromUWPShellLink(ExecutePath);
+                                                string PackageFamilyName = Helper.GetPackageFamilyNameFromShellLink(ExecutePath);
 
                                                 if (string.IsNullOrEmpty(PackageFamilyName))
                                                 {
@@ -2728,7 +2755,15 @@ namespace AuxiliaryTrustProcess
                                                 else
                                                 {
                                                     Package.LinkTargetPath = PackageFamilyName;
-                                                    Package.IconData = await Helper.GetIconDataFromPackageFamilyNameAsync(PackageFamilyName);
+
+                                                    if (Helper.GetSpecificInstalledUwpApplication(PackageFamilyName) is InstalledApplicationPackage Data)
+                                                    {
+                                                        Package.IconData = Data.Logo;
+                                                    }
+                                                    else
+                                                    {
+                                                        Package.IconData = Array.Empty<byte>();
+                                                    }
                                                 }
                                             }
                                             else
@@ -2776,7 +2811,7 @@ namespace AuxiliaryTrustProcess
                         case AuxiliaryTrustProcessCommandType.InterceptFolder:
                             {
                                 string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
-                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
+                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(ExplorerPackageFamilyName), "SystemLaunchHelper");
 
                                 Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
@@ -2815,7 +2850,7 @@ namespace AuxiliaryTrustProcess
                         case AuxiliaryTrustProcessCommandType.InterceptWinE:
                             {
                                 string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
-                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
+                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(ExplorerPackageFamilyName), "SystemLaunchHelper");
 
                                 Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
@@ -2853,7 +2888,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RestoreFolderInterception:
                             {
-                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
+                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(ExplorerPackageFamilyName), "SystemLaunchHelper");
                                 string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
                                 string SystemLaunchHelperOriginExecutable = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
                                 string SystemLaunchHelperTargetExecutable = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
@@ -2910,7 +2945,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RestoreWinEInterception:
                             {
-                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Package.Current.InstalledPath, "SystemLaunchHelper");
+                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(ExplorerPackageFamilyName), "SystemLaunchHelper");
                                 string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
                                 string SystemLaunchHelperOriginExecutable = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
                                 string SystemLaunchHelperTargetExecutable = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
@@ -2993,11 +3028,18 @@ namespace AuxiliaryTrustProcess
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.Get_Association:
+                        case AuxiliaryTrustProcessCommandType.GetAssociation:
                             {
-                                string Path = CommandValue["ExecutePath"];
+                                string Extension = CommandValue["Extension"];
 
-                                Value.Add("Associate_Result", JsonSerializer.Serialize(ExtensionAssociation.GetAllAssociateProgramPath(Path)));
+                                if (!string.IsNullOrEmpty(Extension))
+                                {
+                                    Value.Add("Associate_Result", JsonSerializer.Serialize(ExtensionAssociation.GetAssociationFromExtension(Extension)));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Argument could not be empty");
+                                }
 
                                 break;
                             }
@@ -3026,7 +3068,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.EmptyRecycleBin:
                             {
-                                Value.Add("RecycleBinItems_Clear_Result", await STAThreadController.Current.ExecuteOnSTAThreadAsync(() => Convert.ToString(RecycleBinController.EmptyRecycleBin())));
+                                Value.Add("RecycleBinItems_Clear_Result", Convert.ToString(RecycleBinController.EmptyRecycleBin()));
 
                                 break;
                             }
@@ -3071,7 +3113,7 @@ namespace AuxiliaryTrustProcess
                                     {
                                         bool ForceClose = Convert.ToBoolean(CommandValue["ForceClose"]);
 
-                                        IReadOnlyList<Process> LockingProcesses = Helper.GetLockingProcesses(Path);
+                                        IReadOnlyList<Process> LockingProcesses = Helper.GetLockingProcessesList(Path);
 
                                         try
                                         {
@@ -3332,7 +3374,7 @@ namespace AuxiliaryTrustProcess
                                                         {
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFile(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.File), Cancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFile(SourceRelativePath, Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File), Cancellation.Token, (s, e) =>
                                                                     {
                                                                         PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
@@ -3370,7 +3412,7 @@ namespace AuxiliaryTrustProcess
                                                         {
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFolder(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.Folder), Cancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFolder(SourceRelativePath, Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.Folder), Cancellation.Token, (s, e) =>
                                                                     {
                                                                         PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
@@ -3458,7 +3500,7 @@ namespace AuxiliaryTrustProcess
                                                 }
                                                 else if (Marshal.GetLastWin32Error() == 5)
                                                 {
-                                                    IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option), (s, e) =>
+                                                    IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationCopyData(SourcePathList, DestinationPath, Option), (s, e) =>
                                                     {
                                                         PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                                     }, Cancellation.Token);
@@ -3480,7 +3522,7 @@ namespace AuxiliaryTrustProcess
                                         }
                                         else
                                         {
-                                            IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationCopyData(SourcePathList, DestinationPath, Option), (s, e) =>
+                                            IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationCopyData(SourcePathList, DestinationPath, Option), (s, e) =>
                                             {
                                                 PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                             }, Cancellation.Token);
@@ -3722,7 +3764,7 @@ namespace AuxiliaryTrustProcess
                                                         {
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFile(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.File), Cancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFile(SourceRelativePath, Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File), Cancellation.Token, (s, e) =>
                                                                     {
                                                                         PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
@@ -3762,7 +3804,7 @@ namespace AuxiliaryTrustProcess
                                                         {
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFolder(SourceRelativePath, Helper.StorageGenerateUniquePath(TargetPath, CreateType.Folder), Cancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFolder(SourceRelativePath, Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.Folder), Cancellation.Token, (s, e) =>
                                                                     {
                                                                         PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
@@ -3866,7 +3908,7 @@ namespace AuxiliaryTrustProcess
                                                     }
                                                     else if (Marshal.GetLastWin32Error() == 5)
                                                     {
-                                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option), (s, e) =>
+                                                        IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationMoveData(SourcePathList, DestinationPath, Option), (s, e) =>
                                                         {
                                                             PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                                         }, Cancellation.Token);
@@ -3888,7 +3930,7 @@ namespace AuxiliaryTrustProcess
                                             }
                                             else
                                             {
-                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationMoveData(SourcePathList, DestinationPath, Option), (s, e) =>
+                                                IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationMoveData(SourcePathList, DestinationPath, Option), (s, e) =>
                                                 {
                                                     PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                                 }, Cancellation.Token);
@@ -4005,7 +4047,7 @@ namespace AuxiliaryTrustProcess
                                                     }
                                                     else if (Marshal.GetLastWin32Error() == 5)
                                                     {
-                                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
+                                                        IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
                                                         {
                                                             PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                                         }, Cancellation.Token);
@@ -4027,7 +4069,7 @@ namespace AuxiliaryTrustProcess
                                             }
                                             else
                                             {
-                                                IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
+                                                IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
                                                 {
                                                     PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                                 }, Cancellation.Token);
@@ -4068,121 +4110,70 @@ namespace AuxiliaryTrustProcess
                                     {
                                         try
                                         {
-                                            await STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
+                                            ShowWindowCommand WindowCommand;
+
+                                            if (ExecuteCreateNoWindow)
                                             {
-                                                ShowWindowCommand WindowCommand;
-
-                                                if (ExecuteCreateNoWindow)
+                                                WindowCommand = ShowWindowCommand.SW_HIDE;
+                                            }
+                                            else
+                                            {
+                                                switch (Enum.Parse<ProcessWindowStyle>(ExecuteWindowStyle))
                                                 {
-                                                    WindowCommand = ShowWindowCommand.SW_HIDE;
-                                                }
-                                                else
-                                                {
-                                                    switch (Enum.Parse<ProcessWindowStyle>(ExecuteWindowStyle))
-                                                    {
-                                                        case ProcessWindowStyle.Hidden:
-                                                            {
-                                                                WindowCommand = ShowWindowCommand.SW_HIDE;
-                                                                break;
-                                                            }
-                                                        case ProcessWindowStyle.Minimized:
-                                                            {
-                                                                WindowCommand = ShowWindowCommand.SW_SHOWMINIMIZED;
-                                                                break;
-                                                            }
-                                                        case ProcessWindowStyle.Maximized:
-                                                            {
-                                                                WindowCommand = ShowWindowCommand.SW_SHOWMAXIMIZED;
-                                                                break;
-                                                            }
-                                                        default:
-                                                            {
-                                                                WindowCommand = ShowWindowCommand.SW_NORMAL;
-                                                                break;
-                                                            }
-                                                    }
-                                                }
-
-                                                bool CouldBeRunAsAdmin = Regex.IsMatch(Path.GetExtension(ExecutePath), @"\.(exe|bat|msi|msc|cmd)$", RegexOptions.IgnoreCase);
-
-                                                Shell32.SHELLEXECUTEINFO ExecuteInfo = new Shell32.SHELLEXECUTEINFO
-                                                {
-                                                    hwnd = HWND.NULL,
-                                                    lpVerb = CouldBeRunAsAdmin && ExecuteAuthority == "Administrator" ? "runas" : null,
-                                                    cbSize = Marshal.SizeOf<Shell32.SHELLEXECUTEINFO>(),
-                                                    lpFile = ExecutePath,
-                                                    lpParameters = string.IsNullOrWhiteSpace(ExecuteParameter) ? null : ExecuteParameter,
-                                                    lpDirectory = string.IsNullOrWhiteSpace(ExecuteWorkDirectory) ? null : ExecuteWorkDirectory,
-                                                    fMask = Shell32.ShellExecuteMaskFlags.SEE_MASK_FLAG_NO_UI
-                                                            | Shell32.ShellExecuteMaskFlags.SEE_MASK_UNICODE
-                                                            | Shell32.ShellExecuteMaskFlags.SEE_MASK_DOENVSUBST
-                                                            | Shell32.ShellExecuteMaskFlags.SEE_MASK_NOASYNC
-                                                            | Shell32.ShellExecuteMaskFlags.SEE_MASK_NOCLOSEPROCESS,
-                                                    nShellExecuteShow = WindowCommand,
-                                                };
-
-                                                if (Shell32.ShellExecuteEx(ref ExecuteInfo))
-                                                {
-                                                    if (!ExecuteInfo.hProcess.IsNull)
-                                                    {
-                                                        try
+                                                    case ProcessWindowStyle.Hidden:
                                                         {
-                                                            NtDll.NtQueryResult<NtDll.PROCESS_BASIC_INFORMATION> Information = NtDll.NtQueryInformationProcess<NtDll.PROCESS_BASIC_INFORMATION>(ExecuteInfo.hProcess, NtDll.PROCESSINFOCLASS.ProcessBasicInformation);
-
-                                                            if (Information.HasValue)
-                                                            {
-                                                                IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
-
-                                                                using (Process OpenedProcess = Process.GetProcessById(Information.Value.UniqueProcessId.ToInt32()))
-                                                                {
-                                                                    SetWindowsZPosition(OpenedProcess, WindowsBeforeStartup);
-
-                                                                    if (ShouldWaitForExit)
-                                                                    {
-                                                                        OpenedProcess.WaitForExit();
-                                                                    }
-                                                                }
-                                                            }
+                                                            WindowCommand = ShowWindowCommand.SW_HIDE;
+                                                            break;
                                                         }
-                                                        catch (Exception)
+                                                    case ProcessWindowStyle.Minimized:
                                                         {
-                                                            // No need to handle exception in here
+                                                            WindowCommand = ShowWindowCommand.SW_SHOWMINIMIZED;
+                                                            break;
                                                         }
-                                                        finally
+                                                    case ProcessWindowStyle.Maximized:
                                                         {
-                                                            Kernel32.CloseHandle(ExecuteInfo.hProcess);
+                                                            WindowCommand = ShowWindowCommand.SW_SHOWMAXIMIZED;
+                                                            break;
                                                         }
-                                                    }
+                                                    default:
+                                                        {
+                                                            WindowCommand = ShowWindowCommand.SW_NORMAL;
+                                                            break;
+                                                        }
                                                 }
-                                                else if (Path.GetExtension(ExecutePath).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                                            }
+
+                                            bool CouldBeRunAsAdmin = Regex.IsMatch(Path.GetExtension(ExecutePath), @"\.(exe|bat|msi|msc|cmd)$", RegexOptions.IgnoreCase);
+
+                                            Shell32.SHELLEXECUTEINFO ExecuteInfo = new Shell32.SHELLEXECUTEINFO
+                                            {
+                                                hwnd = HWND.NULL,
+                                                lpVerb = CouldBeRunAsAdmin && ExecuteAuthority == "Administrator" ? "runas" : null,
+                                                cbSize = Marshal.SizeOf<Shell32.SHELLEXECUTEINFO>(),
+                                                lpFile = ExecutePath,
+                                                lpParameters = string.IsNullOrWhiteSpace(ExecuteParameter) ? null : ExecuteParameter,
+                                                lpDirectory = string.IsNullOrWhiteSpace(ExecuteWorkDirectory) ? null : ExecuteWorkDirectory,
+                                                fMask = Shell32.ShellExecuteMaskFlags.SEE_MASK_FLAG_NO_UI
+                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_UNICODE
+                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_DOENVSUBST
+                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_NOASYNC
+                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_NOCLOSEPROCESS,
+                                                nShellExecuteShow = WindowCommand,
+                                            };
+
+                                            if (Shell32.ShellExecuteEx(ref ExecuteInfo))
+                                            {
+                                                if (!ExecuteInfo.hProcess.IsNull)
                                                 {
-                                                    Kernel32.CREATE_PROCESS CreationFlag = Kernel32.CREATE_PROCESS.NORMAL_PRIORITY_CLASS | Kernel32.CREATE_PROCESS.CREATE_UNICODE_ENVIRONMENT;
-
-                                                    if (ExecuteCreateNoWindow)
+                                                    try
                                                     {
-                                                        CreationFlag |= Kernel32.CREATE_PROCESS.CREATE_NO_WINDOW;
-                                                    }
+                                                        NtDll.NtQueryResult<NtDll.PROCESS_BASIC_INFORMATION> Information = NtDll.NtQueryInformationProcess<NtDll.PROCESS_BASIC_INFORMATION>(ExecuteInfo.hProcess, NtDll.PROCESSINFOCLASS.ProcessBasicInformation);
 
-                                                    Kernel32.STARTUPINFO SInfo = new Kernel32.STARTUPINFO
-                                                    {
-                                                        cb = Convert.ToUInt32(Marshal.SizeOf<Kernel32.STARTUPINFO>()),
-                                                        ShowWindowCommand = WindowCommand,
-                                                        dwFlags = Kernel32.STARTF.STARTF_USESHOWWINDOW,
-                                                    };
-
-                                                    if (Kernel32.CreateProcess(lpCommandLine: new StringBuilder($"\"{ExecutePath}\" {(string.IsNullOrWhiteSpace(ExecuteParameter) ? string.Empty : ExecuteParameter)}"),
-                                                                               bInheritHandles: false,
-                                                                               dwCreationFlags: CreationFlag,
-                                                                               lpCurrentDirectory: string.IsNullOrWhiteSpace(ExecuteWorkDirectory) ? null : ExecuteWorkDirectory,
-                                                                               lpStartupInfo: SInfo,
-                                                                               lpProcessInformation: out Kernel32.SafePROCESS_INFORMATION PInfo))
-
-                                                    {
-                                                        try
+                                                        if (Information.HasValue)
                                                         {
                                                             IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
 
-                                                            using (Process OpenedProcess = Process.GetProcessById(Convert.ToInt32(PInfo.dwProcessId)))
+                                                            using (Process OpenedProcess = Process.GetProcessById(Information.Value.UniqueProcessId.ToInt32()))
                                                             {
                                                                 SetWindowsZPosition(OpenedProcess, WindowsBeforeStartup);
 
@@ -4192,33 +4183,81 @@ namespace AuxiliaryTrustProcess
                                                                 }
                                                             }
                                                         }
-                                                        catch (Exception)
-                                                        {
-                                                            // No need to handle exception in here
-                                                        }
-                                                        finally
-                                                        {
-                                                            if (!PInfo.hProcess.IsInvalid)
-                                                            {
-                                                                PInfo.hProcess.Dispose();
-                                                            }
+                                                    }
+                                                    catch (Exception)
+                                                    {
+                                                        // No need to handle exception in here
+                                                    }
+                                                    finally
+                                                    {
+                                                        Kernel32.CloseHandle(ExecuteInfo.hProcess);
+                                                    }
+                                                }
+                                            }
+                                            else if (Path.GetExtension(ExecutePath).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                Kernel32.CREATE_PROCESS CreationFlag = Kernel32.CREATE_PROCESS.NORMAL_PRIORITY_CLASS | Kernel32.CREATE_PROCESS.CREATE_UNICODE_ENVIRONMENT;
 
-                                                            if (!PInfo.hThread.IsInvalid)
+                                                if (ExecuteCreateNoWindow)
+                                                {
+                                                    CreationFlag |= Kernel32.CREATE_PROCESS.CREATE_NO_WINDOW;
+                                                }
+
+                                                Kernel32.STARTUPINFO SInfo = new Kernel32.STARTUPINFO
+                                                {
+                                                    cb = Convert.ToUInt32(Marshal.SizeOf<Kernel32.STARTUPINFO>()),
+                                                    ShowWindowCommand = WindowCommand,
+                                                    dwFlags = Kernel32.STARTF.STARTF_USESHOWWINDOW,
+                                                };
+
+                                                if (Kernel32.CreateProcess(lpCommandLine: new StringBuilder($"\"{ExecutePath}\" {(string.IsNullOrWhiteSpace(ExecuteParameter) ? string.Empty : ExecuteParameter)}"),
+                                                                           bInheritHandles: false,
+                                                                           dwCreationFlags: CreationFlag,
+                                                                           lpCurrentDirectory: string.IsNullOrWhiteSpace(ExecuteWorkDirectory) ? null : ExecuteWorkDirectory,
+                                                                           lpStartupInfo: SInfo,
+                                                                           lpProcessInformation: out Kernel32.SafePROCESS_INFORMATION PInfo))
+
+                                                {
+                                                    try
+                                                    {
+                                                        IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
+
+                                                        using (Process OpenedProcess = Process.GetProcessById(Convert.ToInt32(PInfo.dwProcessId)))
+                                                        {
+                                                            SetWindowsZPosition(OpenedProcess, WindowsBeforeStartup);
+
+                                                            if (ShouldWaitForExit)
                                                             {
-                                                                PInfo.hThread.Dispose();
+                                                                OpenedProcess.WaitForExit();
                                                             }
                                                         }
                                                     }
-                                                    else
+                                                    catch (Exception)
                                                     {
-                                                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                                                        // No need to handle exception in here
+                                                    }
+                                                    finally
+                                                    {
+                                                        if (!PInfo.hProcess.IsInvalid)
+                                                        {
+                                                            PInfo.hProcess.Dispose();
+                                                        }
+
+                                                        if (!PInfo.hThread.IsInvalid)
+                                                        {
+                                                            PInfo.hThread.Dispose();
+                                                        }
                                                     }
                                                 }
                                                 else
                                                 {
                                                     throw new Win32Exception(Marshal.GetLastWin32Error());
                                                 }
-                                            });
+                                            }
+                                            else
+                                            {
+                                                throw new Win32Exception(Marshal.GetLastWin32Error());
+                                            }
 
                                             Value.Add("Success", string.Empty);
                                         }
@@ -4241,7 +4280,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.GetRemoteClipboardRelatedData:
                             {
-                                RemoteClipboardRelatedData RelatedData = await STAThreadController.Current.ExecuteOnSTAThreadAsync(() => RemoteDataObject.GetRemoteClipboardRelatedData());
+                                RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
 
                                 if ((RelatedData?.ItemsCount).GetValueOrDefault() > 0)
                                 {
@@ -4262,75 +4301,72 @@ namespace AuxiliaryTrustProcess
                                 {
                                     if (StorageItemController.CheckPermission(BaseFolderPath, FileSystemRights.CreateFiles | FileSystemRights.CreateDirectories))
                                     {
-                                        await STAThreadController.Current.ExecuteOnSTAThreadAsync(() =>
+                                        RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
+
+                                        if ((RelatedData?.ItemsCount).GetValueOrDefault() > 0)
                                         {
-                                            RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
+                                            ulong CurrentPosition = 0;
 
-                                            if ((RelatedData?.ItemsCount).GetValueOrDefault() > 0)
+                                            foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(Cancellation.Token))
                                             {
-                                                ulong CurrentPosition = 0;
+                                                string TargetPath = Path.Combine(BaseFolderPath, Package.Name);
 
-                                                foreach (RemoteClipboardData Package in RemoteDataObject.GetRemoteClipboardData(Cancellation.Token))
+                                                try
                                                 {
-                                                    string TargetPath = Path.Combine(BaseFolderPath, Package.Name);
-
-                                                    try
+                                                    switch (Package)
                                                     {
-                                                        switch (Package)
-                                                        {
-                                                            case RemoteClipboardFileData FileData:
+                                                        case RemoteClipboardFileData FileData:
+                                                            {
+                                                                if (!Directory.Exists(BaseFolderPath))
                                                                 {
-                                                                    if (!Directory.Exists(BaseFolderPath))
-                                                                    {
-                                                                        Directory.CreateDirectory(BaseFolderPath);
-                                                                    }
-
-                                                                    string UniqueName = Helper.StorageGenerateUniquePath(TargetPath, CreateType.File);
-
-                                                                    using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
-                                                                    {
-                                                                        FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
-                                                                        {
-                                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
-                                                                        });
-                                                                    }
-
-                                                                    CurrentPosition += FileData.Size;
-
-                                                                    break;
+                                                                    Directory.CreateDirectory(BaseFolderPath);
                                                                 }
-                                                            case RemoteClipboardFolderData:
+
+                                                                string UniqueName = Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File);
+
+                                                                using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
                                                                 {
-                                                                    if (!Directory.Exists(TargetPath))
+                                                                    FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
                                                                     {
-                                                                        Directory.CreateDirectory(TargetPath);
-                                                                    }
+                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
+                                                                    });
+                                                                }
 
-                                                                    break;
-                                                                }
-                                                            default:
+                                                                CurrentPosition += FileData.Size;
+
+                                                                break;
+                                                            }
+                                                        case RemoteClipboardFolderData:
+                                                            {
+                                                                if (!Directory.Exists(TargetPath))
                                                                 {
-                                                                    throw new NotSupportedException();
+                                                                    Directory.CreateDirectory(TargetPath);
                                                                 }
-                                                        }
-                                                    }
-                                                    finally
-                                                    {
-                                                        Package.Dispose();
+
+                                                                break;
+                                                            }
+                                                        default:
+                                                            {
+                                                                throw new NotSupportedException();
+                                                            }
                                                     }
                                                 }
+                                                finally
+                                                {
+                                                    Package.Dispose();
+                                                }
+                                            }
 
-                                                Value.Add("Success", string.Empty);
-                                            }
-                                            else
-                                            {
-                                                Value.Add("Error", "No remote data object is available");
-                                            }
-                                        });
+                                            Value.Add("Success", string.Empty);
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error", "No remote data object is available");
+                                        }
                                     }
                                     else
                                     {
-                                        IDictionary<string, string> ResultMap = await CreateNewProcessAsElevatedAndWaitForResultAsync(new ElevationRemoteCopyData(BaseFolderPath), (s, e) =>
+                                        IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationRemoteCopyData(BaseFolderPath), (s, e) =>
                                         {
                                             PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                         }, Cancellation.Token);
@@ -4359,7 +4395,7 @@ namespace AuxiliaryTrustProcess
                                 string PackageFamilyName = CommandValue["PackageFamilyName"];
                                 uint ProcessId = Convert.ToUInt32(CommandValue["ProcessId"]);
 
-                                if (Helper.GetUWPWindowInformation(PackageFamilyName, ProcessId) is WindowInformation Info)
+                                if (Helper.GetWindowInformationFromUwpApplication(PackageFamilyName, ProcessId) is WindowInformation Info)
                                 {
                                     if (Info.IsValidInfomation)
                                     {
@@ -4380,7 +4416,7 @@ namespace AuxiliaryTrustProcess
                                 string PackageFamilyName = CommandValue["PackageFamilyName"];
                                 uint ProcessId = Convert.ToUInt32(CommandValue["ProcessId"]);
 
-                                if (Helper.GetUWPWindowInformation(PackageFamilyName, ProcessId) is WindowInformation Info)
+                                if (Helper.GetWindowInformationFromUwpApplication(PackageFamilyName, ProcessId) is WindowInformation Info)
                                 {
                                     if (Info.IsValidInfomation)
                                     {
@@ -4461,7 +4497,7 @@ namespace AuxiliaryTrustProcess
                             IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
                             IsSuccess &= User32.SetForegroundWindow(MainWindowHandle);
 
-                            if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation UwpInfo)
+                            if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation UwpInfo)
                             {
                                 if (UwpInfo.IsValidInfomation)
                                 {
@@ -4497,7 +4533,7 @@ namespace AuxiliaryTrustProcess
             }
         }
 
-        private static async Task<IDictionary<string, string>> CreateNewProcessAsElevatedAndWaitForResultAsync<T>(T Data, ProgressChangedEventHandler Progress = null, CancellationToken CancelToken = default) where T : IElevationData
+        private static IDictionary<string, string> CreateNewProcessAsElevatedAndWaitForResult<T>(T Data, ProgressChangedEventHandler Progress = null, CancellationToken CancelToken = default) where T : IElevationData
         {
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {
@@ -4525,7 +4561,7 @@ namespace AuxiliaryTrustProcess
 
                     try
                     {
-                        await Task.WhenAll(MainPipeStream.WaitForConnectionAsync(CancelToken), ProgressPipeStream.WaitForConnectionAsync(CancelToken));
+                        Task.WaitAll(MainPipeStream.WaitForConnectionAsync(CancelToken), ProgressPipeStream.WaitForConnectionAsync(CancelToken));
 
                         MainWriter.WriteLine(Data.GetType().FullName);
                         MainWriter.WriteLine(CancelSignalName);
@@ -4566,7 +4602,7 @@ namespace AuxiliaryTrustProcess
                             }
                         }, ProgressCancellation.Token, TaskCreationOptions.LongRunning);
 
-                        await ElevatedProcess.WaitForExitAsync(CancelToken);
+                        ElevatedProcess.WaitForExitAsync(CancelToken).Wait(CancelToken);
                     }
                     catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
                     {
@@ -4595,7 +4631,7 @@ namespace AuxiliaryTrustProcess
                         ProgressCancellation.Cancel();
                     }
 
-                    string RawResultText = await GetRawResultTask;
+                    string RawResultText = GetRawResultTask.Result;
 
                     if (string.IsNullOrEmpty(RawResultText))
                     {

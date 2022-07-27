@@ -25,9 +25,14 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class AuxiliaryTrustProcessController : IDisposable
     {
-        public static ushort DynamicBackupProcessNum => 2;
-
         public bool IsAnyCommandExecutingInCurrentController => CurrentControllerExecutingCommandNum > 0;
+
+        public bool IsConnected => (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
+                             && (PipeCommandReadController?.IsConnected).GetValueOrDefault()
+                             && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
+                             && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault();
+
+        public static ushort DynamicBackupProcessNum => 2;
 
         public static bool IsAnyCommandExecutingInAllControllers => AllControllerCollection.ToArray().Any((Controller) => Controller.IsAnyCommandExecutingInCurrentController);
 
@@ -324,10 +329,7 @@ namespace RX_Explorer.Class
                     return false;
                 }
 
-                if ((PipeCommandWriteController?.IsConnected).GetValueOrDefault()
-                     && (PipeCommandReadController?.IsConnected).GetValueOrDefault()
-                     && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
-                     && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault())
+                if (IsConnected)
                 {
                     return true;
                 }
@@ -365,7 +367,8 @@ namespace RX_Explorer.Class
                             { "PipeCommandReadId", PipeCommandReadController.PipeId },
                             { "PipeCommandWriteId", PipeCommandWriteController.PipeId },
                             { "PipeProgressReadId", PipeProgressReadController.PipeId },
-                            { "PipeCancellationWriteId", PipeCancellationWriteController.PipeId }
+                            { "PipeCancellationWriteId", PipeCancellationWriteController.PipeId },
+                            { "LogRecordFolderPath", ApplicationData.Current.TemporaryFolder.Path }
                         };
 
                         PipeCommunicationBaseController.SendData(JsonSerializer.Serialize(Command));
@@ -452,7 +455,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (await ConnectRemoteAsync())
+                if (IsConnected)
                 {
                     Dictionary<string, string> Command = new Dictionary<string, string>
                     {
@@ -492,7 +495,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (await ConnectRemoteAsync())
+                if (IsConnected)
                 {
                     Dictionary<string, string> Command = new Dictionary<string, string>
                     {
@@ -1441,7 +1444,7 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<bool> CheckIfPackageFamilyNameExist(string PackageFamilyName)
+        public async Task<bool> CheckIfPackageFamilyNameExistAsync(string PackageFamilyName)
         {
             if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.CheckPackageFamilyNameExist, ("PackageFamilyName", PackageFamilyName)) is IDictionary<string, string> Response)
             {
@@ -1453,7 +1456,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfPackageFamilyNameExist)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfPackageFamilyNameExistAsync)}, message: {ErrorMessage}");
                     }
                 }
             }
@@ -1461,9 +1464,9 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<InstalledApplication> GetInstalledApplicationAsync(string PackageFamilyName)
+        public async Task<InstalledApplication> GetSpecificInstalledUwpApplicationAsync(string PackageFamilyName)
         {
-            if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetInstalledApplication, ("PackageFamilyName", PackageFamilyName)) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetSpecificInstalledUwpApplication, ("PackageFamilyName", PackageFamilyName)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
@@ -1475,7 +1478,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetInstalledApplicationAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetSpecificInstalledUwpApplicationAsync)}, message: {ErrorMessage}");
                     }
                 }
             }
@@ -1484,9 +1487,9 @@ namespace RX_Explorer.Class
         }
 
 
-        public async Task<IReadOnlyList<InstalledApplication>> GetAllInstalledApplicationAsync()
+        public async Task<IReadOnlyList<InstalledApplication>> GetAllInstalledUwpApplicationAsync()
         {
-            if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetAllInstalledApplication) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetAllInstalledUwpApplication) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
@@ -1503,7 +1506,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetAllInstalledApplicationAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetAllInstalledUwpApplicationAsync)}, message: {ErrorMessage}");
                     }
                 }
             }
@@ -1934,9 +1937,9 @@ namespace RX_Explorer.Class
             return string.Empty;
         }
 
-        public async Task<IReadOnlyList<AssociationPackage>> GetAssociationFromPathAsync(string Path)
+        public async Task<IReadOnlyList<AssociationPackage>> GetAssociationFromExtensionAsync(string Extension)
         {
-            if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.Get_Association, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetAssociation, ("Extension", Extension)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Associate_Result", out string Result))
                 {
@@ -1946,7 +1949,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetAssociationFromPathAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetAssociationFromExtensionAsync)}, message: {ErrorMessage}");
                     }
                 }
             }

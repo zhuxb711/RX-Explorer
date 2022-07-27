@@ -2,7 +2,7 @@
 {
     public class NamedPipeAuxiliaryCommunicationBaseController : NamedPipeReadController
     {
-        public NamedPipeAuxiliaryCommunicationBaseController() : base("Explorer_NamedPipe_Auxiliary_CommunicationBase")
+        public NamedPipeAuxiliaryCommunicationBaseController(string PackageFamilyName) : base(PackageFamilyName, "Explorer_NamedPipe_Auxiliary_CommunicationBase")
         {
 
         }

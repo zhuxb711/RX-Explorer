@@ -498,7 +498,7 @@ namespace RX_Explorer.View
                                                     || Package.Contains(ExtendedDataFormats.NotSupportedStorageItem);
                     }
                 }
-                catch
+                catch (Exception)
                 {
                     ShouldPopKeepClipboardTip = false;
                 }
@@ -621,7 +621,7 @@ namespace RX_Explorer.View
                     await new WhatIsNew().ShowAsync();
                 }
 
-                await Task.WhenAll(RegisterBackgroundTaskAsync(), CheckUpdateIfExistAsync(), Settings.InitializeAsync(), MonitorTrustProcessController.StartMonitorAsync());
+                await Task.WhenAll(RegisterBackgroundTaskAsync(), CheckUpdateIfExistAsync(), Settings.InitializeAsync());
 
                 if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
