@@ -27,6 +27,7 @@ namespace RX_Explorer.Class
 
         public static async Task<BitmapImage> CreateBitmapImageAsync(IRandomAccessStream Stream)
         {
+            Stream.Seek(0);
             BitmapImage Bitmap = new BitmapImage();
             await Bitmap.SetSourceAsync(Stream);
             return Bitmap;

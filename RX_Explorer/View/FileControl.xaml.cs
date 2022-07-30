@@ -71,6 +71,7 @@ namespace RX_Explorer.View
         private CancellationTokenSource DelayGoForwardHoldCancel;
         private CancellationTokenSource ContextMenuCancellation;
         private CancellationTokenSource AddressExtensionCancellation;
+        private CancellationTokenSource ExpandTreeViewCancellation;
 
         private volatile FilePresenter currentPresenter;
         public FilePresenter CurrentPresenter
@@ -1369,7 +1370,7 @@ namespace RX_Explorer.View
 
                                             if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(ParentFolder).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                             {
-                                                if (await RootNode.GetNodeAsync(new PathAnalysis(ParentFolder), true) is TreeViewNode CurrentNode)
+                                                if (await RootNode.GetTargetNodeAsync(new PathAnalysis(ParentFolder)) is TreeViewNode CurrentNode)
                                                 {
                                                     await CurrentNode.UpdateAllSubNodeAsync();
                                                 }
@@ -2905,20 +2906,38 @@ namespace RX_Explorer.View
             {
                 CurrentPresenter = Presenter;
 
-                string Path = CurrentPresenter.CurrentFolder?.Path;
-
-                if (!string.IsNullOrEmpty(Path))
+                if (Presenter.CurrentFolder is RootStorageFolder)
                 {
-                    if (Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
+                    TabViewContainer.Current.LayoutModeControl.IsEnabled = false;
+                }
+                else
+                {
+                    string CurrentPath = Presenter.CurrentFolder?.Path;
+
+                    if (!string.IsNullOrEmpty(CurrentPath))
                     {
-                        TabViewContainer.Current.LayoutModeControl.IsEnabled = false;
-                    }
-                    else
-                    {
-                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentPresenter.CurrentFolder.Path);
+                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentPath);
                         TabViewContainer.Current.LayoutModeControl.IsEnabled = true;
                         TabViewContainer.Current.LayoutModeControl.CurrentPath = Config.Path;
                         TabViewContainer.Current.LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
+
+                        if (SettingPage.IsExpandTreeViewAsContentChanged)
+                        {
+                            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(Path.GetPathRoot(CurrentPath), StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
+                            {
+                                ExpandTreeViewCancellation?.Cancel();
+                                ExpandTreeViewCancellation?.Dispose();
+                                ExpandTreeViewCancellation = new CancellationTokenSource(15000);
+
+                                RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentPath), true, ExpandTreeViewCancellation.Token).ContinueWith((PreviousTask) =>
+                                {
+                                    if (PreviousTask.Result is TreeViewNode TargetNode)
+                                    {
+                                        FolderTree.SelectNodeAndScrollToVertical(TargetNode);
+                                    }
+                                }, TaskScheduler.FromCurrentSynchronizationContext());
+                            }
+                        }
                     }
                 }
             }
@@ -3708,12 +3727,14 @@ namespace RX_Explorer.View
             DelayGoForwardHoldCancel?.Dispose();
             ContextMenuCancellation?.Dispose();
             AddressExtensionCancellation?.Dispose();
+            ExpandTreeViewCancellation?.Dispose();
 
             DelayEnterCancel = null;
             DelayGoBackHoldCancel = null;
             DelayGoForwardHoldCancel = null;
             ContextMenuCancellation = null;
             AddressExtensionCancellation = null;
+            ExpandTreeViewCancellation = null;
         }
     }
 }

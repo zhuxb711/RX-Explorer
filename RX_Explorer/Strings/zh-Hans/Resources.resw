@@ -719,7 +719,7 @@
     <value>WiFi共享</value>
   </data>
   <data name="SettingTreeViewDetachLabel.Text" xml:space="preserve">
-    <value>文件夹目录树</value>
+    <value>导航面板</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
     <value>隐藏</value>
@@ -1309,9 +1309,6 @@
   <data name="Download_Folder_Name" xml:space="preserve">
     <value>下载</value>
     <comment>Name of [Downloads folder]</comment>
-  </data>
-  <data name="Media_Tip_Text" xml:space="preserve">
-    <value>请欣赏:</value>
   </data>
   <data name="Merge_Image_Name_Tail" xml:space="preserve">
     <value>合并</value>
@@ -3176,7 +3173,7 @@
     <value>启用此选项后将在鼠标悬停于标签页标题上时显示该标签页的预览</value>
   </data>
   <data name="SettingTreeViewDetachDescription.Text" xml:space="preserve">
-    <value>控制是否显示位于页面左侧的目录树</value>
+    <value>控制是否显示位于应用程序左侧的导航面板</value>
   </data>
   <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
     <value>启用此选项后将拦截[Win+E]快捷键并重定向至本应用</value>

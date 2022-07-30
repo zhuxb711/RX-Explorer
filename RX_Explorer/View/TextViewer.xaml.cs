@@ -37,10 +37,12 @@ namespace RX_Explorer.View
 
             if (await EncodingDialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                EncodingDisplay.Text = EncodingDialog.UserSelectedEncoding.EncodingName;
+                Encoding TextEncoding = EncodingDialog.UserSelectedEncoding;
+
+                EncodingDisplay.Text = TextEncoding.EncodingName;
                 LineColumnDisplay.Text = $"{Globalization.GetString("LineDescription")} 1, {Globalization.GetString("ColumnDescription")} 1";
 
-                await LoadTextFromFileWithEncodingAsync(TextFile, EncodingDialog.UserSelectedEncoding, CancelToken);
+                await LoadTextFromFileWithEncodingAsync(TextFile, TextEncoding, CancelToken);
             }
             else if (Frame.CanGoBack)
             {

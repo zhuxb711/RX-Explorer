@@ -949,8 +949,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">WiFi共享</target>
         </trans-unit>
         <trans-unit id="SettingTreeViewDetachLabel.Text" translate="yes" xml:space="preserve">
-          <source>Folder tree</source>
-          <target state="translated">文件夹目录树</target>
+          <source>Navigation Pane</source>
+          <target state="translated">导航面板</target>
         </trans-unit>
         <trans-unit id="SettingTreeViewDetach.OffContent" translate="yes" xml:space="preserve">
           <source>Hide</source>
@@ -1728,10 +1728,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Downloads</source>
           <target state="translated">下载</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Name of [Downloads folder]</note>
-        </trans-unit>
-        <trans-unit id="Media_Tip_Text" translate="yes" xml:space="preserve">
-          <source>Please Enjoy:</source>
-          <target state="translated">请欣赏:</target>
         </trans-unit>
         <trans-unit id="Merge_Image_Name_Tail" translate="yes" xml:space="preserve">
           <source>Merged</source>
@@ -4218,8 +4214,8 @@ Invalid names include
           <target state="translated">启用此选项后将在鼠标悬停于标签页标题上时显示该标签页的预览</target>
         </trans-unit>
         <trans-unit id="SettingTreeViewDetachDescription.Text" translate="yes" xml:space="preserve">
-          <source>Control whether to display the folder tree located on the left side of the page</source>
-          <target state="translated">控制是否显示位于页面左侧的目录树</target>
+          <source>Control whether to display the navigation pane located on the left side of the application</source>
+          <target state="translated">控制是否显示位于应用程序左侧的导航面板</target>
         </trans-unit>
         <trans-unit id="UseWinAndEActivateDescription.Text" translate="yes" xml:space="preserve">
           <source>Shortcut [Win+E] will be intercepted and redirected to this application after enabling this option</source>

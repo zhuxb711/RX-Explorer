@@ -49,6 +49,7 @@
 
             <Cls:ThemeToIndexConverter x:Key="ThemeConverter" />
             <Cls:InverseConverter x:Key="InverseConverter" />
+            <Cls:PixelNumberFormatter x:Key="PixelFormatter" />
 
             <muxc:CommandBarFlyout Placement="BottomEdgeAlignedLeft"
                                    ShouldConstrainToRootBounds="False"
@@ -207,39 +208,6 @@
                                                FontSize="18" />
                                     <Border Padding="20,10"
                                             MinHeight="60"
-                                            Margin="0,10,0,0"
-                                            BorderThickness="1"
-                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                            CornerRadius="{StaticResource ControlCornerRadius}"
-                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                        <RelativePanel>
-                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                        RelativePanel.AlignLeftWithPanel="True"
-                                                        RelativePanel.LeftOf="TreeViewDetach"
-                                                        Margin="0,0,20,0">
-                                                <TextBlock Text="文件夹目录"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           x:Uid="SettingTreeViewDetachLabel" />
-                                                <TextBlock FontSize="12"
-                                                           TextWrapping="WrapWholeWords"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           Foreground="Gray"
-                                                           x:Uid="SettingTreeViewDetachDescription"
-                                                           Text="控制是否显示位于页面左侧的目录树" />
-                                            </StackPanel>
-                                            <ToggleSwitch OnContent="启用"
-                                                          OffContent="隐藏"
-                                                          x:Uid="SettingTreeViewDetach"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
-                                                          RelativePanel.AlignRightWithPanel="True"
-                                                          RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                          x:Name="TreeViewDetach" />
-                                        </RelativePanel>
-                                    </Border>
-
-                                    <Border Margin="0,5,0,0"
-                                            Padding="20,10"
-                                            MinHeight="60"
                                             BorderThickness="1"
                                             BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
@@ -257,7 +225,7 @@
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
                                                            x:Uid="SettingNavLayoutDescription"
-                                                           Text="控制导航栏布局位置" />
+                                                           Text="控制导航视图的布局位置" />
                                             </StackPanel>
                                             <ToggleSwitch OnContent="左侧"
                                                           OffContent="顶端"
@@ -269,7 +237,6 @@
                                                           Toggled="NavigationViewLayout_Toggled" />
                                         </RelativePanel>
                                     </Border>
-
                                     <Border Margin="0,5,0,0"
                                             Padding="20,10"
                                             MinHeight="60"
@@ -302,7 +269,6 @@
                                                           Toggled="TabPreviewSwitch_Toggled" />
                                         </RelativePanel>
                                     </Border>
-
                                     <Border Margin="0,5,0,0"
                                             Padding="20,10"
                                             MinHeight="60"
@@ -518,6 +484,62 @@
                                             <RelativePanel Padding="4,10,0,10">
                                                 <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                             RelativePanel.AlignLeftWithPanel="True"
+                                                            RelativePanel.LeftOf="TreeViewDetach"
+                                                            Margin="0,0,20,0">
+                                                    <TextBlock Text="导航面板"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="SettingTreeViewDetachLabel" />
+                                                    <TextBlock FontSize="12"
+                                                               TextWrapping="WrapWholeWords"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Foreground="Gray"
+                                                               x:Uid="SettingTreeViewDetachDescription"
+                                                               Text="控制是否显示位于应用程序左侧的导航面板" />
+                                                </StackPanel>
+                                                <ToggleSwitch OnContent="启用"
+                                                              OffContent="隐藏"
+                                                              x:Uid="SettingTreeViewDetach"
+                                                              Style="{StaticResource SettingToggleSwitchStyle}"
+                                                              RelativePanel.AlignRightWithPanel="True"
+                                                              RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                              x:Name="TreeViewDetach" />
+                                            </RelativePanel>
+                                        </muxc:Expander.Header>
+                                        <muxc:Expander.Content>
+                                            <Border Padding="40,10,10,10"
+                                                    MinHeight="45"
+                                                    CornerRadius="0,0,4,4"
+                                                    BorderThickness="1"
+                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                <CheckBox Name="ExpandTreeViewAsContentChanged"
+                                                          IsEnabled="{x:Bind TreeViewDetach.IsOn,Mode=OneWay}">
+                                                    <StackPanel>
+                                                        <TextBlock Text="跟随展开至当前文件夹位置"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Text="启用此选项后导航窗格将跟随并展开至当前文件夹位置。注意: 这可能导致较大的性能衰减且访问较深层次的文件夹时会消耗更多性能，请自行斟酌是否启用该选项"
+                                                                   FontSize="12"
+                                                                   Foreground="Gray"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   TextWrapping="WrapWholeWords" />
+                                                    </StackPanel>
+                                                </CheckBox>
+                                            </Border>
+                                        </muxc:Expander.Content>
+                                    </muxc:Expander>
+                                    <muxc:Expander Margin="0,5,0,0"
+                                                   ExpandDirection="Down"
+                                                   HorizontalAlignment="Stretch"
+                                                   HorizontalContentAlignment="Stretch"
+                                                   VerticalContentAlignment="Stretch"
+                                                   Padding="0"
+                                                   MinHeight="60"
+                                                   Background="Transparent"
+                                                   CornerRadius="4,4,0,0">
+                                        <muxc:Expander.Header>
+                                            <RelativePanel Padding="4,10,0,10">
+                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            RelativePanel.AlignLeftWithPanel="True"
                                                             RelativePanel.LeftOf="DisplayHiddenItem"
                                                             Margin="0,0,20,0">
                                                     <TextBlock Text="显示隐藏文件"
@@ -574,6 +596,40 @@
                                         <RelativePanel>
                                             <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                         RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="ViewHeightOffsetNumberBox"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="布局间隔空间"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="根据您的喜好调整布局间隔空间以使布局呈现为宽松或紧凑的外观。注意: 该设置仅对“详细列表”和“列表”视图生效" />
+                                            </StackPanel>
+                                            <muxc:NumberBox x:Name="ViewHeightOffsetNumberBox"
+                                                            Minimum="0"
+                                                            Maximum="20"
+                                                            SmallChange="1"
+                                                            LargeChange="5"
+                                                            NumberFormatter="{StaticResource PixelFormatter}"
+                                                            Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                                                            SpinButtonPlacementMode="Inline"
+                                                            RelativePanel.AlignRightWithPanel="True"
+                                                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            Loaded="ViewHeightOffsetNumberBox_Loaded"/>
+                                        </RelativePanel>
+                                    </Border>
+                                    
+                                    <Border Margin="0,5,0,0"
+                                            Padding="20,10"
+                                            MinHeight="60"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
                                                         RelativePanel.LeftOf="FolderOpenMethod"
                                                         Margin="0,0,20,0">
                                                 <TextBlock Text="文件夹打开方式"
@@ -586,7 +642,7 @@
                                                            x:Uid="SettingFolderOpenMethodDescription"
                                                            Text="根据您的喜好选择符合的操作习惯" />
                                             </StackPanel>
-                                            <ComboBox MinWidth="120"
+                                            <ComboBox MinWidth="150"
                                                       Name="FolderOpenMethod"
                                                       Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
                                                       RelativePanel.AlignRightWithPanel="True"
@@ -617,7 +673,7 @@
                                                            x:Uid="LanguageComboBoxDescription"
                                                            Text="指定应用使用的语言，需要重启以生效" />
                                             </StackPanel>
-                                            <ComboBox MinWidth="180"
+                                            <ComboBox MinWidth="200"
                                                       Name="LanguageComboBox"
                                                       RelativePanel.AlignRightWithPanel="True"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -1285,7 +1341,7 @@
                                         <RelativePanel>
                                             <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                         RelativePanel.AlignLeftWithPanel="True"
-                                                        RelativePanel.LeftOf="VerticalSplitViewLimitationCombox"
+                                                        RelativePanel.LeftOf="VerticalSplitViewLimitationNumberBox"
                                                         Margin="0,0,20,0">
                                                 <TextBlock Text="垂直拆分窗口显示数量限制"
                                                            TextTrimming="CharacterEllipsis"
@@ -1297,17 +1353,16 @@
                                                            x:Uid="VerticalSplitViewLimitationDescription"
                                                            Text="指定垂直拆分窗口同时显示的数量限制，超出的部分需要通过滚动的方式访问。注意: 仅建议在较宽的屏幕上才调整此设置，否则可能导致各窗口内容无法辨识" />
                                             </StackPanel>
-                                            <ComboBox MinWidth="100"
-                                                      Name="VerticalSplitViewLimitationCombox"
-                                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
-                                                      RelativePanel.AlignRightWithPanel="True"
-                                                      RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                <x:String>1</x:String>
-                                                <x:String>2</x:String>
-                                                <x:String>3</x:String>
-                                                <x:String>4</x:String>
-                                                <x:String>5</x:String>
-                                            </ComboBox>
+                                            <muxc:NumberBox x:Name="VerticalSplitViewLimitationNumberBox"
+                                                            Minimum="1"
+                                                            Maximum="5"
+                                                            SmallChange="1"
+                                                            LargeChange="1"
+                                                            Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                                                            SpinButtonPlacementMode="Inline"
+                                                            RelativePanel.AlignRightWithPanel="True"
+                                                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            Loaded="VerticalSplitViewLimitationNumberBox_Loaded" />
                                         </RelativePanel>
                                     </Border>
 

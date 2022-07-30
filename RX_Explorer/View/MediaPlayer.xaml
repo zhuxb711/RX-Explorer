@@ -3,14 +3,19 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:Cls="using:RX_Explorer.Class"
       mc:Ignorable="d"
       NavigationCacheMode="Enabled"
       Background="{ThemeResource SystemControlChromeMediumAcrylicElementMediumBrush}">
 
+    <Page.Resources>
+        <Cls:NullToVisibilityConverter x:Key="VisibilityConverter"/>
+    </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="120"/>
         </Grid.RowDefinitions>
         <MediaPlayerElement Stretch="Uniform"
                             Grid.RowSpan="2"
@@ -23,32 +28,34 @@
                             DoubleTapped="MVControl_DoubleTapped"
                             VerticalAlignment="Stretch">
             <MediaPlayerElement.TransportControls>
-                <MediaTransportControls IsFullWindowButtonVisible="True"
+                <MediaTransportControls Name="TransportControls"
+                                        MaxHeight="120"
+                                        VerticalAlignment="Bottom"
+                                        IsFullWindowButtonVisible="True"
                                         IsZoomButtonVisible="False"
                                         IsSkipBackwardEnabled="True"
                                         IsSkipForwardEnabled="True"
                                         IsSkipForwardButtonVisible="True"
                                         IsSkipBackwardButtonVisible="True" 
-                                        IsFastForwardButtonVisible="True"
-                                        IsFastForwardEnabled="True"
-                                        IsFastRewindButtonVisible="True"
-                                        IsFastRewindEnabled="True"
                                         IsPlaybackRateButtonVisible="True"
                                         IsPlaybackRateEnabled="True"
                                         IsRepeatButtonVisible="True"
                                         IsRepeatEnabled="True"
                                         IsStopButtonVisible="True"
-                                        IsStopEnabled="True"/>
+                                        IsStopEnabled="True"
+                                        IsPreviousTrackButtonVisible="True"
+                                        IsNextTrackButtonVisible="True"
+                                        IsCompactOverlayButtonVisible="True"
+                                        IsCompactOverlayEnabled="True" />
             </MediaPlayerElement.TransportControls>
         </MediaPlayerElement>
         <StackPanel VerticalAlignment="Center"
                     HorizontalAlignment="Center"
-                    Visibility="Collapsed"
-                    Name="MusicCover">
-            <Image Name="Cover"
+                    Visibility="{x:Bind MusicName.Text,Mode=OneWay,Converter={StaticResource VisibilityConverter}}">
+            <Image Name="MusicCover"
                    Width="250"
                    Height="250" />
-            <TextBlock Name="Display"
+            <TextBlock Name="MusicName"
                        TextAlignment="Center"
                        FontSize="20"
                        TextWrapping="Wrap"

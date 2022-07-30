@@ -762,7 +762,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Nombre de archivo</value>
   </data>
   <data name="SettingTreeViewDetachLabel.Text" xml:space="preserve">
-    <value>Árbol de carpetas</value>
+    <value>Panel de navegación</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
     <value>Ocultar</value>
@@ -1374,9 +1374,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="Download_Folder_Name" xml:space="preserve">
     <value>Descargas:</value>
     <comment>Name of [Downloads folder]</comment>
-  </data>
-  <data name="Media_Tip_Text" xml:space="preserve">
-    <value>Que lo pases bien:</value>
   </data>
   <data name="Merge_Image_Name_Tail" xml:space="preserve">
     <value>Fusionado</value>
@@ -3178,7 +3175,7 @@ Las denominaciones no válidas son:
     <value>Se mostrará una vista previa de la pestaña cuando el mouse se desplace sobre el título después de habilitar esta opción</value>
   </data>
   <data name="SettingTreeViewDetachDescription.Text" xml:space="preserve">
-    <value>Controlar si mostrar el árbol de carpetas ubicado en el lado izquierdo de la página</value>
+    <value>Controle si mostrar el panel de navegación ubicado en el lado izquierdo de la aplicación</value>
   </data>
   <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
     <value>El acceso directo [Win+E] será interceptado y redirigido a esta aplicación después de habilitar esta opción.</value>

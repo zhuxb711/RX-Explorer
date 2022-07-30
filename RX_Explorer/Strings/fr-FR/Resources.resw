@@ -719,7 +719,7 @@
     <value>Partage par WiFi</value>
   </data>
   <data name="SettingTreeViewDetachLabel.Text" xml:space="preserve">
-    <value>Arborescence des dossiers</value>
+    <value>Volet de navigation</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
     <value>Cacher</value>
@@ -1309,9 +1309,6 @@
   <data name="Download_Folder_Name" xml:space="preserve">
     <value>Téléchargements</value>
     <comment>Name of [Downloads folder]</comment>
-  </data>
-  <data name="Media_Tip_Text" xml:space="preserve">
-    <value>Profitez-en:</value>
   </data>
   <data name="Merge_Image_Name_Tail" xml:space="preserve">
     <value>Fusionné</value>
@@ -3176,7 +3173,7 @@ Les noms non valides incluent
     <value>Un aperçu de l'onglet s'affichera lorsque la souris survolera le titre après avoir activé cette option</value>
   </data>
   <data name="SettingTreeViewDetachDescription.Text" xml:space="preserve">
-    <value>Contrôler s'il faut afficher l'arborescence des dossiers située sur le côté gauche de la page</value>
+    <value>Contrôler s'il faut afficher le volet de navigation situé sur le côté gauche de l'application</value>
   </data>
   <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
     <value>Le raccourci [Win+E] sera intercepté et redirigé vers cette application après avoir activé cette option</value>

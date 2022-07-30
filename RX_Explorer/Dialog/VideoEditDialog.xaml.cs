@@ -53,8 +53,9 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                Composition = new MediaComposition();
                 VideoClip = await MediaClip.CreateFromFileAsync(VideoFile);
+
+                Composition = new MediaComposition();
                 Composition.Clips.Add(VideoClip);
 
                 PreviewSource = MediaSource.CreateFromMediaStreamSource(Composition.GeneratePreviewMediaStreamSource(640, 360));

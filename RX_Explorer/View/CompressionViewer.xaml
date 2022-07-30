@@ -72,7 +72,8 @@
         </muxc:CommandBarFlyout>
     </Page.Resources>
 
-    <Grid>
+    <Grid x:Name="PageRoot"
+          DataContext="{x:Bind Cls:ViewHeightOffsetSaver.Current}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -150,6 +151,9 @@
                       Style="{StaticResource ListViewStyleWithFixedHeader}"
                       ItemsSource="{x:Bind EntryList}"
                       ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                <ListView.Resources>
+                    <x:Double x:Key="ListViewItemMinHeight">0</x:Double>
+                </ListView.Resources>
                 <ListView.Header>
                     <Grid Height="35"
                           Background="{ThemeResource ElementCustomAcrylicBrush}"
@@ -383,7 +387,8 @@
                 </ListView.Header>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="Cls:CompressionItemBase">
-                        <Grid>
+                        <Grid Background="Transparent"
+                              Padding="{Binding ElementName=PageRoot,Path=DataContext.LineHeightOffset}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="{Binding ElementName=ListViewPanelRoot,Path=DataContext.NameColumnWidth}" />
                                 <ColumnDefinition Width="6" />

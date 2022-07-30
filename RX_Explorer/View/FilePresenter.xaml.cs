@@ -2097,7 +2097,7 @@ namespace RX_Explorer.View
 
                                                             if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                                             {
-                                                                if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
+                                                                if (await RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path)) is TreeViewNode CurrentNode)
                                                                 {
                                                                     await CurrentNode.UpdateAllSubNodeAsync();
                                                                 }
@@ -2136,7 +2136,7 @@ namespace RX_Explorer.View
 
                                             if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                             {
-                                                if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
+                                                if (await RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path)) is TreeViewNode CurrentNode)
                                                 {
                                                     await CurrentNode.UpdateAllSubNodeAsync();
                                                 }
@@ -2322,7 +2322,7 @@ namespace RX_Explorer.View
 
                                                         if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Path.GetPathRoot(CurrentFolder.Path).Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                                         {
-                                                            if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path), true) is TreeViewNode CurrentNode)
+                                                            if (await RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path)) is TreeViewNode CurrentNode)
                                                             {
                                                                 await CurrentNode.UpdateAllSubNodeAsync();
                                                             }
@@ -2749,12 +2749,6 @@ namespace RX_Explorer.View
 
                         CancelToken.ThrowIfCancellationRequested();
 
-                        if (Container.FolderTree.SelectedNode == null
-                            && Container.FolderTree.RootNodes.FirstOrDefault((Node) => Path.GetPathRoot(Folder.Path).Equals((Node.Content as TreeViewNodeContent)?.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
-                        {
-                            Container.FolderTree.SelectNodeAndScrollToVertical(RootNode);
-                        }
-
                         CurrentFolder = Folder;
 
                         FileCollection.Clear();
@@ -2813,6 +2807,8 @@ namespace RX_Explorer.View
                         StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
                         ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
+                        CancelToken.ThrowIfCancellationRequested();
+
                         List<Task> ParallelTaskList = new List<Task>(3)
                         {
                             MonitorTrustProcessController.SetRecoveryDataAsync(JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList)),
@@ -2825,7 +2821,22 @@ namespace RX_Explorer.View
                             ParallelTaskList.Add(AreaWatcher.StartMonitorAsync(Folder.Path));
                         }
 
+                        Task<TreeViewNode> SearchNodeTask = Task.FromResult<TreeViewNode>(null);
+
+                        if (SettingPage.IsExpandTreeViewAsContentChanged)
+                        {
+                            if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
+                            {
+                                ParallelTaskList.Add(SearchNodeTask = RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path), true, CancelToken));
+                            }
+                        }
+
                         await Task.WhenAll(ParallelTaskList);
+
+                        if (SearchNodeTask.Result is TreeViewNode TargetNode)
+                        {
+                            Container.FolderTree.SelectNodeAndScrollToVertical(TargetNode);
+                        }
                     }
                     else
                     {
@@ -7594,12 +7605,12 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-            TreeViewNode RootNode = Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase));
-
-            if (RootNode != null)
+            if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
             {
-                TreeViewNode TargetNode = await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path));
-                Container.FolderTree.SelectNodeAndScrollToVertical(TargetNode);
+                using (CancellationTokenSource Cancellation = new CancellationTokenSource(15000))
+                {
+                    Container.FolderTree.SelectNodeAndScrollToVertical(await RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path), true, Cancellation.Token));
+                }
             }
         }
 

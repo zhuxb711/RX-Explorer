@@ -949,8 +949,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Partage par WiFi</target>
         </trans-unit>
         <trans-unit id="SettingTreeViewDetachLabel.Text" translate="yes" xml:space="preserve">
-          <source>Folder tree</source>
-          <target state="translated">Arborescence des dossiers</target>
+          <source>Navigation Pane</source>
+          <target state="translated">Volet de navigation</target>
         </trans-unit>
         <trans-unit id="SettingTreeViewDetach.OffContent" translate="yes" xml:space="preserve">
           <source>Hide</source>
@@ -1728,10 +1728,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Downloads</source>
           <target state="translated">Téléchargements</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Name of [Downloads folder]</note>
-        </trans-unit>
-        <trans-unit id="Media_Tip_Text" translate="yes" xml:space="preserve">
-          <source>Please Enjoy:</source>
-          <target state="translated">Profitez-en:</target>
         </trans-unit>
         <trans-unit id="Merge_Image_Name_Tail" translate="yes" xml:space="preserve">
           <source>Merged</source>
@@ -4218,8 +4214,8 @@ Les noms non valides incluent
           <target state="translated">Un aperçu de l'onglet s'affichera lorsque la souris survolera le titre après avoir activé cette option</target>
         </trans-unit>
         <trans-unit id="SettingTreeViewDetachDescription.Text" translate="yes" xml:space="preserve">
-          <source>Control whether to display the folder tree located on the left side of the page</source>
-          <target state="translated">Contrôler s'il faut afficher l'arborescence des dossiers située sur le côté gauche de la page</target>
+          <source>Control whether to display the navigation pane located on the left side of the application</source>
+          <target state="translated">Contrôler s'il faut afficher le volet de navigation situé sur le côté gauche de l'application</target>
         </trans-unit>
         <trans-unit id="UseWinAndEActivateDescription.Text" translate="yes" xml:space="preserve">
           <source>Shortcut [Win+E] will be intercepted and redirected to this application after enabling this option</source>

@@ -1013,7 +1013,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<TreeViewNode> GetNodeAsync(this TreeViewNode Node, PathAnalysis Analysis, bool DoNotExpandNodeWhenSearching = false)
+        public static async Task<TreeViewNode> GetTargetNodeAsync(this TreeViewNode Node, PathAnalysis Analysis, bool ExpandNodesWhenSearching = false, CancellationToken CancelToken = default)
         {
             if (Node == null)
             {
@@ -1025,7 +1025,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Node), "Argument could not be null");
             }
 
-            if (Node.HasUnrealizedChildren && !Node.IsExpanded && !DoNotExpandNodeWhenSearching)
+            if (Node.HasUnrealizedChildren && !Node.IsExpanded && ExpandNodesWhenSearching)
             {
                 Node.IsExpanded = true;
             }
@@ -1040,16 +1040,9 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    if (DoNotExpandNodeWhenSearching)
+                    if (ExpandNodesWhenSearching)
                     {
-                        if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
-                        {
-                            return TargetNode;
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < 5; i++)
+                        for (int i = 0; i < 5 && !CancelToken.IsCancellationRequested; i++)
                         {
                             if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                             {
@@ -1061,35 +1054,42 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
+                    else
+                    {
+                        if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
+                        {
+                            return TargetNode;
+                        }
+                    }
                 }
             }
             else
             {
                 if ((Node.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase))
                 {
-                    return await GetNodeAsync(Node, Analysis, DoNotExpandNodeWhenSearching);
+                    return await GetTargetNodeAsync(Node, Analysis, ExpandNodesWhenSearching, CancelToken);
                 }
                 else
                 {
-                    if (DoNotExpandNodeWhenSearching)
+                    if (ExpandNodesWhenSearching)
                     {
-                        if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
-                        {
-                            return await GetNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching);
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < 5; i++)
+                        for (int i = 0; i < 5 && !CancelToken.IsCancellationRequested; i++)
                         {
                             if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                             {
-                                return await GetNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching);
+                                return await GetTargetNodeAsync(TargetNode, Analysis, ExpandNodesWhenSearching, CancelToken);
                             }
                             else
                             {
                                 await Task.Delay(300);
                             }
+                        }
+                    }
+                    else
+                    {
+                        if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
+                        {
+                            return await GetTargetNodeAsync(TargetNode, Analysis, ExpandNodesWhenSearching, CancelToken);
                         }
                     }
                 }

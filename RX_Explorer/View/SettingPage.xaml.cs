@@ -34,6 +34,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
@@ -856,6 +857,44 @@ namespace RX_Explorer.View
             }
         }
 
+        public static bool IsExpandTreeViewAsContentChanged
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["ExpandTreeViewAsContentChanged"] is bool ExpandTreeViewAsContentChanged)
+                {
+                    return ExpandTreeViewAsContentChanged;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["ExpandTreeViewAsContentChanged"] = value;
+            }
+        }
+
+        public static double ViewHeightOffset
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["ViewHeightOffset"] is double Height)
+                {
+                    return Height;
+                }
+                else
+                {
+                    return 5;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["ViewHeightOffset"] = value;
+            }
+        }
+
         public static bool IsOpened { get; private set; }
 
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
@@ -1294,8 +1333,9 @@ namespace RX_Explorer.View
                 HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
                 HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
                 DefaultDisplayMode.SelectionChanged -= DefaultDisplayMode_SelectionChanged;
-                VerticalSplitViewLimitationCombox.SelectionChanged -= VerticalSplitViewLimitationCombox_SelectionChanged;
                 ShutdownButtonBehaviorCombox.SelectionChanged -= ShutdownButtonBehaviorCombox_SelectionChanged;
+                ViewHeightOffsetNumberBox.ValueChanged -= ViewHeightOffsetNumberBox_ValueChanged;
+                VerticalSplitViewLimitationNumberBox.ValueChanged -= VerticalSplitViewLimitationNumberBox_ValueChanged;
 
                 BuiltInEngineIgnoreCase.Checked -= SeachEngineOptionSave_Checked;
                 BuiltInEngineIgnoreCase.Unchecked -= SeachEngineOptionSave_UnChecked;
@@ -1315,6 +1355,8 @@ namespace RX_Explorer.View
                 EverythingEngineSearchGloble.Unchecked -= SeachEngineOptionSave_UnChecked;
                 ShowContextMenuWhenLoading.Checked -= ShowContextMenuWhenLoading_Checked;
                 ShowContextMenuWhenLoading.Unchecked -= ShowContextMenuWhenLoading_Unchecked;
+                ExpandTreeViewAsContentChanged.Checked -= ExpandTreeViewAsContentChanged_Checked;
+                ExpandTreeViewAsContentChanged.Unchecked -= ExpandTreeViewAsContentChanged_Unchecked;
 
                 AcrylicColorPicker.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken1);
                 PredefineTagColorPicker1.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken2);
@@ -1339,6 +1381,8 @@ namespace RX_Explorer.View
                     _ => true
                 };
 
+                ViewHeightOffsetNumberBox.Value = ViewHeightOffset;
+                VerticalSplitViewLimitationNumberBox.Value = VerticalSplitViewLimitation;
                 FolderOpenMethod.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
                 TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
                 EnableQuicklook.IsOn = IsQuicklookEnabled;
@@ -1356,12 +1400,12 @@ namespace RX_Explorer.View
                 AppGuardSwitch.IsOn = IsApplicationGuardEnabled;
                 GuardRestartOnCrash.IsChecked = IsMonitorCrashEnabled;
                 GuardRestartOnFreeze.IsChecked = IsMonitorFreezeEnabled;
+                ExpandTreeViewAsContentChanged.IsChecked = IsExpandTreeViewAsContentChanged;
                 ShowContextMenuWhenLoading.IsChecked = !IsParallelShowContextMenu;
                 LoadWSLOnStartup.IsOn = IsLoadWSLFolderOnStartupEnabled;
                 AvoidRecycleBin.IsChecked = IsAvoidRecycleBinEnabled;
                 DeleteConfirmSwitch.IsOn = IsDoubleConfirmOnDeletionEnabled;
                 DefaultDisplayMode.SelectedIndex = DefaultDisplayModeIndex;
-                VerticalSplitViewLimitationCombox.SelectedIndex = VerticalSplitViewLimitation - 1;
                 PredefineTagColorPicker1.SelectedColor = PredefineLabelForeground1;
                 PredefineTagColorPicker2.SelectedColor = PredefineLabelForeground2;
                 PredefineTagColorPicker3.SelectedColor = PredefineLabelForeground3;
@@ -1380,7 +1424,7 @@ namespace RX_Explorer.View
 #if DEBUG
                 SettingShareData.IsOn = false;
 #else
-            SettingShareData.IsOn = await Microsoft.AppCenter.AppCenter.IsEnabledAsync();
+                SettingShareData.IsOn = await Microsoft.AppCenter.AppCenter.IsEnabledAsync();
 #endif
 
                 UIMode.SelectedIndex = BackgroundController.Current.CurrentType switch
@@ -1496,8 +1540,9 @@ namespace RX_Explorer.View
                 HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
                 HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
                 DefaultDisplayMode.SelectionChanged += DefaultDisplayMode_SelectionChanged;
-                VerticalSplitViewLimitationCombox.SelectionChanged += VerticalSplitViewLimitationCombox_SelectionChanged;
                 ShutdownButtonBehaviorCombox.SelectionChanged += ShutdownButtonBehaviorCombox_SelectionChanged;
+                ViewHeightOffsetNumberBox.ValueChanged += ViewHeightOffsetNumberBox_ValueChanged;
+                VerticalSplitViewLimitationNumberBox.ValueChanged += VerticalSplitViewLimitationNumberBox_ValueChanged;
 
                 BuiltInEngineIgnoreCase.Checked += SeachEngineOptionSave_Checked;
                 BuiltInEngineIgnoreCase.Unchecked += SeachEngineOptionSave_UnChecked;
@@ -1517,6 +1562,8 @@ namespace RX_Explorer.View
                 EverythingEngineSearchGloble.Unchecked += SeachEngineOptionSave_UnChecked;
                 ShowContextMenuWhenLoading.Checked += ShowContextMenuWhenLoading_Checked;
                 ShowContextMenuWhenLoading.Unchecked += ShowContextMenuWhenLoading_Unchecked;
+                ExpandTreeViewAsContentChanged.Checked += ExpandTreeViewAsContentChanged_Checked;
+                ExpandTreeViewAsContentChanged.Unchecked += ExpandTreeViewAsContentChanged_Unchecked;
 
                 ColorPickerChangeRegisterToken1 = AcrylicColorPicker.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnAcrylicColorPicker1SelectedColorChanged));
                 ColorPickerChangeRegisterToken2 = PredefineTagColorPicker1.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker1SelectedColorChanged));
@@ -1527,6 +1574,70 @@ namespace RX_Explorer.View
             finally
             {
                 ApplySettingLocker.Release();
+            }
+        }
+
+        private void VerticalSplitViewLimitationNumberBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+        {
+            try
+            {
+                VerticalSplitViewLimitation = Convert.ToInt32(args.NewValue);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(VerticalSplitViewLimitationNumberBox_ValueChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void ExpandTreeViewAsContentChanged_Unchecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsExpandTreeViewAsContentChanged = false;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ExpandTreeViewAsContentChanged_Unchecked)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void ExpandTreeViewAsContentChanged_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsExpandTreeViewAsContentChanged = true;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ExpandTreeViewAsContentChanged_Checked)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void ViewHeightOffsetNumberBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+        {
+            try
+            {
+                ViewHeightOffset = args.NewValue;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ViewHeightOffsetNumberBox_ValueChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 
@@ -1630,22 +1741,6 @@ namespace RX_Explorer.View
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(ShutdownButtonBehaviorCombox_SelectionChanged)}");
-            }
-            finally
-            {
-                ApplicationData.Current.SignalDataChanged();
-            }
-        }
-
-        private void VerticalSplitViewLimitationCombox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            try
-            {
-                VerticalSplitViewLimitation = Convert.ToInt32(e.AddedItems.Single());
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(VerticalSplitViewLimitationCombox_SelectionChanged)}");
             }
             finally
             {
@@ -4057,6 +4152,56 @@ namespace RX_Explorer.View
             finally
             {
                 ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void ViewHeightOffsetNumberBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            ViewHeightOffsetNumberBox.Loaded -= ViewHeightOffsetNumberBox_Loaded;
+
+            if (sender is NumberBox Box)
+            {
+                if (Box.FindChildOfType<TextBox>() is TextBox InnerBox)
+                {
+                    InnerBox.IsReadOnly = true;
+                    InnerBox.SetBinding(ForegroundProperty, new Binding
+                    {
+                        Source = ViewHeightOffsetNumberBox,
+                        Path = new PropertyPath("Foreground"),
+                        Mode = BindingMode.OneWay
+                    });
+                    InnerBox.SetBinding(BackgroundProperty, new Binding
+                    {
+                        Source = ViewHeightOffsetNumberBox,
+                        Path = new PropertyPath("Background"),
+                        Mode = BindingMode.OneWay
+                    });
+                }
+            }
+        }
+
+        private void VerticalSplitViewLimitationNumberBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            VerticalSplitViewLimitationNumberBox.Loaded -= VerticalSplitViewLimitationNumberBox_Loaded;
+
+            if (sender is NumberBox Box)
+            {
+                if (Box.FindChildOfType<TextBox>() is TextBox InnerBox)
+                {
+                    InnerBox.IsReadOnly = true;
+                    InnerBox.SetBinding(ForegroundProperty, new Binding
+                    {
+                        Source = VerticalSplitViewLimitationNumberBox,
+                        Path = new PropertyPath("Foreground"),
+                        Mode = BindingMode.OneWay
+                    });
+                    InnerBox.SetBinding(BackgroundProperty, new Binding
+                    {
+                        Source = VerticalSplitViewLimitationNumberBox,
+                        Path = new PropertyPath("Background"),
+                        Mode = BindingMode.OneWay
+                    });
+                }
             }
         }
     }

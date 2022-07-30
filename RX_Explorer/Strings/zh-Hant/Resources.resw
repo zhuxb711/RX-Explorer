@@ -728,7 +728,7 @@
     <value>Wi-Fi 分享</value>
   </data>
   <data name="SettingTreeViewDetachLabel.Text" xml:space="preserve">
-    <value>資料夾目錄樹</value>
+    <value>導航窗格</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
     <value>隱藏視窗</value>
@@ -1328,9 +1328,6 @@
   <data name="Download_Folder_Name" xml:space="preserve">
     <value>下載</value>
     <comment>Name of [Downloads folder]</comment>
-  </data>
-  <data name="Media_Tip_Text" xml:space="preserve">
-    <value>請享受:</value>
   </data>
   <data name="Merge_Image_Name_Tail" xml:space="preserve">
     <value>已合併</value>
@@ -3176,7 +3173,7 @@
     <value>啟用此選項後，當鼠標懸停在標題上時，將顯示選項卡的預覽</value>
   </data>
   <data name="SettingTreeViewDetachDescription.Text" xml:space="preserve">
-    <value>控制是否顯示位於頁面左側的文件夾樹</value>
+    <value>控制是否顯示位於應用程序左側的導航窗格</value>
   </data>
   <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
     <value>啟用該選項後，快捷鍵[Win+E]將被攔截並重定向到該應用程序</value>

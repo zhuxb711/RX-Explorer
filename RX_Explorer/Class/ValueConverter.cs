@@ -232,6 +232,39 @@ namespace RX_Explorer.Class
         }
     }
 
+    public sealed class TagToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is LabelKind Tag)
+            {
+                switch (Tag)
+                {
+                    case LabelKind.PredefineLabel1:
+                    case LabelKind.PredefineLabel2:
+                    case LabelKind.PredefineLabel3:
+                    case LabelKind.PredefineLabel4:
+                        {
+                            return Visibility.Visible;
+                        }
+                    default:
+                        {
+                            return Visibility.Collapsed;
+                        }
+                }
+            }
+            else
+            {
+                return Visibility.Visible;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public sealed class TagToColorConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)

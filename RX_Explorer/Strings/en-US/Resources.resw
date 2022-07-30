@@ -879,7 +879,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>File name</value>
   </data>
   <data name="SettingTreeViewDetachLabel.Text" xml:space="preserve">
-    <value>Folder tree</value>
+    <value>Navigation Pane</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
     <value>Hide</value>
@@ -1491,9 +1491,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Download_Folder_Name" xml:space="preserve">
     <value>Downloads</value>
     <comment>Name of [Downloads folder]</comment>
-  </data>
-  <data name="Media_Tip_Text" xml:space="preserve">
-    <value>Please Enjoy:</value>
   </data>
   <data name="Merge_Image_Name_Tail" xml:space="preserve">
     <value>Merged</value>
@@ -3296,7 +3293,7 @@ Invalid names include
     <value>A preview of the tab will be displayed when the mouse hovers over the title after enabling this option</value>
   </data>
   <data name="SettingTreeViewDetachDescription.Text" xml:space="preserve">
-    <value>Control whether to display the folder tree located on the left side of the page</value>
+    <value>Control whether to display the navigation pane located on the left side of the application</value>
   </data>
   <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
     <value>Shortcut [Win+E] will be intercepted and redirected to this application after enabling this option</value>

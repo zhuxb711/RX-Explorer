@@ -762,7 +762,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Dateiname</value>
   </data>
   <data name="SettingTreeViewDetachLabel.Text" xml:space="preserve">
-    <value>Ordnerbaum</value>
+    <value>Navigationsbereich</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
     <value>Ausblenden</value>
@@ -1374,9 +1374,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="Download_Folder_Name" xml:space="preserve">
     <value>Downloads</value>
     <comment>Name of [Downloads folder]</comment>
-  </data>
-  <data name="Media_Tip_Text" xml:space="preserve">
-    <value>Bitte genießen Sie:</value>
   </data>
   <data name="Merge_Image_Name_Tail" xml:space="preserve">
     <value>Zusammengeführt</value>
@@ -3178,7 +3175,7 @@ Inkorrekte Namen sind
     <value>Eine Vorschau der Registerkarte wird angezeigt, wenn die Maus über den Titel fährt, nachdem Sie diese Option aktiviert haben</value>
   </data>
   <data name="SettingTreeViewDetachDescription.Text" xml:space="preserve">
-    <value>Legen Sie fest, ob die Ordnerstruktur auf der linken Seite der Seite angezeigt werden soll</value>
+    <value>Steuern Sie, ob der Navigationsbereich auf der linken Seite der Anwendung angezeigt werden soll</value>
   </data>
   <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
     <value>Shortcut [Win+E] wird abgefangen und zu dieser Anwendung umgeleitet, nachdem diese Option aktiviert wurde</value>
