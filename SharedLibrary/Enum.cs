@@ -139,7 +139,6 @@
         MTPGetItem,
         MTPCheckExists,
         MTPGetChildItems,
-        MTPCheckContainsAnyItems,
         MTPGetDriveVolumnData,
         MTPCreateSubItem,
         MTPDownloadAndGetHandle,

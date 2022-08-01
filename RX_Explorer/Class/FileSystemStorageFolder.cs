@@ -50,43 +50,6 @@ namespace RX_Explorer.Class
 
         }
 
-        public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItems = false,
-                                                                  bool IncludeSystemItems = false,
-                                                                  BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
-        {
-            try
-            {
-                try
-                {
-                    return await Task.Run(() => NativeWin32API.CheckContainsAnyItem(Path, IncludeHiddenItems, IncludeSystemItems, Filter));
-                }
-                catch (LocationNotAvailableException)
-                {
-                    if (await GetStorageItemAsync() is StorageFolder Folder)
-                    {
-                        if (Filter.HasFlag(BasicFilters.File) && Filter.HasFlag(BasicFilters.Folder))
-                        {
-                            return (await Folder.GetItemsAsync(0, 1)).Any();
-                        }
-                        else if (Filter.HasFlag(BasicFilters.File))
-                        {
-                            return (await Folder.GetFilesAsync(CommonFileQuery.DefaultQuery, 0, 1)).Any();
-                        }
-                        else if (Filter.HasFlag(BasicFilters.Folder))
-                        {
-                            return (await Folder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Any();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(CheckContainsAnyItemAsync)} failed and could not get the storage item, path:\"{Path}\"");
-            }
-
-            return false;
-        }
-
         public virtual async Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
         {
             return Convert.ToUInt64(await GetChildItemsAsync(true, true, true, Filter: BasicFilters.File, CancelToken: CancelToken).Cast<FileSystemStorageFile>().SumAsync((Item) => Convert.ToInt64(Item.Size)));

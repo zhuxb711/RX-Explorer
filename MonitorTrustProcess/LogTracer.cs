@@ -94,7 +94,7 @@ namespace MonitorTrustProcess
                                         .AppendLine("AdditionalComment:")
                                         .AppendLine(AdditionalComment ?? "-----<Empty>-----")
                                         .AppendLine("------------------------------------")
-                                        .AppendLine("Source: AuxiliaryTrustProcess")
+                                        .AppendLine("Source: MonitorTrustProcess")
                                         .AppendLine()
                                         .AppendLine($"Exception: {Ex}")
                                         .AppendLine()

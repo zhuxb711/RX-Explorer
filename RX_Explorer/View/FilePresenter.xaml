@@ -15,7 +15,7 @@
       Background="Transparent">
 
     <Page.Resources>
-        <Cls:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <Cls:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
         <Cls:TagToVisibilityConverter x:Key="TagToVisibilityConverter" />
         <Cls:ThumbnailStatusConverter x:Key="ThumbnailStatusConverter" />
         <Cls:SizeDescriptionConverter x:Key="SizeConverter" />
@@ -434,7 +434,7 @@
                                                                        MaxWidth="100"
                                                                        VerticalAlignment="Stretch"
                                                                        TextTrimming="CharacterEllipsis"
-                                                                       Visibility="{x:Bind Label,Mode=OneWay,Converter={StaticResource NullToVisibilityConverter}}"
+                                                                       Visibility="{x:Bind Label,Mode=OneWay,Converter={StaticResource StringToVisibilityConverter}}"
                                                                        Foreground="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToColorConverter}}"
                                                                        Text="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToLabelConverter}}">
                                                                 <ToolTipService.ToolTip>
@@ -1072,7 +1072,7 @@
                                                                            MaxWidth="120"
                                                                            VerticalAlignment="Stretch"
                                                                            TextTrimming="CharacterEllipsis"
-                                                                           Visibility="{x:Bind Label,Mode=OneWay,Converter={StaticResource NullToVisibilityConverter}}"
+                                                                           Visibility="{x:Bind Label,Mode=OneWay,Converter={StaticResource StringToVisibilityConverter}}"
                                                                            Foreground="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToColorConverter}}"
                                                                            Text="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToLabelConverter}}">
                                                                     <ToolTipService.ToolTip>
@@ -1205,50 +1205,52 @@
                                                                             </Style>
                                                                         </Flyout.FlyoutPresenterStyle>
                                                                         <StackPanel MinWidth="230">
-                                                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
-                                                                                <StackPanel Orientation="Horizontal">
-                                                                                    <Viewbox Height="15">
-                                                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                                                  Glyph="&#xF127;"
-                                                                                                  Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground1,Mode=OneWay}" />
-                                                                                    </Viewbox>
-                                                                                    <TextBlock Margin="10,0,0,0"
-                                                                                               Text="{x:Bind Filter.ColorFilterCheckBoxContent1,Mode=OneWay}" />
-                                                                                </StackPanel>
-                                                                            </CheckBox>
-                                                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
-                                                                                <StackPanel Orientation="Horizontal">
-                                                                                    <Viewbox Height="15">
-                                                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                                                  Glyph="&#xF127;"
-                                                                                                  Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground2,Mode=OneWay}" />
-                                                                                    </Viewbox>
-                                                                                    <TextBlock Margin="10,0,0,0"
-                                                                                               Text="{x:Bind Filter.ColorFilterCheckBoxContent2,Mode=OneWay}" />
-                                                                                </StackPanel>
-                                                                            </CheckBox>
-                                                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
-                                                                                <StackPanel Orientation="Horizontal">
-                                                                                    <Viewbox Height="15">
-                                                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                                                  Glyph="&#xF127;"
-                                                                                                  Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground3,Mode=OneWay}" />
-                                                                                    </Viewbox>
-                                                                                    <TextBlock Margin="10,0,0,0"
-                                                                                               Text="{x:Bind Filter.ColorFilterCheckBoxContent3,Mode=OneWay}" />
-                                                                                </StackPanel>
-                                                                            </CheckBox>
-                                                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
-                                                                                <StackPanel Orientation="Horizontal">
-                                                                                    <Viewbox Height="15">
-                                                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                                                  Glyph="&#xF127;"
-                                                                                                  Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground4,Mode=OneWay}" />
-                                                                                    </Viewbox>
-                                                                                    <TextBlock Margin="10,0,0,0"
-                                                                                               Text="{x:Bind Filter.ColorFilterCheckBoxContent4,Mode=OneWay}" />
-                                                                                </StackPanel>
-                                                                            </CheckBox>
+                                                                            <StackPanel Visibility="{x:Bind Filter.IsLabelSelectionEnabled,Mode=OneWay}">
+                                                                                <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
+                                                                                    <StackPanel Orientation="Horizontal">
+                                                                                        <Viewbox Height="15">
+                                                                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                                      Glyph="&#xF127;"
+                                                                                                      Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground1,Mode=OneWay}" />
+                                                                                        </Viewbox>
+                                                                                        <TextBlock Margin="10,0,0,0"
+                                                                                                   Text="{x:Bind Filter.ColorFilterCheckBoxContent1,Mode=OneWay}" />
+                                                                                    </StackPanel>
+                                                                                </CheckBox>
+                                                                                <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
+                                                                                    <StackPanel Orientation="Horizontal">
+                                                                                        <Viewbox Height="15">
+                                                                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                                      Glyph="&#xF127;"
+                                                                                                      Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground2,Mode=OneWay}" />
+                                                                                        </Viewbox>
+                                                                                        <TextBlock Margin="10,0,0,0"
+                                                                                                   Text="{x:Bind Filter.ColorFilterCheckBoxContent2,Mode=OneWay}" />
+                                                                                    </StackPanel>
+                                                                                </CheckBox>
+                                                                                <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
+                                                                                    <StackPanel Orientation="Horizontal">
+                                                                                        <Viewbox Height="15">
+                                                                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                                      Glyph="&#xF127;"
+                                                                                                      Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground3,Mode=OneWay}" />
+                                                                                        </Viewbox>
+                                                                                        <TextBlock Margin="10,0,0,0"
+                                                                                                   Text="{x:Bind Filter.ColorFilterCheckBoxContent3,Mode=OneWay}" />
+                                                                                    </StackPanel>
+                                                                                </CheckBox>
+                                                                                <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
+                                                                                    <StackPanel Orientation="Horizontal">
+                                                                                        <Viewbox Height="15">
+                                                                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                                      Glyph="&#xF127;"
+                                                                                                      Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground4,Mode=OneWay}" />
+                                                                                        </Viewbox>
+                                                                                        <TextBlock Margin="10,0,0,0"
+                                                                                                   Text="{x:Bind Filter.ColorFilterCheckBoxContent4,Mode=OneWay}" />
+                                                                                    </StackPanel>
+                                                                                </CheckBox>
+                                                                            </StackPanel>
                                                                             <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox1,Mode=TwoWay}">
                                                                                 <StackPanel Orientation="Horizontal">
                                                                                     <Viewbox Height="15">

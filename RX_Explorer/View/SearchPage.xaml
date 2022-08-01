@@ -14,7 +14,7 @@
       NavigationCacheMode="Required"
       Background="Transparent">
     <Page.Resources>
-        <Cls:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <Cls:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
         <Cls:TagToVisibilityConverter x:Key="TagToVisibilityConverter" />
         <Cls:SizeDescriptionConverter x:Key="SizeConverter" />
         <Cls:SizeLabelVisibilityConverter x:Key="SizeVisibilityConverter" />
@@ -914,7 +914,7 @@
                                                    MaxWidth="120"
                                                    VerticalAlignment="Stretch"
                                                    TextTrimming="CharacterEllipsis"
-                                                   Visibility="{x:Bind Label,Mode=OneWay,Converter={StaticResource NullToVisibilityConverter}}"
+                                                   Visibility="{x:Bind Label,Mode=OneWay,Converter={StaticResource StringToVisibilityConverter}}"
                                                    Foreground="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToColorConverter}}"
                                                    Text="{x:Bind Label,Mode=OneWay,Converter={StaticResource TagToLabelConverter}}">
                                             <ToolTipService.ToolTip>

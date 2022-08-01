@@ -56,14 +56,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            if (Token.IsCancellationRequested)
-            {
-                return null;
-            }
-            else
-            {
-                return new ProgressCalculator(TotalSize);
-            }
+            return new ProgressCalculator(TotalSize);
         }
 
         public OperationListDeleteUndoModel(string[] UndoFrom)

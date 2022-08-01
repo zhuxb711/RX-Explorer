@@ -1139,6 +1139,18 @@ namespace RX_Explorer.View
             {
                 if (args.Node.Content == TreeViewNodeContent.QuickAccessNode)
                 {
+                    foreach (LabelKind Kind in Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>().Where((Kind) => Kind != LabelKind.None))
+                    {
+                        TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(LabelCollectionVirtualFolder.GetFolderFromLabel(Kind));
+
+                        args.Node.Children.Add(new TreeViewNode
+                        {
+                            Content = Content,
+                            IsExpanded = false,
+                            HasUnrealizedChildren = Content.HasChildren
+                        });
+                    }
+
                     if (CommonAccessCollection.LibraryList.Count > 0)
                     {
                         for (int i = 0; i < CommonAccessCollection.LibraryList.Count && args.Node.IsExpanded; i++)

@@ -246,29 +246,6 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public override async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItems = false, bool IncludeSystemItems = false, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
-        {
-            foreach (FtpListItem Item in await ClientController.RunCommandAsync((Client) => Client.GetListingAsync(RelatedPath)))
-            {
-                if (Item.Type.HasFlag(FtpObjectType.Directory))
-                {
-                    if (Filter.HasFlag(BasicFilters.Folder))
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    if (Filter.HasFlag(BasicFilters.File))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         public Task<FTPFileData> GetRawDataAsync()
         {
             return Task.FromResult(Data);

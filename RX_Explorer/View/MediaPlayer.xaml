@@ -9,7 +9,7 @@
       Background="{ThemeResource SystemControlChromeMediumAcrylicElementMediumBrush}">
 
     <Page.Resources>
-        <Cls:NullToVisibilityConverter x:Key="VisibilityConverter"/>
+        <Cls:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
     </Page.Resources>
 
     <Grid>
@@ -51,7 +51,7 @@
         </MediaPlayerElement>
         <StackPanel VerticalAlignment="Center"
                     HorizontalAlignment="Center"
-                    Visibility="{x:Bind MusicName.Text,Mode=OneWay,Converter={StaticResource VisibilityConverter}}">
+                    Visibility="{x:Bind MusicName.Text,Mode=OneWay,Converter={StaticResource StringToVisibilityConverter}}">
             <Image Name="MusicCover"
                    Width="250"
                    Height="250" />

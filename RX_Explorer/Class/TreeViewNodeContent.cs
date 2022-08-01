@@ -45,7 +45,7 @@ namespace RX_Explorer.Class
 
         public static async Task<TreeViewNodeContent> CreateAsync(FileSystemStorageFolder Folder)
         {
-            TreeViewNodeContent Content = new TreeViewNodeContent(Folder, await Folder.CheckContainsAnyItemAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, BasicFilters.Folder));
+            TreeViewNodeContent Content = new TreeViewNodeContent(Folder, Folder is LabelCollectionVirtualFolder ? false : await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, false, Filter: BasicFilters.Folder).AnyAsync());
 
             if ((System.IO.Path.GetPathRoot(Folder.Path)?.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
             {

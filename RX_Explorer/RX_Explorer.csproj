@@ -120,6 +120,7 @@
     <Compile Include="Class\FTPStorageFile.cs" />
     <Compile Include="Class\FTPStorageFolder.cs" />
     <Compile Include="Class\Helper.cs" />
+    <Compile Include="Class\LabelCollectionVirtualFolder.cs" />
     <Compile Include="Class\LibraryFolderRecord.cs" />
     <Compile Include="Class\ListViewColumnWidthSaver.cs" />
     <Compile Include="Class\PixelNumberFormatter.cs" />
@@ -509,6 +510,7 @@
     <Content Include="CustomImage\Picture10.jpg" />
     <Content Include="CustomImage\Picture15.jpg" />
     <Content Include="CustomImage\Picture14.jpg" />
+    <Content Include="CustomImage\Picture16.jpg" />
     <Content Include="CustomImage\Picture2.jpg" />
     <Content Include="CustomImage\Picture3.jpg" />
     <Content Include="CustomImage\Picture5.jpg" />

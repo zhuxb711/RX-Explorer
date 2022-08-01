@@ -109,6 +109,8 @@ namespace RX_Explorer.View
             }
             private set
             {
+                currentFolder = value;
+
                 if (value != null)
                 {
                     Container.RefreshAddressButton(value.Path);
@@ -122,6 +124,27 @@ namespace RX_Explorer.View
                                                               && value.Path.Equals(Path.GetPathRoot(value.Path), StringComparison.OrdinalIgnoreCase));
 
                     PageSwitcher.Value = value.Path;
+
+                    if (value is RootStorageFolder)
+                    {
+                        TabViewContainer.Current.LayoutModeControl.IsEnabled = false;
+                    }
+                    else
+                    {
+                        if (value is LabelCollectionVirtualFolder)
+                        {
+                            ListViewDetailHeader.Filter.IsLabelSelectionEnabled = false;
+                        }
+                        else
+                        {
+                            ListViewDetailHeader.Filter.IsLabelSelectionEnabled = true;
+                        }
+
+                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(value.Path);
+                        TabViewContainer.Current.LayoutModeControl.IsEnabled = true;
+                        TabViewContainer.Current.LayoutModeControl.CurrentPath = value.Path;
+                        TabViewContainer.Current.LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
+                    }
                 }
 
                 TaskBarController.SetText(value?.DisplayName);
@@ -135,8 +158,6 @@ namespace RX_Explorer.View
                 {
                     ParentBlade.Header = value?.DisplayName;
                 }
-
-                currentFolder = value;
             }
         }
 
@@ -2716,17 +2737,9 @@ namespace RX_Explorer.View
                         ItemPresenter.SelectionMode = ListViewSelectionMode.Extended;
                     }
 
-                    if (Folder is RootStorageFolder)
+                    if (Folder is RootStorageFolder or LabelCollectionVirtualFolder)
                     {
-                        CurrentFolder = Folder;
-
-                        FileCollection.Clear();
-                        GroupCollection.Clear();
-                        AreaWatcher.StopMonitor();
-
-                        TabViewContainer.Current.LayoutModeControl.IsEnabled = false;
-
-                        await SetExtraInformationOnCurrentFolderAsync();
+                        await DisplayItemsInFolderInternalAsync(Folder, CancelToken);
                     }
                     else if (await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
                     {
@@ -2747,95 +2760,22 @@ namespace RX_Explorer.View
                             }
                         }
 
-                        CancelToken.ThrowIfCancellationRequested();
-
-                        CurrentFolder = Folder;
-
-                        FileCollection.Clear();
-                        GroupCollection.Clear();
-
-                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(Folder.Path);
-
-                        TabViewContainer.Current.LayoutModeControl.IsEnabled = true;
-                        TabViewContainer.Current.LayoutModeControl.CurrentPath = Config.Path;
-                        TabViewContainer.Current.LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
-
-                        try
-                        {
-                            using (CancellationTokenSource LoadingTipCancellation = new CancellationTokenSource(1500))
-                            using (CancellationTokenRegistration CancelRegistration = LoadingTipCancellation.Token.Register(async () =>
-                            {
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                                {
-                                    FileLoadProgress.Visibility = Visibility.Visible;
-                                });
-                            }))
-                            {
-                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, CancelToken: CancelToken).ToListAsync();
-
-                                if (ChildItems.Count > 0)
-                                {
-                                    HasFile.Visibility = Visibility.Collapsed;
-
-                                    if (Config.GroupTarget != GroupTarget.None)
-                                    {
-                                        foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
-                                        {
-                                            GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
-                                        }
-
-                                        IsGroupedEnabled = true;
-                                    }
-                                    else
-                                    {
-                                        IsGroupedEnabled = false;
-                                    }
-
-                                    FileCollection.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
-                                }
-                                else
-                                {
-                                    HasFile.Visibility = Visibility.Visible;
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            FileLoadProgress.Visibility = Visibility.Collapsed;
-                        }
-
-                        StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
-                        ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                        CancelToken.ThrowIfCancellationRequested();
-
-                        List<Task> ParallelTaskList = new List<Task>(3)
-                        {
-                            MonitorTrustProcessController.SetRecoveryDataAsync(JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList)),
-                            SetExtraInformationOnCurrentFolderAsync(),
-                            ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection),
-                        };
+                        await DisplayItemsInFolderInternalAsync(Folder, CancelToken);
 
                         if (Folder is not (MTPStorageFolder or FTPStorageFolder))
                         {
-                            ParallelTaskList.Add(AreaWatcher.StartMonitorAsync(Folder.Path));
+                            await AreaWatcher.StartMonitorAsync(Folder.Path);
                         }
-
-                        Task<TreeViewNode> SearchNodeTask = Task.FromResult<TreeViewNode>(null);
 
                         if (SettingPage.IsExpandTreeViewAsContentChanged)
                         {
                             if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                             {
-                                ParallelTaskList.Add(SearchNodeTask = RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path), true, CancelToken));
+                                if (await RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path), true, CancelToken) is TreeViewNode TargetNode)
+                                {
+                                    Container.FolderTree.SelectNodeAndScrollToVertical(TargetNode);
+                                }
                             }
-                        }
-
-                        await Task.WhenAll(ParallelTaskList);
-
-                        if (SearchNodeTask.Result is TreeViewNode TargetNode)
-                        {
-                            Container.FolderTree.SelectNodeAndScrollToVertical(TargetNode);
                         }
                     }
                     else
@@ -2847,6 +2787,79 @@ namespace RX_Explorer.View
             finally
             {
                 DisplayItemLock.Release();
+            }
+        }
+
+        private async Task DisplayItemsInFolderInternalAsync(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)
+        {
+            CurrentFolder = Folder;
+            FileCollection.Clear();
+            GroupCollection.Clear();
+            AreaWatcher.StopMonitor();
+
+            if (Folder is RootStorageFolder)
+            {
+                await SetExtraInformationOnCurrentFolderAsync();
+            }
+            else
+            {
+                PathConfiguration Config = SQLite.Current.GetPathConfiguration(Folder.Path);
+
+                try
+                {
+                    using (CancellationTokenSource LoadingTipCancellation = new CancellationTokenSource(1500))
+                    using (CancellationTokenRegistration CancelRegistration = LoadingTipCancellation.Token.Register(async () =>
+                    {
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            FileLoadProgress.Visibility = Visibility.Visible;
+                        });
+                    }))
+                    {
+                        IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, CancelToken: CancelToken).ToListAsync();
+
+                        if (ChildItems.Count > 0)
+                        {
+                            HasFile.Visibility = Visibility.Collapsed;
+
+                            if (Config.GroupTarget != GroupTarget.None)
+                            {
+                                foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
+                                {
+                                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
+                                }
+
+                                IsGroupedEnabled = true;
+                            }
+                            else
+                            {
+                                IsGroupedEnabled = false;
+                            }
+
+                            FileCollection.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
+                        }
+                        else
+                        {
+                            HasFile.Visibility = Visibility.Visible;
+                        }
+                    }
+                }
+                finally
+                {
+                    FileLoadProgress.Visibility = Visibility.Collapsed;
+                }
+
+                CancelToken.ThrowIfCancellationRequested();
+
+                StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
+                ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                await Task.WhenAll(new List<Task>(3)
+                    {
+                        SetExtraInformationOnCurrentFolderAsync(),
+                        ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection),
+                        MonitorTrustProcessController.SetRecoveryDataAsync(JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList))
+                    });
             }
         }
 
@@ -2900,6 +2913,10 @@ namespace RX_Explorer.View
             if (RootStorageFolder.Current.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
             {
                 return await DisplayItemsInFolderAsync(RootStorageFolder.Current, ForceRefresh, SkipNavigationRecord);
+            }
+            else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(FolderPath, out LabelCollectionVirtualFolder LabelFolder))
+            {
+                return await DisplayItemsInFolderAsync(LabelFolder, ForceRefresh, SkipNavigationRecord);
             }
             else if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
             {

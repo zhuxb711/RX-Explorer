@@ -222,22 +222,22 @@ namespace RX_Explorer.Class
 
         public static async IAsyncEnumerable<FileSystemStorageItemBase> OpenInBatchAsync(IEnumerable<string> PathArray, [EnumeratorCancellation] CancellationToken CancelToken = default)
         {
-            using (AuxiliaryTrustProcessController.LazyExclusive LazyExclusive = AuxiliaryTrustProcessController.GetLazyControllerExclusive())
+            if (PathArray.Any())
             {
-                foreach (string Path in PathArray)
+                using (AuxiliaryTrustProcessController.LazyExclusive LazyExclusive = AuxiliaryTrustProcessController.GetLazyControllerExclusive())
                 {
-                    if (CancelToken.IsCancellationRequested)
+                    foreach (string Path in PathArray)
                     {
-                        yield break;
-                    }
+                        CancelToken.ThrowIfCancellationRequested();
 
-                    if (await OpenCoreAsync(Path, LazyExclusive) is FileSystemStorageItemBase Item)
-                    {
-                        yield return Item;
-                    }
-                    else
-                    {
-                        throw new FileNotFoundException(Path);
+                        if (await OpenCoreAsync(Path, LazyExclusive) is FileSystemStorageItemBase Item)
+                        {
+                            yield return Item;
+                        }
+                        else
+                        {
+                            throw new FileNotFoundException(Path);
+                        }
                     }
                 }
             }

@@ -473,11 +473,11 @@ namespace RX_Explorer.Class
             List<Uri> list = new List<Uri>();
 
             using (SqliteCommand Command = new SqliteCommand("Select * From BackgroundPicture", Connection))
-            using (SqliteDataReader Query = Command.ExecuteReader())
+            using (SqliteDataReader Reader = Command.ExecuteReader())
             {
-                while (Query.Read())
+                while (Reader.Read())
                 {
-                    list.Add(new Uri(Query[0].ToString()));
+                    list.Add(new Uri(Reader[0].ToString()));
                 }
             }
 
@@ -514,23 +514,42 @@ namespace RX_Explorer.Class
             List<LibraryFolderRecord> Result = new List<LibraryFolderRecord>();
 
             using (SqliteCommand Command = new SqliteCommand("Select * From Library", Connection))
-            using (SqliteDataReader Query = Command.ExecuteReader())
+            using (SqliteDataReader Reader = Command.ExecuteReader())
             {
-                while (Query.Read())
+                while (Reader.Read())
                 {
-                    Result.Add(new LibraryFolderRecord(Enum.Parse<LibraryType>(Convert.ToString(Query[1])), Convert.ToString(Query[0])));
+                    Result.Add(new LibraryFolderRecord(Enum.Parse<LibraryType>(Convert.ToString(Reader[1])), Convert.ToString(Reader[0])));
                 }
             }
 
             return Result;
         }
 
-        /// <summary>
-        /// 设置文件颜色 
-        /// </summary>
-        /// <param name="Path">文件路径</param>
-        /// <param name="Color">颜色</param>
-        /// <returns></returns>
+        public IReadOnlyList<string> GetPathFromLabelKind(LabelKind Kind)
+        {
+            List<string> PathList = new List<string>();
+
+            using (SqliteCommand Command = new SqliteCommand("Select * From PathTagMapping Where Label = @Label", Connection))
+            {
+                Command.Parameters.AddWithValue("@Label", Enum.GetName(typeof(LabelKind), Kind));
+
+                using (SqliteDataReader Reader = Command.ExecuteReader())
+                {
+                    while (Reader.Read())
+                    {
+                        string Path = Convert.ToString(Reader[0]);
+
+                        if (!string.IsNullOrEmpty(Path))
+                        {
+                            PathList.Add(Path);
+                        }
+                    }
+                }
+            }
+
+            return PathList;
+        }
+
         public void SetLabelKindByPath(string Path, LabelKind Label)
         {
             using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into PathTagMapping Values (@Path, @Label)", Connection))
@@ -541,10 +560,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        /// <summary>
-        /// 获取所有文件颜色
-        /// </summary>
-        /// <returns></returns>
         public LabelKind GetLabelKindFromPath(string Path)
         {
             using (SqliteCommand Command = new SqliteCommand("Select Label From PathTagMapping Where Path = @Path", Connection))
@@ -610,11 +625,11 @@ namespace RX_Explorer.Class
             List<string> PathList = new List<string>(25);
 
             using (SqliteCommand Command = new SqliteCommand("Select * From PathHistory Order By rowid Desc Limit 0,25", Connection))
-            using (SqliteDataReader Query = Command.ExecuteReader())
+            using (SqliteDataReader Reader = Command.ExecuteReader())
             {
-                while (Query.Read())
+                while (Reader.Read())
                 {
-                    PathList.Add(Query[0].ToString());
+                    PathList.Add(Convert.ToString(Reader[0]));
                 }
             }
 
@@ -800,11 +815,11 @@ namespace RX_Explorer.Class
             {
                 Command.Parameters.AddWithValue("@Target", $"%{Target}%");
 
-                using (SqliteDataReader Query = Command.ExecuteReader())
+                using (SqliteDataReader Reader = Command.ExecuteReader())
                 {
-                    while (Query.Read())
+                    while (Reader.Read())
                     {
-                        HistoryList.Add(Query[0].ToString());
+                        HistoryList.Add(Convert.ToString(Reader[0]));
                     }
 
                     return HistoryList;

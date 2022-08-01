@@ -52,17 +52,8 @@ namespace RX_Explorer.Class
 
         protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            try
-            {
-                StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/ThisPC.png"));
-                return await ThumbnailFile.OpenAsync(FileAccessMode.Read);
-            }
-            catch(Exception ex)
-            {
-                LogTracer.Log(ex, "Could not get the raw stream of thumbnail");
-            }
-
-            return null;
+            StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/ThisPC.png"));
+            return await ThumbnailFile.OpenAsync(FileAccessMode.Read);
         }
 
         public override IAsyncEnumerable<FileSystemStorageItemBase> GetChildItemsAsync(bool IncludeHiddenItems = false,
@@ -73,11 +64,6 @@ namespace RX_Explorer.Class
                                                                                        Func<string, bool> AdvanceFilter = null)
         {
             return AsyncEnumerable.Empty<FileSystemStorageItemBase>();
-        }
-
-        public override Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
-        {
-            return Task.FromResult(false);
         }
 
         public override IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord,

@@ -1003,7 +1003,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, BasicFilters.Folder);
+                        Node.HasUnrealizedChildren = await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, false, Filter: BasicFilters.Folder).AnyAsync();
                     }
                 }
             }

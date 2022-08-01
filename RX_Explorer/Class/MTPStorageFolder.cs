@@ -127,16 +127,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItems = false,
-                                                                   bool IncludeSystemItems = false,
-                                                                   BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
-        {
-            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
-            {
-                return await Exclusive.Controller.MTPCheckContainersAnyItemsAsync(Path, IncludeHiddenItems, IncludeSystemItems, Filter);
-            }
-        }
-
         public override Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
         {
             return Task.FromResult(new SafeFileHandle(IntPtr.Zero, true));

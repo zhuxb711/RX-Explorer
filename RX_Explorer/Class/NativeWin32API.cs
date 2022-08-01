@@ -563,63 +563,6 @@ namespace RX_Explorer.Class
             return CreateFileFromApp(FolderPath, FILE_ACCESS.File_List_Directory, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Open_Existing, FILE_ATTRIBUTE_FLAG.File_Flag_Backup_Semantics, IntPtr.Zero);
         }
 
-        public static bool CheckContainsAnyItem(string FolderPath, bool IncludeHiddenItems, bool IncludeSystemItems, BasicFilters Filter)
-        {
-            if (string.IsNullOrWhiteSpace(FolderPath))
-            {
-                throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
-            }
-
-            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.None);
-
-            try
-            {
-                if (Ptr.CheckIfValidPtr())
-                {
-                    do
-                    {
-                        if (Data.cFileName != "." && Data.cFileName != "..")
-                        {
-                            FileAttributes Attribute = Data.dwFileAttributes;
-
-                            if ((IncludeHiddenItems || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItems || !Attribute.HasFlag(FileAttributes.System)))
-                            {
-                                if (Attribute.HasFlag(FileAttributes.Directory))
-                                {
-                                    if (Filter.HasFlag(BasicFilters.Folder))
-                                    {
-                                        return true;
-                                    }
-                                }
-                                else
-                                {
-                                    if (Filter.HasFlag(BasicFilters.File))
-                                    {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    while (FindNextFile(Ptr, out Data));
-
-                    return false;
-                }
-                else if ((Marshal.GetLastWin32Error() is 2 or 3) && CheckItemTypeFromPath(FolderPath) == StorageItemTypes.None)
-                {
-                    throw new DirectoryNotFoundException(FolderPath);
-                }
-                else
-                {
-                    throw new LocationNotAvailableException();
-                }
-            }
-            finally
-            {
-                FindClose(Ptr);
-            }
-        }
-
         public static bool CheckExists(string Path)
         {
             if (string.IsNullOrWhiteSpace(Path))
@@ -690,7 +633,7 @@ namespace RX_Explorer.Class
                                                                       string SearchWord,
                                                                       bool IncludeHiddenItem = false,
                                                                       bool IncludeSystemItem = false,
-                                                                      bool IsRegexExpresstion = false,
+                                                                      bool IsRegexExpression = false,
                                                                       bool IgnoreCase = true,
                                                                       CancellationToken CancelToken = default)
         {
@@ -720,7 +663,7 @@ namespace RX_Explorer.Class
                         {
                             if ((IncludeHiddenItem || !Data.dwFileAttributes.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Data.dwFileAttributes.HasFlag(FileAttributes.System)))
                             {
-                                if (IsRegexExpresstion ? Regex.IsMatch(Data.cFileName, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None)
+                                if (IsRegexExpression ? Regex.IsMatch(Data.cFileName, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None)
                                                        : Data.cFileName.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                                 {
                                     string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);

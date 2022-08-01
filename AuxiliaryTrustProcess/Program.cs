@@ -1303,45 +1303,6 @@ namespace AuxiliaryTrustProcess
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.MTPCheckContainsAnyItems:
-                            {
-                                string Path = CommandValue["Path"];
-                                string Filter = CommandValue["Filter"];
-                                bool IncludeHiddenItems = Convert.ToBoolean(CommandValue["IncludeHiddenItems"]);
-                                bool IncludeSystemItems = Convert.ToBoolean(CommandValue["IncludeSystemItems"]);
-
-                                MTPPathAnalysis PathAnalysis = new MTPPathAnalysis(Path);
-
-                                if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
-                                {
-                                    if (Device.DirectoryExists(PathAnalysis.RelativePath))
-                                    {
-                                        MediaDirectoryInfo Directory = Device.GetDirectoryInfo(PathAnalysis.RelativePath);
-
-                                        IEnumerable<MediaFileSystemInfo> BasicItems = Filter switch
-                                        {
-                                            "All" => Directory.EnumerateFileSystemInfos("*"),
-                                            "Folder" => Directory.EnumerateDirectories("*"),
-                                            "File" => Directory.EnumerateFiles("*"),
-                                            _ => throw new NotSupportedException()
-                                        };
-
-                                        Value.Add("Success", Convert.ToString(BasicItems.Where((Item) => IncludeSystemItems || !Item.Attributes.HasFlag(MediaFileAttributes.System))
-                                                                                        .Where((Item) => IncludeHiddenItems || !Item.Attributes.HasFlag(MediaFileAttributes.Hidden))
-                                                                                        .Any()));
-                                    }
-                                    else
-                                    {
-                                        Value.Add("Error", "MTP folder is not found");
-                                    }
-                                }
-                                else
-                                {
-                                    Value.Add("Error", "MTP device is not found");
-                                }
-
-                                break;
-                            }
                         case AuxiliaryTrustProcessCommandType.MTPCheckExists:
                             {
                                 string Path = CommandValue["Path"];

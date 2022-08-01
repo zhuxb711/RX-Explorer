@@ -53,9 +53,26 @@ namespace RX_Explorer.Class
         private bool colorFilterCheckBox2;
         private bool colorFilterCheckBox3;
         private bool colorFilterCheckBox4;
+        private bool isLabelSelectionEnabled = true;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<RefreshRequestedEventArgs> RefreshListRequested;
+
+        public bool IsLabelSelectionEnabled
+        {
+            get
+            {
+                return isLabelSelectionEnabled;
+            }
+            set
+            {
+                if (isLabelSelectionEnabled != value)
+                {
+                    isLabelSelectionEnabled = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public bool? NameFilterCheckBox1
         {

@@ -59,14 +59,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            if (Token.IsCancellationRequested)
-            {
-                return null;
-            }
-            else
-            {
-                return new ProgressCalculator(TotalSize);
-            }
+            return new ProgressCalculator(TotalSize);
         }
 
         public OperationListCompressionModel(CompressionType Type, CompressionAlgorithm Algorithm, CompressionLevel Level, string[] CompressionFrom, string CompressionTo)
