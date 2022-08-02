@@ -229,15 +229,7 @@ namespace RX_Explorer.Class
                     foreach (string Path in PathArray)
                     {
                         CancelToken.ThrowIfCancellationRequested();
-
-                        if (await OpenCoreAsync(Path, LazyExclusive) is FileSystemStorageItemBase Item)
-                        {
-                            yield return Item;
-                        }
-                        else
-                        {
-                            throw new FileNotFoundException(Path);
-                        }
+                        yield return await OpenCoreAsync(Path, LazyExclusive);
                     }
                 }
             }
@@ -682,7 +674,7 @@ namespace RX_Explorer.Class
 
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(CopyFrom, CancelToken))
+                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(CopyFrom, CancelToken).OfType<FileSystemStorageItemBase>())
                     {
                         using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
                         {
@@ -716,7 +708,7 @@ namespace RX_Explorer.Class
 
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(MoveFrom, CancelToken))
+                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(MoveFrom, CancelToken).OfType<FileSystemStorageItemBase>())
                     {
                         using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
                         {
@@ -748,7 +740,7 @@ namespace RX_Explorer.Class
 
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(DeleteFrom, CancelToken))
+                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(DeleteFrom, CancelToken).OfType<FileSystemStorageItemBase>())
                     {
                         using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
                         {

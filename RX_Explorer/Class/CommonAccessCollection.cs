@@ -161,15 +161,18 @@ namespace RX_Explorer.Class
                     {
                         Task LoadTask = LibraryStorageFolder.CreateAsync(Record.Type, Record.Path).ContinueWith((PreviousTask) =>
                         {
-                            if (PreviousTask.Result == null)
+                            if (PreviousTask.Result is LibraryStorageFolder Library)
+                            {
+                                if (!LibraryList.Contains(Library))
+                                {
+                                    LibraryList.Add(Library);
+                                }
+                            }
+                            else
                             {
                                 ErrorList.Add(Record.Path);
                             }
-                            else if (!LibraryList.Contains(PreviousTask.Result))
-                            {
-                                LibraryList.Add(PreviousTask.Result);
-                            }
-                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                        }, default, TaskContinuationOptions.PreferFairness, TaskScheduler.FromCurrentSynchronizationContext());
 
                         if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
                         {
@@ -214,16 +217,19 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                if (PreviousTask.Result != null && !DriveList.Contains(PreviousTask.Result))
+                                if (PreviousTask.Result is DriveDataBase DriveData)
                                 {
-                                    DriveList.Add(PreviousTask.Result);
+                                    if (!DriveList.Contains(DriveData))
+                                    {
+                                        DriveList.Add(DriveData);
+                                    }
                                 }
                                 else
                                 {
                                     LogTracer.Log($"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
                                 }
                             }
-                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                        }, default, TaskContinuationOptions.PreferFairness, TaskScheduler.FromCurrentSynchronizationContext());
 
                         if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
                         {
@@ -243,16 +249,19 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    if (PreviousTask.Result != null && !DriveList.Contains(PreviousTask.Result))
+                                    if (PreviousTask.Result is DriveDataBase DriveData)
                                     {
-                                        DriveList.Add(PreviousTask.Result);
+                                        if (!DriveList.Contains(DriveData))
+                                        {
+                                            DriveList.Add(DriveData);
+                                        }
                                     }
                                     else
                                     {
                                         LogTracer.Log($"Ignore the drive \"{Device.Name}\" because we could not get details from this drive");
                                     }
                                 }
-                            }, TaskScheduler.FromCurrentSynchronizationContext());
+                            }, default, TaskContinuationOptions.PreferFairness, TaskScheduler.FromCurrentSynchronizationContext());
 
                             if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
                             {
@@ -273,11 +282,11 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    if (PreviousTask.Result != null)
+                                    if (PreviousTask.Result is DriveDataBase DriveData)
                                     {
-                                        if (!DriveList.Contains(PreviousTask.Result))
+                                        if (!DriveList.Contains(DriveData))
                                         {
-                                            DriveList.Add(PreviousTask.Result);
+                                            DriveList.Add(DriveData);
                                         }
                                     }
                                     else
@@ -285,7 +294,7 @@ namespace RX_Explorer.Class
                                         LogTracer.Log($"Ignore the drive \"{WslFolder.Path}\" because we could not get details from this drive");
                                     }
                                 }
-                            }, TaskScheduler.FromCurrentSynchronizationContext());
+                            }, default, TaskContinuationOptions.PreferFairness, TaskScheduler.FromCurrentSynchronizationContext());
 
                             if (await Task.WhenAny(LoadTask, Task.Delay(1000)) != LoadTask)
                             {
@@ -344,15 +353,15 @@ namespace RX_Explorer.Class
                 {
                     if (DriveList.All((Drive) => Drive.DeviceId != args.Id))
                     {
-                        if (await DriveDataBase.CreateAsync(DriveType.Removable, args) is DriveDataBase NewDrive)
+                        if (await DriveDataBase.CreateAsync(DriveType.Removable, args) is DriveDataBase DriveData)
                         {
-                            if (!DriveList.Contains(NewDrive))
+                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
-                                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                if (!DriveList.Contains(DriveData))
                                 {
-                                    DriveList.Add(NewDrive);
-                                });
-                            }
+                                    DriveList.Add(DriveData);
+                                }
+                            });
                         }
                         else
                         {
@@ -445,46 +454,55 @@ namespace RX_Explorer.Class
         {
             NetworkDriveCheckTimer.Enabled = false;
 
-            DriveInfo[] NewNetworkDrive = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Network).ToArray();
-            DriveDataBase[] ExistNetworkDrive = DriveList.Where((ExistDrive) => ExistDrive is not WslDriveData && ExistDrive.DriveType == DriveType.Network).ToArray();
-
-            IEnumerable<DriveInfo> AddList = NewNetworkDrive.Where((NewDrive) => ExistNetworkDrive.All((ExistDrive) => !ExistDrive.Path.Equals(NewDrive.Name, StringComparison.OrdinalIgnoreCase)));
-            IEnumerable<DriveDataBase> RemoveList = ExistNetworkDrive.Where((ExistDrive) => NewNetworkDrive.All((NewDrive) => !ExistDrive.Path.Equals(NewDrive.Name, StringComparison.OrdinalIgnoreCase)));
-
-            await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            try
             {
-                foreach (DriveDataBase ExistDrive in RemoveList)
-                {
-                    DriveList.Remove(ExistDrive);
-                }
-            });
+                DriveInfo[] NewNetworkDrive = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Network).ToArray();
+                DriveDataBase[] ExistNetworkDrive = DriveList.Where((ExistDrive) => ExistDrive is not WslDriveData && ExistDrive.DriveType == DriveType.Network).ToArray();
 
-            foreach (DriveInfo Drive in AddList)
-            {
-                try
+                IEnumerable<DriveInfo> AddList = NewNetworkDrive.Where((NewDrive) => ExistNetworkDrive.All((ExistDrive) => !ExistDrive.Path.Equals(NewDrive.Name, StringComparison.OrdinalIgnoreCase)));
+                IEnumerable<DriveDataBase> RemoveList = ExistNetworkDrive.Where((ExistDrive) => NewNetworkDrive.All((NewDrive) => !ExistDrive.Path.Equals(NewDrive.Name, StringComparison.OrdinalIgnoreCase)));
+
+                await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    if (await DriveDataBase.CreateAsync(Drive) is DriveDataBase NetworkDrive)
+                    foreach (DriveDataBase ExistDrive in RemoveList)
                     {
-                        if (!DriveList.Contains(NetworkDrive))
+                        DriveList.Remove(ExistDrive);
+                    }
+                });
+
+                foreach (DriveInfo Drive in AddList)
+                {
+                    try
+                    {
+                        if (await DriveDataBase.CreateAsync(Drive) is DriveDataBase DriveData)
                         {
                             await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
-                                DriveList.Add(NetworkDrive);
+                                if (!DriveList.Contains(DriveData))
+                                {
+                                    DriveList.Add(DriveData);
+                                }
                             });
                         }
+                        else
+                        {
+                            throw new InvalidOperationException();
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        throw new InvalidOperationException();
+                        LogTracer.Log(ex, $"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
                 }
             }
-
-            NetworkDriveCheckTimer.Enabled = true;
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not add or remove the network drive");
+            }
+            finally
+            {
+                NetworkDriveCheckTimer.Enabled = true;
+            }
         }
 
         static CommonAccessCollection()

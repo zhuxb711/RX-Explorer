@@ -2889,9 +2889,6 @@
   <data name="ThemeColorLabel.Text" xml:space="preserve">
     <value>主題色</value>
   </data>
-  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
-    <value>在左側找到此文件夾</value>
-  </data>
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>清除所有已完成的任務</value>
   </data>
@@ -3616,5 +3613,14 @@
   </data>
   <data name="AppGuardSwitch.OnContent" xml:space="preserve">
     <value>已啟用</value>
+  </data>
+  <data name="Operate_Text_RevealCurrentFolder" xml:space="preserve">
+    <value>在導航面板中顯示</value>
+  </data>
+  <data name="SettingViewHeightOffsetContent.Text" xml:space="preserve">
+    <value>根據您的喜好調整佈局空間以使佈局具有鬆散或緊湊的外觀。 注意：此設置僅對“詳細信息”和“列表”佈局生效</value>
+  </data>
+  <data name="SettingViewHeightOffsetLabel.Text" xml:space="preserve">
+    <value>佈局空間</value>
   </data>
 </root>

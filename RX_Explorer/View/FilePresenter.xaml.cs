@@ -113,8 +113,6 @@ namespace RX_Explorer.View
 
                 if (value != null)
                 {
-                    Container.RefreshAddressButton(value.Path);
-
                     Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {value.DisplayName}";
                     Container.GoBackRecord.IsEnabled = !BackNavigationStack.IsEmpty;
                     Container.GoForwardRecord.IsEnabled = !ForwardNavigationStack.IsEmpty;
@@ -122,6 +120,7 @@ namespace RX_Explorer.View
                     Container.GoParentFolder.IsEnabled = value is not RootStorageFolder
                                                          && !(value.Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase)
                                                               && value.Path.Equals(Path.GetPathRoot(value.Path), StringComparison.OrdinalIgnoreCase));
+                    Container.RefreshAddressButton(value.Path);
 
                     PageSwitcher.Value = value.Path;
 
@@ -177,6 +176,7 @@ namespace RX_Explorer.View
         private CommandBarFlyout LinkFlyout;
         private CommandBarFlyout MixedFlyout;
         private CommandBarFlyout EmptyFlyout;
+        private CommandBarFlyout LabelFolderEmptyFlyout;
 
         private bool isGroupedEnabled;
 
@@ -240,6 +240,7 @@ namespace RX_Explorer.View
             LinkFlyout = CreateNewLinkFileContextMenu();
             MixedFlyout = CreateNewMixedContextMenu();
             EmptyFlyout = CreateNewEmptyContextMenu();
+            LabelFolderEmptyFlyout = CreateNewLabelFolderEmptyContextMenu();
 
             RootFolderControl.EnterActionRequested += RootFolderControl_EnterActionRequested;
 
@@ -1953,10 +1954,10 @@ namespace RX_Explorer.View
             Flyout.SecondaryCommands.Add(UseSystemFileManagerButton);
             #endregion
 
-            #region SecondaryCommand -> ExpandToCurrentFolder
+            #region SecondaryCommand -> RevealCurrentFolder
             AppBarButton ExpandToCurrentFolderButton = new AppBarButton
             {
-                Label = Globalization.GetString("Operate_Text_ExpandToCurrentFolder"),
+                Label = Globalization.GetString("Operate_Text_RevealCurrentFolder"),
                 Name = "ExpandToCurrentFolderButton",
                 Icon = new FontIcon
                 {
@@ -1972,7 +1973,7 @@ namespace RX_Explorer.View
                 IsEnabled = false
             });
             ExpandToCurrentFolderButton.Click += ExpandToCurrentFolder_Click;
-            ToolTipService.SetToolTip(ExpandToCurrentFolderButton, Globalization.GetString("Operate_Text_ExpandToCurrentFolder"));
+            ToolTipService.SetToolTip(ExpandToCurrentFolderButton, Globalization.GetString("Operate_Text_RevealCurrentFolder"));
 
             Flyout.SecondaryCommands.Add(ExpandToCurrentFolderButton);
             #endregion
@@ -1995,6 +1996,201 @@ namespace RX_Explorer.View
             PropertyButton.Click += ParentProperty_Click;
 
             Flyout.SecondaryCommands.Add(PropertyButton);
+            #endregion
+
+            return Flyout;
+        }
+
+        private CommandBarFlyout CreateNewLabelFolderEmptyContextMenu()
+        {
+            CommandBarFlyout Flyout = new CommandBarFlyout
+            {
+                AlwaysExpanded = true,
+                ShouldConstrainToRootBounds = false
+            };
+            Flyout.Closing += CommandBarFlyout_Closing;
+
+            FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
+
+            #region SecondaryCommand -> SortButton
+            AppBarButton SortButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_Sort"),
+                Icon = new SymbolIcon { Symbol = Symbol.Sort },
+                Width = 250
+            };
+
+            RadioMenuFlyoutItem SortTypeRadioButton1 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Name"),
+                MinWidth = 160,
+                Name = "SortByNameButton",
+                GroupName = "SortOrder"
+            };
+            SortTypeRadioButton1.Click += OrderByName_Click;
+
+            RadioMenuFlyoutItem SortTypeRadioButton2 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Time"),
+                MinWidth = 160,
+                Name = "SortByTimeButton",
+                GroupName = "SortOrder"
+            };
+            SortTypeRadioButton2.Click += OrderByTime_Click;
+
+            RadioMenuFlyoutItem SortTypeRadioButton3 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Type"),
+                MinWidth = 160,
+                Name = "SortByTypeButton",
+                GroupName = "SortOrder"
+            };
+            SortTypeRadioButton3.Click += OrderByType_Click;
+
+            RadioMenuFlyoutItem SortTypeRadioButton4 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Size"),
+                MinWidth = 160,
+                Name = "SortBySizeButton",
+                GroupName = "SortOrder"
+            };
+            SortTypeRadioButton4.Click += OrderBySize_Click;
+
+            RadioMenuFlyoutItem SortDirectionRadioButton1 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortDirection_Asc"),
+                MinWidth = 160,
+                Name = "SortAscButton",
+                GroupName = "SortDirection"
+            };
+            SortDirectionRadioButton1.Click += SortAsc_Click;
+
+            RadioMenuFlyoutItem SortDirectionRadioButton2 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortDirection_Desc"),
+                MinWidth = 160,
+                Name = "SortDescButton",
+                GroupName = "SortDirection"
+            };
+            SortDirectionRadioButton2.Click += SortDesc_Click;
+
+            MenuFlyout SortFlyout = new MenuFlyout();
+            SortFlyout.Opening += SortMenuFlyout_Opening;
+            SortFlyout.Items.Add(SortTypeRadioButton1);
+            SortFlyout.Items.Add(SortTypeRadioButton2);
+            SortFlyout.Items.Add(SortTypeRadioButton3);
+            SortFlyout.Items.Add(SortTypeRadioButton4);
+            SortFlyout.Items.Add(new MenuFlyoutSeparator());
+            SortFlyout.Items.Add(SortDirectionRadioButton1);
+            SortFlyout.Items.Add(SortDirectionRadioButton2);
+
+            SortButton.Flyout = SortFlyout;
+
+            Flyout.SecondaryCommands.Add(SortButton);
+            #endregion
+
+            #region SecondaryCommand -> GroupButton
+            AppBarButton GroupButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_Grouping"),
+                Name = "GroupButton",
+                Icon = new FontIcon
+                {
+                    FontFamily = FontIconFamily,
+                    Glyph = "\uF168"
+                },
+                Width = 250
+            };
+
+            RadioMenuFlyoutItem GroupTypeRadioButton1 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Name"),
+                Name = "GroupByNameButton",
+                MinWidth = 160,
+                GroupName = "GroupOrder"
+            };
+            GroupTypeRadioButton1.Click += GroupByName_Click;
+
+            RadioMenuFlyoutItem GroupTypeRadioButton2 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Time"),
+                Name = "GroupByTimeButton",
+                MinWidth = 160,
+                GroupName = "GroupOrder"
+            };
+            GroupTypeRadioButton2.Click += GroupByTime_Click;
+
+            RadioMenuFlyoutItem GroupTypeRadioButton3 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Type"),
+                Name = "GroupByTypeButton",
+                MinWidth = 160,
+                GroupName = "GroupOrder"
+            };
+            GroupTypeRadioButton3.Click += GroupByType_Click;
+
+            RadioMenuFlyoutItem GroupTypeRadioButton4 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Size"),
+                Name = "GroupBySizeButton",
+                MinWidth = 160,
+                GroupName = "GroupOrder"
+            };
+            GroupTypeRadioButton4.Click += GroupBySize_Click;
+
+            RadioMenuFlyoutItem GroupTypeRadioButton5 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_GroupNone"),
+                Name = "GroupByNoneButton",
+                MinWidth = 160,
+                GroupName = "GroupOrder"
+            };
+            GroupTypeRadioButton5.Click += GroupNone_Click;
+
+            RadioMenuFlyoutItem GroupDirectionRadioButton1 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortDirection_Asc"),
+                MinWidth = 160,
+                Name = "GroupAscButton",
+                GroupName = "GroupDirection"
+            };
+            GroupDirectionRadioButton1.Click += GroupAsc_Click;
+
+            RadioMenuFlyoutItem GroupDirectionRadioButton2 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortDirection_Desc"),
+                MinWidth = 160,
+                Name = "GroupDescButton",
+                GroupName = "GroupDirection"
+            };
+            GroupDirectionRadioButton2.Click += GroupDesc_Click;
+
+            MenuFlyout GroupFlyout = new MenuFlyout();
+            GroupFlyout.Opening += GroupMenuFlyout_Opening;
+            GroupFlyout.Items.Add(GroupTypeRadioButton1);
+            GroupFlyout.Items.Add(GroupTypeRadioButton2);
+            GroupFlyout.Items.Add(GroupTypeRadioButton3);
+            GroupFlyout.Items.Add(GroupTypeRadioButton4);
+            GroupFlyout.Items.Add(GroupTypeRadioButton5);
+            GroupFlyout.Items.Add(new MenuFlyoutSeparator());
+            GroupFlyout.Items.Add(GroupDirectionRadioButton1);
+            GroupFlyout.Items.Add(GroupDirectionRadioButton2);
+
+            GroupButton.Flyout = GroupFlyout;
+
+            Flyout.SecondaryCommands.Add(GroupButton);
+            #endregion
+
+            #region SecondaryCommand -> RefreshButton
+            AppBarButton RefreshButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_Refresh"),
+                Icon = new SymbolIcon { Symbol = Symbol.Refresh },
+                Width = 250
+            };
+            RefreshButton.Click += Refresh_Click;
+
+            Flyout.SecondaryCommands.Add(RefreshButton);
             #endregion
 
             return Flyout;
@@ -2046,11 +2242,59 @@ namespace RX_Explorer.View
             {
                 await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                 {
-                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                    {
-                        FileCollection.CollectionChanged += FileCollection_CollectionChanged1;
+                    FileCollection.CollectionChanged += FileCollection_CollectionChanged1;
 
-                        try
+                    try
+                    {
+                        if (CurrentFolder is LabelCollectionVirtualFolder)
+                        {
+                            switch (args)
+                            {
+                                case FileAddedDeferredEventArgs AddedArgs:
+                                    {
+                                        if (FileCollection.All((Item) => !Item.Path.Equals(AddedArgs.Path, StringComparison.OrdinalIgnoreCase)))
+                                        {
+                                            if (await FileSystemStorageItemBase.OpenAsync(AddedArgs.Path) is FileSystemStorageItemBase NewItem)
+                                            {
+                                                if (FileCollection.Any())
+                                                {
+                                                    PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+                                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                                    if (Index >= 0)
+                                                    {
+                                                        if (Index <= FileCollection.Count)
+                                                        {
+                                                            FileCollection.Insert(Index, NewItem);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        FileCollection.Add(NewItem);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    FileCollection.Add(NewItem);
+                                                }
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case FileRemovedDeferredEventArgs RemovedArgs:
+                                    {
+                                        foreach (FileSystemStorageItemBase Item in FileCollection.Where((Item) => Item.Path.Equals(RemovedArgs.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
+                                        {
+                                            FileCollection.Remove(Item);
+                                        }
+
+                                        break;
+                                    }
+                            }
+                        }
+                        else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                         {
                             switch (args)
                             {
@@ -2359,10 +2603,10 @@ namespace RX_Explorer.View
 
                             await ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection);
                         }
-                        finally
-                        {
-                            FileCollection.CollectionChanged -= FileCollection_CollectionChanged1;
-                        }
+                    }
+                    finally
+                    {
+                        FileCollection.CollectionChanged -= FileCollection_CollectionChanged1;
                     }
                 });
             }
@@ -3179,6 +3423,7 @@ namespace RX_Explorer.View
                 EmptyFlyout.Hide();
                 MixedFlyout.Hide();
                 LinkFlyout.Hide();
+                LabelFolderEmptyFlyout.Hide();
             }
             catch (Exception ex)
             {
@@ -3757,8 +4002,14 @@ namespace RX_Explorer.View
                                                                                                           .Cast<TabItemContentRenderer>()
                                                                                                           .SelectMany((Renderer) => Renderer.Presenters))
                                 {
-
-                                    if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                    if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
+                                    {
+                                        foreach (FileSystemStorageItemBase Item in DeleteItems.Where((Item) => SQLite.Current.GetLabelKindFromPath(Item.Path) == CollectionFolder.Kind))
+                                        {
+                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Item.Path));
+                                        }
+                                    }
+                                    else if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                     {
                                         foreach (FileSystemStorageItemBase Item in DeleteItems)
                                         {
@@ -3799,7 +4050,8 @@ namespace RX_Explorer.View
                     {
                         if (SelectedItemsCopy.Count == 1)
                         {
-                            string OriginName = SelectedItemsCopy.Single().Name;
+                            string ItemPath = SelectedItemsCopy.Single().Path;
+                            string OriginName = Path.GetFileName(ItemPath);
                             string NewName = Dialog.DesireNameMap[OriginName];
 
                             if (OriginName != NewName)
@@ -3821,7 +4073,7 @@ namespace RX_Explorer.View
                                     }
                                 }
 
-                                OperationListRenameModel Model = new OperationListRenameModel(SelectedItemsCopy.First().Path, Path.Combine(CurrentFolder.Path, NewName));
+                                OperationListRenameModel Model = new OperationListRenameModel(ItemPath, Path.Combine(CurrentFolder.Path, NewName));
 
                                 QueueTaskController.RegisterPostAction(Model, async (s, e) =>
                                 {
@@ -3839,9 +4091,16 @@ namespace RX_Explorer.View
                                                                                                                           .Cast<TabItemContentRenderer>()
                                                                                                                           .SelectMany((Renderer) => Renderer.Presenters))
                                                 {
-                                                    if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                                    if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
                                                     {
-                                                        await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(SelectedItemsCopy.First().Path, NewName));
+                                                        if (SQLite.Current.GetLabelKindFromPath(ItemPath) == CollectionFolder.Kind)
+                                                        {
+                                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(ItemPath));
+                                                        }
+                                                    }
+                                                    else if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(ItemPath, NewName));
                                                     }
                                                 }
 
@@ -3894,7 +4153,14 @@ namespace RX_Explorer.View
                                                                                                                           .Cast<TabItemContentRenderer>()
                                                                                                                           .SelectMany((Renderer) => Renderer.Presenters))
                                                 {
-                                                    if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                                    if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
+                                                    {
+                                                        if (SQLite.Current.GetLabelKindFromPath(OriginItem.Path) == CollectionFolder.Kind)
+                                                        {
+                                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(OriginItem.Path));
+                                                        }
+                                                    }
+                                                    else if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
                                                         await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
                                                     }
@@ -6126,7 +6392,14 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                                if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
+                                                {
+                                                    foreach (string Path in PathList.Where((Path) => SQLite.Current.GetLabelKindFromPath(Path) == CollectionFolder.Kind))
+                                                    {
+                                                        await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
+                                                    }
+                                                }
+                                                else if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
                                                 {
                                                     foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                                                     {
@@ -6533,7 +6806,14 @@ namespace RX_Explorer.View
                                                                                                               .Cast<TabItemContentRenderer>()
                                                                                                               .SelectMany((Renderer) => Renderer.Presenters))
                                     {
-                                        if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                        if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
+                                        {
+                                            if (SQLite.Current.GetLabelKindFromPath(CurrentEditItem.Path) == CollectionFolder.Kind)
+                                            {
+                                                await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(CurrentEditItem.Path));
+                                            }
+                                        }
+                                        else if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                         {
                                             await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(CurrentEditItem.Path, NewName));
                                         }
@@ -7072,23 +7352,60 @@ namespace RX_Explorer.View
             }
         }
 
-        private void RemoveLabel_Click(object sender, RoutedEventArgs e)
+        private async void RemoveLabel_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
             foreach (FileSystemStorageItemBase Item in SelectedItems.ToArray())
             {
+                foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                          .Cast<Frame>()
+                                                                                          .Select((Frame) => Frame.Content)
+                                                                                          .Cast<TabItemContentRenderer>()
+                                                                                          .SelectMany((Renderer) => Renderer.Presenters))
+                {
+                    if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
+                    {
+                        if (CollectionFolder.Kind == Item.Label)
+                        {
+                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Item.Path));
+                        }
+                    }
+                }
+
                 Item.Label = LabelKind.None;
             }
         }
 
-        private void Label_Click(object sender, RoutedEventArgs e)
+        private async void Label_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            if (sender is AppBarButton Btn)
+            if (sender is AppBarButton Btn && Btn.Tag is LabelKind Kind)
             {
-                SelectedItem.Label = (LabelKind)Btn.Tag;
+                foreach (FileSystemStorageItemBase Item in SelectedItems.ToArray())
+                {
+                    Item.Label = Kind;
+
+                    foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                              .Cast<Frame>()
+                                                                                              .Select((Frame) => Frame.Content)
+                                                                                              .Cast<TabItemContentRenderer>()
+                                                                                              .SelectMany((Renderer) => Renderer.Presenters))
+                    {
+                        if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
+                        {
+                            if (CollectionFolder.Kind == Kind)
+                            {
+                                await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                            }
+                            else
+                            {
+                                await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Item.Path));
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -8037,18 +8354,41 @@ namespace RX_Explorer.View
 
                                     for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                                     {
-                                        try
+                                        if (CurrentFolder is LabelCollectionVirtualFolder)
                                         {
-                                            await PrepareContextMenuAsync(EmptyFlyout);
-                                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                            Position,
-                                                                                                            ContextMenuCancellation.Token,
-                                                                                                            CurrentFolder.Path);
-                                            break;
+                                            try
+                                            {
+                                                await PrepareContextMenuAsync(LabelFolderEmptyFlyout);
+
+                                                LabelFolderEmptyFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
+                                                {
+                                                    Position = Position,
+                                                    Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                                    ShowMode = FlyoutShowMode.Standard
+                                                });
+
+                                                break;
+                                            }
+                                            catch (Exception)
+                                            {
+                                                EmptyFlyout = CreateNewLabelFolderEmptyContextMenu();
+                                            }
                                         }
-                                        catch (Exception)
+                                        else
                                         {
-                                            EmptyFlyout = CreateNewEmptyContextMenu();
+                                            try
+                                            {
+                                                await PrepareContextMenuAsync(EmptyFlyout);
+                                                await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                                Position,
+                                                                                                                ContextMenuCancellation.Token,
+                                                                                                                CurrentFolder.Path);
+                                                break;
+                                            }
+                                            catch (Exception)
+                                            {
+                                                EmptyFlyout = CreateNewEmptyContextMenu();
+                                            }
                                         }
                                     }
                                 }
@@ -8060,18 +8400,41 @@ namespace RX_Explorer.View
 
                             for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                             {
-                                try
+                                if (CurrentFolder is LabelCollectionVirtualFolder)
                                 {
-                                    await PrepareContextMenuAsync(EmptyFlyout);
-                                    await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                    Position,
-                                                                                                    ContextMenuCancellation.Token,
-                                                                                                    CurrentFolder.Path);
-                                    break;
+                                    try
+                                    {
+                                        await PrepareContextMenuAsync(LabelFolderEmptyFlyout);
+
+                                        LabelFolderEmptyFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
+                                        {
+                                            Position = Position,
+                                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                            ShowMode = FlyoutShowMode.Standard
+                                        });
+
+                                        break;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        EmptyFlyout = CreateNewLabelFolderEmptyContextMenu();
+                                    }
                                 }
-                                catch (Exception)
+                                else
                                 {
-                                    EmptyFlyout = CreateNewEmptyContextMenu();
+                                    try
+                                    {
+                                        await PrepareContextMenuAsync(EmptyFlyout);
+                                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                        Position,
+                                                                                                        ContextMenuCancellation.Token,
+                                                                                                        CurrentFolder.Path);
+                                        break;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        EmptyFlyout = CreateNewEmptyContextMenu();
+                                    }
                                 }
                             }
                         }

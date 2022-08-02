@@ -3836,10 +3836,6 @@ Inkorrekte Namen sind
           <source>Theme color</source>
           <target state="translated">Themenfarbe</target>
         </trans-unit>
-        <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
-          <source>Locate this folder on the left</source>
-          <target state="translated">Suchen Sie diesen Ordner links</target>
-        </trans-unit>
         <trans-unit id="ClearTaskListPanel.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Clear all completed tasks</source>
           <target state="translated">Alle erledigten Aufgaben löschen</target>
@@ -4805,6 +4801,18 @@ Inkorrekte Namen sind
         <trans-unit id="AppGuardSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
           <target state="translated">Ermöglicht</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_RevealCurrentFolder" translate="yes" xml:space="preserve">
+          <source>Reveal in navigation panel</source>
+          <target state="translated">Im Navigationsbereich anzeigen</target>
+        </trans-unit>
+        <trans-unit id="SettingViewHeightOffsetContent.Text" translate="yes" xml:space="preserve">
+          <source>Adjust the layout space to give the layout a loose or compact appearance according to your preference. Note: This setting only takes effect for the "Details" and "List" layout</source>
+          <target state="translated">Passen Sie den Layoutraum Ihren Wünschen entsprechend an, um dem Layout ein lockeres oder kompaktes Aussehen zu verleihen. Hinweis: Diese Einstellung wirkt sich nur auf die Layouts „Details“ und „Liste“ aus</target>
+        </trans-unit>
+        <trans-unit id="SettingViewHeightOffsetLabel.Text" translate="yes" xml:space="preserve">
+          <source>Layout space</source>
+          <target state="translated">Layoutbereich</target>
         </trans-unit>
       </group>
     </body>

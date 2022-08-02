@@ -2889,9 +2889,6 @@
   <data name="ThemeColorLabel.Text" xml:space="preserve">
     <value>主题颜色</value>
   </data>
-  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
-    <value>在左侧定位此文件夹</value>
-  </data>
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>清除所有已完成的任务</value>
   </data>
@@ -3616,5 +3613,14 @@
   </data>
   <data name="AppGuardSwitch.OnContent" xml:space="preserve">
     <value>已启用</value>
+  </data>
+  <data name="Operate_Text_RevealCurrentFolder" xml:space="preserve">
+    <value>在导航面板中显示</value>
+  </data>
+  <data name="SettingViewHeightOffsetContent.Text" xml:space="preserve">
+    <value>根据您的喜好调整布局空间以使布局呈现为宽松或紧凑的外观。注意: 该设置仅对“详细列表”和“列表”视图生效"</value>
+  </data>
+  <data name="SettingViewHeightOffsetLabel.Text" xml:space="preserve">
+    <value>布局空间</value>
   </data>
 </root>

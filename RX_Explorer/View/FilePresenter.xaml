@@ -1701,7 +1701,7 @@
                                x:Uid="HasFile"
                                Text="无文件"
                                Grid.Row="1"
-                               FontSize="18"
+                               FontSize="20"
                                Visibility="Collapsed" />
                     <Canvas Grid.Row="1">
                         <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"

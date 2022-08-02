@@ -3015,8 +3015,8 @@ Invalid names include
   <data name="NameCollision_Override" xml:space="preserve">
     <value>Override files</value>
   </data>
-  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
-    <value>Locate this folder on the left</value>
+  <data name="Operate_Text_RevealCurrentFolder" xml:space="preserve">
+    <value>Reveal in navigation panel</value>
   </data>
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Clear all completed tasks</value>
@@ -3723,5 +3723,11 @@ Invalid names include
   </data>
   <data name="AppGuardSwitch.OnContent" xml:space="preserve">
     <value>Enabled</value>
+  </data>
+  <data name="SettingViewHeightOffsetContent.Text" xml:space="preserve">
+    <value>Adjust the layout space to give the layout a loose or compact appearance according to your preference. Note: This setting only takes effect for the "Details" and "List" layout</value>
+  </data>
+  <data name="SettingViewHeightOffsetLabel.Text" xml:space="preserve">
+    <value>Layout space</value>
   </data>
 </root>

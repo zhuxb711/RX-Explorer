@@ -3836,10 +3836,6 @@ Les noms non valides incluent
           <source>Theme color</source>
           <target state="translated">Couleur du thème</target>
         </trans-unit>
-        <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
-          <source>Locate this folder on the left</source>
-          <target state="translated">Localisez ce dossier sur la gauche</target>
-        </trans-unit>
         <trans-unit id="ClearTaskListPanel.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Clear all completed tasks</source>
           <target state="translated">Effacer toutes les tâches terminées</target>
@@ -4805,6 +4801,18 @@ Les noms non valides incluent
         <trans-unit id="AppGuardSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
           <target state="translated">Activé</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_RevealCurrentFolder" translate="yes" xml:space="preserve">
+          <source>Reveal in navigation panel</source>
+          <target state="translated">Afficher dans le panneau de navigation</target>
+        </trans-unit>
+        <trans-unit id="SettingViewHeightOffsetContent.Text" translate="yes" xml:space="preserve">
+          <source>Adjust the layout space to give the layout a loose or compact appearance according to your preference. Note: This setting only takes effect for the "Details" and "List" layout</source>
+          <target state="translated">Ajustez l'espace de mise en page pour donner à la mise en page une apparence lâche ou compacte selon vos préférences. Remarque : Ce paramètre ne prend effet que pour la mise en page "Détails" et "Liste"</target>
+        </trans-unit>
+        <trans-unit id="SettingViewHeightOffsetLabel.Text" translate="yes" xml:space="preserve">
+          <source>Layout space</source>
+          <target state="translated">Espace de mise en page</target>
         </trans-unit>
       </group>
     </body>

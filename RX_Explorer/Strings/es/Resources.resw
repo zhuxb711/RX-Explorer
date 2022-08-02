@@ -2891,9 +2891,6 @@ Las denominaciones no válidas son:
   <data name="ThemeColorLabel.Text" xml:space="preserve">
     <value>Color del tema</value>
   </data>
-  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
-    <value>Ubique esta carpeta a la izquierda</value>
-  </data>
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Borrar todas las tareas completadas</value>
   </data>
@@ -3618,5 +3615,14 @@ Las denominaciones no válidas son:
   </data>
   <data name="AppGuardSwitch.OnContent" xml:space="preserve">
     <value>Activado</value>
+  </data>
+  <data name="Operate_Text_RevealCurrentFolder" xml:space="preserve">
+    <value>Revelar en el panel de navegación</value>
+  </data>
+  <data name="SettingViewHeightOffsetContent.Text" xml:space="preserve">
+    <value>Ajuste el espacio de diseño para darle una apariencia suelta o compacta según sus preferencias. Nota: esta configuración solo tiene efecto para el diseño "Detalles" y "Lista"</value>
+  </data>
+  <data name="SettingViewHeightOffsetLabel.Text" xml:space="preserve">
+    <value>Espacio de diseño</value>
   </data>
 </root>

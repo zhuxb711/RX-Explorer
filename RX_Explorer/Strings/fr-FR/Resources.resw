@@ -2889,9 +2889,6 @@ Les noms non valides incluent
   <data name="ThemeColorLabel.Text" xml:space="preserve">
     <value>Couleur du thème</value>
   </data>
-  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
-    <value>Localisez ce dossier sur la gauche</value>
-  </data>
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Effacer toutes les tâches terminées</value>
   </data>
@@ -3616,5 +3613,14 @@ Les noms non valides incluent
   </data>
   <data name="AppGuardSwitch.OnContent" xml:space="preserve">
     <value>Activé</value>
+  </data>
+  <data name="Operate_Text_RevealCurrentFolder" xml:space="preserve">
+    <value>Afficher dans le panneau de navigation</value>
+  </data>
+  <data name="SettingViewHeightOffsetContent.Text" xml:space="preserve">
+    <value>Ajustez l'espace de mise en page pour donner à la mise en page une apparence lâche ou compacte selon vos préférences. Remarque : Ce paramètre ne prend effet que pour la mise en page "Détails" et "Liste"</value>
+  </data>
+  <data name="SettingViewHeightOffsetLabel.Text" xml:space="preserve">
+    <value>Espace de mise en page</value>
   </data>
 </root>

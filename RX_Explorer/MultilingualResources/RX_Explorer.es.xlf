@@ -3836,10 +3836,6 @@ Las denominaciones no válidas son:
           <source>Theme color</source>
           <target state="translated">Color del tema</target>
         </trans-unit>
-        <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
-          <source>Locate this folder on the left</source>
-          <target state="translated">Ubique esta carpeta a la izquierda</target>
-        </trans-unit>
         <trans-unit id="ClearTaskListPanel.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Clear all completed tasks</source>
           <target state="translated">Borrar todas las tareas completadas</target>
@@ -4805,6 +4801,18 @@ Las denominaciones no válidas son:
         <trans-unit id="AppGuardSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
           <target state="translated">Activado</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_RevealCurrentFolder" translate="yes" xml:space="preserve">
+          <source>Reveal in navigation panel</source>
+          <target state="translated">Revelar en el panel de navegación</target>
+        </trans-unit>
+        <trans-unit id="SettingViewHeightOffsetContent.Text" translate="yes" xml:space="preserve">
+          <source>Adjust the layout space to give the layout a loose or compact appearance according to your preference. Note: This setting only takes effect for the "Details" and "List" layout</source>
+          <target state="translated">Ajuste el espacio de diseño para darle una apariencia suelta o compacta según sus preferencias. Nota: esta configuración solo tiene efecto para el diseño "Detalles" y "Lista"</target>
+        </trans-unit>
+        <trans-unit id="SettingViewHeightOffsetLabel.Text" translate="yes" xml:space="preserve">
+          <source>Layout space</source>
+          <target state="translated">Espacio de diseño</target>
         </trans-unit>
       </group>
     </body>

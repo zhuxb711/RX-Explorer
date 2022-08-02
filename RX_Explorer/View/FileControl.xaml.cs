@@ -3670,20 +3670,23 @@ namespace RX_Explorer.View
                                 ContextMenuCancellation?.Dispose();
                                 ContextMenuCancellation = new CancellationTokenSource();
 
-                                for (int RetryCount = 0; RetryCount < 3; RetryCount++)
+                                if (!LabelCollectionVirtualFolder.TryGetFolderFromPath(Content.Path, out _))
                                 {
-                                    try
+                                    for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                                     {
-                                        await PrepareContextMenuAsync(RightTapFlyout);
-                                        await RightTapFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
-                                                                                                           Position,
-                                                                                                           ContextMenuCancellation.Token,
-                                                                                                           Content.Path);
-                                        break;
-                                    }
-                                    catch (Exception)
-                                    {
-                                        RightTapFlyout = CreateNewFolderContextMenu();
+                                        try
+                                        {
+                                            await PrepareContextMenuAsync(RightTapFlyout);
+                                            await RightTapFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
+                                                                                                               Position,
+                                                                                                               ContextMenuCancellation.Token,
+                                                                                                               Content.Path);
+                                            break;
+                                        }
+                                        catch (Exception)
+                                        {
+                                            RightTapFlyout = CreateNewFolderContextMenu();
+                                        }
                                     }
                                 }
                             }

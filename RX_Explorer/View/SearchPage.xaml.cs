@@ -331,7 +331,7 @@ namespace RX_Explorer.View
                                                                                                      Options.IgnoreCase);
                                 }
 
-                                await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(SearchItems, CancelToken))
+                                await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(SearchItems, CancelToken).OfType<FileSystemStorageItemBase>())
                                 {
                                     await SignalControl.TrapOnSignalAsync();
 
@@ -1262,11 +1262,16 @@ namespace RX_Explorer.View
                                                                                                           .Cast<TabItemContentRenderer>()
                                                                                                           .SelectMany((Renderer) => Renderer.Presenters))
                                 {
-                                    FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
-
-                                    if (CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                    if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
                                     {
-                                        foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                                        foreach (string Path in PathList.Where((Path) => SQLite.Current.GetLabelKindFromPath(Path) == CollectionFolder.Kind))
+                                        {
+                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
+                                        }
+                                    }
+                                    else if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                    {
+                                        foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                                         {
                                             await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
                                         }
@@ -1427,9 +1432,10 @@ namespace RX_Explorer.View
                 {
                     if (SelectedItemsCopy.Count == 1)
                     {
-                        string OriginName = SelectedItemsCopy.First().Name;
+                        string ItemPath = SelectedItemsCopy.Single().Path;
+                        string OriginName = Path.GetFileName(ItemPath);
                         string NewName = Dialog.DesireNameMap[OriginName];
-                        string FolderPath = Path.GetDirectoryName(SelectedItemsCopy.First().Path);
+                        string FolderPath = Path.GetDirectoryName(ItemPath);
 
                         if (OriginName != NewName)
                         {
@@ -1450,7 +1456,7 @@ namespace RX_Explorer.View
                                 }
                             }
 
-                            OperationListRenameModel Model = new OperationListRenameModel(SelectedItemsCopy.First().Path, Path.Combine(FolderPath, NewName));
+                            OperationListRenameModel Model = new OperationListRenameModel(ItemPath, Path.Combine(FolderPath, NewName));
 
                             QueueTaskController.RegisterPostAction(Model, async (s, e) =>
                             {
@@ -1478,11 +1484,16 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
-
-                                                if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                                if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
                                                 {
-                                                    await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(SelectedItemsCopy.First().Path, NewName));
+                                                    if (SQLite.Current.GetLabelKindFromPath(ItemPath) == CollectionFolder.Kind)
+                                                    {
+                                                        await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(ItemPath));
+                                                    }
+                                                }
+                                                else if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(ItemPath, NewName));
                                                 }
                                             }
                                         });
@@ -1535,9 +1546,14 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
-
-                                                if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                                if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
+                                                {
+                                                    if (SQLite.Current.GetLabelKindFromPath(OriginItem.Path) == CollectionFolder.Kind)
+                                                    {
+                                                        await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(OriginItem.Path));
+                                                    }
+                                                }
+                                                else if(Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
                                                 }

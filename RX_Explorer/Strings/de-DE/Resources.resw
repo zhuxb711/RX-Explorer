@@ -2891,9 +2891,6 @@ Inkorrekte Namen sind
   <data name="ThemeColorLabel.Text" xml:space="preserve">
     <value>Themenfarbe</value>
   </data>
-  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
-    <value>Suchen Sie diesen Ordner links</value>
-  </data>
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Alle erledigten Aufgaben löschen</value>
   </data>
@@ -3618,5 +3615,14 @@ Inkorrekte Namen sind
   </data>
   <data name="AppGuardSwitch.OnContent" xml:space="preserve">
     <value>Ermöglicht</value>
+  </data>
+  <data name="Operate_Text_RevealCurrentFolder" xml:space="preserve">
+    <value>Im Navigationsbereich anzeigen</value>
+  </data>
+  <data name="SettingViewHeightOffsetContent.Text" xml:space="preserve">
+    <value>Passen Sie den Layoutraum Ihren Wünschen entsprechend an, um dem Layout ein lockeres oder kompaktes Aussehen zu verleihen. Hinweis: Diese Einstellung wirkt sich nur auf die Layouts „Details“ und „Liste“ aus</value>
+  </data>
+  <data name="SettingViewHeightOffsetLabel.Text" xml:space="preserve">
+    <value>Layoutbereich</value>
   </data>
 </root>

@@ -3836,10 +3836,6 @@ Invalid names include
           <source>Theme color</source>
           <target state="translated">主題色</target>
         </trans-unit>
-        <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
-          <source>Locate this folder on the left</source>
-          <target state="translated">在左側找到此文件夾</target>
-        </trans-unit>
         <trans-unit id="ClearTaskListPanel.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Clear all completed tasks</source>
           <target state="translated">清除所有已完成的任務</target>
@@ -4805,6 +4801,18 @@ Invalid names include
         <trans-unit id="AppGuardSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
           <target state="translated">已啟用</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_RevealCurrentFolder" translate="yes" xml:space="preserve">
+          <source>Reveal in navigation panel</source>
+          <target state="translated">在導航面板中顯示</target>
+        </trans-unit>
+        <trans-unit id="SettingViewHeightOffsetContent.Text" translate="yes" xml:space="preserve">
+          <source>Adjust the layout space to give the layout a loose or compact appearance according to your preference. Note: This setting only takes effect for the "Details" and "List" layout</source>
+          <target state="translated">根據您的喜好調整佈局空間以使佈局具有鬆散或緊湊的外觀。 注意：此設置僅對“詳細信息”和“列表”佈局生效</target>
+        </trans-unit>
+        <trans-unit id="SettingViewHeightOffsetLabel.Text" translate="yes" xml:space="preserve">
+          <source>Layout space</source>
+          <target state="translated">佈局空間</target>
         </trans-unit>
       </group>
     </body>

@@ -598,13 +598,15 @@
                                                         RelativePanel.AlignLeftWithPanel="True"
                                                         RelativePanel.LeftOf="ViewHeightOffsetNumberBox"
                                                         Margin="0,0,20,0">
-                                                <TextBlock Text="布局间隔空间"
+                                                <TextBlock Text="布局空间"
+                                                           x:Uid="SettingViewHeightOffsetLabel"
                                                            TextTrimming="CharacterEllipsis" />
                                                 <TextBlock FontSize="12"
+                                                           x:Uid="SettingViewHeightOffsetContent"
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           Text="根据您的喜好调整布局间隔空间以使布局呈现为宽松或紧凑的外观。注意: 该设置仅对“详细列表”和“列表”视图生效" />
+                                                           Text="根据您的喜好调整布局空间以使布局呈现为宽松或紧凑的外观。注意: 该设置仅对“详细列表”和“列表”视图生效" />
                                             </StackPanel>
                                             <muxc:NumberBox x:Name="ViewHeightOffsetNumberBox"
                                                             Minimum="0"
