@@ -61,6 +61,7 @@
     public enum MonitorCommandType
     {
         SetRecoveryData,
+        RegisterRestartRequest,
         StartMonitor,
         StopMonitor,
         EnableFeature,

@@ -31,7 +31,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (!RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                    if (!RootVirtualFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
                     {
                         switch (await FileSystemStorageItemBase.OpenAsync(Path))
                         {

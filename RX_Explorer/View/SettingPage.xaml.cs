@@ -908,7 +908,7 @@ namespace RX_Explorer.View
         private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
         private readonly ObservableCollection<TerminalProfile> TerminalList = new ObservableCollection<TerminalProfile>();
         private int AnimationLocker = 0;
-        private bool RefreshPresenterOnClose;
+        private bool RefreshTreeViewAndPresenterOnClose;
         private readonly SemaphoreSlim ApplySettingLocker = new SemaphoreSlim(1, 1);
         private readonly SemaphoreSlim SyncLocker = new SemaphoreSlim(1, 1);
 
@@ -1652,7 +1652,7 @@ namespace RX_Explorer.View
             {
                 if (sender is ColorPickerButton Button)
                 {
-                    RefreshPresenterOnClose = true;
+                    RefreshTreeViewAndPresenterOnClose = true;
                     PredefineLabelForeground1 = Button.SelectedColor;
                 }
             }
@@ -1672,7 +1672,7 @@ namespace RX_Explorer.View
             {
                 if (sender is ColorPickerButton Button)
                 {
-                    RefreshPresenterOnClose = true;
+                    RefreshTreeViewAndPresenterOnClose = true;
                     PredefineLabelForeground2 = Button.SelectedColor;
                 }
             }
@@ -1692,7 +1692,7 @@ namespace RX_Explorer.View
             {
                 if (sender is ColorPickerButton Button)
                 {
-                    RefreshPresenterOnClose = true;
+                    RefreshTreeViewAndPresenterOnClose = true;
                     PredefineLabelForeground3 = Button.SelectedColor;
                 }
             }
@@ -1712,7 +1712,7 @@ namespace RX_Explorer.View
             {
                 if (sender is ColorPickerButton Button)
                 {
-                    RefreshPresenterOnClose = true;
+                    RefreshTreeViewAndPresenterOnClose = true;
                     PredefineLabelForeground4 = Button.SelectedColor;
                 }
             }
@@ -1896,7 +1896,7 @@ namespace RX_Explorer.View
                                                                                                   .Select((Frame) => Frame.Content)
                                                                                                   .Cast<TabItemContentRenderer>())
                 {
-                    await Task.WhenAll(Renderer.ClearAndRebuildTreeViewAsync(), Renderer.RefreshPresentersAsync());
+                    await Renderer.RefreshPresentersAsync();
                 }
             }
             catch (Exception ex)
@@ -1996,11 +1996,12 @@ namespace RX_Explorer.View
                     SQLite.Current.ClearAllData();
                     ApplicationData.Current.LocalSettings.Values.Clear();
 
-                    await MonitorTrustProcessController.SetRecoveryDataAsync(string.Empty);
-
-                    if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                    if (await MonitorTrustProcessController.RegisterRestartRequestAsync(string.Empty))
                     {
-                        Application.Current.Exit();
+                        if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                        {
+                            Application.Current.Exit();
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -3727,15 +3728,17 @@ namespace RX_Explorer.View
 
             ApplicationData.Current.SignalDataChanged();
 
-            if (RefreshPresenterOnClose)
+            if (RefreshTreeViewAndPresenterOnClose)
             {
-                RefreshPresenterOnClose = false;
+                RefreshTreeViewAndPresenterOnClose = false;
 
-                await Task.WhenAll(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                IEnumerable<TabItemContentRenderer> Renderers = TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                          .Cast<Frame>()
                                                                          .Select((Frame) => Frame.Content)
-                                                                         .Cast<TabItemContentRenderer>()
-                                                                         .Select((Renderer) => Renderer.RefreshPresentersAsync()));
+                                                                         .Cast<TabItemContentRenderer>();
+
+                await Task.WhenAll(Renderers.Select((Renderer) => Renderer.RefreshPresentersAsync())
+                                            .Concat(Renderers.Select((Renderer) => Renderer.RefreshTreeViewAsync())));
             }
 
             await HideAsync();
@@ -3998,7 +4001,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                RefreshPresenterOnClose = true;
+                RefreshTreeViewAndPresenterOnClose = true;
                 PredefineLabelText1 = PredefineLabelBox1.Text;
             }
             catch (Exception ex)
@@ -4015,7 +4018,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                RefreshPresenterOnClose = true;
+                RefreshTreeViewAndPresenterOnClose = true;
                 PredefineLabelText2 = PredefineLabelBox2.Text;
             }
             catch (Exception ex)
@@ -4032,7 +4035,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                RefreshPresenterOnClose = true;
+                RefreshTreeViewAndPresenterOnClose = true;
                 PredefineLabelText3 = PredefineLabelBox3.Text;
             }
             catch (Exception ex)
@@ -4049,7 +4052,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                RefreshPresenterOnClose = true;
+                RefreshTreeViewAndPresenterOnClose = true;
                 PredefineLabelText4 = PredefineLabelBox4.Text;
             }
             catch (Exception ex)

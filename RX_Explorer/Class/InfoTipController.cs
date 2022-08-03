@@ -1,8 +1,9 @@
 ﻿using Microsoft.UI.Xaml.Controls;
+using RX_Explorer.View;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using Windows.ApplicationModel.Core;
+using System.Text.Json;
 using Windows.System;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -115,11 +116,12 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                await MonitorTrustProcessController.SetRecoveryDataAsync(string.Empty);
-
-                                if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                                if (await MonitorTrustProcessController.RegisterRestartRequestAsync(JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList)))
                                 {
-                                    Application.Current.Exit();
+                                    if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                                    {
+                                        Application.Current.Exit();
+                                    }
                                 }
                             };
 
@@ -139,11 +141,12 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                await MonitorTrustProcessController.SetRecoveryDataAsync(string.Empty);
-
-                                if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                                if (await MonitorTrustProcessController.RegisterRestartRequestAsync(JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList)))
                                 {
-                                    Application.Current.Exit();
+                                    if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                                    {
+                                        Application.Current.Exit();
+                                    }
                                 }
                             };
 
@@ -163,11 +166,12 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                await MonitorTrustProcessController.SetRecoveryDataAsync(string.Empty);
-
-                                if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                                if (await MonitorTrustProcessController.RegisterRestartRequestAsync(JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList)))
                                 {
-                                    Application.Current.Exit();
+                                    if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                                    {
+                                        Application.Current.Exit();
+                                    }
                                 }
                             };
 

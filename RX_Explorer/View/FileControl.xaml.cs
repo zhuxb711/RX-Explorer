@@ -109,7 +109,7 @@ namespace RX_Explorer.View
                         RefreshAddressButton(Folder.Path);
 
                         GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {Folder.DisplayName}";
-                        GoParentFolder.IsEnabled = Folder.Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase) ? !Folder.Path.Equals(Path.GetPathRoot(Folder.Path), StringComparison.OrdinalIgnoreCase) : Folder is not RootStorageFolder;
+                        GoParentFolder.IsEnabled = Folder.Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase) ? !Folder.Path.Equals(Path.GetPathRoot(Folder.Path), StringComparison.OrdinalIgnoreCase) : Folder is not RootVirtualFolder;
                         GoBackRecord.IsEnabled = !value.BackNavigationStack.IsEmpty;
                         GoForwardRecord.IsEnabled = !value.ForwardNavigationStack.IsEmpty;
 
@@ -140,6 +140,8 @@ namespace RX_Explorer.View
         {
             InitializeComponent();
 
+            RightTapFlyout = CreateNewFolderContextMenu();
+
             BladePointerPressedEventHandler = new PointerEventHandler(Blade_PointerPressed);
             AddressBoxRightTapEventHandler = new RightTappedEventHandler(AddressBox_RightTapped);
             GoBackButtonPressedHandler = new PointerEventHandler(GoBackRecord_PointerPressed);
@@ -147,16 +149,7 @@ namespace RX_Explorer.View
             GoForwardButtonPressedHandler = new PointerEventHandler(GoForwardRecord_PointerPressed);
             GoForwardButtonReleasedHandler = new PointerEventHandler(GoForwardRecord_PointerReleased);
 
-            RightTapFlyout = CreateNewFolderContextMenu();
-
-            Loaded += FileControl_Loaded;
-
             AddressButtonContainer.RegisterPropertyChangedCallback(VisibilityProperty, new DependencyPropertyChangedCallback(OnAddressButtonContainerVisibiliyChanged));
-
-            if (FolderTree.FindChildOfType<TreeViewList>() is TreeViewList TList)
-            {
-                TList.ContainerContentChanging += TList_ContainerContentChanging;
-            }
         }
 
         private CommandBarFlyout CreateNewFolderContextMenu()
@@ -381,18 +374,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private void FileControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            Loaded -= FileControl_Loaded;
-
-            TreeViewColumnWidthSaver.Current.SetTreeViewVisibility(SettingPage.IsDetachTreeViewAndPresenter ? Visibility.Collapsed : Visibility.Visible);
-
-            if (FolderTree.FindChildOfType<TreeViewList>() is TreeViewList TList)
-            {
-                TList.ContainerContentChanging += TList_ContainerContentChanging;
-            }
-        }
-
         private void TList_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
             if (!args.InRecycleQueue)
@@ -511,7 +492,7 @@ namespace RX_Explorer.View
                     {
                         if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
                         {
-                            AddressButtonList.Add(new AddressBlock(RootStorageFolder.Current.Path, RootStorageFolder.Current.DisplayName));
+                            AddressButtonList.Add(new AddressBlock(RootVirtualFolder.Current.Path, RootVirtualFolder.Current.DisplayName));
                         }
 
                         if (!string.IsNullOrEmpty(RootPath))
@@ -526,8 +507,8 @@ namespace RX_Explorer.View
                             }
                         }
                     }
-                    else if (Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase)
-                             && AddressButtonList.First().Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
+                    else if (Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase)
+                             && AddressButtonList.First().Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
                     {
                         foreach (AddressBlock Block in AddressButtonList.Skip(1))
                         {
@@ -647,7 +628,7 @@ namespace RX_Explorer.View
                                     }
                                 }
                             }
-                            else if (LastPath.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
+                            else if (LastPath.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 foreach (AddressBlock GrayBlock in AddressButtonList.Skip(1).Take(CurrentSplit.Length))
                                 {
@@ -702,7 +683,7 @@ namespace RX_Explorer.View
 
                             if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
                             {
-                                AddressButtonList.Add(new AddressBlock(RootStorageFolder.Current.Path, RootStorageFolder.Current.DisplayName));
+                                AddressButtonList.Add(new AddressBlock(RootVirtualFolder.Current.Path, RootVirtualFolder.Current.DisplayName));
                             }
 
                             if (!string.IsNullOrEmpty(RootPath))
@@ -725,7 +706,7 @@ namespace RX_Explorer.View
                             {
                                 int LimitIndex = IntersectList.Count;
 
-                                if (AddressButtonList.Any((Block) => Block.Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase)))
+                                if (AddressButtonList.Any((Block) => Block.Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase)))
                                 {
                                     LimitIndex += 1;
                                 }
@@ -736,7 +717,7 @@ namespace RX_Explorer.View
                                 }
                             }
 
-                            if (!Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
+                            if (!Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 string BaseString = IntersectList.Count > 1 ? string.Join('\\', CurrentSplit.Take(IntersectList.Count)) : $"{CurrentSplit.First()}\\";
 
@@ -1139,9 +1120,22 @@ namespace RX_Explorer.View
             {
                 if (args.Node.Content == TreeViewNodeContent.QuickAccessNode)
                 {
-                    foreach (LabelKind Kind in Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>().Where((Kind) => Kind != LabelKind.None))
+                    if (!SettingPage.IsLibraryExpanderExpanded)
                     {
-                        TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(LabelCollectionVirtualFolder.GetFolderFromLabel(Kind));
+                        await CommonAccessCollection.LoadLibraryFoldersAsync();
+                    }
+
+                    foreach (FileSystemStorageFolder Folder in Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
+                                                                                                .Where((Kind) => Kind != LabelKind.None)
+                                                                                                .Select((Kind) => LabelCollectionVirtualFolder.GetFolderFromLabel(Kind))
+                                                                                                .Concat<FileSystemStorageFolder>(CommonAccessCollection.LibraryList))
+                    {
+                        if (!args.Node.IsExpanded)
+                        {
+                            break;
+                        }
+
+                        TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
 
                         args.Node.Children.Add(new TreeViewNode
                         {
@@ -1149,25 +1143,6 @@ namespace RX_Explorer.View
                             IsExpanded = false,
                             HasUnrealizedChildren = Content.HasChildren
                         });
-                    }
-
-                    if (CommonAccessCollection.LibraryList.Count > 0)
-                    {
-                        for (int i = 0; i < CommonAccessCollection.LibraryList.Count && args.Node.IsExpanded; i++)
-                        {
-                            TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(CommonAccessCollection.LibraryList[i]);
-
-                            args.Node.Children.Add(new TreeViewNode
-                            {
-                                Content = Content,
-                                IsExpanded = false,
-                                HasUnrealizedChildren = Content.HasChildren
-                            });
-                        }
-                    }
-                    else if (!SettingPage.IsLibraryExpanderExpanded)
-                    {
-                        await CommonAccessCollection.LoadLibraryFoldersAsync();
                     }
                 }
                 else
@@ -1278,17 +1253,9 @@ namespace RX_Explorer.View
                                         }
                                     }
 
-                                    if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
+                                    foreach (TreeViewNode RootNode in FolderTree.RootNodes)
                                     {
-                                        foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && TargetContent.Path.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
-                                        {
-                                            await Node.UpdateAllSubNodeAsync();
-                                        }
-                                    }
-
-                                    foreach (TreeViewNode RootNode in FolderTree.RootNodes.Where((Node) => Node.Content != TreeViewNodeContent.QuickAccessNode))
-                                    {
-                                        await RootNode.UpdateAllSubNodeAsync();
+                                        await RootNode.UpdateSubNodeAsync();
                                     }
                                 });
                             }
@@ -1376,7 +1343,7 @@ namespace RX_Explorer.View
                                             {
                                                 foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && ParentFolder.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
                                                 {
-                                                    await Node.UpdateAllSubNodeAsync();
+                                                    await Node.UpdateSubNodeAsync();
                                                 }
                                             }
 
@@ -1384,7 +1351,7 @@ namespace RX_Explorer.View
                                             {
                                                 if (await RootNode.GetTargetNodeAsync(new PathAnalysis(ParentFolder)) is TreeViewNode CurrentNode)
                                                 {
-                                                    await CurrentNode.UpdateAllSubNodeAsync();
+                                                    await CurrentNode.UpdateSubNodeAsync();
                                                 }
                                             }
                                         }
@@ -1549,7 +1516,7 @@ namespace RX_Explorer.View
                 {
                     Options.SearchText = sender.Text;
                     Options.SearchFolder = CurrentPresenter.CurrentFolder;
-                    Options.DeepSearch |= CurrentPresenter.CurrentFolder is RootStorageFolder;
+                    Options.DeepSearch |= CurrentPresenter.CurrentFolder is RootVirtualFolder;
 
                     Frame.Navigate(typeof(SearchPage), Options, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
                 }
@@ -1628,7 +1595,7 @@ namespace RX_Explorer.View
                     {
                         string StartupLocation = CurrentPresenter.CurrentFolder switch
                         {
-                            RootStorageFolder => Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                            RootVirtualFolder => Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
                             FileSystemStorageFolder Folder => Folder.Path,
                             _ => null
                         };
@@ -1925,7 +1892,7 @@ namespace RX_Explorer.View
                     {
                         switch (CurrentPresenter?.CurrentFolder)
                         {
-                            case RootStorageFolder:
+                            case RootVirtualFolder:
                                 {
                                     AddressBox.Text = string.Empty;
                                     break;
@@ -2076,7 +2043,7 @@ namespace RX_Explorer.View
 
                 if (string.IsNullOrEmpty(DirectoryPath) && !CurrentFolderPath.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase))
                 {
-                    DirectoryPath = RootStorageFolder.Current.Path;
+                    DirectoryPath = RootVirtualFolder.Current.Path;
                 }
 
                 if (await CurrentPresenter.DisplayItemsInFolderAsync(DirectoryPath))
@@ -2161,7 +2128,7 @@ namespace RX_Explorer.View
                 {
                     try
                     {
-                        if (Block.Path.Equals(RootStorageFolder.Current.Path))
+                        if (Block.Path.Equals(RootVirtualFolder.Current.Path))
                         {
                             AddressExtensionList.AddRange(CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder));
                         }
@@ -2237,7 +2204,7 @@ namespace RX_Explorer.View
         {
             Button Btn = sender as Button;
 
-            if (Btn.DataContext is AddressBlock Block && !Block.Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
+            if (Btn.DataContext is AddressBlock Block && !Block.Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
             {
                 DragOperationDeferral Deferral = e.GetDeferral();
 
@@ -2307,7 +2274,7 @@ namespace RX_Explorer.View
                         || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
                         || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
                     {
-                        if (!Block.Path.Equals(RootStorageFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
+                        if (!Block.Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
                         {
                             if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                             {
@@ -2485,7 +2452,7 @@ namespace RX_Explorer.View
                     IgnoreCase = BuiltInEngineIgnoreCase.IsChecked.GetValueOrDefault(),
                     UseRegexExpression = BuiltInEngineIncludeRegex.IsChecked.GetValueOrDefault(),
                     UseAQSExpression = BuiltInEngineIncludeAQS.IsChecked.GetValueOrDefault(),
-                    DeepSearch = BuiltInSearchAllSubFolders.IsChecked.GetValueOrDefault() || CurrentPresenter.CurrentFolder is RootStorageFolder,
+                    DeepSearch = BuiltInSearchAllSubFolders.IsChecked.GetValueOrDefault() || CurrentPresenter.CurrentFolder is RootVirtualFolder,
                     SearchText = GlobeSearch.Text,
                     EngineCategory = SearchCategory.BuiltInEngine
                 }, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
@@ -2497,7 +2464,7 @@ namespace RX_Explorer.View
                     SearchFolder = CurrentPresenter.CurrentFolder,
                     IgnoreCase = EverythingEngineIgnoreCase.IsChecked.GetValueOrDefault(),
                     UseRegexExpression = EverythingEngineIncludeRegex.IsChecked.GetValueOrDefault(),
-                    DeepSearch = EverythingEngineSearchGloble.IsChecked.GetValueOrDefault() || CurrentPresenter.CurrentFolder is RootStorageFolder,
+                    DeepSearch = EverythingEngineSearchGloble.IsChecked.GetValueOrDefault() || CurrentPresenter.CurrentFolder is RootVirtualFolder,
                     SearchText = GlobeSearch.Text,
                     EngineCategory = SearchCategory.EverythingEngine
                 }, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
@@ -2672,7 +2639,7 @@ namespace RX_Explorer.View
             }
             else
             {
-                if (CurrentPresenter.CurrentFolder is RootStorageFolder)
+                if (CurrentPresenter.CurrentFolder is RootVirtualFolder)
                 {
                     BuiltInEngineIncludeAQS.Visibility = Visibility.Visible;
                     BuiltInSearchUseIndexer.Visibility = Visibility.Visible;
@@ -2758,7 +2725,11 @@ namespace RX_Explorer.View
                     {
                         Content = Presenter,
                         IsExpanded = true,
-                        Header = RootStorageFolder.Current.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase) ? RootStorageFolder.Current.DisplayName : Path.GetFileName(ItemPath),
+                        Header = RootVirtualFolder.Current.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase)
+                                    ? RootVirtualFolder.Current.DisplayName
+                                    : LabelCollectionVirtualFolder.TryGetFolderFromPath(ItemPath, out LabelCollectionVirtualFolder LabelFolder)
+                                        ? LabelFolder.DisplayName
+                                        : Path.GetFileName(ItemPath),
                         Background = new SolidColorBrush(Colors.Transparent),
                         TitleBarBackground = new SolidColorBrush(Colors.Transparent),
                         TitleBarVisibility = Visibility.Visible,
@@ -2805,9 +2776,13 @@ namespace RX_Explorer.View
 
                     CurrentPresenter = Presenter;
 
-                    if (RootStorageFolder.Current.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase))
+                    if (RootVirtualFolder.Current.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase))
                     {
-                        await Presenter.DisplayItemsInFolderAsync(RootStorageFolder.Current);
+                        await Presenter.DisplayItemsInFolderAsync(RootVirtualFolder.Current);
+                    }
+                    else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(ItemPath, out LabelCollectionVirtualFolder LocalLabelFolder))
+                    {
+                        await Presenter.DisplayItemsInFolderAsync(LocalLabelFolder);
                     }
                     else if (await FileSystemStorageItemBase.OpenAsync(ItemPath) is FileSystemStorageFolder Folder)
                     {
@@ -2918,7 +2893,7 @@ namespace RX_Explorer.View
             {
                 CurrentPresenter = Presenter;
 
-                if (Presenter.CurrentFolder is RootStorageFolder)
+                if (Presenter.CurrentFolder is RootVirtualFolder)
                 {
                     TabViewContainer.Current.LayoutModeControl.IsEnabled = false;
                 }
@@ -3117,7 +3092,7 @@ namespace RX_Explorer.View
 
         private async void GoHome_Click(object sender, RoutedEventArgs e)
         {
-            await CurrentPresenter.DisplayItemsInFolderAsync(RootStorageFolder.Current);
+            await CurrentPresenter.DisplayItemsInFolderAsync(RootVirtualFolder.Current);
         }
 
         private void SearchSelectionDelete_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -3706,6 +3681,19 @@ namespace RX_Explorer.View
 
                     await dialog.ShowAsync();
                 }
+            }
+        }
+
+        private void FolderTree_Loaded(object sender, RoutedEventArgs e)
+        {
+            FolderTree.Loaded -= FolderTree_Loaded;
+
+            TreeViewColumnWidthSaver.Current.SetTreeViewVisibility(SettingPage.IsDetachTreeViewAndPresenter ? Visibility.Collapsed : Visibility.Visible);
+
+            if (FolderTree.FindChildOfType<TreeViewList>() is TreeViewList TList)
+            {
+                TList.ContainerContentChanging += TList_ContainerContentChanging;
+                ScrollViewer.SetVerticalScrollBarVisibility(TList, ScrollBarVisibility.Hidden);
             }
         }
 

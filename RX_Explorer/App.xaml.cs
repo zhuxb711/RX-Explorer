@@ -309,22 +309,9 @@ namespace RX_Explorer
 
                                 if (ActualStartupArguments.Any())
                                 {
-                                    if (ActualStartupArguments.FirstOrDefault().Equals("/Recovery", StringComparison.OrdinalIgnoreCase))
+                                    if (ActualStartupArguments.All((Path) => !Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase)))
                                     {
-                                        string Base64String = ActualStartupArguments.LastOrDefault();
-
-                                        if (!string.IsNullOrEmpty(Base64String))
-                                        {
-                                            OpenPathListOnEachTab = JsonSerializer.Deserialize<IEnumerable<string[]>>(Encoding.UTF8.GetString(Convert.FromBase64String(Base64String)));
-                                        }
-                                    }
-
-                                    if (!OpenPathListOnEachTab.Any())
-                                    {
-                                        if (ActualStartupArguments.All((Path) => !Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase)))
-                                        {
-                                            OpenPathListOnEachTab = ActualStartupArguments.Select((Path) => new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path });
-                                        }
+                                        OpenPathListOnEachTab = ActualStartupArguments.Select((Path) => new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path });
                                     }
                                 }
 

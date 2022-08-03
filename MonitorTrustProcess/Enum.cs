@@ -3,6 +3,7 @@
     internal enum RestartReason
     {
         Crash,
-        Hang,
+        Freeze,
+        Restart
     }
 }

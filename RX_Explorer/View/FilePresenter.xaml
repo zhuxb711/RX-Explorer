@@ -115,7 +115,7 @@
     <Grid x:Name="PageRoot"
           DataContext="{x:Bind Cls:ViewHeightOffsetSaver.Current}">
         <controls:SwitchPresenter Name="PageSwitcher">
-            <controls:Case Value="{x:Bind Cls:RootStorageFolder.Current.Path}">
+            <controls:Case Value="{x:Bind Cls:RootVirtualFolder.Current.Path}">
                 <local:Home HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             x:Name="RootFolderControl"

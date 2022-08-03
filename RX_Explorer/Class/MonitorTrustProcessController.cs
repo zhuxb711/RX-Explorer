@@ -38,9 +38,26 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<bool> SetRecoveryDataAsync(string Data)
+        public static async Task<bool> RegisterRestartRequestAsync(string RecoveryData)
         {
-            if (await SendCommandAsync(MonitorCommandType.SetRecoveryData, ("Data", Data)) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(MonitorCommandType.RegisterRestartRequest, ("RecoveryData", RecoveryData)) is IDictionary<string, string> Response)
+            {
+                if (Response.ContainsKey("Success"))
+                {
+                    return true;
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(RegisterRestartRequestAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return false;
+        }
+
+        public static async Task<bool> SetRecoveryDataAsync(string RecoveryData)
+        {
+            if (await SendCommandAsync(MonitorCommandType.SetRecoveryData, ("RecoveryData", RecoveryData)) is IDictionary<string, string> Response)
             {
                 if (Response.ContainsKey("Success"))
                 {

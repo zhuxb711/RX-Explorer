@@ -15,21 +15,39 @@ namespace RX_Explorer.Class
 {
     public sealed class TreeViewNodeContent : INotifyPropertyChanged
     {
-        public static TreeViewNodeContent QuickAccessNode { get; } = new TreeViewNodeContent("QuickAccessPath", Globalization.GetString("QuickAccessDisplayName"));
-
-        public BitmapImage Thumbnail { get; private set; }
+        public static TreeViewNodeContent QuickAccessNode { get; }
 
         public string Path { get; }
 
+        public bool HasChildren { get; private set; }
+
         public string DisplayName { get; private set; }
 
-        public bool HasChildren { get; }
+        public BitmapImage Thumbnail
+        {
+            get
+            {
+                if (Path == "QuickAccessPath")
+                {
+                    return new BitmapImage(new Uri("ms-appx:///Assets/Favourite.png"));
+                }
+                else
+                {
+                    return thumbnail;
+                }
+            }
+            private set
+            {
+                thumbnail = value;
+            }
+        }
 
+        private int IsContentLoaded;
+        private BitmapImage thumbnail;
         private readonly FileSystemStorageFolder InnerFolder;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private int IsContentLoaded;
 
         public async static Task<TreeViewNodeContent> CreateAsync(string Path)
         {
@@ -45,43 +63,34 @@ namespace RX_Explorer.Class
 
         public static async Task<TreeViewNodeContent> CreateAsync(FileSystemStorageFolder Folder)
         {
-            TreeViewNodeContent Content = new TreeViewNodeContent(Folder, Folder is LabelCollectionVirtualFolder ? false : await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, false, Filter: BasicFilters.Folder).AnyAsync());
-
-            if ((System.IO.Path.GetPathRoot(Folder.Path)?.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
+            return new TreeViewNodeContent(Folder)
             {
-                if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.DriveFolder == Folder) is DriveDataBase Drive)
-                {
-                    Content.Thumbnail = await Drive.GetThumbnailAsync();
-                }
-                else
-                {
-                    Content.Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.SingleItem);
-                }
-            }
-
-            return Content;
+                HasChildren = Folder is not LabelCollectionVirtualFolder && await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, false, Filter: BasicFilters.Folder).AnyAsync()
+            };
         }
 
-        public async Task LoadAsync()
+        public async Task LoadAsync(bool ForceUpdate = false)
         {
-            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
+            if (ForceUpdate || Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
             {
                 try
                 {
                     if (InnerFolder != null)
                     {
-                        if (Thumbnail == null)
+                        if ((System.IO.Path.GetPathRoot(InnerFolder.Path)?.Equals(InnerFolder.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
                         {
-                            if (SettingPage.ContentLoadMode == LoadMode.All)
+                            if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.DriveFolder == InnerFolder) is DriveDataBase Drive)
                             {
-                                Thumbnail = await InnerFolder.GetThumbnailAsync(ThumbnailMode.ListView);
+                                Thumbnail = await Drive.GetThumbnailAsync();
                             }
                             else
                             {
-                                Thumbnail = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
-                                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+                                Thumbnail = await InnerFolder.GetThumbnailAsync(ThumbnailMode.SingleItem);
                             }
+                        }
+                        else
+                        {
+                            Thumbnail = await InnerFolder.GetThumbnailAsync(ThumbnailMode.ListView);
                         }
 
                         if (InnerFolder is MTPStorageFolder MTPFolder)
@@ -90,9 +99,7 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    StorageFolder Item = await Task.Run(() => StorageDevice.FromId(InnerFolder.Path));
-
-                                    if (Item != null)
+                                    if (await Task.Run(() => StorageDevice.FromId(InnerFolder.Path)) is StorageFolder Item)
                                     {
                                         DisplayName = Item.DisplayName;
                                     }
@@ -106,6 +113,10 @@ namespace RX_Explorer.Class
                         else if (await InnerFolder.GetStorageItemAsync() is StorageFolder Folder)
                         {
                             DisplayName = Folder.DisplayName;
+                        }
+                        else
+                        {
+                            DisplayName = InnerFolder.DisplayName;
                         }
                     }
                 }
@@ -126,26 +137,20 @@ namespace RX_Explorer.Class
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
-        private TreeViewNodeContent(FileSystemStorageFolder InnerFolder, bool HasChildren)
+        private TreeViewNodeContent(FileSystemStorageFolder InnerFolder) : this(InnerFolder.Path, InnerFolder.DisplayName)
         {
-            Path = InnerFolder.Path;
-            DisplayName = InnerFolder.DisplayName;
-
-            this.HasChildren = HasChildren;
             this.InnerFolder = InnerFolder;
         }
 
-        private TreeViewNodeContent(string OverridePath, string OverrideDisplayName)
+        private TreeViewNodeContent(string Path, string DisplayName)
         {
-            Path = OverridePath;
-            DisplayName = OverrideDisplayName;
+            this.Path = Path;
+            this.DisplayName = DisplayName;
+        }
 
-            HasChildren = true;
-
-            if (OverridePath == "QuickAccessPath")
-            {
-                Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/Favourite.png"));
-            }
+        static TreeViewNodeContent()
+        {
+            QuickAccessNode = new TreeViewNodeContent("QuickAccessPath", Globalization.GetString("QuickAccessDisplayName")) { HasChildren = true };
         }
     }
 }

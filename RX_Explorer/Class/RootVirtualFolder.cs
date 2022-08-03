@@ -10,18 +10,18 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public sealed class RootStorageFolder : FileSystemStorageFolder
+    public sealed class RootVirtualFolder : FileSystemStorageFolder
     {
-        private static RootStorageFolder Instance;
+        private static RootVirtualFolder Instance;
         private static readonly object Locker = new object();
 
-        public static RootStorageFolder Current
+        public static RootVirtualFolder Current
         {
             get
             {
                 lock (Locker)
                 {
-                    return Instance ??= new RootStorageFolder();
+                    return Instance ??= new RootVirtualFolder();
                 }
             }
         }
@@ -79,7 +79,7 @@ namespace RX_Explorer.Class
             return CommonAccessCollection.DriveList.Select((Item) => Item.DriveFolder.SearchAsync(SearchWord, SearchInSubFolders, IncludeHiddenItems, IncludeSystemItems, IsRegexExpression, IsAQSExpression, UseIndexerOnly, IgnoreCase, CancelToken)).Merge();
         }
 
-        private RootStorageFolder() : base(new NativeFileData("RootFolderUniquePath", default))
+        private RootVirtualFolder() : base(new NativeFileData("RootFolderUniquePath", default))
         {
 
         }

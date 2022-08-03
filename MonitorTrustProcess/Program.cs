@@ -38,6 +38,8 @@ namespace MonitorTrustProcess
 
         private static bool IsMonitorEnabled { get; set; }
 
+        private static bool IsRegisterRestartRequest { get; set; }
+
         private static bool IsCrashMonitorEnabled => IsMonitorEnabled && FeatureStatusMapping[MonitorFeature.CrashMonitor];
 
         private static bool IsFreezeMonitorEnabled => IsMonitorEnabled && FeatureStatusMapping[MonitorFeature.FreezeMonitor];
@@ -104,9 +106,9 @@ namespace MonitorTrustProcess
 
                                 if (!UwpInfo.CoreWindowHandle.IsNull)
                                 {
-                                    if (User32.SendMessageTimeout(UwpInfo.CoreWindowHandle, 0x0000, fuFlags: User32.SMTO.SMTO_ABORTIFHUNG, uTimeout: 10000, lpdwResult: ref Result) == IntPtr.Zero)
+                                    if (User32.SendMessageTimeout(UwpInfo.CoreWindowHandle, (uint)User32.WindowMessage.WM_NULL, fuFlags: User32.SMTO.SMTO_ABORTIFHUNG, uTimeout: 10000, lpdwResult: ref Result) == IntPtr.Zero)
                                     {
-                                        CloseAndRestartApplicationAsync(RestartReason.Hang);
+                                        CloseAndRestartApplication(RestartReason.Freeze);
                                     }
                                 }
                             }
@@ -222,9 +224,15 @@ namespace MonitorTrustProcess
             {
                 switch (Enum.Parse<MonitorCommandType>(CommandValue["CommandType"]))
                 {
+                    case MonitorCommandType.RegisterRestartRequest:
+                        {
+                            IsRegisterRestartRequest = true;
+                            RecoveryData = CommandValue["RecoveryData"];
+                            break;
+                        }
                     case MonitorCommandType.SetRecoveryData:
                         {
-                            RecoveryData = CommandValue["Data"];
+                            RecoveryData = CommandValue["RecoveryData"];
                             break;
                         }
                     case MonitorCommandType.StartMonitor:
@@ -262,9 +270,13 @@ namespace MonitorTrustProcess
 
         private static void ExplorerProcess_Exited(object sender, EventArgs e)
         {
-            if (IsCrashMonitorEnabled && !IsDebuggerAttachedToMonitorProcess)
+            if (IsRegisterRestartRequest)
             {
-                CloseAndRestartApplicationAsync(RestartReason.Crash);
+                CloseAndRestartApplication(RestartReason.Restart);
+            }
+            else if (IsCrashMonitorEnabled && !IsDebuggerAttachedToMonitorProcess)
+            {
+                CloseAndRestartApplication(RestartReason.Crash);
             }
             else
             {
@@ -272,36 +284,51 @@ namespace MonitorTrustProcess
             }
         }
 
-        private static void CloseAndRestartApplicationAsync(RestartReason Reason)
+        private static void CloseAndRestartApplication(RestartReason Reason)
         {
             try
             {
-                if (Reason == RestartReason.Hang && ExplorerProcess != null)
+                if (ExplorerProcess != null)
                 {
-                    ExplorerProcess.EnableRaisingEvents = false;
-                    ExplorerProcess.Exited -= ExplorerProcess_Exited;
-                    ExplorerProcess.Kill();
-                }
+                    switch (Reason)
+                    {
+                        case RestartReason.Freeze:
+                            {
+                                ExplorerProcess.EnableRaisingEvents = false;
+                                ExplorerProcess.Exited -= ExplorerProcess_Exited;
+                                ExplorerProcess.Kill();
 
-                try
-                {
-                    if (string.IsNullOrEmpty(RecoveryData))
-                    {
-                        Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName);
+                                Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "/Recovery:Freeze", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                                break;
+                            }
+                        case RestartReason.Crash:
+                            {
+                                Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "/Recovery:Crash", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                                break;
+                            }
+                        case RestartReason.Restart:
+                            {
+                                if (string.IsNullOrEmpty(RecoveryData))
+                                {
+                                    Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName);
+                                }
+                                else
+                                {
+                                    Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "/Recovery:Restart", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                                }
+
+                                break;
+                            }
                     }
-                    else
-                    {
-                        Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, $"/Recovery:{Reason switch { RestartReason.Crash => "Crash", RestartReason.Hang => "Freeze", _ => throw new NotSupportedException() }}", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
-                    }
-                }
-                finally
-                {
-                    ExitLocker.Set();
                 }
             }
             catch (Exception)
             {
                 //No need to handle this exception
+            }
+            finally
+            {
+                ExitLocker.Set();
             }
         }
     }

@@ -27,7 +27,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (RootStorageFolder.Current.DisplayName.Equals(DisplayName, StringComparison.OrdinalIgnoreCase))
+                    if (RootVirtualFolder.Current.DisplayName.Equals(DisplayName, StringComparison.OrdinalIgnoreCase))
                     {
                         Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/ThisPC.png"));
                     }
@@ -60,9 +60,9 @@ namespace RX_Explorer.Class
         {
             this.Path = Path;
 
-            if (RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+            if (RootVirtualFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
             {
-                DisplayName = RootStorageFolder.Current.DisplayName;
+                DisplayName = RootVirtualFolder.Current.DisplayName;
             }
             else
             {

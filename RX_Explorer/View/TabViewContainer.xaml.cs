@@ -258,7 +258,7 @@ namespace RX_Explorer.View
 
                             PropertiesWindowBase NewWindow = null;
 
-                            if (Control.CurrentPresenter.CurrentFolder is RootStorageFolder)
+                            if (Control.CurrentPresenter.CurrentFolder is RootVirtualFolder)
                             {
                                 Home HomeControl = Control.CurrentPresenter.RootFolderControl;
 
@@ -396,7 +396,7 @@ namespace RX_Explorer.View
                             }
                         default:
                             {
-                                if (CurrentTabRenderer?.RendererFrame.Content is FileControl Control && Control.CurrentPresenter?.CurrentFolder is RootStorageFolder)
+                                if (CurrentTabRenderer?.RendererFrame.Content is FileControl Control && Control.CurrentPresenter?.CurrentFolder is RootVirtualFolder)
                                 {
                                     Home HomeControl = Control.CurrentPresenter.RootFolderControl;
 
@@ -842,9 +842,13 @@ namespace RX_Explorer.View
 
             foreach (string Path in PathForNewTab.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
             {
-                if (RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                if (RootVirtualFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
                 {
-                    ValidPathArray.Add(RootStorageFolder.Current.Path);
+                    ValidPathArray.Add(RootVirtualFolder.Current.Path);
+                }
+                else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(Path, out LabelCollectionVirtualFolder LabelFolder))
+                {
+                    ValidPathArray.Add(LabelFolder.Path);
                 }
                 else if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder)
                 {
@@ -858,16 +862,20 @@ namespace RX_Explorer.View
                 {
                     case 0:
                         {
-                            HeaderBlock.Text = RootStorageFolder.Current.DisplayName;
+                            HeaderBlock.Text = RootVirtualFolder.Current.DisplayName;
                             break;
                         }
                     case 1:
                         {
-                            string Path = ValidPathArray.First();
+                            string Path = ValidPathArray.Single();
 
-                            if (RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                            if (RootVirtualFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                HeaderBlock.Text = RootStorageFolder.Current.DisplayName;
+                                HeaderBlock.Text = RootVirtualFolder.Current.DisplayName;
+                            }
+                            else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(Path, out LabelCollectionVirtualFolder LabelFolder))
+                            {
+                                HeaderBlock.Text = LabelFolder.DisplayName;
                             }
                             else
                             {
@@ -887,7 +895,31 @@ namespace RX_Explorer.View
                         }
                     default:
                         {
-                            HeaderBlock.Text = string.Join(" | ", ValidPathArray.Select((Path) => RootStorageFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase) ? RootStorageFolder.Current.DisplayName : System.IO.Path.GetFileName(Path)));
+                            HeaderBlock.Text = string.Join(" | ", ValidPathArray.Select((Path) =>
+                            {
+                                if (RootVirtualFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    return RootVirtualFolder.Current.DisplayName;
+                                }
+                                else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(Path, out LabelCollectionVirtualFolder LabelFolder))
+                                {
+                                    return LabelFolder.DisplayName;
+                                }
+                                else
+                                {
+                                    string Name = System.IO.Path.GetFileName(Path);
+
+                                    if (string.IsNullOrEmpty(Name))
+                                    {
+                                        return Path.TrimEnd('\\');
+                                    }
+                                    else
+                                    {
+                                        return Name;
+                                    }
+                                }
+                            }));
+
                             break;
                         }
                 }
@@ -1011,7 +1043,7 @@ namespace RX_Explorer.View
                     {
                         switch (Control.CurrentPresenter?.CurrentFolder)
                         {
-                            case RootStorageFolder:
+                            case RootVirtualFolder:
                                 {
                                     LayoutModeControl.IsEnabled = false;
                                     break;

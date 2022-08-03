@@ -957,8 +957,42 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task UpdateAllSubNodeAsync(this TreeViewNode Node)
+        public static async Task UpdateSubNodeAsync(this TreeViewNode Node)
         {
+            static async Task UpdateSubNodeCoreAsync(TreeViewNode Node, IEnumerable<string> NewChildItems)
+            {
+                IEnumerable<string> OldChildItems = Node.Children.Select((Item) => Item.Content).OfType<TreeViewNodeContent>().Select((Content) => Content.Path).ToArray();
+
+                foreach (TreeViewNodeContent SameNodeContent in NewChildItems.Intersect(OldChildItems)
+                                                                             .Select((SamePath) => Node.Children.Select((SubNode) => SubNode.Content).OfType<TreeViewNodeContent>().FirstOrDefault((Content) => Content.Path.Equals(SamePath, StringComparison.OrdinalIgnoreCase)))
+                                                                             .ToArray())
+                {
+                    await SameNodeContent.LoadAsync(true);
+                }
+
+                foreach (string AddPath in NewChildItems.Except(OldChildItems))
+                {
+                    if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
+                    {
+                        TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
+
+                        Node.Children.Add(new TreeViewNode
+                        {
+                            Content = Content,
+                            HasUnrealizedChildren = Content.HasChildren,
+                            IsExpanded = false
+                        });
+                    }
+                }
+
+                foreach (TreeViewNode RemoveNode in OldChildItems.Except(NewChildItems)
+                                                 .Select((RemovePath) => Node.Children.FirstOrDefault((Item) => ((Item.Content as TreeViewNodeContent)?.Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                                                 .ToArray())
+                {
+                    Node.Children.Remove(RemoveNode);
+                }
+            }
+
             if (Node == null)
             {
                 throw new ArgumentNullException(nameof(Node), "Node could not be null");
@@ -966,44 +1000,60 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (await FileSystemStorageItemBase.OpenAsync((Node.Content as TreeViewNodeContent).Path) is FileSystemStorageFolder ParentFolder)
+                string NodePath = (Node.Content as TreeViewNodeContent)?.Path;
+
+                if (!string.IsNullOrEmpty(NodePath))
                 {
-                    if (Node.Children.Count > 0)
+                    if (Node.IsExpanded)
                     {
-                        IEnumerable<string> FolderPathList = await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, Filter: BasicFilters.Folder).Select((Item) => Item.Path).ToArrayAsync();
-                        IEnumerable<string> CurrentPathList = Node.Children.Select((Item) => Item.Content).OfType<TreeViewNodeContent>().Select((Content) => Content.Path).ToArray();
+                        IEnumerable<string> NewChildItems = Enumerable.Empty<string>();
 
-                        foreach (string AddPath in FolderPathList.Except(CurrentPathList))
+                        if (Node.Content == TreeViewNodeContent.QuickAccessNode)
                         {
-                            if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
+                            NewChildItems = new List<string>(Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
+                                                                                              .Where((Kind) => Kind != LabelKind.None)
+                                                                                              .Select((Kind) => LabelCollectionVirtualFolder.GetFolderFromLabel(Kind).Path)
+                                                                                              .Concat(CommonAccessCollection.LibraryList.Select((Lib) => Lib.Path)));
+                        }
+                        else if (!LabelCollectionVirtualFolder.TryGetFolderFromPath(NodePath, out _))
+                        {
+                            if (await FileSystemStorageItemBase.OpenAsync(NodePath) is FileSystemStorageFolder ParentFolder)
                             {
-                                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
-
-                                Node.Children.Add(new TreeViewNode
-                                {
-                                    Content = Content,
-                                    HasUnrealizedChildren = Content.HasChildren,
-                                    IsExpanded = false
-                                });
+                                NewChildItems = await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, Filter: BasicFilters.Folder).Select((Item) => Item.Path).ToListAsync();
                             }
                         }
 
-                        foreach (string RemovePath in CurrentPathList.Except(FolderPathList))
+                        await UpdateSubNodeCoreAsync(Node, NewChildItems);
+
+                        if (Node.Children.Count > 0)
                         {
-                            if (Node.Children.Where((Item) => Item.Content is TreeViewNodeContent).FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RemoveNode)
+                            foreach (TreeViewNode SubNode in Node.Children)
                             {
-                                Node.Children.Remove(RemoveNode);
+                                await SubNode.UpdateSubNodeAsync();
                             }
                         }
-
-                        foreach (TreeViewNode SubNode in Node.Children)
+                        else
                         {
-                            await SubNode.UpdateAllSubNodeAsync();
+                            Node.HasUnrealizedChildren = NewChildItems.Any();
                         }
                     }
                     else
                     {
-                        Node.HasUnrealizedChildren = await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, false, Filter: BasicFilters.Folder).AnyAsync();
+                        if (Node.Content == TreeViewNodeContent.QuickAccessNode)
+                        {
+                            Node.HasUnrealizedChildren = Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
+                                                                                          .Where((Kind) => Kind != LabelKind.None)
+                                                                                          .Select((Kind) => LabelCollectionVirtualFolder.GetFolderFromLabel(Kind).Path)
+                                                                                          .Concat(CommonAccessCollection.LibraryList.Select((Lib) => Lib.Path)).Any();
+                        }
+                        else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(NodePath, out _))
+                        {
+                            Node.HasUnrealizedChildren = false;
+                        }
+                        else if (await FileSystemStorageItemBase.OpenAsync(NodePath) is FileSystemStorageFolder ParentFolder)
+                        {
+                            Node.HasUnrealizedChildren = await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, Filter: BasicFilters.Folder).Select((Item) => Item.Path).AnyAsync();
+                        }
                     }
                 }
             }

@@ -35,7 +35,7 @@ namespace RX_Explorer.View
             InitializeComponent();
 
             this.TabItem = TabItem;
-            this.InitializePaths = InitializePaths.Length > 0 ? InitializePaths : new string[] { RootStorageFolder.Current.Path };
+            this.InitializePaths = InitializePaths.Length > 0 ? InitializePaths : new string[] { RootVirtualFolder.Current.Path };
 
             EmptyTip.Visibility = QueueTaskController.ListItemSource.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
 
@@ -60,7 +60,7 @@ namespace RX_Explorer.View
 
         public async Task CloseBladeByPresenterAsync(FilePresenter Presenter)
         {
-            if (BaseControl.BladeViewer.Items.Cast<BladeItem>().FirstOrDefault((Blade) => (Blade.Content as FilePresenter) == Presenter) is BladeItem Item)
+            if (BaseControl?.BladeViewer.Items.Cast<BladeItem>().FirstOrDefault((Blade) => (Blade.Content as FilePresenter) == Presenter) is BladeItem Item)
             {
                 await BaseControl.CloseBladeAsync(Item);
             }
@@ -80,7 +80,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                if (BaseControl.CurrentPresenter?.CurrentFolder != null)
+                if (CurrentPresenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
                 {
                     TreeViewColumnWidthSaver.Current.SetTreeViewVisibility(Visibility);
 
@@ -108,7 +108,7 @@ namespace RX_Explorer.View
 
                             BaseControl.FolderTree.RootNodes.Add(RootNode);
 
-                            if (Path.GetPathRoot(BaseControl.CurrentPresenter.CurrentFolder.Path).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                            if (Path.GetPathRoot(CurrentFolder.Path).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 if (Content.HasChildren)
                                 {
@@ -127,52 +127,16 @@ namespace RX_Explorer.View
             }
         }
 
-        public async Task ClearAndRebuildTreeViewAsync()
-        {
-            try
-            {
-                BaseControl.FolderTree.RootNodes.Clear();
-
-                BaseControl.FolderTree.RootNodes.Add(new TreeViewNode
-                {
-                    Content = TreeViewNodeContent.QuickAccessNode,
-                    IsExpanded = false,
-                    HasUnrealizedChildren = true
-                });
-
-                foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
-                {
-                    TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
-
-                    BaseControl.FolderTree.RootNodes.Add(new TreeViewNode
-                    {
-                        IsExpanded = false,
-                        Content = Content,
-                        HasUnrealizedChildren = Content.HasChildren
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not clear and rebuild the treeview");
-            }
-        }
-
         public async Task RefreshTreeViewAsync()
         {
             try
             {
-                if (BaseControl.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
+                if (BaseControl != null)
                 {
-                    foreach (TreeViewNode Node in QuickAccessNode.Children)
+                    foreach (TreeViewNode RootNode in BaseControl.FolderTree.RootNodes)
                     {
-                        await Node.UpdateAllSubNodeAsync();
+                        await RootNode.UpdateSubNodeAsync();
                     }
-                }
-
-                foreach (TreeViewNode RootNode in BaseControl.FolderTree.RootNodes.Where((Node) => Node.Content != TreeViewNodeContent.QuickAccessNode))
-                {
-                    await RootNode.UpdateAllSubNodeAsync();
                 }
             }
             catch (Exception ex)
@@ -187,12 +151,9 @@ namespace RX_Explorer.View
             {
                 List<Task> ParallelTask = new List<Task>();
 
-                foreach (FilePresenter Presenter in Presenters)
+                foreach (FilePresenter Presenter in Presenters.Where((Presenter) => Presenter.CurrentFolder is FileSystemStorageFolder))
                 {
-                    if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
-                    {
-                        ParallelTask.Add(Presenter.DisplayItemsInFolderAsync(CurrentFolder, true));
-                    }
+                    ParallelTask.Add(Presenter.DisplayItemsInFolderAsync(Presenter.CurrentFolder, true));
                 }
 
                 await Task.WhenAll(ParallelTask);
