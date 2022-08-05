@@ -42,7 +42,7 @@ namespace RX_Explorer.Class
 #else
             if (ApplicationData.Current.LocalSettings.Values["LicenseGrant"] is bool IsGrant && IsGrant)
             {
-                if (SystemInformation.Instance.TotalLaunchCount % 5 > 0)
+                if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.TotalLaunchCount % 5 > 0)
                 {
                     return Task.FromResult(true);
                 }
