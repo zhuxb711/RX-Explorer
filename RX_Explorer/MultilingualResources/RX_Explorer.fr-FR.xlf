@@ -4814,6 +4814,14 @@ Les noms non valides incluent
           <source>Layout space</source>
           <target state="translated">Espace de mise en page</target>
         </trans-unit>
+        <trans-unit id="SettingExpandTreeViewAsContentChangedContent.Text" translate="yes" xml:space="preserve">
+          <source>When this option is enabled, the navigation pane will follow and expand to the current folder location. Note: This may result in a larger performance impact and consume more time when accessing deeper folders, please enable this option at your own discretion</source>
+          <target state="translated">Lorsque cette option est activée, le volet de navigation suivra et se développera jusqu'à l'emplacement du dossier actuel. Remarque : cela peut entraîner un impact plus important sur les performances et consommer plus de temps lors de l'accès à des dossiers plus profonds, veuillez activer cette option à votre propre discrétion</target>
+        </trans-unit>
+        <trans-unit id="SettingExpandTreeViewAsContentChangedLabel.Text" translate="yes" xml:space="preserve">
+          <source>Follow expansion to current location</source>
+          <target state="translated">Suivre l'expansion jusqu'à l'emplacement actuel</target>
+        </trans-unit>
       </group>
     </body>
   </file>

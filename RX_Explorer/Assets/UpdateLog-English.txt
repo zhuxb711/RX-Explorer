@@ -1,9 +1,31 @@
-﻿###What's new in Ver.7.8.3.0
+﻿###What's new in Ver.7.8.6.0
+
+#####Feature update
+
+>#####Added daemon process to recovery after application crashed/freezed
+
+>#####Added layout space adjustment for a compact or loose appearance
+
+>#####Navigation panes can now be enabled to follow expansion to the current folder
+
+>#####Refactored the code of the built-in media player to support the playlist
+
+#####UI update
+
+>#####Updated part of the built-in wallpaper
+
+>#####Added some folders to collection all the files with specific tag in the Quick Access
+
+>#####Folders within the navigation panes will no longer be affected by the settings about how to load thumbnails
 
 #####Bug Fixes
 
->#####Fixed an issue that could cause a crash when there are .lnk or .url files in the recycle bin
+>#####Fixed some minor issues and refactored part of the code
 
->#####Fixed the problem of not being able to set a picture as the desktop background in the built-in picture viewer
+>#####Fixed an issue where using the right mouse button in the built-in media player would still pause the playback
 
->#####Fixed some other issues that could cause crashes
+>#####Fixed an issue that could cause a crash after the next startup when clicking the button which is used to restart
+
+>#####Fixed an issue that could cause duplicate drives to be displayed due to race conditions in some rare cases
+
+>#####Fixed the problem of not being able to set labels on multiple files

@@ -1,9 +1,31 @@
-﻿###Novedades de la versión 7.8.3.0
+﻿###Novedades de la versión 7.8.6.0
+
+#####Actualización de funciones
+
+>#####Se agregó un proceso daemon a la recuperación después de que la aplicación fallara o se congelara
+
+>#####Ajuste del espacio de diseño agregado para una apariencia compacta o suelta
+
+>#####Los paneles de navegación ahora se pueden habilitar para seguir la expansión a la carpeta actual
+
+>#####Refactorizado el código del reproductor multimedia incorporado para admitir la lista de reproducción
+
+#####Actualización de la interfaz de usuario
+
+>#####Parte actualizada del fondo de pantalla incorporado
+
+>#####Se agregaron algunas carpetas para recopilar todos los archivos con una etiqueta específica en el acceso rápido
+
+>#####Las carpetas dentro de los paneles de navegación ya no se verán afectadas por la configuración sobre cómo cargar miniaturas
 
 #####Corrección de errores
 
->#####Se solucionó un problema que podía provocar un bloqueo cuando había archivos .lnk o .url en la papelera de reciclaje
+>#####Se corrigieron algunos problemas menores y se refactorizó parte del código
 
->#####Se solucionó el problema de no poder establecer una imagen como fondo de escritorio en el visor de imágenes incorporado
+>#####Se solucionó un problema por el cual al usar el botón derecho del mouse en el reproductor multimedia incorporado aún se pausaba la reproducción
 
->#####Se corrigieron algunos otros problemas que podrían causar fallas
+>#####Se solucionó un problema que podía causar un bloqueo después del próximo inicio al hacer clic en el botón que se usa para reiniciar
+
+>#####Se solucionó un problema que podía causar que se mostraran unidades duplicadas debido a condiciones de carrera en algunos casos raros
+
+>#####Se solucionó el problema de no poder establecer etiquetas en varios archivos

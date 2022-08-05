@@ -71,7 +71,15 @@ namespace RX_Explorer.Class
             get => SQLite.Current.GetLabelKindFromPath(Path);
             set
             {
-                SQLite.Current.SetLabelKindByPath(Path, value);
+                if (value == LabelKind.None)
+                {
+                    SQLite.Current.DeleteLabelKindByPath(Path);
+                }
+                else
+                {
+                    SQLite.Current.SetLabelKindByPath(Path, value);
+                }
+
                 OnPropertyChanged();
             }
         }

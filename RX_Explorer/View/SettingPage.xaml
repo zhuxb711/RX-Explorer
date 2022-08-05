@@ -515,11 +515,13 @@
                                                 <CheckBox Name="ExpandTreeViewAsContentChanged"
                                                           IsEnabled="{x:Bind TreeViewDetach.IsOn,Mode=OneWay}">
                                                     <StackPanel>
-                                                        <TextBlock Text="跟随展开至当前文件夹位置"
+                                                        <TextBlock Text="跟随并展开至当前文件夹位置"
+                                                                   x:Uid="SettingExpandTreeViewAsContentChangedLabel"
                                                                    TextTrimming="CharacterEllipsis" />
-                                                        <TextBlock Text="启用此选项后导航窗格将跟随并展开至当前文件夹位置。注意: 这可能导致较大的性能衰减且访问较深层次的文件夹时会消耗更多性能，请自行斟酌是否启用该选项"
+                                                        <TextBlock Text="启用此选项后导航窗格将跟随并展开至当前文件夹位置。注意: 这可能导致较大的性能影响且访问较深层次的文件夹时会消耗更多时间，请自行斟酌是否启用该选项"
                                                                    FontSize="12"
                                                                    Foreground="Gray"
+                                                                   x:Uid="SettingExpandTreeViewAsContentChangedContent"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    TextWrapping="WrapWholeWords" />
                                                     </StackPanel>

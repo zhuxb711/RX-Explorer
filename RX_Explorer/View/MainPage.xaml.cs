@@ -296,6 +296,18 @@ namespace RX_Explorer.View
                         }
                 }
             }
+
+            Dictionary<string, Task<bool>> LabelItemExistenceMapping = new Dictionary<string, Task<bool>>(Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
+                                                                                                                                           .Where((Kind) => Kind != LabelKind.None)
+                                                                                                                                           .SelectMany((Kind) => SQLite.Current.GetPathListFromLabelKind(Kind))
+                                                                                                                                           .Select((Path) => new KeyValuePair<string, Task<bool>>(Path, FileSystemStorageItemBase.CheckExistsAsync(Path))));
+
+            await Task.WhenAll(LabelItemExistenceMapping.Values);
+
+            foreach (string NoExistPath in LabelItemExistenceMapping.Where((Item) => !Item.Value.Result).Select((Item) => Item.Key))
+            {
+                SQLite.Current.DeleteLabelKindByPath(NoExistPath);
+            }
         }
 
         private async void MainPage_BackRequested(object sender, BackRequestedEventArgs e)

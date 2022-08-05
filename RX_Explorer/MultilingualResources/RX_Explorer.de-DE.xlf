@@ -4814,6 +4814,14 @@ Inkorrekte Namen sind
           <source>Layout space</source>
           <target state="translated">Layoutbereich</target>
         </trans-unit>
+        <trans-unit id="SettingExpandTreeViewAsContentChangedContent.Text" translate="yes" xml:space="preserve">
+          <source>When this option is enabled, the navigation pane will follow and expand to the current folder location. Note: This may result in a larger performance impact and consume more time when accessing deeper folders, please enable this option at your own discretion</source>
+          <target state="translated">Wenn diese Option aktiviert ist, folgt der Navigationsbereich und wird bis zum aktuellen Ordnerspeicherort erweitert. Hinweis: Dies kann zu einer größeren Leistungsbeeinträchtigung führen und mehr Zeit beim Zugriff auf tiefere Ordner in Anspruch nehmen. Bitte aktivieren Sie diese Option nach eigenem Ermessen</target>
+        </trans-unit>
+        <trans-unit id="SettingExpandTreeViewAsContentChangedLabel.Text" translate="yes" xml:space="preserve">
+          <source>Follow expansion to current location</source>
+          <target state="translated">Folgen Sie der Erweiterung bis zum aktuellen Standort</target>
+        </trans-unit>
       </group>
     </body>
   </file>

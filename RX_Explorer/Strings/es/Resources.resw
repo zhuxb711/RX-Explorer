@@ -3625,4 +3625,10 @@ Las denominaciones no válidas son:
   <data name="SettingViewHeightOffsetLabel.Text" xml:space="preserve">
     <value>Espacio de diseño</value>
   </data>
+  <data name="SettingExpandTreeViewAsContentChangedContent.Text" xml:space="preserve">
+    <value>Cuando esta opción está habilitada, el panel de navegación seguirá y se expandirá a la ubicación de la carpeta actual. Nota: Esto puede resultar en un mayor impacto en el rendimiento y consumir más tiempo al acceder a carpetas más profundas, habilite esta opción a su propia discreción.</value>
+  </data>
+  <data name="SettingExpandTreeViewAsContentChangedLabel.Text" xml:space="preserve">
+    <value>Seguir la expansión a la ubicación actual</value>
+  </data>
 </root>

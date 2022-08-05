@@ -3746,9 +3746,9 @@ namespace RX_Explorer.View
 
                                                     if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
-                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                        await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                                         {
-                                                            await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                            await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Path));
                                                         }
                                                     }
                                                 }
@@ -3793,9 +3793,9 @@ namespace RX_Explorer.View
                                         {
                                             if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                                 {
-                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Path));
                                                 }
                                             }
                                         }
@@ -3954,30 +3954,38 @@ namespace RX_Explorer.View
 
                         try
                         {
-                            await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
+                            if (e.Status == OperationStatus.Completed)
                             {
-                                foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
-                                                                                                          .Cast<Frame>()
-                                                                                                          .Select((Frame) => Frame.Content)
-                                                                                                          .Cast<TabItemContentRenderer>()
-                                                                                                          .SelectMany((Renderer) => Renderer.Presenters))
+                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                 {
-                                    if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
+                                    foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                              .Cast<Frame>()
+                                                                                                              .Select((Frame) => Frame.Content)
+                                                                                                              .Cast<TabItemContentRenderer>()
+                                                                                                              .SelectMany((Renderer) => Renderer.Presenters))
                                     {
-                                        foreach (FileSystemStorageItemBase Item in DeleteItems.Where((Item) => SQLite.Current.GetLabelKindFromPath(Item.Path) == CollectionFolder.Kind))
+                                        if (Presenter.CurrentFolder is LabelCollectionVirtualFolder CollectionFolder)
                                         {
-                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Item.Path));
+                                            foreach (string Path in DeleteItems.Where((Item) => SQLite.Current.GetLabelKindFromPath(Item.Path) == CollectionFolder.Kind).Select((Item) => Item.Path))
+                                            {
+                                                await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
+                                            }
+                                        }
+                                        else if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            foreach (string Path in DeleteItems.Select((Item) => Item.Path))
+                                            {
+                                                await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
+                                            }
                                         }
                                     }
-                                    else if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        foreach (FileSystemStorageItemBase Item in DeleteItems)
-                                        {
-                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Item.Path));
-                                        }
-                                    }
+                                });
+
+                                foreach (string Path in DeleteItems.Select((Item) => Item.Path))
+                                {
+                                    SQLite.Current.DeleteLabelKindByPath(Path);
                                 }
-                            });
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -4063,6 +4071,8 @@ namespace RX_Explorer.View
                                                         await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(ItemPath, NewName));
                                                     }
                                                 }
+
+                                                SQLite.Current.DeleteLabelKindByPath(ItemPath);
 
                                                 for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
                                                 {
@@ -4430,9 +4440,9 @@ namespace RX_Explorer.View
                                         {
                                             if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                                 {
-                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Path));
                                                 }
                                             }
                                         }
@@ -4493,9 +4503,9 @@ namespace RX_Explorer.View
                                         {
                                             if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                                 {
-                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Path));
                                                 }
                                             }
                                         }
@@ -5857,9 +5867,9 @@ namespace RX_Explorer.View
                                             {
                                                 if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                    await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                                     {
-                                                        await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                        await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Path));
                                                     }
                                                 }
                                             }
@@ -6368,9 +6378,9 @@ namespace RX_Explorer.View
 
                                                     if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
-                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                        await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                                         {
-                                                            await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                            await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Path));
                                                         }
                                                     }
                                                 }
@@ -6414,9 +6424,9 @@ namespace RX_Explorer.View
                                         {
                                             if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                                 {
-                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Path));
                                                 }
                                             }
                                         }
@@ -6498,9 +6508,9 @@ namespace RX_Explorer.View
                                     {
                                         if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                         {
-                                            await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                            await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                             {
-                                                await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Path));
                                             }
                                         }
                                     }
@@ -6552,9 +6562,9 @@ namespace RX_Explorer.View
                                     {
                                         if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                         {
-                                            await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                            await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                             {
-                                                await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Path));
                                             }
                                         }
                                     }
@@ -6778,6 +6788,8 @@ namespace RX_Explorer.View
                                             await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(CurrentEditItem.Path, NewName));
                                         }
                                     }
+
+                                    SQLite.Current.DeleteLabelKindByPath(CurrentEditItem.Path);
 
                                     for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
                                     {
@@ -7221,9 +7233,9 @@ namespace RX_Explorer.View
                                                 {
                                                     if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
-                                                        await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                        await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                                         {
-                                                            await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                            await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Path));
                                                         }
                                                     }
                                                 }
@@ -7287,9 +7299,9 @@ namespace RX_Explorer.View
                                         {
                                             if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                await foreach (FileSystemStorageItemBase Item in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()))
+                                                await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                                 {
-                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Item.Path));
+                                                    await Presenter.AreaWatcher.InvokeAddedEventManuallyAsync(new FileAddedDeferredEventArgs(Path));
                                                 }
                                             }
                                         }

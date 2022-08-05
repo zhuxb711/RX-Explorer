@@ -3623,4 +3623,10 @@
   <data name="SettingViewHeightOffsetLabel.Text" xml:space="preserve">
     <value>佈局空間</value>
   </data>
+  <data name="SettingExpandTreeViewAsContentChangedContent.Text" xml:space="preserve">
+    <value>啟用此選項後，導航窗格將跟隨並擴展到當前文件夾位置。 注意: 這可能會導致更大的性能影響並在訪問更深的文件夾時消耗更多時間，請自行決定啟用此選項</value>
+  </data>
+  <data name="SettingExpandTreeViewAsContentChangedLabel.Text" xml:space="preserve">
+    <value>跟隨擴展至當前位置</value>
+  </data>
 </root>

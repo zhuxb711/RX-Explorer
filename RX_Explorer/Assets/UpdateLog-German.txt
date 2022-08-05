@@ -1,9 +1,31 @@
-﻿###Was ist neu in Ver.7.8.3.0
+﻿###Was ist neu in Ver.7.8.6.0
+
+#####Funktionsaktualisierung
+
+>#####Daemon-Prozess zur Wiederherstellung hinzugefügt, nachdem die Anwendung abgestürzt/eingefroren war
+
+>#####Bauraumanpassung für ein kompaktes oder lockeres Erscheinungsbild hinzugefügt
+
+>#####Navigationsbereiche können jetzt aktiviert werden, um der Erweiterung auf den aktuellen Ordner zu folgen
+
+>#####Code des eingebauten Mediaplayers umgestaltet, um die Wiedergabeliste zu unterstützen
+
+#####UI-Update
+
+>#####Aktualisierter Teil des integrierten Hintergrunds
+
+>#####Einige Ordner hinzugefügt, um alle Dateien mit bestimmten Tags im Schnellzugriff zu sammeln
+
+>#####Ordner in den Navigationsfenstern werden nicht mehr von den Einstellungen zum Laden von Miniaturansichten beeinflusst
 
 #####Fehlerbehebung
 
->#####Ein Problem wurde behoben, das zu einem Absturz führen konnte, wenn sich .lnk- oder .url-Dateien im Papierkorb befanden
+>#####Einige kleinere Probleme wurden behoben und ein Teil des Codes umgestaltet
 
->#####Das Problem, dass ein Bild im integrierten Bildbetrachter nicht als Desktop-Hintergrund festgelegt werden konnte, wurde behoben
+>#####Es wurde ein Problem behoben, bei dem die Verwendung der rechten Maustaste im integrierten Mediaplayer die Wiedergabe immer noch anhielt
 
->#####Einige andere Probleme behoben, die zu Abstürzen führen konnten
+>#####Ein Problem wurde behoben, das nach dem nächsten Start einen Absturz verursachen konnte, wenn auf die Schaltfläche geklickt wurde, die zum Neustart verwendet wird
+
+>#####Ein Problem wurde behoben, das dazu führen konnte, dass aufgrund von Rennbedingungen in einigen seltenen Fällen doppelte Laufwerke angezeigt wurden
+
+>#####Das Problem, dass Etiketten nicht für mehrere Dateien festgelegt werden konnten, wurde behoben

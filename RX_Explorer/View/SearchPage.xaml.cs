@@ -1278,6 +1278,11 @@ namespace RX_Explorer.View
                                     }
                                 }
                             });
+
+                            foreach (string Path in PathList)
+                            {
+                                SQLite.Current.DeleteLabelKindByPath(Path);
+                            }
                         }
                         catch (Exception ex)
                         {

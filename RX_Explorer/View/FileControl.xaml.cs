@@ -1236,28 +1236,32 @@ namespace RX_Explorer.View
 
                             try
                             {
-                                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
+                                if (e.Status == OperationStatus.Completed)
                                 {
-
-                                    foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
-                                                                                                              .Cast<Frame>()
-                                                                                                              .Select((Frame) => Frame.Content)
-                                                                                                              .Cast<TabItemContentRenderer>()
-                                                                                                              .SelectMany((Renderer) => Renderer.Presenters))
+                                    await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                                     {
-                                        FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
-
-                                        if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && Path.GetDirectoryName(TargetContent.Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                        foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                                  .Cast<Frame>()
+                                                                                                                  .Select((Frame) => Frame.Content)
+                                                                                                                  .Cast<TabItemContentRenderer>()
+                                                                                                                  .SelectMany((Renderer) => Renderer.Presenters))
                                         {
-                                            await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(TargetContent.Path));
-                                        }
-                                    }
+                                            FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
 
-                                    foreach (TreeViewNode RootNode in FolderTree.RootNodes)
-                                    {
-                                        await RootNode.UpdateSubNodeAsync();
-                                    }
-                                });
+                                            if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && Path.GetDirectoryName(TargetContent.Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(TargetContent.Path));
+                                            }
+                                        }
+
+                                        foreach (TreeViewNode RootNode in FolderTree.RootNodes)
+                                        {
+                                            await RootNode.UpdateSubNodeAsync();
+                                        }
+                                    });
+
+                                    SQLite.Current.DeleteLabelKindByPath(TargetContent.Path);
+                                }
                             }
                             catch (Exception ex)
                             {

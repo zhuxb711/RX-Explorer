@@ -3625,4 +3625,10 @@ Inkorrekte Namen sind
   <data name="SettingViewHeightOffsetLabel.Text" xml:space="preserve">
     <value>Layoutbereich</value>
   </data>
+  <data name="SettingExpandTreeViewAsContentChangedContent.Text" xml:space="preserve">
+    <value>Wenn diese Option aktiviert ist, folgt der Navigationsbereich und wird bis zum aktuellen Ordnerspeicherort erweitert. Hinweis: Dies kann zu einer größeren Leistungsbeeinträchtigung führen und mehr Zeit beim Zugriff auf tiefere Ordner in Anspruch nehmen. Bitte aktivieren Sie diese Option nach eigenem Ermessen</value>
+  </data>
+  <data name="SettingExpandTreeViewAsContentChangedLabel.Text" xml:space="preserve">
+    <value>Folgen Sie der Erweiterung bis zum aktuellen Standort</value>
+  </data>
 </root>

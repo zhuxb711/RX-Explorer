@@ -128,10 +128,10 @@ namespace RX_Explorer.Class
                                                                                        BasicFilters Filter = BasicFilters.File | BasicFilters.Folder,
                                                                                        Func<string, bool> AdvanceFilter = null)
         {
-            return OpenInBatchAsync(SQLite.Current.GetPathFromLabelKind(Kind), CancelToken).OfType<FileSystemStorageItemBase>()
-                                                                                           .Where((Item) => (!Item.IsHiddenItem || IncludeHiddenItems) && (!Item.IsSystemItem || IncludeSystemItems))
-                                                                                           .Where((Item) => (Item is FileSystemStorageFolder && Filter.HasFlag(BasicFilters.Folder)) || (Item is FileSystemStorageFile && Filter.HasFlag(BasicFilters.File)))
-                                                                                           .Where((Item) => (AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true));
+            return OpenInBatchAsync(SQLite.Current.GetPathListFromLabelKind(Kind), CancelToken).OfType<FileSystemStorageItemBase>()
+                                                                                               .Where((Item) => (!Item.IsHiddenItem || IncludeHiddenItems) && (!Item.IsSystemItem || IncludeSystemItems))
+                                                                                               .Where((Item) => (Item is FileSystemStorageFolder && Filter.HasFlag(BasicFilters.Folder)) || (Item is FileSystemStorageFile && Filter.HasFlag(BasicFilters.File)))
+                                                                                               .Where((Item) => (AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true));
         }
 
         public override IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord,

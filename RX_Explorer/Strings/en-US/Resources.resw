@@ -3730,4 +3730,10 @@ Invalid names include
   <data name="SettingViewHeightOffsetLabel.Text" xml:space="preserve">
     <value>Layout space</value>
   </data>
+  <data name="SettingExpandTreeViewAsContentChangedContent.Text" xml:space="preserve">
+    <value>When this option is enabled, the navigation pane will follow and expand to the current folder location. Note: This may result in a larger performance impact and consume more time when accessing deeper folders, please enable this option at your own discretion</value>
+  </data>
+  <data name="SettingExpandTreeViewAsContentChangedLabel.Text" xml:space="preserve">
+    <value>Follow expansion to current location</value>
+  </data>
 </root>

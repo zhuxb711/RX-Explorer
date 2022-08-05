@@ -1,5 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -87,20 +86,14 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        if (Updates != null)
-                        {
-                            return Updates.Any();
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                        return (Updates?.Any()).GetValueOrDefault();
                     }
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, $"{nameof(CheckHasUpdateAsync)} threw an exception");
-                        return false;
                     }
+
+                    return false;
                 });
             }
         }
@@ -113,28 +106,14 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        if (Updates != null)
-                        {
-                            foreach (StorePackageUpdate Update in Updates)
-                            {
-                                if (Update.Mandatory)
-                                {
-                                    return true;
-                                }
-                            }
-
-                            return false;
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                        return (Updates?.Any((Update) => Update.Mandatory)).GetValueOrDefault();
                     }
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, $"{nameof(CheckIfUpdateIsMandatoryAsync)} threw an exception");
-                        return false;
                     }
+
+                    return false;
                 });
             }
         }

@@ -172,15 +172,9 @@ namespace MaintenanceTask
                     }
                 }
 
-                using (SqliteCommand Command = new SqliteCommand("Create Table If Not Exists PathTagMapping (Path Text Not Null Collate NoCase, Label Text Not Null, Primary Key (Path))", Connection, Transaction))
-                {
-                    Command.ExecuteNonQuery();
-                }
-
-                using (SqliteCommand Command = new SqliteCommand("Update PathTagMapping Set Label = 'None' Where Label = 'Transparent'", Connection, Transaction))
-                {
-                    Command.ExecuteNonQuery();
-                }
+                Builder.Append("Create Table If Not Exists PathTagMapping (Path Text Not Null Collate NoCase, Label Text Not Null, Primary Key (Path));");
+                Builder.Append("Update PathTagMapping Set Label = 'None' Where Label = 'Transparent';");
+                Builder.Append("Delete From PathTagMapping Where Label = 'None';");
 
                 using (SqliteCommand Command = new SqliteCommand("Select Count(*) From sqlite_master Where type = \"table\" And name = \"FileTag\"", Connection, Transaction))
                 {

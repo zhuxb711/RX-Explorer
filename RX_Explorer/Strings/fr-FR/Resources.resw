@@ -3623,4 +3623,10 @@ Les noms non valides incluent
   <data name="SettingViewHeightOffsetLabel.Text" xml:space="preserve">
     <value>Espace de mise en page</value>
   </data>
+  <data name="SettingExpandTreeViewAsContentChangedContent.Text" xml:space="preserve">
+    <value>Lorsque cette option est activée, le volet de navigation suivra et se développera jusqu'à l'emplacement du dossier actuel. Remarque : cela peut entraîner un impact plus important sur les performances et consommer plus de temps lors de l'accès à des dossiers plus profonds, veuillez activer cette option à votre propre discrétion</value>
+  </data>
+  <data name="SettingExpandTreeViewAsContentChangedLabel.Text" xml:space="preserve">
+    <value>Suivre l'expansion jusqu'à l'emplacement actuel</value>
+  </data>
 </root>

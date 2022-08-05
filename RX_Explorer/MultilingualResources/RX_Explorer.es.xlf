@@ -4814,6 +4814,14 @@ Las denominaciones no válidas son:
           <source>Layout space</source>
           <target state="translated">Espacio de diseño</target>
         </trans-unit>
+        <trans-unit id="SettingExpandTreeViewAsContentChangedContent.Text" translate="yes" xml:space="preserve">
+          <source>When this option is enabled, the navigation pane will follow and expand to the current folder location. Note: This may result in a larger performance impact and consume more time when accessing deeper folders, please enable this option at your own discretion</source>
+          <target state="translated">Cuando esta opción está habilitada, el panel de navegación seguirá y se expandirá a la ubicación de la carpeta actual. Nota: Esto puede resultar en un mayor impacto en el rendimiento y consumir más tiempo al acceder a carpetas más profundas, habilite esta opción a su propia discreción.</target>
+        </trans-unit>
+        <trans-unit id="SettingExpandTreeViewAsContentChangedLabel.Text" translate="yes" xml:space="preserve">
+          <source>Follow expansion to current location</source>
+          <target state="translated">Seguir la expansión a la ubicación actual</target>
+        </trans-unit>
       </group>
     </body>
   </file>

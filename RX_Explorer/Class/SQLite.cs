@@ -525,7 +525,7 @@ namespace RX_Explorer.Class
             return Result;
         }
 
-        public IReadOnlyList<string> GetPathFromLabelKind(LabelKind Kind)
+        public IReadOnlyList<string> GetPathListFromLabelKind(LabelKind Kind)
         {
             List<string> PathList = new List<string>();
 
@@ -548,6 +548,15 @@ namespace RX_Explorer.Class
             }
 
             return PathList;
+        }
+
+        public void DeleteLabelKindByPath(string Path)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Delete From PathTagMapping Where Path = @Path", Connection))
+            {
+                Command.Parameters.AddWithValue("@Path", Path);
+                Command.ExecuteNonQuery();
+            }
         }
 
         public void SetLabelKindByPath(string Path, LabelKind Label)

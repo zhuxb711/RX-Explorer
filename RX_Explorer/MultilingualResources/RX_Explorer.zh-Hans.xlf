@@ -4814,6 +4814,14 @@ Invalid names include
           <source>Layout space</source>
           <target state="translated">布局空间</target>
         </trans-unit>
+        <trans-unit id="SettingExpandTreeViewAsContentChangedContent.Text" translate="yes" xml:space="preserve">
+          <source>When this option is enabled, the navigation pane will follow and expand to the current folder location. Note: This may result in a larger performance impact and consume more time when accessing deeper folders, please enable this option at your own discretion</source>
+          <target state="translated">启用此选项后导航窗格将跟随并展开至当前文件夹位置。注意: 这可能导致较大的性能影响且访问较深层次的文件夹时会消耗更多时间，请自行斟酌是否启用该选项</target>
+        </trans-unit>
+        <trans-unit id="SettingExpandTreeViewAsContentChangedLabel.Text" translate="yes" xml:space="preserve">
+          <source>Follow expansion to current location</source>
+          <target state="translated">跟随并展开至当前文件夹位置</target>
+        </trans-unit>
       </group>
     </body>
   </file>
