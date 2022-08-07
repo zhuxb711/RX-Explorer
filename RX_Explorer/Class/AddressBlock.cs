@@ -35,7 +35,7 @@ namespace RX_Explorer.Class
                     {
                         switch (await FileSystemStorageItemBase.OpenAsync(Path))
                         {
-                            case FileSystemStorageFolder Folder when Folder is not (MTPStorageFolder or FTPStorageFolder):
+                            case FileSystemStorageFolder Folder when Folder is not (MTPStorageFolder or FtpStorageFolder):
                                 {
                                     if (await Folder.GetStorageItemAsync() is StorageFolder InnerFolder)
                                     {

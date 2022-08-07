@@ -1,12 +1,13 @@
 ﻿using FluentFTP;
 using System;
 using System.Collections.Concurrent;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
-    public sealed class FTPClientController : IDisposable
+    public sealed class FtpClientController : IDisposable
     {
         private bool IsDisposed;
         private readonly Thread ProcessThread;
@@ -70,71 +71,37 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<T> RunCommandAsync<T>(Func<FtpClient, T> Executor)
+        public Task RunCommandAsync(Func<FtpClient, Task> Executor)
         {
-            if (await ConnectAsync())
-            {
-                FTPTaskData Data = new FTPTaskData(Executor);
-
-                TaskCollection.Add(Data);
-
-                return (T)await Data.TaskSource.Task;
-            }
-            else
-            {
-                throw new Exception("FtpClient is not available");
-            }
+            return RunCommandAsync<object>(Executor);
         }
 
-        public async Task RunCommandAsync(Func<FtpClient, Task> Executor)
+        public Task RunCommandAsync(Action<FtpClient> Executor)
         {
-            if (await ConnectAsync())
+            return RunCommandAsync((Client) =>
             {
-                FTPTaskData Data = new FTPTaskData(Executor);
+                Executor(Client);
+                return Task.CompletedTask;
+            });
+        }
 
-                TaskCollection.Add(Data);
-
-                await Data.TaskSource.Task;
-            }
-            else
-            {
-                throw new Exception("FtpClient is not available");
-            }
+        public Task<T> RunCommandAsync<T>(Func<FtpClient, T> Executor)
+        {
+            return RunCommandAsync((Client) => Task.FromResult(Executor(Client)));
         }
 
         public async Task<T> RunCommandAsync<T>(Func<FtpClient, Task<T>> Executor)
         {
-            if (await ConnectAsync())
-            {
-                FTPTaskData Data = new FTPTaskData(Executor);
+            await ConnectAsync();
 
-                TaskCollection.Add(Data);
+            FTPTaskData Data = new FTPTaskData(Executor);
 
-                return (T)await Data.TaskSource.Task;
-            }
-            else
-            {
-                throw new Exception("FtpClient is not available");
-            }
+            TaskCollection.Add(Data);
+
+            return (T)await Data.TaskSource.Task;
         }
 
-        public async Task RunCommandAsync(Action<FtpClient> Executor)
-        {
-            if (await ConnectAsync())
-            {
-                FTPTaskData Data = new FTPTaskData(Executor);
-
-                TaskCollection.Add(Data);
-
-                await Data.TaskSource.Task;
-            }
-            else
-            {
-                throw new Exception("FtpClient is not available");
-            }
-        }
-
-        public async Task<bool> ConnectAsync()
+        private async Task ConnectAsync()
         {
             await Locker.WaitAsync();
 
@@ -146,19 +113,19 @@ namespace RX_Explorer.Class
                     {
                         if (await Task.Run(() => Client.Noop()))
                         {
-                            using (CancellationTokenSource CancellationSource = new CancellationTokenSource(5000))
+                            using (CancellationTokenSource CancellationSource = new CancellationTokenSource(10000))
                             {
                                 FtpReply Reply = await Client.GetReplyAsync(CancellationSource.Token);
 
                                 if (Reply.Success)
                                 {
-                                    return true;
+                                    return;
                                 }
                             }
                         }
                         else
                         {
-                            return true;
+                            return;
                         }
                     }
                     catch (Exception)
@@ -172,20 +139,34 @@ namespace RX_Explorer.Class
                     if (IsAvailable)
                     {
                         LogTracer.Log($"Ftp server is connected, protocal: {Profile.Protocols}, encryption: {Profile.Encryption}, encoding: {Profile.Encoding.EncodingName}");
-                        return true;
+
+                        using (CancellationTokenSource CommandCancellation = new CancellationTokenSource(10000))
+                        {
+                            try
+                            {
+                                FtpReply EncodingReply = await Client.ExecuteAsync("OPTS UTF8 ON", CommandCancellation.Token);
+
+                                if (EncodingReply.Code != "200" && EncodingReply.Code != "202")
+                                {
+                                    Client.Encoding = Encoding.GetEncoding("ISO-8859-1");
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                //No need to handle this exception
+                            }
+                        }
+
+                        return;
                     }
                 }
-            }
-            catch (Exception ex) when (ex is not FtpAuthenticationException)
-            {
-                LogTracer.Log(ex, $"Could not connect to the ftp server: {Client.Host}");
+
+                throw new FtpException("Ftp server is not available");
             }
             finally
             {
                 Locker.Release();
             }
-
-            return false;
         }
 
         public FtpClient DangerousGetFtpClient()
@@ -211,7 +192,28 @@ namespace RX_Explorer.Class
             }
         }
 
-        public FTPClientController(string Host, int Port, string UserName, string Password)
+        public static async Task<FtpClientController> MakeSureConnectionAndCloseOnceFailedAsync(FtpClientController Controller)
+        {
+            try
+            {
+                await Controller.ConnectAsync();
+                return Controller;
+            }
+            catch (Exception)
+            {
+                Controller.Dispose();
+                throw;
+            }
+        }
+
+        public static async Task<FtpClientController> CreateAsync(string Host, int Port, string UserName, string Password)
+        {
+            FtpClientController Controller = new FtpClientController(Host, Port, UserName, Password);
+            await Controller.ConnectAsync();
+            return Controller;
+        }
+
+        private FtpClientController(string Host, int Port, string UserName, string Password)
         {
             Locker = new SemaphoreSlim(1, 1);
             TaskCollection = new BlockingCollection<FTPTaskData>();
@@ -219,8 +221,14 @@ namespace RX_Explorer.Class
             Client = new FtpClient(Host, Port, UserName, Password)
             {
                 NoopInterval = 5000,
+                Encoding = Encoding.UTF8,
                 TimeConversion = FtpDate.UTC,
-                LocalTimeZone = TimeZoneInfo.Local.BaseUtcOffset.Hours
+                LocalTimeZone = TimeZoneInfo.Local.BaseUtcOffset.Hours,
+                EncryptionMode = FtpEncryptionMode.Auto,
+                DataConnectionType = FtpDataConnectionType.AutoPassive,
+                ReadTimeout = 60000,
+                DataConnectionReadTimeout = 60000,
+                DataConnectionConnectTimeout = 60000,
             };
 
             ProcessThread = new Thread(ProcessCore)
@@ -231,7 +239,7 @@ namespace RX_Explorer.Class
             ProcessThread.Start();
         }
 
-        ~FTPClientController()
+        ~FtpClientController()
         {
             Dispose();
         }

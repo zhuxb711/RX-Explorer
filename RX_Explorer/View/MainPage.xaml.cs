@@ -581,7 +581,7 @@ namespace RX_Explorer.View
                     StartupModeController.SetLastOpenedPath(TabViewContainer.Current.OpenedPathList);
                 }
 
-                await Task.WhenAny(Task.WhenAll(MonitorTrustProcessController.StopMonitorAsync(), FTPClientManager.CloseAllClientAsync()), Task.Delay(5000));
+                await Task.WhenAny(Task.WhenAll(MonitorTrustProcessController.StopMonitorAsync(), FtpClientManager.CloseAllClientAsync()), Task.Delay(5000));
             }
             catch (Exception ex)
             {

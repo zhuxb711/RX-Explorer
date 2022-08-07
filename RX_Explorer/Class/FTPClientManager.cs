@@ -10,42 +10,21 @@ using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer.Class
 {
-    public static class FTPClientManager
+    public static class FtpClientManager
     {
-        private static readonly List<FTPClientController> ControllerList = new List<FTPClientController>();
+        private static readonly List<FtpClientController> ControllerList = new List<FtpClientController>();
 
-        private static readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim GetLocker = new SemaphoreSlim(1, 1);
 
-        public static async Task<FTPClientController> GetClientControllerAsync(FTPPathAnalysis Analysis)
+        private static readonly SemaphoreSlim CreateLocker = new SemaphoreSlim(1, 1);
+
+        public static async Task<FtpClientController> CreateClientControllerAsync(FtpPathAnalysis Analysis)
         {
-            await Locker.WaitAsync();
+            await CreateLocker.WaitAsync();
 
             try
             {
-                if (ControllerList.FirstOrDefault((Controller) => Controller.ServerHost == Analysis.Host && Controller.ServerPort == Analysis.Port) is FTPClientController ExistController)
-                {
-                    if (ExistController.IsAvailable)
-                    {
-                        return ExistController;
-                    }
-
-                    try
-                    {
-                        if (await ExistController.ConnectAsync())
-                        {
-                            return ExistController;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        //No need to handle this exception
-                    }
-
-                    ControllerList.Remove(ExistController);
-                    ExistController.Dispose();
-                }
-
-                FTPClientController NewClient = await CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
+                FtpClientController NewClient = await CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
                 {
                     FTPCredentialDialog Dialog = new FTPCredentialDialog(Analysis);
 
@@ -70,7 +49,39 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                Locker.Release();
+                CreateLocker.Release();
+            }
+
+            return null;
+        }
+
+        public static async Task<FtpClientController> GetClientControllerAsync(FtpPathAnalysis Analysis)
+        {
+            await GetLocker.WaitAsync();
+
+            try
+            {
+                if (ControllerList.FirstOrDefault((Controller) => Controller.ServerHost == Analysis.Host && Controller.ServerPort == Analysis.Port) is FtpClientController ExistController)
+                {
+                    try
+                    {
+                        return await FtpClientController.MakeSureConnectionAndCloseOnceFailedAsync(ExistController);
+                    }
+                    catch (Exception)
+                    {
+                        ControllerList.Remove(ExistController);
+                    }
+
+                    return await CreateClientControllerAsync(Analysis);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the ftp client as expected");
+            }
+            finally
+            {
+                GetLocker.Release();
             }
 
             return null;
@@ -82,14 +93,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    List<Task> ParallelTask = new List<Task>(ControllerList.Count);
-
-                    foreach (FTPClientController Client in ControllerList)
-                    {
-                        ParallelTask.Add(Task.Run(() => Client.Dispose()));
-                    }
-
-                    await Task.WhenAll(ParallelTask);
+                    await Task.WhenAll(ControllerList.Select((Controller) => Task.Run(() => Controller.Dispose())));
                 }
                 catch (Exception ex)
                 {

@@ -249,7 +249,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         MultiLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
                         MultiLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                        while (PivotControl.Items.Count > (StorageItems.Any((Item) => Item is IMTPStorageItem or IFTPStorageItem) ? 1 : 2))
+                        while (PivotControl.Items.Count > (StorageItems.Any((Item) => Item is INotWin32StorageItem) ? 1 : 2))
                         {
                             PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
                         }
@@ -274,7 +274,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FolderLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
                                     FolderLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                                    while (PivotControl.Items.Count > (Folder is IMTPStorageItem or IFTPStorageItem ? 1 : 2))
+                                    while (PivotControl.Items.Count > (Folder is INotWin32StorageItem ? 1 : 2))
                                     {
                                         PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
                                     }
@@ -300,7 +300,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                 break;
                                             }
 
-                                        case FTPStorageFile:
+                                        case FtpStorageFile:
                                             {
                                                 UnlockArea.Visibility = Visibility.Collapsed;
                                                 PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock)?.Text == Globalization.GetString("Properties_Security_Tab")));
@@ -643,7 +643,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 LoadDataForGeneralPage()
             };
 
-            if (RootDrive is not MTPDriveData && (StorageItems?.All((Item) => Item is not (IMTPStorageItem or IFTPStorageItem))).GetValueOrDefault(true))
+            if (RootDrive is not MTPDriveData && (StorageItems?.All((Item) => Item is not INotWin32StorageItem)).GetValueOrDefault(true))
             {
                 ParallelLoadingList.Add(LoadDataForSecurityPage());
             }
@@ -853,7 +853,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     string ContentType = string.Empty;
 
-                    if (StorageItem is not (IMTPStorageItem or IFTPStorageItem))
+                    if (StorageItem is not INotWin32StorageItem)
                     {
                         ContentType = await Exclusive.Controller.GetMIMEContentTypeAsync(StorageItem.Path);
                     }
@@ -1202,8 +1202,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                                                : (Array.TrueForAll(StorageItems, (Item) => !Item.IsReadOnly)
                                                                                        ? false
                                                                                        : null));
-                        MultiHiddenAttribute.IsEnabled = StorageItems.All((Item) => Item is not (IMTPStorageItem or IFTPStorageItem));
-                        MultiReadonlyAttribute.IsEnabled = StorageItems.All((Item) => Item is not (IMTPStorageItem or IFTPStorageItem));
+                        MultiHiddenAttribute.IsEnabled = StorageItems.All((Item) => Item is not INotWin32StorageItem);
+                        MultiReadonlyAttribute.IsEnabled = StorageItems.All((Item) => Item is not INotWin32StorageItem);
 
                         try
                         {
@@ -1281,8 +1281,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FolderCreatedContent.Text = Folder.CreationTime == DateTimeOffset.MaxValue.ToLocalTime() || Folder.CreationTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : Folder.CreationTime.ToString("F");
                                     FolderHiddenAttribute.IsChecked = Folder.IsHiddenItem;
                                     FolderReadonlyAttribute.IsChecked = null;
-                                    FolderReadonlyAttribute.IsEnabled = Folder is not (IMTPStorageItem or IFTPStorageItem);
-                                    FolderHiddenAttribute.IsEnabled = Folder is not (IMTPStorageItem or IFTPStorageItem);
+                                    FolderReadonlyAttribute.IsEnabled = Folder is not INotWin32StorageItem;
+                                    FolderHiddenAttribute.IsEnabled = Folder is not INotWin32StorageItem;
 
                                     try
                                     {
@@ -1323,10 +1323,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileModifiedContent.Text = File.ModifiedTime == DateTimeOffset.MaxValue.ToLocalTime() || File.ModifiedTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.ModifiedTime.ToString("F");
                                     FileAccessedContent.Text = File.LastAccessTime == DateTimeOffset.MaxValue.ToLocalTime() || File.LastAccessTime == DateTimeOffset.MinValue.ToLocalTime() ? Globalization.GetString("UnknownText") : File.LastAccessTime.ToString("F");
                                     FileHiddenAttribute.IsChecked = File.IsHiddenItem;
-                                    FileHiddenAttribute.IsEnabled = File is not (IMTPStorageItem or IFTPStorageItem);
+                                    FileHiddenAttribute.IsEnabled = File is not INotWin32StorageItem;
                                     FileReadonlyAttribute.IsChecked = File.IsReadOnly;
-                                    FileReadonlyAttribute.IsEnabled = File is not (IMTPStorageItem or IFTPStorageItem);
-                                    FileChangeOpenWithButton.Visibility = File is IMTPStorageItem or IFTPStorageItem ? Visibility.Collapsed : Visibility.Visible;
+                                    FileReadonlyAttribute.IsEnabled = File is not INotWin32StorageItem;
+                                    FileChangeOpenWithButton.Visibility = File is INotWin32StorageItem ? Visibility.Collapsed : Visibility.Visible;
 
                                     if (Regex.IsMatch(File.Name, @"\.(exe|bat|lnk|url)$"))
                                     {
@@ -1726,15 +1726,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                         using (CancellationTokenSource Md5Cancellation = CancellationTokenSource.CreateLinkedTokenSource(OperationCancellation.Token))
                         {
-                            if (File is FTPStorageFile)
+                            if (File is FtpStorageFile)
                             {
                                 MD5Progress.IsIndeterminate = true;
 
                                 try
                                 {
-                                    FTPPathAnalysis Analysis = new FTPPathAnalysis(File.Path);
+                                    FtpPathAnalysis Analysis = new FtpPathAnalysis(File.Path);
 
-                                    if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                                    if (await FtpClientManager.GetClientControllerAsync(Analysis) is FtpClientController Controller)
                                     {
                                         FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksumAsync(Analysis.RelatedPath, FtpHashAlgorithm.MD5, Md5Cancellation.Token));
 
@@ -1821,15 +1821,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     using (CancellationTokenSource SHA1Cancellation = CancellationTokenSource.CreateLinkedTokenSource(OperationCancellation.Token))
                     {
-                        if (File is FTPStorageFile)
+                        if (File is FtpStorageFile)
                         {
                             SHA1Progress.IsIndeterminate = true;
 
                             try
                             {
-                                FTPPathAnalysis Analysis = new FTPPathAnalysis(File.Path);
+                                FtpPathAnalysis Analysis = new FtpPathAnalysis(File.Path);
 
-                                if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                                if (await FtpClientManager.GetClientControllerAsync(Analysis) is FtpClientController Controller)
                                 {
                                     FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksumAsync(Analysis.RelatedPath, FtpHashAlgorithm.SHA1, SHA1Cancellation.Token));
 
@@ -1915,15 +1915,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     using (CancellationTokenSource SHA256Cancellation = CancellationTokenSource.CreateLinkedTokenSource(OperationCancellation.Token))
                     {
-                        if (File is FTPStorageFile)
+                        if (File is FtpStorageFile)
                         {
                             SHA256Progress.IsIndeterminate = true;
 
                             try
                             {
-                                FTPPathAnalysis Analysis = new FTPPathAnalysis(File.Path);
+                                FtpPathAnalysis Analysis = new FtpPathAnalysis(File.Path);
 
-                                if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                                if (await FtpClientManager.GetClientControllerAsync(Analysis) is FtpClientController Controller)
                                 {
                                     FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksumAsync(Analysis.RelatedPath, FtpHashAlgorithm.SHA256, SHA256Cancellation.Token));
 

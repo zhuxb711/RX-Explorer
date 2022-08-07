@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using RX_Explorer.Interface;
 using SharedLibrary;
 using System;
 using System.Collections.Generic;
@@ -490,6 +491,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
+
                         if (await MediaFile.GetStorageItemAsync() is StorageFile CoreFile)
                         {
                             args.SetStorageFile(CoreFile);

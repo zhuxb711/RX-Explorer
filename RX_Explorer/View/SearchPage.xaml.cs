@@ -682,7 +682,7 @@ namespace RX_Explorer.View
                     }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                 }
 
-                if (Item is not (IMTPStorageItem or IFTPStorageItem))
+                if (Item is not INotWin32StorageItem)
                 {
                     DelayTooltipCancellation?.Cancel();
                     DelayTooltipCancellation?.Dispose();
@@ -1269,7 +1269,7 @@ namespace RX_Explorer.View
                                             await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
                                         }
                                     }
-                                    else if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                                    else if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
                                     {
                                         foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                                         {
@@ -1496,7 +1496,7 @@ namespace RX_Explorer.View
                                                         await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(ItemPath));
                                                     }
                                                 }
-                                                else if (Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                                else if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(ItemPath, NewName));
                                                 }
@@ -1558,7 +1558,7 @@ namespace RX_Explorer.View
                                                         await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(OriginItem.Path));
                                                     }
                                                 }
-                                                else if(Presenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                                else if(Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
                                                 }

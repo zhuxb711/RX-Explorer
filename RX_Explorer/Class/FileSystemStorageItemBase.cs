@@ -176,13 +176,25 @@ namespace RX_Explorer.Class
                     else if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                              || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                     {
-                        FTPPathAnalysis Analysis = new FTPPathAnalysis(Path);
+                        FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
-                        if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                        if (await FtpClientManager.GetClientControllerAsync(Analysis) is FtpClientController Controller)
                         {
                             if (Analysis.IsRootDirectory
                                 || await Controller.RunCommandAsync((Client) => Client.DirectoryExistsAsync(Analysis.RelatedPath))
-                                || await Controller.RunCommandAsync((Client) => Client.FileExistsAsync(Analysis.RelatedPath)))
+                                || await Controller.RunCommandAsync((Client) => Client.FileExistsAsync(Analysis.RelatedPath))
+                                || await Controller.RunCommandAsync((Client) => Client.GetNameListingAsync(Analysis.RelatedPath)
+                                                                                      .ContinueWith((PreviousTask) =>
+                                                                                      {
+                                                                                          if (PreviousTask.Exception != null)
+                                                                                          {
+                                                                                              return false;
+                                                                                          }
+                                                                                          else
+                                                                                          {
+                                                                                              return PreviousTask.Result.Length > 0;
+                                                                                          }
+                                                                                      }, TaskContinuationOptions.ExecuteSynchronously)))
                             {
                                 return true;
                             }
@@ -285,24 +297,40 @@ namespace RX_Explorer.Class
                     else if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                              || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                     {
-                        FTPPathAnalysis Analysis = new FTPPathAnalysis(Path);
+                        FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
-                        if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController FTPController)
+                        if ((await FtpClientManager.GetClientControllerAsync(Analysis) 
+                             ?? await FtpClientManager.CreateClientControllerAsync(Analysis)) is FtpClientController Controller)
                         {
                             if (Analysis.IsRootDirectory)
                             {
-                                return new FTPStorageFolder(FTPController, new FTPFileData(Path));
+                                return new FtpStorageFolder(Controller, new FtpFileData(Analysis));
                             }
-                            else if (await FTPController.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                            else if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
                             {
                                 if (Item.Type.HasFlag(FtpObjectType.Directory))
                                 {
-                                    return new FTPStorageFolder(FTPController, new FTPFileData(Path, Item));
+                                    return new FtpStorageFolder(Controller, new FtpFileData(Analysis, Item));
                                 }
                                 else
                                 {
-                                    return new FTPStorageFile(FTPController, new FTPFileData(Path, Item));
+                                    return new FtpStorageFile(Controller, new FtpFileData(Analysis, Item));
                                 }
+                            }
+                            else if (await Controller.RunCommandAsync((Client) => Client.GetNameListingAsync(Analysis.RelatedPath)
+                                                                                           .ContinueWith((PreviousTask) =>
+                                                                                           {
+                                                                                               if (PreviousTask.Exception != null)
+                                                                                               {
+                                                                                                   return false;
+                                                                                               }
+                                                                                               else
+                                                                                               {
+                                                                                                   return PreviousTask.Result.Length > 0;
+                                                                                               }
+                                                                                           }, TaskContinuationOptions.ExecuteSynchronously)))
+                            {
+                                return new FtpStorageFolder(Controller, new FtpFileData(Analysis));
                             }
                         }
                     }
@@ -426,9 +454,9 @@ namespace RX_Explorer.Class
                 else if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                          || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                 {
-                    FTPPathAnalysis Analysis = new FTPPathAnalysis(Path);
+                    FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
-                    if (await FTPClientManager.GetClientControllerAsync(Analysis) is FTPClientController Controller)
+                    if (await FtpClientManager.GetClientControllerAsync(Analysis) is FtpClientController Controller)
                     {
                         if (ItemType == CreateType.Folder)
                         {
@@ -440,7 +468,7 @@ namespace RX_Explorer.Class
 
                                         if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
                                         {
-                                            return new FTPStorageFolder(Controller, new FTPFileData(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name), Item));
+                                            return new FtpStorageFolder(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                         }
 
                                         break;
@@ -453,7 +481,7 @@ namespace RX_Explorer.Class
                                         {
                                             if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(UniquePath, true)) is FtpListItem Item)
                                             {
-                                                return new FTPStorageFolder(Controller, new FTPFileData(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name), Item));
+                                                return new FtpStorageFolder(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                             }
                                         }
 
@@ -467,7 +495,7 @@ namespace RX_Explorer.Class
                                         {
                                             if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
                                             {
-                                                return new FTPStorageFolder(Controller, new FTPFileData(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name), Item));
+                                                return new FtpStorageFolder(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                             }
                                         }
 
@@ -485,7 +513,7 @@ namespace RX_Explorer.Class
                                         {
                                             if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
                                             {
-                                                return new FTPStorageFile(Controller, new FTPFileData(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name), Item));
+                                                return new FtpStorageFile(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                             }
                                         }
 
@@ -499,7 +527,7 @@ namespace RX_Explorer.Class
                                         {
                                             if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(UniquePath, true)) is FtpListItem Item)
                                             {
-                                                return new FTPStorageFile(Controller, new FTPFileData(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name), Item));
+                                                return new FtpStorageFile(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                             }
                                         }
 
@@ -511,7 +539,7 @@ namespace RX_Explorer.Class
                                         {
                                             if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
                                             {
-                                                return new FTPStorageFile(Controller, new FTPFileData(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name), Item));
+                                                return new FtpStorageFile(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                             }
                                         }
 
@@ -1146,7 +1174,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageItemBase(FTPFileData Data) : this(Data?.Path)
+        protected FileSystemStorageItemBase(FtpFileData Data) : this(Data?.Path)
         {
             if (Data != null)
             {

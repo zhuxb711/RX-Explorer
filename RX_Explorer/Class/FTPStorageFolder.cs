@@ -18,10 +18,10 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FTPStorageFolder : FileSystemStorageFolder, IFTPStorageItem
+    public class FtpStorageFolder : FileSystemStorageFolder, IFtpStorageItem, INotWin32StorageItem
     {
-        private readonly FTPFileData Data;
-        private readonly FTPClientController ClientController;
+        private readonly FtpFileData Data;
+        private readonly FtpClientController ClientController;
 
         public string RelatedPath { get => Data.RelatedPath; }
 
@@ -81,7 +81,7 @@ namespace RX_Explorer.Class
                     {
                         if (Filter.HasFlag(BasicFilters.Folder))
                         {
-                            FTPStorageFolder SubFolder = new FTPStorageFolder(ClientController, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item));
+                            FtpStorageFolder SubFolder = new FtpStorageFolder(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
 
                             yield return SubFolder;
 
@@ -98,7 +98,7 @@ namespace RX_Explorer.Class
                     {
                         if (Filter.HasFlag(BasicFilters.File))
                         {
-                            yield return new FTPStorageFile(ClientController, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item));
+                            yield return new FtpStorageFile(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
                         }
                     }
                 }
@@ -158,7 +158,7 @@ namespace RX_Explorer.Class
 
                                 if (await ClientController.RunCommandAsync((Client) => Client.GetObjectInfoAsync(TargetPath, true)) is FtpListItem Item)
                                 {
-                                    return new FTPStorageFolder(ClientController, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item));
+                                    return new FtpStorageFolder(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
                                 }
 
                                 break;
@@ -171,7 +171,7 @@ namespace RX_Explorer.Class
                                 {
                                     if (await ClientController.RunCommandAsync((Client) => Client.GetObjectInfoAsync(UniquePath, true)) is FtpListItem Item)
                                     {
-                                        return new FTPStorageFolder(ClientController, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item));
+                                        return new FtpStorageFolder(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
                                     }
                                 }
 
@@ -185,7 +185,7 @@ namespace RX_Explorer.Class
                                 {
                                     if (await ClientController.RunCommandAsync((Client) => Client.GetObjectInfoAsync(TargetPath, true)) is FtpListItem Item)
                                     {
-                                        return new FTPStorageFolder(ClientController, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item));
+                                        return new FtpStorageFolder(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
                                     }
                                 }
 
@@ -203,7 +203,7 @@ namespace RX_Explorer.Class
                                 {
                                     if (await ClientController.RunCommandAsync((Client) => Client.GetObjectInfoAsync(TargetPath, true)) is FtpListItem Item)
                                     {
-                                        return new FTPStorageFile(ClientController, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item));
+                                        return new FtpStorageFile(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
                                     }
                                 }
 
@@ -217,7 +217,7 @@ namespace RX_Explorer.Class
                                 {
                                     if (await ClientController.RunCommandAsync((Client) => Client.GetObjectInfoAsync(UniquePath, true)) is FtpListItem Item)
                                     {
-                                        return new FTPStorageFile(ClientController, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item));
+                                        return new FtpStorageFile(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
                                     }
                                 }
 
@@ -229,7 +229,7 @@ namespace RX_Explorer.Class
                                 {
                                     if (await ClientController.RunCommandAsync((Client) => Client.GetObjectInfoAsync(TargetPath, true)) is FtpListItem Item)
                                     {
-                                        return new FTPStorageFile(ClientController, new FTPFileData(System.IO.Path.Combine(Path, Item.Name), Item));
+                                        return new FtpStorageFile(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
                                     }
                                 }
 
@@ -246,7 +246,7 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public Task<FTPFileData> GetRawDataAsync()
+        public Task<FtpFileData> GetRawDataAsync()
         {
             return Task.FromResult(Data);
         }
@@ -260,9 +260,9 @@ namespace RX_Explorer.Class
                 if (DirectoryPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                     || DirectoryPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                 {
-                    FTPPathAnalysis TargetAnalysis = new FTPPathAnalysis(TargetPath);
+                    FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(TargetPath);
 
-                    if (await FTPClientManager.GetClientControllerAsync(TargetAnalysis) is FTPClientController TargetClientController)
+                    if (await FtpClientManager.GetClientControllerAsync(TargetAnalysis) is FtpClientController TargetClientController)
                     {
                         ulong CurrentPosiion = 0;
                         ulong TotalSize = await GetFolderSizeAsync(CancelToken);
@@ -282,13 +282,13 @@ namespace RX_Explorer.Class
                                     {
                                         switch (Item)
                                         {
-                                            case FTPStorageFolder Folder:
+                                            case FtpStorageFolder Folder:
                                                 {
                                                     await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
 
                                                     break;
                                                 }
-                                            case FTPStorageFile File:
+                                            case FtpStorageFile File:
                                                 {
                                                     string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
@@ -316,13 +316,13 @@ namespace RX_Explorer.Class
                                     {
                                         switch (Item)
                                         {
-                                            case FTPStorageFolder Folder:
+                                            case FtpStorageFolder Folder:
                                                 {
                                                     await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{UniquePath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
 
                                                     break;
                                                 }
-                                            case FTPStorageFile File:
+                                            case FtpStorageFile File:
                                                 {
                                                     string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
@@ -348,13 +348,13 @@ namespace RX_Explorer.Class
                                         {
                                             switch (Item)
                                             {
-                                                case FTPStorageFolder Folder:
+                                                case FtpStorageFolder Folder:
                                                     {
                                                         await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
 
                                                         break;
                                                     }
-                                                case FTPStorageFile File:
+                                                case FtpStorageFile File:
                                                     {
                                                         string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
@@ -395,7 +395,7 @@ namespace RX_Explorer.Class
                                     {
                                         switch (Item)
                                         {
-                                            case FTPStorageFolder Folder:
+                                            case FtpStorageFolder Folder:
                                                 {
                                                     string SubFolderPath = System.IO.Path.Combine(NewFolder.Path, System.IO.Path.GetRelativePath(Path, Folder.Path));
 
@@ -406,7 +406,7 @@ namespace RX_Explorer.Class
 
                                                     break;
                                                 }
-                                            case FTPStorageFile File:
+                                            case FtpStorageFile File:
                                                 {
                                                     string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
@@ -437,7 +437,7 @@ namespace RX_Explorer.Class
                                     {
                                         switch (Item)
                                         {
-                                            case FTPStorageFolder Folder:
+                                            case FtpStorageFolder Folder:
                                                 {
                                                     string SubFolderPath = System.IO.Path.Combine(NewFolder.Path, System.IO.Path.GetRelativePath(Path, Folder.Path));
 
@@ -448,7 +448,7 @@ namespace RX_Explorer.Class
 
                                                     break;
                                                 }
-                                            case FTPStorageFile File:
+                                            case FtpStorageFile File:
                                                 {
                                                     string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
@@ -481,7 +481,7 @@ namespace RX_Explorer.Class
                                         {
                                             switch (Item)
                                             {
-                                                case FTPStorageFolder Folder:
+                                                case FtpStorageFolder Folder:
                                                     {
                                                         string SubFolderPath = System.IO.Path.Combine(NewFolder.Path, System.IO.Path.GetRelativePath(Path, Folder.Path));
 
@@ -492,7 +492,7 @@ namespace RX_Explorer.Class
 
                                                         break;
                                                     }
-                                                case FTPStorageFile File:
+                                                case FtpStorageFile File:
                                                     {
                                                         string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
@@ -534,9 +534,9 @@ namespace RX_Explorer.Class
                 if (DirectoryPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                     || DirectoryPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                 {
-                    FTPPathAnalysis TargetAnalysis = new FTPPathAnalysis(TargetPath);
+                    FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(TargetPath);
 
-                    if (await FTPClientManager.GetClientControllerAsync(TargetAnalysis) is FTPClientController TargetClientController)
+                    if (await FtpClientManager.GetClientControllerAsync(TargetAnalysis) is FtpClientController TargetClientController)
                     {
                         switch (Option)
                         {
@@ -593,7 +593,7 @@ namespace RX_Explorer.Class
                                     {
                                         switch (Item)
                                         {
-                                            case FTPStorageFolder Folder:
+                                            case FtpStorageFolder Folder:
                                                 {
                                                     string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(Folder.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, Folder.Path);
 
@@ -604,7 +604,7 @@ namespace RX_Explorer.Class
 
                                                     break;
                                                 }
-                                            case FTPStorageFile File:
+                                            case FtpStorageFile File:
                                                 {
                                                     string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
@@ -631,7 +631,7 @@ namespace RX_Explorer.Class
                                     {
                                         switch (Item)
                                         {
-                                            case FTPStorageFolder Folder:
+                                            case FtpStorageFolder Folder:
                                                 {
                                                     string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(Folder.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, Folder.Path);
 
@@ -642,7 +642,7 @@ namespace RX_Explorer.Class
 
                                                     break;
                                                 }
-                                            case FTPStorageFile File:
+                                            case FtpStorageFile File:
                                                 {
                                                     string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
@@ -671,7 +671,7 @@ namespace RX_Explorer.Class
                                         {
                                             switch (Item)
                                             {
-                                                case FTPStorageFolder Folder:
+                                                case FtpStorageFolder Folder:
                                                     {
                                                         string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(Folder.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, Folder.Path);
 
@@ -682,7 +682,7 @@ namespace RX_Explorer.Class
 
                                                         break;
                                                     }
-                                                case FTPStorageFile File:
+                                                case FtpStorageFile File:
                                                     {
                                                         string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
@@ -746,7 +746,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public FTPStorageFolder(FTPClientController ClientController, FTPFileData Data) : base(Data)
+        public FtpStorageFolder(FtpClientController ClientController, FtpFileData Data) : base(Data)
         {
             this.Data = Data;
             this.ClientController = ClientController;

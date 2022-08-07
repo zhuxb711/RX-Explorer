@@ -45,7 +45,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public FileSystemStorageFolder(FTPFileData Data) : base(Data)
+        public FileSystemStorageFolder(FtpFileData Data) : base(Data)
         {
 
         }
@@ -552,9 +552,9 @@ namespace RX_Explorer.Class
             if (DirectoryPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                 || DirectoryPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
             {
-                FTPPathAnalysis TargetAnalysis = new FTPPathAnalysis(System.IO.Path.Combine(DirectoryPath, Name));
+                FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(System.IO.Path.Combine(DirectoryPath, Name));
 
-                if (await FTPClientManager.GetClientControllerAsync(TargetAnalysis) is FTPClientController TargetClientController)
+                if (await FtpClientManager.GetClientControllerAsync(TargetAnalysis) is FtpClientController TargetClientController)
                 {
                     ulong CurrentPosiion = 0;
                     ulong TotalSize = await GetFolderSizeAsync(CancelToken);
@@ -690,9 +690,9 @@ namespace RX_Explorer.Class
             if (DirectoryPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                 || DirectoryPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
             {
-                FTPPathAnalysis TargetAnalysis = new FTPPathAnalysis(System.IO.Path.Combine(DirectoryPath, Name));
+                FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(System.IO.Path.Combine(DirectoryPath, Name));
 
-                if (await FTPClientManager.GetClientControllerAsync(TargetAnalysis) is FTPClientController TargetClientController)
+                if (await FtpClientManager.GetClientControllerAsync(TargetAnalysis) is FtpClientController TargetClientController)
                 {
                     ulong CurrentPosiion = 0;
                     ulong TotalSize = await GetFolderSizeAsync(CancelToken);

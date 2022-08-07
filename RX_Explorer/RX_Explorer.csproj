@@ -112,13 +112,13 @@
     <Compile Include="Class\AddressBlock.cs" />
     <Compile Include="Class\DisposableObjectManager.cs" />
     <Compile Include="Class\ExtendedDataFormats.cs" />
-    <Compile Include="Class\FTPClientController.cs" />
-    <Compile Include="Class\FTPClientManager.cs" />
-    <Compile Include="Class\FTPFileData.cs" />
-    <Compile Include="Class\FTPFileSaveOnFlushStream.cs" />
-    <Compile Include="Class\FTPPathAnalysis.cs" />
-    <Compile Include="Class\FTPStorageFile.cs" />
-    <Compile Include="Class\FTPStorageFolder.cs" />
+    <Compile Include="Class\FtpClientController.cs" />
+    <Compile Include="Class\FtpClientManager.cs" />
+    <Compile Include="Class\FtpFileData.cs" />
+    <Compile Include="Class\FtpFileSaveOnFlushStream.cs" />
+    <Compile Include="Class\FtpPathAnalysis.cs" />
+    <Compile Include="Class\FtpStorageFile.cs" />
+    <Compile Include="Class\FtpStorageFolder.cs" />
     <Compile Include="Class\Helper.cs" />
     <Compile Include="Class\LabelCollectionVirtualFolder.cs" />
     <Compile Include="Class\LibraryFolderRecord.cs" />
@@ -252,9 +252,10 @@
     <Compile Include="Dialog\SecureAreaChangeLocationDialog.xaml.cs">
       <DependentUpon>SecureAreaChangeLocationDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Interface\IFTPStorageItem.cs" />
+    <Compile Include="Interface\IFtpStorageItem.cs" />
     <Compile Include="Interface\IMTPStorageItem.cs" />
     <Compile Include="Interface\IUnsupportedStorageItem.cs" />
+    <Compile Include="Interface\INotWin32StorageItem.cs" />
     <Compile Include="View\SettingPage.xaml.cs">
       <DependentUpon>SettingPage.xaml</DependentUpon>
     </Compile>

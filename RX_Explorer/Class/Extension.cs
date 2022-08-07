@@ -243,7 +243,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IEnumerable<FileSystemStorageItemBase> SpecialItems = Collection.Where((Item) => Item is IFTPStorageItem or IMTPStorageItem);
+                IEnumerable<FileSystemStorageItemBase> SpecialItems = Collection.Where((Item) => Item is INotWin32StorageItem);
                 IEnumerable<FileSystemStorageItemBase> NormalItems = Collection.Except(SpecialItems);
 
                 IEnumerable<IStorageItem> CoreStorageItemList = (await Task.WhenAll(NormalItems.Select((Item) => Item.GetStorageItemAsync()))).OfType<IStorageItem>();

@@ -17,11 +17,11 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    internal class FTPStorageFile : FileSystemStorageFile, IFTPStorageItem
+    internal class FtpStorageFile : FileSystemStorageFile, IFtpStorageItem, INotWin32StorageItem
     {
         private string InnerDisplayType;
-        private readonly FTPFileData Data;
-        private readonly FTPClientController ClientController;
+        private readonly FtpFileData Data;
+        private readonly FtpClientController ClientController;
 
         public string RelatedPath { get => Data.RelatedPath; }
 
@@ -162,16 +162,7 @@ namespace RX_Explorer.Class
 
         public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
-            Stream Stream = await CreateTemporaryFileStreamAsync();
-
-            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(Stream, RelatedPath)))
-            {
-                throw new InvalidDataException();
-            }
-
-            Stream.Seek(0, SeekOrigin.Begin);
-
-            return new FTPFileSaveOnFlushStream(Path, ClientController, Stream);
+            return new FtpFileSaveOnFlushStream(Path, ClientController, await ClientController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, 0)));
         }
 
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
@@ -184,7 +175,7 @@ namespace RX_Explorer.Class
             return Task.FromResult(Size);
         }
 
-        public Task<FTPFileData> GetRawDataAsync()
+        public Task<FtpFileData> GetRawDataAsync()
         {
             return Task.FromResult(Data);
         }
@@ -198,9 +189,9 @@ namespace RX_Explorer.Class
                 if (DirectoryPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                     || DirectoryPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                 {
-                    FTPPathAnalysis TargetAnalysis = new FTPPathAnalysis(TargetPath);
+                    FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(TargetPath);
 
-                    if (await FTPClientManager.GetClientControllerAsync(TargetAnalysis) is FTPClientController TargetClientController)
+                    if (await FtpClientManager.GetClientControllerAsync(TargetAnalysis) is FtpClientController TargetClientController)
                     {
                         using (Stream TempFileStream = await CreateTemporaryFileStreamAsync())
                         {
@@ -343,9 +334,9 @@ namespace RX_Explorer.Class
                 if (DirectoryPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
                     || DirectoryPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
                 {
-                    FTPPathAnalysis TargetAnalysis = new FTPPathAnalysis(TargetPath);
+                    FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(TargetPath);
 
-                    if (await FTPClientManager.GetClientControllerAsync(TargetAnalysis) is FTPClientController TargetClientController)
+                    if (await FtpClientManager.GetClientControllerAsync(TargetAnalysis) is FtpClientController TargetClientController)
                     {
                         if (TargetClientController == ClientController)
                         {
@@ -491,7 +482,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public FTPStorageFile(FTPClientController ClientController, FTPFileData Data) : base(Data)
+        public FtpStorageFile(FtpClientController ClientController, FtpFileData Data) : base(Data)
         {
             this.Data = Data;
             this.ClientController = ClientController;

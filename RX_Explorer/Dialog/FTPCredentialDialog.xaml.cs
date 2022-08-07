@@ -1,10 +1,7 @@
 ﻿using FluentFTP;
 using RX_Explorer.Class;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
-using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -14,13 +11,13 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class FTPCredentialDialog : QueueContentDialog
     {
-        private readonly FTPPathAnalysis Analysis;
+        private readonly FtpPathAnalysis Analysis;
 
         private readonly CredentialProtector Protector;
 
-        public FTPClientController FtpController { get; private set; }
+        public FtpClientController FtpController { get; private set; }
 
-        public FTPCredentialDialog(FTPPathAnalysis Analysis) : this()
+        public FTPCredentialDialog(FtpPathAnalysis Analysis) : this()
         {
             this.Analysis = Analysis;
 
@@ -59,16 +56,7 @@ namespace RX_Explorer.Dialog
                     ProgressControl.Visibility = Visibility.Visible;
                     AnonymousLogin.IsEnabled = false;
 
-                    FTPClientController Controller = new FTPClientController(Analysis.Host, Analysis.Port, "anonymous", "anonymous");
-
-                    if (await Controller.ConnectAsync())
-                    {
-                        FtpController = Controller;
-                    }
-                    else
-                    {
-                        throw new TimeoutException("Ftp server do not response in time");
-                    }
+                    FtpController = await FtpClientController.CreateAsync(Analysis.Host, Analysis.Port, "anonymous", "anonymous");
                 }
                 else
                 {
@@ -84,24 +72,15 @@ namespace RX_Explorer.Dialog
                         ProgressControl.Visibility = Visibility.Visible;
                         AnonymousLogin.IsEnabled = false;
 
-                        FTPClientController Controller = new FTPClientController(Analysis.Host, Analysis.Port, AccountBox.Text, PasswordBox.Password);
+                        FtpController = await FtpClientController.CreateAsync(Analysis.Host, Analysis.Port, AccountBox.Text, PasswordBox.Password);
 
-                        if (await Controller.ConnectAsync())
+                        if (SavePassword.IsChecked.GetValueOrDefault())
                         {
-                            FtpController = Controller;
-
-                            if (SavePassword.IsChecked.GetValueOrDefault())
-                            {
-                                Protector.RequestProtection(AccountBox.Text, PasswordBox.Password);
-                            }
-                            else if (Protector.CheckExists(AccountBox.Text))
-                            {
-                                Protector.RemoveProtection(AccountBox.Text);
-                            }
+                            Protector.RequestProtection(AccountBox.Text, PasswordBox.Password);
                         }
-                        else
+                        else if (Protector.CheckExists(AccountBox.Text))
                         {
-                            throw new TimeoutException("Ftp server do not response in time");
+                            Protector.RemoveProtection(AccountBox.Text);
                         }
                     }
                 }
@@ -130,7 +109,7 @@ namespace RX_Explorer.Dialog
                     Message.Text = Globalization.GetString("FTPCredentialDialogStatus4");
                 }
 
-                LogTracer.Log(ex, "Could not connect to the ftp server");
+                LogTracer.Log(ex, $"Could not connect to the ftp server \"{Analysis.Host}\"");
             }
             finally
             {

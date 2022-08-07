@@ -1248,7 +1248,7 @@ namespace RX_Explorer.View
                                         {
                                             FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
 
-                                            if (CurrentFolder is MTPStorageFolder or FTPStorageFolder && Path.GetDirectoryName(TargetContent.Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                            if (CurrentFolder is MTPStorageFolder or FtpStorageFolder && Path.GetDirectoryName(TargetContent.Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(TargetContent.Path));
                                             }
@@ -1486,7 +1486,7 @@ namespace RX_Explorer.View
                     return;
                 }
 
-                if (CurrentPresenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+                if (CurrentPresenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
                 {
                     SearchInEverythingEngine.IsEnabled = false;
                 }
@@ -1957,7 +1957,9 @@ namespace RX_Explorer.View
                                     AddressSuggestionList.AddRange(VarSuggestionList.Select((Pack) => new AddressSuggestionItem(Pack.Path, Pack.Variable, Visibility.Collapsed)));
                                 }
                             }
-                            else
+                            else if (!InputPath.StartsWith(@"\\?\", StringComparison.OrdinalIgnoreCase)
+                                     && !(InputPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
+                                          || InputPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)))
                             {
                                 string TargetPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(InputPath);
 
@@ -2237,7 +2239,7 @@ namespace RX_Explorer.View
                 }
                 catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is not (MTPStorageFolder or FTPStorageFolder))
+                    if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is not (MTPStorageFolder or FtpStorageFolder))
                     {
                         QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Block.Path));
                     }
@@ -2613,7 +2615,7 @@ namespace RX_Explorer.View
 
         private void SearchEngineFlyout_Opening(object sender, object e)
         {
-            if (CurrentPresenter.CurrentFolder is MTPStorageFolder or FTPStorageFolder)
+            if (CurrentPresenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
             {
                 BuiltInSearchAllSubFolders.Visibility = Visibility.Visible;
 

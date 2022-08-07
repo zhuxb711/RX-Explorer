@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace RX_Explorer.Class
 {
-    public sealed class FTPFileData
+    public sealed class FtpFileData
     {
         public string Path { get; }
 
@@ -24,62 +24,23 @@ namespace RX_Explorer.Class
 
         public DateTimeOffset ModifiedTime { get; }
 
-        public FTPFileData(string FTPPath, FtpListItem Item)
+        public FtpFileData(FtpPathAnalysis PathAnalysis, FtpListItem Item)
         {
-            if (Regex.IsMatch(FTPPath, @"^ftp(s)?:\\.+", RegexOptions.IgnoreCase))
-            {
-                if (Regex.IsMatch(FTPPath, @"^ftp(s)?:\\\\.+", RegexOptions.IgnoreCase))
-                {
-                    if (FTPPath.StartsWith("ftp:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        FTPPath = FTPPath.Remove(5, 1);
-                    }
-                    else if (Path.StartsWith("ftps:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        FTPPath = FTPPath.Remove(6, 1);
-                    }
-                }
-
-                Path = FTPPath.Replace("/", @"\");
-                Size = Convert.ToUInt64(Item.Size);
-                Permission = Item.OwnerPermissions;
-                RelatedPath = Item.FullName.Replace("/", @"\");
-                ModifiedTime = new DateTimeOffset(Item.Modified, TimeZoneInfo.Utc.BaseUtcOffset);
-                CreationTime = new DateTimeOffset(Item.Modified, TimeZoneInfo.Utc.BaseUtcOffset);
-            }
-            else
-            {
-                throw new NotSupportedException(Path);
-            }
+            Path = PathAnalysis.Path;
+            Size = Convert.ToUInt64(Item.Size);
+            Permission = Item.OwnerPermissions;
+            RelatedPath = PathAnalysis.RelatedPath;
+            ModifiedTime = new DateTimeOffset(Item.Modified, TimeZoneInfo.Utc.BaseUtcOffset);
+            CreationTime = new DateTimeOffset(Item.Modified, TimeZoneInfo.Utc.BaseUtcOffset);
         }
 
-        public FTPFileData(string FTPPath)
+        public FtpFileData(FtpPathAnalysis PathAnalysis)
         {
-            if (Regex.IsMatch(FTPPath, @"^ftp(s)?:\\.+", RegexOptions.IgnoreCase))
-            {
-                if (Regex.IsMatch(FTPPath, @"^ftp(s)?:\\\\.+", RegexOptions.IgnoreCase))
-                {
-                    if (FTPPath.StartsWith("ftp:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        FTPPath = FTPPath.Remove(5, 1);
-                    }
-                    else if (Path.StartsWith("ftps:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        FTPPath = FTPPath.Remove(6, 1);
-                    }
-                }
-
-                Path = FTPPath.Replace("/", @"\");
-                Size = 0;
-                Permission = FtpPermission.Read | FtpPermission.Write;
-                RelatedPath = @"\";
-                ModifiedTime = DateTimeOffset.MinValue;
-                CreationTime = DateTimeOffset.MinValue;
-            }
-            else
-            {
-                throw new NotSupportedException(Path);
-            }
+            Path = PathAnalysis.Path;
+            Permission = FtpPermission.Read | FtpPermission.Write;
+            RelatedPath = PathAnalysis.RelatedPath;
+            ModifiedTime = DateTimeOffset.MinValue;
+            CreationTime = DateTimeOffset.MinValue;
         }
     }
 }
