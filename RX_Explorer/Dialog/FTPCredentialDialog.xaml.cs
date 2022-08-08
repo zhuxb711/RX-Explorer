@@ -56,7 +56,7 @@ namespace RX_Explorer.Dialog
                     ProgressControl.Visibility = Visibility.Visible;
                     AnonymousLogin.IsEnabled = false;
 
-                    FtpController = await FtpClientController.CreateAsync(Analysis.Host, Analysis.Port, "anonymous", "anonymous");
+                    FtpController = await FtpClientController.CreateAsync(Analysis.Host, Analysis.Port, "anonymous", "anonymous", Analysis.Path.StartsWith("ftps", StringComparison.OrdinalIgnoreCase));
                 }
                 else
                 {
@@ -72,7 +72,7 @@ namespace RX_Explorer.Dialog
                         ProgressControl.Visibility = Visibility.Visible;
                         AnonymousLogin.IsEnabled = false;
 
-                        FtpController = await FtpClientController.CreateAsync(Analysis.Host, Analysis.Port, AccountBox.Text, PasswordBox.Password);
+                        FtpController = await FtpClientController.CreateAsync(Analysis.Host, Analysis.Port, AccountBox.Text, PasswordBox.Password, Analysis.Path.StartsWith("ftps", StringComparison.OrdinalIgnoreCase));
 
                         if (SavePassword.IsChecked.GetValueOrDefault())
                         {

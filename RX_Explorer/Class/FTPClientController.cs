@@ -1,6 +1,7 @@
 ﻿using FluentFTP;
 using System;
 using System.Collections.Concurrent;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace RX_Explorer.Class
 
         public int ServerPort => Client.Port;
 
-        public bool IsAvailable => Client.IsConnected && Client.IsAuthenticated;
+        public bool IsAvailable => Client.IsConnected && Client.IsAuthenticated && !Client.IsDisposed;
 
         private void ProcessCore()
         {
@@ -65,7 +66,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        Data.TaskSource.SetException(new FtpException("Connection lost"));
+                        Data.TaskSource.SetException(new FtpException("Ftp connection was lost"));
                     }
                 }
             }
@@ -107,61 +108,40 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (IsAvailable)
+                if (!IsAvailable)
                 {
-                    try
+                    foreach (FtpDataConnectionType ConnectionType in new FtpDataConnectionType[] { FtpDataConnectionType.AutoPassive, FtpDataConnectionType.AutoActive })
                     {
-                        if (await Task.Run(() => Client.Noop()))
+                        try
                         {
-                            using (CancellationTokenSource CancellationSource = new CancellationTokenSource(10000))
-                            {
-                                FtpReply Reply = await Client.GetReplyAsync(CancellationSource.Token);
+                            Client.DataConnectionType = ConnectionType;
 
-                                if (Reply.Success)
+                            using (CancellationTokenSource Cancellation = new CancellationTokenSource(30000))
+                            {
+                                await Client.ConnectAsync(Cancellation.Token);
+                                await Client.GetNameListingAsync(Cancellation.Token);
+
+                                if (IsAvailable)
                                 {
-                                    return;
+                                    break;
                                 }
                             }
                         }
-                        else
+                        catch (Exception)
                         {
-                            return;
+                            //No need to handle this exception
                         }
                     }
-                    catch (Exception)
-                    {
-                        //Connection lost and we continue to try reconnect
-                    }
-                }
 
-                if (await Client.AutoConnectAsync() is FtpProfile Profile)
-                {
                     if (IsAvailable)
                     {
-                        LogTracer.Log($"Ftp server is connected, protocal: {Profile.Protocols}, encryption: {Profile.Encryption}, encoding: {Profile.Encoding.EncodingName}");
-
-                        using (CancellationTokenSource CommandCancellation = new CancellationTokenSource(10000))
-                        {
-                            try
-                            {
-                                FtpReply EncodingReply = await Client.ExecuteAsync("OPTS UTF8 ON", CommandCancellation.Token);
-
-                                if (EncodingReply.Code != "200" && EncodingReply.Code != "202")
-                                {
-                                    Client.Encoding = Encoding.GetEncoding("ISO-8859-1");
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                //No need to handle this exception
-                            }
-                        }
-
-                        return;
+                        LogTracer.Log($"Ftp server is connected, protocal: {Client.SslProtocols}, encryption: {Client.EncryptionMode}, encoding: {Client.Encoding.EncodingName}");
+                    }
+                    else
+                    {
+                        throw new FtpException("Ftp server is not available");
                     }
                 }
-
-                throw new FtpException("Ftp server is not available");
             }
             finally
             {
@@ -185,9 +165,7 @@ namespace RX_Explorer.Class
                 TaskCollection.CompleteAdding();
                 TaskCollection.Dispose();
 
-                Client.Disconnect();
                 Client.Dispose();
-
                 Locker.Dispose();
             }
         }
@@ -206,29 +184,26 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<FtpClientController> CreateAsync(string Host, int Port, string UserName, string Password)
+        public static Task<FtpClientController> CreateAsync(string Host, int Port, string UserName, string Password, bool UseEncryption)
         {
-            FtpClientController Controller = new FtpClientController(Host, Port, UserName, Password);
-            await Controller.ConnectAsync();
-            return Controller;
+            return MakeSureConnectionAndCloseOnceFailedAsync(new FtpClientController(Host, Port, UserName, Password, UseEncryption));
         }
 
-        private FtpClientController(string Host, int Port, string UserName, string Password)
+        private FtpClientController(string Host, int Port, string UserName, string Password, bool UseEncryption)
         {
             Locker = new SemaphoreSlim(1, 1);
             TaskCollection = new BlockingCollection<FTPTaskData>();
 
             Client = new FtpClient(Host, Port, UserName, Password)
             {
-                NoopInterval = 5000,
                 Encoding = Encoding.UTF8,
                 TimeConversion = FtpDate.UTC,
                 LocalTimeZone = TimeZoneInfo.Local.BaseUtcOffset.Hours,
-                EncryptionMode = FtpEncryptionMode.Auto,
-                DataConnectionType = FtpDataConnectionType.AutoPassive,
-                ReadTimeout = 60000,
-                DataConnectionReadTimeout = 60000,
-                DataConnectionConnectTimeout = 60000,
+                EncryptionMode = UseEncryption ? FtpEncryptionMode.Implicit : FtpEncryptionMode.None,
+                SslProtocols = UseEncryption ? SslProtocols.Tls12 : SslProtocols.None,
+                ReadTimeout = 30000,
+                DataConnectionReadTimeout = 30000,
+                SocketKeepAlive = true,
             };
 
             ProcessThread = new Thread(ProcessCore)
