@@ -3064,8 +3064,6 @@ namespace RX_Explorer.View
 
                         if (ChildItems.Count > 0)
                         {
-                            HasFile.Visibility = Visibility.Collapsed;
-
                             if (Config.GroupTarget != GroupTarget.None)
                             {
                                 foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
@@ -3082,15 +3080,23 @@ namespace RX_Explorer.View
 
                             FileCollection.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
                         }
-                        else
-                        {
-                            HasFile.Visibility = Visibility.Visible;
-                        }
                     }
                 }
                 finally
                 {
-                    FileLoadProgress.Visibility = Visibility.Collapsed;
+                    if (FileLoadProgress.Visibility == Visibility.Visible)
+                    {
+                        FileLoadProgress.Visibility = Visibility.Collapsed;
+                    }
+
+                    if (FileCollection.Count > 0)
+                    {
+                        HasFile.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        HasFile.Visibility = Visibility.Visible;
+                    }
                 }
 
                 CancelToken.ThrowIfCancellationRequested();
