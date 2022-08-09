@@ -48,30 +48,27 @@ namespace RX_Explorer.Dialog
 
             try
             {
-                if (AnonymousLogin.IsChecked.GetValueOrDefault())
+                if (string.IsNullOrEmpty(AccountBox.Text))
+                {
+                    args.Cancel = true;
+                }
+                else
                 {
                     Message.Text = $"{Globalization.GetString("FTPCredentialDialogStatus1")}...";
                     Message.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
                     Message.Visibility = Visibility.Visible;
                     ProgressControl.Visibility = Visibility.Visible;
                     AnonymousLogin.IsEnabled = false;
+                    SavePassword.IsEnabled = false;
+                    AccountBox.IsEnabled = false;
+                    PasswordBox.IsEnabled = false;
 
-                    FtpController = await FtpClientController.CreateAsync(Analysis.Host, Analysis.Port, "anonymous", "anonymous", Analysis.Path.StartsWith("ftps", StringComparison.OrdinalIgnoreCase));
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(AccountBox.Text))
+                    if (AnonymousLogin.IsChecked.GetValueOrDefault())
                     {
-                        args.Cancel = true;
+                        FtpController = await FtpClientController.CreateAsync(Analysis.Host, Analysis.Port, "anonymous", "anonymous", Analysis.Path.StartsWith("ftps", StringComparison.OrdinalIgnoreCase));
                     }
                     else
                     {
-                        Message.Text = $"{Globalization.GetString("FTPCredentialDialogStatus1")}...";
-                        Message.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
-                        Message.Visibility = Visibility.Visible;
-                        ProgressControl.Visibility = Visibility.Visible;
-                        AnonymousLogin.IsEnabled = false;
-
                         FtpController = await FtpClientController.CreateAsync(Analysis.Host, Analysis.Port, AccountBox.Text, PasswordBox.Password, Analysis.Path.StartsWith("ftps", StringComparison.OrdinalIgnoreCase));
 
                         if (SavePassword.IsChecked.GetValueOrDefault())
@@ -90,6 +87,10 @@ namespace RX_Explorer.Dialog
                 args.Cancel = true;
 
                 AnonymousLogin.IsEnabled = true;
+                SavePassword.IsEnabled = true;
+                AccountBox.IsEnabled = true;
+                PasswordBox.IsEnabled = true;
+
                 Message.Foreground = new SolidColorBrush(Colors.Red);
                 ProgressControl.Visibility = Visibility.Collapsed;
 

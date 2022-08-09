@@ -125,6 +125,7 @@
     <Compile Include="Class\ListViewColumnWidthSaver.cs" />
     <Compile Include="Class\PixelNumberFormatter.cs" />
     <Compile Include="Class\SequentialCrossProcessReadonlyStream.cs" />
+    <Compile Include="Class\SequentialStreamRandomAccessStream.cs" />
     <Compile Include="Class\ViewHeightOffsetSaver.cs" />
     <Compile Include="Class\MonitorTrustProcessController.cs" />
     <Compile Include="Class\MTPDriveData.cs" />

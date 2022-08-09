@@ -77,6 +77,7 @@ namespace RX_Explorer.Class
         {
             Flush();
             BaseStream.Dispose();
+            base.Dispose(disposing);
         }
 
         protected VirtualSaveOnFlushBaseStream(Stream BaseStream)

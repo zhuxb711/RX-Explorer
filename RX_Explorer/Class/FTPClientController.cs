@@ -110,7 +110,7 @@ namespace RX_Explorer.Class
             {
                 if (!IsAvailable)
                 {
-                    foreach (FtpDataConnectionType ConnectionType in new FtpDataConnectionType[] { FtpDataConnectionType.AutoPassive, FtpDataConnectionType.AutoActive })
+                    foreach (FtpDataConnectionType ConnectionType in new FtpDataConnectionType[] { FtpDataConnectionType.PASV, FtpDataConnectionType.PORT })
                     {
                         try
                         {

@@ -163,7 +163,7 @@ namespace RX_Explorer.Class
 
         public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
-            return new FtpFileSaveOnFlushStream(Path, ClientController, await ClientController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, 0)));
+            return new FtpFileSaveOnFlushStream(Path, ClientController, await SequentialStreamRandomAccessStream.CreateAsync(await ClientController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size))));
         }
 
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)

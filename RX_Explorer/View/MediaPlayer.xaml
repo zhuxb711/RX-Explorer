@@ -29,7 +29,6 @@
                             VerticalAlignment="Stretch">
             <MediaPlayerElement.TransportControls>
                 <MediaTransportControls Name="TransportControls"
-                                        MaxHeight="120"
                                         VerticalAlignment="Bottom"
                                         IsFullWindowButtonVisible="True"
                                         IsZoomButtonVisible="False"

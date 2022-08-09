@@ -6,9 +6,9 @@ namespace RX_Explorer.Class
 {
     public sealed class SignalContext
     {
-        private TaskCompletionSource<bool> WaitSource;
-        private TaskCompletionSource<bool> PauseSource;
         private bool IsCompleted;
+        private TaskCompletionSource<object> WaitSource;
+        private TaskCompletionSource<object> PauseSource;
 
         public async Task<IDisposable> SignalAndWaitTrappedAsync()
         {
@@ -18,15 +18,15 @@ namespace RX_Explorer.Class
             }
             else
             {
-                TaskCompletionSource<bool> WaitSource = new TaskCompletionSource<bool>();
-                TaskCompletionSource<bool> PauseSource = new TaskCompletionSource<bool>();
+                TaskCompletionSource<object> WaitSource = new TaskCompletionSource<object>();
+                TaskCompletionSource<object> PauseSource = new TaskCompletionSource<object>();
 
-                if (Interlocked.Exchange(ref this.PauseSource, PauseSource) is TaskCompletionSource<bool> OldPauseSource)
+                if (Interlocked.Exchange(ref this.PauseSource, PauseSource) is TaskCompletionSource<object> OldPauseSource)
                 {
                     OldPauseSource.TrySetCanceled();
                 }
 
-                if (Interlocked.Exchange(ref this.WaitSource, WaitSource) is TaskCompletionSource<bool> OldWaitSource)
+                if (Interlocked.Exchange(ref this.WaitSource, WaitSource) is TaskCompletionSource<object> OldWaitSource)
                 {
                     OldWaitSource.TrySetCanceled();
                 }
@@ -35,18 +35,18 @@ namespace RX_Explorer.Class
 
                 return new DisposeNotification(() =>
                 {
-                    WaitSource.TrySetResult(true);
+                    WaitSource.TrySetResult(null);
                 });
             }
         }
 
         public async Task TrapOnSignalAsync()
         {
-            if (Interlocked.Exchange(ref this.WaitSource, null) is TaskCompletionSource<bool> WaitSource)
+            if (Interlocked.Exchange(ref this.WaitSource, null) is TaskCompletionSource<object> WaitSource)
             {
-                if (Interlocked.Exchange(ref this.PauseSource, null) is TaskCompletionSource<bool> PauseSource)
+                if (Interlocked.Exchange(ref this.PauseSource, null) is TaskCompletionSource<object> PauseSource)
                 {
-                    PauseSource.TrySetResult(true);
+                    PauseSource.TrySetResult(null);
                 }
 
                 await WaitSource.Task;

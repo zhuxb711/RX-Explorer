@@ -12,6 +12,8 @@ namespace RX_Explorer.Class
         private readonly NamedPipeServerStream BaseStream;
         private readonly CancellationTokenSource Cancellation;
 
+        public bool IsConnected => BaseStream.IsConnected;
+
         public override bool CanRead => true;
 
         public override bool CanSeek => false;

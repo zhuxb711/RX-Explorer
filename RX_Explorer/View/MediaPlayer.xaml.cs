@@ -65,6 +65,7 @@ namespace RX_Explorer.View
 
             try
             {
+                MVControl.MediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
                 MVControl.Source = await GenerateMediaPlaybackList(MediaFile, CancelToken);
             }
             catch (OperationCanceledException)
@@ -97,7 +98,7 @@ namespace RX_Explorer.View
         {
             MediaPlaybackList PlaybackList = new MediaPlaybackList
             {
-                MaxPrefetchTime = TimeSpan.FromSeconds(10),
+                MaxPrefetchTime = TimeSpan.FromSeconds(5),
                 MaxPlayedItemsToKeepOpen = 0
             };
 
@@ -197,7 +198,8 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(TargetMediaFile.Path)) is FileSystemStorageFolder BaseFolder)
+                    if (TargetMediaFile is not INotWin32StorageItem
+                        && await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(TargetMediaFile.Path)) is FileSystemStorageFolder BaseFolder)
                     {
                         switch (TargetMediaFile.Type.ToLower())
                         {
@@ -491,7 +493,6 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-
                         if (await MediaFile.GetStorageItemAsync() is StorageFile CoreFile)
                         {
                             args.SetStorageFile(CoreFile);
@@ -673,10 +674,8 @@ namespace RX_Explorer.View
         {
             if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse
                 && e.GetCurrentPoint(null).Properties.IsLeftButtonPressed
-                && (e.OriginalSource as FrameworkElement).FindParentOfType<MediaTransportControls>() is null)
+                && MVControl.ActualHeight - e.GetCurrentPoint(MVControl).Position.Y > 100)
             {
-                e.Handled = true;
-
                 if (MVControl.MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Paused)
                 {
                     MVControl.MediaPlayer.Play();
