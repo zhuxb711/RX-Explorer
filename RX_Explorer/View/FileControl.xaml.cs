@@ -462,20 +462,9 @@ namespace RX_Explorer.View
                             CurrentSplit[0] = RootPath;
                         }
                     }
-                    else if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                             || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                    else if (Regex.IsMatch(Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                     {
-                        if (Regex.IsMatch(Path, @"^ftp(s)?:\\\\.+", RegexOptions.IgnoreCase))
-                        {
-                            if (Path.StartsWith("ftp:", StringComparison.OrdinalIgnoreCase))
-                            {
-                                Path = Path.Remove(5, 1);
-                            }
-                            else if (Path.StartsWith("ftps:", StringComparison.OrdinalIgnoreCase))
-                            {
-                                Path = Path.Remove(6, 1);
-                            }
-                        }
+                        Path = Regex.Replace(Path, @"\\+", @"\");
 
                         if (CurrentSplit.Length > 0)
                         {
@@ -539,8 +528,7 @@ namespace RX_Explorer.View
                                     {
                                         LastPathSplit[0] = $@"\\{LastPathSplit[0]}";
                                     }
-                                    else if (LastPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                                             || LastPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                                    else if (Regex.IsMatch(LastPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                                     {
                                         LastPathSplit = LastPathSplit.Skip(2).Prepend(string.Join(@"\", LastPathSplit.Take(2))).ToArray();
                                     }
@@ -580,8 +568,7 @@ namespace RX_Explorer.View
                                         {
                                             LastGrayPathSplit[0] = $@"\\{LastGrayPathSplit[0]}";
                                         }
-                                        else if (LastGrayPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                                                 || LastGrayPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                                        else if (Regex.IsMatch(LastGrayPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                                         {
                                             LastGrayPathSplit = LastGrayPathSplit.Skip(2).Prepend(string.Join(@"\", LastGrayPathSplit.Take(2))).ToArray();
                                         }
@@ -612,8 +599,7 @@ namespace RX_Explorer.View
                                         {
                                             LastPathSplit[0] = $@"\\{LastPathSplit[0]}";
                                         }
-                                        else if (LastPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                                                 || LastPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                                        else if (Regex.IsMatch(LastPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                                         {
                                             LastPathSplit = LastPathSplit.Skip(2).Prepend(string.Join(@"\", LastPathSplit.Take(2))).ToArray();
                                         }
@@ -657,8 +643,7 @@ namespace RX_Explorer.View
                                 {
                                     OriginSplit[0] = $@"\\{OriginSplit[0]}";
                                 }
-                                else if (CurrentPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                                         || CurrentPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                                else if (Regex.IsMatch(CurrentPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                                 {
                                     OriginSplit = OriginSplit.Skip(2).Prepend(string.Join(@"\", OriginSplit.Take(2))).ToArray();
                                 }
@@ -1724,9 +1709,7 @@ namespace RX_Explorer.View
                                 TargetPath = await Exclusive.Controller.ConvertShortPathToLongPathAsync(TargetPath);
                             }
 
-                            if (Regex.IsMatch(TargetPath, @"^\\?(?!\\).*")
-                                && !TargetPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                                && !TargetPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                            if (!Regex.IsMatch(TargetPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
                             {
                                 IReadOnlyList<VariableDataPackage> VariablePathList = await EnvironmentVariables.GetVariablePathListAsync();
 
@@ -1957,9 +1940,7 @@ namespace RX_Explorer.View
                                     AddressSuggestionList.AddRange(VarSuggestionList.Select((Pack) => new AddressSuggestionItem(Pack.Path, Pack.Variable, Visibility.Collapsed)));
                                 }
                             }
-                            else if (!InputPath.StartsWith(@"\\?\", StringComparison.OrdinalIgnoreCase)
-                                     && !(InputPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                                          || InputPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)))
+                            else if (!Regex.IsMatch(InputPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
                             {
                                 string TargetPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(InputPath);
 
@@ -3296,9 +3277,7 @@ namespace RX_Explorer.View
 
                 if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
                 {
-                    if (!Content.Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                        && !Content.Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)
-                        && !Content.Path.StartsWith(@"\\?\"))
+                    if (!Regex.IsMatch(Content.Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
                     {
                         MenuFlyoutItem SendLinkItem = new MenuFlyoutItem
                         {
@@ -3579,9 +3558,7 @@ namespace RX_Explorer.View
                 {
                     if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
                     {
-                        if (Content.Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                            || Content.Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)
-                            || Content.Path.StartsWith(@"\\?\"))
+                        if (Regex.IsMatch(Content.Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
                         {
                             NewWindowButton.Visibility = Visibility.Collapsed;
                         }

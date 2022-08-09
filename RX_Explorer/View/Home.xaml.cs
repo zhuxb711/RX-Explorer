@@ -814,7 +814,7 @@ namespace RX_Explorer.View
             {
                 switch ((sender as SelectorItem)?.Content)
                 {
-                    case LibraryStorageFolder Lib when !Lib.Path.StartsWith(@"\\?\") && !Lib.Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) && !Lib.Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase):
+                    case LibraryStorageFolder Lib when !Regex.IsMatch(Lib.Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase):
                         {
                             QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Lib.Path));
                             break;
@@ -1545,11 +1545,8 @@ namespace RX_Explorer.View
 
                 if (LibraryGrid.SelectedItem is LibraryStorageFolder SItem)
                 {
-                    if (!SItem.Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                        && !SItem.Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)
-                        && !SItem.Path.StartsWith(@"\\?\"))
+                    if (!Regex.IsMatch(SItem.Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
                     {
-
                         MenuFlyoutItem SendLinkItem = new MenuFlyoutItem
                         {
                             Name = "SendLinkItem",

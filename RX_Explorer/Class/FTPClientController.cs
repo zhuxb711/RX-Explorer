@@ -228,7 +228,7 @@ namespace RX_Explorer.Class
                 DataConnectionType = FtpDataConnectionType.AutoPassive,
                 ReadTimeout = 60000,
                 DataConnectionReadTimeout = 60000,
-                DataConnectionConnectTimeout = 60000,
+                DataConnectionConnectTimeout = 30000,
             };
 
             ProcessThread = new Thread(ProcessCore)

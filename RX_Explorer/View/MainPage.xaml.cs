@@ -308,6 +308,12 @@ namespace RX_Explorer.View
             {
                 SQLite.Current.DeleteLabelKindByPath(NoExistPath);
             }
+
+            //using (SequentialCrossProcessReadonlyStream ReadonlyStream = new SequentialCrossProcessReadonlyStream("RX_Explorer_MemoryMappedName"))
+            //using (MemoryStream TempStream = new MemoryStream())
+            //{
+            //    await ReadonlyStream.CopyToAsync(TempStream);
+            //}
         }
 
         private async void MainPage_BackRequested(object sender, BackRequestedEventArgs e)

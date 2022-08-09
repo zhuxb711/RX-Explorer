@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace RX_Explorer.Class
 {
@@ -67,8 +68,7 @@ namespace RX_Explorer.Class
                     {
                         Split[0] = $@"\\{Split[0]}\";
                     }
-                    else if (this.FullPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                             || this.FullPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                    else if (Regex.IsMatch(this.FullPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                     {
                         Split[0] = $@"{string.Join(@"\", Split.Take(2))}\";
                     }

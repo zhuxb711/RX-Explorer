@@ -22,9 +22,6 @@ namespace AuxiliaryTrustProcess
 {
     public static class Helper
     {
-        [DllImport("kernelbase.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern Win32Error GetStagedPackageOrigin(string packageFullName, out Kernel32.PackageOrigin origin);
-
         public static string GetActualNamedPipeNameFromUwpApplication(string PipeId, string AppContainerName = null, int ProcessId = 0)
         {
             if (ProcessId > 0)
@@ -722,7 +719,7 @@ namespace AuxiliaryTrustProcess
 
                     if (!string.IsNullOrEmpty(PackageFullName))
                     {
-                        if (GetStagedPackageOrigin(PackageFullName, out Kernel32.PackageOrigin Origin).Succeeded)
+                        if (Kernel32.GetStagedPackageOrigin(PackageFullName, out Kernel32.PackageOrigin Origin).Succeeded)
                         {
                             switch (Origin)
                             {

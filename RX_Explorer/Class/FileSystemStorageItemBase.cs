@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -173,8 +174,7 @@ namespace RX_Explorer.Class
                             return await Exclusive.Controller.MTPCheckExistsAsync(Path);
                         }
                     }
-                    else if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                             || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                    else if (Regex.IsMatch(Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                     {
                         FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
@@ -294,8 +294,7 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-                    else if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                             || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                    else if (Regex.IsMatch(Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                     {
                         FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
@@ -451,8 +450,7 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
-                else if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                         || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                else if (Regex.IsMatch(Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                 {
                     FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
@@ -701,9 +699,8 @@ namespace RX_Explorer.Class
 
         public static async Task CopyAsync(IEnumerable<string> CopyFrom, string CopyTo, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (CopyTo.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                || CopyTo.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)
-                || CopyFrom.All((Item) => Item.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) || Item.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)))
+            if (Regex.IsMatch(CopyTo, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)
+                || CopyFrom.All((Item) => Regex.IsMatch(Item, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)))
             {
                 int Progress = 0;
                 int ItemCount = CopyFrom.Count();
@@ -735,9 +732,8 @@ namespace RX_Explorer.Class
 
         public static async Task MoveAsync(IEnumerable<string> MoveFrom, string MoveTo, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (MoveTo.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                || MoveTo.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)
-                || MoveFrom.All((Item) => Item.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) || Item.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)))
+            if (Regex.IsMatch(MoveTo, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)
+                || MoveFrom.All((Item) => Regex.IsMatch(Item, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)))
             {
                 int Progress = 0;
                 int ItemCount = MoveFrom.Count();
@@ -769,7 +765,7 @@ namespace RX_Explorer.Class
 
         public static async Task DeleteAsync(IEnumerable<string> DeleteFrom, bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (DeleteFrom.All((Item) => Item.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase) || Item.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase)))
+            if (DeleteFrom.All((Item) => Regex.IsMatch(Item, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)))
             {
                 int Progress = 0;
                 int ItemCount = DeleteFrom.Count();
@@ -801,8 +797,7 @@ namespace RX_Explorer.Class
 
         public static async Task<string> RenameAsync(string Path, string DesireName, CancellationToken CancelToken = default)
         {
-            if (Path.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                || Path.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+            if (Regex.IsMatch(Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
             {
                 if (await OpenAsync(Path) is FileSystemStorageItemBase Item)
                 {

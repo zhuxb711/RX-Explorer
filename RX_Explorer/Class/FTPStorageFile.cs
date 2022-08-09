@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -186,8 +187,7 @@ namespace RX_Explorer.Class
             {
                 string TargetPath = System.IO.Path.Combine(DirectoryPath, Name);
 
-                if (DirectoryPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                    || DirectoryPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                if (Regex.IsMatch(DirectoryPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                 {
                     FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(TargetPath);
 
@@ -331,8 +331,7 @@ namespace RX_Explorer.Class
             {
                 string TargetPath = System.IO.Path.Combine(DirectoryPath, Name);
 
-                if (DirectoryPath.StartsWith(@"ftp:\", StringComparison.OrdinalIgnoreCase)
-                    || DirectoryPath.StartsWith(@"ftps:\", StringComparison.OrdinalIgnoreCase))
+                if (Regex.IsMatch(DirectoryPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                 {
                     FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(TargetPath);
 
