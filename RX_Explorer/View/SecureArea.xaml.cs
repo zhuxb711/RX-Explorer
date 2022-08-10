@@ -1091,17 +1091,14 @@ namespace RX_Explorer.View
 
                     try
                     {
-                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                        await FileSystemStorageItemBase.MoveAsync(new Dictionary<string, string>(SecureCollection.Select((Item) => new KeyValuePair<string, string>(Item.Path, null))), Folder.Path, SkipOperationRecord: true, ProgressHandler: async (s, e) =>
                         {
-                            await Exclusive.Controller.MoveAsync(SecureCollection.Select((Item) => Item.Path), Folder.Path, ProgressHandler: async (s, e) =>
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    ProBar.IsIndeterminate = false;
-                                    ProBar.Value = e.ProgressPercentage;
-                                });
+                                ProBar.IsIndeterminate = false;
+                                ProBar.Value = e.ProgressPercentage;
                             });
-                        }
+                        });
 
                         await LoadSecureFileAsync();
                     }

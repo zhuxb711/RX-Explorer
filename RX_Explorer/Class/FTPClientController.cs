@@ -20,7 +20,13 @@ namespace RX_Explorer.Class
 
         public int ServerPort => Client.Port;
 
+        public bool UseEncryption { get; }
+
         public bool IsAvailable => Client.IsConnected && Client.IsAuthenticated && !Client.IsDisposed;
+
+        private string UserName { get; }
+
+        private string Password { get; }
 
         private void ProcessCore()
         {
@@ -110,7 +116,7 @@ namespace RX_Explorer.Class
             {
                 if (!IsAvailable)
                 {
-                    foreach (FtpDataConnectionType ConnectionType in new FtpDataConnectionType[] { FtpDataConnectionType.PASV, FtpDataConnectionType.PORT })
+                    foreach (FtpDataConnectionType ConnectionType in new FtpDataConnectionType[] { FtpDataConnectionType.AutoPassive, FtpDataConnectionType.AutoActive })
                     {
                         try
                         {
@@ -135,7 +141,7 @@ namespace RX_Explorer.Class
 
                     if (IsAvailable)
                     {
-                        LogTracer.Log($"Ftp server is connected, protocal: {Client.SslProtocols}, encryption: {Client.EncryptionMode}, encoding: {Client.Encoding.EncodingName}");
+                        LogTracer.Log($"Ftp server is connected, connection protocal: {Enum.GetName(typeof(FtpDataConnectionType), Client.DataConnectionType)} security protocal: {Client.SslProtocols}, encryption: {Client.EncryptionMode}, encoding: {Client.Encoding.EncodingName}");
                     }
                     else
                     {
@@ -184,6 +190,11 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static Task<FtpClientController> DuplicateClientControllerAsync(FtpClientController Controller)
+        {
+            return MakeSureConnectionAndCloseOnceFailedAsync(new FtpClientController(Controller.ServerHost, Controller.ServerPort, Controller.UserName, Controller.Password, Controller.UseEncryption));
+        }
+
         public static Task<FtpClientController> CreateAsync(string Host, int Port, string UserName, string Password, bool UseEncryption)
         {
             return MakeSureConnectionAndCloseOnceFailedAsync(new FtpClientController(Host, Port, UserName, Password, UseEncryption));
@@ -194,6 +205,10 @@ namespace RX_Explorer.Class
             Locker = new SemaphoreSlim(1, 1);
             TaskCollection = new BlockingCollection<FTPTaskData>();
 
+            this.UserName = UserName;
+            this.Password = Password;
+            this.UseEncryption = UseEncryption;
+
             Client = new FtpClient(Host, Port, UserName, Password)
             {
                 Encoding = Encoding.UTF8,
@@ -201,9 +216,9 @@ namespace RX_Explorer.Class
                 LocalTimeZone = TimeZoneInfo.Local.BaseUtcOffset.Hours,
                 EncryptionMode = UseEncryption ? FtpEncryptionMode.Implicit : FtpEncryptionMode.None,
                 SslProtocols = UseEncryption ? SslProtocols.Tls12 : SslProtocols.None,
-                ReadTimeout = 30000,
-                DataConnectionReadTimeout = 30000,
                 SocketKeepAlive = true,
+                ValidateAnyCertificate = true,
+                RetryAttempts = 3
             };
 
             ProcessThread = new Thread(ProcessCore)

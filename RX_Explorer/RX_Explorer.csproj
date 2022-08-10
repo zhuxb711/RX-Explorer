@@ -242,8 +242,8 @@
     <Compile Include="Dialog\EditNavigationViewItemDialog.xaml.cs">
       <DependentUpon>EditNavigationViewItemDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialog\FTPCredentialDialog.xaml.cs">
-      <DependentUpon>FTPCredentialDialog.xaml</DependentUpon>
+    <Compile Include="Dialog\FtpCredentialDialog.xaml.cs">
+      <DependentUpon>FtpCredentialDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\KeyboardShortcutGuideDialog.xaml.cs">
       <DependentUpon>KeyboardShortcutGuideDialog.xaml</DependentUpon>
@@ -624,7 +624,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialog\FTPCredentialDialog.xaml">
+    <Page Include="Dialog\FtpCredentialDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

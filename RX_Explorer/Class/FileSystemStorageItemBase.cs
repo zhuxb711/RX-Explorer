@@ -298,7 +298,7 @@ namespace RX_Explorer.Class
                     {
                         FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
-                        if ((await FtpClientManager.GetClientControllerAsync(Analysis) 
+                        if ((await FtpClientManager.GetClientControllerAsync(Analysis)
                              ?? await FtpClientManager.CreateClientControllerAsync(Analysis)) is FtpClientController Controller)
                         {
                             if (Analysis.IsRootDirectory)
@@ -697,7 +697,7 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public static async Task CopyAsync(IEnumerable<string> CopyFrom, string CopyTo, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CopyAsync(IEnumerable<string> CopyFrom, string CopyTo, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Regex.IsMatch(CopyTo, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)
                 || CopyFrom.All((Item) => Regex.IsMatch(Item, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)))
@@ -711,7 +711,7 @@ namespace RX_Explorer.Class
                     {
                         using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
                         {
-                            await Item.CopyAsync(CopyTo, Option, CancelToken, (s, e) =>
+                            await Item.CopyAsync(CopyTo, Option, SkipOperationRecord, CancelToken, (s, e) =>
                             {
                                 ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
                             });
@@ -725,26 +725,26 @@ namespace RX_Explorer.Class
             {
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    await Exclusive.Controller.CopyAsync(CopyFrom, CopyTo, Option, true, CancelToken, ProgressHandler);
+                    await Exclusive.Controller.CopyAsync(CopyFrom, CopyTo, Option, SkipOperationRecord, CancelToken, ProgressHandler);
                 }
             }
         }
 
-        public static async Task MoveAsync(IEnumerable<string> MoveFrom, string MoveTo, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task MoveAsync(IReadOnlyDictionary<string, string> MoveFrom, string MoveTo, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Regex.IsMatch(MoveTo, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)
-                || MoveFrom.All((Item) => Regex.IsMatch(Item, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)))
+                || MoveFrom.Keys.All((Item) => Regex.IsMatch(Item, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)))
             {
                 int Progress = 0;
                 int ItemCount = MoveFrom.Count();
 
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(MoveFrom, CancelToken).OfType<FileSystemStorageItemBase>())
+                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(MoveFrom.Keys, CancelToken).OfType<FileSystemStorageItemBase>())
                     {
                         using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
                         {
-                            await Item.MoveAsync(MoveTo, Option, CancelToken, (s, e) =>
+                            await Item.MoveAsync(MoveTo, MoveFrom[Item.Path], Option, SkipOperationRecord, CancelToken, (s, e) =>
                             {
                                 ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
                             });
@@ -758,12 +758,12 @@ namespace RX_Explorer.Class
             {
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    await Exclusive.Controller.MoveAsync(MoveFrom, MoveTo, Option, true, CancelToken, ProgressHandler);
+                    await Exclusive.Controller.MoveAsync(MoveFrom, MoveTo, Option, SkipOperationRecord, CancelToken, ProgressHandler);
                 }
             }
         }
 
-        public static async Task DeleteAsync(IEnumerable<string> DeleteFrom, bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task DeleteAsync(IEnumerable<string> DeleteFrom, bool PermanentDelete, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (DeleteFrom.All((Item) => Regex.IsMatch(Item, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)))
             {
@@ -776,7 +776,7 @@ namespace RX_Explorer.Class
                     {
                         using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
                         {
-                            await Item.DeleteAsync(PermanentDelete, CancelToken, (s, e) =>
+                            await Item.DeleteAsync(PermanentDelete, SkipOperationRecord, CancelToken, (s, e) =>
                             {
                                 ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
                             });
@@ -790,18 +790,18 @@ namespace RX_Explorer.Class
             {
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    await Exclusive.Controller.DeleteAsync(DeleteFrom, PermanentDelete, true, CancelToken, ProgressHandler);
+                    await Exclusive.Controller.DeleteAsync(DeleteFrom, PermanentDelete, SkipOperationRecord, CancelToken, ProgressHandler);
                 }
             }
         }
 
-        public static async Task<string> RenameAsync(string Path, string DesireName, CancellationToken CancelToken = default)
+        public static async Task<string> RenameAsync(string Path, string DesireName, bool SkipOperationRecord = false, CancellationToken CancelToken = default)
         {
             if (Regex.IsMatch(Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
             {
                 if (await OpenAsync(Path) is FileSystemStorageItemBase Item)
                 {
-                    return await Item.RenameAsync(DesireName, CancelToken);
+                    return await Item.RenameAsync(DesireName, SkipOperationRecord, CancelToken);
                 }
                 else
                 {
@@ -812,7 +812,7 @@ namespace RX_Explorer.Class
             {
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    return await Exclusive.Controller.RenameAsync(Path, DesireName, true, CancelToken);
+                    return await Exclusive.Controller.RenameAsync(Path, DesireName, SkipOperationRecord, CancelToken);
                 }
             }
         }
@@ -1064,49 +1064,49 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual async Task MoveAsync(string DirectoryPath, string NewName = null, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (GetBulkAccessSharedController(out var ControllerRef))
             {
                 using (ControllerRef)
                 {
-                    await ControllerRef.Value.Controller.MoveAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler); ;
+                    await ControllerRef.Value.Controller.MoveAsync(Path, DirectoryPath, NewName, Option, SkipOperationRecord, CancelToken, ProgressHandler); ;
                 }
             }
             else
             {
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    await Exclusive.Controller.MoveAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler);
+                    await Exclusive.Controller.MoveAsync(Path, DirectoryPath, NewName, Option, SkipOperationRecord, CancelToken, ProgressHandler);
                 }
             }
         }
 
-        public virtual async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (GetBulkAccessSharedController(out var ControllerRef))
             {
                 using (ControllerRef)
                 {
-                    await ControllerRef.Value.Controller.CopyAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler);
+                    await ControllerRef.Value.Controller.CopyAsync(Path, DirectoryPath, Option, SkipOperationRecord, CancelToken, ProgressHandler);
                 }
             }
             else
             {
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    await Exclusive.Controller.CopyAsync(Path, DirectoryPath, Option, true, CancelToken, ProgressHandler);
+                    await Exclusive.Controller.CopyAsync(Path, DirectoryPath, Option, SkipOperationRecord, CancelToken, ProgressHandler);
                 }
             }
         }
 
-        public async virtual Task<string> RenameAsync(string DesireName, CancellationToken CancelToken = default)
+        public async virtual Task<string> RenameAsync(string DesireName, bool SkipOperationRecord = false, CancellationToken CancelToken = default)
         {
             if (GetBulkAccessSharedController(out var ControllerRef))
             {
                 using (ControllerRef)
                 {
-                    string NewName = await ControllerRef.Value.Controller.RenameAsync(Path, DesireName, true, CancelToken);
+                    string NewName = await ControllerRef.Value.Controller.RenameAsync(Path, DesireName, SkipOperationRecord, CancelToken);
                     Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
                     return NewName;
                 }
@@ -1115,27 +1115,27 @@ namespace RX_Explorer.Class
             {
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    string NewName = await Exclusive.Controller.RenameAsync(Path, DesireName, true, CancelToken);
+                    string NewName = await Exclusive.Controller.RenameAsync(Path, DesireName, SkipOperationRecord, CancelToken);
                     Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
                     return NewName;
                 }
             }
         }
 
-        public virtual async Task DeleteAsync(bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual async Task DeleteAsync(bool PermanentDelete, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (GetBulkAccessSharedController(out var ControllerRef))
             {
                 using (ControllerRef)
                 {
-                    await ControllerRef.Value.Controller.DeleteAsync(Path, PermanentDelete, true, CancelToken, ProgressHandler);
+                    await ControllerRef.Value.Controller.DeleteAsync(Path, PermanentDelete, SkipOperationRecord, CancelToken, ProgressHandler);
                 }
             }
             else
             {
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, true, CancelToken, ProgressHandler);
+                    await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, SkipOperationRecord, CancelToken, ProgressHandler);
                 }
             }
         }

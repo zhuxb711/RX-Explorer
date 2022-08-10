@@ -1,4 +1,5 @@
 ﻿using ConcurrentPriorityQueue.Core;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Win32.SafeHandles;
 using SharedLibrary;
 using System;
@@ -2123,21 +2124,21 @@ namespace RX_Explorer.Class
             return DeleteAsync(new string[1] { Source }, PermanentDelete, SkipOperationRecord, CancelToken, ProgressHandler);
         }
 
-        public async Task MoveAsync(Dictionary<string, string> Source,
+        public async Task MoveAsync(IReadOnlyDictionary<string, string> SourceMapping,
                                     string DestinationPath,
                                     CollisionOptions Option = CollisionOptions.Skip,
                                     bool SkipOperationRecord = false,
                                     CancellationToken CancelToken = default,
                                     ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (Source == null)
+            if (SourceMapping == null)
             {
-                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
+                throw new ArgumentNullException(nameof(SourceMapping), "Parameter could not be null");
             }
 
             Dictionary<string, string> MessageList = new Dictionary<string, string>();
 
-            foreach (KeyValuePair<string, string> SourcePair in Source)
+            foreach (KeyValuePair<string, string> SourcePair in SourceMapping)
             {
                 if (await FileSystemStorageItemBase.CheckExistsAsync(SourcePair.Key))
                 {
@@ -2215,25 +2216,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task MoveAsync(IEnumerable<string> Source,
-                              string DestinationPath,
-                              CollisionOptions Option = CollisionOptions.Skip,
-                              bool SkipOperationRecord = false,
-                              CancellationToken CancelToken = default,
-                              ProgressChangedEventHandler ProgressHandler = null)
-        {
-            Dictionary<string, string> Dic = new Dictionary<string, string>();
-
-            foreach (string Path in Source)
-            {
-                Dic.Add(Path, null);
-            }
-
-            return MoveAsync(Dic, DestinationPath, Option, SkipOperationRecord, CancelToken, ProgressHandler);
-        }
-
         public Task MoveAsync(string SourcePath,
                               string Destination,
+                              string NewName = null,
                               CollisionOptions Option = CollisionOptions.Skip,
                               bool SkipOperationRecord = false,
                               CancellationToken CancelToken = default,
@@ -2249,7 +2234,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return MoveAsync(new string[] { SourcePath }, Destination, Option, SkipOperationRecord, CancelToken, ProgressHandler);
+            return MoveAsync(new Dictionary<string, string> { { SourcePath, NewName } }, Destination, Option, SkipOperationRecord, CancelToken, ProgressHandler);
         }
 
         public async Task CopyAsync(IEnumerable<string> Source,

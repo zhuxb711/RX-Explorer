@@ -315,7 +315,7 @@ namespace RX_Explorer.Class
             return string.Format("{0:###00}:{1:00}:{2:00}", Hour, Minute, Second);
         }
 
-        public static Task CopyToAsync(this Stream From, Stream To, long Length = -1, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CopyToAsync(this Stream From, Stream To, long Length = -1, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (From == null)
             {
@@ -327,47 +327,49 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(To), "Argument could not be null");
             }
 
-            return Task.Run(() =>
+            const int BufferSize = 4096;
+
+            try
             {
-                try
+                long TotalBytesRead = 0;
+                long TotalBytesLength = Length > 0 ? Length : From.Length;
+
+                int BytesRead = 0;
+                int ProgressValue = 0;
+
+                byte[] DataBuffer = new byte[BufferSize];
+
+                while ((BytesRead = await From.ReadAsync(DataBuffer, 0, DataBuffer.Length, CancelToken)) > 0)
                 {
-                    long TotalBytesRead = 0;
-                    long TotalBytesLength = Length > 0 ? Length : From.Length;
+                    TotalBytesRead += BytesRead;
 
-                    byte[] DataBuffer = new byte[4096];
+                    await To.WriteAsync(DataBuffer, 0, BytesRead, CancelToken);
 
-                    int ProgressValue = 0;
-                    int BytesRead = 0;
-
-                    while ((BytesRead = From.Read(DataBuffer, 0, DataBuffer.Length)) > 0)
+                    if (TotalBytesLength > 1048576)
                     {
-                        To.Write(DataBuffer, 0, BytesRead);
-                        TotalBytesRead += BytesRead;
+                        int LatestValue = Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(TotalBytesRead * 100d / TotalBytesLength))));
 
-                        if (TotalBytesLength > 1024 * 1024)
+                        if (LatestValue > ProgressValue)
                         {
-                            int LatestValue = Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(TotalBytesRead * 100d / TotalBytesLength))));
-
-                            if (LatestValue > ProgressValue)
-                            {
-                                ProgressValue = LatestValue;
-                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(LatestValue, null));
-                            }
+                            ProgressValue = LatestValue;
+                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(LatestValue, null));
                         }
-
-                        CancelToken.ThrowIfCancellationRequested();
                     }
+
+                    CancelToken.ThrowIfCancellationRequested();
                 }
-                catch (Exception ex) when (ex is not OperationCanceledException)
-                {
-                    From.CopyTo(To);
-                }
-                finally
-                {
-                    To.Flush();
-                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
-                }
-            });
+
+                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                await Task.Run(() => From.CopyTo(To, BufferSize));
+                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
+            }
+            finally
+            {
+                await To.FlushAsync();
+            }
         }
 
         public static async Task<NativeFileData> GetNativeFileDataAsync(this IStorageItem Item)

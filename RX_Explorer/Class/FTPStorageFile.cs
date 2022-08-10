@@ -163,7 +163,10 @@ namespace RX_Explorer.Class
 
         public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
-            return new FtpFileSaveOnFlushStream(Path, ClientController, await SequentialStreamRandomAccessStream.CreateAsync(await ClientController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size))));
+            FtpClientController AuxiliaryController = await FtpClientController.DuplicateClientControllerAsync(ClientController);
+            Stream OriginStream = await AuxiliaryController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size));
+            Stream RandomAccessStream = await SequentialStreamRandomAccessStream.CreateAsync(OriginStream);
+            return new FtpFileSaveOnFlushStream(Path, AuxiliaryController, RandomAccessStream);
         }
 
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
@@ -181,7 +184,7 @@ namespace RX_Explorer.Class
             return Task.FromResult(Data);
         }
 
-        public override async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public override async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
             {
@@ -193,68 +196,55 @@ namespace RX_Explorer.Class
 
                     if (await FtpClientManager.GetClientControllerAsync(TargetAnalysis) is FtpClientController TargetClientController)
                     {
-                        using (Stream TempFileStream = await CreateTemporaryFileStreamAsync())
+                        switch (Option)
                         {
-                            switch (Option)
-                            {
-                                case CollisionOptions.OverrideOnCollision:
+                            case CollisionOptions.OverrideOnCollision:
+                                {
+                                    if (await TargetClientController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
                                     {
-                                        if (await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(TempFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))), CancelToken)))
-                                        {
-                                            TempFileStream.Seek(0, SeekOrigin.Begin);
-
-                                            if (await TargetClientController.RunCommandAsync((Client) => Client.UploadStreamAsync(TempFileStream, TargetAnalysis.RelatedPath, FtpRemoteExists.Overwrite, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))), CancelToken)) == FtpStatus.Failed)
-                                            {
-                                                throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}:{TargetClientController.ServerPort}");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
-                                        }
-
-                                        break;
+                                        await TargetClientController.RunCommandAsync((Client) => Client.DeleteFileAsync(TargetAnalysis.RelatedPath, CancelToken));
                                     }
 
-                                case CollisionOptions.RenameOnCollision:
+                                    using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
+                                    using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(TargetClientController))
+                                    using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
+                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
                                     {
-                                        string UniquePath = await TargetClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
-
-                                        if (await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(TempFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))), CancelToken)))
-                                        {
-                                            TempFileStream.Seek(0, SeekOrigin.Begin);
-
-                                            if (await TargetClientController.RunCommandAsync((Client) => Client.UploadStreamAsync(TempFileStream, UniquePath, FtpRemoteExists.NoCheck, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))), CancelToken)) == FtpStatus.Failed)
-                                            {
-                                                throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}:{TargetClientController.ServerPort}");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
-                                        }
-
-                                        break;
+                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                     }
-                                case CollisionOptions.Skip:
+
+                                    break;
+                                }
+
+                            case CollisionOptions.RenameOnCollision:
+                                {
+                                    string UniquePath = await TargetClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
+
+                                    using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
+                                    using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(TargetClientController))
+                                    using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
+                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(UniquePath, FtpDataType.Binary, false, CancelToken)))
                                     {
-                                        if (await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(TempFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress / 2)))), null))), CancelToken)))
-                                        {
-                                            TempFileStream.Seek(0, SeekOrigin.Begin);
-
-                                            if (await TargetClientController.RunCommandAsync((Client) => Client.UploadStreamAsync(TempFileStream, TargetAnalysis.RelatedPath, FtpRemoteExists.Skip, true, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(50 + Progress.Progress / 2)))), null))), CancelToken)) == FtpStatus.Failed)
-                                            {
-                                                throw new Exception($"Could not upload the file to the ftp server: {TargetClientController.ServerHost}:{TargetClientController.ServerPort}");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
-                                        }
-
-                                        break;
+                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                     }
-                            }
+
+                                    break;
+                                }
+                            case CollisionOptions.Skip:
+                                {
+                                    if (!await TargetClientController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                    {
+                                        using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
+                                        using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(TargetClientController))
+                                        using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
+                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                        {
+                                            await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
+                                        }
+                                    }
+
+                                    break;
+                                }
                         }
                     }
                     else
@@ -273,11 +263,10 @@ namespace RX_Explorer.Class
                                 if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
                                 {
                                     using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                    using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
+                                    using (Stream FtpStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
                                     {
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
-                                        {
-                                            throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
-                                        }
+                                        await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
                                     }
                                 }
 
@@ -288,11 +277,10 @@ namespace RX_Explorer.Class
                                 if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                                 {
                                     using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                    using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
+                                    using (Stream FtpStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
                                     {
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
-                                        {
-                                            throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
-                                        }
+                                        await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
                                     }
                                 }
 
@@ -305,11 +293,10 @@ namespace RX_Explorer.Class
                                     if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
                                     {
                                         using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                        using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
+                                        using (Stream FtpStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
                                         {
-                                            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
-                                            {
-                                                throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
-                                            }
+                                            await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
                                         }
                                     }
                                 }
@@ -325,7 +312,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public override async Task MoveAsync(string DirectoryPath, string NewName = null, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
             {
@@ -374,7 +361,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            await CopyAsync(DirectoryPath, Option, CancelToken, ProgressHandler);
+                            await CopyAsync(DirectoryPath, Option, SkipOperationRecord, CancelToken, ProgressHandler);
                             await ClientController.RunCommandAsync((Client) => Client.DeleteFileAsync(RelatedPath, CancelToken));
                         }
                     }
@@ -394,11 +381,9 @@ namespace RX_Explorer.Class
                                 if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
                                 {
                                     using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                    using (Stream FtpStream = await ClientController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
                                     {
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
-                                        {
-                                            throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
-                                        }
+                                        await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
                                     }
                                 }
 
@@ -409,11 +394,9 @@ namespace RX_Explorer.Class
                                 if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                                 {
                                     using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                    using (Stream FtpStream = await ClientController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
                                     {
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))), CancelToken)))
-                                        {
-                                            throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
-                                        }
+                                        await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
                                     }
                                 }
 
@@ -426,11 +409,9 @@ namespace RX_Explorer.Class
                                     if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
                                     {
                                         using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                        using (Stream FtpStream = await ClientController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
                                         {
-                                            if (!await ClientController.RunCommandAsync((Client) => Client.DownloadStreamAsync(NewFileStream, RelatedPath, 0, new Progress<FtpProgress>((Progress) => ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(Progress.Progress)))), null))))))
-                                            {
-                                                throw new Exception($"Could not download the file from the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
-                                            }
+                                            await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
                                         }
                                     }
                                 }
@@ -448,7 +429,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override async Task<string> RenameAsync(string DesireName, CancellationToken CancelToken = default)
+        public override async Task<string> RenameAsync(string DesireName, bool SkipOperationRecord = false, CancellationToken CancelToken = default)
         {
             if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
             {
@@ -469,7 +450,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override async Task DeleteAsync(bool PermanentDelete, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public override async Task DeleteAsync(bool PermanentDelete, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
             {

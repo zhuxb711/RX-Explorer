@@ -87,41 +87,48 @@ namespace RX_Explorer.Class
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            switch (origin)
+            try
             {
-                case SeekOrigin.Begin:
-                    {
-                        if (offset >= Length)
+                switch (origin)
+                {
+                    case SeekOrigin.Begin:
                         {
-                            throw new ArgumentOutOfRangeException();
+                            if (offset >= Length)
+                            {
+                                throw new ArgumentOutOfRangeException();
+                            }
+
+                            return Position = offset;
                         }
-
-                        return Position = offset;
-                    }
-                case SeekOrigin.Current:
-                    {
-                        long ActualPosition = Position + offset;
-
-                        if (ActualPosition >= Length)
+                    case SeekOrigin.Current:
                         {
-                            throw new ArgumentOutOfRangeException();
-                        }
+                            long ActualPosition = Position + offset;
 
-                        return Position = ActualPosition;
-                    }
-                case SeekOrigin.End:
-                    {
-                        if (offset > 0)
+                            if (ActualPosition >= Length)
+                            {
+                                throw new ArgumentOutOfRangeException();
+                            }
+
+                            return Position = ActualPosition;
+                        }
+                    case SeekOrigin.End:
                         {
-                            throw new ArgumentOutOfRangeException();
-                        }
+                            if (offset > 0)
+                            {
+                                throw new ArgumentOutOfRangeException();
+                            }
 
-                        return Position = Length - 1 + offset;
-                    }
-                default:
-                    {
-                        throw new ArgumentException();
-                    }
+                            return Position = Length - 1 + offset;
+                        }
+                    default:
+                        {
+                            throw new ArgumentException();
+                        }
+                }
+            }
+            finally
+            {
+                System.Diagnostics.Debug.WriteLine($"请求定位位置: {Position}, 总长度: {Length}");
             }
         }
 

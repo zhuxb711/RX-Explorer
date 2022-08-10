@@ -7,11 +7,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
 
@@ -225,145 +223,52 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    List<Uri> UriList = new List<Uri>(CModel.CopyFrom.Length);
+                                    CollisionOptions Option = CollisionOptions.Skip;
 
-                                    foreach (string Path in CModel.CopyFrom)
+                                    if (CModel.CopyFrom.All((Item) => Path.GetDirectoryName(Item).Equals(CModel.CopyTo, StringComparison.OrdinalIgnoreCase)))
                                     {
-                                        if (Uri.TryCreate(Path, UriKind.Absolute, out Uri Result))
-                                        {
-                                            UriList.Add(Result);
-                                        }
+                                        Option = CollisionOptions.RenameOnCollision;
                                     }
-
-                                    IReadOnlyList<Uri> WebUriList = UriList.Where((Item) => !Item.IsFile).ToList();
-
-                                    if (WebUriList.Count > 0)
+                                    else if (CModel.CopyFrom.Select((SourcePath) => Path.Combine(CModel.CopyTo, Path.GetFileName(SourcePath)))
+                                                            .Any((DestPath) => FileSystemStorageItemBase.CheckExistsAsync(DestPath).Result))
                                     {
-                                        int TotalProgress = 0;
-
-                                        foreach (Uri WebUri in WebUriList)
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            try
-                                            {
-                                                HttpWebRequest Request = WebRequest.CreateHttp(WebUri);
+                                            CModel.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
+                                        }).AsTask().Wait();
 
-                                                using (WebResponse Response = Request.GetResponse())
+                                        switch (CModel.WaitForButtonActionAsync().Result)
+                                        {
+                                            case 0:
                                                 {
-                                                    string FileName;
-
-                                                    string Header = Response.Headers.Get("Content-Disposition");
-                                                    string ContentType = Response.Headers.Get("Content-Type");
-
-                                                    if (string.IsNullOrEmpty(Header))
-                                                    {
-                                                        if (ContentType.Contains("text/html", StringComparison.OrdinalIgnoreCase))
-                                                        {
-                                                            FileName = $"{Guid.NewGuid()}.html";
-                                                        }
-                                                        else
-                                                        {
-                                                            FileName = Guid.NewGuid().ToString();
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        int FileNameStartIndex = Header.IndexOf("filename=", StringComparison.OrdinalIgnoreCase);
-
-                                                        if (FileNameStartIndex >= 0)
-                                                        {
-                                                            FileName = HttpUtility.UrlDecode(Header.Substring(Math.Min(FileNameStartIndex + 9, Header.Length)));
-
-                                                            if (string.IsNullOrEmpty(FileName))
-                                                            {
-                                                                FileName = Guid.NewGuid().ToString();
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            FileName = Guid.NewGuid().ToString();
-                                                        }
-                                                    }
-
-                                                    if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(CModel.CopyTo, FileName), CreateType.File, CreateOption.GenerateUniqueName).Result is FileSystemStorageFile NewFile)
-                                                    {
-                                                        using (Stream FStream = NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential).Result)
-                                                        using (Stream WebStream = Response.GetResponseStream())
-                                                        {
-                                                            WebStream.CopyToAsync(FStream, ProgressHandler: (s, e) =>
-                                                            {
-                                                                Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                                {
-                                                                    CModel.UpdateProgress((TotalProgress + e.ProgressPercentage) / WebUriList.Count);
-                                                                }).AsTask(), ProgressChangedCoreAsync());
-                                                            }).Wait();
-
-                                                            FStream.Flush();
-                                                        }
-                                                    }
+                                                    Option = CollisionOptions.OverrideOnCollision;
+                                                    break;
                                                 }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                LogTracer.Log(ex, $"Could not get file from weblink: \"{WebUri.OriginalString}\"");
-                                            }
-                                            finally
-                                            {
-                                                TotalProgress += 100;
-                                            }
+                                            case 1:
+                                                {
+                                                    Option = CollisionOptions.RenameOnCollision;
+                                                    break;
+                                                }
                                         }
                                     }
-                                    else
-                                    {
-                                        CollisionOptions Option = CollisionOptions.Skip;
 
-                                        if (CModel.CopyFrom.All((Item) => Path.GetDirectoryName(Item).Equals(CModel.CopyTo, StringComparison.OrdinalIgnoreCase)))
-                                        {
-                                            Option = CollisionOptions.RenameOnCollision;
-                                        }
-                                        else if (CModel.CopyFrom.Select((SourcePath) => Path.Combine(CModel.CopyTo, Path.GetFileName(SourcePath)))
-                                                                .Any((DestPath) => FileSystemStorageItemBase.CheckExistsAsync(DestPath).Result))
+                                    if (CModel.Status != OperationStatus.Cancelled)
+                                    {
+                                        if (CModel.Status == OperationStatus.NeedAttention)
                                         {
                                             CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {
-                                                CModel.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
+                                                CModel.UpdateStatus(OperationStatus.Processing);
                                             }).AsTask().Wait();
-
-                                            switch (CModel.WaitForButtonActionAsync().Result)
-                                            {
-                                                case 0:
-                                                    {
-                                                        Option = CollisionOptions.OverrideOnCollision;
-                                                        break;
-                                                    }
-                                                case 1:
-                                                    {
-                                                        Option = CollisionOptions.RenameOnCollision;
-                                                        break;
-                                                    }
-                                            }
                                         }
 
-                                        if (CModel.Status != OperationStatus.Cancelled)
+                                        FileSystemStorageItemBase.CopyAsync(CModel.CopyFrom, CModel.CopyTo, Option, false, CancelToken, (s, e) =>
                                         {
-                                            if (CModel.Status == OperationStatus.NeedAttention)
+                                            Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {
-                                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                {
-                                                    CModel.UpdateStatus(OperationStatus.Processing);
-                                                }).AsTask().Wait();
-                                            }
-
-                                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
-                                            {
-                                                Exclusive.Controller.CopyAsync(CModel.CopyFrom, CModel.CopyTo, Option, CancelToken: CancelToken, ProgressHandler: (s, e) =>
-                                                {
-                                                    Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                    {
-                                                        CModel.UpdateProgress(e.ProgressPercentage);
-                                                    }).AsTask(), ProgressChangedCoreAsync());
-                                                }).Wait();
-                                            }
-                                        }
+                                                CModel.UpdateProgress(e.ProgressPercentage);
+                                            }).AsTask(), ProgressChangedCoreAsync());
+                                        }).Wait();
                                     }
                                 }
                                 catch (AggregateException ex) when (ex.InnerExceptions.OfType<FileNotFoundException>().Any())
@@ -405,137 +310,46 @@ namespace RX_Explorer.Class
                                 {
                                     CollisionOptions Option = CollisionOptions.Skip;
 
-                                    List<Uri> UriList = new List<Uri>();
-
-                                    foreach (string Path in MModel.MoveFrom)
+                                    if (MModel.MoveFrom.Select((SourcePath) => Path.Combine(MModel.MoveTo, Path.GetFileName(SourcePath)))
+                                                       .Any((DestPath) => FileSystemStorageItemBase.CheckExistsAsync(DestPath).Result))
                                     {
-                                        if (Uri.TryCreate(Path, UriKind.Absolute, out Uri Result))
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            UriList.Add(Result);
-                                        }
-                                    }
+                                            MModel.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
+                                        }).AsTask().Wait();
 
-                                    IReadOnlyList<Uri> WebUriList = UriList.Where((Item) => !Item.IsFile).ToList();
-
-                                    if (WebUriList.Count > 0)
-                                    {
-                                        int TotalProgress = 0;
-
-                                        foreach (Uri WebUri in WebUriList)
+                                        switch (MModel.WaitForButtonActionAsync().Result)
                                         {
-                                            try
-                                            {
-                                                HttpWebRequest Request = WebRequest.CreateHttp(WebUri);
-
-                                                using (WebResponse Response = Request.GetResponse())
+                                            case 0:
                                                 {
-                                                    string FileName;
-
-                                                    string Header = Response.Headers.Get("Content-Disposition");
-                                                    string ContentType = Response.Headers.Get("Content-Type");
-
-                                                    if (string.IsNullOrEmpty(Header))
-                                                    {
-                                                        if (ContentType.Contains("text/html", StringComparison.OrdinalIgnoreCase))
-                                                        {
-                                                            FileName = $"{Guid.NewGuid()}.html";
-                                                        }
-                                                        else
-                                                        {
-                                                            FileName = Guid.NewGuid().ToString();
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        int FileNameStartIndex = Header.IndexOf("filename=", StringComparison.OrdinalIgnoreCase);
-
-                                                        if (FileNameStartIndex >= 0)
-                                                        {
-                                                            FileName = HttpUtility.UrlDecode(Header.Substring(Math.Min(FileNameStartIndex + 9, Header.Length)));
-
-                                                            if (string.IsNullOrEmpty(FileName))
-                                                            {
-                                                                FileName = Guid.NewGuid().ToString();
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            FileName = Guid.NewGuid().ToString();
-                                                        }
-                                                    }
-
-                                                    if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(MModel.MoveTo, FileName), CreateType.File, CreateOption.GenerateUniqueName).Result is FileSystemStorageFile NewFile)
-                                                    {
-                                                        using (Stream FStream = NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential).Result)
-                                                        using (Stream WebStream = Response.GetResponseStream())
-                                                        {
-                                                            WebStream.CopyToAsync(FStream, ProgressHandler: (s, e) =>
-                                                            {
-                                                                Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                                {
-                                                                    MModel.UpdateProgress((TotalProgress + e.ProgressPercentage) / WebUriList.Count);
-                                                                }).AsTask(), ProgressChangedCoreAsync());
-                                                            }).Wait();
-                                                        }
-                                                    }
+                                                    Option = CollisionOptions.OverrideOnCollision;
+                                                    break;
                                                 }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                LogTracer.Log(ex, $"Could not get file from weblink: \"{WebUri.OriginalString}\"");
-                                            }
-                                            finally
-                                            {
-                                                TotalProgress += 100;
-                                            }
+                                            case 1:
+                                                {
+                                                    Option = CollisionOptions.RenameOnCollision;
+                                                    break;
+                                                }
                                         }
                                     }
-                                    else
+
+                                    if (MModel.Status != OperationStatus.Cancelled)
                                     {
-                                        if (MModel.MoveFrom.Select((SourcePath) => Path.Combine(MModel.MoveTo, Path.GetFileName(SourcePath)))
-                                                           .Any((DestPath) => FileSystemStorageItemBase.CheckExistsAsync(DestPath).Result))
+                                        if (MModel.Status == OperationStatus.NeedAttention)
                                         {
                                             CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {
-                                                MModel.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
+                                                MModel.UpdateStatus(OperationStatus.Processing);
                                             }).AsTask().Wait();
-
-                                            switch (MModel.WaitForButtonActionAsync().Result)
-                                            {
-                                                case 0:
-                                                    {
-                                                        Option = CollisionOptions.OverrideOnCollision;
-                                                        break;
-                                                    }
-                                                case 1:
-                                                    {
-                                                        Option = CollisionOptions.RenameOnCollision;
-                                                        break;
-                                                    }
-                                            }
                                         }
 
-                                        if (MModel.Status != OperationStatus.Cancelled)
+                                        FileSystemStorageItemBase.MoveAsync(new Dictionary<string, string>(MModel.MoveFrom.Select((Path) => new KeyValuePair<string, string>(Path, null))), MModel.MoveTo, Option, false, CancelToken, (s, e) =>
                                         {
-                                            if (MModel.Status == OperationStatus.NeedAttention)
+                                            Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {
-                                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                {
-                                                    MModel.UpdateStatus(OperationStatus.Processing);
-                                                }).AsTask().Wait();
-                                            }
-
-                                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
-                                            {
-                                                Exclusive.Controller.MoveAsync(MModel.MoveFrom, MModel.MoveTo, Option, CancelToken: CancelToken, ProgressHandler: (s, e) =>
-                                                {
-                                                    Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                    {
-                                                        MModel.UpdateProgress(e.ProgressPercentage);
-                                                    }).AsTask(), ProgressChangedCoreAsync());
-                                                }).Wait();
-                                            }
-                                        }
+                                                MModel.UpdateProgress(e.ProgressPercentage);
+                                            }).AsTask(), ProgressChangedCoreAsync());
+                                        }).Wait();
                                     }
                                 }
                                 catch (AggregateException ex) when (ex.InnerExceptions.OfType<FileNotFoundException>().Any())
@@ -582,10 +396,7 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
-                                    {
-                                        ExtraParameter = Exclusive.Controller.RenameAsync(RenameModel.RenameFrom, Path.GetFileName(RenameModel.RenameTo), CancelToken: CancelToken).Result;
-                                    }
+                                    ExtraParameter = FileSystemStorageItemBase.RenameAsync(RenameModel.RenameFrom, Path.GetFileName(RenameModel.RenameTo), false, CancelToken).Result;
                                 }
                                 catch (AggregateException ex) when (ex.InnerExceptions.OfType<FileNotFoundException>().Any())
                                 {
@@ -631,16 +442,13 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
+                                    FileSystemStorageItemBase.DeleteAsync(DModel.DeleteFrom, DModel.IsPermanentDelete, false, CancelToken, (s, e) =>
                                     {
-                                        Exclusive.Controller.DeleteAsync(DModel.DeleteFrom, DModel.IsPermanentDelete, CancelToken: CancelToken, ProgressHandler: (s, e) =>
+                                        Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                DModel.UpdateProgress(e.ProgressPercentage);
-                                            }).AsTask(), ProgressChangedCoreAsync());
-                                        }).Wait();
-                                    }
+                                            DModel.UpdateProgress(e.ProgressPercentage);
+                                        }).AsTask(), ProgressChangedCoreAsync());
+                                    }).Wait();
                                 }
                                 catch (AggregateException ex) when (ex.InnerExceptions.OfType<FileNotFoundException>().Any())
                                 {
@@ -686,61 +494,61 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
+                                    switch (UndoModel)
                                     {
-                                        switch (UndoModel)
-                                        {
-                                            case OperationListNewUndoModel NewUndoModel:
+                                        case OperationListNewUndoModel NewUndoModel:
+                                            {
+                                                FileSystemStorageItemBase.DeleteAsync(new string[] { NewUndoModel.UndoFrom }, true, true, CancelToken, (s, e) =>
                                                 {
-                                                    Exclusive.Controller.DeleteAsync(NewUndoModel.UndoFrom, true, false, CancelToken, (s, e) =>
+                                                    Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
-                                                        Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                        {
-                                                            NewUndoModel.UpdateProgress(e.ProgressPercentage);
-                                                        }).AsTask(), ProgressChangedCoreAsync());
-                                                    }).Wait();
+                                                        NewUndoModel.UpdateProgress(e.ProgressPercentage);
+                                                    }).AsTask(), ProgressChangedCoreAsync());
+                                                }).Wait();
 
-                                                    break;
-                                                }
-                                            case OperationListCopyUndoModel CopyUndoModel:
+                                                break;
+                                            }
+                                        case OperationListCopyUndoModel CopyUndoModel:
+                                            {
+                                                FileSystemStorageItemBase.DeleteAsync(CopyUndoModel.UndoFrom, true, true, CancelToken, (s, e) =>
                                                 {
-                                                    Exclusive.Controller.DeleteAsync(CopyUndoModel.UndoFrom, true, true, CancelToken, (s, e) =>
+                                                    Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
-                                                        Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                        {
-                                                            CopyUndoModel.UpdateProgress(e.ProgressPercentage);
-                                                        }).AsTask(), ProgressChangedCoreAsync());
-                                                    }).Wait();
+                                                        CopyUndoModel.UpdateProgress(e.ProgressPercentage);
+                                                    }).AsTask(), ProgressChangedCoreAsync());
+                                                }).Wait();
 
-                                                    break;
-                                                }
-                                            case OperationListMoveUndoModel MoveUndoModel:
+                                                break;
+                                            }
+                                        case OperationListMoveUndoModel MoveUndoModel:
+                                            {
+                                                FileSystemStorageItemBase.MoveAsync(MoveUndoModel.UndoFrom, MoveUndoModel.UndoTo, CollisionOptions.Skip, true, CancelToken, (s, e) =>
                                                 {
-                                                    Exclusive.Controller.MoveAsync(MoveUndoModel.UndoFrom, MoveUndoModel.UndoTo, SkipOperationRecord: true, CancelToken: CancelToken, ProgressHandler: (s, e) =>
+                                                    Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
-                                                        Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                        {
-                                                            MoveUndoModel.UpdateProgress(e.ProgressPercentage);
-                                                        }).AsTask(), ProgressChangedCoreAsync());
-                                                    }).Wait();
+                                                        MoveUndoModel.UpdateProgress(e.ProgressPercentage);
+                                                    }).AsTask(), ProgressChangedCoreAsync());
+                                                }).Wait();
 
-                                                    break;
-                                                }
-                                            case OperationListDeleteUndoModel DeleteUndoModel:
+                                                break;
+                                            }
+                                        case OperationListDeleteUndoModel DeleteUndoModel:
+                                            {
+                                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = AuxiliaryTrustProcessController.GetControllerExclusiveAsync().Result)
                                                 {
                                                     if (!Exclusive.Controller.RestoreItemInRecycleBinAsync(DeleteUndoModel.UndoFrom).Result)
                                                     {
                                                         throw new Exception();
                                                     }
+                                                }
 
-                                                    break;
-                                                }
-                                            case OperationListRenameUndoModel RenameUndoModel:
-                                                {
-                                                    Exclusive.Controller.RenameAsync(RenameUndoModel.UndoFrom, Path.GetFileName(RenameUndoModel.UndoTo), true).Wait();
-                                                    break;
-                                                }
-                                        }
+                                                break;
+                                            }
+                                        case OperationListRenameUndoModel RenameUndoModel:
+                                            {
+                                                FileSystemStorageItemBase.RenameAsync(RenameUndoModel.UndoFrom, Path.GetFileName(RenameUndoModel.UndoTo), true, CancelToken).Wait();
+                                                break;
+                                            }
                                     }
                                 }
                                 catch (AggregateException ex) when (ex.InnerExceptions.OfType<FileNotFoundException>().Any())

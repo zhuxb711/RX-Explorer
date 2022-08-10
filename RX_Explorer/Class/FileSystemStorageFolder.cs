@@ -547,7 +547,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public override async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Regex.IsMatch(DirectoryPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
             {
@@ -583,7 +583,7 @@ namespace RX_Explorer.Class
                                             {
                                                 string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
-                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, CancelToken, (s, e) =>
+                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, SkipOperationRecord, CancelToken, (s, e) =>
                                                 {
                                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                 });
@@ -621,7 +621,7 @@ namespace RX_Explorer.Class
                                             {
                                                 string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
-                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path.Replace(TargetAnalysis.RelatedPath, UniquePath), RelativePath), Option, CancelToken, (s, e) =>
+                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path.Replace(TargetAnalysis.RelatedPath, UniquePath), RelativePath), Option, SkipOperationRecord, CancelToken, (s, e) =>
                                                 {
                                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                 });
@@ -656,7 +656,7 @@ namespace RX_Explorer.Class
                                                 {
                                                     string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
-                                                    await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, CancelToken, (s, e) =>
+                                                    await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, SkipOperationRecord, CancelToken, (s, e) =>
                                                     {
                                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                     });
@@ -680,11 +680,11 @@ namespace RX_Explorer.Class
             }
             else
             {
-                await base.CopyAsync(DirectoryPath, Option, CancelToken, ProgressHandler);
+                await base.CopyAsync(DirectoryPath, Option, SkipOperationRecord, CancelToken, ProgressHandler);
             }
         }
 
-        public override async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public override async Task MoveAsync(string DirectoryPath, string NewName = null, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Regex.IsMatch(DirectoryPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
             {
@@ -720,7 +720,7 @@ namespace RX_Explorer.Class
                                             {
                                                 string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
-                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, CancelToken, (s, e) =>
+                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, SkipOperationRecord, CancelToken, (s, e) =>
                                                 {
                                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                 });
@@ -758,7 +758,7 @@ namespace RX_Explorer.Class
                                             {
                                                 string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
-                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path.Replace(TargetAnalysis.RelatedPath, UniquePath), RelativePath), Option, CancelToken, (s, e) =>
+                                                await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path.Replace(TargetAnalysis.RelatedPath, UniquePath), RelativePath), Option, SkipOperationRecord, CancelToken, (s, e) =>
                                                 {
                                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                 });
@@ -793,7 +793,7 @@ namespace RX_Explorer.Class
                                                 {
                                                     string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
-                                                    await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, CancelToken, (s, e) =>
+                                                    await File.CopyAsync(System.IO.Path.Combine(TargetAnalysis.Path, RelativePath), Option, SkipOperationRecord, CancelToken, (s, e) =>
                                                     {
                                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
                                                     });
@@ -810,7 +810,7 @@ namespace RX_Explorer.Class
                             }
                     }
 
-                    await DeleteAsync(true);
+                    await DeleteAsync(true, true);
                 }
                 else
                 {
@@ -819,7 +819,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                await base.MoveAsync(DirectoryPath, Option, CancelToken, ProgressHandler);
+                await base.MoveAsync(DirectoryPath, NewName, Option, SkipOperationRecord, CancelToken, ProgressHandler);
             }
         }
 

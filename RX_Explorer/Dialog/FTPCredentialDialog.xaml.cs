@@ -88,8 +88,12 @@ namespace RX_Explorer.Dialog
 
                 AnonymousLogin.IsEnabled = true;
                 SavePassword.IsEnabled = true;
-                AccountBox.IsEnabled = true;
-                PasswordBox.IsEnabled = true;
+
+                if (!AnonymousLogin.IsChecked.GetValueOrDefault())
+                {
+                    AccountBox.IsEnabled = true;
+                    PasswordBox.IsEnabled = true;
+                }
 
                 Message.Foreground = new SolidColorBrush(Colors.Red);
                 ProgressControl.Visibility = Visibility.Collapsed;

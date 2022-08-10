@@ -493,7 +493,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        if (await MediaFile.GetStorageItemAsync() is StorageFile CoreFile)
+                        if (MediaFile is not INotWin32StorageItem && await MediaFile.GetStorageItemAsync() is StorageFile CoreFile)
                         {
                             args.SetStorageFile(CoreFile);
                         }
