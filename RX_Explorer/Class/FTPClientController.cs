@@ -223,7 +223,8 @@ namespace RX_Explorer.Class
                 SslProtocols = UseEncryption ? SslProtocols.Tls12 : SslProtocols.None,
                 SocketKeepAlive = true,
                 ValidateAnyCertificate = true,
-                RetryAttempts = 3
+                RetryAttempts = 3,
+                ReadTimeout = 30000
             };
 
             ProcessThread.Start();

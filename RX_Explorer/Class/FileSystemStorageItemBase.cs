@@ -705,20 +705,19 @@ namespace RX_Explorer.Class
                 int Progress = 0;
                 int ItemCount = CopyFrom.Count();
 
-                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(CopyFrom.Keys, CancelToken))
                 {
-                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(CopyFrom.Keys, CancelToken).OfType<FileSystemStorageItemBase>())
+                    if (Item == null)
                     {
-                        using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
-                        {
-                            await Item.CopyAsync(CopyTo, CopyFrom[Item.Path], Option, SkipOperationRecord, CancelToken, (s, e) =>
-                            {
-                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
-                            });
-                        }
-
-                        Progress += 100;
+                        throw new FileNotFoundException();
                     }
+
+                    await Item.CopyAsync(CopyTo, CopyFrom[Item.Path], Option, SkipOperationRecord, CancelToken, (s, e) =>
+                    {
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
+                    });
+
+                    Progress += 100;
                 }
             }
             else
@@ -738,20 +737,19 @@ namespace RX_Explorer.Class
                 int Progress = 0;
                 int ItemCount = MoveFrom.Count();
 
-                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(MoveFrom.Keys, CancelToken))
                 {
-                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(MoveFrom.Keys, CancelToken).OfType<FileSystemStorageItemBase>())
+                    if (Item == null)
                     {
-                        using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
-                        {
-                            await Item.MoveAsync(MoveTo, MoveFrom[Item.Path], Option, SkipOperationRecord, CancelToken, (s, e) =>
-                            {
-                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
-                            });
-                        }
-
-                        Progress += 100;
+                        throw new FileNotFoundException();
                     }
+
+                    await Item.MoveAsync(MoveTo, MoveFrom[Item.Path], Option, SkipOperationRecord, CancelToken, (s, e) =>
+                    {
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
+                    });
+
+                    Progress += 100;
                 }
             }
             else
@@ -770,20 +768,19 @@ namespace RX_Explorer.Class
                 int Progress = 0;
                 int ItemCount = DeleteFrom.Count();
 
-                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(DeleteFrom, CancelToken))
                 {
-                    await foreach (FileSystemStorageItemBase Item in OpenInBatchAsync(DeleteFrom, CancelToken).OfType<FileSystemStorageItemBase>())
+                    if (Item == null)
                     {
-                        using (IDisposable Disposable = SetBulkAccessSharedController(Item, Exclusive))
-                        {
-                            await Item.DeleteAsync(PermanentDelete, SkipOperationRecord, CancelToken, (s, e) =>
-                            {
-                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
-                            });
-                        }
-
-                        Progress += 100;
+                        throw new FileNotFoundException();
                     }
+
+                    await Item.DeleteAsync(PermanentDelete, SkipOperationRecord, CancelToken, (s, e) =>
+                    {
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Progress + e.ProgressPercentage) / Convert.ToDouble(ItemCount))), null));
+                    });
+
+                    Progress += 100;
                 }
             }
             else

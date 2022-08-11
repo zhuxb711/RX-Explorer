@@ -589,7 +589,10 @@ namespace RX_Explorer.Class
                                                     {
                                                         await SourceStream.CopyToAsync(TargetStream, SourceStream.Length, CancelToken, (s, e) =>
                                                         {
-                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                            if (TotalSize > 0)
+                                                            {
+                                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                            }
                                                         });
                                                     }
 
@@ -629,7 +632,10 @@ namespace RX_Explorer.Class
                                                     {
                                                         await SourceStream.CopyToAsync(TargetStream, SourceStream.Length, CancelToken, (s, e) =>
                                                         {
-                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                            if (TotalSize > 0)
+                                                            {
+                                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                            }
                                                         });
                                                     }
 
@@ -666,7 +672,10 @@ namespace RX_Explorer.Class
                                                         {
                                                             await SourceStream.CopyToAsync(TargetStream, SourceStream.Length, CancelToken, (s, e) =>
                                                             {
-                                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                if (TotalSize > 0)
+                                                                {
+                                                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                }
                                                             });
                                                         }
 

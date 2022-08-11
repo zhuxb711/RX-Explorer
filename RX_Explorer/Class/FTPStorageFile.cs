@@ -387,34 +387,40 @@ namespace RX_Explorer.Class
 
         public override async Task<string> RenameAsync(string DesireName, bool SkipOperationRecord = false, CancellationToken CancelToken = default)
         {
-            if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
+            using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
             {
-                string TargetPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(RelatedPath), DesireName);
-
-                if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetPath, CancelToken)))
+                if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
                 {
-                    TargetPath = await ClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetPath, CreateType.File));
+                    string TargetPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(RelatedPath), DesireName);
+
+                    if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetPath, CancelToken)))
+                    {
+                        TargetPath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetPath, CreateType.File));
+                    }
+
+                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.RenameAsync(RelatedPath, TargetPath, CancelToken));
+
+                    return TargetPath;
                 }
-
-                await ClientController.RunCommandAsync((Client) => Client.RenameAsync(RelatedPath, TargetPath, CancelToken));
-
-                return TargetPath;
-            }
-            else
-            {
-                throw new FileNotFoundException(Path);
+                else
+                {
+                    throw new FileNotFoundException(Path);
+                }
             }
         }
 
         public override async Task DeleteAsync(bool PermanentDelete, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
+            using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
             {
-                await ClientController.RunCommandAsync((Client) => Client.DeleteFileAsync(RelatedPath, CancelToken));
-            }
-            else
-            {
-                throw new FileNotFoundException(Path);
+                if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
+                {
+                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFileAsync(RelatedPath, CancelToken));
+                }
+                else
+                {
+                    throw new FileNotFoundException(Path);
+                }
             }
         }
 

@@ -305,7 +305,10 @@ namespace RX_Explorer.Class
                                                                 {
                                                                     await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                     {
-                                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                        if (TotalSize > 0)
+                                                                        {
+                                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                        }
                                                                     });
                                                                 }
                                                             }
@@ -348,7 +351,10 @@ namespace RX_Explorer.Class
                                                             {
                                                                 await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                 {
-                                                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                    if (TotalSize > 0)
+                                                                    {
+                                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                    }
                                                                 });
                                                             }
 
@@ -397,7 +403,10 @@ namespace RX_Explorer.Class
                                                                     {
                                                                         await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                         {
-                                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                            if (TotalSize > 0)
+                                                                            {
+                                                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                            }
                                                                         });
                                                                     }
                                                                 }
@@ -463,7 +472,10 @@ namespace RX_Explorer.Class
                                                                 {
                                                                     await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                     {
-                                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                        if (TotalSize > 0)
+                                                                        {
+                                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                        }
                                                                     });
                                                                 }
                                                             }
@@ -519,7 +531,10 @@ namespace RX_Explorer.Class
                                                                 {
                                                                     await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                     {
-                                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                        if (TotalSize > 0)
+                                                                        {
+                                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                        }
                                                                     });
                                                                 }
                                                             }
@@ -577,7 +592,10 @@ namespace RX_Explorer.Class
                                                                     {
                                                                         await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                         {
-                                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                            if (TotalSize > 0)
+                                                                            {
+                                                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                            }
                                                                         });
                                                                     }
                                                                 }
@@ -682,34 +700,40 @@ namespace RX_Explorer.Class
 
         public override async Task<string> RenameAsync(string DesireName, bool SkipOperationRecord = false, CancellationToken CancelToken = default)
         {
-            if (await ClientController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(RelatedPath, CancelToken)))
+            using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
             {
-                string TargetPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(RelatedPath), DesireName);
-
-                if (await ClientController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(TargetPath, CancelToken)))
+                if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(RelatedPath, CancelToken)))
                 {
-                    TargetPath = await ClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetPath, CreateType.File));
+                    string TargetPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(RelatedPath), DesireName);
+
+                    if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(TargetPath, CancelToken)))
+                    {
+                        TargetPath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetPath, CreateType.File));
+                    }
+
+                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.RenameAsync(RelatedPath, TargetPath, CancelToken));
+
+                    return TargetPath;
                 }
-
-                await ClientController.RunCommandAsync((Client) => Client.RenameAsync(RelatedPath, TargetPath, CancelToken));
-
-                return TargetPath;
-            }
-            else
-            {
-                throw new FileNotFoundException(Path);
+                else
+                {
+                    throw new FileNotFoundException(Path);
+                }
             }
         }
 
         public override async Task DeleteAsync(bool PermanentDelete, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await ClientController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(RelatedPath, CancelToken)))
+            using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
             {
-                await ClientController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(RelatedPath, CancelToken));
-            }
-            else
-            {
-                throw new FileNotFoundException(Path);
+                if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(RelatedPath, CancelToken)))
+                {
+                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(RelatedPath, CancelToken));
+                }
+                else
+                {
+                    throw new FileNotFoundException(Path);
+                }
             }
         }
 

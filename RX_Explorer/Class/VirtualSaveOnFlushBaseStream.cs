@@ -57,6 +57,11 @@ namespace RX_Explorer.Class
             return BaseStream.Read(buffer, offset, count);
         }
 
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            return BaseStream.ReadAsync(buffer, offset, count, cancellationToken);
+        }
+
         public override long Seek(long offset, SeekOrigin origin)
         {
             return BaseStream.Seek(offset, origin);
@@ -69,9 +74,16 @@ namespace RX_Explorer.Class
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            HasWroteAnyData = 1;
+            Interlocked.CompareExchange(ref HasWroteAnyData, 1, 0);
             BaseStream.Write(buffer, offset, count);
         }
+
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            Interlocked.CompareExchange(ref HasWroteAnyData, 1, 0);
+            return BaseStream.WriteAsync(buffer, offset, count, cancellationToken);
+        }
+
 
         protected override void Dispose(bool disposing)
         {
