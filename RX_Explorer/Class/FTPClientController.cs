@@ -217,7 +217,8 @@ namespace RX_Explorer.Class
             Client = new FtpClient(Host, Port, UserName, Password)
             {
                 Encoding = Encoding.UTF8,
-                TimeConversion = FtpDate.UTC,
+                TimeConversion = FtpDate.LocalTime,
+                TimeZone = TimeZoneInfo.Utc.BaseUtcOffset.Hours,
                 LocalTimeZone = TimeZoneInfo.Local.BaseUtcOffset.Hours,
                 EncryptionMode = UseEncryption ? FtpEncryptionMode.Implicit : FtpEncryptionMode.None,
                 SslProtocols = UseEncryption ? SslProtocols.Tls12 : SslProtocols.None,

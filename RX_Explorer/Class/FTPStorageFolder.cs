@@ -73,7 +73,7 @@ namespace RX_Explorer.Class
                                                                                              BasicFilters Filter = BasicFilters.File | BasicFilters.Folder,
                                                                                              Func<string, bool> AdvanceFilter = null)
         {
-            foreach (FtpListItem Item in await ClientController.RunCommandAsync((Client) => Client.GetListingAsync(RelatedPath, FtpListOption.Auto, CancelToken)))
+            foreach (FtpListItem Item in await ClientController.RunCommandAsync((Client) => Client.GetListingAsync(RelatedPath, FtpListOption.SizeModify, CancelToken)))
             {
                 if ((AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true))
                 {
