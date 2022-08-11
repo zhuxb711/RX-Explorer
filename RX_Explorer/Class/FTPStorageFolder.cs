@@ -251,7 +251,7 @@ namespace RX_Explorer.Class
             return Task.FromResult(Data);
         }
 
-        public override async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public override async Task CopyAsync(string DirectoryPath, string NewName = null, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await ClientController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(RelatedPath)))
             {
@@ -270,36 +270,52 @@ namespace RX_Explorer.Class
                         {
                             case CollisionOptions.OverrideOnCollision:
                                 {
-                                    if (await TargetClientController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                    using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(TargetClientController))
                                     {
-                                        await TargetClientController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(TargetAnalysis.RelatedPath, CancelToken));
-                                    }
-
-                                    await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken));
-
-                                    await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
-                                    {
-                                        switch (Item)
+                                        if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
                                         {
-                                            case FtpStorageFolder Folder:
+                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(TargetAnalysis.RelatedPath, CancelToken));
+                                        }
+
+                                        await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken));
+
+                                        using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
+                                        {
+                                            await foreach (FileSystemStorageItemBase Item in new FtpStorageFolder(AuxiliaryReadController, Data).GetChildItemsAsync(true, true, true, CancelToken))
+                                            {
+                                                switch (Item)
                                                 {
-                                                    await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
+                                                    case FtpStorageFolder Folder:
+                                                        {
+                                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
 
-                                                    break;
+                                                            break;
+                                                        }
+                                                    case FtpStorageFile File:
+                                                        {
+                                                            using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
+                                                            {
+                                                                string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase)
+                                                                                          ? string.Empty
+                                                                                          : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
+
+                                                                FtpPathAnalysis InnerTargetAnalysis = new FtpPathAnalysis(System.IO.Path.Combine(TargetPath, RelativePath, File.Name));
+
+                                                                using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(InnerTargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                                                {
+                                                                    await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
+                                                                    {
+                                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                    });
+                                                                }
+                                                            }
+
+                                                            CurrentPosiion += File.Size;
+
+                                                            break;
+                                                        }
                                                 }
-                                            case FtpStorageFile File:
-                                                {
-                                                    string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
-
-                                                    await File.CopyAsync(System.IO.Path.Combine(TargetPath, RelativePath), Option, SkipOperationRecord, CancelToken, (s, e) =>
-                                                    {
-                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
-                                                    });
-
-                                                    CurrentPosiion += File.Size;
-
-                                                    break;
-                                                }
+                                            }
                                         }
                                     }
 
@@ -307,33 +323,41 @@ namespace RX_Explorer.Class
                                 }
                             case CollisionOptions.RenameOnCollision:
                                 {
-                                    string UniquePath = await TargetClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.Folder));
-
-                                    await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(UniquePath, true, CancelToken));
-
-                                    await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
+                                    using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(TargetClientController))
                                     {
-                                        switch (Item)
+                                        string UniquePath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.Folder));
+
+                                        await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(UniquePath, true, CancelToken));
+
+                                        using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
                                         {
-                                            case FtpStorageFolder Folder:
+                                            await foreach (FileSystemStorageItemBase Item in new FtpStorageFolder(AuxiliaryReadController, Data).GetChildItemsAsync(true, true, true, CancelToken))
+                                            {
+                                                switch (Item)
                                                 {
-                                                    await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{UniquePath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
+                                                    case FtpStorageFolder Folder:
+                                                        {
+                                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{UniquePath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
 
-                                                    break;
+                                                            break;
+                                                        }
+                                                    case FtpStorageFile File:
+                                                        {
+                                                            using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
+                                                            using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(@$"{UniquePath}\{System.IO.Path.GetRelativePath(Path, File.Path)}", FtpDataType.Binary, false, CancelToken)))
+                                                            {
+                                                                await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
+                                                                {
+                                                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                });
+                                                            }
+
+                                                            CurrentPosiion += File.Size;
+
+                                                            break;
+                                                        }
                                                 }
-                                            case FtpStorageFile File:
-                                                {
-                                                    string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
-
-                                                    await File.CopyAsync(System.IO.Path.Combine(TargetPath.Replace(TargetAnalysis.RelatedPath, UniquePath), RelativePath), Option, SkipOperationRecord, CancelToken, (s, e) =>
-                                                    {
-                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
-                                                    });
-
-                                                    CurrentPosiion += File.Size;
-
-                                                    break;
-                                                }
+                                            }
                                         }
                                     }
 
@@ -341,31 +365,49 @@ namespace RX_Explorer.Class
                                 }
                             case CollisionOptions.Skip:
                                 {
-                                    if (await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken)))
+                                    using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(TargetClientController))
                                     {
-                                        await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
+                                        if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
                                         {
-                                            switch (Item)
+                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken));
+
+                                            using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
                                             {
-                                                case FtpStorageFolder Folder:
+                                                await foreach (FileSystemStorageItemBase Item in new FtpStorageFolder(AuxiliaryReadController, Data).GetChildItemsAsync(true, true, true, CancelToken))
+                                                {
+                                                    switch (Item)
                                                     {
-                                                        await TargetClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
+                                                        case FtpStorageFolder Folder:
+                                                            {
+                                                                await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
 
-                                                        break;
+                                                                break;
+                                                            }
+                                                        case FtpStorageFile File:
+                                                            {
+                                                                using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
+                                                                {
+                                                                    string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase)
+                                                                                              ? string.Empty
+                                                                                              : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
+
+                                                                    FtpPathAnalysis InnerTargetAnalysis = new FtpPathAnalysis(System.IO.Path.Combine(TargetPath, RelativePath, File.Name));
+
+                                                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(InnerTargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                                                    {
+                                                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
+                                                                        {
+                                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                        });
+                                                                    }
+                                                                }
+
+                                                                CurrentPosiion += File.Size;
+
+                                                                break;
+                                                            }
                                                     }
-                                                case FtpStorageFile File:
-                                                    {
-                                                        string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
-
-                                                        await File.CopyAsync(System.IO.Path.Combine(TargetPath, RelativePath), Option, SkipOperationRecord, CancelToken, (s, e) =>
-                                                        {
-                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
-                                                        });
-
-                                                        CurrentPosiion += File.Size;
-
-                                                        break;
-                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -390,93 +432,9 @@ namespace RX_Explorer.Class
                             {
                                 if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.ReplaceExisting) is FileSystemStorageFolder NewFolder)
                                 {
-                                    await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
+                                    using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
                                     {
-                                        switch (Item)
-                                        {
-                                            case FtpStorageFolder Folder:
-                                                {
-                                                    string SubFolderPath = System.IO.Path.Combine(NewFolder.Path, System.IO.Path.GetRelativePath(Path, Folder.Path));
-
-                                                    if (await CreateNewAsync(SubFolderPath, CreateType.Folder, CreateOption.ReplaceExisting) is not FileSystemStorageFolder)
-                                                    {
-                                                        throw new UnauthorizedAccessException(SubFolderPath);
-                                                    }
-
-                                                    break;
-                                                }
-                                            case FtpStorageFile File:
-                                                {
-                                                    string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
-
-                                                    await File.CopyAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath), CollisionOptions.OverrideOnCollision, SkipOperationRecord, CancelToken, (s, e) =>
-                                                    {
-                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
-                                                    });
-
-                                                    CurrentPosiion += File.Size;
-
-                                                    break;
-                                                }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    throw new UnauthorizedAccessException(TargetPath);
-                                }
-
-                                break;
-                            }
-                        case CollisionOptions.RenameOnCollision:
-                            {
-                                if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder NewFolder)
-                                {
-                                    await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
-                                    {
-                                        switch (Item)
-                                        {
-                                            case FtpStorageFolder Folder:
-                                                {
-                                                    string SubFolderPath = System.IO.Path.Combine(NewFolder.Path, System.IO.Path.GetRelativePath(Path, Folder.Path));
-
-                                                    if (await CreateNewAsync(SubFolderPath, CreateType.Folder, CreateOption.ReplaceExisting) is not FileSystemStorageFolder)
-                                                    {
-                                                        throw new UnauthorizedAccessException(SubFolderPath);
-                                                    }
-
-                                                    break;
-                                                }
-                                            case FtpStorageFile File:
-                                                {
-                                                    string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
-
-                                                    await File.CopyAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath), CollisionOptions.OverrideOnCollision, SkipOperationRecord, CancelToken, (s, e) =>
-                                                    {
-                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
-                                                    });
-
-                                                    CurrentPosiion += File.Size;
-
-                                                    break;
-                                                }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    throw new UnauthorizedAccessException(TargetPath);
-                                }
-
-                                break;
-                            }
-                        case CollisionOptions.Skip:
-                            {
-                                if (!await CheckExistsAsync(TargetPath))
-                                {
-                                    if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.ReplaceExisting) is FileSystemStorageFolder NewFolder)
-                                    {
-                                        await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
+                                        await foreach (FileSystemStorageItemBase Item in new FtpStorageFolder(AuxiliaryReadController, Data).GetChildItemsAsync(true, true, true, CancelToken))
                                         {
                                             switch (Item)
                                             {
@@ -493,17 +451,143 @@ namespace RX_Explorer.Class
                                                     }
                                                 case FtpStorageFile File:
                                                     {
-                                                        string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
-
-                                                        await File.CopyAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath), CollisionOptions.OverrideOnCollision, SkipOperationRecord, CancelToken, (s, e) =>
+                                                        using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
                                                         {
-                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
-                                                        });
+                                                            string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase)
+                                                                                      ? string.Empty
+                                                                                      : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
+
+                                                            if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                                            {
+                                                                using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                                                {
+                                                                    await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
+                                                                    {
+                                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                    });
+                                                                }
+                                                            }
+                                                        }
 
                                                         CurrentPosiion += File.Size;
 
                                                         break;
                                                     }
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    throw new UnauthorizedAccessException(TargetPath);
+                                }
+
+                                break;
+                            }
+                        case CollisionOptions.RenameOnCollision:
+                            {
+                                if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder NewFolder)
+                                {
+                                    using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
+                                    {
+                                        await foreach (FileSystemStorageItemBase Item in new FtpStorageFolder(AuxiliaryReadController, Data).GetChildItemsAsync(true, true, true, CancelToken))
+                                        {
+                                            switch (Item)
+                                            {
+                                                case FtpStorageFolder Folder:
+                                                    {
+                                                        string SubFolderPath = System.IO.Path.Combine(NewFolder.Path, System.IO.Path.GetRelativePath(Path, Folder.Path));
+
+                                                        if (await CreateNewAsync(SubFolderPath, CreateType.Folder, CreateOption.ReplaceExisting) is not FileSystemStorageFolder)
+                                                        {
+                                                            throw new UnauthorizedAccessException(SubFolderPath);
+                                                        }
+
+                                                        break;
+                                                    }
+                                                case FtpStorageFile File:
+                                                    {
+                                                        using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
+                                                        {
+                                                            string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase)
+                                                                                      ? string.Empty
+                                                                                      : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
+
+                                                            if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                                            {
+                                                                using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                                                {
+                                                                    await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
+                                                                    {
+                                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                    });
+                                                                }
+                                                            }
+                                                        }
+
+                                                        CurrentPosiion += File.Size;
+
+                                                        break;
+                                                    }
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    throw new UnauthorizedAccessException(TargetPath);
+                                }
+
+                                break;
+                            }
+                        case CollisionOptions.Skip:
+                            {
+                                if (!await CheckExistsAsync(TargetPath))
+                                {
+                                    if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.ReplaceExisting) is FileSystemStorageFolder NewFolder)
+                                    {
+                                        using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
+                                        {
+                                            await foreach (FileSystemStorageItemBase Item in new FtpStorageFolder(AuxiliaryReadController, Data).GetChildItemsAsync(true, true, true, CancelToken))
+                                            {
+                                                switch (Item)
+                                                {
+                                                    case FtpStorageFolder Folder:
+                                                        {
+                                                            string SubFolderPath = System.IO.Path.Combine(NewFolder.Path, System.IO.Path.GetRelativePath(Path, Folder.Path));
+
+                                                            if (await CreateNewAsync(SubFolderPath, CreateType.Folder, CreateOption.ReplaceExisting) is not FileSystemStorageFolder)
+                                                            {
+                                                                throw new UnauthorizedAccessException(SubFolderPath);
+                                                            }
+
+                                                            break;
+                                                        }
+                                                    case FtpStorageFile File:
+                                                        {
+                                                            using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
+                                                            {
+                                                                string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase)
+                                                                                          ? string.Empty
+                                                                                          : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
+
+                                                                if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                                                {
+                                                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                                                    {
+                                                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
+                                                                        {
+                                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            CurrentPosiion += File.Size;
+
+                                                            break;
+                                                        }
+                                                }
                                             }
                                         }
                                     }
@@ -536,40 +620,48 @@ namespace RX_Explorer.Class
 
                     if (await FtpClientManager.GetClientControllerAsync(TargetAnalysis) is FtpClientController TargetClientController)
                     {
-                        switch (Option)
+                        if (TargetClientController == ClientController)
                         {
-                            case CollisionOptions.OverrideOnCollision:
-                                {
-                                    if (!await TargetClientController.RunCommandAsync((Client) => Client.MoveDirectoryAsync(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Overwrite, CancelToken)))
+                            switch (Option)
+                            {
+                                case CollisionOptions.OverrideOnCollision:
                                     {
-                                        throw new Exception($"Could not move the file from: {Path} to: {TargetPath} on the ftp server: {TargetClientController.ServerHost}:{TargetClientController.ServerPort}");
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveDirectoryAsync(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Overwrite, CancelToken)))
+                                        {
+                                            throw new Exception($"Could not move the file from: {Path} to: {TargetPath} on the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
+                                        }
+
+                                        break;
                                     }
-
-                                    break;
-                                }
-                            case CollisionOptions.RenameOnCollision:
-                                {
-                                    string UniquePath = await TargetClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
-
-                                    if (!await ClientController.RunCommandAsync((Client) => Client.MoveDirectoryAsync(RelatedPath, UniquePath, FtpRemoteExists.NoCheck, CancelToken)))
+                                case CollisionOptions.RenameOnCollision:
                                     {
-                                        throw new Exception($"Could not move the file from: {Path} to: {TargetAnalysis.Host + UniquePath} on the ftp server: {TargetClientController.ServerHost}:{TargetClientController.ServerPort}");
-                                    }
+                                        string UniquePath = await ClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
 
-                                    break;
-                                }
-                            case CollisionOptions.Skip:
-                                {
-                                    if (!await TargetClientController.RunCommandAsync((Client) => Client.MoveDirectoryAsync(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Skip, CancelToken)))
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveDirectoryAsync(RelatedPath, UniquePath, FtpRemoteExists.NoCheck, CancelToken)))
+                                        {
+                                            throw new Exception($"Could not move the file from: {Path} to: {TargetAnalysis.Host + UniquePath} on the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
+                                        }
+
+                                        break;
+                                    }
+                                case CollisionOptions.Skip:
                                     {
-                                        throw new Exception($"Could not move the file from: {Path} to: {TargetPath} on the ftp server: {TargetClientController.ServerHost}:{TargetClientController.ServerPort}");
-                                    }
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveDirectoryAsync(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Skip, CancelToken)))
+                                        {
+                                            throw new Exception($"Could not move the file from: {Path} to: {TargetPath} on the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
+                                        }
 
-                                    break;
-                                }
+                                        break;
+                                    }
+                            }
+
+                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
                         }
-
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
+                        else
+                        {
+                            await CopyAsync(DirectoryPath, NewName, Option, SkipOperationRecord, CancelToken, ProgressHandler);
+                            await DeleteAsync(true, true, CancelToken);
+                        }
                     }
                     else
                     {
@@ -578,131 +670,8 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    ulong CurrentPosiion = 0;
-                    ulong TotalSize = await GetFolderSizeAsync(CancelToken);
-
-                    switch (Option)
-                    {
-                        case CollisionOptions.OverrideOnCollision:
-                            {
-                                if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.ReplaceExisting) is FileSystemStorageFolder NewFolder)
-                                {
-                                    await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
-                                    {
-                                        switch (Item)
-                                        {
-                                            case FtpStorageFolder Folder:
-                                                {
-                                                    string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(Folder.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, Folder.Path);
-
-                                                    if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath), CreateType.Folder, CreateOption.ReplaceExisting) is not FileSystemStorageFolder)
-                                                    {
-                                                        throw new UnauthorizedAccessException(System.IO.Path.Combine(NewFolder.Path, RelativePath));
-                                                    }
-
-                                                    break;
-                                                }
-                                            case FtpStorageFile File:
-                                                {
-                                                    string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
-
-                                                    await File.CopyAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath), CollisionOptions.OverrideOnCollision, SkipOperationRecord, CancelToken, (s, e) =>
-                                                    {
-                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
-                                                    });
-
-                                                    CurrentPosiion += File.Size;
-
-                                                    break;
-                                                }
-                                        }
-                                    }
-                                }
-
-                                break;
-                            }
-                        case CollisionOptions.RenameOnCollision:
-                            {
-                                if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder NewFolder)
-                                {
-                                    await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
-                                    {
-                                        switch (Item)
-                                        {
-                                            case FtpStorageFolder Folder:
-                                                {
-                                                    string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(Folder.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, Folder.Path);
-
-                                                    if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath), CreateType.Folder, CreateOption.ReplaceExisting) is not FileSystemStorageFolder)
-                                                    {
-                                                        throw new UnauthorizedAccessException(System.IO.Path.Combine(NewFolder.Path, RelativePath));
-                                                    }
-
-                                                    break;
-                                                }
-                                            case FtpStorageFile File:
-                                                {
-                                                    string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
-
-                                                    await File.CopyAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath), CollisionOptions.OverrideOnCollision, SkipOperationRecord, CancelToken, (s, e) =>
-                                                    {
-                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
-                                                    });
-
-                                                    CurrentPosiion += File.Size;
-
-                                                    break;
-                                                }
-                                        }
-                                    }
-                                }
-
-                                break;
-                            }
-                        case CollisionOptions.Skip:
-                            {
-                                if (!await CheckExistsAsync(TargetPath))
-                                {
-                                    if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.ReplaceExisting) is FileSystemStorageFolder NewFolder)
-                                    {
-                                        await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
-                                        {
-                                            switch (Item)
-                                            {
-                                                case FtpStorageFolder Folder:
-                                                    {
-                                                        string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(Folder.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, Folder.Path);
-
-                                                        if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath), CreateType.Folder, CreateOption.ReplaceExisting) is not FileSystemStorageFolder)
-                                                        {
-                                                            throw new UnauthorizedAccessException(System.IO.Path.Combine(NewFolder.Path, RelativePath));
-                                                        }
-
-                                                        break;
-                                                    }
-                                                case FtpStorageFile File:
-                                                    {
-                                                        string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase) ? string.Empty : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
-
-                                                        await File.CopyAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath), CollisionOptions.OverrideOnCollision, SkipOperationRecord, CancelToken, (s, e) =>
-                                                        {
-                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling((CurrentPosiion + (e.ProgressPercentage / 100d * File.Size)) * 100 / TotalSize)))), null));
-                                                        });
-
-                                                        CurrentPosiion += File.Size;
-
-                                                        break;
-                                                    }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                break;
-                            }
-                    }
-
-                    await ClientController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(RelatedPath, CancelToken));
+                    await CopyAsync(DirectoryPath, NewName, Option, SkipOperationRecord, CancelToken, ProgressHandler);
+                    await DeleteAsync(true, true, CancelToken);
                 }
             }
             else

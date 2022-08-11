@@ -125,7 +125,7 @@
     <Compile Include="Class\ListViewColumnWidthSaver.cs" />
     <Compile Include="Class\PixelNumberFormatter.cs" />
     <Compile Include="Class\SequentialCrossProcessReadonlyStream.cs" />
-    <Compile Include="Class\SequentialStreamRandomAccessStream.cs" />
+    <Compile Include="Class\SequentialVirtualRandomAccessStream.cs" />
     <Compile Include="Class\ViewHeightOffsetSaver.cs" />
     <Compile Include="Class\MonitorTrustProcessController.cs" />
     <Compile Include="Class\MTPDriveData.cs" />
@@ -816,13 +816,13 @@
       <Version>2.17.1</Version>
     </PackageReference>
     <PackageReference Include="FluentFTP">
-      <Version>39.1.0</Version>
+      <Version>39.2.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AppCenter.Crashes">
       <Version>4.5.3</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>6.0.7</Version>
+      <Version>6.0.8</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.14</Version>

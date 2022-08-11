@@ -6,11 +6,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Text;
 using System.Windows;
 using System.Windows.Interop;
-using Windows.Management.Deployment;
 using Windows.UI.Popups;
 using WinRT.Interop;
 using Path = System.IO.Path;
@@ -456,9 +454,7 @@ namespace SystemLaunchHelper
                 {
                     string StartupArguments = $"{string.Join(' ', ActivationArgs.Select((Item) => $"\"{Item}\""))}";
 
-                    PackageManager Manager = new PackageManager();
-
-                    if (Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), "36186RuoFan.USB_q3e6crc0w375t", PackageTypes.Main).FirstOrDefault() != null)
+                    if (Helper.CheckIfPackageFamilyNameExist("36186RuoFan.USB_q3e6crc0w375t"))
                     {
                         Process.Start(new ProcessStartInfo
                         {

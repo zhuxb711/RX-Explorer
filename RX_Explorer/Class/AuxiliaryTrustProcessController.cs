@@ -2237,21 +2237,21 @@ namespace RX_Explorer.Class
             return MoveAsync(new Dictionary<string, string> { { SourcePath, NewName } }, Destination, Option, SkipOperationRecord, CancelToken, ProgressHandler);
         }
 
-        public async Task CopyAsync(IEnumerable<string> Source,
+        public async Task CopyAsync(IReadOnlyDictionary<string,string> SourceMapping,
                                     string DestinationPath,
                                     CollisionOptions Option = CollisionOptions.Skip,
                                     bool SkipOperationRecord = false,
                                     CancellationToken CancelToken = default,
                                     ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (Source == null)
+            if (SourceMapping == null)
             {
-                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
+                throw new ArgumentNullException(nameof(SourceMapping), "Parameter could not be null");
             }
 
             List<string> ItemList = new List<string>();
 
-            foreach (string SourcePath in Source)
+            foreach (string SourcePath in SourceMapping.Keys)
             {
                 if (await FileSystemStorageItemBase.CheckExistsAsync(SourcePath))
                 {
@@ -2326,6 +2326,7 @@ namespace RX_Explorer.Class
 
         public Task CopyAsync(string SourcePath,
                               string Destination,
+                              string NewName = null,
                               CollisionOptions Option = CollisionOptions.Skip,
                               bool SkipOperationRecord = false,
                               CancellationToken CancelToken = default,
@@ -2341,7 +2342,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return CopyAsync(new string[1] { SourcePath }, Destination, Option, SkipOperationRecord, CancelToken, ProgressHandler);
+            return CopyAsync(new Dictionary<string,string>() { { SourcePath, NewName } }, Destination, Option, SkipOperationRecord, CancelToken, ProgressHandler);
         }
 
         public async Task<bool> RestoreItemInRecycleBinAsync(params string[] OriginPathList)

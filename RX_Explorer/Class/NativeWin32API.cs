@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
@@ -387,60 +388,87 @@ namespace RX_Explorer.Class
             return new FileStream(Handle, Access, 4096, true);
         }
 
+        public static bool DeleteFromPath(string Path)
+        {
+            switch (CheckItemTypeFromPath(Path))
+            {
+                case StorageItemTypes.File:
+                    {
+                        return DeleteFileFromApp(Path);
+                    }
+                case StorageItemTypes.Folder:
+                    {
+                        if (GetStorageItems(Path).Select((Item) => Item.Path).All((Path) => DeleteFromPath(Path)))
+                        {
+                            return RemoveDirectoryFromApp(Path);
+                        }
+
+                        return false;
+                    }
+                default:
+                    {
+                        return true;
+                    }
+            }
+        }
+
         public static bool CreateDirectoryFromPath(string Path, CreateOption Option, out string NewFolderPath)
         {
             NewFolderPath = string.Empty;
 
             if (!string.IsNullOrWhiteSpace(Path))
             {
-                PathAnalysis Analysis = new PathAnalysis(Path);
+                PathAnalysis Analysis = new PathAnalysis(System.IO.Path.GetDirectoryName(Path));
 
-                while (true)
+                while (Analysis.HasNextLevel)
                 {
                     string NextPath = Analysis.NextFullPath();
 
-                    if (Analysis.HasNextLevel)
+                    if (CheckItemTypeFromPath(NextPath) != StorageItemTypes.Folder && !CreateDirectoryFromApp(NextPath, IntPtr.Zero))
                     {
-                        if (!CheckExists(NextPath) && !CreateDirectoryFromApp(NextPath, IntPtr.Zero))
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        switch (Option)
-                        {
-                            case CreateOption.GenerateUniqueName:
-                                {
-                                    string UniquePath = GenerateUniquePath(NextPath, CreateType.Folder);
-
-                                    if (CreateDirectoryFromApp(UniquePath, IntPtr.Zero))
-                                    {
-                                        NewFolderPath = UniquePath;
-                                        return true;
-                                    }
-
-                                    break;
-                                }
-                            case CreateOption.OpenIfExist:
-                                {
-                                    if (CheckExists(NextPath) || CreateDirectoryFromApp(NextPath, IntPtr.Zero))
-                                    {
-                                        NewFolderPath = NextPath;
-                                        return true;
-                                    }
-
-                                    break;
-                                }
-                            default:
-                                {
-                                    throw new ArgumentException($"{Option} is not a valid parameter", nameof(Option));
-                                }
-                        }
-
-                        break;
+                        return false;
                     }
                 }
+
+                switch (Option)
+                {
+                    case CreateOption.GenerateUniqueName:
+                        {
+                            string UniquePath = GenerateUniquePath(Path, CreateType.Folder);
+
+                            if (CreateDirectoryFromApp(UniquePath, IntPtr.Zero))
+                            {
+                                NewFolderPath = UniquePath;
+                                return true;
+                            }
+
+                            break;
+                        }
+                    case CreateOption.OpenIfExist:
+                        {
+                            if (CheckItemTypeFromPath(Path) == StorageItemTypes.Folder || CreateDirectoryFromApp(Path, IntPtr.Zero))
+                            {
+                                NewFolderPath = Path;
+                                return true;
+                            }
+
+                            break;
+                        }
+                    case CreateOption.ReplaceExisting:
+                        {
+                            if (CheckItemTypeFromPath(Path) == StorageItemTypes.Folder && DeleteFromPath(Path))
+                            {
+                                if (CreateDirectoryFromApp(Path, IntPtr.Zero))
+                                {
+                                    NewFolderPath = Path;
+                                    return true;
+                                }
+                            }
+
+                            break;
+                        }
+                }
+
             }
 
             return false;

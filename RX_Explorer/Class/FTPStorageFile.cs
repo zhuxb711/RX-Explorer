@@ -165,8 +165,15 @@ namespace RX_Explorer.Class
         {
             FtpClientController AuxiliaryController = await FtpClientController.DuplicateClientControllerAsync(ClientController);
             Stream OriginStream = await AuxiliaryController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size));
-            Stream RandomAccessStream = await SequentialStreamRandomAccessStream.CreateAsync(OriginStream);
-            return new FtpFileSaveOnFlushStream(Path, AuxiliaryController, RandomAccessStream);
+
+            if (Option == OptimizeOption.Sequential)
+            {
+                return new FtpFileSaveOnFlushStream(Path, AuxiliaryController, OriginStream);
+            }
+            else
+            {
+                return new FtpFileSaveOnFlushStream(Path, AuxiliaryController, await SequentialVirtualRandomAccessStream.CreateAsync(OriginStream));
+            }
         }
 
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
@@ -184,7 +191,7 @@ namespace RX_Explorer.Class
             return Task.FromResult(Data);
         }
 
-        public override async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        public override async Task CopyAsync(string DirectoryPath, string NewName = null, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
             {
@@ -196,55 +203,52 @@ namespace RX_Explorer.Class
 
                     if (await FtpClientManager.GetClientControllerAsync(TargetAnalysis) is FtpClientController TargetClientController)
                     {
-                        switch (Option)
+                        using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(TargetClientController))
                         {
-                            case CollisionOptions.OverrideOnCollision:
-                                {
-                                    if (await TargetClientController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                            switch (Option)
+                            {
+                                case CollisionOptions.OverrideOnCollision:
                                     {
-                                        await TargetClientController.RunCommandAsync((Client) => Client.DeleteFileAsync(TargetAnalysis.RelatedPath, CancelToken));
-                                    }
+                                        if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                        {
+                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFileAsync(TargetAnalysis.RelatedPath, CancelToken));
+                                        }
 
-                                    using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
-                                    using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(TargetClientController))
-                                    using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
-                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
-                                    {
-                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
-                                    }
-
-                                    break;
-                                }
-
-                            case CollisionOptions.RenameOnCollision:
-                                {
-                                    string UniquePath = await TargetClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
-
-                                    using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
-                                    using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(TargetClientController))
-                                    using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
-                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(UniquePath, FtpDataType.Binary, false, CancelToken)))
-                                    {
-                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
-                                    }
-
-                                    break;
-                                }
-                            case CollisionOptions.Skip:
-                                {
-                                    if (!await TargetClientController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
-                                    {
-                                        using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
-                                        using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(TargetClientController))
-                                        using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
+                                        using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                         using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
                                         {
                                             await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                         }
+
+                                        break;
                                     }
 
-                                    break;
-                                }
+                                case CollisionOptions.RenameOnCollision:
+                                    {
+                                        string UniquePath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
+
+                                        using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(UniquePath, FtpDataType.Binary, false, CancelToken)))
+                                        {
+                                            await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
+                                        }
+
+                                        break;
+                                    }
+                                case CollisionOptions.Skip:
+                                    {
+                                        if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                        {
+                                            using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                            using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                            {
+                                                await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                            }
                         }
                     }
                     else
@@ -262,11 +266,10 @@ namespace RX_Explorer.Class
                             {
                                 if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
                                 {
-                                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
-                                    using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
-                                    using (Stream FtpStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
+                                    using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     {
-                                        await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
+                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                     }
                                 }
 
@@ -276,11 +279,10 @@ namespace RX_Explorer.Class
                             {
                                 if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                                 {
-                                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
-                                    using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
-                                    using (Stream FtpStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
+                                    using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     {
-                                        await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
+                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                     }
                                 }
 
@@ -292,11 +294,10 @@ namespace RX_Explorer.Class
                                 {
                                     if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
                                     {
-                                        using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
-                                        using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
-                                        using (Stream FtpStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
+                                        using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                        using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                         {
-                                            await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
+                                            await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                         }
                                     }
                                 }
@@ -358,11 +359,13 @@ namespace RX_Explorer.Class
                                         break;
                                     }
                             }
+
+                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
                         }
                         else
                         {
-                            await CopyAsync(DirectoryPath, Option, SkipOperationRecord, CancelToken, ProgressHandler);
-                            await ClientController.RunCommandAsync((Client) => Client.DeleteFileAsync(RelatedPath, CancelToken));
+                            await CopyAsync(DirectoryPath, NewName, Option, SkipOperationRecord, CancelToken, ProgressHandler);
+                            await DeleteAsync(true, true, CancelToken);
                         }
                     }
                     else
@@ -372,55 +375,8 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    string TargetFilePath = System.IO.Path.Combine(DirectoryPath, Name);
-
-                    switch (Option)
-                    {
-                        case CollisionOptions.OverrideOnCollision:
-                            {
-                                if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
-                                {
-                                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
-                                    using (Stream FtpStream = await ClientController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
-                                    {
-                                        await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case CollisionOptions.RenameOnCollision:
-                            {
-                                if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
-                                {
-                                    using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
-                                    using (Stream FtpStream = await ClientController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
-                                    {
-                                        await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case CollisionOptions.Skip:
-                            {
-                                if (!await CheckExistsAsync(TargetFilePath))
-                                {
-                                    if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
-                                    {
-                                        using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
-                                        using (Stream FtpStream = await ClientController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size, CancelToken)))
-                                        {
-                                            await FtpStream.CopyToAsync(NewFileStream, FtpStream.Length, CancelToken, ProgressHandler);
-                                        }
-                                    }
-                                }
-
-                                break;
-                            }
-                    }
-
-                    await ClientController.RunCommandAsync((Client) => Client.DeleteFileAsync(RelatedPath, CancelToken));
+                    await CopyAsync(DirectoryPath, NewName, Option, SkipOperationRecord, CancelToken, ProgressHandler);
+                    await DeleteAsync(true, true, CancelToken);
                 }
             }
             else

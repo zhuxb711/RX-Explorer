@@ -262,7 +262,7 @@ namespace RX_Explorer.Class
                                             }).AsTask().Wait();
                                         }
 
-                                        FileSystemStorageItemBase.CopyAsync(CModel.CopyFrom, CModel.CopyTo, Option, false, CancelToken, (s, e) =>
+                                        FileSystemStorageItemBase.CopyAsync(new Dictionary<string, string>(CModel.CopyFrom.Select((Path) => new KeyValuePair<string, string>(Path, null))), CModel.CopyTo, Option, false, CancelToken, (s, e) =>
                                         {
                                             Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {

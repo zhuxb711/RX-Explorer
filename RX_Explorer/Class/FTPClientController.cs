@@ -202,12 +202,17 @@ namespace RX_Explorer.Class
 
         private FtpClientController(string Host, int Port, string UserName, string Password, bool UseEncryption)
         {
-            Locker = new SemaphoreSlim(1, 1);
-            TaskCollection = new BlockingCollection<FTPTaskData>();
-
             this.UserName = UserName;
             this.Password = Password;
             this.UseEncryption = UseEncryption;
+
+            Locker = new SemaphoreSlim(1, 1);
+            TaskCollection = new BlockingCollection<FTPTaskData>();
+            ProcessThread = new Thread(ProcessCore)
+            {
+                IsBackground = true,
+                Priority = ThreadPriority.Normal
+            };
 
             Client = new FtpClient(Host, Port, UserName, Password)
             {
@@ -221,11 +226,6 @@ namespace RX_Explorer.Class
                 RetryAttempts = 3
             };
 
-            ProcessThread = new Thread(ProcessCore)
-            {
-                IsBackground = true,
-                Priority = ThreadPriority.Normal
-            };
             ProcessThread.Start();
         }
 
