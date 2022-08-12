@@ -108,7 +108,7 @@ namespace RX_Explorer.Class
             return (T)await Data.TaskSource.Task;
         }
 
-        private async Task ConnectAsync()
+        private async Task ConnectAsync(CancellationToken CancelToken = default)
         {
             await Locker.WaitAsync();
 
@@ -122,15 +122,12 @@ namespace RX_Explorer.Class
                         {
                             Client.DataConnectionType = ConnectionType;
 
-                            using (CancellationTokenSource Cancellation = new CancellationTokenSource(30000))
-                            {
-                                await Client.ConnectAsync(Cancellation.Token);
-                                await Client.GetNameListingAsync(Cancellation.Token);
+                            await Client.ConnectAsync(CancelToken);
+                            await Client.GetNameListingAsync(CancelToken);
 
-                                if (IsAvailable)
-                                {
-                                    break;
-                                }
+                            if (IsAvailable)
+                            {
+                                break;
                             }
                         }
                         catch (Exception)
@@ -176,11 +173,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<FtpClientController> MakeSureConnectionAndCloseOnceFailedAsync(FtpClientController Controller)
+        public static async Task<FtpClientController> MakeSureConnectionAndCloseOnceFailedAsync(FtpClientController Controller, CancellationToken CancelToken = default)
         {
             try
             {
-                await Controller.ConnectAsync();
+                await Controller.ConnectAsync(CancelToken);
                 return Controller;
             }
             catch (Exception)
@@ -195,9 +192,9 @@ namespace RX_Explorer.Class
             return MakeSureConnectionAndCloseOnceFailedAsync(new FtpClientController(Controller.ServerHost, Controller.ServerPort, Controller.UserName, Controller.Password, Controller.UseEncryption));
         }
 
-        public static Task<FtpClientController> CreateAsync(string Host, int Port, string UserName, string Password, bool UseEncryption)
+        public static Task<FtpClientController> CreateAsync(string Host, int Port, string UserName, string Password, bool UseEncryption, CancellationToken CancelToken = default)
         {
-            return MakeSureConnectionAndCloseOnceFailedAsync(new FtpClientController(Host, Port, UserName, Password, UseEncryption));
+            return MakeSureConnectionAndCloseOnceFailedAsync(new FtpClientController(Host, Port, UserName, Password, UseEncryption), CancelToken);
         }
 
         private FtpClientController(string Host, int Port, string UserName, string Password, bool UseEncryption)
@@ -225,7 +222,8 @@ namespace RX_Explorer.Class
                 SocketKeepAlive = true,
                 ValidateAnyCertificate = true,
                 RetryAttempts = 3,
-                ReadTimeout = 30000
+                ReadTimeout = 30000,
+                ConnectTimeout = 30000
             };
 
             ProcessThread.Start();

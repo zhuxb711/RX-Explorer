@@ -2,6 +2,7 @@
 using RX_Explorer.Class;
 using System;
 using System.Linq;
+using System.Threading;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -12,7 +13,6 @@ namespace RX_Explorer.Dialog
     public sealed partial class FTPCredentialDialog : QueueContentDialog
     {
         private readonly FtpPathAnalysis Analysis;
-
         private readonly CredentialProtector Protector;
 
         public FtpClientController FtpController { get; private set; }
@@ -48,38 +48,59 @@ namespace RX_Explorer.Dialog
 
             try
             {
-                if (string.IsNullOrEmpty(AccountBox.Text))
-                {
-                    args.Cancel = true;
-                }
-                else
-                {
-                    Message.Text = $"{Globalization.GetString("FTPCredentialDialogStatus1")}...";
-                    Message.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
-                    Message.Visibility = Visibility.Visible;
-                    ProgressControl.Visibility = Visibility.Visible;
-                    AnonymousLogin.IsEnabled = false;
-                    SavePassword.IsEnabled = false;
-                    AccountBox.IsEnabled = false;
-                    PasswordBox.IsEnabled = false;
+                IsPrimaryButtonEnabled = false;
+                IsSecondaryButtonEnabled = false;
 
-                    if (AnonymousLogin.IsChecked.GetValueOrDefault())
+                try
+                {
+                    if (string.IsNullOrEmpty(AccountBox.Text))
                     {
-                        FtpController = await FtpClientController.CreateAsync(Analysis.Host, Analysis.Port, "anonymous", "anonymous", Analysis.Path.StartsWith("ftps", StringComparison.OrdinalIgnoreCase));
+                        args.Cancel = true;
                     }
                     else
                     {
-                        FtpController = await FtpClientController.CreateAsync(Analysis.Host, Analysis.Port, AccountBox.Text, PasswordBox.Password, Analysis.Path.StartsWith("ftps", StringComparison.OrdinalIgnoreCase));
+                        Message.Text = $"{Globalization.GetString("FTPCredentialDialogStatus1")}...";
+                        Message.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
+                        Message.Visibility = Visibility.Visible;
+                        ProgressControl.Visibility = Visibility.Visible;
+                        AnonymousLogin.IsEnabled = false;
+                        SavePassword.IsEnabled = false;
+                        AccountBox.IsEnabled = false;
+                        PasswordBox.IsEnabled = false;
 
-                        if (SavePassword.IsChecked.GetValueOrDefault())
+                        if (AnonymousLogin.IsChecked.GetValueOrDefault())
                         {
-                            Protector.RequestProtection(AccountBox.Text, PasswordBox.Password);
+                            FtpController = await FtpClientController.CreateAsync(Analysis.Host,
+                                                                                  Analysis.Port,
+                                                                                  "anonymous",
+                                                                                  "anonymous",
+                                                                                  Analysis.Path.StartsWith("ftps", StringComparison.OrdinalIgnoreCase));
                         }
-                        else if (Protector.CheckExists(AccountBox.Text))
+                        else
                         {
-                            Protector.RemoveProtection(AccountBox.Text);
+                            FtpController = await FtpClientController.CreateAsync(Analysis.Host,
+                                                                                  Analysis.Port,
+                                                                                  AccountBox.Text,
+                                                                                  PasswordBox.Password,
+                                                                                  Analysis.Path.StartsWith("ftps", StringComparison.OrdinalIgnoreCase));
+
+                            if (SavePassword.IsChecked.GetValueOrDefault())
+                            {
+                                Protector.RequestProtection(AccountBox.Text, PasswordBox.Password);
+                            }
+                            else if (Protector.CheckExists(AccountBox.Text))
+                            {
+                                Protector.RemoveProtection(AccountBox.Text);
+                            }
                         }
                     }
+                }
+                finally
+                {
+                    IsPrimaryButtonEnabled = true;
+                    IsSecondaryButtonEnabled = true;
+                    DefaultButton = ContentDialogButton.None;
+                    DefaultButton = ContentDialogButton.Primary;
                 }
             }
             catch (Exception ex)
@@ -114,7 +135,10 @@ namespace RX_Explorer.Dialog
                     Message.Text = Globalization.GetString("FTPCredentialDialogStatus4");
                 }
 
-                LogTracer.Log(ex, $"Could not connect to the ftp server \"{Analysis.Host}\"");
+                if (ex is not OperationCanceledException)
+                {
+                    LogTracer.Log(ex, $"Could not connect to the ftp server \"{Analysis.Host}\"");
+                }
             }
             finally
             {

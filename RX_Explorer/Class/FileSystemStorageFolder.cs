@@ -428,8 +428,8 @@ namespace RX_Explorer.Class
                     SubItems = new List<FileSystemStorageItemBase>(0);
                 }
 
-                foreach (FileSystemStorageItemBase Item in SubItems.Where((Item) => (Item is FileSystemStorageFolder && Filter.HasFlag(BasicFilters.Folder)) || (Item is FileSystemStorageFile && Filter.HasFlag(BasicFilters.File)))
-                                                                   .Where((Item) => (AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true)))
+                foreach (FileSystemStorageItemBase Item in SubItems.Where((Item) => (AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true))
+                                                                   .Where((Item) => (Item is FileSystemStorageFolder && Filter.HasFlag(BasicFilters.Folder)) || (Item is FileSystemStorageFile && Filter.HasFlag(BasicFilters.File))))
                 {
                     yield return Item;
                 }

@@ -73,33 +73,35 @@ namespace RX_Explorer.Class
                                                                                              BasicFilters Filter = BasicFilters.File | BasicFilters.Folder,
                                                                                              Func<string, bool> AdvanceFilter = null)
         {
-            foreach (FtpListItem Item in await ClientController.RunCommandAsync((Client) => Client.GetListingAsync(RelatedPath, FtpListOption.SizeModify, CancelToken)))
+            IReadOnlyList<FtpListItem> SubItems = await ClientController.RunCommandAsync((Client) => Client.GetListingAsync(RelatedPath, FtpListOption.SizeModify, CancelToken));
+            IReadOnlyList<FileSystemStorageItemBase> SubTransformedItems = SubItems.Select<FtpListItem, FileSystemStorageItemBase>((Item) =>
             {
-                if ((AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true))
+                if (Item.Type.HasFlag(FtpObjectType.Directory))
                 {
-                    if (Item.Type.HasFlag(FtpObjectType.Directory))
-                    {
-                        if (Filter.HasFlag(BasicFilters.Folder))
-                        {
-                            FtpStorageFolder SubFolder = new FtpStorageFolder(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
+                    return new FtpStorageFolder(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
+                }
+                else
+                {
+                    return new FtpStorageFile(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
+                }
+            }).ToList();
 
-                            yield return SubFolder;
+            foreach (FileSystemStorageItemBase Item in SubTransformedItems.Where((Item) => (AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true))
+                                                                          .Where((Item) => (Item is FileSystemStorageFolder && Filter.HasFlag(BasicFilters.Folder)) || (Item is FileSystemStorageFile && Filter.HasFlag(BasicFilters.File))))
+                                                                          
+            {
+                yield return Item;
+            }
 
-                            if (IncludeAllSubItems)
-                            {
-                                await foreach (FileSystemStorageItemBase SubItem in SubFolder.GetChildItemsAsync(IncludeHiddenItems, IncludeSystemItems, true, CancelToken, Filter, AdvanceFilter))
-                                {
-                                    yield return SubItem;
-                                }
-                            }
-                        }
-                    }
-                    else
+            if (IncludeAllSubItems)
+            {
+                foreach (FileSystemStorageFolder Item in SubTransformedItems.OfType<FileSystemStorageFolder>())
+                {
+                    CancelToken.ThrowIfCancellationRequested();
+
+                    await foreach (FileSystemStorageItemBase SubItem in Item.GetChildItemsAsync(IncludeHiddenItems, IncludeSystemItems, IncludeAllSubItems, CancelToken, Filter, AdvanceFilter))
                     {
-                        if (Filter.HasFlag(BasicFilters.File))
-                        {
-                            yield return new FtpStorageFile(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
-                        }
+                        yield return SubItem;
                     }
                 }
             }
@@ -314,6 +316,7 @@ namespace RX_Explorer.Class
                                                             }
 
                                                             CurrentPosiion += File.Size;
+                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(CurrentPosiion * 100d / TotalSize)))), null));
 
                                                             break;
                                                         }
@@ -358,7 +361,12 @@ namespace RX_Explorer.Class
                                                                 });
                                                             }
 
+                                                            //Temp solution
+                                                            await AuxiliaryReadController.RunCommandAsync((Client) => Client.GetReplyAsync(CancelToken));
+                                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetReplyAsync(CancelToken));
+
                                                             CurrentPosiion += File.Size;
+                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(CurrentPosiion * 100d / TotalSize)))), null));
 
                                                             break;
                                                         }
@@ -412,6 +420,7 @@ namespace RX_Explorer.Class
                                                                 }
 
                                                                 CurrentPosiion += File.Size;
+                                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(CurrentPosiion * 100d / TotalSize)))), null));
 
                                                                 break;
                                                             }
@@ -482,6 +491,7 @@ namespace RX_Explorer.Class
                                                         }
 
                                                         CurrentPosiion += File.Size;
+                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(CurrentPosiion * 100d / TotalSize)))), null));
 
                                                         break;
                                                     }
@@ -541,6 +551,7 @@ namespace RX_Explorer.Class
                                                         }
 
                                                         CurrentPosiion += File.Size;
+                                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(CurrentPosiion * 100d / TotalSize)))), null));
 
                                                         break;
                                                     }
@@ -602,6 +613,7 @@ namespace RX_Explorer.Class
                                                             }
 
                                                             CurrentPosiion += File.Size;
+                                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(CurrentPosiion * 100d / TotalSize)))), null));
 
                                                             break;
                                                         }
