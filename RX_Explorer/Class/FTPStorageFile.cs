@@ -164,15 +164,32 @@ namespace RX_Explorer.Class
         public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
             FtpClientController AuxiliaryController = await FtpClientController.DuplicateClientControllerAsync(ClientController);
-            Stream OriginStream = await AuxiliaryController.RunCommandAsync((Client) => Client.OpenReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size));
+
+            Stream OriginStream = await AuxiliaryController.RunCommandAsync((Client) => Client.GetFtpFileStreamForReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size));
 
             if (Option == OptimizeOption.Sequential)
             {
-                return new FtpFileSaveOnFlushStream(Path, AuxiliaryController, OriginStream);
+                if (Mode == AccessMode.Read)
+                {
+                    return OriginStream;
+                }
+                else
+                {
+                    return new FtpFileSaveOnFlushStream(Path, AuxiliaryController, OriginStream);
+                }
             }
             else
             {
-                return new FtpFileSaveOnFlushStream(Path, AuxiliaryController, await SequentialVirtualRandomAccessStream.CreateAsync(OriginStream));
+                SequentialVirtualRandomAccessStream RandomAccessStream = await SequentialVirtualRandomAccessStream.CreateAsync(OriginStream);
+
+                if (Mode == AccessMode.Read)
+                {
+                    return RandomAccessStream;
+                }
+                else
+                {
+                    return new FtpFileSaveOnFlushStream(Path, AuxiliaryController, RandomAccessStream);
+                }
             }
         }
 
@@ -215,7 +232,7 @@ namespace RX_Explorer.Class
                                         }
 
                                         using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
                                         {
                                             await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                         }
@@ -228,7 +245,7 @@ namespace RX_Explorer.Class
                                         string UniquePath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
 
                                         using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(UniquePath, FtpDataType.Binary, false, CancelToken)))
+                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(UniquePath, FtpDataType.Binary, CancelToken)))
                                         {
                                             await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                         }
@@ -240,7 +257,7 @@ namespace RX_Explorer.Class
                                         if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
                                         {
                                             using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                            using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                            using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
                                             {
                                                 await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                             }

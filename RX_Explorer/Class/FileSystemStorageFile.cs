@@ -274,7 +274,7 @@ namespace RX_Explorer.Class
                                         await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFileAsync(TargetAnalysis.RelatedPath, CancelToken));
                                     }
 
-                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
                                     {
                                         await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                     }
@@ -286,7 +286,7 @@ namespace RX_Explorer.Class
                                 {
                                     string UniquePath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
 
-                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(UniquePath, FtpDataType.Binary, false, CancelToken)))
+                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(UniquePath, FtpDataType.Binary, CancelToken)))
                                     {
                                         await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                     }
@@ -297,7 +297,7 @@ namespace RX_Explorer.Class
                                 {
                                     if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
                                     {
-                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
                                         {
                                             await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                         }
@@ -339,7 +339,7 @@ namespace RX_Explorer.Class
                                         await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFileAsync(TargetAnalysis.RelatedPath, CancelToken));
                                     }
 
-                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
                                     {
                                         await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                     }
@@ -351,7 +351,7 @@ namespace RX_Explorer.Class
                                 {
                                     string UniquePath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
 
-                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(UniquePath, FtpDataType.Binary, false, CancelToken)))
+                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(UniquePath, FtpDataType.Binary, CancelToken)))
                                     {
                                         await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                     }
@@ -362,7 +362,7 @@ namespace RX_Explorer.Class
                                 {
                                     if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
                                     {
-                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
                                         {
                                             await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                         }

@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
 
             BaseStream.Seek(0, SeekOrigin.Begin);
 
-            using (Stream TargetStream = await Controller.RunCommandAsync((Client) => Client.OpenWriteAsync(Analysis.RelatedPath, FtpDataType.Binary, BaseStream.Length, CancelToken)).ConfigureAwait(false))
+            using (Stream TargetStream = await Controller.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(Analysis.RelatedPath, FtpDataType.Binary, CancelToken)).ConfigureAwait(false))
             {
                 await BaseStream.CopyToAsync(TargetStream, CancelToken: CancelToken).ConfigureAwait(false);
             }

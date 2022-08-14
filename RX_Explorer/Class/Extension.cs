@@ -43,6 +43,16 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
+        public static async Task<Stream> GetFtpFileStreamForWriteAsync(this FtpClient Client, string Path, FtpDataType DataType, CancellationToken CancelToken = default)
+        {
+            return new FtpSafeWriteStream(Client, await Client.OpenWriteAsync(Path, DataType, false, CancelToken));
+        }
+
+        public static async Task<Stream> GetFtpFileStreamForReadAsync(this FtpClient Client, string Path, FtpDataType DataType, long RestartPosition, long FileLength, CancellationToken CancelToken = default)
+        {
+            return new FtpSafeReadStream(Client, await Client.OpenReadAsync(Path, DataType, RestartPosition, FileLength, CancelToken));
+        }
+
         public static string GetDateTimeDescription(this DateTimeOffset Time)
         {
             if (Time != DateTimeOffset.MaxValue.ToLocalTime()

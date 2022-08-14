@@ -295,7 +295,7 @@ namespace RX_Explorer.Class
                                                         }
                                                     case FtpStorageFile File:
                                                         {
-                                                            using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
+                                                            using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.GetFtpFileStreamForReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
                                                             {
                                                                 string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase)
                                                                                           ? string.Empty
@@ -303,7 +303,7 @@ namespace RX_Explorer.Class
 
                                                                 FtpPathAnalysis InnerTargetAnalysis = new FtpPathAnalysis(System.IO.Path.Combine(TargetPath, RelativePath, File.Name));
 
-                                                                using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(InnerTargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                                                using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(InnerTargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
                                                                 {
                                                                     await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                     {
@@ -349,8 +349,8 @@ namespace RX_Explorer.Class
                                                         }
                                                     case FtpStorageFile File:
                                                         {
-                                                            using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
-                                                            using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(@$"{UniquePath}\{System.IO.Path.GetRelativePath(Path, File.Path)}", FtpDataType.Binary, false, CancelToken)))
+                                                            using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.GetFtpFileStreamForReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
+                                                            using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync($@"{UniquePath}\{System.IO.Path.GetRelativePath(Path, File.Path)}", FtpDataType.Binary, CancelToken)))
                                                             {
                                                                 await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                 {
@@ -360,10 +360,6 @@ namespace RX_Explorer.Class
                                                                     }
                                                                 });
                                                             }
-
-                                                            //Temp solution
-                                                            await AuxiliaryReadController.RunCommandAsync((Client) => Client.GetReplyAsync(CancelToken));
-                                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetReplyAsync(CancelToken));
 
                                                             CurrentPosiion += File.Size;
                                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(CurrentPosiion * 100d / TotalSize)))), null));
@@ -399,7 +395,7 @@ namespace RX_Explorer.Class
                                                             }
                                                         case FtpStorageFile File:
                                                             {
-                                                                using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
+                                                                using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.GetFtpFileStreamForReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
                                                                 {
                                                                     string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase)
                                                                                               ? string.Empty
@@ -407,7 +403,7 @@ namespace RX_Explorer.Class
 
                                                                     FtpPathAnalysis InnerTargetAnalysis = new FtpPathAnalysis(System.IO.Path.Combine(TargetPath, RelativePath, File.Name));
 
-                                                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(InnerTargetAnalysis.RelatedPath, FtpDataType.Binary, false, CancelToken)))
+                                                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(InnerTargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
                                                                     {
                                                                         await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                         {
@@ -469,7 +465,7 @@ namespace RX_Explorer.Class
                                                     }
                                                 case FtpStorageFile File:
                                                     {
-                                                        using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
+                                                        using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.GetFtpFileStreamForReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
                                                         {
                                                             string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase)
                                                                                       ? string.Empty
@@ -529,7 +525,7 @@ namespace RX_Explorer.Class
                                                     }
                                                 case FtpStorageFile File:
                                                     {
-                                                        using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
+                                                        using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.GetFtpFileStreamForReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
                                                         {
                                                             string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase)
                                                                                       ? string.Empty
@@ -591,7 +587,7 @@ namespace RX_Explorer.Class
                                                         }
                                                     case FtpStorageFile File:
                                                         {
-                                                            using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.OpenReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
+                                                            using (Stream OriginStream = await AuxiliaryReadController.RunCommandAsync((Client) => Client.GetFtpFileStreamForReadAsync(File.RelatedPath, FtpDataType.Binary, 0, (long)File.Size, CancelToken)))
                                                             {
                                                                 string RelativePath = Path.Equals(System.IO.Path.GetDirectoryName(File.Path), StringComparison.OrdinalIgnoreCase)
                                                                                           ? string.Empty

@@ -2772,7 +2772,7 @@ namespace AuxiliaryTrustProcess
                         case AuxiliaryTrustProcessCommandType.InterceptFolder:
                             {
                                 string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
-                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(ExplorerPackageFamilyName), "SystemLaunchHelper");
+                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper");
 
                                 Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
@@ -2811,7 +2811,7 @@ namespace AuxiliaryTrustProcess
                         case AuxiliaryTrustProcessCommandType.InterceptWinE:
                             {
                                 string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
-                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(ExplorerPackageFamilyName), "SystemLaunchHelper");
+                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper");
 
                                 Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
@@ -2849,7 +2849,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RestoreFolderInterception:
                             {
-                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(ExplorerPackageFamilyName), "SystemLaunchHelper");
+                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper");
                                 string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
                                 string SystemLaunchHelperOriginExecutable = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
                                 string SystemLaunchHelperTargetExecutable = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
@@ -2906,7 +2906,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RestoreWinEInterception:
                             {
-                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(ExplorerPackageFamilyName), "SystemLaunchHelper");
+                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper");
                                 string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
                                 string SystemLaunchHelperOriginExecutable = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
                                 string SystemLaunchHelperTargetExecutable = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");

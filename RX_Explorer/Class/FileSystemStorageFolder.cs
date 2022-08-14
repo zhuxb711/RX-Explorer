@@ -584,7 +584,7 @@ namespace RX_Explorer.Class
                                                 }
                                             case FileSystemStorageFile File:
                                                 {
-                                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, File.Path)}", FtpDataType.Binary, false, CancelToken)))
+                                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync($@"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, File.Path)}", FtpDataType.Binary, CancelToken)))
                                                     using (Stream SourceStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                                     {
                                                         await SourceStream.CopyToAsync(TargetStream, SourceStream.Length, CancelToken, (s, e) =>
@@ -627,7 +627,7 @@ namespace RX_Explorer.Class
                                                 }
                                             case FileSystemStorageFile File:
                                                 {
-                                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(@$"{UniquePath}\{System.IO.Path.GetRelativePath(Path, File.Path)}", FtpDataType.Binary, false, CancelToken)))
+                                                    using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync($@"{UniquePath}\{System.IO.Path.GetRelativePath(Path, File.Path)}", FtpDataType.Binary, CancelToken)))
                                                     using (Stream SourceStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                                     {
                                                         await SourceStream.CopyToAsync(TargetStream, SourceStream.Length, CancelToken, (s, e) =>
@@ -667,7 +667,7 @@ namespace RX_Explorer.Class
                                                     }
                                                 case FileSystemStorageFile File:
                                                     {
-                                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.OpenWriteAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, File.Path)}", FtpDataType.Binary, false, CancelToken)))
+                                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync($@"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, File.Path)}", FtpDataType.Binary, CancelToken)))
                                                         using (Stream SourceStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                                         {
                                                             await SourceStream.CopyToAsync(TargetStream, SourceStream.Length, CancelToken, (s, e) =>

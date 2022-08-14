@@ -7,11 +7,11 @@ namespace RX_Explorer.Class
 {
     public abstract class VirtualSaveOnFlushBaseStream : Stream
     {
-        public override bool CanRead => BaseStream.CanRead;
+        public override bool CanRead => true;
 
         public override bool CanSeek => BaseStream.CanSeek;
 
-        public override bool CanWrite => BaseStream.CanWrite;
+        public override bool CanWrite => true;
 
         public override long Length => BaseStream.Length;
 
