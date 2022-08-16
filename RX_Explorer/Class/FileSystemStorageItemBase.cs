@@ -487,7 +487,7 @@ namespace RX_Explorer.Class
                                     }
                                 case CreateOption.ReplaceExisting:
                                     {
-                                        await Controller.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(Analysis.RelatedPath));
+                                        await Controller.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(Analysis.RelatedPath, FtpListOption.Recursive));
 
                                         if (await Controller.RunCommandAsync((Client) => Client.CreateDirectoryAsync(Analysis.RelatedPath)))
                                         {

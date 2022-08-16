@@ -1269,7 +1269,7 @@ namespace RX_Explorer.View
                                             await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
                                         }
                                     }
-                                    else if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                                    else if (Presenter.CurrentFolder is INotWin32StorageFolder)
                                     {
                                         foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                                         {
@@ -1496,7 +1496,7 @@ namespace RX_Explorer.View
                                                         await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(ItemPath));
                                                     }
                                                 }
-                                                else if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                                else if (Presenter.CurrentFolder is INotWin32StorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(ItemPath, NewName));
                                                 }
@@ -1558,7 +1558,7 @@ namespace RX_Explorer.View
                                                         await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(OriginItem.Path));
                                                     }
                                                 }
-                                                else if(Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                                else if(Presenter.CurrentFolder is INotWin32StorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
                                                 }

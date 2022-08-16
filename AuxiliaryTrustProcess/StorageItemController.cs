@@ -476,7 +476,7 @@ namespace AuxiliaryTrustProcess
             return false;
         }
 
-        public static bool Copy(IEnumerable<string> SourcePath,
+        public static bool Copy(IReadOnlyDictionary<string, string> SourcePathMapping,
                                 string DestinationPath,
                                 CollisionOptions Option,
                                 ProgressChangedEventHandler Progress = null,
@@ -535,12 +535,12 @@ namespace AuxiliaryTrustProcess
 
                     try
                     {
-                        foreach (string Source in SourcePath)
+                        foreach (KeyValuePair<string, string> Source in SourcePathMapping)
                         {
-                            using (ShellItem SourceItem = new ShellItem(Source))
+                            using (ShellItem SourceItem = new ShellItem(Source.Key))
                             using (ShellFolder DestItem = new ShellFolder(DestinationPath))
                             {
-                                Operation.QueueCopyOperation(SourceItem, DestItem);
+                                Operation.QueueCopyOperation(SourceItem, DestItem, string.IsNullOrEmpty(Source.Value) ? null : Source.Value);
                             }
                         }
 
@@ -580,7 +580,7 @@ namespace AuxiliaryTrustProcess
             return false;
         }
 
-        public static bool Move(IDictionary<string, string> SourcePath,
+        public static bool Move(IReadOnlyDictionary<string, string> SourcePathMapping,
                                 string DestinationPath,
                                 CollisionOptions Option,
                                 ProgressChangedEventHandler Progress = null,
@@ -639,7 +639,7 @@ namespace AuxiliaryTrustProcess
 
                     try
                     {
-                        foreach (KeyValuePair<string, string> Source in SourcePath)
+                        foreach (KeyValuePair<string, string> Source in SourcePathMapping)
                         {
                             using (ShellItem SourceItem = new ShellItem(Source.Key))
                             using (ShellFolder DestItem = new ShellFolder(DestinationPath))

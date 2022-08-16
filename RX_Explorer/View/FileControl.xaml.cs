@@ -4,6 +4,7 @@ using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
+using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using SharedLibrary;
 using System;
@@ -1233,7 +1234,7 @@ namespace RX_Explorer.View
                                         {
                                             FileSystemStorageFolder CurrentFolder = Presenter.CurrentFolder;
 
-                                            if (CurrentFolder is MTPStorageFolder or FtpStorageFolder && Path.GetDirectoryName(TargetContent.Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                            if (CurrentFolder is INotWin32StorageFolder && Path.GetDirectoryName(TargetContent.Path).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(TargetContent.Path));
                                             }
@@ -1471,7 +1472,7 @@ namespace RX_Explorer.View
                     return;
                 }
 
-                if (CurrentPresenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                if (CurrentPresenter.CurrentFolder is INotWin32StorageFolder)
                 {
                     SearchInEverythingEngine.IsEnabled = false;
                 }
@@ -2220,7 +2221,7 @@ namespace RX_Explorer.View
                 }
                 catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is not (MTPStorageFolder or FtpStorageFolder))
+                    if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is not (null or INotWin32StorageFolder))
                     {
                         QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Block.Path));
                     }
@@ -2596,7 +2597,7 @@ namespace RX_Explorer.View
 
         private void SearchEngineFlyout_Opening(object sender, object e)
         {
-            if (CurrentPresenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+            if (CurrentPresenter.CurrentFolder is INotWin32StorageFolder)
             {
                 BuiltInSearchAllSubFolders.Visibility = Visibility.Visible;
 

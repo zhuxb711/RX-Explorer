@@ -343,13 +343,13 @@ namespace AuxiliaryTrustProcess
                                                     }
                                                 case ElevationCopyData CopyData:
                                                     {
-                                                        if (CopyData.SourcePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                        if (CopyData.SourcePathMapping.Keys.All((Path) => Directory.Exists(Path) || File.Exists(Path)))
                                                         {
                                                             if (StorageItemController.CheckPermission(CopyData.DestinationPath, FileSystemRights.Modify))
                                                             {
                                                                 List<string> OperationRecordList = new List<string>();
 
-                                                                if (StorageItemController.Copy(CopyData.SourcePath, CopyData.DestinationPath, CopyData.Option, (s, e) =>
+                                                                if (StorageItemController.Copy(CopyData.SourcePathMapping, CopyData.DestinationPath, CopyData.Option, (s, e) =>
                                                                 {
                                                                     ProgressWriter.WriteLine(e.ProgressPercentage);
                                                                     ProgressWriter.Flush();
@@ -375,8 +375,8 @@ namespace AuxiliaryTrustProcess
                                                                 {
                                                                     Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                                                 }
-                                                                else if (CopyData.SourcePath.Select((Item) => Path.Combine(CopyData.DestinationPath, Path.GetFileName(Item)))
-                                                                                            .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
+                                                                else if (CopyData.SourcePathMapping.Select((Item) => Path.Combine(CopyData.DestinationPath, string.IsNullOrEmpty(Item.Value) ? Path.GetFileName(Item.Key) : Item.Value))
+                                                                                                   .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
                                                                 {
                                                                     Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                                                 }
@@ -399,20 +399,20 @@ namespace AuxiliaryTrustProcess
                                                     }
                                                 case ElevationMoveData MoveData:
                                                     {
-                                                        if (MoveData.SourcePath.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                        if (MoveData.SourcePathMapping.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                                         {
-                                                            if (MoveData.SourcePath.Keys.Any((Item) => StorageItemController.CheckCaptured(Item)))
+                                                            if (MoveData.SourcePathMapping.Keys.Any((Item) => StorageItemController.CheckCaptured(Item)))
                                                             {
                                                                 Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
                                                             }
                                                             else
                                                             {
                                                                 if (StorageItemController.CheckPermission(MoveData.DestinationPath, FileSystemRights.Modify)
-                                                                    && MoveData.SourcePath.Keys.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
+                                                                    && MoveData.SourcePathMapping.Keys.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                                                 {
                                                                     List<string> OperationRecordList = new List<string>();
 
-                                                                    if (StorageItemController.Move(MoveData.SourcePath, MoveData.DestinationPath, MoveData.Option, (s, e) =>
+                                                                    if (StorageItemController.Move(MoveData.SourcePathMapping, MoveData.DestinationPath, MoveData.Option, (s, e) =>
                                                                     {
                                                                         ProgressWriter.WriteLine(e.ProgressPercentage);
                                                                         ProgressWriter.Flush();
@@ -436,7 +436,7 @@ namespace AuxiliaryTrustProcess
                                                                         }
                                                                     }))
                                                                     {
-                                                                        if (MoveData.SourcePath.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                                        if (MoveData.SourcePathMapping.Keys.All((Path) => !Directory.Exists(Path) && !File.Exists(Path)))
                                                                         {
                                                                             Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                                                         }
@@ -445,9 +445,9 @@ namespace AuxiliaryTrustProcess
                                                                             Value.Add("Error_Capture", "One of these files was captured and could not be renamed");
                                                                         }
                                                                     }
-                                                                    else if (MoveData.SourcePath.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item))
-                                                                             && MoveData.SourcePath.Select((Item) => Path.Combine(MoveData.DestinationPath, string.IsNullOrEmpty(Item.Value) ? Path.GetFileName(Item.Key) : Item.Value))
-                                                                                                   .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
+                                                                    else if (MoveData.SourcePathMapping.Keys.All((Path) => !Directory.Exists(Path) && !File.Exists(Path))
+                                                                             && MoveData.SourcePathMapping.Select((Item) => Path.Combine(MoveData.DestinationPath, string.IsNullOrEmpty(Item.Value) ? Path.GetFileName(Item.Key) : Item.Value))
+                                                                                                          .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
                                                                     {
                                                                         Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                                                     }
@@ -3131,39 +3131,39 @@ namespace AuxiliaryTrustProcess
 
                                 CollisionOptions Option = Enum.Parse<CollisionOptions>(CommandValue["CollisionOptions"]);
 
-                                IReadOnlyList<string> SourcePathList = JsonSerializer.Deserialize<IReadOnlyList<string>>(SourcePathJson);
+                                IReadOnlyDictionary<string, string> SourcePathMapping = JsonSerializer.Deserialize<IReadOnlyDictionary<string, string>>(SourcePathJson);
 
                                 try
                                 {
-                                    if (SourcePathList.All((Source) => Source.StartsWith(@"\\?\")) && DestinationPath.StartsWith(@"\\?\"))
+                                    if (SourcePathMapping.Keys.All((Source) => Source.StartsWith(@"\\?\")) && DestinationPath.StartsWith(@"\\?\"))
                                     {
-                                        MTPPathAnalysis SourcePathAnalysis = new MTPPathAnalysis(SourcePathList.First());
+                                        MTPPathAnalysis SourcePathAnalysis = new MTPPathAnalysis(SourcePathMapping.Keys.First());
                                         MTPPathAnalysis DestinationPathAnalysis = new MTPPathAnalysis(DestinationPath);
 
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
                                             && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
                                         {
-                                            IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToList();
+                                            IReadOnlyDictionary<string, string> SourceRelativePathMapping = new Dictionary<string, string>(SourcePathMapping.Select((Pair) => new KeyValuePair<string, string>(new MTPPathAnalysis(Pair.Key).RelativePath, Pair.Value)));
 
-                                            if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
+                                            if (SourceRelativePathMapping.Keys.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                             {
                                                 double CurrentPosition = 0;
-                                                double EachTaskStep = 100d / SourceRelativePathArray.Count;
+                                                double EachTaskStep = 100d / SourceRelativePathMapping.Count;
 
-                                                foreach (string SourceRelativePath in SourceRelativePathArray)
+                                                foreach (KeyValuePair<string, string> SourceRelativePair in SourceRelativePathMapping)
                                                 {
                                                     Cancellation.Token.ThrowIfCancellationRequested();
 
-                                                    if (SourceDevice.FileExists(SourceRelativePath))
+                                                    if (SourceDevice.FileExists(SourceRelativePair.Key))
                                                     {
                                                         using (FileStream Stream = File.Create(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")), 4096, FileOptions.DeleteOnClose | FileOptions.RandomAccess))
                                                         {
-                                                            SourceDevice.DownloadFile(SourceRelativePath, Stream, Cancellation.Token, (s, e) =>
+                                                            SourceDevice.DownloadFile(SourceRelativePair.Key, Stream, Cancellation.Token, (s, e) =>
                                                             {
                                                                 PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                             });
 
-                                                            string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
+                                                            string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, string.IsNullOrEmpty(SourceRelativePair.Value) ? Path.GetFileName(SourceRelativePair.Key) : SourceRelativePair.Value);
 
                                                             switch (Option)
                                                             {
@@ -3187,16 +3187,16 @@ namespace AuxiliaryTrustProcess
                                                             });
                                                         }
                                                     }
-                                                    else if (SourceDevice.DirectoryExists(SourceRelativePath))
+                                                    else if (SourceDevice.DirectoryExists(SourceRelativePair.Key))
                                                     {
                                                         DirectoryInfo NewDirectory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")));
 
-                                                        SourceDevice.DownloadFolder(SourceRelativePath, NewDirectory.FullName, Cancellation.Token, (s, e) =>
+                                                        SourceDevice.DownloadFolder(SourceRelativePair.Key, NewDirectory.FullName, Cancellation.Token, (s, e) =>
                                                         {
                                                             PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                         });
 
-                                                        string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourceRelativePath));
+                                                        string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, string.IsNullOrEmpty(SourceRelativePair.Value) ? Path.GetFileName(SourceRelativePair.Key) : SourceRelativePair.Value);
 
                                                         switch (Option)
                                                         {
@@ -3225,7 +3225,7 @@ namespace AuxiliaryTrustProcess
                                             }
                                             else
                                             {
-                                                Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                                Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathMapping)}\" is not a file or directory");
                                             }
                                         }
                                         else
@@ -3239,18 +3239,18 @@ namespace AuxiliaryTrustProcess
 
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
                                         {
-                                            if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                            if (SourcePathMapping.Keys.All((Path) => Directory.Exists(Path) || File.Exists(Path)))
                                             {
                                                 double CurrentPosition = 0;
-                                                double EachTaskStep = 100d / SourcePathList.Count;
+                                                double EachTaskStep = 100d / SourcePathMapping.Count;
 
-                                                foreach (string SourcePath in SourcePathList)
+                                                foreach (KeyValuePair<string, string> SourceRelativePair in SourcePathMapping)
                                                 {
                                                     Cancellation.Token.ThrowIfCancellationRequested();
 
-                                                    if (File.Exists(SourcePath))
+                                                    if (File.Exists(SourceRelativePair.Key))
                                                     {
-                                                        string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourcePath));
+                                                        string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, string.IsNullOrEmpty(SourceRelativePair.Value) ? Path.GetFileName(SourceRelativePair.Key) : SourceRelativePair.Value);
 
                                                         switch (Option)
                                                         {
@@ -3266,14 +3266,14 @@ namespace AuxiliaryTrustProcess
                                                                 }
                                                         }
 
-                                                        DestinationDevice.UploadFile(SourcePath, TargetPath, Cancellation.Token, (s, e) =>
+                                                        DestinationDevice.UploadFile(SourceRelativePair.Key, TargetPath, Cancellation.Token, (s, e) =>
                                                         {
                                                             PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                         });
                                                     }
-                                                    else if (Directory.Exists(SourcePath))
+                                                    else if (Directory.Exists(SourceRelativePair.Key))
                                                     {
-                                                        string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, Path.GetFileName(SourcePath));
+                                                        string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, string.IsNullOrEmpty(SourceRelativePair.Value) ? Path.GetFileName(SourceRelativePair.Key) : SourceRelativePair.Value);
 
                                                         switch (Option)
                                                         {
@@ -3289,7 +3289,7 @@ namespace AuxiliaryTrustProcess
                                                                 }
                                                         }
 
-                                                        DestinationDevice.UploadFolder(SourcePath, TargetPath, Cancellation.Token, (s, e) =>
+                                                        DestinationDevice.UploadFolder(SourceRelativePair.Key, TargetPath, Cancellation.Token, (s, e) =>
                                                         {
                                                             PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                         });
@@ -3302,7 +3302,7 @@ namespace AuxiliaryTrustProcess
                                             }
                                             else
                                             {
-                                                Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                                Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathMapping)}\" is not a file or directory");
                                             }
                                         }
                                         else
@@ -3310,32 +3310,32 @@ namespace AuxiliaryTrustProcess
                                             Value.Add("Error_NotFound", "MTP device is not found");
                                         }
                                     }
-                                    else if (SourcePathList.All((Source) => Source.StartsWith(@"\\?\")))
+                                    else if (SourcePathMapping.Keys.All((Source) => Source.StartsWith(@"\\?\")))
                                     {
-                                        MTPPathAnalysis SourcePathAnalysis = new MTPPathAnalysis(SourcePathList.First());
+                                        MTPPathAnalysis SourcePathAnalysis = new MTPPathAnalysis(SourcePathMapping.Keys.First());
 
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
                                         {
-                                            IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToList();
+                                            IReadOnlyDictionary<string, string> SourceRelativePathMapping = new Dictionary<string, string>(SourcePathMapping.Select((Pair) => new KeyValuePair<string, string>(new MTPPathAnalysis(Pair.Key).RelativePath, Pair.Value)));
 
-                                            if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
+                                            if (SourceRelativePathMapping.Keys.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                             {
                                                 double CurrentPosition = 0;
-                                                double EachTaskStep = 100d / SourceRelativePathArray.Count;
+                                                double EachTaskStep = 100d / SourceRelativePathMapping.Count;
 
-                                                foreach (string SourceRelativePath in SourceRelativePathArray)
+                                                foreach (KeyValuePair<string,string> SourceRelativePair in SourceRelativePathMapping)
                                                 {
                                                     Cancellation.Token.ThrowIfCancellationRequested();
 
-                                                    if (SourceDevice.FileExists(SourceRelativePath))
+                                                    if (SourceDevice.FileExists(SourceRelativePair.Key))
                                                     {
-                                                        string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourceRelativePath));
+                                                        string TargetPath = Path.Combine(DestinationPath, string.IsNullOrEmpty(SourceRelativePair.Value) ? Path.GetFileName(SourceRelativePair.Key) : SourceRelativePair.Value);
 
                                                         switch (Option)
                                                         {
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFile(SourceRelativePath, Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File), Cancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFile(SourceRelativePair.Key, Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File), Cancellation.Token, (s, e) =>
                                                                     {
                                                                         PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
@@ -3346,7 +3346,7 @@ namespace AuxiliaryTrustProcess
                                                                 {
                                                                     using (FileStream Stream = File.Open(TargetPath, FileMode.Truncate))
                                                                     {
-                                                                        SourceDevice.DownloadFile(SourceRelativePath, Stream, Cancellation.Token, (s, e) =>
+                                                                        SourceDevice.DownloadFile(SourceRelativePair.Key, Stream, Cancellation.Token, (s, e) =>
                                                                         {
                                                                             PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                         });
@@ -3356,7 +3356,7 @@ namespace AuxiliaryTrustProcess
                                                                 }
                                                             default:
                                                                 {
-                                                                    SourceDevice.DownloadFile(SourceRelativePath, TargetPath, Cancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFile(SourceRelativePair.Key, TargetPath, Cancellation.Token, (s, e) =>
                                                                     {
                                                                         PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
@@ -3365,15 +3365,15 @@ namespace AuxiliaryTrustProcess
                                                                 }
                                                         }
                                                     }
-                                                    else if (SourceDevice.DirectoryExists(SourceRelativePath))
+                                                    else if (SourceDevice.DirectoryExists(SourceRelativePair.Key))
                                                     {
-                                                        string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourceRelativePath));
+                                                        string TargetPath = Path.Combine(DestinationPath, string.IsNullOrEmpty(SourceRelativePair.Value) ? Path.GetFileName(SourceRelativePair.Key) : SourceRelativePair.Value);
 
                                                         switch (Option)
                                                         {
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFolder(SourceRelativePath, Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.Folder), Cancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFolder(SourceRelativePair.Key, Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.Folder), Cancellation.Token, (s, e) =>
                                                                     {
                                                                         PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
@@ -3382,9 +3382,9 @@ namespace AuxiliaryTrustProcess
                                                                 }
                                                             case CollisionOptions.OverrideOnCollision:
                                                                 {
-                                                                    Directory.Delete(SourceRelativePath, true);
+                                                                    Directory.Delete(SourceRelativePair.Key, true);
 
-                                                                    SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, Cancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFolder(SourceRelativePair.Key, TargetPath, Cancellation.Token, (s, e) =>
                                                                     {
                                                                         PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
@@ -3393,7 +3393,7 @@ namespace AuxiliaryTrustProcess
                                                                 }
                                                             default:
                                                                 {
-                                                                    SourceDevice.DownloadFolder(SourceRelativePath, TargetPath, Cancellation.Token, (s, e) =>
+                                                                    SourceDevice.DownloadFolder(SourceRelativePair.Key, TargetPath, Cancellation.Token, (s, e) =>
                                                                     {
                                                                         PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
                                                                     });
@@ -3410,7 +3410,7 @@ namespace AuxiliaryTrustProcess
                                             }
                                             else
                                             {
-                                                Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                                Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathMapping)}\" is not a file or directory");
                                             }
                                         }
                                         else
@@ -3418,7 +3418,7 @@ namespace AuxiliaryTrustProcess
                                             Value.Add("Error_NotFound", "MTP device is not found");
                                         }
                                     }
-                                    else if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                    else if (SourcePathMapping.Keys.All((Path) => Directory.Exists(Path) || File.Exists(Path)))
                                     {
                                         List<string> OperationRecordList = new List<string>();
 
@@ -3426,7 +3426,7 @@ namespace AuxiliaryTrustProcess
                                         {
                                             try
                                             {
-                                                if (StorageItemController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
+                                                if (StorageItemController.Copy(SourcePathMapping, DestinationPath, Option, (s, e) =>
                                                 {
                                                     if (Cancellation.Token.IsCancellationRequested)
                                                     {
@@ -3461,7 +3461,7 @@ namespace AuxiliaryTrustProcess
                                                 }
                                                 else if (Marshal.GetLastWin32Error() == 5)
                                                 {
-                                                    IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationCopyData(SourcePathList, DestinationPath, Option), (s, e) =>
+                                                    IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationCopyData(SourcePathMapping, DestinationPath, Option), (s, e) =>
                                                     {
                                                         PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                                     }, Cancellation.Token);
@@ -3483,7 +3483,7 @@ namespace AuxiliaryTrustProcess
                                         }
                                         else
                                         {
-                                            IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationCopyData(SourcePathList, DestinationPath, Option), (s, e) =>
+                                            IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationCopyData(SourcePathMapping, DestinationPath, Option), (s, e) =>
                                             {
                                                 PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                             }, Cancellation.Token);
@@ -3496,7 +3496,7 @@ namespace AuxiliaryTrustProcess
                                     }
                                     else
                                     {
-                                        Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
+                                        Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathMapping)}\" is not a file or directory");
                                     }
                                 }
                                 catch (OperationCanceledException)

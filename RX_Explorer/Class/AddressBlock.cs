@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RX_Explorer.Interface;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -35,7 +36,7 @@ namespace RX_Explorer.Class
                     {
                         switch (await FileSystemStorageItemBase.OpenAsync(Path))
                         {
-                            case FileSystemStorageFolder Folder when Folder is not (MTPStorageFolder or FtpStorageFolder):
+                            case FileSystemStorageFolder Folder when Folder is not INotWin32StorageFolder:
                                 {
                                     if (await Folder.GetStorageItemAsync() is StorageFolder InnerFolder)
                                     {

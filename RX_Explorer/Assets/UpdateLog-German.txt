@@ -1,31 +1,17 @@
-﻿###Was ist neu in Ver.7.8.6.0
-
-#####Funktionsaktualisierung
-
->#####Daemon-Prozess zur Wiederherstellung hinzugefügt, nachdem die Anwendung abgestürzt/eingefroren war
-
->#####Bauraumanpassung für ein kompaktes oder lockeres Erscheinungsbild hinzugefügt
-
->#####Navigationsbereiche können jetzt aktiviert werden, um der Erweiterung auf den aktuellen Ordner zu folgen
-
->#####Code des eingebauten Mediaplayers umgestaltet, um die Wiedergabeliste zu unterstützen
-
-#####UI-Update
-
->#####Aktualisierter Teil des integrierten Hintergrunds
-
->#####Einige Ordner hinzugefügt, um alle Dateien mit bestimmten Tags im Schnellzugriff zu sammeln
-
->#####Ordner in den Navigationsfenstern werden nicht mehr von den Einstellungen zum Laden von Miniaturansichten beeinflusst
+﻿###Was ist neu in Ver.7.8.7.0
 
 #####Fehlerbehebung
 
->#####Einige kleinere Probleme wurden behoben und ein Teil des Codes umgestaltet
+>#####Das Problem, dass die FTP-Serveradresse mit dem Domainnamen nicht korrekt identifiziert wurde, wurde behoben
 
->#####Es wurde ein Problem behoben, bei dem die Verwendung der rechten Maustaste im integrierten Mediaplayer die Wiedergabe immer noch anhielt
+>#####Ein Problem wurde behoben, bei dem die FTP-Serveradresse mit dem IPv6-Protokoll nicht korrekt identifiziert wurde
 
->#####Ein Problem wurde behoben, das nach dem nächsten Start einen Absturz verursachen konnte, wenn auf die Schaltfläche geklickt wurde, die zum Neustart verwendet wird
+>#####Das Problem, dass FTP-Dateien nicht kopiert/verschieben/löschen konnten, wurde behoben
 
->#####Ein Problem wurde behoben, das dazu führen konnte, dass aufgrund von Rennbedingungen in einigen seltenen Fällen doppelte Laufwerke angezeigt wurden
+>#####Das Problem, dass einige Unterdateien im FTP-Ordner in einigen Sonderfällen nicht aufgelistet werden konnten, wurde behoben
 
->#####Das Problem, dass Etiketten nicht für mehrere Dateien festgelegt werden konnten, wurde behoben
+>#####Ein Problem wurde behoben, das das Durchsuchen anderer FTP-Ordner beim Kopieren von FTP-Dateien verhindern konnte
+
+>#####Das Problem der falschen Änderungszeit von FTP-Dateien wurde behoben
+
+>#####Es wurde ein Problem behoben, bei dem die Unteroption in „In Systemkomponenten integrieren“ nicht aktiviert werden konnte

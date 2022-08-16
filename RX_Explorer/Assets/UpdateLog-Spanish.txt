@@ -1,31 +1,17 @@
-﻿###Novedades de la versión 7.8.6.0
-
-#####Actualización de funciones
-
->#####Se agregó un proceso daemon a la recuperación después de que la aplicación fallara o se congelara
-
->#####Ajuste del espacio de diseño agregado para una apariencia compacta o suelta
-
->#####Los paneles de navegación ahora se pueden habilitar para seguir la expansión a la carpeta actual
-
->#####Refactorizado el código del reproductor multimedia incorporado para admitir la lista de reproducción
-
-#####Actualización de la interfaz de usuario
-
->#####Parte actualizada del fondo de pantalla incorporado
-
->#####Se agregaron algunas carpetas para recopilar todos los archivos con una etiqueta específica en el acceso rápido
-
->#####Las carpetas dentro de los paneles de navegación ya no se verán afectadas por la configuración sobre cómo cargar miniaturas
+﻿###Novedades de la versión 7.8.7.0
 
 #####Corrección de errores
 
->#####Se corrigieron algunos problemas menores y se refactorizó parte del código
+>#####Solucionado el problema de que la dirección del servidor ftp con el nombre de dominio no se identificaba correctamente
 
->#####Se solucionó un problema por el cual al usar el botón derecho del mouse en el reproductor multimedia incorporado aún se pausaba la reproducción
+>#####Se solucionó un problema por el cual la dirección del servidor ftp con el protocolo IPv6 no se identificaba correctamente
 
->#####Se solucionó un problema que podía causar un bloqueo después del próximo inicio al hacer clic en el botón que se usa para reiniciar
+>#####Arreglado el problema de no poder copiar/mover/eliminar en archivos ftp
 
->#####Se solucionó un problema que podía causar que se mostraran unidades duplicadas debido a condiciones de carrera en algunos casos raros
+>#####Se solucionó el problema de que algunos subarchivos en la carpeta ftp no se podían enumerar en algunos casos especiales
 
->#####Se solucionó el problema de no poder establecer etiquetas en varios archivos
+>#####Se solucionó un problema que podía impedir la exploración de otras carpetas ftp al copiar archivos ftp
+
+>#####Arreglado el problema del tiempo de modificación incorrecto de los archivos ftp
+
+>#####Se solucionó un problema por el cual la subopción en "Integrar con componentes del sistema" no se podía habilitar

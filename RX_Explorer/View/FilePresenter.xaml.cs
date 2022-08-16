@@ -2222,7 +2222,7 @@ namespace RX_Explorer.View
 
                     await Dialog.ShowAsync();
                 }
-                else if (!string.IsNullOrEmpty(Folder.Path) && Folder is not (MTPStorageFolder or FtpStorageFolder))
+                else if (!string.IsNullOrEmpty(Folder.Path) && Folder is not INotWin32StorageFolder)
                 {
                     if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
                     {
@@ -3205,7 +3205,7 @@ namespace RX_Explorer.View
 
         private async void Current_Resuming(object sender, object e)
         {
-            if (CurrentFolder is not (RootVirtualFolder or MTPStorageFolder or FtpStorageFolder))
+            if (CurrentFolder is not (RootVirtualFolder or INotWin32StorageFolder))
             {
                 await AreaWatcher.StartMonitorAsync(CurrentFolder?.Path);
             }
@@ -3743,7 +3743,7 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                                                if (Presenter.CurrentFolder is INotWin32StorageFolder)
                                                 {
                                                     foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                                                     {
@@ -3797,7 +3797,7 @@ namespace RX_Explorer.View
                                                                                                                   .Cast<TabItemContentRenderer>()
                                                                                                                   .SelectMany((Renderer) => Renderer.Presenters))
                                         {
-                                            if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                            if (Presenter.CurrentFolder is INotWin32StorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                                 {
@@ -3824,7 +3824,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                if (CurrentFolder is not (MTPStorageFolder or FtpStorageFolder))
+                if (CurrentFolder is not INotWin32StorageFolder)
                 {
                     QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(CurrentFolder.Path));
                 }
@@ -3977,7 +3977,7 @@ namespace RX_Explorer.View
                                                 await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
                                             }
                                         }
-                                        else if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                        else if (Presenter.CurrentFolder is INotWin32StorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                         {
                                             foreach (string Path in DeleteItems.Select((Item) => Item.Path))
                                             {
@@ -4072,7 +4072,7 @@ namespace RX_Explorer.View
                                                             await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(ItemPath));
                                                         }
                                                     }
-                                                    else if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                                    else if (Presenter.CurrentFolder is INotWin32StorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
                                                         await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(ItemPath, NewName));
                                                     }
@@ -4136,7 +4136,7 @@ namespace RX_Explorer.View
                                                             await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(OriginItem.Path));
                                                         }
                                                     }
-                                                    else if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                                    else if (Presenter.CurrentFolder is INotWin32StorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
                                                         await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
                                                     }
@@ -4442,7 +4442,7 @@ namespace RX_Explorer.View
                                                                                                               .Cast<TabItemContentRenderer>()
                                                                                                               .SelectMany((Renderer) => Renderer.Presenters))
                                     {
-                                        if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                                        if (Presenter.CurrentFolder is INotWin32StorageFolder)
                                         {
                                             if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
@@ -4505,7 +4505,7 @@ namespace RX_Explorer.View
                                                                                                               .Cast<TabItemContentRenderer>()
                                                                                                               .SelectMany((Renderer) => Renderer.Presenters))
                                     {
-                                        if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                                        if (Presenter.CurrentFolder is INotWin32StorageFolder)
                                         {
                                             if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
@@ -4950,7 +4950,7 @@ namespace RX_Explorer.View
             {
                 if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreateType.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                 {
-                    if (CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                    if (CurrentFolder is INotWin32StorageFolder)
                     {
                         foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                   .Cast<Frame>()
@@ -5724,7 +5724,7 @@ namespace RX_Explorer.View
                             }
                         case ".lnk":
                             {
-                                if (CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                                if (CurrentFolder is INotWin32StorageFolder)
                                 {
                                     throw new NotSupportedException();
                                 }
@@ -5768,7 +5768,7 @@ namespace RX_Explorer.View
 
                     if (NewFile != null)
                     {
-                        if (CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                        if (CurrentFolder is INotWin32StorageFolder)
                         {
                             foreach (FilePresenter Presenter in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
                                                                                                       .Cast<Frame>()
@@ -5869,7 +5869,7 @@ namespace RX_Explorer.View
                                                                                                                   .Cast<TabItemContentRenderer>()
                                                                                                                   .SelectMany((Renderer) => Renderer.Presenters))
                                         {
-                                            if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                                            if (Presenter.CurrentFolder is INotWin32StorageFolder)
                                             {
                                                 if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                 {
@@ -6015,7 +6015,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item && Item is not (MTPStorageFolder or FtpStorageFolder))
+                if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item && Item is not INotWin32StorageFolder)
                 {
                     QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(Item.Path));
                 }
@@ -6375,7 +6375,7 @@ namespace RX_Explorer.View
                                                         await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
                                                     }
                                                 }
-                                                else if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                                                else if (Presenter.CurrentFolder is INotWin32StorageFolder)
                                                 {
                                                     foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                                                     {
@@ -6428,7 +6428,7 @@ namespace RX_Explorer.View
                                                                                                                   .Cast<TabItemContentRenderer>()
                                                                                                                   .SelectMany((Renderer) => Renderer.Presenters))
                                         {
-                                            if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                            if (Presenter.CurrentFolder is INotWin32StorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 await foreach (string Path in Presenter.CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled).Except(Presenter.FileCollection.ToArray().ToAsyncEnumerable()).Select((Item) => Item.Path))
                                                 {
@@ -6455,7 +6455,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                if (CurrentFolder is not (MTPStorageFolder or FtpStorageFolder))
+                if (CurrentFolder is not INotWin32StorageFolder)
                 {
                     QueueTaskController.EnqueueRemoteCopyOpeartion(new OperationListRemoteModel(CurrentFolder.Path));
                 }
@@ -6510,7 +6510,7 @@ namespace RX_Explorer.View
                                                                                                           .Cast<TabItemContentRenderer>()
                                                                                                           .SelectMany((Renderer) => Renderer.Presenters))
                                 {
-                                    if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                                    if (Presenter.CurrentFolder is INotWin32StorageFolder)
                                     {
                                         if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                         {
@@ -6564,7 +6564,7 @@ namespace RX_Explorer.View
                                                                                                           .Cast<TabItemContentRenderer>()
                                                                                                           .SelectMany((Renderer) => Renderer.Presenters))
                                 {
-                                    if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                                    if (Presenter.CurrentFolder is INotWin32StorageFolder)
                                     {
                                         if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                         {
@@ -6604,7 +6604,7 @@ namespace RX_Explorer.View
                     {
                         string LaunchPath = string.Empty;
 
-                        if (CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                        if (CurrentFolder is INotWin32StorageFolder)
                         {
                             LaunchPath = Environment.GetFolderPath(Environment.SpecialFolder.System);
                         }
@@ -6789,7 +6789,7 @@ namespace RX_Explorer.View
                                                 await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(CurrentEditItem.Path));
                                             }
                                         }
-                                        else if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                        else if (Presenter.CurrentFolder is INotWin32StorageFolder && CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                         {
                                             await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(CurrentEditItem.Path, NewName));
                                         }
@@ -7235,7 +7235,7 @@ namespace RX_Explorer.View
                                                                                                                       .Cast<TabItemContentRenderer>()
                                                                                                                       .SelectMany((Renderer) => Renderer.Presenters))
                                             {
-                                                if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                                                if (Presenter.CurrentFolder is INotWin32StorageFolder)
                                                 {
                                                     if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                                     {
@@ -7301,7 +7301,7 @@ namespace RX_Explorer.View
                                                                                                               .Cast<TabItemContentRenderer>()
                                                                                                               .SelectMany((Renderer) => Renderer.Presenters))
                                     {
-                                        if (Presenter.CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                                        if (Presenter.CurrentFolder is INotWin32StorageFolder)
                                         {
                                             if (CurrentFolder.Path.Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                                             {
@@ -8079,7 +8079,7 @@ namespace RX_Explorer.View
             {
                 if (Flyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Item) => Item.Name == "OpenFolderInNewWindowButton") is AppBarButton NewWindowButton)
                 {
-                    if (CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                    if (CurrentFolder is INotWin32StorageFolder)
                     {
                         NewWindowButton.Visibility = Visibility.Collapsed;
                     }
@@ -8091,7 +8091,7 @@ namespace RX_Explorer.View
 
                 if (Flyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Item) => Item.Name == "SetAsQuickAccessButton") is AppBarButton QuickAccessButton)
                 {
-                    if (CurrentFolder is MTPStorageFolder or FtpStorageFolder)
+                    if (CurrentFolder is INotWin32StorageFolder)
                     {
                         QuickAccessButton.Visibility = Visibility.Collapsed;
                     }

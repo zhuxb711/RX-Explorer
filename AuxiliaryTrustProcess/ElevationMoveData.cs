@@ -7,14 +7,14 @@ namespace AuxiliaryTrustProcess
     {
         public CollisionOptions Option { get; }
 
-        public Dictionary<string,string> SourcePath { get; }
+        public IReadOnlyDictionary<string,string> SourcePathMapping { get; }
 
         public string DestinationPath { get; }
 
-        public ElevationMoveData(Dictionary<string, string> SourcePath, string DestinationPath, CollisionOptions Option)
+        public ElevationMoveData(IReadOnlyDictionary<string, string> SourcePathMapping, string DestinationPath, CollisionOptions Option)
         {
             this.Option = Option;
-            this.SourcePath = SourcePath;
+            this.SourcePathMapping = SourcePathMapping;
             this.DestinationPath = DestinationPath;
         }
     }

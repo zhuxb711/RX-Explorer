@@ -1,31 +1,17 @@
-﻿###What's new in Ver.7.8.6.0
-
-#####Feature update
-
->#####Added daemon process to recovery after application crashed/freezed
-
->#####Added layout space adjustment for a compact or loose appearance
-
->#####Navigation panes can now be enabled to follow expansion to the current folder
-
->#####Refactored the code of the built-in media player to support the playlist
-
-#####UI update
-
->#####Updated part of the built-in wallpaper
-
->#####Added some folders to collection all the files with specific tag in the Quick Access
-
->#####Folders within the navigation panes will no longer be affected by the settings about how to load thumbnails
+﻿###What's new in Ver.7.8.7.0
 
 #####Bug Fixes
 
->#####Fixed some minor issues and refactored part of the code
+>#####Fixed the problem that the ftp server address with the domain name were not correctly identified
 
->#####Fixed an issue where using the right mouse button in the built-in media player would still pause the playback
+>#####Fixed an issue where ftp server address with IPv6 protocol were not correctly identified
 
->#####Fixed an issue that could cause a crash after the next startup when clicking the button which is used to restart
+>#####Fixed the problem of not being able to copy/move/delete on ftp files
 
->#####Fixed an issue that could cause duplicate drives to be displayed due to race conditions in some rare cases
+>#####Fixed the problem that some subfiles in ftp folder could not be enumerated in some special cases
 
->#####Fixed the problem of not being able to set labels on multiple files
+>#####Fixed an issue that could prevent browsing of other ftp folders when copying ftp files
+
+>#####Fixed the problem of incorrect modification time of ftp files
+
+>#####Fixed an issue where the sub-option in "Integrate with system components" could not be enabled

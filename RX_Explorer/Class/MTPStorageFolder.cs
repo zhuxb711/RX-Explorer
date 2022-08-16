@@ -15,7 +15,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class MTPStorageFolder : FileSystemStorageFolder, IMTPStorageItem, INotWin32StorageItem
+    public class MTPStorageFolder : FileSystemStorageFolder, IMTPStorageItem, INotWin32StorageItem, INotWin32StorageFolder
     {
         public string DeviceId => @$"\\?\{new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()}";
 

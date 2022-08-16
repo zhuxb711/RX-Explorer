@@ -1,31 +1,17 @@
-﻿###Quoi de neuf dans la version 7.8.6.0
-
-#####Mise à jour des fonctionnalités
-
->#####Ajout d'un processus démon à la récupération après que l'application s'est écrasée/gelée
-
->#####Ajout d'un ajustement de l'espace de mise en page pour une apparence compacte ou lâche
-
->#####Les volets de navigation peuvent maintenant être activés pour suivre l'expansion vers le dossier actuel
-
->#####Refactorisation du code du lecteur multimédia intégré pour prendre en charge la liste de lecture
-
-#####Mise à jour de l'interface utilisateur
-
->#####Mise à jour de la partie du fond d'écran intégré
-
->#####Ajout de certains dossiers pour collecter tous les fichiers avec une balise spécifique dans l'accès rapide
-
->#####Les dossiers des volets de navigation ne seront plus affectés par les paramètres de chargement des vignettes
+﻿###Quoi de neuf dans la version 7.8.7.0
 
 #####Corrections de bogues
 
->#####Correction de quelques problèmes mineurs et refactorisation d'une partie du code
+>#####Correction du problème que l'adresse du serveur ftp avec le nom de domaine n'était pas correctement identifiée
 
->#####Correction d'un problème où l'utilisation du bouton droit de la souris dans le lecteur multimédia intégré interrompait toujours la lecture
+>#####Correction d'un problème où l'adresse du serveur ftp avec le protocole IPv6 n'était pas correctement identifiée
 
->#####Correction d'un problème qui pouvait provoquer un plantage après le prochain démarrage en cliquant sur le bouton utilisé pour redémarrer
+>#####Correction du problème de ne pas pouvoir copier/déplacer/supprimer sur des fichiers ftp
 
->#####Correction d'un problème pouvant entraîner l'affichage de lecteurs en double en raison de conditions de concurrence dans de rares cas
+>#####Correction du problème selon lequel certains sous-fichiers du dossier ftp ne pouvaient pas être énumérés dans certains cas particuliers
 
->#####Correction du problème de l'impossibilité de définir des étiquettes sur plusieurs fichiers
+>#####Correction d'un problème qui pouvait empêcher la navigation dans d'autres dossiers ftp lors de la copie de fichiers ftp
+
+>#####Correction du problème d'heure de modification incorrecte des fichiers ftp
+
+>#####Correction d'un problème où la sous-option dans "Intégrer avec les composants du système" ne pouvait pas être activée

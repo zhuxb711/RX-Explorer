@@ -567,7 +567,7 @@ namespace RX_Explorer.Class
                                 {
                                     if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
                                     {
-                                        await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(TargetAnalysis.RelatedPath, CancelToken));
+                                        await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(TargetAnalysis.RelatedPath, FtpListOption.Recursive, CancelToken));
                                     }
 
                                     await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken));

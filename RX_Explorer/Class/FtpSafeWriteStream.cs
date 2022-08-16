@@ -23,7 +23,7 @@ namespace RX_Explorer.Class
 
         public override void Flush()
         {
-            throw new NotSupportedException();
+            BaseStream.Flush();
         }
 
         public override int Read(byte[] buffer, int offset, int count)

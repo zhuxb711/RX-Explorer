@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FtpStorageFolder : FileSystemStorageFolder, IFtpStorageItem, INotWin32StorageItem
+    public class FtpStorageFolder : FileSystemStorageFolder, IFtpStorageItem, INotWin32StorageItem, INotWin32StorageFolder
     {
         private readonly FtpFileData Data;
         private readonly FtpClientController ClientController;
@@ -181,7 +181,7 @@ namespace RX_Explorer.Class
                             }
                         case CreateOption.ReplaceExisting:
                             {
-                                await ClientController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(TargetPath));
+                                await ClientController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(TargetPath, FtpListOption.Recursive));
 
                                 if (await ClientController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetPath)))
                                 {
@@ -276,7 +276,7 @@ namespace RX_Explorer.Class
                                     {
                                         if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
                                         {
-                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(TargetAnalysis.RelatedPath, CancelToken));
+                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(TargetAnalysis.RelatedPath, FtpListOption.Recursive, CancelToken));
                                         }
 
                                         await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken));
@@ -736,7 +736,7 @@ namespace RX_Explorer.Class
             {
                 if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(RelatedPath, CancelToken)))
                 {
-                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(RelatedPath, CancelToken));
+                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(RelatedPath, FtpListOption.Recursive, CancelToken));
                 }
                 else
                 {

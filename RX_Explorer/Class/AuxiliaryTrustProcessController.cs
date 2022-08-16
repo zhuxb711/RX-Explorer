@@ -1,5 +1,4 @@
 ﻿using ConcurrentPriorityQueue.Core;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Win32.SafeHandles;
 using SharedLibrary;
 using System;
@@ -2136,13 +2135,13 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(SourceMapping), "Parameter could not be null");
             }
 
-            Dictionary<string, string> MessageList = new Dictionary<string, string>();
+            Dictionary<string, string> ItemList = new Dictionary<string, string>();
 
             foreach (KeyValuePair<string, string> SourcePair in SourceMapping)
             {
                 if (await FileSystemStorageItemBase.CheckExistsAsync(SourcePair.Key))
                 {
-                    MessageList.Add(SourcePair.Key, SourcePair.Value);
+                    ItemList.Add(SourcePair.Key, SourcePair.Value);
                 }
                 else
                 {
@@ -2160,7 +2159,7 @@ namespace RX_Explorer.Class
             {
                 if (await SendCommandAndReportProgressAsync(AuxiliaryTrustProcessCommandType.Move,
                                                             ProgressHandler,
-                                                            ("SourcePath", JsonSerializer.Serialize(MessageList)),
+                                                            ("SourcePath", JsonSerializer.Serialize(ItemList)),
                                                             ("DestinationPath", DestinationPath),
                                                             ("CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option))) is IDictionary<string, string> Response)
                 {
@@ -2237,7 +2236,7 @@ namespace RX_Explorer.Class
             return MoveAsync(new Dictionary<string, string> { { SourcePath, NewName } }, Destination, Option, SkipOperationRecord, CancelToken, ProgressHandler);
         }
 
-        public async Task CopyAsync(IReadOnlyDictionary<string,string> SourceMapping,
+        public async Task CopyAsync(IReadOnlyDictionary<string, string> SourceMapping,
                                     string DestinationPath,
                                     CollisionOptions Option = CollisionOptions.Skip,
                                     bool SkipOperationRecord = false,
@@ -2249,13 +2248,13 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(SourceMapping), "Parameter could not be null");
             }
 
-            List<string> ItemList = new List<string>();
+            Dictionary<string, string> ItemList = new Dictionary<string, string>();
 
-            foreach (string SourcePath in SourceMapping.Keys)
+            foreach (KeyValuePair<string, string> SourcePair in SourceMapping)
             {
-                if (await FileSystemStorageItemBase.CheckExistsAsync(SourcePath))
+                if (await FileSystemStorageItemBase.CheckExistsAsync(SourcePair.Key))
                 {
-                    ItemList.Add(SourcePath);
+                    ItemList.Add(SourcePair.Key, SourcePair.Value);
                 }
                 else
                 {
@@ -2342,7 +2341,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return CopyAsync(new Dictionary<string,string>() { { SourcePath, NewName } }, Destination, Option, SkipOperationRecord, CancelToken, ProgressHandler);
+            return CopyAsync(new Dictionary<string, string>() { { SourcePath, NewName } }, Destination, Option, SkipOperationRecord, CancelToken, ProgressHandler);
         }
 
         public async Task<bool> RestoreItemInRecycleBinAsync(params string[] OriginPathList)

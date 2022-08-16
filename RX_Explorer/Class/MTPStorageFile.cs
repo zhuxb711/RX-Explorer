@@ -14,7 +14,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class MTPStorageFile : FileSystemStorageFile, IMTPStorageItem, INotWin32StorageItem
+    public class MTPStorageFile : FileSystemStorageFile, IMTPStorageItem, INotWin32StorageItem, INotWin32StorageFile
     {
         private string InnerDisplayType;
 
