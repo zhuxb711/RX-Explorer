@@ -115,7 +115,7 @@ jobs:
             $AppCenterSecret = '$(appCenter.secret)'
             $TargetPath = '$(Build.SourcesDirectory)\RX_Explorer\View\ExtendedSplash.xaml.cs'
             $TargetContent = Get-Content -Path $TargetPath
-            $TargetContent -Replace '<RX-Explorer-AppCenter-Secret-Value>', $AppCenterSecret | Set-Content -Path $TargetPath -Encoding utf8BOM
+            $TargetContent -Replace '<RX-Explorer-AppCenter-Secret-Value>', $AppCenterSecret | Set-Content -Path $TargetPath -Encoding UTF8
 
             Write-Host "AppCenter Secret Value was added successfully"
 
@@ -222,7 +222,7 @@ jobs:
             $AppCenterSecret = '$(appCenter.secret)'
             $TargetPath = '$(Build.SourcesDirectory)\RX_Explorer\View\ExtendedSplash.xaml.cs'
             $TargetContent = Get-Content -Path $TargetPath
-            $TargetContent -Replace '<RX-Explorer-AppCenter-Secret-Value>', $AppCenterSecret | Set-Content -Path $TargetPath -Encoding utf8BOM
+            $TargetContent -Replace '<RX-Explorer-AppCenter-Secret-Value>', $AppCenterSecret | Set-Content -Path $TargetPath -Encoding UTF8
 
             Write-Host "AppCenter Secret Value was added successfully"
 
