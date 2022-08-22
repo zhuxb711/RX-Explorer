@@ -91,24 +91,15 @@ namespace RX_Explorer.View
 #if !DEBUG
             try
             {
-                string SecretText = await Windows.Storage.PathIO.ReadTextAsync(System.IO.Path.Combine(Windows.ApplicationModel.Package.Current.InstalledPath, @"Assets\AppCenterSecret.txt"));
+                Microsoft.AppCenter.AppCenter.Start("<RX-Explorer-AppCenter-Secret-Value>", typeof(Microsoft.AppCenter.Crashes.Crashes));
 
-                if (string.IsNullOrWhiteSpace(SecretText))
+                if (await Microsoft.AppCenter.AppCenter.IsEnabledAsync())
                 {
-                    LogTracer.Log("The secret of AppCenter was not found and AppCenter can not be initialized");
+                    LogTracer.Log("AppCenter is initialized successfully and was enabled");
                 }
                 else
                 {
-                    Microsoft.AppCenter.AppCenter.Start(SecretText.Replace(Environment.NewLine, string.Empty), typeof(Microsoft.AppCenter.Crashes.Crashes));
-
-                    if (await Microsoft.AppCenter.AppCenter.IsEnabledAsync())
-                    {
-                        LogTracer.Log("AppCenter is initialized successfully and was enabled");
-                    }
-                    else
-                    {
-                        LogTracer.Log("AppCenter is initialized successfully and was disabled");
-                    }
+                    LogTracer.Log("AppCenter is initialized successfully and was disabled");
                 }
             }
             catch (Exception ex)
