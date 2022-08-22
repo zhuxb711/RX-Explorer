@@ -1111,10 +1111,17 @@ namespace RX_Explorer.View
                         await CommonAccessCollection.LoadLibraryFoldersAsync();
                     }
 
-                    foreach (FileSystemStorageFolder Folder in Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
-                                                                                                .Where((Kind) => Kind != LabelKind.None)
-                                                                                                .Select((Kind) => LabelCollectionVirtualFolder.GetFolderFromLabel(Kind))
-                                                                                                .Concat<FileSystemStorageFolder>(CommonAccessCollection.LibraryList))
+                    IEnumerable<FileSystemStorageFolder> QuickAccessNodeChildren = CommonAccessCollection.LibraryList;
+
+                    if (SettingPage.IsDisplayLabelFolderInQuickAccessNode)
+                    {
+                        QuickAccessNodeChildren = Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
+                                                                                   .Where((Kind) => Kind != LabelKind.None)
+                                                                                   .Select((Kind) => LabelCollectionVirtualFolder.GetFolderFromLabel(Kind))
+                                                                                   .Concat(QuickAccessNodeChildren);
+                    }
+
+                    foreach (FileSystemStorageFolder Folder in QuickAccessNodeChildren)
                     {
                         if (!args.Node.IsExpanded)
                         {

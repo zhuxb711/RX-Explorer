@@ -506,27 +506,48 @@
                                             </RelativePanel>
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
-                                            <Border Padding="40,10,10,10"
-                                                    MinHeight="45"
-                                                    CornerRadius="0,0,4,4"
-                                                    BorderThickness="1"
-                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                <CheckBox Name="ExpandTreeViewAsContentChanged"
-                                                          IsEnabled="{x:Bind TreeViewDetach.IsOn,Mode=OneWay}">
-                                                    <StackPanel>
-                                                        <TextBlock Text="跟随并展开至当前文件夹位置"
-                                                                   x:Uid="SettingExpandTreeViewAsContentChangedLabel"
-                                                                   TextTrimming="CharacterEllipsis" />
-                                                        <TextBlock Text="启用此选项后导航窗格将跟随并展开至当前文件夹位置。注意: 这可能导致较大的性能影响且访问较深层次的文件夹时会消耗更多时间，请自行斟酌是否启用该选项"
-                                                                   FontSize="12"
-                                                                   Foreground="Gray"
-                                                                   x:Uid="SettingExpandTreeViewAsContentChangedContent"
-                                                                   TextTrimming="CharacterEllipsis"
-                                                                   TextWrapping="WrapWholeWords" />
-                                                    </StackPanel>
-                                                </CheckBox>
-                                            </Border>
+                                            <StackPanel>
+                                                <Border Padding="40,10,10,10"
+                                                        MinHeight="45"
+                                                        CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <CheckBox Name="DisplayLabelFolderInQuickAccessNode"
+                                                              IsEnabled="{x:Bind TreeViewDetach.IsOn,Mode=OneWay}">
+                                                        <StackPanel>
+                                                            <TextBlock Text="在快速访问节点中显示标签文件夹"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Text="启用此选项后将在快速访问节点下显示所有带有标签的文件的聚合虚拟文件夹"
+                                                                       FontSize="12"
+                                                                       Foreground="Gray"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       TextWrapping="WrapWholeWords" />
+                                                        </StackPanel>
+                                                    </CheckBox>
+                                                </Border>
+                                                <Border Padding="40,10,10,10"
+                                                        MinHeight="45"
+                                                        CornerRadius="0,0,4,4"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <CheckBox Name="ExpandTreeViewAsContentChanged"
+                                                              IsEnabled="{x:Bind TreeViewDetach.IsOn,Mode=OneWay}">
+                                                        <StackPanel>
+                                                            <TextBlock Text="跟随并展开至当前文件夹位置"
+                                                                       x:Uid="SettingExpandTreeViewAsContentChangedLabel"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Text="启用此选项后导航窗格将跟随并展开至当前文件夹位置。注意: 这可能导致较大的性能影响且访问较深层次的文件夹时会消耗更多时间，请自行斟酌是否启用该选项"
+                                                                       FontSize="12"
+                                                                       Foreground="Gray"
+                                                                       x:Uid="SettingExpandTreeViewAsContentChangedContent"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       TextWrapping="WrapWholeWords" />
+                                                        </StackPanel>
+                                                    </CheckBox>
+                                                </Border>
+                                            </StackPanel>
                                         </muxc:Expander.Content>
                                     </muxc:Expander>
                                     <muxc:Expander Margin="0,5,0,0"

@@ -2,7 +2,6 @@
 using OpenCvSharp.XImgProc;
 using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Windows.Graphics.Imaging;
 using Windows.UI;
 
@@ -10,14 +9,6 @@ namespace ComputerVision
 {
     public static class ComputerVisionProvider
     {
-        [ComImport]
-        [Guid("5B0D3235-4DBA-4D44-865E-8F1D0E4FD04D")]
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        private unsafe interface IMemoryBufferByteAccess
-        {
-            void GetBuffer(out byte* buffer, out uint capacity);
-        }
-
         public static SoftwareBitmap CreateCircleBitmapFromColor(int Width, int Height, Color FillColor)
         {
             if (Width <= 0 || Height <= 0)

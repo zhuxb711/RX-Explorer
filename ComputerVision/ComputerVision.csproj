@@ -66,6 +66,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ComputerVision.cs" />
+    <Compile Include="IUnknownInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\ComputerVision.rd.xml" />
   </ItemGroup>

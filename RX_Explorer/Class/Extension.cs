@@ -973,20 +973,25 @@ namespace RX_Explorer.Class
             {
                 IEnumerable<string> OldChildItems = Node.Children.Select((Item) => Item.Content).OfType<TreeViewNodeContent>().Select((Content) => Content.Path).ToArray();
 
-                foreach (TreeViewNodeContent SameNodeContent in NewChildItems.Intersect(OldChildItems)
-                                                                             .Select((SamePath) => Node.Children.Select((SubNode) => SubNode.Content).OfType<TreeViewNodeContent>().FirstOrDefault((Content) => Content.Path.Equals(SamePath, StringComparison.OrdinalIgnoreCase)))
-                                                                             .ToArray())
+                foreach (TreeViewNode RemoveNode in OldChildItems.Except(NewChildItems)
+                                                                 .Select((RemovePath) => Node.Children.FirstOrDefault((Item) => ((Item.Content as TreeViewNodeContent)?.Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                                                                 .ToArray())
                 {
-                    await SameNodeContent.LoadAsync(true);
+                    Node.Children.Remove(RemoveNode);
                 }
 
-                foreach (string AddPath in NewChildItems.Except(OldChildItems))
-                {
-                    if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
-                    {
-                        TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
+                List<string> LabelFolderList = new List<string>(4);
 
-                        Node.Children.Add(new TreeViewNode
+                //Handle for re-adding label folder specially 
+                foreach (string Path in NewChildItems.Except(OldChildItems))
+                {
+                    if (LabelCollectionVirtualFolder.TryGetFolderFromPath(Path, out LabelCollectionVirtualFolder LabelFolder))
+                    {
+                        LabelFolderList.Add(Path);
+
+                        TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(LabelFolder);
+
+                        Node.Children.Insert(Math.Max(0, Math.Min(LabelFolderList.Count - 1, Node.Children.Count)), new TreeViewNode
                         {
                             Content = Content,
                             HasUnrealizedChildren = Content.HasChildren,
@@ -995,11 +1000,23 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                foreach (TreeViewNode RemoveNode in OldChildItems.Except(NewChildItems)
-                                                 .Select((RemovePath) => Node.Children.FirstOrDefault((Item) => ((Item.Content as TreeViewNodeContent)?.Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
-                                                 .ToArray())
+                await foreach (FileSystemStorageFolder Folder in FileSystemStorageItemBase.OpenInBatchAsync(NewChildItems.Except(OldChildItems).Except(LabelFolderList)).OfType<FileSystemStorageFolder>())
                 {
-                    Node.Children.Remove(RemoveNode);
+                    TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
+
+                    Node.Children.Add(new TreeViewNode
+                    {
+                        Content = Content,
+                        HasUnrealizedChildren = Content.HasChildren,
+                        IsExpanded = false
+                    });
+                }
+
+                foreach (TreeViewNodeContent SameNodeContent in NewChildItems.Intersect(OldChildItems)
+                                                                             .Select((SamePath) => Node.Children.Select((SubNode) => SubNode.Content).OfType<TreeViewNodeContent>().FirstOrDefault((Content) => Content.Path.Equals(SamePath, StringComparison.OrdinalIgnoreCase)))
+                                                                             .ToArray())
+                {
+                    await SameNodeContent.LoadAsync(true);
                 }
             }
 
@@ -1020,10 +1037,15 @@ namespace RX_Explorer.Class
 
                         if (Node.Content == TreeViewNodeContent.QuickAccessNode)
                         {
-                            NewChildItems = new List<string>(Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
-                                                                                              .Where((Kind) => Kind != LabelKind.None)
-                                                                                              .Select((Kind) => LabelCollectionVirtualFolder.GetFolderFromLabel(Kind).Path)
-                                                                                              .Concat(CommonAccessCollection.LibraryList.Select((Lib) => Lib.Path)));
+                            NewChildItems = new List<string>(CommonAccessCollection.LibraryList.Select((Lib) => Lib.Path));
+
+                            if (SettingPage.IsDisplayLabelFolderInQuickAccessNode)
+                            {
+                                NewChildItems = new List<string>(Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
+                                                                                                  .Where((Kind) => Kind != LabelKind.None)
+                                                                                                  .Select((Kind) => LabelCollectionVirtualFolder.GetFolderFromLabel(Kind).Path)
+                                                                                                  .Concat(NewChildItems));
+                            }
                         }
                         else if (!LabelCollectionVirtualFolder.TryGetFolderFromPath(NodePath, out _))
                         {
@@ -1051,10 +1073,7 @@ namespace RX_Explorer.Class
                     {
                         if (Node.Content == TreeViewNodeContent.QuickAccessNode)
                         {
-                            Node.HasUnrealizedChildren = Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
-                                                                                          .Where((Kind) => Kind != LabelKind.None)
-                                                                                          .Select((Kind) => LabelCollectionVirtualFolder.GetFolderFromLabel(Kind).Path)
-                                                                                          .Concat(CommonAccessCollection.LibraryList.Select((Lib) => Lib.Path)).Any();
+                            Node.HasUnrealizedChildren = SettingPage.IsDisplayLabelFolderInQuickAccessNode || CommonAccessCollection.LibraryList.Count > 0;
                         }
                         else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(NodePath, out _))
                         {

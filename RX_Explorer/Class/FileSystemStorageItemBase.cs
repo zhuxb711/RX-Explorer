@@ -397,7 +397,7 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"{nameof(OpenAsync)} failed and could not get the storage item, path:\"{Path}\"");
+                    LogTracer.Log(ex, $"{nameof(OpenCoreAsync)} failed and could not get the storage item, path:\"{Path}\"");
                 }
             }
 

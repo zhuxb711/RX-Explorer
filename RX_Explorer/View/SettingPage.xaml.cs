@@ -857,6 +857,25 @@ namespace RX_Explorer.View
             }
         }
 
+        public static bool IsDisplayLabelFolderInQuickAccessNode
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DisplayLabelFolderInQuickAccessNode"] is bool DisplayLabelFolderInQuickAccessNode)
+                {
+                    return DisplayLabelFolderInQuickAccessNode;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["DisplayLabelFolderInQuickAccessNode"] = value;
+            }
+        }
+
         public static bool IsExpandTreeViewAsContentChanged
         {
             get
@@ -1357,6 +1376,8 @@ namespace RX_Explorer.View
                 ShowContextMenuWhenLoading.Unchecked -= ShowContextMenuWhenLoading_Unchecked;
                 ExpandTreeViewAsContentChanged.Checked -= ExpandTreeViewAsContentChanged_Checked;
                 ExpandTreeViewAsContentChanged.Unchecked -= ExpandTreeViewAsContentChanged_Unchecked;
+                DisplayLabelFolderInQuickAccessNode.Checked -= DisplayLabelFolderInQuickAccessNode_Checked;
+                DisplayLabelFolderInQuickAccessNode.Unchecked -= DisplayLabelFolderInQuickAccessNode_Unchecked;
 
                 AcrylicColorPicker.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken1);
                 PredefineTagColorPicker1.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken2);
@@ -1401,6 +1422,7 @@ namespace RX_Explorer.View
                 GuardRestartOnCrash.IsChecked = IsMonitorCrashEnabled;
                 GuardRestartOnFreeze.IsChecked = IsMonitorFreezeEnabled;
                 ExpandTreeViewAsContentChanged.IsChecked = IsExpandTreeViewAsContentChanged;
+                DisplayLabelFolderInQuickAccessNode.IsChecked = IsDisplayLabelFolderInQuickAccessNode;
                 ShowContextMenuWhenLoading.IsChecked = !IsParallelShowContextMenu;
                 LoadWSLOnStartup.IsOn = IsLoadWSLFolderOnStartupEnabled;
                 AvoidRecycleBin.IsChecked = IsAvoidRecycleBinEnabled;
@@ -1564,6 +1586,8 @@ namespace RX_Explorer.View
                 ShowContextMenuWhenLoading.Unchecked += ShowContextMenuWhenLoading_Unchecked;
                 ExpandTreeViewAsContentChanged.Checked += ExpandTreeViewAsContentChanged_Checked;
                 ExpandTreeViewAsContentChanged.Unchecked += ExpandTreeViewAsContentChanged_Unchecked;
+                DisplayLabelFolderInQuickAccessNode.Checked += DisplayLabelFolderInQuickAccessNode_Checked;
+                DisplayLabelFolderInQuickAccessNode.Unchecked += DisplayLabelFolderInQuickAccessNode_Unchecked;
 
                 ColorPickerChangeRegisterToken1 = AcrylicColorPicker.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnAcrylicColorPicker1SelectedColorChanged));
                 ColorPickerChangeRegisterToken2 = PredefineTagColorPicker1.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker1SelectedColorChanged));
@@ -1574,6 +1598,54 @@ namespace RX_Explorer.View
             finally
             {
                 ApplySettingLocker.Release();
+            }
+        }
+
+        private async void DisplayLabelFolderInQuickAccessNode_Unchecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsDisplayLabelFolderInQuickAccessNode = false;
+
+                foreach (TabItemContentRenderer Renderer in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                  .Cast<Frame>()
+                                                                                                  .Select((Frame) => Frame.Content)
+                                                                                                  .Cast<TabItemContentRenderer>())
+                {
+                    await Renderer.RefreshTreeViewAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(DisplayLabelFolderInQuickAccessNode_Unchecked)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private async void DisplayLabelFolderInQuickAccessNode_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsDisplayLabelFolderInQuickAccessNode = true;
+
+                foreach (TabItemContentRenderer Renderer in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
+                                                                                                  .Cast<Frame>()
+                                                                                                  .Select((Frame) => Frame.Content)
+                                                                                                  .Cast<TabItemContentRenderer>())
+                {
+                    await Renderer.RefreshTreeViewAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(DisplayLabelFolderInQuickAccessNode_Checked)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 
