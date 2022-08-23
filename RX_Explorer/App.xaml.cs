@@ -215,7 +215,12 @@ namespace RX_Explorer
                     {
                         case LaunchActivatedEventArgs LaunchArgs:
                             {
-                                IEnumerable<string> ActualStartupArguments = Regex.Matches(LaunchArgs.Arguments, @"[\""].+?[\""]|[^ ]+").Select((Match) => Match.Value.Trim('"')).ToArray();
+                                IEnumerable<string> ActualStartupArguments = Regex.Matches(LaunchArgs.Arguments, @"[\""].+?[\""]|[^ ]+")
+                                                                                  .Skip(1)
+                                                                                  .Select((Match) => Match.Value.Trim('"').TrimEnd('\\'))
+                                                                                  .Where((Value) => !string.IsNullOrWhiteSpace(Value))
+                                                                                  .ToArray();
+
                                 IEnumerable<string[]> OpenPathListOnEachTab = Enumerable.Empty<string[]>();
 
                                 if (ActualStartupArguments.Any())
@@ -304,7 +309,12 @@ namespace RX_Explorer
                             }
                         case CommandLineActivatedEventArgs CmdArgs:
                             {
-                                IEnumerable<string> ActualStartupArguments = Regex.Matches(CmdArgs.Operation.Arguments, @"[\""].+?[\""]|[^ ]+").Select((Match) => Match.Value.Trim('"')).Skip(1).ToArray();
+                                IEnumerable<string> ActualStartupArguments = Regex.Matches(CmdArgs.Operation.Arguments, @"[\""].+?[\""]|[^ ]+")
+                                                                                  .Skip(1)
+                                                                                  .Select((Match) => Match.Value.Trim('"').TrimEnd('\\'))
+                                                                                  .Where((Value) => !string.IsNullOrWhiteSpace(Value))
+                                                                                  .ToArray();
+
                                 IEnumerable<string[]> OpenPathListOnEachTab = Enumerable.Empty<string[]>();
 
                                 if (ActualStartupArguments.Any())
