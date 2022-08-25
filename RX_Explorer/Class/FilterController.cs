@@ -16,7 +16,7 @@ using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
-    public sealed class FilterController : INotifyPropertyChanged, IDisposable
+    public sealed class FilterController : INotifyPropertyChanged
     {
         private NameFilterCondition NameCondition;
         private ModTimeFilterCondition ModTimeCondition;
@@ -1177,27 +1177,6 @@ namespace RX_Explorer.Class
             {
                 //No need to handle this exception
             }
-        }
-
-        public void Dispose()
-        {
-            if (!IsDisposed)
-            {
-                IsDisposed = true;
-
-                GC.SuppressFinalize(this);
-
-                TypeFilter.Clear();
-                OriginCopy.Clear();
-                DisplayTypeList.Clear();
-
-                ApplicationData.Current.DataChanged -= Current_DataChanged;
-            }
-        }
-
-        ~FilterController()
-        {
-            Dispose();
         }
     }
 }

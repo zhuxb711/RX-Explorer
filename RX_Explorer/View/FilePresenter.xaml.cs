@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Deferred;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
+using Nito.AsyncEx;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
@@ -53,29 +54,42 @@ namespace RX_Explorer.View
 {
     public sealed partial class FilePresenter : Page, IDisposable
     {
+        private string LastPressString;
+        private bool isGroupedEnabled;
+        private ListViewBase itemPresenter;
+        private FileSystemStorageFolder currentFolder;
+        private WiFiShareProvider WiFiProvider;
+        private ListViewBaseSelectionExtension SelectionExtension;
+        private DateTimeOffset LastPressTime;
+        private CancellationTokenSource DelayRenameCancellation;
+        private CancellationTokenSource DelayEnterCancellation;
+        private CancellationTokenSource DelaySelectionCancellation;
+        private CancellationTokenSource DelayDragCancellation;
+        private CancellationTokenSource DelayTooltipCancellation;
+        private CancellationTokenSource ContextMenuCancellation;
+        private CancellationTokenSource DisplayItemsCancellation;
+        private CommandBarFlyout FileFlyout;
+        private CommandBarFlyout FolderFlyout;
+        private CommandBarFlyout LinkFlyout;
+        private CommandBarFlyout MixedFlyout;
+        private CommandBarFlyout EmptyFlyout;
+        private CommandBarFlyout LabelFolderEmptyFlyout;
+        private readonly FileControl Container;
+        private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Presenter);
+        private readonly AsyncLock DisplayItemLock = new AsyncLock();
+        private readonly AsyncLock CollectionChangeLock = new AsyncLock();
+        private readonly ObservableCollection<FileSystemStorageGroupItem> GroupCollection = new ObservableCollection<FileSystemStorageGroupItem>();
+        private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
+        private readonly PointerEventHandler PointerPressedEventHandler;
+        private readonly PointerEventHandler PointerReleasedEventHandler;
+
         public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; } = new ObservableCollection<FileSystemStorageItemBase>();
 
         public ConcurrentStack<NavigationRelatedRecord> BackNavigationStack { get; } = new ConcurrentStack<NavigationRelatedRecord>();
 
         public ConcurrentStack<NavigationRelatedRecord> ForwardNavigationStack { get; } = new ConcurrentStack<NavigationRelatedRecord>();
 
-
         public FileChangeMonitor AreaWatcher { get; } = new FileChangeMonitor();
-
-        private readonly FileControl Container;
-        private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Presenter);
-
-        private readonly SemaphoreSlim DisplayItemLock = new SemaphoreSlim(1, 1);
-        private readonly SemaphoreSlim CollectionChangeLock = new SemaphoreSlim(1, 1);
-
-        private readonly ObservableCollection<FileSystemStorageGroupItem> GroupCollection = new ObservableCollection<FileSystemStorageGroupItem>();
-
-        private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
-
-        private readonly PointerEventHandler PointerPressedEventHandler;
-        private readonly PointerEventHandler PointerReleasedEventHandler;
-
-        private ListViewBase itemPresenter;
 
         public ListViewBase ItemPresenter
         {
@@ -100,7 +114,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private volatile FileSystemStorageFolder currentFolder;
         public FileSystemStorageFolder CurrentFolder
         {
             get
@@ -159,26 +172,6 @@ namespace RX_Explorer.View
                 }
             }
         }
-
-        private WiFiShareProvider WiFiProvider;
-        private ListViewBaseSelectionExtension SelectionExtension;
-        private DateTimeOffset LastPressTime;
-        private string LastPressString;
-        private CancellationTokenSource DelayRenameCancellation;
-        private CancellationTokenSource DelayEnterCancellation;
-        private CancellationTokenSource DelaySelectionCancellation;
-        private CancellationTokenSource DelayDragCancellation;
-        private CancellationTokenSource DelayTooltipCancellation;
-        private CancellationTokenSource ContextMenuCancellation;
-        private CancellationTokenSource DisplayItemsCancellation;
-        private CommandBarFlyout FileFlyout;
-        private CommandBarFlyout FolderFlyout;
-        private CommandBarFlyout LinkFlyout;
-        private CommandBarFlyout MixedFlyout;
-        private CommandBarFlyout EmptyFlyout;
-        private CommandBarFlyout LabelFolderEmptyFlyout;
-
-        private bool isGroupedEnabled;
 
         private bool IsGroupedEnabled
         {
@@ -2950,9 +2943,7 @@ namespace RX_Explorer.View
 
         private async Task DisplayItemsInFolderCoreAsync(FileSystemStorageFolder Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false, CancellationToken CancelToken = default)
         {
-            await DisplayItemLock.WaitAsync();
-
-            try
+            using (await DisplayItemLock.LockAsync(CancelToken))
             {
                 if (ForceRefresh || CurrentFolder != Folder)
                 {
@@ -3027,10 +3018,6 @@ namespace RX_Explorer.View
                         throw new FileNotFoundException();
                     }
                 }
-            }
-            finally
-            {
-                DisplayItemLock.Release();
             }
         }
 
@@ -3317,102 +3304,99 @@ namespace RX_Explorer.View
                                                                               ?? Enumerable.Empty<FileSystemStorageItemBase>()))
                                                                      .All((Item) => (CurrentFolder?.Path.Equals(Path.GetDirectoryName(Item.Path), StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
             {
-                await CollectionChangeLock.WaitAsync();
-
-                try
+                using (await CollectionChangeLock.LockAsync())
                 {
-                    PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
-                    switch (e.Action)
+                    try
                     {
-                        case NotifyCollectionChangedAction.Add:
-                            {
-                                foreach (FileSystemStorageItemBase Item in e.NewItems.OfType<FileSystemStorageItemBase>().Except(GroupCollection.SelectMany((Group) => Group)).ToArray())
+                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+                        switch (e.Action)
+                        {
+                            case NotifyCollectionChangedAction.Add:
                                 {
-                                    string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
-
-                                    if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
+                                    foreach (FileSystemStorageItemBase Item in e.NewItems.OfType<FileSystemStorageItemBase>().Except(GroupCollection.SelectMany((Group) => Group)).ToArray())
                                     {
-                                        int Index = await SortCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                                        string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
 
-                                        if (Index >= 0)
+                                        if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
                                         {
-                                            GroupItem.Insert(Index, Item);
+                                            int Index = await SortCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                            if (Index >= 0)
+                                            {
+                                                GroupItem.Insert(Index, Item);
+                                            }
+                                            else
+                                            {
+                                                GroupItem.Add(Item);
+                                            }
                                         }
                                         else
                                         {
-                                            GroupItem.Add(Item);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        int Index = Array.IndexOf(GroupCollection.Select((Group) => Group.Key).Append(Key).OrderByFastStringSortAlgorithm((Key) => Key, SortDirection.Ascending).ToArray(), Key);
+                                            int Index = Array.IndexOf(GroupCollection.Select((Group) => Group.Key).Append(Key).OrderByFastStringSortAlgorithm((Key) => Key, SortDirection.Ascending).ToArray(), Key);
 
-                                        if (Index >= 0)
-                                        {
-                                            GroupCollection.Insert(Index, new FileSystemStorageGroupItem(Key, new FileSystemStorageItemBase[] { Item }));
+                                            if (Index >= 0)
+                                            {
+                                                GroupCollection.Insert(Index, new FileSystemStorageGroupItem(Key, new FileSystemStorageItemBase[] { Item }));
+                                            }
                                         }
                                     }
+
+                                    break;
                                 }
-
-                                break;
-                            }
-                        case NotifyCollectionChangedAction.Remove:
-                            {
-                                foreach (FileSystemStorageItemBase Item in e.OldItems.OfType<FileSystemStorageItemBase>().ToArray())
+                            case NotifyCollectionChangedAction.Remove:
                                 {
-                                    if (GroupCollection.FirstOrDefault((Group) => Group.Contains(Item)) is FileSystemStorageGroupItem GroupItem)
+                                    foreach (FileSystemStorageItemBase Item in e.OldItems.OfType<FileSystemStorageItemBase>().ToArray())
                                     {
-                                        GroupItem.Remove(Item);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case NotifyCollectionChangedAction.Replace:
-                            {
-                                IEnumerable<FileSystemStorageItemBase> GroupExpandedCollection = GroupCollection.SelectMany((Group) => Group);
-
-                                foreach (FileSystemStorageItemBase Item in e.OldItems.OfType<FileSystemStorageItemBase>().Where((Item) => GroupExpandedCollection.Contains(Item)).ToArray())
-                                {
-                                    string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
-
-                                    if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
-                                    {
-                                        GroupItem.Remove(Item);
-                                    }
-                                }
-
-                                foreach (FileSystemStorageItemBase Item in e.NewItems.OfType<FileSystemStorageItemBase>().Except(GroupExpandedCollection).ToArray())
-                                {
-                                    string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
-
-                                    if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
-                                    {
-                                        int Index = await SortCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                        if (Index >= 0)
+                                        if (GroupCollection.FirstOrDefault((Group) => Group.Contains(Item)) is FileSystemStorageGroupItem GroupItem)
                                         {
-                                            GroupItem.Insert(Index, Item);
-                                        }
-                                        else
-                                        {
-                                            GroupItem.Add(Item);
+                                            GroupItem.Remove(Item);
                                         }
                                     }
-                                }
 
-                                break;
-                            }
+                                    break;
+                                }
+                            case NotifyCollectionChangedAction.Replace:
+                                {
+                                    IEnumerable<FileSystemStorageItemBase> GroupExpandedCollection = GroupCollection.SelectMany((Group) => Group);
+
+                                    foreach (FileSystemStorageItemBase Item in e.OldItems.OfType<FileSystemStorageItemBase>().Where((Item) => GroupExpandedCollection.Contains(Item)).ToArray())
+                                    {
+                                        string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
+
+                                        if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
+                                        {
+                                            GroupItem.Remove(Item);
+                                        }
+                                    }
+
+                                    foreach (FileSystemStorageItemBase Item in e.NewItems.OfType<FileSystemStorageItemBase>().Except(GroupExpandedCollection).ToArray())
+                                    {
+                                        string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
+
+                                        if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
+                                        {
+                                            int Index = await SortCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                            if (Index >= 0)
+                                            {
+                                                GroupItem.Insert(Index, Item);
+                                            }
+                                            else
+                                            {
+                                                GroupItem.Add(Item);
+                                            }
+                                        }
+                                    }
+
+                                    break;
+                                }
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not update the items on file list changed");
-                }
-                finally
-                {
-                    CollectionChangeLock.Release();
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not update the items on file list changed");
+                    }
                 }
             }
         }
@@ -8334,8 +8318,6 @@ namespace RX_Explorer.View
                                         {
                                             try
                                             {
-                                                await PrepareContextMenuAsync(LabelFolderEmptyFlyout);
-
                                                 LabelFolderEmptyFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
                                                 {
                                                     Position = Position,
@@ -8347,7 +8329,7 @@ namespace RX_Explorer.View
                                             }
                                             catch (Exception)
                                             {
-                                                EmptyFlyout = CreateNewLabelFolderEmptyContextMenu();
+                                                LabelFolderEmptyFlyout = CreateNewLabelFolderEmptyContextMenu();
                                             }
                                         }
                                         else
@@ -8380,8 +8362,6 @@ namespace RX_Explorer.View
                                 {
                                     try
                                     {
-                                        await PrepareContextMenuAsync(LabelFolderEmptyFlyout);
-
                                         LabelFolderEmptyFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
                                         {
                                             Position = Position,
@@ -8393,7 +8373,7 @@ namespace RX_Explorer.View
                                     }
                                     catch (Exception)
                                     {
-                                        EmptyFlyout = CreateNewLabelFolderEmptyContextMenu();
+                                        LabelFolderEmptyFlyout = CreateNewLabelFolderEmptyContextMenu();
                                     }
                                 }
                                 else
@@ -8459,10 +8439,6 @@ namespace RX_Explorer.View
             DelayDragCancellation?.Dispose();
             ContextMenuCancellation?.Dispose();
             DisplayItemsCancellation?.Dispose();
-
-            DisposableObjectManager.RegisterCallbackOnObjectDisposed(() => ListViewDetailHeader?.Dispose(),
-                                                                     DisposableObjectManager.DisposeObjectOnConditionSatisfied(DisplayItemLock, 1000, (Obj) => Obj.CurrentCount > 0),
-                                                                     DisposableObjectManager.DisposeObjectOnConditionSatisfied(CollectionChangeLock, 1000, (Obj) => Obj.CurrentCount > 0));
 
             WiFiProvider = null;
             SelectionExtension = null;

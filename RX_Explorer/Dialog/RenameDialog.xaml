@@ -27,6 +27,7 @@
     <Grid>
         <StackPanel Width="320">
             <TextBox  Name="RenameText"
+                      TextChanged="RenameText_TextChanged"
                       GotFocus="RenameText_GotFocus" />
             <StackPanel x:Name="PreviewArea">
                 <TextBlock Text="预览"
