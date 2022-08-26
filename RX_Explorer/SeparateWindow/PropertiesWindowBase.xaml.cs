@@ -42,10 +42,25 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 {
     public sealed partial class PropertiesWindowBase : Page
     {
+        private bool IsClosed;
+
         private readonly AppWindow Window;
         private readonly FileSystemStorageItemBase[] StorageItems;
         private readonly DriveDataBase RootDrive;
+
+        private readonly PointerEventHandler PointerPressedHandler;
+        private readonly PointerEventHandler PointerReleasedHandler;
+        private readonly PointerEventHandler PointerCanceledHandler;
+        private readonly PointerEventHandler PointerMovedHandler;
+        private readonly CancellationTokenSource SavingCancellation = new CancellationTokenSource();
+        private readonly CancellationTokenSource OperationCancellation = new CancellationTokenSource();
+        private readonly InterlockedNoReentryExecution ActionButtonExecution = new InterlockedNoReentryExecution();
         private readonly ObservableCollection<PropertiesGroupItem> PropertiesCollection = new ObservableCollection<PropertiesGroupItem>();
+
+        public event EventHandler WindowClosed;
+        public event EventHandler<FileRenamedDeferredEventArgs> RenameRequested;
+
+        private static readonly Size DefaultWindowSize = new Size(420, 650);
         private static readonly Dictionary<uint, string> OfflineAvailabilityMap = new Dictionary<uint, string>(3)
         {
             { 0, Globalization.GetString("OfflineAvailabilityText1") },
@@ -80,8 +95,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 15, Globalization.GetString("OfflineAvailabilityStatusText3") },
         };
 
-        private static readonly Size DefaultWindowSize = new Size(420, 650);
-
         private static Size RequestWindowSize
         {
             get
@@ -97,20 +110,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
             }
         }
-
-        private readonly CancellationTokenSource SavingCancellation = new CancellationTokenSource();
-        private readonly CancellationTokenSource OperationCancellation = new CancellationTokenSource();
-
-        private bool IsClosed;
-        private int ActionButtonLockResource;
-
-        private readonly PointerEventHandler PointerPressedHandler;
-        private readonly PointerEventHandler PointerReleasedHandler;
-        private readonly PointerEventHandler PointerCanceledHandler;
-        private readonly PointerEventHandler PointerMovedHandler;
-
-        public event EventHandler WindowClosed;
-        public event EventHandler<FileRenamedDeferredEventArgs> RenameRequested;
 
         /// <summary>
         /// If want to handle rename operation mannually. Please set this property to false and subscribe RenameRequested event
@@ -1597,32 +1596,18 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Interlocked.Exchange(ref ActionButtonLockResource, 1) == 0)
+            await ActionButtonExecution.ExecuteAsync(async () =>
             {
-                try
-                {
-                    await CloseWindowAsync(true);
-                }
-                finally
-                {
-                    Interlocked.Exchange(ref ActionButtonLockResource, 0);
-                }
-            }
+                await CloseWindowAsync(true);
+            });
         }
 
         private async void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Interlocked.Exchange(ref ActionButtonLockResource, 1) == 0)
+            await ActionButtonExecution.ExecuteAsync(async () =>
             {
-                try
-                {
-                    await CloseWindowAsync(false);
-                }
-                finally
-                {
-                    Interlocked.Exchange(ref ActionButtonLockResource, 0);
-                }
-            }
+                await CloseWindowAsync(false);
+            });
         }
 
         private async Task<ulong> CalculateFolderSize(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)

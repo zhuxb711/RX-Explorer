@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nito.AsyncEx;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.ExtendedExecution;
@@ -9,12 +10,10 @@ namespace RX_Explorer.Class
     {
         private static ExtendedExecutionSession Session;
         private static int CurrentExtendedExecutionNum;
-        private static readonly SemaphoreSlim SlimLocker = new SemaphoreSlim(1, 1);
+        private static readonly AsyncLock RequestLocker = new AsyncLock();
 
         public static async Task<ExtendedExecutionController> CreateExtendedExecutionAsync()
         {
-            await SlimLocker.WaitAsync();
-
             try
             {
                 if (CurrentExtendedExecutionNum > 0)
@@ -23,41 +22,46 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    if (Session == null)
+                    using (await RequestLocker.LockAsync())
                     {
-                        Session = new ExtendedExecutionSession
+                        if (CurrentExtendedExecutionNum > 0)
                         {
-                            Reason = ExtendedExecutionReason.Unspecified
-                        };
+                            return new ExtendedExecutionController();
+                        }
 
-                        Session.Revoked += Session_Revoked;
-                    }
-
-                    ExtendedExecutionResult Result = await Session.RequestExtensionAsync();
-
-                    switch (Result)
-                    {
-                        case ExtendedExecutionResult.Allowed:
+                        if (Session == null)
+                        {
+                            Session = new ExtendedExecutionSession
                             {
-                                return new ExtendedExecutionController();
-                            }
-                        default:
-                            {
-                                LogTracer.Log($"Extension execution was rejected by system, reason: \"{Enum.GetName(typeof(ExtendedExecutionResult), Result)}\"");
-                                return null;
-                            }
+                                Reason = ExtendedExecutionReason.Unspecified
+                            };
+
+                            Session.Revoked += Session_Revoked;
+                        }
+
+                        ExtendedExecutionResult Result = await Session.RequestExtensionAsync();
+
+                        switch (Result)
+                        {
+                            case ExtendedExecutionResult.Allowed:
+                                {
+                                    return new ExtendedExecutionController();
+                                }
+                            default:
+                                {
+                                    LogTracer.Log($"Extension execution was rejected by system, reason: \"{Enum.GetName(typeof(ExtendedExecutionResult), Result)}\"");
+                                    break;
+                                }
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An exception was threw when creating the extended execution");
-                return null;
             }
-            finally
-            {
-                SlimLocker.Release();
-            }
+
+            return null;
         }
 
         private static void Session_Revoked(object sender, ExtendedExecutionRevokedEventArgs args)

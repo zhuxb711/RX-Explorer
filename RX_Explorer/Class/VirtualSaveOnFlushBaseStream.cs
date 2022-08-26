@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nito.AsyncEx;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +8,11 @@ namespace RX_Explorer.Class
 {
     public abstract class VirtualSaveOnFlushBaseStream : Stream
     {
+        private int HasWroteAnyData;
+        private readonly AsyncLock FlushLocker = new AsyncLock();
+
+        protected Stream BaseStream { get; }
+
         public override bool CanRead => true;
 
         public override bool CanSeek => BaseStream.CanSeek;
@@ -21,31 +27,20 @@ namespace RX_Explorer.Class
             set => BaseStream.Position = value;
         }
 
-        private int HasWroteAnyData;
-        private readonly SemaphoreSlim FlushLocker = new SemaphoreSlim(1, 1);
-
-        protected Stream BaseStream { get; }
-
         public override void Flush()
         {
             FlushAsync(default).Wait();
         }
 
         public override async Task FlushAsync(CancellationToken cancellationToken)
-        {            
+        {
             //Do not remove .ConfigureAwait(false) from this methor because that might be lead to dead lock in sync execution
             if (Interlocked.CompareExchange(ref HasWroteAnyData, 0, 1) == 1)
             {
-                await FlushLocker.WaitAsync(cancellationToken).ConfigureAwait(false);
-
-                try
+                using (await FlushLocker.LockAsync(cancellationToken).ConfigureAwait(false))
                 {
                     await BaseStream.FlushAsync().ConfigureAwait(false);
                     await FlushCoreAsync(cancellationToken).ConfigureAwait(false);
-                }
-                finally
-                {
-                    FlushLocker.Release();
                 }
             }
         }

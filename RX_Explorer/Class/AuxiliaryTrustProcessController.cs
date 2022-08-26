@@ -1,5 +1,6 @@
 ﻿using ConcurrentPriorityQueue.Core;
 using Microsoft.Win32.SafeHandles;
+using Nito.AsyncEx;
 using SharedLibrary;
 using System;
 using System.Collections.Concurrent;
@@ -25,6 +26,33 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class AuxiliaryTrustProcessController : IDisposable
     {
+        private bool IsDisposed;
+        private const int PipeConnectionTimeout = 10000;
+        private int CurrentControllerExecutingCommandNum;
+
+        private SafeProcessHandle AuxiliaryTrustProcessHandle;
+        private RegisteredWaitHandle RegisteredAuxiliaryTrustProcessWaitHandle;
+        private NamedPipeReadController PipeProgressReadController;
+        private NamedPipeReadController PipeCommandReadController;
+        private NamedPipeWriteController PipeCommandWriteController;
+        private NamedPipeWriteController PipeCancellationWriteController;
+        private NamedPipeAuxiliaryCommunicationBaseController PipeCommunicationBaseController;
+        private readonly ConcurrentQueue<InternalCommandQueueItem> CommandQueue = new ConcurrentQueue<InternalCommandQueueItem>();
+
+        private static int ExpectedControllerNum;
+
+        private static readonly SynchronizedCollection<AuxiliaryTrustProcessController> AllControllerCollection = new SynchronizedCollection<AuxiliaryTrustProcessController>();
+        private static readonly BlockingCollection<AuxiliaryTrustProcessController> AvailableControllerCollection = new BlockingCollection<AuxiliaryTrustProcessController>();
+        private static readonly BlockingCollection<InternalExclusivePriorityQueueItem> ExclusivePriorityCollection = new ConcurrentPriorityQueue<InternalExclusivePriorityQueueItem, CustomPriority>().ToBlockingCollection();
+        private static readonly AsyncLock ResizeTaskLocker = new AsyncLock();
+        private static readonly Thread DispatcherThread = new Thread(DispatcherCore)
+        {
+            IsBackground = true,
+            Priority = ThreadPriority.Normal
+        };
+
+        public static event EventHandler<bool> CurrentBusyStatus;
+
         public bool IsAnyCommandExecutingInCurrentController => CurrentControllerExecutingCommandNum > 0;
 
         public bool IsConnected => (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
@@ -41,46 +69,6 @@ namespace RX_Explorer.Class
         public static int AllControllersNum => AllControllerCollection.Count;
 
         public static int AvailableControllersNum => AvailableControllerCollection.Count;
-
-        private readonly static Thread DispatcherThread = new Thread(DispatcherCore)
-        {
-            IsBackground = true,
-            Priority = ThreadPriority.Normal
-        };
-
-        private SafeProcessHandle AuxiliaryTrustProcessHandle;
-
-        private RegisteredWaitHandle RegisteredAuxiliaryTrustProcessWaitHandle;
-
-        private NamedPipeReadController PipeProgressReadController;
-
-        private NamedPipeReadController PipeCommandReadController;
-
-        private NamedPipeWriteController PipeCommandWriteController;
-
-        private NamedPipeWriteController PipeCancellationWriteController;
-
-        private NamedPipeAuxiliaryCommunicationBaseController PipeCommunicationBaseController;
-
-        private readonly ConcurrentQueue<InternalCommandQueueItem> CommandQueue = new ConcurrentQueue<InternalCommandQueueItem>();
-
-        private static readonly SynchronizedCollection<AuxiliaryTrustProcessController> AllControllerCollection = new SynchronizedCollection<AuxiliaryTrustProcessController>();
-
-        private static readonly BlockingCollection<AuxiliaryTrustProcessController> AvailableControllerCollection = new BlockingCollection<AuxiliaryTrustProcessController>();
-
-        private static readonly BlockingCollection<InternalExclusivePriorityQueueItem> ExclusivePriorityCollection = new ConcurrentPriorityQueue<InternalExclusivePriorityQueueItem, CustomPriority>().ToBlockingCollection();
-
-        private static int ExpectedControllerNum;
-
-        public static event EventHandler<bool> CurrentBusyStatus;
-
-        private static readonly SemaphoreSlim ResizeTaskLocker = new SemaphoreSlim(1, 1);
-
-        private int CurrentControllerExecutingCommandNum;
-
-        private bool IsDisposed;
-
-        private const int PipeConnectionTimeout = 10000;
 
         static AuxiliaryTrustProcessController()
         {
@@ -207,51 +195,48 @@ namespace RX_Explorer.Class
 
         public static async Task SetExpectedControllerNumAsync(int ExpectedNum)
         {
-            await ResizeTaskLocker.WaitAsync();
-
-            try
+            using (await ResizeTaskLocker.LockAsync())
             {
-                ExpectedControllerNum = ExpectedNum;
-
-                if (ExpectedNum > AllControllersNum - DynamicBackupProcessNum)
+                try
                 {
-                    int AddCount = ExpectedNum - AllControllersNum + DynamicBackupProcessNum;
+                    ExpectedControllerNum = ExpectedNum;
 
-                    List<Task> ParallelList = new List<Task>(AddCount);
-
-                    for (int Counter = 0; Counter < AddCount; Counter++)
+                    if (ExpectedNum > AllControllersNum - DynamicBackupProcessNum)
                     {
-                        ParallelList.Add(CreateAsync().ContinueWith((PreviousTask) =>
+                        int AddCount = ExpectedNum - AllControllersNum + DynamicBackupProcessNum;
+
+                        List<Task> ParallelList = new List<Task>(AddCount);
+
+                        for (int Counter = 0; Counter < AddCount; Counter++)
                         {
-                            if (PreviousTask.Result is AuxiliaryTrustProcessController NewController)
+                            ParallelList.Add(CreateAsync().ContinueWith((PreviousTask) =>
                             {
-                                AvailableControllerCollection.Add(NewController);
-                            }
-                        }));
+                                if (PreviousTask.Result is AuxiliaryTrustProcessController NewController)
+                                {
+                                    AvailableControllerCollection.Add(NewController);
+                                }
+                            }));
+                        }
+
+                        await Task.WhenAll(ParallelList);
                     }
-
-                    await Task.WhenAll(ParallelList);
-                }
-                else if (ExpectedNum < AllControllersNum - DynamicBackupProcessNum)
-                {
-                    int RemoveCount = AllControllersNum - DynamicBackupProcessNum - ExpectedNum;
-
-                    for (int Counter = 0; Counter < RemoveCount; Counter++)
+                    else if (ExpectedNum < AllControllersNum - DynamicBackupProcessNum)
                     {
-                        if (AvailableControllerCollection.TryTake(out AuxiliaryTrustProcessController RemoveController))
+                        int RemoveCount = AllControllersNum - DynamicBackupProcessNum - ExpectedNum;
+
+                        for (int Counter = 0; Counter < RemoveCount; Counter++)
                         {
-                            RemoveController.Dispose();
+                            if (AvailableControllerCollection.TryTake(out AuxiliaryTrustProcessController RemoveController))
+                            {
+                                RemoveController.Dispose();
+                            }
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(SetExpectedControllerNumAsync)}");
-            }
-            finally
-            {
-                ResizeTaskLocker.Release();
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(SetExpectedControllerNumAsync)}");
+                }
             }
         }
 
@@ -2545,19 +2530,13 @@ namespace RX_Explorer.Class
         {
             private Exclusive Exclusive;
             private readonly PriorityLevel Priority;
-            private readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
+            private readonly AsyncLock Locker = new AsyncLock();
 
             public async Task<AuxiliaryTrustProcessController> GetRealControllerAsync()
             {
-                await Locker.WaitAsync();
-
-                try
+                using (await Locker.LockAsync())
                 {
                     return (Exclusive ??= await GetControllerExclusiveAsync(Priority: Priority)).Controller;
-                }
-                finally
-                {
-                    Locker.Release();
                 }
             }
 
@@ -2568,7 +2547,6 @@ namespace RX_Explorer.Class
 
             public void Dispose()
             {
-                Locker.Dispose();
                 Exclusive?.Dispose();
                 GC.SuppressFinalize(this);
             }

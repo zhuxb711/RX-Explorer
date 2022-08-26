@@ -50,13 +50,19 @@ namespace RX_Explorer.View
 {
     public sealed partial class FileControl : Page, IDisposable
     {
-        private int AddressTextChangeLockResource;
+        private FilePresenter currentPresenter;
+        private CommandBarFlyout RightTapFlyout;
 
-        private int SearchTextChangeLockResource;
+        private readonly InterlockedNoReentryExecution SearchTextExecution = new InterlockedNoReentryExecution();
+        private readonly InterlockedNoReentryExecution AddressTextExecution = new InterlockedNoReentryExecution();
+        private readonly InterlockedNoReentryExecution AddressButtonExecution = new InterlockedNoReentryExecution();
+        private readonly InterlockedNoReentryExecution CreateBladeExecution = new InterlockedNoReentryExecution();
 
-        private int AddressButtonLockResource;
-
-        private int CreateBladeLockResource;
+        private readonly ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
+        private readonly ObservableCollection<FileSystemStorageFolder> AddressExtensionList = new ObservableCollection<FileSystemStorageFolder>();
+        private readonly ObservableCollection<AddressSuggestionItem> AddressSuggestionList = new ObservableCollection<AddressSuggestionItem>();
+        private readonly ObservableCollection<SearchSuggestionItem> SearchSuggestionList = new ObservableCollection<SearchSuggestionItem>();
+        private readonly ObservableCollection<NavigationRecordDisplay> NavigationRecordList = new ObservableCollection<NavigationRecordDisplay>();
 
         private readonly PointerEventHandler BladePointerPressedEventHandler;
         private readonly RightTappedEventHandler AddressBoxRightTapEventHandler;
@@ -74,7 +80,10 @@ namespace RX_Explorer.View
         private CancellationTokenSource AddressExtensionCancellation;
         private CancellationTokenSource ExpandTreeViewCancellation;
 
-        private volatile FilePresenter currentPresenter;
+        public TabItemContentRenderer Renderer { get; private set; }
+
+        public bool ShouldNotAcceptShortcutKeyInput { get; set; }
+
         public FilePresenter CurrentPresenter
         {
             get => currentPresenter;
@@ -124,18 +133,6 @@ namespace RX_Explorer.View
                 }
             }
         }
-
-        private readonly ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
-        private readonly ObservableCollection<FileSystemStorageFolder> AddressExtensionList = new ObservableCollection<FileSystemStorageFolder>();
-        private readonly ObservableCollection<AddressSuggestionItem> AddressSuggestionList = new ObservableCollection<AddressSuggestionItem>();
-        private readonly ObservableCollection<SearchSuggestionItem> SearchSuggestionList = new ObservableCollection<SearchSuggestionItem>();
-        private readonly ObservableCollection<NavigationRecordDisplay> NavigationRecordList = new ObservableCollection<NavigationRecordDisplay>();
-
-        private CommandBarFlyout RightTapFlyout;
-
-        public TabItemContentRenderer Renderer { get; private set; }
-
-        public bool ShouldNotAcceptShortcutKeyInput { get; set; }
 
         public FileControl()
         {
@@ -434,160 +431,86 @@ namespace RX_Explorer.View
 
         public void RefreshAddressButton(string Path)
         {
-            if (Interlocked.Exchange(ref AddressButtonLockResource, 1) == 0)
+            if (!string.IsNullOrEmpty(Path))
             {
                 try
                 {
-                    if (string.IsNullOrEmpty(Path))
+                    AddressButtonExecution.Execute(() =>
                     {
-                        return;
-                    }
+                        string RootPath = string.Empty;
 
-                    string RootPath = string.Empty;
+                        string[] CurrentSplit = Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
 
-                    string[] CurrentSplit = Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-
-                    if (Path.StartsWith(@"\\?\"))
-                    {
-                        if (CurrentSplit.Length > 0)
+                        if (Path.StartsWith(@"\\?\"))
                         {
-                            RootPath = $@"\\?\{CurrentSplit[1]}";
-                            CurrentSplit = CurrentSplit.Skip(2).Prepend(RootPath).ToArray();
-                        }
-                    }
-                    else if (Path.StartsWith(@"\\"))
-                    {
-                        if (CurrentSplit.Length > 0)
-                        {
-                            RootPath = $@"\\{CurrentSplit[0]}";
-                            CurrentSplit[0] = RootPath;
-                        }
-                    }
-                    else if (Regex.IsMatch(Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
-                    {
-                        Path = Regex.Replace(Path, @"\\+", @"\");
-
-                        if (CurrentSplit.Length > 0)
-                        {
-                            RootPath = string.Join(@"\", CurrentSplit.Take(2));
-                            CurrentSplit = CurrentSplit.Skip(2).Prepend(RootPath).ToArray();
-                        }
-                    }
-                    else
-                    {
-                        RootPath = System.IO.Path.GetPathRoot(Path);
-                    }
-
-                    if (AddressButtonList.Count == 0)
-                    {
-                        if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
-                        {
-                            AddressButtonList.Add(new AddressBlock(RootVirtualFolder.Current.Path, RootVirtualFolder.Current.DisplayName));
-                        }
-
-                        if (!string.IsNullOrEmpty(RootPath))
-                        {
-                            AddressButtonList.Add(new AddressBlock(RootPath, CommonAccessCollection.DriveList.FirstOrDefault((Drive) => RootPath.Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))?.DisplayName));
-
-                            PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
-
-                            while (Analysis.HasNextLevel)
+                            if (CurrentSplit.Length > 0)
                             {
-                                AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
+                                RootPath = $@"\\?\{CurrentSplit[1]}";
+                                CurrentSplit = CurrentSplit.Skip(2).Prepend(RootPath).ToArray();
                             }
                         }
-                    }
-                    else if (Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase)
-                             && AddressButtonList.First().Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
-                    {
-                        foreach (AddressBlock Block in AddressButtonList.Skip(1))
+                        else if (Path.StartsWith(@"\\"))
                         {
-                            Block.SetBlockType(AddressBlockType.Gray);
-                        }
-                    }
-                    else
-                    {
-                        string LastPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Normal)?.Path ?? string.Empty;
-                        string LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path ?? string.Empty;
-
-                        if (string.IsNullOrEmpty(LastGrayPath) && LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
-                        {
-                            string[] LastPathSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-
-                            if (LastPathSplit.Length > 0)
+                            if (CurrentSplit.Length > 0)
                             {
-                                if (Path.StartsWith(@"\\?\"))
+                                RootPath = $@"\\{CurrentSplit[0]}";
+                                CurrentSplit[0] = RootPath;
+                            }
+                        }
+                        else if (Regex.IsMatch(Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                        {
+                            Path = Regex.Replace(Path, @"\\+", @"\");
+
+                            if (CurrentSplit.Length > 0)
+                            {
+                                RootPath = string.Join(@"\", CurrentSplit.Take(2));
+                                CurrentSplit = CurrentSplit.Skip(2).Prepend(RootPath).ToArray();
+                            }
+                        }
+                        else
+                        {
+                            RootPath = System.IO.Path.GetPathRoot(Path);
+                        }
+
+                        if (AddressButtonList.Count == 0)
+                        {
+                            if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
+                            {
+                                AddressButtonList.Add(new AddressBlock(RootVirtualFolder.Current.Path, RootVirtualFolder.Current.DisplayName));
+                            }
+
+                            if (!string.IsNullOrEmpty(RootPath))
+                            {
+                                AddressButtonList.Add(new AddressBlock(RootPath, CommonAccessCollection.DriveList.FirstOrDefault((Drive) => RootPath.Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))?.DisplayName));
+
+                                PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
+
+                                while (Analysis.HasNextLevel)
                                 {
-                                    if (LastPathSplit.Length > 1)
-                                    {
-                                        LastPathSplit = LastPathSplit.Skip(2).Prepend($@"\\?\{LastPathSplit[1]}").ToArray();
-                                    }
-                                }
-                                else if (LastPathSplit.Length > 0)
-                                {
-                                    if (LastPath.StartsWith(@"\\"))
-                                    {
-                                        LastPathSplit[0] = $@"\\{LastPathSplit[0]}";
-                                    }
-                                    else if (Regex.IsMatch(LastPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
-                                    {
-                                        LastPathSplit = LastPathSplit.Skip(2).Prepend(string.Join(@"\", LastPathSplit.Take(2))).ToArray();
-                                    }
+                                    AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
                                 }
                             }
-
-                            for (int i = LastPathSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
+                        }
+                        else if (Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase)
+                                 && AddressButtonList.First().Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
+                        {
+                            foreach (AddressBlock Block in AddressButtonList.Skip(1))
                             {
-                                AddressButtonList[AddressButtonList.Count - 1 - i].SetBlockType(AddressBlockType.Gray);
+                                Block.SetBlockType(AddressBlockType.Gray);
                             }
                         }
-                        else if (Path.StartsWith(LastGrayPath, StringComparison.OrdinalIgnoreCase))
+                        else
                         {
-                            foreach (AddressBlock GrayBlock in AddressButtonList.Where((Block) => Block.BlockType == AddressBlockType.Gray))
-                            {
-                                GrayBlock.SetBlockType(AddressBlockType.Normal);
-                            }
-                        }
-                        else if (LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
-                        {
-                            if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
-                            {
-                                string[] LastGrayPathSplit = LastGrayPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                            string LastPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Normal)?.Path ?? string.Empty;
+                            string LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path ?? string.Empty;
 
-                                if (LastGrayPathSplit.Length > 0)
-                                {
-                                    if (LastGrayPath.StartsWith(@"\\?\"))
-                                    {
-                                        if (LastGrayPathSplit.Length > 1)
-                                        {
-                                            LastGrayPathSplit = LastGrayPathSplit.Skip(2).Prepend($@"\\?\{LastGrayPathSplit[1]}").ToArray();
-                                        }
-                                    }
-                                    else if (LastGrayPathSplit.Length > 0)
-                                    {
-                                        if (LastGrayPath.StartsWith(@"\\"))
-                                        {
-                                            LastGrayPathSplit[0] = $@"\\{LastGrayPathSplit[0]}";
-                                        }
-                                        else if (Regex.IsMatch(LastGrayPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
-                                        {
-                                            LastGrayPathSplit = LastGrayPathSplit.Skip(2).Prepend(string.Join(@"\", LastGrayPathSplit.Take(2))).ToArray();
-                                        }
-                                    }
-                                }
-
-                                for (int i = LastGrayPathSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
-                                {
-                                    AddressButtonList[AddressButtonList.Count - 1 - i].SetBlockType(AddressBlockType.Gray);
-                                }
-                            }
-                            else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
+                            if (string.IsNullOrEmpty(LastGrayPath) && LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 string[] LastPathSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
 
                                 if (LastPathSplit.Length > 0)
                                 {
-                                    if (LastPath.StartsWith(@"\\?\"))
+                                    if (Path.StartsWith(@"\\?\"))
                                     {
                                         if (LastPathSplit.Length > 1)
                                         {
@@ -607,123 +530,191 @@ namespace RX_Explorer.View
                                     }
                                 }
 
-                                for (int i = 0; i < CurrentSplit.Length - LastPathSplit.Length; i++)
+                                for (int i = LastPathSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                 {
-                                    if (AddressButtonList.FirstOrDefault((Block) => Block.BlockType == AddressBlockType.Gray) is AddressBlock GrayBlock)
+                                    AddressButtonList[AddressButtonList.Count - 1 - i].SetBlockType(AddressBlockType.Gray);
+                                }
+                            }
+                            else if (Path.StartsWith(LastGrayPath, StringComparison.OrdinalIgnoreCase))
+                            {
+                                foreach (AddressBlock GrayBlock in AddressButtonList.Where((Block) => Block.BlockType == AddressBlockType.Gray))
+                                {
+                                    GrayBlock.SetBlockType(AddressBlockType.Normal);
+                                }
+                            }
+                            else if (LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    string[] LastGrayPathSplit = LastGrayPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+
+                                    if (LastGrayPathSplit.Length > 0)
+                                    {
+                                        if (LastGrayPath.StartsWith(@"\\?\"))
+                                        {
+                                            if (LastGrayPathSplit.Length > 1)
+                                            {
+                                                LastGrayPathSplit = LastGrayPathSplit.Skip(2).Prepend($@"\\?\{LastGrayPathSplit[1]}").ToArray();
+                                            }
+                                        }
+                                        else if (LastGrayPathSplit.Length > 0)
+                                        {
+                                            if (LastGrayPath.StartsWith(@"\\"))
+                                            {
+                                                LastGrayPathSplit[0] = $@"\\{LastGrayPathSplit[0]}";
+                                            }
+                                            else if (Regex.IsMatch(LastGrayPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                                            {
+                                                LastGrayPathSplit = LastGrayPathSplit.Skip(2).Prepend(string.Join(@"\", LastGrayPathSplit.Take(2))).ToArray();
+                                            }
+                                        }
+                                    }
+
+                                    for (int i = LastGrayPathSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
+                                    {
+                                        AddressButtonList[AddressButtonList.Count - 1 - i].SetBlockType(AddressBlockType.Gray);
+                                    }
+                                }
+                                else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    string[] LastPathSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+
+                                    if (LastPathSplit.Length > 0)
+                                    {
+                                        if (LastPath.StartsWith(@"\\?\"))
+                                        {
+                                            if (LastPathSplit.Length > 1)
+                                            {
+                                                LastPathSplit = LastPathSplit.Skip(2).Prepend($@"\\?\{LastPathSplit[1]}").ToArray();
+                                            }
+                                        }
+                                        else if (LastPathSplit.Length > 0)
+                                        {
+                                            if (LastPath.StartsWith(@"\\"))
+                                            {
+                                                LastPathSplit[0] = $@"\\{LastPathSplit[0]}";
+                                            }
+                                            else if (Regex.IsMatch(LastPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                                            {
+                                                LastPathSplit = LastPathSplit.Skip(2).Prepend(string.Join(@"\", LastPathSplit.Take(2))).ToArray();
+                                            }
+                                        }
+                                    }
+
+                                    for (int i = 0; i < CurrentSplit.Length - LastPathSplit.Length; i++)
+                                    {
+                                        if (AddressButtonList.FirstOrDefault((Block) => Block.BlockType == AddressBlockType.Gray) is AddressBlock GrayBlock)
+                                        {
+                                            GrayBlock.SetBlockType(AddressBlockType.Normal);
+                                        }
+                                    }
+                                }
+                                else if (LastPath.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    foreach (AddressBlock GrayBlock in AddressButtonList.Skip(1).Take(CurrentSplit.Length))
                                     {
                                         GrayBlock.SetBlockType(AddressBlockType.Normal);
                                     }
                                 }
                             }
-                            else if (LastPath.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
+
+                            string CurrentPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Normal)?.Path ?? string.Empty;
+                            string CurrentGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path ?? string.Empty;
+
+                            string[] OriginSplit = CurrentPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+
+                            if (OriginSplit.Length > 0)
                             {
-                                foreach (AddressBlock GrayBlock in AddressButtonList.Skip(1).Take(CurrentSplit.Length))
+                                if (CurrentPath.StartsWith(@"\\?\"))
                                 {
-                                    GrayBlock.SetBlockType(AddressBlockType.Normal);
+                                    if (OriginSplit.Length > 1)
+                                    {
+                                        OriginSplit = OriginSplit.Skip(2).Prepend($@"\\?\{OriginSplit[1]}").ToArray();
+                                    }
+                                }
+                                else if (OriginSplit.Length > 0)
+                                {
+                                    if (CurrentPath.StartsWith(@"\\"))
+                                    {
+                                        OriginSplit[0] = $@"\\{OriginSplit[0]}";
+                                    }
+                                    else if (Regex.IsMatch(CurrentPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                                    {
+                                        OriginSplit = OriginSplit.Skip(2).Prepend(string.Join(@"\", OriginSplit.Take(2))).ToArray();
+                                    }
+                                }
+                            }
+
+                            List<string> IntersectList = new List<string>(Math.Min(CurrentSplit.Length, OriginSplit.Length));
+
+                            for (int i = 0; i < Math.Min(CurrentSplit.Length, OriginSplit.Length); i++)
+                            {
+                                if (!CurrentSplit[i].Equals(OriginSplit[i], StringComparison.OrdinalIgnoreCase))
+                                {
+                                    break;
+                                }
+
+                                IntersectList.Add(CurrentSplit[i]);
+                            }
+
+                            if (IntersectList.Count == 0)
+                            {
+                                AddressButtonList.Clear();
+
+                                if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
+                                {
+                                    AddressButtonList.Add(new AddressBlock(RootVirtualFolder.Current.Path, RootVirtualFolder.Current.DisplayName));
+                                }
+
+                                if (!string.IsNullOrEmpty(RootPath))
+                                {
+                                    AddressButtonList.Add(new AddressBlock(RootPath, CommonAccessCollection.DriveList.FirstOrDefault((Drive) => RootPath.Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))?.DisplayName));
+
+                                    PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
+
+                                    while (Analysis.HasNextLevel)
+                                    {
+                                        AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (string.IsNullOrEmpty(CurrentGrayPath)
+                                    || !Path.StartsWith(CurrentPath, StringComparison.OrdinalIgnoreCase)
+                                    || !(Path.StartsWith(CurrentGrayPath, StringComparison.OrdinalIgnoreCase) || CurrentGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    int LimitIndex = IntersectList.Count;
+
+                                    if (AddressButtonList.Any((Block) => Block.Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        LimitIndex += 1;
+                                    }
+
+                                    for (int i = AddressButtonList.Count - 1; i >= LimitIndex; i--)
+                                    {
+                                        AddressButtonList.RemoveAt(i);
+                                    }
+                                }
+
+                                if (!Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    string BaseString = IntersectList.Count > 1 ? string.Join('\\', CurrentSplit.Take(IntersectList.Count)) : $"{CurrentSplit.First()}\\";
+
+                                    PathAnalysis Analysis = new PathAnalysis(Path, BaseString);
+
+                                    while (Analysis.HasNextLevel)
+                                    {
+                                        AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
+                                    }
                                 }
                             }
                         }
-
-                        string CurrentPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Normal)?.Path ?? string.Empty;
-                        string CurrentGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path ?? string.Empty;
-
-                        string[] OriginSplit = CurrentPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-
-                        if (OriginSplit.Length > 0)
-                        {
-                            if (CurrentPath.StartsWith(@"\\?\"))
-                            {
-                                if (OriginSplit.Length > 1)
-                                {
-                                    OriginSplit = OriginSplit.Skip(2).Prepend($@"\\?\{OriginSplit[1]}").ToArray();
-                                }
-                            }
-                            else if (OriginSplit.Length > 0)
-                            {
-                                if (CurrentPath.StartsWith(@"\\"))
-                                {
-                                    OriginSplit[0] = $@"\\{OriginSplit[0]}";
-                                }
-                                else if (Regex.IsMatch(CurrentPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
-                                {
-                                    OriginSplit = OriginSplit.Skip(2).Prepend(string.Join(@"\", OriginSplit.Take(2))).ToArray();
-                                }
-                            }
-                        }
-
-                        List<string> IntersectList = new List<string>(Math.Min(CurrentSplit.Length, OriginSplit.Length));
-
-                        for (int i = 0; i < Math.Min(CurrentSplit.Length, OriginSplit.Length); i++)
-                        {
-                            if (!CurrentSplit[i].Equals(OriginSplit[i], StringComparison.OrdinalIgnoreCase))
-                            {
-                                break;
-                            }
-
-                            IntersectList.Add(CurrentSplit[i]);
-                        }
-
-                        if (IntersectList.Count == 0)
-                        {
-                            AddressButtonList.Clear();
-
-                            if (Path.StartsWith(@"\\?\") || !Path.StartsWith(@"\\"))
-                            {
-                                AddressButtonList.Add(new AddressBlock(RootVirtualFolder.Current.Path, RootVirtualFolder.Current.DisplayName));
-                            }
-
-                            if (!string.IsNullOrEmpty(RootPath))
-                            {
-                                AddressButtonList.Add(new AddressBlock(RootPath, CommonAccessCollection.DriveList.FirstOrDefault((Drive) => RootPath.Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))?.DisplayName));
-
-                                PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
-
-                                while (Analysis.HasNextLevel)
-                                {
-                                    AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (string.IsNullOrEmpty(CurrentGrayPath)
-                                || !Path.StartsWith(CurrentPath, StringComparison.OrdinalIgnoreCase)
-                                || !(Path.StartsWith(CurrentGrayPath, StringComparison.OrdinalIgnoreCase) || CurrentGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                int LimitIndex = IntersectList.Count;
-
-                                if (AddressButtonList.Any((Block) => Block.Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase)))
-                                {
-                                    LimitIndex += 1;
-                                }
-
-                                for (int i = AddressButtonList.Count - 1; i >= LimitIndex; i--)
-                                {
-                                    AddressButtonList.RemoveAt(i);
-                                }
-                            }
-
-                            if (!Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
-                            {
-                                string BaseString = IntersectList.Count > 1 ? string.Join('\\', CurrentSplit.Take(IntersectList.Count)) : $"{CurrentSplit.First()}\\";
-
-                                PathAnalysis Analysis = new PathAnalysis(Path, BaseString);
-
-                                while (Analysis.HasNextLevel)
-                                {
-                                    AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
-                                }
-                            }
-                        }
-                    }
+                    });
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, $"{nameof(RefreshAddressButton)} throw an exception");
-                }
-                finally
-                {
-                    Interlocked.Exchange(ref AddressButtonLockResource, 0);
                 }
             }
         }
@@ -1532,7 +1523,7 @@ namespace RX_Explorer.View
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                if (Interlocked.Exchange(ref SearchTextChangeLockResource, 1) == 0)
+                SearchTextExecution.Execute(() =>
                 {
                     try
                     {
@@ -1546,16 +1537,11 @@ namespace RX_Explorer.View
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        SearchSuggestionList.Clear();
-                        LogTracer.Log(ex, "Could not load search history");
+                        //No need to handle this exception
                     }
-                    finally
-                    {
-                        Interlocked.Exchange(ref SearchTextChangeLockResource, 0);
-                    }
-                }
+                });
             }
         }
 
@@ -1925,7 +1911,7 @@ namespace RX_Explorer.View
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                if (Interlocked.Exchange(ref AddressTextChangeLockResource, 1) == 0)
+                await AddressTextExecution.ExecuteAsync(async () =>
                 {
                     AddressSuggestionList.Clear();
 
@@ -2020,11 +2006,7 @@ namespace RX_Explorer.View
                     {
                         LogTracer.Log(ex, "Could not generate the suggestion list of address box");
                     }
-                    finally
-                    {
-                        Interlocked.Exchange(ref AddressTextChangeLockResource, 0);
-                    }
-                }
+                });
             }
         }
 
@@ -2710,9 +2692,9 @@ namespace RX_Explorer.View
 
         public async Task CreateNewBladeAsync(string ItemPath)
         {
-            if (Interlocked.Exchange(ref CreateBladeLockResource, 1) == 0)
+            try
             {
-                try
+                await CreateBladeExecution.ExecuteAsync(async () =>
                 {
                     FilePresenter Presenter = new FilePresenter(this);
 
@@ -2804,15 +2786,11 @@ namespace RX_Explorer.View
 
                         await Dialog.ShowAsync();
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An exception was threw when creating new blade");
-                }
-                finally
-                {
-                    Interlocked.Exchange(ref CreateBladeLockResource, 0);
-                }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw when creating new blade");
             }
         }
 

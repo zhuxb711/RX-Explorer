@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.UI.Input;
@@ -15,6 +14,25 @@ namespace RX_Explorer.Class
 {
     public sealed class ListViewBaseSelectionExtension : IDisposable
     {
+        private bool IsDisposed;
+        private ListViewBase View;
+        private Rectangle RectangleInCanvas;
+        private Point AbsStartPoint;
+        private ScrollViewer InnerScrollView;
+        private ScrollBar InnerScrollBar;
+
+        private readonly PointerEventHandler PointerPressedHandler;
+        private readonly PointerEventHandler PointerReleasedHandler;
+        private readonly PointerEventHandler PointerCaptureLostHandler;
+        private readonly PointerEventHandler PointerCanceledHandler;
+        private readonly PointerEventHandler PointerMovedHandler;
+        private readonly InterlockedNoReentryExecution PointerMoveExecution = new InterlockedNoReentryExecution();
+        private readonly List<KeyValuePair<object, Rect>> AbsItemLocationRecord = new List<KeyValuePair<object, Rect>>();
+
+        public bool IsEnabled { get; private set; }
+
+        public double ThresholdBorderThickness { get => 30; }
+
         public double VerticalBottomScrollThreshold => View.ActualHeight - ThresholdBorderThickness;
 
         public double VerticalTopScrollThreshold => ThresholdBorderThickness;
@@ -22,36 +40,6 @@ namespace RX_Explorer.Class
         public double HorizontalRightScrollThreshold => View.ActualWidth - ThresholdBorderThickness;
 
         public double HorizontalLeftScrollThreshold => ThresholdBorderThickness;
-
-        public double ThresholdBorderThickness { get; } = 30;
-
-        public bool IsEnabled { get; private set; }
-
-        private ListViewBase View;
-
-        private Rectangle RectangleInCanvas;
-
-        private Point AbsStartPoint;
-
-        private ScrollViewer InnerScrollView;
-
-        private ScrollBar InnerScrollBar;
-
-        private bool IsDisposed;
-
-        private int LockerResource;
-
-        private readonly List<KeyValuePair<object, Rect>> AbsItemLocationRecord = new List<KeyValuePair<object, Rect>>();
-
-        private readonly PointerEventHandler PointerPressedHandler;
-
-        private readonly PointerEventHandler PointerReleasedHandler;
-
-        private readonly PointerEventHandler PointerCaptureLostHandler;
-
-        private readonly PointerEventHandler PointerCanceledHandler;
-
-        private readonly PointerEventHandler PointerMovedHandler;
 
         public ListViewBaseSelectionExtension(ListViewBase View, Rectangle RectangleInCanvas)
         {
@@ -114,11 +102,13 @@ namespace RX_Explorer.Class
 
         private void View_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            if (IsEnabled && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && e.GetCurrentPoint(View).Properties.IsLeftButtonPressed)
+            if (IsEnabled
+                && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse
+                && e.GetCurrentPoint(View).Properties.IsLeftButtonPressed)
             {
-                if (Interlocked.Exchange(ref LockerResource, 1) == 0)
+                try
                 {
-                    try
+                    PointerMoveExecution.Execute(() =>
                     {
                         Point RelativeEndPoint = e.GetCurrentPoint(View).Position;
 
@@ -185,15 +175,11 @@ namespace RX_Explorer.Class
                                 }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex);
-                    }
-                    finally
-                    {
-                        Interlocked.Exchange(ref LockerResource, 0);
-                    }
+                    });
+                }
+                catch (Exception)
+                {
+                    //No need to handle this exception
                 }
             }
         }

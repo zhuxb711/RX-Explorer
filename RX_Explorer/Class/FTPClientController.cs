@@ -1,4 +1,5 @@
 ﻿using FluentFTP;
+using Nito.AsyncEx;
 using System;
 using System.Collections.Concurrent;
 using System.Security.Authentication;
@@ -11,10 +12,10 @@ namespace RX_Explorer.Class
     public sealed class FtpClientController : IDisposable
     {
         private bool IsDisposed;
-        private readonly Thread ProcessThread;
-        private readonly BlockingCollection<FTPTaskData> TaskCollection;
         private readonly FtpClient Client;
-        private readonly SemaphoreSlim Locker;
+        private readonly Thread ProcessThread;
+        private readonly AsyncLock Locker = new AsyncLock();
+        private readonly BlockingCollection<FTPTaskData> TaskCollection = new BlockingCollection<FTPTaskData>();
 
         public string ServerHost => Client.Host;
 
@@ -110,11 +111,9 @@ namespace RX_Explorer.Class
 
         private async Task ConnectAsync(CancellationToken CancelToken = default)
         {
-            await Locker.WaitAsync();
-
-            try
+            if (!IsAvailable)
             {
-                if (!IsAvailable)
+                using (await Locker.LockAsync())
                 {
                     foreach (FtpDataConnectionType ConnectionType in new FtpDataConnectionType[] { FtpDataConnectionType.AutoPassive, FtpDataConnectionType.AutoActive })
                     {
@@ -146,10 +145,6 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            finally
-            {
-                Locker.Release();
-            }
         }
 
         public FtpClient DangerousGetFtpClient()
@@ -169,7 +164,6 @@ namespace RX_Explorer.Class
                 TaskCollection.Dispose();
 
                 Client.Dispose();
-                Locker.Dispose();
             }
         }
 
@@ -203,14 +197,6 @@ namespace RX_Explorer.Class
             this.Password = Password;
             this.UseEncryption = UseEncryption;
 
-            Locker = new SemaphoreSlim(1, 1);
-            TaskCollection = new BlockingCollection<FTPTaskData>();
-            ProcessThread = new Thread(ProcessCore)
-            {
-                IsBackground = true,
-                Priority = ThreadPriority.Normal
-            };
-
             Client = new FtpClient(Host, Port, UserName, Password)
             {
                 Encoding = Encoding.UTF8,
@@ -224,6 +210,12 @@ namespace RX_Explorer.Class
                 RetryAttempts = 3,
                 ReadTimeout = 30000,
                 ConnectTimeout = 30000
+            };
+
+            ProcessThread = new Thread(ProcessCore)
+            {
+                IsBackground = true,
+                Priority = ThreadPriority.Normal
             };
 
             ProcessThread.Start();

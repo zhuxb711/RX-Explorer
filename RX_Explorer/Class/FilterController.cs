@@ -1,4 +1,5 @@
-﻿using RX_Explorer.View;
+﻿using Nito.AsyncEx;
+using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,13 +28,12 @@ namespace RX_Explorer.Class
         private readonly List<string> TypeFilter = new List<string>();
         private readonly List<FileSystemStorageItemBase> OriginCopy = new List<FileSystemStorageItemBase>();
         private readonly Dictionary<string, string> DisplayTypeList = new Dictionary<string, string>();
-        private readonly SemaphoreSlim SourceChangeLock = new SemaphoreSlim(1, 1);
+        private readonly AsyncLock SourceChangeLock = new AsyncLock();
 
         private DateTimeOffset? fromDate;
         private DateTimeOffset fromDateMax = DateTimeOffset.Now;
         private DateTimeOffset? toDate;
         private string regexExpression;
-        private bool IsDisposed;
 
         private bool nameFilterCheckBox1;
         private bool nameFilterCheckBox2;
@@ -757,27 +757,23 @@ namespace RX_Explorer.Class
 
         public async Task SetDataSourceAsync(IEnumerable<FileSystemStorageItemBase> DataSource)
         {
-            IReadOnlyList<FileSystemStorageItemBase> DataSourceCopy = new List<FileSystemStorageItemBase>(DataSource);
-
-            await SourceChangeLock.WaitAsync();
-
-            try
+            using (await SourceChangeLock.LockAsync())
             {
                 Dictionary<string, string> LocalDisplayTypeList = new Dictionary<string, string>();
 
-                if (DataSourceCopy.OfType<FileSystemStorageFolder>().Any())
+                if (DataSource.OfType<FileSystemStorageFolder>().Any())
                 {
                     LocalDisplayTypeList.Add(Globalization.GetString("Folder_Admin_DisplayType"), Globalization.GetString("Folder_Admin_DisplayType"));
                 }
 
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    foreach (string Extension in DataSourceCopy.OfType<FileSystemStorageFile>()
-                                                               .Select((Source) => Source.Type)
-                                                               .Where((Type) => !string.IsNullOrWhiteSpace(Type))
-                                                               .Distinct()
-                                                               .OrderByFastStringSortAlgorithm((Type) => Type, SortDirection.Ascending)
-                                                               .ToArray())
+                    foreach (string Extension in DataSource.OfType<FileSystemStorageFile>()
+                                                           .Select((Source) => Source.Type)
+                                                           .Where((Type) => !string.IsNullOrWhiteSpace(Type))
+                                                           .Distinct()
+                                                           .OrderByFastStringSortAlgorithm((Type) => Type, SortDirection.Ascending)
+                                                           .ToArray())
                     {
                         if (DisplayTypeList.TryGetValue(Extension, out string DisplayName))
                         {
@@ -791,15 +787,11 @@ namespace RX_Explorer.Class
                 }
 
                 OriginCopy.Clear();
-                OriginCopy.AddRange(DataSourceCopy);
+                OriginCopy.AddRange(DataSource);
                 DisplayTypeList.Clear();
                 DisplayTypeList.AddRange(LocalDisplayTypeList);
 
                 ResetAllSettings();
-            }
-            finally
-            {
-                SourceChangeLock.Release();
             }
         }
 

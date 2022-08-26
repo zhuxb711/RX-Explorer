@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
+using Nito.AsyncEx;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using SharedLibrary;
@@ -924,12 +925,14 @@ namespace RX_Explorer.View
         private long ColorPickerChangeRegisterToken3;
         private long ColorPickerChangeRegisterToken4;
         private long ColorPickerChangeRegisterToken5;
+        private bool RefreshTreeViewAndPresenterOnClose;
+
+        private readonly AsyncLock SyncLocker = new AsyncLock();
+        private readonly AsyncLock ApplySettingLocker = new AsyncLock();
+
         private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
         private readonly ObservableCollection<TerminalProfile> TerminalList = new ObservableCollection<TerminalProfile>();
-        private int AnimationLocker = 0;
-        private bool RefreshTreeViewAndPresenterOnClose;
-        private readonly SemaphoreSlim ApplySettingLocker = new SemaphoreSlim(1, 1);
-        private readonly SemaphoreSlim SyncLocker = new SemaphoreSlim(1, 1);
+        private readonly InterlockedNoReentryExecution AnimationExecution = new InterlockedNoReentryExecution();
 
         public SettingPage()
         {
@@ -1042,9 +1045,9 @@ namespace RX_Explorer.View
 
         public async Task ShowAsync()
         {
-            if (Interlocked.CompareExchange(ref AnimationLocker, 1, 0) == 0)
+            try
             {
-                try
+                await AnimationExecution.ExecuteAsync(async () =>
                 {
                     IsOpened = true;
                     Visibility = Visibility.Visible;
@@ -1054,23 +1057,19 @@ namespace RX_Explorer.View
                         await Task.WhenAll(ActivateAnimation(RootGrid, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, false),
                                            ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 350, false));
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An exception was threw in {nameof(ShowAsync)}");
-                }
-                finally
-                {
-                    Interlocked.Exchange(ref AnimationLocker, 0);
-                }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ShowAsync)}");
             }
         }
 
         public async Task HideAsync()
         {
-            if (Interlocked.CompareExchange(ref AnimationLocker, 1, 0) == 0)
+            try
             {
-                try
+                await AnimationExecution.ExecuteAsync(async () =>
                 {
                     if (AnimationController.Current.IsEnableAnimation)
                     {
@@ -1080,15 +1079,11 @@ namespace RX_Explorer.View
 
                     IsOpened = false;
                     Visibility = Visibility.Collapsed;
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An exception was threw in {nameof(HideAsync)}");
-                }
-                finally
-                {
-                    Interlocked.Exchange(ref AnimationLocker, 0);
-                }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(HideAsync)}");
             }
         }
 
@@ -1155,135 +1150,132 @@ namespace RX_Explorer.View
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
-            await SyncLocker.WaitAsync();
-
-            try
+            using (await SyncLocker.LockAsync())
             {
-                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
+                try
                 {
-                    IEnumerable<TerminalProfile> CurrentTerminalProfiles = SQLite.Current.GetAllTerminalProfile();
-
-                    foreach (TerminalProfile NewProfile in CurrentTerminalProfiles.Except(TerminalList).ToArray())
+                    await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                     {
-                        TerminalList.Add(NewProfile);
-                    }
+                        IEnumerable<TerminalProfile> CurrentTerminalProfiles = SQLite.Current.GetAllTerminalProfile();
 
-                    foreach (TerminalProfile RemoveProfile in TerminalList.Except(CurrentTerminalProfiles).ToArray())
-                    {
-                        TerminalList.Remove(RemoveProfile);
-                    }
-
-                    await ApplyLocalSettingsAsync();
-
-                    if (UIMode.SelectedIndex == BackgroundController.Current.CurrentType switch
-                    {
-                        BackgroundBrushType.DefaultAcrylic => 0,
-                        BackgroundBrushType.SolidColor => 1,
-                        _ => 2
-                    })
-                    {
-                        switch (BackgroundController.Current.CurrentType)
+                        foreach (TerminalProfile NewProfile in CurrentTerminalProfiles.Except(TerminalList).ToArray())
                         {
-                            case BackgroundBrushType.SolidColor:
-                                {
-                                    if (ApplicationData.Current.LocalSettings.Values["SolidColorType"] is string ColorType)
-                                    {
-                                        if (ColorType == Colors.White.ToString())
-                                        {
-                                            SolidColor_White.IsChecked = true;
-                                        }
-                                        else
-                                        {
-                                            SolidColor_Black.IsChecked = true;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        SolidColor_FollowSystem.IsChecked = true;
-                                    }
+                            TerminalList.Add(NewProfile);
+                        }
 
-                                    break;
-                                }
-                            case BackgroundBrushType.CustomAcrylic:
-                                {
-                                    if (AcrylicMode.IsChecked.GetValueOrDefault())
-                                    {
-                                        PreventFallBack.IsChecked = IsPreventAcrylicFallbackEnabled;
-                                    }
-                                    else
-                                    {
-                                        AcrylicMode.IsChecked = true;
-                                    }
+                        foreach (TerminalProfile RemoveProfile in TerminalList.Except(CurrentTerminalProfiles).ToArray())
+                        {
+                            TerminalList.Remove(RemoveProfile);
+                        }
 
-                                    break;
-                                }
-                            case BackgroundBrushType.BingPicture:
-                                {
-                                    BingPictureMode.IsChecked = true;
-                                    break;
-                                }
-                            case BackgroundBrushType.Mica:
-                                {
-                                    MicaMode.IsChecked = true;
-                                    break;
-                                }
-                            case BackgroundBrushType.Picture:
-                                {
-                                    if (PictureMode.IsChecked.GetValueOrDefault())
+                        await ApplyLocalSettingsAsync();
+
+                        if (UIMode.SelectedIndex == BackgroundController.Current.CurrentType switch
+                        {
+                            BackgroundBrushType.DefaultAcrylic => 0,
+                            BackgroundBrushType.SolidColor => 1,
+                            _ => 2
+                        })
+                        {
+                            switch (BackgroundController.Current.CurrentType)
+                            {
+                                case BackgroundBrushType.SolidColor:
                                     {
-                                        if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Uri)
+                                        if (ApplicationData.Current.LocalSettings.Values["SolidColorType"] is string ColorType)
                                         {
-                                            if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
+                                            if (ColorType == Colors.White.ToString())
                                             {
-                                                PictureGirdView.SelectedItem = PictureItem;
+                                                SolidColor_White.IsChecked = true;
                                             }
                                             else
                                             {
-                                                try
-                                                {
-                                                    if (await BackgroundPicture.CreateAsync(new Uri(Uri)) is BackgroundPicture Picture)
-                                                    {
-                                                        if (!PictureList.Contains(Picture))
-                                                        {
-                                                            PictureList.Add(Picture);
-                                                            PictureGirdView.UpdateLayout();
-                                                            PictureGirdView.SelectedItem = Picture;
-                                                        }
-                                                    }
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    LogTracer.Log(ex, "Sync setting failure, background picture could not be found");
-                                                }
+                                                SolidColor_Black.IsChecked = true;
                                             }
-                                        }
-                                        else if (PictureList.Count > 0)
-                                        {
-                                            PictureGirdView.SelectedIndex = 0;
                                         }
                                         else
                                         {
-                                            PictureGirdView.SelectedIndex = -1;
+                                            SolidColor_FollowSystem.IsChecked = true;
                                         }
-                                    }
-                                    else
-                                    {
-                                        PictureMode.IsChecked = true;
-                                    }
 
-                                    break;
-                                }
+                                        break;
+                                    }
+                                case BackgroundBrushType.CustomAcrylic:
+                                    {
+                                        if (AcrylicMode.IsChecked.GetValueOrDefault())
+                                        {
+                                            PreventFallBack.IsChecked = IsPreventAcrylicFallbackEnabled;
+                                        }
+                                        else
+                                        {
+                                            AcrylicMode.IsChecked = true;
+                                        }
+
+                                        break;
+                                    }
+                                case BackgroundBrushType.BingPicture:
+                                    {
+                                        BingPictureMode.IsChecked = true;
+                                        break;
+                                    }
+                                case BackgroundBrushType.Mica:
+                                    {
+                                        MicaMode.IsChecked = true;
+                                        break;
+                                    }
+                                case BackgroundBrushType.Picture:
+                                    {
+                                        if (PictureMode.IsChecked.GetValueOrDefault())
+                                        {
+                                            if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Uri)
+                                            {
+                                                if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
+                                                {
+                                                    PictureGirdView.SelectedItem = PictureItem;
+                                                }
+                                                else
+                                                {
+                                                    try
+                                                    {
+                                                        if (await BackgroundPicture.CreateAsync(new Uri(Uri)) is BackgroundPicture Picture)
+                                                        {
+                                                            if (!PictureList.Contains(Picture))
+                                                            {
+                                                                PictureList.Add(Picture);
+                                                                PictureGirdView.UpdateLayout();
+                                                                PictureGirdView.SelectedItem = Picture;
+                                                            }
+                                                        }
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        LogTracer.Log(ex, "Sync setting failure, background picture could not be found");
+                                                    }
+                                                }
+                                            }
+                                            else if (PictureList.Count > 0)
+                                            {
+                                                PictureGirdView.SelectedIndex = 0;
+                                            }
+                                            else
+                                            {
+                                                PictureGirdView.SelectedIndex = -1;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            PictureMode.IsChecked = true;
+                                        }
+
+                                        break;
+                                    }
+                            }
                         }
-                    }
-                });
-            }
-            catch (Exception)
-            {
-                //No need to handle this exception
-            }
-            finally
-            {
-                SyncLocker.Release();
+                    });
+                }
+                catch (Exception)
+                {
+                    //No need to handle this exception
+                }
             }
         }
 
@@ -1340,9 +1332,7 @@ namespace RX_Explorer.View
 
         private async Task ApplyLocalSettingsAsync()
         {
-            await ApplySettingLocker.WaitAsync();
-
-            try
+            using (await ApplySettingLocker.LockAsync())
             {
                 DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
                 UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
@@ -1594,10 +1584,6 @@ namespace RX_Explorer.View
                 ColorPickerChangeRegisterToken3 = PredefineTagColorPicker2.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker2SelectedColorChanged));
                 ColorPickerChangeRegisterToken4 = PredefineTagColorPicker3.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker3SelectedColorChanged));
                 ColorPickerChangeRegisterToken5 = PredefineTagColorPicker4.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker4SelectedColorChanged));
-            }
-            finally
-            {
-                ApplySettingLocker.Release();
             }
         }
 

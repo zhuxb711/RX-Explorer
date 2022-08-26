@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Deferred;
+using Nito.AsyncEx;
 using RX_Explorer.View;
 using System;
 using System.Collections.Concurrent;
@@ -22,34 +23,31 @@ namespace RX_Explorer.Class
 {
     public static class CommonAccessCollection
     {
-        public static ObservableCollection<DriveDataBase> DriveList { get; } = new ObservableCollection<DriveDataBase>();
-        public static ObservableCollection<LibraryStorageFolder> LibraryList { get; } = new ObservableCollection<LibraryStorageFolder>();
-        public static ObservableCollection<QuickStartItem> QuickStartList { get; } = new ObservableCollection<QuickStartItem>();
-        public static ObservableCollection<QuickStartItem> WebLinkList { get; } = new ObservableCollection<QuickStartItem>();
+        private static int IsDriveLoaded;
+        private static int IsLibraryLoaded;
+        private static int IsQuickStartLoaded;
 
         private static readonly List<FileSystemStorageFolder> DriveCache = new List<FileSystemStorageFolder>();
-
-        private static readonly DeviceWatcher PortalDriveWatcher = DeviceInformation.CreateWatcher(DeviceInformation.GetAqsFilterFromDeviceClass(DeviceClass.PortableStorageDevice), new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
+        private static readonly AsyncLock DriveChangeLocker = new AsyncLock();
+        private static readonly AsyncLock LibraryChangeLocker = new AsyncLock();
+        private static readonly DeviceWatcher PortalDriveWatcher = DeviceInformation.CreateWatcher(DeviceInformation.GetAqsFilterFromDeviceClass(DeviceClass.PortableStorageDevice),
+                                                                                                   new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
         private static readonly Timer NetworkDriveCheckTimer = new Timer(5000)
         {
             AutoReset = true,
             Enabled = true
         };
 
+        public static ObservableCollection<DriveDataBase> DriveList { get; } = new ObservableCollection<DriveDataBase>();
+        public static ObservableCollection<LibraryStorageFolder> LibraryList { get; } = new ObservableCollection<LibraryStorageFolder>();
+        public static ObservableCollection<QuickStartItem> QuickStartList { get; } = new ObservableCollection<QuickStartItem>();
+        public static ObservableCollection<QuickStartItem> WebLinkList { get; } = new ObservableCollection<QuickStartItem>();
+
         public static event EventHandler<DriveChangedDeferredEventArgs> DriveChanged;
 
         public static event EventHandler<LibraryChangedDeferredEventArgs> LibraryChanged;
 
         public static event EventHandler<IEnumerable<string>> LibraryNotFound;
-
-        private static readonly SemaphoreSlim DriveChangeLocker = new SemaphoreSlim(1, 1);
-
-        private static readonly SemaphoreSlim LibraryChangeLocker = new SemaphoreSlim(1, 1);
-
-        private static int IsDriveLoaded;
-        private static int IsLibraryLoaded;
-        private static int IsQuickStartLoaded;
 
         public static async Task LoadQuickStartItemsAsync()
         {
@@ -378,9 +376,7 @@ namespace RX_Explorer.Class
 
         private async static void DriveList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            await DriveChangeLocker.WaitAsync();
-
-            try
+            using (await DriveChangeLocker.LockAsync())
             {
                 switch (e.Action)
                 {
@@ -421,10 +417,6 @@ namespace RX_Explorer.Class
                         }
                 }
 
-            }
-            finally
-            {
-                DriveChangeLocker.Release();
             }
         }
 
@@ -518,11 +510,9 @@ namespace RX_Explorer.Class
 
         private static async void LibraryFolderList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            await LibraryChangeLocker.WaitAsync();
-
-            try
+            if (LibraryChanged != null)
             {
-                if (LibraryChanged != null)
+                using (await LibraryChangeLocker.LockAsync())
                 {
                     switch (e.Action)
                     {
@@ -546,10 +536,6 @@ namespace RX_Explorer.Class
                             }
                     }
                 }
-            }
-            finally
-            {
-                LibraryChangeLocker.Release();
             }
         }
     }

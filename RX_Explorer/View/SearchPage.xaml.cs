@@ -33,6 +33,13 @@ namespace RX_Explorer.View
 {
     public sealed partial class SearchPage : Page
     {
+        private SortTarget STarget;
+        private SortDirection SDirection;
+
+        private string LastPressString;
+        private bool BlockKeyboardShortCutInput;
+        private DateTimeOffset LastPressTime;
+
         private CancellationTokenSource SearchCancellation;
         private CancellationTokenSource DelayDragCancellation;
         private CancellationTokenSource DelaySelectionCancellation;
@@ -46,14 +53,7 @@ namespace RX_Explorer.View
         private readonly ObservableCollection<FileSystemStorageItemBase> SearchResult = new ObservableCollection<FileSystemStorageItemBase>();
         private readonly SignalContext SignalControl = new SignalContext();
         private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Search);
-
-        private SortTarget STarget;
-        private SortDirection SDirection;
-
-        private DateTimeOffset LastPressTime;
-        private string LastPressString;
-        private bool BlockKeyboardShortCutInput;
-        private int HeaderClickLocker;
+        private readonly InterlockedNoReentryExecution HeaderClickExecution = new InterlockedNoReentryExecution();
 
         public SearchPage()
         {
@@ -815,11 +815,11 @@ namespace RX_Explorer.View
 
         private async void ListHeader_Click(object sender, RoutedEventArgs e)
         {
-            if (Interlocked.Exchange(ref HeaderClickLocker, 1) == 0)
+            try
             {
-                try
+                if (sender is Button Btn)
                 {
-                    if (sender is Button Btn)
+                    await HeaderClickExecution.ExecuteAsync(async () =>
                     {
                         using (IDisposable Disposable = await SignalControl.SignalAndWaitTrappedAsync())
                         {
@@ -850,16 +850,12 @@ namespace RX_Explorer.View
                             SearchResult.Clear();
                             SearchResult.AddRange(SortResult);
                         }
-                    }
+                    });
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An exception was threw in {nameof(ListHeader_Click)}");
-                }
-                finally
-                {
-                    Interlocked.Exchange(ref HeaderClickLocker, 0);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ListHeader_Click)}");
             }
         }
 
@@ -1558,7 +1554,7 @@ namespace RX_Explorer.View
                                                         await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(OriginItem.Path));
                                                     }
                                                 }
-                                                else if(Presenter.CurrentFolder is INotWin32StorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                                else if (Presenter.CurrentFolder is INotWin32StorageFolder && Presenter.CurrentFolder.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     await Presenter.AreaWatcher.InvokeRenamedEventManuallyAsync(new FileRenamedDeferredEventArgs(OriginItem.Path, NewName));
                                                 }

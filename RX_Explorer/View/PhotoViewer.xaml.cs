@@ -29,12 +29,12 @@ namespace RX_Explorer.View
     public sealed partial class PhotoViewer : Page
     {
         private int LastSelectIndex;
-        private int RotationLocker;
         private Point LastZoomCenter;
         private IDisposable MTPEndOfShare;
         private CancellationTokenSource Cancellation;
         private CancellationTokenSource SingleClickCancellation;
         private readonly ObservableCollection<PhotoDisplayItem> PhotoCollection;
+        private readonly InterlockedNoReentryExecution RotationExecution = new InterlockedNoReentryExecution();
 
         public PhotoViewer()
         {
@@ -211,9 +211,9 @@ namespace RX_Explorer.View
         {
             if (PhotoGirdView.SelectedItem is PhotoDisplayItem Item)
             {
-                if (Interlocked.CompareExchange(ref RotationLocker, 1, 0) == 0)
+                try
                 {
-                    try
+                    await RotationExecution.ExecuteAsync(async () =>
                     {
                         if (PhotoFlip.ContainerFromItem(Item)?.FindChildOfType<Image>() is Image ImageControl)
                         {
@@ -236,24 +236,20 @@ namespace RX_Explorer.View
                         }
 
                         await Task.WhenAll(Item.GenerateActualSourceAsync(true), Item.GenerateThumbnailAsync(true));
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Could not rotate the image");
+                    });
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not rotate the image");
 
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_RotationFailed_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        await Dialog.ShowAsync();
-                    }
-                    finally
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        Interlocked.Exchange(ref RotationLocker, 0);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_RotationFailed_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
                 }
             }
         }

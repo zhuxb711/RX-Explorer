@@ -54,13 +54,21 @@ namespace RX_Explorer.View
 {
     public sealed partial class FilePresenter : Page, IDisposable
     {
-        private string LastPressString;
         private bool isGroupedEnabled;
+        private string LastPressString;
+        private DateTimeOffset LastPressTime;
+
+        private CommandBarFlyout FileFlyout;
+        private CommandBarFlyout FolderFlyout;
+        private CommandBarFlyout LinkFlyout;
+        private CommandBarFlyout MixedFlyout;
+        private CommandBarFlyout EmptyFlyout;
+        private CommandBarFlyout LabelFolderEmptyFlyout;
+
         private ListViewBase itemPresenter;
         private FileSystemStorageFolder currentFolder;
         private WiFiShareProvider WiFiProvider;
         private ListViewBaseSelectionExtension SelectionExtension;
-        private DateTimeOffset LastPressTime;
         private CancellationTokenSource DelayRenameCancellation;
         private CancellationTokenSource DelayEnterCancellation;
         private CancellationTokenSource DelaySelectionCancellation;
@@ -68,20 +76,16 @@ namespace RX_Explorer.View
         private CancellationTokenSource DelayTooltipCancellation;
         private CancellationTokenSource ContextMenuCancellation;
         private CancellationTokenSource DisplayItemsCancellation;
-        private CommandBarFlyout FileFlyout;
-        private CommandBarFlyout FolderFlyout;
-        private CommandBarFlyout LinkFlyout;
-        private CommandBarFlyout MixedFlyout;
-        private CommandBarFlyout EmptyFlyout;
-        private CommandBarFlyout LabelFolderEmptyFlyout;
+
         private readonly FileControl Container;
-        private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Presenter);
-        private readonly AsyncLock DisplayItemLock = new AsyncLock();
-        private readonly AsyncLock CollectionChangeLock = new AsyncLock();
-        private readonly ObservableCollection<FileSystemStorageGroupItem> GroupCollection = new ObservableCollection<FileSystemStorageGroupItem>();
-        private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
         private readonly PointerEventHandler PointerPressedEventHandler;
         private readonly PointerEventHandler PointerReleasedEventHandler;
+
+        private readonly AsyncLock DisplayItemLock = new AsyncLock();
+        private readonly AsyncLock CollectionChangeLock = new AsyncLock();
+        private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Presenter);
+        private readonly ObservableCollection<FileSystemStorageGroupItem> GroupCollection = new ObservableCollection<FileSystemStorageGroupItem>();
+        private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
 
         public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; } = new ObservableCollection<FileSystemStorageItemBase>();
 

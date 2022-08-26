@@ -1,8 +1,8 @@
-﻿using RX_Explorer.Dialog;
+﻿using Nito.AsyncEx;
+using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
@@ -12,79 +12,71 @@ namespace RX_Explorer.Class
 {
     public static class FtpClientManager
     {
+        private static readonly AsyncLock GetLocker = new AsyncLock();
+        private static readonly AsyncLock CreateLocker = new AsyncLock();
         private static readonly List<FtpClientController> ControllerList = new List<FtpClientController>();
-
-        private static readonly SemaphoreSlim GetLocker = new SemaphoreSlim(1, 1);
-
-        private static readonly SemaphoreSlim CreateLocker = new SemaphoreSlim(1, 1);
 
         public static async Task<FtpClientController> CreateClientControllerAsync(FtpPathAnalysis Analysis)
         {
-            await CreateLocker.WaitAsync();
-
-            try
+            using (await CreateLocker.LockAsync())
             {
-                FtpClientController NewClient = await CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
+                try
                 {
-                    FTPCredentialDialog Dialog = new FTPCredentialDialog(Analysis);
-
-                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    FtpClientController NewClient = await CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
                     {
-                        return Dialog.FtpController;
+                        FTPCredentialDialog Dialog = new FTPCredentialDialog(Analysis);
+
+                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            return Dialog.FtpController;
+                        }
+
+                        return null;
+                    });
+
+                    if (NewClient != null)
+                    {
+                        ControllerList.Add(NewClient);
                     }
 
-                    return null;
-                });
-
-                if (NewClient != null)
+                    return NewClient;
+                }
+                catch (Exception ex)
                 {
-                    ControllerList.Add(NewClient);
+                    LogTracer.Log(ex, "Could not get the ftp client as expected");
                 }
 
-                return NewClient;
+                return null;
             }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not get the ftp client as expected");
-            }
-            finally
-            {
-                CreateLocker.Release();
-            }
-
-            return null;
         }
 
         public static async Task<FtpClientController> GetClientControllerAsync(FtpPathAnalysis Analysis)
         {
-            await GetLocker.WaitAsync();
-
-            try
+            using (await GetLocker.LockAsync())
             {
-                if (ControllerList.FirstOrDefault((Controller) => Controller.ServerHost == Analysis.Host && Controller.ServerPort == Analysis.Port) is FtpClientController ExistController)
+                try
                 {
-                    try
+                    if (ControllerList.FirstOrDefault((Controller) => Controller.ServerHost == Analysis.Host && Controller.ServerPort == Analysis.Port) is FtpClientController ExistController)
                     {
-                        return await FtpClientController.MakeSureConnectionAndCloseOnceFailedAsync(ExistController);
-                    }
-                    catch (Exception)
-                    {
-                        ControllerList.Remove(ExistController);
-                    }
+                        try
+                        {
+                            return await FtpClientController.MakeSureConnectionAndCloseOnceFailedAsync(ExistController);
+                        }
+                        catch (Exception)
+                        {
+                            ControllerList.Remove(ExistController);
+                        }
 
-                    return await CreateClientControllerAsync(Analysis);
+                        return await CreateClientControllerAsync(Analysis);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not get the ftp client as expected");
-            }
-            finally
-            {
-                GetLocker.Release();
-            }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not get the ftp client as expected");
+                }
 
-            return null;
+                return null;
+            }
         }
 
         public static async Task CloseAllClientAsync()
