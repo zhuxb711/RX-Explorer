@@ -85,7 +85,7 @@ namespace RX_Explorer.View
 
             AppBarButton RemovePinButton = new AppBarButton
             {
-                Icon = new FontIcon { FontFamily = new FontFamily("Segoe MDL2 Assets"), Glyph = "\uE8D9" }
+                Icon = new FontIcon { Glyph = "\uE8D9" }
             };
             ToolTipService.SetToolTip(RemovePinButton, Globalization.GetString("Operate_Text_Unpin"));
             RemovePinButton.Click += RemovePin_Click;

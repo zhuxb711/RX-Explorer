@@ -3736,4 +3736,10 @@ Invalid names include
   <data name="SettingExpandTreeViewAsContentChangedLabel.Text" xml:space="preserve">
     <value>Follow expansion to current location</value>
   </data>
+  <data name="SettingDisplayLabelFolderInQuickAccessNodeContent.Text" xml:space="preserve">
+    <value>When this option is enabled, an aggregated virtual folder of all label files will be displayed under the Quick Access node</value>
+  </data>
+  <data name="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" xml:space="preserve">
+    <value>Show label folders in Quick Access node</value>
+  </data>
 </root>

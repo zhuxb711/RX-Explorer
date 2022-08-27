@@ -58,7 +58,7 @@ namespace RX_Explorer.Class
         {
             Folder = null;
 
-            if (Path.StartsWith("LabelCollectionFolderUniquePath_"))
+            if ((Path?.StartsWith("LabelCollectionFolderUniquePath_")).GetValueOrDefault())
             {
                 if (Enum.TryParse(Path.Split('_', StringSplitOptions.RemoveEmptyEntries).LastOrDefault(), out LabelKind Kind))
                 {

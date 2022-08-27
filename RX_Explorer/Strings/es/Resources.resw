@@ -3631,4 +3631,10 @@ Las denominaciones no válidas son:
   <data name="SettingExpandTreeViewAsContentChangedLabel.Text" xml:space="preserve">
     <value>Seguir la expansión a la ubicación actual</value>
   </data>
+  <data name="SettingDisplayLabelFolderInQuickAccessNodeContent.Text" xml:space="preserve">
+    <value>Cuando esta opción está habilitada, se mostrará una carpeta virtual agregada de todos los archivos de etiquetas en el nodo Acceso rápido</value>
+  </data>
+  <data name="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" xml:space="preserve">
+    <value>Mostrar carpetas de etiquetas en el nodo de acceso rápido</value>
+  </data>
 </root>

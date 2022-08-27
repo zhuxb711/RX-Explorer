@@ -4822,6 +4822,14 @@ Les noms non valides incluent
           <source>Follow expansion to current location</source>
           <target state="translated">Suivre l'expansion jusqu'à l'emplacement actuel</target>
         </trans-unit>
+        <trans-unit id="SettingDisplayLabelFolderInQuickAccessNodeContent.Text" translate="yes" xml:space="preserve">
+          <source>When this option is enabled, an aggregated virtual folder of all label files will be displayed under the Quick Access node</source>
+          <target state="translated">Lorsque cette option est activée, un dossier virtuel agrégé de tous les fichiers d'étiquettes sera affiché sous le nœud Accès rapide</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" translate="yes" xml:space="preserve">
+          <source>Show label folders in Quick Access node</source>
+          <target state="translated">Afficher les dossiers d'étiquettes dans le nœud d'accès rapide</target>
+        </trans-unit>
       </group>
     </body>
   </file>

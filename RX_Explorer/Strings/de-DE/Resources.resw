@@ -3631,4 +3631,10 @@ Inkorrekte Namen sind
   <data name="SettingExpandTreeViewAsContentChangedLabel.Text" xml:space="preserve">
     <value>Folgen Sie der Erweiterung bis zum aktuellen Standort</value>
   </data>
+  <data name="SettingDisplayLabelFolderInQuickAccessNodeContent.Text" xml:space="preserve">
+    <value>Wenn diese Option aktiviert ist, wird ein aggregierter virtueller Ordner aller Etikettendateien unter dem Knoten Schnellzugriff angezeigt</value>
+  </data>
+  <data name="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" xml:space="preserve">
+    <value>Etikettenordner im Schnellzugriffsknoten anzeigen</value>
+  </data>
 </root>

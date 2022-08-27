@@ -13,7 +13,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
@@ -887,8 +886,14 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    ReaderOptions ReadOptions = new ReaderOptions();
-                    ReadOptions.ArchiveEncoding.Default = EncodingSetting;
+                    ReaderOptions ReadOptions = new ReaderOptions
+                    {
+                        LookForHeader = true,
+                        ArchiveEncoding = new ArchiveEncoding
+                        {
+                            Default = EncodingSetting
+                        }
+                    };
 
                     using (Stream InputStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                     using (IReader Reader = ReaderFactory.Open(InputStream, ReadOptions))

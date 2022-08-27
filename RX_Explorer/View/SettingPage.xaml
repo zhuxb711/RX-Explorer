@@ -517,9 +517,11 @@
                                                               IsEnabled="{x:Bind TreeViewDetach.IsOn,Mode=OneWay}">
                                                         <StackPanel>
                                                             <TextBlock Text="在快速访问节点中显示标签文件夹"
+                                                                       x:Uid="SettingDisplayLabelFolderInQuickAccessNodeLabel"
                                                                        TextTrimming="CharacterEllipsis" />
                                                             <TextBlock Text="启用此选项后将在快速访问节点下显示所有带有标签的文件的聚合虚拟文件夹"
                                                                        FontSize="12"
+                                                                       x:Uid="SettingDisplayLabelFolderInQuickAccessNodeContent"
                                                                        Foreground="Gray"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        TextWrapping="WrapWholeWords" />

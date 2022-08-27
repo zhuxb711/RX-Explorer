@@ -3629,4 +3629,10 @@ Les noms non valides incluent
   <data name="SettingExpandTreeViewAsContentChangedLabel.Text" xml:space="preserve">
     <value>Suivre l'expansion jusqu'à l'emplacement actuel</value>
   </data>
+  <data name="SettingDisplayLabelFolderInQuickAccessNodeContent.Text" xml:space="preserve">
+    <value>Lorsque cette option est activée, un dossier virtuel agrégé de tous les fichiers d'étiquettes sera affiché sous le nœud Accès rapide</value>
+  </data>
+  <data name="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" xml:space="preserve">
+    <value>Afficher les dossiers d'étiquettes dans le nœud d'accès rapide</value>
+  </data>
 </root>

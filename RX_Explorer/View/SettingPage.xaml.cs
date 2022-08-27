@@ -1012,21 +1012,17 @@ namespace RX_Explorer.View
 
             switch (Type)
             {
-                case BackgroundBrushType.DefaultAcrylic:
-                    {
-                        break;
-                    }
                 case BackgroundBrushType.CustomAcrylic:
                     {
                         PreventFallBack.IsEnabled = true;
                         TintOpacitySlider.IsEnabled = true;
                         AcrylicColorPicker.IsEnabled = true;
                         TintLuminositySlider.IsEnabled = true;
-                        TintOpacitySliderLabel.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
-                        TintOpacitySliderValueText.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
-                        AccentColorLabel.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
-                        TintLuminositySliderLabel.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
-                        TintLuminositySliderValueText.Foreground = Application.Current.Resources["DefaultTextForegroundThemeBrush"] as Brush;
+                        TintOpacitySliderLabel.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
+                        TintOpacitySliderValueText.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
+                        AccentColorLabel.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
+                        TintLuminositySliderLabel.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
+                        TintLuminositySliderValueText.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
                         break;
                     }
                 case BackgroundBrushType.BingPicture:
@@ -1226,17 +1222,17 @@ namespace RX_Explorer.View
                                     {
                                         if (PictureMode.IsChecked.GetValueOrDefault())
                                         {
-                                            if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Uri)
+                                            if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string UriString)
                                             {
-                                                if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
+                                                if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == UriString) is BackgroundPicture PictureItem)
                                                 {
                                                     PictureGirdView.SelectedItem = PictureItem;
                                                 }
-                                                else
+                                                else if (Uri.TryCreate(UriString, UriKind.RelativeOrAbsolute, out Uri ImageUri))
                                                 {
                                                     try
                                                     {
-                                                        if (await BackgroundPicture.CreateAsync(new Uri(Uri)) is BackgroundPicture Picture)
+                                                        if (await BackgroundPicture.CreateAsync(ImageUri) is BackgroundPicture Picture)
                                                         {
                                                             if (!PictureList.Contains(Picture))
                                                             {

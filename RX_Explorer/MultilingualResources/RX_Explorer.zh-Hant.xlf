@@ -4822,6 +4822,14 @@ Invalid names include
           <source>Follow expansion to current location</source>
           <target state="translated">跟隨擴展至當前位置</target>
         </trans-unit>
+        <trans-unit id="SettingDisplayLabelFolderInQuickAccessNodeContent.Text" translate="yes" xml:space="preserve">
+          <source>When this option is enabled, an aggregated virtual folder of all label files will be displayed under the Quick Access node</source>
+          <target state="translated">啟用此選項後，所有標籤文件的聚合虛擬文件夾將顯示在快速訪問節點下</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" translate="yes" xml:space="preserve">
+          <source>Show label folders in Quick Access node</source>
+          <target state="translated">在快速訪問節點中顯示標籤文件夾</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -36,7 +36,15 @@ namespace RX_Explorer.Class
 
         public static void Initialize()
         {
-            Application.Current.Resources["ContentControlThemeFontFamily"] = new FontFamily(Current.FamilyName);
+            try
+            {
+                Application.Current.Resources["ContentControlThemeFontFamily"] = new FontFamily(Current.FamilyName);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not implement the new font family to whole application. Falling back to default font family");
+                Application.Current.Resources["ContentControlThemeFontFamily"] = FontFamily.XamlAutoFontFamily;
+            }
         }
 
         public static InstalledFonts Transform(FontFamily Fonts)

@@ -196,7 +196,7 @@ namespace RX_Explorer.View
 
             AppBarButton RemovePinButton = new AppBarButton
             {
-                Icon = new FontIcon { FontFamily = new FontFamily("Segoe MDL2 Assets"), Glyph = "\uE8D9" },
+                Icon = new FontIcon { Glyph = "\uE8D9" },
                 Visibility = Visibility.Collapsed,
                 Name = "RemovePinButton"
             };
@@ -946,7 +946,7 @@ namespace RX_Explorer.View
             }
             else
             {
-                Renderer.TabItem.IconSource = new FontIconSource { FontFamily = new FontFamily("Segoe MDL2 Assets"), Glyph = "\uE8A1" };
+                Renderer.TabItem.IconSource = new FontIconSource { Glyph = "\uE8A1" };
             }
 
             if (Renderer.TabItem.Header is TextBlock HeaderBlock)

@@ -3629,4 +3629,10 @@
   <data name="SettingExpandTreeViewAsContentChangedLabel.Text" xml:space="preserve">
     <value>跟随并展开至当前文件夹位置</value>
   </data>
+  <data name="SettingDisplayLabelFolderInQuickAccessNodeContent.Text" xml:space="preserve">
+    <value>启用此选项后将在快速访问节点下显示所有带有标签的文件的聚合虚拟文件夹</value>
+  </data>
+  <data name="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" xml:space="preserve">
+    <value>在快速访问节点中显示标签文件夹</value>
+  </data>
 </root>

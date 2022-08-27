@@ -133,7 +133,7 @@ namespace RX_Explorer.Dialog
             {
                 case 0:
                     {
-                        if (FName.Text is ".tar.gz" or ".tar.bz2" or ".zip" or ".tar" or ".gz" or ".bz2" or "")
+                        if (string.IsNullOrWhiteSpace(FName.Text) || FName.Text is ".tar.gz" or ".tar.bz2" or ".zip" or ".tar" or ".gz" or ".bz2")
                         {
                             FName.Text = (OriginItem switch
                             {
@@ -190,7 +190,7 @@ namespace RX_Explorer.Dialog
                     }
                 case 1:
                     {
-                        if (FName.Text is ".tar.gz" or ".tar.bz2" or ".zip" or ".tar" or ".gz" or ".bz2" or "")
+                        if (string.IsNullOrWhiteSpace(FName.Text) || FName.Text is ".tar.gz" or ".tar.bz2" or ".zip" or ".tar" or ".gz" or ".bz2")
                         {
                             FName.Text = (OriginItem switch
                             {
@@ -248,9 +248,9 @@ namespace RX_Explorer.Dialog
                     }
                 case 2:
                     {
-                        if (FName.Text is ".tar.gz" or ".tar.bz2" or ".zip" or ".tar" or ".gz" or ".bz2" or "")
+                        if (string.IsNullOrWhiteSpace(FName.Text) || FName.Text is ".tar.gz" or ".tar.bz2" or ".zip" or ".tar" or ".gz" or ".bz2")
                         {
-                            FName.Text = $"{(OriginItem == null ? Globalization.GetString("Compression_Admin_Name_Text") : OriginItem.Name)}.gz";
+                            FName.Text = $"{OriginItem?.Name ?? Globalization.GetString("Compression_Admin_Name_Text")}.gz";
                         }
                         else
                         {
@@ -286,9 +286,9 @@ namespace RX_Explorer.Dialog
                     }
                 case 3:
                     {
-                        if (FName.Text is ".tar.gz" or ".tar.bz2" or ".zip" or ".tar" or ".gz" or ".bz2" or "")
+                        if (string.IsNullOrWhiteSpace(FName.Text) || FName.Text is ".tar.gz" or ".tar.bz2" or ".zip" or ".tar" or ".gz" or ".bz2")
                         {
-                            FName.Text = $"{(OriginItem == null ? Globalization.GetString("Compression_Admin_Name_Text") : OriginItem.Name)}.bz2";
+                            FName.Text = $"{OriginItem?.Name ?? Globalization.GetString("Compression_Admin_Name_Text")}.bz2";
                         }
                         else
                         {

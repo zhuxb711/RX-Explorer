@@ -212,7 +212,7 @@ namespace RX_Explorer.Class
 
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            RModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"));
+                                            RModel.UpdateStatus(OperationStatus.Error, $"{Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content")} | {ex.Message}");
                                         }).AsTask().Wait();
                                     }
                                 }
@@ -298,7 +298,7 @@ namespace RX_Explorer.Class
 
                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        CModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"));
+                                        CModel.UpdateStatus(OperationStatus.Error, $"{Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content")} | {ex.Message}");
                                     }).AsTask().Wait();
                                 }
 
@@ -386,7 +386,7 @@ namespace RX_Explorer.Class
 
                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        MModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"));
+                                        MModel.UpdateStatus(OperationStatus.Error, $"{Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content")} | {ex.Message}");
                                     }).AsTask().Wait();
                                 }
 
@@ -432,7 +432,7 @@ namespace RX_Explorer.Class
 
                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        RenameModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"));
+                                        RenameModel.UpdateStatus(OperationStatus.Error, $"{Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content")} | {ex.Message}");
                                     }).AsTask().Wait();
                                 }
 
@@ -484,7 +484,7 @@ namespace RX_Explorer.Class
 
                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        DModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"));
+                                        DModel.UpdateStatus(OperationStatus.Error, $"{Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content")} | {ex.Message}");
                                     }).AsTask().Wait();
                                 }
 
@@ -585,7 +585,7 @@ namespace RX_Explorer.Class
 
                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        UndoModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UndoFailure_Content"));
+                                        UndoModel.UpdateStatus(OperationStatus.Error, $"{Globalization.GetString("QueueDialog_UndoFailure_Content")} | {ex.Message}");
                                     }).AsTask().Wait();
                                 }
 
@@ -693,7 +693,7 @@ namespace RX_Explorer.Class
 
                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        CModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CompressionError_Content"));
+                                        CModel.UpdateStatus(OperationStatus.Error, $"{Globalization.GetString("QueueDialog_CompressionError_Content")} | {ex.Message}");
                                     }).AsTask().Wait();
                                 }
 
@@ -743,7 +743,7 @@ namespace RX_Explorer.Class
 
                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        DModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DecompressionError_Content"));
+                                        DModel.UpdateStatus(OperationStatus.Error, $"{Globalization.GetString("QueueDialog_DecompressionError_Content")} | {ex.Message}");
                                     }).AsTask().Wait();
                                 }
 
@@ -788,7 +788,7 @@ namespace RX_Explorer.Class
 
                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnexpectedException_Content"));
+                    Model.UpdateStatus(OperationStatus.Error, $"{Globalization.GetString("QueueDialog_UnexpectedException_Content")} | {ex.Message}");
                 }).AsTask().Wait();
             }
             finally
