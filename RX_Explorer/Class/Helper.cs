@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RX_Explorer.View;
+using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
@@ -9,6 +10,43 @@ namespace RX_Explorer.Class
 {
     public static class Helper
     {
+        public static bool GetSuitableInnerViewerPageType(FileSystemStorageFile File, out Type PageType)
+        {
+            switch (File.Type.ToLower())
+            {
+                case ".jpg" or ".jpeg" or ".png" or ".bmp":
+                    {
+                        PageType = typeof(PhotoViewer);
+                        return true;
+                    }
+                case ".mkv" or ".mp4" or ".mp3" or ".flac" or ".wma" or ".wmv" or ".m4a" or ".mov" or ".alac":
+                    {
+                        PageType = typeof(MediaPlayer);
+                        return true;
+                    }
+                case ".txt":
+                    {
+                        PageType = typeof(TextViewer);
+                        return true;
+                    }
+                case ".pdf":
+                    {
+                        PageType = typeof(PdfReader);
+                        return true;
+                    }
+                case ".zip":
+                    {
+                        PageType = typeof(CompressionViewer);
+                        return true;
+                    }
+                default:
+                    {
+                        PageType = null;
+                        return false;
+                    }
+            }
+        }
+
         public static async Task<InMemoryRandomAccessStream> CreateRandomAccessStreamAsync(byte[] Data)
         {
             InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream();

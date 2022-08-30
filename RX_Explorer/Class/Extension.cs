@@ -517,7 +517,7 @@ namespace RX_Explorer.Class
             CleanUpContextMenuExtensionItems();
             CleanUpContextMenuOpenWithFlyoutItems();
 
-            if (SettingPage.IsParallelShowContextMenu)
+            if (SettingPage.IsParallelShowContextMenuEnabled)
             {
                 Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
                 {
@@ -805,7 +805,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            if (!SettingPage.IsParallelShowContextMenu)
+            if (!SettingPage.IsParallelShowContextMenuEnabled)
             {
                 Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
                 {
@@ -980,36 +980,28 @@ namespace RX_Explorer.Class
                     Node.Children.Remove(RemoveNode);
                 }
 
-                List<string> LabelFolderList = new List<string>(4);
-
-                //Handle for re-adding label folder specially 
-                foreach (string Path in NewChildItems.Except(OldChildItems))
+                await foreach (FileSystemStorageFolder Folder in FileSystemStorageItemBase.OpenInBatchAsync(NewChildItems.Except(OldChildItems)).OfType<FileSystemStorageFolder>())
                 {
-                    if (LabelCollectionVirtualFolder.TryGetFolderFromPath(Path, out LabelCollectionVirtualFolder LabelFolder))
+                    TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
+
+                    if (Folder is LabelCollectionVirtualFolder)
                     {
-                        LabelFolderList.Add(Path);
-
-                        TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(LabelFolder);
-
-                        Node.Children.Insert(Math.Max(0, Math.Min(LabelFolderList.Count - 1, Node.Children.Count)), new TreeViewNode
+                        Node.Children.Insert(0, new TreeViewNode
                         {
                             Content = Content,
                             HasUnrealizedChildren = Content.HasChildren,
                             IsExpanded = false
                         });
                     }
-                }
-
-                await foreach (FileSystemStorageFolder Folder in FileSystemStorageItemBase.OpenInBatchAsync(NewChildItems.Except(OldChildItems).Except(LabelFolderList)).OfType<FileSystemStorageFolder>())
-                {
-                    TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
-
-                    Node.Children.Add(new TreeViewNode
+                    else
                     {
-                        Content = Content,
-                        HasUnrealizedChildren = Content.HasChildren,
-                        IsExpanded = false
-                    });
+                        Node.Children.Add(new TreeViewNode
+                        {
+                            Content = Content,
+                            HasUnrealizedChildren = Content.HasChildren,
+                            IsExpanded = false
+                        });
+                    }
                 }
 
                 foreach (TreeViewNodeContent SameNodeContent in NewChildItems.Intersect(OldChildItems)
@@ -1043,16 +1035,14 @@ namespace RX_Explorer.Class
                             {
                                 NewChildItems = new List<string>(Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
                                                                                                   .Where((Kind) => Kind != LabelKind.None)
+                                                                                                  .Reverse()
                                                                                                   .Select((Kind) => LabelCollectionVirtualFolder.GetFolderFromLabel(Kind).Path)
                                                                                                   .Concat(NewChildItems));
                             }
                         }
-                        else if (!LabelCollectionVirtualFolder.TryGetFolderFromPath(NodePath, out _))
+                        else if (await FileSystemStorageItemBase.OpenAsync(NodePath) is FileSystemStorageFolder ParentFolder && ParentFolder is not LabelCollectionVirtualFolder)
                         {
-                            if (await FileSystemStorageItemBase.OpenAsync(NodePath) is FileSystemStorageFolder ParentFolder)
-                            {
-                                NewChildItems = await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, Filter: BasicFilters.Folder).Select((Item) => Item.Path).ToListAsync();
-                            }
+                            NewChildItems = await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, Filter: BasicFilters.Folder).Select((Item) => Item.Path).ToListAsync();
                         }
 
                         await UpdateSubNodeCoreAsync(Node, NewChildItems);
@@ -1075,13 +1065,16 @@ namespace RX_Explorer.Class
                         {
                             Node.HasUnrealizedChildren = SettingPage.IsDisplayLabelFolderInQuickAccessNode || CommonAccessCollection.LibraryList.Count > 0;
                         }
-                        else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(NodePath, out _))
-                        {
-                            Node.HasUnrealizedChildren = false;
-                        }
                         else if (await FileSystemStorageItemBase.OpenAsync(NodePath) is FileSystemStorageFolder ParentFolder)
                         {
-                            Node.HasUnrealizedChildren = await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, Filter: BasicFilters.Folder).Select((Item) => Item.Path).AnyAsync();
+                            if (ParentFolder is LabelCollectionVirtualFolder)
+                            {
+                                Node.HasUnrealizedChildren = false;
+                            }
+                            else
+                            {
+                                Node.HasUnrealizedChildren = await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, Filter: BasicFilters.Folder).Select((Item) => Item.Path).AnyAsync();
+                            }
                         }
                     }
                 }

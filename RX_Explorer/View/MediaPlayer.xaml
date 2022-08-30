@@ -19,7 +19,6 @@
         </Grid.RowDefinitions>
         <MediaPlayerElement Stretch="Uniform"
                             Grid.RowSpan="2"
-                            AutoPlay="True"
                             Name="MVControl"
                             AreTransportControlsEnabled="True"
                             x:FieldModifier="Public"

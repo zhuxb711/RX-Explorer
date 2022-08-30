@@ -200,6 +200,11 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
+                    else if (RootVirtualFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)
+                             || LabelCollectionVirtualFolder.TryGetFolderFromPath(Path, out _))
+                    {
+                        return true;
+                    }
                     else
                     {
                         try
@@ -332,6 +337,14 @@ namespace RX_Explorer.Class
                                 return new FtpStorageFolder(Controller, new FtpFileData(Analysis));
                             }
                         }
+                    }
+                    else if (RootVirtualFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return RootVirtualFolder.Current;
+                    }
+                    else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(Path, out LabelCollectionVirtualFolder LabelFolder))
+                    {
+                        return LabelFolder;
                     }
                     else
                     {

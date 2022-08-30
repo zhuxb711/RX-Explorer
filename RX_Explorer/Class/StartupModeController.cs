@@ -88,9 +88,7 @@ namespace RX_Explorer.Class
 
                                 foreach (string ValidPath in PathList.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
                                 {
-                                    if (RootVirtualFolder.Current.Path.Equals(ValidPath, StringComparison.OrdinalIgnoreCase)
-                                        || LabelCollectionVirtualFolder.TryGetFolderFromPath(ValidPath, out _)
-                                        || await FileSystemStorageItemBase.CheckExistsAsync(ValidPath))
+                                    if (await FileSystemStorageItemBase.CheckExistsAsync(ValidPath))
                                     {
                                         ValidPathList.Add(ValidPath);
                                     }

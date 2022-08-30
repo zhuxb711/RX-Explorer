@@ -1847,11 +1847,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> CheckIfQuicklookIsAvaliableAsync()
+        public async Task<bool> CheckIfQuicklookIsAvailableAsync()
         {
-            if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.Check_Quicklook) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.CheckQuicklook) is IDictionary<string, string> Response)
             {
-                if (Response.TryGetValue("Check_QuicklookIsAvaliable_Result", out string Result))
+                if (Response.TryGetValue("Success", out string Result))
                 {
                     return Convert.ToBoolean(Result);
                 }
@@ -1859,12 +1859,54 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfQuicklookIsAvaliableAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfQuicklookIsAvailableAsync)}, message: {ErrorMessage}");
                     }
                 }
             }
 
             return false;
+        }
+
+        public async Task<bool> CheckIfSeerIsAvailableAsync()
+        {
+            if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.CheckSeer) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string Result))
+                {
+                    return Convert.ToBoolean(Result);
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfSeerIsAvailableAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public async Task ToggleSeerAsync(string Path)
+        {
+            if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.ToggleSeer, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(ToggleSeerAsync)}, message: {ErrorMessage}");
+                }
+            }
+        }
+
+        public async Task SwitchSeerAsync(string Path)
+        {
+            if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.SwitchSeer, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(SwitchSeerAsync)}, message: {ErrorMessage}");
+                }
+            }
         }
 
         public async Task<string> GetDefaultAssociationFromPathAsync(string Path)
@@ -1891,7 +1933,7 @@ namespace RX_Explorer.Class
         {
             if (await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetAssociation, ("Extension", Extension)) is IDictionary<string, string> Response)
             {
-                if (Response.TryGetValue("Associate_Result", out string Result))
+                if (Response.TryGetValue("Success", out string Result))
                 {
                     return JsonSerializer.Deserialize<List<AssociationPackage>>(Result);
                 }

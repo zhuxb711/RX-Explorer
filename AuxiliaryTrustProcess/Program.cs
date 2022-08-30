@@ -1,4 +1,5 @@
-﻿using MediaDevices;
+﻿using AuxiliaryTrustProcess.Class;
+using MediaDevices;
 using SharedLibrary;
 using System;
 using System.Collections;
@@ -2967,7 +2968,7 @@ namespace AuxiliaryTrustProcess
 
                                 if (!string.IsNullOrEmpty(ExecutePath))
                                 {
-                                    QuicklookConnector.ToggleQuicklook(ExecutePath);
+                                    QuicklookConnector.ToggleService(ExecutePath);
                                 }
 
                                 break;
@@ -2978,14 +2979,42 @@ namespace AuxiliaryTrustProcess
 
                                 if (!string.IsNullOrEmpty(ExecutePath))
                                 {
-                                    QuicklookConnector.SwitchQuicklook(ExecutePath);
+                                    QuicklookConnector.SwitchService(ExecutePath);
                                 }
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.Check_Quicklook:
+                        case AuxiliaryTrustProcessCommandType.CheckQuicklook:
                             {
-                                Value.Add("Check_QuicklookIsAvaliable_Result", Convert.ToString(QuicklookConnector.CheckQuicklookIsAvaliable()));
+                                Value.Add("Success", Convert.ToString(QuicklookConnector.CheckIsAvailable()));
+
+                                break;
+                            }
+                        case AuxiliaryTrustProcessCommandType.ToggleSeer:
+                            {
+                                string ExecutePath = CommandValue["ExecutePath"];
+
+                                if (!string.IsNullOrEmpty(ExecutePath))
+                                {
+                                    SeerConnector.ToggleService(ExecutePath);
+                                }
+
+                                break;
+                            }
+                        case AuxiliaryTrustProcessCommandType.SwitchSeer:
+                            {
+                                string ExecutePath = CommandValue["ExecutePath"];
+
+                                if (!string.IsNullOrEmpty(ExecutePath))
+                                {
+                                    SeerConnector.SwitchService(ExecutePath);
+                                }
+
+                                break;
+                            }
+                        case AuxiliaryTrustProcessCommandType.CheckSeer:
+                            {
+                                Value.Add("Success", Convert.ToString(SeerConnector.CheckIsAvailable()));
 
                                 break;
                             }
@@ -2995,7 +3024,7 @@ namespace AuxiliaryTrustProcess
 
                                 if (!string.IsNullOrEmpty(Extension))
                                 {
-                                    Value.Add("Associate_Result", JsonSerializer.Serialize(ExtensionAssociation.GetAssociationFromExtension(Extension)));
+                                    Value.Add("Success", JsonSerializer.Serialize(ExtensionAssociation.GetAssociationFromExtension(Extension)));
                                 }
                                 else
                                 {

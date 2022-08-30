@@ -111,7 +111,7 @@ namespace RX_Explorer.Class
             OpeartionQueue.Add(Model);
             ListItemSource.Insert(0, Model);
 
-            if (SettingPage.OpenPanelWhenTaskIsCreated)
+            if (SettingPage.IsPanelOpenOnceTaskCreated)
             {
                 TabViewContainer.Current.CurrentTabRenderer.SetPanelOpenStatus(true);
             }
@@ -141,7 +141,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        if (SettingPage.AllowTaskParalledExecution)
+                        if (SettingPage.IsTaskParalledExecutionEnabled)
                         {
                             RunningTask.Add(Task.Factory.StartNew(() => ExecuteSubTaskCore(Model), TaskCreationOptions.LongRunning));
                         }

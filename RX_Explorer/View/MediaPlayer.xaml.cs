@@ -65,8 +65,10 @@ namespace RX_Explorer.View
 
             try
             {
+                MVControl.SetMediaPlayer(new Windows.Media.Playback.MediaPlayer());
                 MVControl.MediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
                 MVControl.Source = await GenerateMediaPlaybackList(MediaFile, CancelToken);
+                MVControl.MediaPlayer.Play();
             }
             catch (OperationCanceledException)
             {

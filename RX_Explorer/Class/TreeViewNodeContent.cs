@@ -51,11 +51,7 @@ namespace RX_Explorer.Class
 
         public async static Task<TreeViewNodeContent> CreateAsync(string Path)
         {
-            if (LabelCollectionVirtualFolder.TryGetFolderFromPath(Path, out LabelCollectionVirtualFolder LabelFolder))
-            {
-                return await CreateAsync(LabelFolder);
-            }
-            else if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
+            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
             {
                 return await CreateAsync(Folder);
             }

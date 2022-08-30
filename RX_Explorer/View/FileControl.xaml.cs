@@ -22,7 +22,6 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
@@ -36,8 +35,6 @@ using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
-using FontIconSource = Microsoft.UI.Xaml.Controls.FontIconSource;
-using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
 using TreeViewCollapsedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewCollapsedEventArgs;
 using TreeViewExpandingEventArgs = Microsoft.UI.Xaml.Controls.TreeViewExpandingEventArgs;
@@ -801,9 +798,9 @@ namespace RX_Explorer.View
         {
             try
             {
-                if (e.NavigationMode == NavigationMode.New && e.Parameter is TabItemContentRenderer Renderer)
+                if (e.NavigationMode == NavigationMode.New
+                    && e.Parameter is TabItemContentRenderer Renderer)
                 {
-                    Frame.Navigated += Frame_Navigated;
                     AddressBox.AddHandler(RightTappedEvent, AddressBoxRightTapEventHandler, true);
                     GoBackRecord.AddHandler(PointerPressedEvent, GoBackButtonPressedHandler, true);
                     GoBackRecord.AddHandler(PointerReleasedEvent, GoBackButtonReleasedHandler, true);
@@ -812,7 +809,7 @@ namespace RX_Explorer.View
 
                     this.Renderer = Renderer;
 
-                    await InitializeAsync(Renderer.InitializePaths);
+                    await InitializeAsync(Renderer.InitializePaths.Where((Path) => !string.IsNullOrWhiteSpace(Path)).ToList());
                 }
             }
             catch (Exception ex)
@@ -931,52 +928,10 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void Frame_Navigated(object sender, NavigationEventArgs e)
-        {
-            if (e.Content is FileControl)
-            {
-                if (CurrentPresenter?.CurrentFolder != null)
-                {
-                    Renderer.TabItem.IconSource = new ImageIconSource { ImageSource = await CurrentPresenter.CurrentFolder.GetThumbnailAsync(ThumbnailMode.ListView) };
-                }
-                else
-                {
-                    Renderer.TabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
-                }
-            }
-            else
-            {
-                Renderer.TabItem.IconSource = new FontIconSource { Glyph = "\uE8A1" };
-            }
-
-            if (Renderer.TabItem.Header is TextBlock HeaderBlock)
-            {
-                HeaderBlock.Text = e.Content switch
-                {
-                    PhotoViewer => Globalization.GetString("BuildIn_PhotoViewer_Description"),
-                    PdfReader => Globalization.GetString("BuildIn_PdfReader_Description"),
-                    MediaPlayer => Globalization.GetString("BuildIn_MediaPlayer_Description"),
-                    TextViewer => Globalization.GetString("BuildIn_TextViewer_Description"),
-                    CropperPage => Globalization.GetString("BuildIn_CropperPage_Description"),
-                    SearchPage => Globalization.GetString("BuildIn_SearchPage_Description"),
-                    CompressionViewer => Globalization.GetString("BuildIn_CompressionViewer_Description"),
-                    FileControl => CurrentPresenter.CurrentFolder?.DisplayName ?? $"<{Globalization.GetString("UnknownText")}>",
-                    _ => $"<{Globalization.GetString("UnknownText")}>"
-                };
-            }
-
-            TabViewContainer.Current.LayoutModeControl.IsEnabled = e.Content is FileControl;
-
-            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-            {
-                TabViewContainer.Current.VerticalSplitViewButton.IsEnabled = e.Content is FileControl;
-            }
-        }
-
         /// <summary>
         /// 执行文件目录的初始化
         /// </summary>
-        private async Task InitializeAsync(IEnumerable<string> InitPathArray)
+        private async Task InitializeAsync(IReadOnlyList<string> InitPathArray)
         {
             try
             {
@@ -1025,9 +980,22 @@ namespace RX_Explorer.View
 
                 IReadOnlyList<Task<TreeViewNode>> TaskList = SyncTreeViewFromDriveList(CurrentDrives);
 
-                foreach (string TargetPath in InitPathArray.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
+                if (InitPathArray.Count == 1
+                    && await FileSystemStorageItemBase.OpenAsync(InitPathArray[0]) is FileSystemStorageFile File)
                 {
-                    await CreateNewBladeAsync(TargetPath);
+                    if (Helper.GetSuitableInnerViewerPageType(File, out Type PageType))
+                    {
+                        Renderer.RendererFrame.Navigate(PageType, File, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+                    }
+
+                    await CreateNewBladeAsync(File);
+                }
+                else
+                {
+                    await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(InitPathArray))
+                    {
+                        await CreateNewBladeAsync(Item);
+                    }
                 }
 
                 CommonAccessCollection.DriveChanged += CommonAccessCollection_DriveChanged;
@@ -1049,7 +1017,7 @@ namespace RX_Explorer.View
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not init the FileControl");
+                LogTracer.Log(ex, $"Could not initialize the {nameof(FileControl)}");
             }
         }
 
@@ -1157,9 +1125,9 @@ namespace RX_Explorer.View
                     {
                         Node.IsExpanded = !Node.IsExpanded;
                     }
-                    else if (CurrentPresenter != null)
+                    else if (CurrentPresenter is FilePresenter Presenter)
                     {
-                        if (!await CurrentPresenter.DisplayItemsInFolderAsync(Content.Path))
+                        if (!await Presenter.DisplayItemsInFolderAsync(Content.Path))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -2690,7 +2658,7 @@ namespace RX_Explorer.View
             }
         }
 
-        public async Task CreateNewBladeAsync(string ItemPath)
+        public async Task CreateNewBladeAsync(FileSystemStorageItemBase Item)
         {
             try
             {
@@ -2702,11 +2670,7 @@ namespace RX_Explorer.View
                     {
                         Content = Presenter,
                         IsExpanded = true,
-                        Header = RootVirtualFolder.Current.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase)
-                                    ? RootVirtualFolder.Current.DisplayName
-                                    : LabelCollectionVirtualFolder.TryGetFolderFromPath(ItemPath, out LabelCollectionVirtualFolder LabelFolder)
-                                        ? LabelFolder.DisplayName
-                                        : Path.GetFileName(ItemPath),
+                        Header = Item.DisplayName,
                         Background = new SolidColorBrush(Colors.Transparent),
                         TitleBarBackground = new SolidColorBrush(Colors.Transparent),
                         TitleBarVisibility = Visibility.Visible,
@@ -2753,38 +2717,50 @@ namespace RX_Explorer.View
 
                     CurrentPresenter = Presenter;
 
-                    if (RootVirtualFolder.Current.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase))
+                    switch (Item)
                     {
-                        await Presenter.DisplayItemsInFolderAsync(RootVirtualFolder.Current);
-                    }
-                    else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(ItemPath, out LabelCollectionVirtualFolder LocalLabelFolder))
-                    {
-                        await Presenter.DisplayItemsInFolderAsync(LocalLabelFolder);
-                    }
-                    else if (await FileSystemStorageItemBase.OpenAsync(ItemPath) is FileSystemStorageFolder Folder)
-                    {
-                        if (!await Presenter.DisplayItemsInFolderAsync(Folder))
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                        case FileSystemStorageFolder Folder:
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Folder.Path}\"",
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                            };
+                                if (!await Presenter.DisplayItemsInFolderAsync(Folder))
+                                {
+                                    goto default;
+                                }
 
-                            await Dialog.ShowAsync();
-                        }
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{ItemPath}\"",
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                        };
+                                break;
+                            }
+                        case FileSystemStorageFile File:
+                            {
+                                string FolderPath = Path.GetDirectoryName(File.Path);
 
-                        await Dialog.ShowAsync();
+                                if (!string.IsNullOrEmpty(FolderPath))
+                                {
+                                    if (await Presenter.DisplayItemsInFolderAsync(FolderPath))
+                                    {
+                                        if (CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(File.Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                                        {
+                                            CurrentPresenter.SelectedItem = Item;
+                                            CurrentPresenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
+                                        }
+
+                                        break;
+                                    }
+                                }
+
+                                goto default;
+                            }
+                        default:
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Item.Path}\"",
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                                };
+
+                                await Dialog.ShowAsync();
+
+                                break;
+                            }
                     }
                 });
             }
@@ -3048,7 +3024,10 @@ namespace RX_Explorer.View
         {
             if (FolderTree.SelectedNode?.Content is TreeViewNodeContent Content)
             {
-                await CreateNewBladeAsync(Content.Path).ConfigureAwait(false);
+                if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageItemBase Item)
+                {
+                    await CreateNewBladeAsync(Item);
+                }
             }
         }
 
@@ -3614,7 +3593,7 @@ namespace RX_Explorer.View
                                 ContextMenuCancellation?.Dispose();
                                 ContextMenuCancellation = new CancellationTokenSource();
 
-                                if (!LabelCollectionVirtualFolder.TryGetFolderFromPath(Content.Path, out _))
+                                if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is not LabelCollectionVirtualFolder)
                                 {
                                     for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                                     {
@@ -3678,8 +3657,6 @@ namespace RX_Explorer.View
             }
 
             BladeViewer.Items.Clear();
-
-            Frame.Navigated -= Frame_Navigated;
 
             CommonAccessCollection.DriveChanged -= CommonAccessCollection_DriveChanged;
             CommonAccessCollection.LibraryChanged -= CommonAccessCollection_LibraryChanged;

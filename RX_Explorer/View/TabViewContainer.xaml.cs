@@ -468,21 +468,41 @@ namespace RX_Explorer.View
 
                                                 break;
                                             }
-                                        case VirtualKey.Space when SettingPage.IsQuicklookEnabled && !SettingPage.IsOpened:
+                                        case VirtualKey.Space when !SettingPage.IsOpened:
                                             {
                                                 args.Handled = true;
 
-                                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                                                if (SettingPage.IsQuicklookEnabled)
                                                 {
-                                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                                     {
-                                                        if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
+                                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
                                                         {
-                                                            await Exclusive.Controller.ToggleQuicklookAsync(Device.Path);
+                                                            if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
+                                                            {
+                                                                await Exclusive.Controller.ToggleQuicklookAsync(Device.Path);
+                                                            }
+                                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library && !string.IsNullOrEmpty(Library.Path))
+                                                            {
+                                                                await Exclusive.Controller.ToggleQuicklookAsync(Library.Path);
+                                                            }
                                                         }
-                                                        else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library && !string.IsNullOrEmpty(Library.Path))
+                                                    }
+                                                }
+                                                else if (SettingPage.IsSeerEnabled)
+                                                {
+                                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                                                    {
+                                                        if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
                                                         {
-                                                            await Exclusive.Controller.ToggleQuicklookAsync(Library.Path);
+                                                            if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
+                                                            {
+                                                                await Exclusive.Controller.ToggleSeerAsync(Device.Path);
+                                                            }
+                                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library && !string.IsNullOrEmpty(Library.Path))
+                                                            {
+                                                                await Exclusive.Controller.ToggleSeerAsync(Library.Path);
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -510,7 +530,7 @@ namespace RX_Explorer.View
                                                     {
                                                         if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                                                         {
-                                                            await Control.CreateNewBladeAsync(Drive.Path);
+                                                            await Control.CreateNewBladeAsync(Drive.DriveFolder);
                                                         }
                                                     }
                                                 }
@@ -533,7 +553,7 @@ namespace RX_Explorer.View
                                                     {
                                                         if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                                                         {
-                                                            await Control.CreateNewBladeAsync(Library.Path);
+                                                            await Control.CreateNewBladeAsync(Library);
                                                         }
                                                     }
                                                 }
@@ -759,7 +779,7 @@ namespace RX_Explorer.View
                 LoadTaskList.Add(CommonAccessCollection.LoadLibraryFoldersAsync());
             }
 
-            await Task.WhenAll(LoadTaskList).ContinueWith((_) => PreviewTimer.Start(), TaskScheduler.FromCurrentSynchronizationContext()).ConfigureAwait(false);
+            await Task.WhenAll(LoadTaskList).ContinueWith((_) => PreviewTimer.Start(), TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private async void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
@@ -772,7 +792,7 @@ namespace RX_Explorer.View
             await CreateNewTabAsync();
         }
 
-        private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)
+        private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] InitializePathArray)
         {
             TextBlock Header = new TextBlock
             {
@@ -838,94 +858,22 @@ namespace RX_Explorer.View
 
             FlyoutBase.SetAttachedFlyout(Tab, PreviewFlyout);
 
-            List<string> ValidPathArray = new List<string>(PathForNewTab.Length);
-
-            foreach (string Path in PathForNewTab.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
-            {
-                if (RootVirtualFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
-                {
-                    ValidPathArray.Add(RootVirtualFolder.Current.Path);
-                }
-                else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(Path, out LabelCollectionVirtualFolder LabelFolder))
-                {
-                    ValidPathArray.Add(LabelFolder.Path);
-                }
-                else if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder)
-                {
-                    ValidPathArray.Add(Path);
-                }
-            }
+            IReadOnlyList<FileSystemStorageItemBase> ValidStorageItem = await FileSystemStorageItemBase.OpenInBatchAsync(InitializePathArray.Where((Path) => !string.IsNullOrWhiteSpace(Path))).OfType<FileSystemStorageItemBase>().ToListAsync();
 
             if (Tab.Header is TextBlock HeaderBlock)
             {
-                switch (ValidPathArray.Count)
+                HeaderBlock.Text = ValidStorageItem.Count switch
                 {
-                    case 0:
-                        {
-                            HeaderBlock.Text = RootVirtualFolder.Current.DisplayName;
-                            break;
-                        }
-                    case 1:
-                        {
-                            string Path = ValidPathArray.Single();
-
-                            if (RootVirtualFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
-                            {
-                                HeaderBlock.Text = RootVirtualFolder.Current.DisplayName;
-                            }
-                            else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(Path, out LabelCollectionVirtualFolder LabelFolder))
-                            {
-                                HeaderBlock.Text = LabelFolder.DisplayName;
-                            }
-                            else
-                            {
-                                string HeaderText = System.IO.Path.GetFileName(Path);
-
-                                if (string.IsNullOrEmpty(HeaderText))
-                                {
-                                    HeaderBlock.Text = $"<{Globalization.GetString("UnknownText")}>";
-                                }
-                                else
-                                {
-                                    HeaderBlock.Text = HeaderText;
-                                }
-                            }
-
-                            break;
-                        }
-                    default:
-                        {
-                            HeaderBlock.Text = string.Join(" | ", ValidPathArray.Select((Path) =>
-                            {
-                                if (RootVirtualFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    return RootVirtualFolder.Current.DisplayName;
-                                }
-                                else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(Path, out LabelCollectionVirtualFolder LabelFolder))
-                                {
-                                    return LabelFolder.DisplayName;
-                                }
-                                else
-                                {
-                                    string Name = System.IO.Path.GetFileName(Path);
-
-                                    if (string.IsNullOrEmpty(Name))
-                                    {
-                                        return Path.TrimEnd('\\');
-                                    }
-                                    else
-                                    {
-                                        return Name;
-                                    }
-                                }
-                            }));
-
-                            break;
-                        }
-                }
+                    0 => RootVirtualFolder.Current.DisplayName,
+                    1 => ValidStorageItem[0].DisplayName,
+                    _ => string.Join(" | ", ValidStorageItem.Select((Item) => Item.DisplayName))
+                };
             }
 
-            Tab.Content = new Frame { Content = new TabItemContentRenderer(Tab, ValidPathArray.ToArray()) };
+            Tab.Content = new Frame
+            {
+                Content = new TabItemContentRenderer(Tab, ValidStorageItem.Select((Item) => Item.Path).ToArray())
+            };
 
             return Tab;
         }
@@ -1308,11 +1256,9 @@ namespace RX_Explorer.View
             {
                 if (CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
                 {
-                    string Path = Control.CurrentPresenter?.CurrentFolder?.Path;
-
-                    if (!string.IsNullOrEmpty(Path))
+                    if (Control.CurrentPresenter?.CurrentFolder is FileSystemStorageFolder Folder)
                     {
-                        await Control.CreateNewBladeAsync(Path);
+                        await Control.CreateNewBladeAsync(Folder);
                     }
                 }
             }
