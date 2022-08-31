@@ -10,7 +10,7 @@
                         PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
                         CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}">
     <Grid>
-        <ComboBox Width="250"
+        <ComboBox Width="300"
                   Name="EncodingComboBox"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Stretch"
