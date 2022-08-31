@@ -57,7 +57,7 @@ namespace RX_Explorer
                     }
                 case CommandLineActivatedEventArgs CmdActivate:
                     {
-                        if (SettingPage.IsAlwaysLaunchNewProcess || string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
+                        if (SettingPage.IsAlwaysLaunchNewProcessEnabled || string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
                         {
                             AppInstanceIdContainer.RegisterId(AppInstance.FindOrRegisterInstanceForKey(Guid.NewGuid().ToString()).Key);
                             Application.Start((_) => new App());

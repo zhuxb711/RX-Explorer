@@ -1509,11 +1509,11 @@ namespace RX_Explorer.View
 
             if (LibraryGrid.SelectedItem is LibraryStorageFolder Lib)
             {
-                await this.FindParentOfType<FileControl>()?.CreateNewBladeAsync(Lib.Path);
+                await this.FindParentOfType<FileControl>()?.CreateNewBladeAsync(Lib);
             }
             else if (DriveGrid.SelectedItem is DriveDataBase Drive)
             {
-                await this.FindParentOfType<FileControl>()?.CreateNewBladeAsync(Drive.Path);
+                await this.FindParentOfType<FileControl>()?.CreateNewBladeAsync(Drive.DriveFolder);
             }
         }
 
@@ -1745,20 +1745,34 @@ namespace RX_Explorer.View
 
         private async void LibraryGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (SettingPage.IsQuicklookEnabled
-                && !SettingPage.IsOpened
-                && e.AddedItems.Count == 1
-                && e.AddedItems.First() is LibraryStorageFolder Item)
+            if (!SettingPage.IsOpened
+                && e.AddedItems.SingleOrDefault() is LibraryStorageFolder Item)
             {
                 try
                 {
-                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                    if (SettingPage.IsQuicklookEnabled)
                     {
-                        if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                         {
-                            if (!string.IsNullOrEmpty(Item.Path))
+                            if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
                             {
-                                await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                                if (!string.IsNullOrEmpty(Item.Path))
+                                {
+                                    await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                        {
+                            if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
+                            {
+                                if (!string.IsNullOrEmpty(Item.Path))
+                                {
+                                    await Exclusive.Controller.SwitchSeerAsync(Item.Path);
+                                }
                             }
                         }
                     }
@@ -1772,20 +1786,34 @@ namespace RX_Explorer.View
 
         private async void DriveGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (SettingPage.IsQuicklookEnabled
-                && !SettingPage.IsOpened
-                && e.AddedItems.Count == 1
-                && e.AddedItems.First() is DriveDataBase Item)
+            if (!SettingPage.IsOpened
+                && e.AddedItems.SingleOrDefault() is DriveDataBase Item)
             {
                 try
                 {
-                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                    if (SettingPage.IsQuicklookEnabled)
                     {
-                        if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                         {
-                            if (!string.IsNullOrEmpty(Item.Path))
+                            if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
                             {
-                                await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                                if (!string.IsNullOrEmpty(Item.Path))
+                                {
+                                    await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                                }
+                            }
+                        }
+                    }
+                    else if (SettingPage.IsSeerEnabled)
+                    {
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                        {
+                            if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
+                            {
+                                if (!string.IsNullOrEmpty(Item.Path))
+                                {
+                                    await Exclusive.Controller.SwitchSeerAsync(Item.Path);
+                                }
                             }
                         }
                     }

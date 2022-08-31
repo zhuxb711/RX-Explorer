@@ -8,27 +8,32 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.Storage.FileProperties;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
+using FontIconSource = Microsoft.UI.Xaml.Controls.FontIconSource;
+using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 
 namespace RX_Explorer.View
 {
     public sealed partial class TabItemContentRenderer : Page, IDisposable
     {
+        private FileControl BaseControl;
+
         public Frame RendererFrame => BaseFrame;
 
         public TabViewItem TabItem { get; }
 
         public FilePresenter CurrentPresenter => BaseControl?.CurrentPresenter;
 
-        public IEnumerable<FilePresenter> Presenters => BaseControl?.BladeViewer.Items.Cast<BladeItem>().Select((Blade) => Blade.Content).Cast<FilePresenter>() ?? Array.Empty<FilePresenter>();
+        public IEnumerable<FilePresenter> Presenters => BaseControl?.BladeViewer.Items.Cast<BladeItem>()
+                                                                                      .Select((Blade) => Blade.Content)
+                                                                                      .Cast<FilePresenter>() ?? Array.Empty<FilePresenter>();
 
         public IEnumerable<string> InitializePaths { get; }
-
-        private FileControl BaseControl;
 
         public TabItemContentRenderer(TabViewItem TabItem, params string[] InitializePaths)
         {
@@ -166,8 +171,8 @@ namespace RX_Explorer.View
 
         private void TabItemContentRenderer_Loaded(object sender, RoutedEventArgs e)
         {
-            AllowParallelTask.IsChecked = SettingPage.AllowTaskParalledExecution;
-            AlwaysOpenPanel.IsChecked = SettingPage.OpenPanelWhenTaskIsCreated;
+            AlwaysOpenPanel.IsChecked = SettingPage.IsPanelOpenOnceTaskCreated;
+            AllowParallelTask.IsChecked = SettingPage.IsTaskParalledExecutionEnabled;
 
             if (SettingPage.IsTaskListPinned)
             {
@@ -261,14 +266,67 @@ namespace RX_Explorer.View
             }
         }
 
-        private void BaseFrame_Navigated(object sender, NavigationEventArgs e)
+        private async void BaseFrame_Navigated(object sender, NavigationEventArgs e)
         {
             MainPage.Current.NavView.IsBackEnabled = BaseFrame.CanGoBack;
+            TabViewContainer.Current.LayoutModeControl.IsEnabled = e.Content is FileControl;
 
             if (e.Content is FileControl Control)
             {
                 BaseControl = Control;
             }
+
+            if (e.Content is FileControl)
+            {
+                if (CurrentPresenter?.CurrentFolder != null)
+                {
+                    TabItem.IconSource = new ImageIconSource { ImageSource = await CurrentPresenter.CurrentFolder.GetThumbnailAsync(ThumbnailMode.ListView) };
+                }
+                else
+                {
+                    TabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
+                }
+            }
+            else
+            {
+                TabItem.IconSource = new FontIconSource { Glyph = "\uE8A1" };
+            }
+
+            if (TabItem.Header is TextBlock HeaderBlock)
+            {
+                HeaderBlock.Text = e.Content switch
+                {
+                    PhotoViewer => Globalization.GetString("BuildIn_PhotoViewer_Description"),
+                    PdfReader => Globalization.GetString("BuildIn_PdfReader_Description"),
+                    MediaPlayer => Globalization.GetString("BuildIn_MediaPlayer_Description"),
+                    TextViewer => Globalization.GetString("BuildIn_TextViewer_Description"),
+                    CropperPage => Globalization.GetString("BuildIn_CropperPage_Description"),
+                    SearchPage => Globalization.GetString("BuildIn_SearchPage_Description"),
+                    CompressionViewer => Globalization.GetString("BuildIn_CompressionViewer_Description"),
+                    FileControl => CurrentPresenter?.CurrentFolder?.DisplayName ?? $"<{Globalization.GetString("UnknownText")}>",
+                    _ => $"<{Globalization.GetString("UnknownText")}>"
+                };
+            }
+        }
+
+        private void AllowParallelTask_Checked(object sender, RoutedEventArgs e)
+        {
+            SettingPage.IsTaskParalledExecutionEnabled = true;
+        }
+
+        private void AllowParallelTask_Unchecked(object sender, RoutedEventArgs e)
+        {
+            SettingPage.IsTaskParalledExecutionEnabled = false;
+        }
+
+        private void AlwaysOpenPanel_Checked(object sender, RoutedEventArgs e)
+        {
+            SettingPage.IsPanelOpenOnceTaskCreated = true;
+        }
+
+        private void AlwaysOpenPanel_Unchecked(object sender, RoutedEventArgs e)
+        {
+            SettingPage.IsPanelOpenOnceTaskCreated = false;
         }
 
         public void Dispose()
@@ -280,26 +338,6 @@ namespace RX_Explorer.View
         ~TabItemContentRenderer()
         {
             Dispose();
-        }
-
-        private void AllowParallelTask_Checked(object sender, RoutedEventArgs e)
-        {
-            SettingPage.AllowTaskParalledExecution = true;
-        }
-
-        private void AllowParallelTask_Unchecked(object sender, RoutedEventArgs e)
-        {
-            SettingPage.AllowTaskParalledExecution = false;
-        }
-
-        private void AlwaysOpenPanel_Checked(object sender, RoutedEventArgs e)
-        {
-            SettingPage.OpenPanelWhenTaskIsCreated = true;
-        }
-
-        private void AlwaysOpenPanel_Unchecked(object sender, RoutedEventArgs e)
-        {
-            SettingPage.OpenPanelWhenTaskIsCreated = false;
         }
     }
 }

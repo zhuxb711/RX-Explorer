@@ -50,7 +50,7 @@ namespace RX_Explorer.View
 {
     public sealed partial class SettingPage : UserControl
     {
-        public static bool AllowTaskParalledExecution
+        public static bool IsTaskParalledExecutionEnabled
         {
             get
             {
@@ -67,7 +67,7 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["TaskListParalledExecution"] = value;
         }
 
-        public static bool OpenPanelWhenTaskIsCreated
+        public static bool IsPanelOpenOnceTaskCreated
         {
             get
             {
@@ -180,6 +180,26 @@ namespace RX_Explorer.View
             }
         }
 
+        public static bool IsSeerEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["EnableSeer"] is bool Enable)
+                {
+                    return Enable;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["EnableSeer"] = true;
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["EnableSeer"] = value;
+            }
+        }
+
         public static bool IsDisplayHiddenItemsEnabled
         {
             get
@@ -200,7 +220,7 @@ namespace RX_Explorer.View
             }
         }
 
-        public static bool IsParallelShowContextMenu
+        public static bool IsParallelShowContextMenuEnabled
         {
             get
             {
@@ -431,7 +451,7 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = value;
         }
 
-        public static bool IsAlwaysLaunchNewProcess
+        public static bool IsAlwaysLaunchNewProcessEnabled
         {
             get
             {
@@ -447,7 +467,7 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = value;
         }
 
-        public static bool IsWindowAlwaysOnTop
+        public static bool IsWindowAlwaysOnTopEnabled
         {
             get
             {
@@ -915,6 +935,25 @@ namespace RX_Explorer.View
             }
         }
 
+        public static bool IsAlwaysOpenInNewTabEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["AlwaysOpenInNewTab"] is bool Enabled)
+                {
+                    return Enabled;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["AlwaysOpenInNewTab"] = value;
+            }
+        }
+
         public static bool IsOpened { get; private set; }
 
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
@@ -962,7 +1001,8 @@ namespace RX_Explorer.View
 
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                 {
-                    EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync();
+                    EnableSeer.IsEnabled = await Exclusive.Controller.CheckIfSeerIsAvailableAsync();
+                    EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync();
                 }
 
                 if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
@@ -1337,6 +1377,8 @@ namespace RX_Explorer.View
                 WindowsExplorerContextMenu.Toggled -= WindowsExplorerContextMenu_Toggled;
                 HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
                 HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
+                AlwaysOpenInNewTab.Checked -= AlwaysOpenInNewTab_Checked;
+                AlwaysOpenInNewTab.Unchecked -= AlwaysOpenInNewTab_Unchecked;
                 DefaultDisplayMode.SelectionChanged -= DefaultDisplayMode_SelectionChanged;
                 ShutdownButtonBehaviorCombox.SelectionChanged -= ShutdownButtonBehaviorCombox_SelectionChanged;
                 ViewHeightOffsetNumberBox.ValueChanged -= ViewHeightOffsetNumberBox_ValueChanged;
@@ -1393,14 +1435,16 @@ namespace RX_Explorer.View
                 ClickPerference.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
                 TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
                 EnableQuicklook.IsOn = IsQuicklookEnabled;
+                EnableSeer.IsOn = IsSeerEnabled;
                 DisplayHiddenItem.IsOn = IsDisplayHiddenItemsEnabled;
                 HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItemsEnabled;
+                AlwaysOpenInNewTab.IsChecked = IsAlwaysOpenInNewTabEnabled;
                 TabPreviewSwitch.IsOn = IsTabPreviewEnabled;
                 SearchHistory.IsOn = IsSearchHistoryEnabled;
                 PathHistory.IsOn = IsPathHistoryEnabled;
                 NavigationViewLayout.IsOn = LayoutMode == NavigationViewPaneDisplayMode.LeftCompact;
-                AlwaysLaunchNew.IsChecked = IsAlwaysLaunchNewProcess;
-                AlwaysOnTop.IsOn = IsWindowAlwaysOnTop;
+                AlwaysLaunchNew.IsChecked = IsAlwaysLaunchNewProcessEnabled;
+                AlwaysOnTop.IsOn = IsWindowAlwaysOnTopEnabled;
                 WindowsExplorerContextMenu.IsOn = IsWindowsExplorerContextMenuIntegrated;
                 ContextMenuExtSwitch.IsOn = IsContextMenuExtensionEnabled;
                 FileExtensionSwitch.IsOn = IsShowFileExtensionsEnabled;
@@ -1409,7 +1453,7 @@ namespace RX_Explorer.View
                 GuardRestartOnFreeze.IsChecked = IsMonitorFreezeEnabled;
                 ExpandTreeViewAsContentChanged.IsChecked = IsExpandTreeViewAsContentChanged;
                 DisplayLabelFolderInQuickAccessNode.IsChecked = IsDisplayLabelFolderInQuickAccessNode;
-                ShowContextMenuWhenLoading.IsChecked = !IsParallelShowContextMenu;
+                ShowContextMenuWhenLoading.IsChecked = !IsParallelShowContextMenuEnabled;
                 LoadWSLOnStartup.IsOn = IsLoadWSLFolderOnStartupEnabled;
                 AvoidRecycleBin.IsChecked = IsAvoidRecycleBinEnabled;
                 DeleteConfirmSwitch.IsOn = IsDoubleConfirmOnDeletionEnabled;
@@ -1547,6 +1591,8 @@ namespace RX_Explorer.View
                 WindowsExplorerContextMenu.Toggled += WindowsExplorerContextMenu_Toggled;
                 HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
                 HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
+                AlwaysOpenInNewTab.Checked += AlwaysOpenInNewTab_Checked;
+                AlwaysOpenInNewTab.Unchecked += AlwaysOpenInNewTab_Unchecked;
                 DefaultDisplayMode.SelectionChanged += DefaultDisplayMode_SelectionChanged;
                 ShutdownButtonBehaviorCombox.SelectionChanged += ShutdownButtonBehaviorCombox_SelectionChanged;
                 ViewHeightOffsetNumberBox.ValueChanged += ViewHeightOffsetNumberBox_ValueChanged;
@@ -1580,6 +1626,38 @@ namespace RX_Explorer.View
                 ColorPickerChangeRegisterToken3 = PredefineTagColorPicker2.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker2SelectedColorChanged));
                 ColorPickerChangeRegisterToken4 = PredefineTagColorPicker3.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker3SelectedColorChanged));
                 ColorPickerChangeRegisterToken5 = PredefineTagColorPicker4.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker4SelectedColorChanged));
+            }
+        }
+
+        private void AlwaysOpenInNewTab_Unchecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsAlwaysOpenInNewTabEnabled = false;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(AlwaysOpenInNewTab_Unchecked)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void AlwaysOpenInNewTab_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsAlwaysOpenInNewTabEnabled = true;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(AlwaysOpenInNewTab_Checked)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 
@@ -1893,7 +1971,7 @@ namespace RX_Explorer.View
         {
             try
             {
-                IsWindowAlwaysOnTop = AlwaysOnTop.IsOn;
+                IsWindowAlwaysOnTopEnabled = AlwaysOnTop.IsOn;
 
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
@@ -2640,8 +2718,23 @@ namespace RX_Explorer.View
 
         private void EnableQuicklook_Toggled(object sender, RoutedEventArgs e)
         {
-            IsQuicklookEnabled = EnableQuicklook.IsOn;
-            ApplicationData.Current.SignalDataChanged();
+            try
+            {
+                IsQuicklookEnabled = EnableQuicklook.IsOn;
+
+                if (EnableQuicklook.IsOn)
+                {
+                    EnableSeer.IsOn = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(EnableQuicklook_Toggled)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs args)
@@ -2814,13 +2907,13 @@ namespace RX_Explorer.View
 
         private void AlwaysLaunchNew_Checked(object sender, RoutedEventArgs e)
         {
-            IsAlwaysLaunchNewProcess = true;
+            IsAlwaysLaunchNewProcessEnabled = true;
             ApplicationData.Current.SignalDataChanged();
         }
 
         private void AlwaysLaunchNew_Unchecked(object sender, RoutedEventArgs e)
         {
-            IsAlwaysLaunchNewProcess = false;
+            IsAlwaysLaunchNewProcessEnabled = false;
             ApplicationData.Current.SignalDataChanged();
         }
 
@@ -3787,9 +3880,9 @@ namespace RX_Explorer.View
                 RefreshTreeViewAndPresenterOnClose = false;
 
                 IEnumerable<TabItemContentRenderer> Renderers = TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
-                                                                         .Cast<Frame>()
-                                                                         .Select((Frame) => Frame.Content)
-                                                                         .Cast<TabItemContentRenderer>();
+                                                                                                       .Cast<Frame>()
+                                                                                                       .Select((Frame) => Frame.Content)
+                                                                                                       .Cast<TabItemContentRenderer>();
 
                 await Task.WhenAll(Renderers.Select((Renderer) => Renderer.RefreshPresentersAsync())
                                             .Concat(Renderers.Select((Renderer) => Renderer.RefreshTreeViewAsync())));
@@ -3999,13 +4092,13 @@ namespace RX_Explorer.View
 
         private void ShowContextMenuWhenLoading_Checked(object sender, RoutedEventArgs e)
         {
-            IsParallelShowContextMenu = false;
+            IsParallelShowContextMenuEnabled = false;
             ApplicationData.Current.SignalDataChanged();
         }
 
         private void ShowContextMenuWhenLoading_Unchecked(object sender, RoutedEventArgs e)
         {
-            IsParallelShowContextMenu = true;
+            IsParallelShowContextMenuEnabled = true;
             ApplicationData.Current.SignalDataChanged();
         }
 
@@ -4259,6 +4352,27 @@ namespace RX_Explorer.View
                         Mode = BindingMode.OneWay
                     });
                 }
+            }
+        }
+
+        private void EnableSeer_Toggled(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsSeerEnabled = EnableSeer.IsOn;
+
+                if (EnableSeer.IsOn)
+                {
+                    EnableQuicklook.IsOn = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(EnableSeer_Toggled)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
     }

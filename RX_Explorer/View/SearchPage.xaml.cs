@@ -167,17 +167,32 @@ namespace RX_Explorer.View
                                 Delete_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.Space when SettingPage.IsQuicklookEnabled
-                                                   && !SettingPage.IsOpened
+                        case VirtualKey.Space when !SettingPage.IsOpened
                                                    && SearchResultList.SelectedItems.Count == 1:
                             {
-                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                                if (SettingPage.IsQuicklookEnabled)
                                 {
-                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                     {
-                                        if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
+                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
                                         {
-                                            await Exclusive.Controller.ToggleQuicklookAsync(Item.Path);
+                                            if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
+                                            {
+                                                await Exclusive.Controller.ToggleQuicklookAsync(Item.Path);
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (SettingPage.IsSeerEnabled)
+                                {
+                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                                    {
+                                        if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
+                                        {
+                                            if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
+                                            {
+                                                await Exclusive.Controller.ToggleSeerAsync(Item.Path);
+                                            }
                                         }
                                     }
                                 }
@@ -1338,20 +1353,34 @@ namespace RX_Explorer.View
 
         private async void SearchResultList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (SettingPage.IsQuicklookEnabled
-                && !SettingPage.IsOpened
-                && e.AddedItems.Count == 1
-                && e.AddedItems.First() is FileSystemStorageItemBase Item)
+            if (!SettingPage.IsOpened
+                && e.AddedItems.SingleOrDefault() is FileSystemStorageItemBase Item)
             {
                 try
                 {
-                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                    if (SettingPage.IsQuicklookEnabled)
                     {
-                        if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                         {
-                            if (!string.IsNullOrEmpty(Item.Path))
+                            if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
                             {
-                                await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                                if (!string.IsNullOrEmpty(Item.Path))
+                                {
+                                    await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                                }
+                            }
+                        }
+                    }
+                    else if (SettingPage.IsSeerEnabled)
+                    {
+                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                        {
+                            if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
+                            {
+                                if (!string.IsNullOrEmpty(Item.Path))
+                                {
+                                    await Exclusive.Controller.SwitchSeerAsync(Item.Path);
+                                }
                             }
                         }
                     }

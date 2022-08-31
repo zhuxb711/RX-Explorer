@@ -2676,21 +2676,38 @@ namespace RX_Explorer.View
 
                     switch (args.VirtualKey)
                     {
-                        case VirtualKey.Space when SettingPage.IsQuicklookEnabled
-                                                   && !SettingPage.IsOpened
+                        case VirtualKey.Space when !SettingPage.IsOpened
                                                    && SelectedItems.Count() == 1:
                             {
                                 args.Handled = true;
 
-                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                                if (SettingPage.IsQuicklookEnabled)
                                 {
-                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                     {
-                                        string ViewPathWithQuicklook = SelectedItem?.Path;
-
-                                        if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
+                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
                                         {
-                                            await Exclusive.Controller.ToggleQuicklookAsync(ViewPathWithQuicklook);
+                                            string ViewPathWithQuicklook = SelectedItem?.Path;
+
+                                            if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
+                                            {
+                                                await Exclusive.Controller.ToggleQuicklookAsync(ViewPathWithQuicklook);
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (SettingPage.IsSeerEnabled)
+                                {
+                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                                    {
+                                        if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
+                                        {
+                                            string ViewPathWithSeer = SelectedItem?.Path;
+
+                                            if (!string.IsNullOrEmpty(ViewPathWithSeer))
+                                            {
+                                                await Exclusive.Controller.ToggleSeerAsync(ViewPathWithSeer);
+                                            }
                                         }
                                     }
                                 }
@@ -2850,13 +2867,18 @@ namespace RX_Explorer.View
 
                                 if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                                 {
-                                    if (SelectedItems.Count() == 1 && SelectedItem is FileSystemStorageFolder Folder)
+                                    IEnumerable<FileSystemStorageFolder> FolderItems = SelectedItems.OfType<FileSystemStorageFolder>();
+
+                                    if (FolderItems.Any())
                                     {
-                                        await Container.CreateNewBladeAsync(Folder.Path);
+                                        foreach (FileSystemStorageItemBase Item in FolderItems)
+                                        {
+                                            await Container.CreateNewBladeAsync(Item);
+                                        }
                                     }
                                     else
                                     {
-                                        await Container.CreateNewBladeAsync(CurrentFolder.Path);
+                                        await Container.CreateNewBladeAsync(CurrentFolder);
                                     }
                                 }
 
@@ -3151,15 +3173,7 @@ namespace RX_Explorer.View
 
         public async Task<bool> DisplayItemsInFolderAsync(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
         {
-            if (RootVirtualFolder.Current.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
-            {
-                return await DisplayItemsInFolderAsync(RootVirtualFolder.Current, ForceRefresh, SkipNavigationRecord);
-            }
-            else if (LabelCollectionVirtualFolder.TryGetFolderFromPath(FolderPath, out LabelCollectionVirtualFolder LabelFolder))
-            {
-                return await DisplayItemsInFolderAsync(LabelFolder, ForceRefresh, SkipNavigationRecord);
-            }
-            else if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
+            if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
             {
                 return await DisplayItemsInFolderAsync(Folder, ForceRefresh, SkipNavigationRecord);
             }
@@ -4239,17 +4253,33 @@ namespace RX_Explorer.View
                         }
                     }
 
-                    if (SelectedItemsCopy.Count == 1 && SettingPage.IsQuicklookEnabled && !SettingPage.IsOpened)
+                    if (SelectedItemsCopy.Count == 1 && !SettingPage.IsOpened)
                     {
                         FileSystemStorageItemBase Item = SelectedItemsCopy.First();
 
-                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                        if (SettingPage.IsQuicklookEnabled)
                         {
-                            if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                             {
-                                if (!string.IsNullOrEmpty(Item.Path))
+                                if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
                                 {
-                                    await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                                    if (!string.IsNullOrEmpty(Item.Path))
+                                    {
+                                        await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                                    }
+                                }
+                            }
+                        }
+                        else if (SettingPage.IsSeerEnabled)
+                        {
+                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                            {
+                                if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
+                                {
+                                    if (!string.IsNullOrEmpty(Item.Path))
+                                    {
+                                        await Exclusive.Controller.SwitchSeerAsync(Item.Path);
+                                    }
                                 }
                             }
                         }
@@ -5133,11 +5163,7 @@ namespace RX_Explorer.View
 
         public async Task OpenSelectedItemAsync(string Path, bool RunAsAdministrator = false)
         {
-            if (RootVirtualFolder.Current.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
-            {
-                await OpenSelectedItemAsync(RootVirtualFolder.Current, RunAsAdministrator);
-            }
-            else if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase Item)
+            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase Item)
             {
                 await OpenSelectedItemAsync(Item, RunAsAdministrator);
             }
@@ -5151,9 +5177,13 @@ namespace RX_Explorer.View
                 {
                     case FileSystemStorageFile File:
                         {
-                            if (await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
+                            if (SettingPage.IsAlwaysOpenInNewTabEnabled)
                             {
-                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                                await TabViewContainer.Current.CreateNewTabAsync(File.Path);
+                            }
+                            else
+                            {
+                                if (await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                                 {
                                     if (File is MTPStorageFile or FtpStorageFile)
                                     {
@@ -5171,36 +5201,17 @@ namespace RX_Explorer.View
                                                 }
                                             default:
                                                 {
-                                                    if (!TryOpenInternally(File))
+                                                    if (Helper.GetSuitableInnerViewerPageType(File, out Type PageType))
+                                                    {
+                                                        Container.Renderer.RendererFrame.Navigate(PageType, File, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+                                                    }
+                                                    else
                                                     {
                                                         throw new NotSupportedException();
                                                     }
 
                                                     break;
                                                 }
-                                        }
-                                    }
-
-                                    if (File is MTPStorageFile or FtpStorageFile)
-                                    {
-                                        switch (File.Type.ToLower())
-                                        {
-                                            case ".exe":
-                                            case ".bat":
-                                            case ".msi":
-                                            case ".msc":
-                                            case ".lnk":
-                                            case ".url":
-                                            case ".cmd":
-                                                {
-                                                    throw new NotSupportedException();
-                                                }
-                                            default:
-                                                {
-
-                                                }
-
-                                                break;
                                         }
                                     }
                                     else
@@ -5212,18 +5223,24 @@ namespace RX_Explorer.View
                                             case ".msi":
                                             case ".cmd":
                                                 {
-                                                    if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), RunAsAdmin: RunAsAdministrator))
+                                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                                     {
-                                                        throw new LaunchProgramException();
+                                                        if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), RunAsAdmin: RunAsAdministrator))
+                                                        {
+                                                            throw new LaunchProgramException();
+                                                        }
                                                     }
 
                                                     break;
                                                 }
                                             case ".msc":
                                                 {
-                                                    if (!await Exclusive.Controller.RunAsync(File.Path, RunAsAdmin: RunAsAdministrator, Parameters: new string[] { File.Path }))
+                                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                                     {
-                                                        throw new LaunchProgramException();
+                                                        if (!await Exclusive.Controller.RunAsync(File.Path, RunAsAdmin: RunAsAdministrator, Parameters: new string[] { File.Path }))
+                                                        {
+                                                            throw new LaunchProgramException();
+                                                        }
                                                     }
 
                                                     break;
@@ -5277,34 +5294,41 @@ namespace RX_Explorer.View
                                                 {
                                                     string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
 
-                                                    if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath.Equals(ProgramPickerItem.InnerViewer.Path, StringComparison.OrdinalIgnoreCase))
+                                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                                     {
-                                                        if (!TryOpenInternally(File) && !await Exclusive.Controller.RunAsync(File.Path))
+                                                        if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath.Equals(ProgramPickerItem.InnerViewer.Path, StringComparison.OrdinalIgnoreCase))
                                                         {
-                                                            throw new UnauthorizedAccessException();
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        if (await FileSystemStorageItemBase.CheckExistsAsync(AdminExecutablePath))
-                                                        {
-                                                            if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path))
+                                                            if (Helper.GetSuitableInnerViewerPageType(File, out Type PageType))
+                                                            {
+                                                                Container.Renderer.RendererFrame.Navigate(PageType, File, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+                                                            }
+                                                            else if (!await Exclusive.Controller.RunAsync(File.Path))
                                                             {
                                                                 throw new UnauthorizedAccessException();
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is AppInfo Info)
+                                                            if (await FileSystemStorageItemBase.CheckExistsAsync(AdminExecutablePath))
                                                             {
-                                                                if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                                if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path))
                                                                 {
                                                                     throw new UnauthorizedAccessException();
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                await OpenFileWithProgramPicker(File);
+                                                                if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is AppInfo Info)
+                                                                {
+                                                                    if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                                    {
+                                                                        throw new UnauthorizedAccessException();
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    await OpenFileWithProgramPicker(File);
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -5314,17 +5338,21 @@ namespace RX_Explorer.View
                                         }
                                     }
                                 }
-                            }
-                            else
-                            {
-                                throw new FileNotFoundException();
+                                else
+                                {
+                                    throw new FileNotFoundException();
+                                }
                             }
 
                             break;
                         }
                     case FileSystemStorageFolder Folder:
                         {
-                            if (!await DisplayItemsInFolderAsync(Folder))
+                            if (SettingPage.IsAlwaysOpenInNewTabEnabled)
+                            {
+                                await TabViewContainer.Current.CreateNewTabAsync(Folder.Path);
+                            }
+                            else if (!await DisplayItemsInFolderAsync(Folder))
                             {
                                 throw new DirectoryNotFoundException();
                             }
@@ -5394,37 +5422,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private bool TryOpenInternally(FileSystemStorageFile File)
-        {
-            Type InternalType = File.Type.ToLower() switch
-            {
-                ".jpg" or ".jpeg" or ".png" or ".bmp" => typeof(PhotoViewer),
-                ".mkv" or ".mp4" or ".mp3" or
-                ".flac" or ".wma" or ".wmv" or
-                ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
-                ".txt" => typeof(TextViewer),
-                ".pdf" => typeof(PdfReader),
-                ".zip" => typeof(CompressionViewer),
-                _ => null
-            };
-
-
-            if (InternalType != null)
-            {
-                NavigationTransitionInfo NavigationTransition = AnimationController.Current.IsEnableAnimation
-                                                ? new DrillInNavigationTransitionInfo()
-                                                : new SuppressNavigationTransitionInfo();
-
-                Container.Frame.Navigate(InternalType, File, NavigationTransition);
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         private async Task OpenFileWithProgramPicker(FileSystemStorageFile File)
         {
             try
@@ -5435,7 +5432,11 @@ namespace RX_Explorer.View
                 {
                     if (Dialog.UserPickedItem == ProgramPickerItem.InnerViewer)
                     {
-                        if (!TryOpenInternally(File))
+                        if (Helper.GetSuitableInnerViewerPageType(File, out Type PageType))
+                        {
+                            Container.Renderer.RendererFrame.Navigate(PageType, File, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+                        }
+                        else
                         {
                             throw new LaunchProgramException();
                         }
@@ -7120,9 +7121,9 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-            if (SelectedItem != null)
+            if (SelectedItem is FileSystemStorageFolder Folder)
             {
-                await Container.CreateNewBladeAsync(SelectedItem.Path);
+                await Container.CreateNewBladeAsync(Folder);
             }
         }
 
@@ -7487,13 +7488,14 @@ namespace RX_Explorer.View
                     {
                         case FileSystemStorageFolder Folder:
                             {
-                                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                                if (SettingPage.IsAlwaysOpenInNewTabEnabled
+                                    || !await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                                 {
-                                    await Container.CreateNewBladeAsync(Folder.Path);
+                                    await TabViewContainer.Current.CreateNewTabAsync(Folder.Path);
                                 }
                                 else
                                 {
-                                    await TabViewContainer.Current.CreateNewTabAsync(Folder.Path);
+                                    await Container.CreateNewBladeAsync(Folder);
                                 }
 
                                 break;
@@ -7640,7 +7642,11 @@ namespace RX_Explorer.View
         {
             if (!Container.ShouldNotAcceptShortcutKeyInput)
             {
-                if (!await DisplayItemsInFolderAsync(Path))
+                if (SettingPage.IsAlwaysOpenInNewTabEnabled)
+                {
+                    await TabViewContainer.Current.CreateNewTabAsync(Path);
+                }
+                else if (!await DisplayItemsInFolderAsync(Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
