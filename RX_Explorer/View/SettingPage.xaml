@@ -657,24 +657,24 @@
                                         <RelativePanel>
                                             <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                         RelativePanel.AlignLeftWithPanel="True"
-                                                        RelativePanel.LeftOf="FolderOpenMethod"
+                                                        RelativePanel.LeftOf="ClickPerference"
                                                         Margin="0,0,20,0">
-                                                <TextBlock Text="文件夹打开方式"
+                                                <TextBlock Text="点击偏好"
                                                            TextTrimming="CharacterEllipsis"
-                                                           x:Uid="SettingFolderOpenMethodLabel" />
+                                                           x:Uid="SettingClickPerferenceLabel" />
                                                 <TextBlock FontSize="12"
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           x:Uid="SettingFolderOpenMethodDescription"
+                                                           x:Uid="SettingClickPerferenceDescription"
                                                            Text="根据您的喜好选择符合的操作习惯" />
                                             </StackPanel>
                                             <ComboBox MinWidth="150"
-                                                      Name="FolderOpenMethod"
+                                                      Name="ClickPerference"
                                                       Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
                                                       RelativePanel.AlignRightWithPanel="True"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                      SelectionChanged="FolderOpenMethod_SelectionChanged" />
+                                                      SelectionChanged="ClickPerference_SelectionChanged" />
                                         </RelativePanel>
                                     </Border>
 

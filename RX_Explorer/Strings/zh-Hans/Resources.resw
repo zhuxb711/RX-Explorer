@@ -511,9 +511,6 @@
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>基本</value>
   </data>
-  <data name="SettingFolderOpenMethodLabel.Text" xml:space="preserve">
-    <value>文件夹打开方式</value>
-  </data>
   <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>Acrylic透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高。</value>
   </data>
@@ -1605,10 +1602,10 @@
   <data name="Operate_Text_RemoveHidden" xml:space="preserve">
     <value>尝试移除隐藏属性</value>
   </data>
-  <data name="Folder_Open_Method_1" xml:space="preserve">
+  <data name="Click_Perference_1" xml:space="preserve">
     <value>双击</value>
   </data>
-  <data name="Folder_Open_Method_2" xml:space="preserve">
+  <data name="Click_Perference_2" xml:space="preserve">
     <value>单击</value>
   </data>
   <data name="Font_Color_Black" xml:space="preserve">
@@ -3133,7 +3130,7 @@
   <data name="SettingDisplayHiddenItemDescription.Text" xml:space="preserve">
     <value>启用此选项后将显示隐藏文件</value>
   </data>
-  <data name="SettingFolderOpenMethodDescription.Text" xml:space="preserve">
+  <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
     <value>根据您的喜好选择符合的操作习惯</value>
   </data>
   <data name="SettingHideProtectedSystemItemsDescription.Text" xml:space="preserve">

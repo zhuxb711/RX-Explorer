@@ -511,9 +511,6 @@
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>Basique</value>
   </data>
-  <data name="SettingFolderOpenMethodLabel.Text" xml:space="preserve">
-    <value>Méthode d'ouverture de dossier</value>
-  </data>
   <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>La transmission de l'acrylique détermine la quantité de lumière de l'arrière-plan autorisée à traverser le matériau acrylique de l'application. Plus la valeur est petite, plus le rapport de couleurs du thème Acrylique est élevé et plus le pourcentage de lumière provenant de l'arrière-plan est élevé. </value>
   </data>
@@ -1605,10 +1602,10 @@
   <data name="Operate_Text_RemoveHidden" xml:space="preserve">
     <value>Supprimer les attributs masqués</value>
   </data>
-  <data name="Folder_Open_Method_1" xml:space="preserve">
+  <data name="Click_Perference_1" xml:space="preserve">
     <value>Double clic</value>
   </data>
-  <data name="Folder_Open_Method_2" xml:space="preserve">
+  <data name="Click_Perference_2" xml:space="preserve">
     <value>Cliquez une seule fois</value>
   </data>
   <data name="Font_Color_Black" xml:space="preserve">
@@ -3133,7 +3130,7 @@ Les noms non valides incluent
   <data name="SettingDisplayHiddenItemDescription.Text" xml:space="preserve">
     <value>Les fichiers cachés seront affichés après avoir activé cette option</value>
   </data>
-  <data name="SettingFolderOpenMethodDescription.Text" xml:space="preserve">
+  <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
     <value>Choisissez les habitudes de fonctionnement appropriées en fonction de vos préférences</value>
   </data>
   <data name="SettingHideProtectedSystemItemsDescription.Text" xml:space="preserve">

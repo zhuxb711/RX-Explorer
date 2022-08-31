@@ -526,9 +526,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>Grundlegend</value>
   </data>
-  <data name="SettingFolderOpenMethodLabel.Text" xml:space="preserve">
-    <value>Ordneröffnungsmethode</value>
-  </data>
   <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>Acryl-Lichtdurchlässigkeit bestimmt, wie viel Licht aus dem Hintergrund durch das Acrylmaterial der App kommen darf. Je kleiner der Wert, desto höher das Farbverhältnis des Acryl-Themas und desto höher der Lichtanteil aus dem Hintergrund.</value>
   </data>
@@ -1660,10 +1657,10 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="Operate_Text_RemoveHidden" xml:space="preserve">
     <value>Ausgeblendete Eigenschaften entfernen</value>
   </data>
-  <data name="Folder_Open_Method_1" xml:space="preserve">
+  <data name="Click_Perference_1" xml:space="preserve">
     <value>Doppelklick</value>
   </data>
-  <data name="Folder_Open_Method_2" xml:space="preserve">
+  <data name="Click_Perference_2" xml:space="preserve">
     <value>Einzelklick</value>
   </data>
   <data name="Font_Color_Black" xml:space="preserve">
@@ -3135,7 +3132,7 @@ Inkorrekte Namen sind
   <data name="SettingDisplayHiddenItemDescription.Text" xml:space="preserve">
     <value>Versteckte Dateien werden angezeigt, nachdem diese Option aktiviert wurde</value>
   </data>
-  <data name="SettingFolderOpenMethodDescription.Text" xml:space="preserve">
+  <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
     <value>Wählen Sie die passenden Betriebsgewohnheiten nach Ihren Vorlieben</value>
   </data>
   <data name="SettingHideProtectedSystemItemsDescription.Text" xml:space="preserve">

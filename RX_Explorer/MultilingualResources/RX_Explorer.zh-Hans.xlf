@@ -672,10 +672,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Basic</source>
           <target state="translated">基本</target>
         </trans-unit>
-        <trans-unit id="SettingFolderOpenMethodLabel.Text" translate="yes" xml:space="preserve">
-          <source>Folder open method</source>
-          <target state="translated">文件夹打开方式</target>
-        </trans-unit>
         <trans-unit id="TintLuminosityTipContent.Text" translate="yes" xml:space="preserve">
           <source>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</source>
           <target state="translated">Acrylic透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高。</target>
@@ -2120,11 +2116,11 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Remove hidden attributes</source>
           <target state="translated">尝试移除隐藏属性</target>
         </trans-unit>
-        <trans-unit id="Folder_Open_Method_1" translate="yes" xml:space="preserve">
+        <trans-unit id="Click_Perference_1" translate="yes" xml:space="preserve">
           <source>Double Click</source>
           <target state="translated">双击</target>
         </trans-unit>
-        <trans-unit id="Folder_Open_Method_2" translate="yes" xml:space="preserve">
+        <trans-unit id="Click_Perference_2" translate="yes" xml:space="preserve">
           <source>Single Click</source>
           <target state="translated">单击</target>
         </trans-unit>
@@ -4161,7 +4157,7 @@ Invalid names include
           <source>Hidden files will be shown after enabling this option</source>
           <target state="translated">启用此选项后将显示隐藏文件</target>
         </trans-unit>
-        <trans-unit id="SettingFolderOpenMethodDescription.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingClickPerferenceDescription.Text" translate="yes" xml:space="preserve">
           <source>Choose the appropriate operating habits according to your preferences</source>
           <target state="translated">根据您的喜好选择符合的操作习惯</target>
         </trans-unit>
@@ -4829,6 +4825,10 @@ Invalid names include
         <trans-unit id="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" translate="yes" xml:space="preserve">
           <source>Show label folders in Quick Access node</source>
           <target state="translated">在快速访问节点中显示标签文件夹</target>
+        </trans-unit>
+        <trans-unit id="SettingClickPerferenceLabel.Text" translate="yes" xml:space="preserve">
+          <source>Click perference</source>
+          <target state="new">Click perference</target>
         </trans-unit>
       </group>
     </body>

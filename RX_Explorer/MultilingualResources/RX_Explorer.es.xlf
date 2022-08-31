@@ -692,10 +692,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Basic</source>
           <target state="translated">Básico</target>
         </trans-unit>
-        <trans-unit id="SettingFolderOpenMethodLabel.Text" translate="yes" xml:space="preserve">
-          <source>Folder open method</source>
-          <target state="translated">Método para abrir carpetas</target>
-        </trans-unit>
         <trans-unit id="TintLuminosityTipContent.Text" translate="yes" xml:space="preserve">
           <source>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</source>
           <target state="translated">La transmitancia acrílica determina cuánta luz puede atravesar el material acrílico de la aplicación. Cuanto menor sea el valor, mayor será la relación de color del tema acrílico y mayor será el porcentaje de luz del fondo.</target>
@@ -2193,11 +2189,11 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Remove hidden attributes</source>
           <target state="translated">Eliminar atributos ocultos</target>
         </trans-unit>
-        <trans-unit id="Folder_Open_Method_1" translate="yes" xml:space="preserve">
+        <trans-unit id="Click_Perference_1" translate="yes" xml:space="preserve">
           <source>Double Click</source>
           <target state="translated">Clic Doble</target>
         </trans-unit>
-        <trans-unit id="Folder_Open_Method_2" translate="yes" xml:space="preserve">
+        <trans-unit id="Click_Perference_2" translate="yes" xml:space="preserve">
           <source>Single Click</source>
           <target state="translated">Un solo click</target>
         </trans-unit>
@@ -4161,7 +4157,7 @@ Las denominaciones no válidas son:
           <source>Hidden files will be shown after enabling this option</source>
           <target state="translated">Los archivos ocultos se mostrarán después de habilitar esta opción</target>
         </trans-unit>
-        <trans-unit id="SettingFolderOpenMethodDescription.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingClickPerferenceDescription.Text" translate="yes" xml:space="preserve">
           <source>Choose the appropriate operating habits according to your preferences</source>
           <target state="translated">Elija los hábitos operativos adecuados según sus preferencias</target>
         </trans-unit>
@@ -4829,6 +4825,10 @@ Las denominaciones no válidas son:
         <trans-unit id="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" translate="yes" xml:space="preserve">
           <source>Show label folders in Quick Access node</source>
           <target state="translated">Mostrar carpetas de etiquetas en el nodo de acceso rápido</target>
+        </trans-unit>
+        <trans-unit id="SettingClickPerferenceLabel.Text" translate="yes" xml:space="preserve">
+          <source>Click perference</source>
+          <target state="new">Click perference</target>
         </trans-unit>
       </group>
     </body>

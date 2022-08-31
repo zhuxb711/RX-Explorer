@@ -1100,8 +1100,8 @@ namespace RX_Explorer.View
                 UIMode.Items.Add(Globalization.GetString("Setting_UIMode_SolidColor"));
                 UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Custom"));
 
-                FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_2"));
-                FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_1"));
+                ClickPerference.Items.Add(Globalization.GetString("Click_Perference_2"));
+                ClickPerference.Items.Add(Globalization.GetString("Click_Perference_1"));
 
                 ThemeColor.Items.Add(Globalization.GetString("Font_Color_Black"));
                 ThemeColor.Items.Add(Globalization.GetString("Font_Color_White"));
@@ -1390,7 +1390,7 @@ namespace RX_Explorer.View
 
                 ViewHeightOffsetNumberBox.Value = ViewHeightOffset;
                 VerticalSplitViewLimitationNumberBox.Value = VerticalSplitViewLimitation;
-                FolderOpenMethod.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
+                ClickPerference.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
                 TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
                 EnableQuicklook.IsOn = IsQuicklookEnabled;
                 DisplayHiddenItem.IsOn = IsDisplayHiddenItemsEnabled;
@@ -2712,9 +2712,9 @@ namespace RX_Explorer.View
             }
         }
 
-        private void FolderOpenMethod_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ClickPerference_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            switch (FolderOpenMethod.SelectedIndex)
+            switch (ClickPerference.SelectedIndex)
             {
                 case 0:
                     {
