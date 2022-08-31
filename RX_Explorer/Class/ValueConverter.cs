@@ -132,8 +132,7 @@ namespace RX_Explorer.Class
 
             if (value is string Name)
             {
-                if (Name.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)
-                    || (!SettingPage.IsShowFileExtensionsEnabled && ItemsSource.OfType<FileSystemStorageFile>().Any((Item) => Item.Name.Equals(Name, StringComparison.OrdinalIgnoreCase))))
+                if (!SettingPage.IsShowFileExtensionsEnabled && ItemsSource.OfType<FileSystemStorageFile>().Any((Item) => Item.Name.Equals(Name, StringComparison.OrdinalIgnoreCase)))
                 {
                     string NameWithoutExtension = Path.GetFileNameWithoutExtension(Name);
 

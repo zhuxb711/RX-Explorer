@@ -5725,7 +5725,7 @@ namespace RX_Explorer.View
                                     {
                                         using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                         {
-                                            if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
+                                            string NewPath = await Exclusive.Controller.CreateLinkAsync(new LinkFileData
                                             {
                                                 LinkPath = Path.Combine(CurrentFolder.Path, NewFileName),
                                                 LinkTargetPath = Dialog.Path,
@@ -5734,10 +5734,9 @@ namespace RX_Explorer.View
                                                 HotKey = Dialog.HotKey,
                                                 Comment = Dialog.Comment,
                                                 Arguments = Dialog.Arguments
-                                            }))
-                                            {
-                                                throw new UnauthorizedAccessException();
-                                            }
+                                            });
+
+                                            NewFile = await FileSystemStorageItemBase.OpenAsync(NewPath);
                                         }
                                     }
                                 }
@@ -7749,11 +7748,15 @@ namespace RX_Explorer.View
                                 {
                                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
+                                        try
                                         {
-                                            LinkPath = Path.Combine(DesktopPath, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
-                                            LinkTargetPath = SItem.Path
-                                        }))
+                                            await Exclusive.Controller.CreateLinkAsync(new LinkFileData
+                                            {
+                                                LinkPath = Path.Combine(DesktopPath, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
+                                                LinkTargetPath = SItem.Path
+                                            });
+                                        }
+                                        catch (Exception)
                                         {
                                             QueueContentDialog Dialog = new QueueContentDialog
                                             {
@@ -7780,11 +7783,15 @@ namespace RX_Explorer.View
                                         {
                                             using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                             {
-                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
+                                                try
                                                 {
-                                                    LinkPath = Path.Combine(DataPath.Desktop, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
-                                                    LinkTargetPath = SItem.Path
-                                                }))
+                                                    await Exclusive.Controller.CreateLinkAsync(new LinkFileData
+                                                    {
+                                                        LinkPath = Path.Combine(DataPath.Desktop, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
+                                                        LinkTargetPath = SItem.Path
+                                                    });
+                                                }
+                                                catch (Exception)
                                                 {
                                                     QueueContentDialog Dialog = new QueueContentDialog
                                                     {

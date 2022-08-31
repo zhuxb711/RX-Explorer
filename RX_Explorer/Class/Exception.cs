@@ -83,21 +83,6 @@ namespace RX_Explorer.Class
         }
     }
 
-    public sealed class NoResponseException : Exception
-    {
-        public NoResponseException(string ErrorMessage) : base(ErrorMessage)
-        {
-        }
-
-        public NoResponseException() : base()
-        {
-        }
-
-        public NoResponseException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-    }
-
     public sealed class UnlockFileFailedException : Exception
     {
         public UnlockFileFailedException(string ErrorMessage) : base(ErrorMessage)

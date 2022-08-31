@@ -658,24 +658,24 @@
                                             <RelativePanel Padding="4,10,0,10">
                                                 <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                             RelativePanel.AlignLeftWithPanel="True"
-                                                            RelativePanel.LeftOf="FolderOpenMethod"
+                                                            RelativePanel.LeftOf="ClickPreference"
                                                             Margin="0,0,20,0">
                                                     <TextBlock Text="点击偏好"
                                                                TextTrimming="CharacterEllipsis"
-                                                               x:Uid="SettingClickPerferenceLabel" />
+                                                               x:Uid="SettingClickPreferenceLabel" />
                                                     <TextBlock FontSize="12"
                                                                TextWrapping="WrapWholeWords"
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="Gray"
-                                                               x:Uid="SettingClickPerferenceDescription"
-                                                               Text="根据您的喜好选择符合的操作习惯" />
+                                                               x:Uid="SettingClickPreferenceDescription"
+                                                               Text="根据自己的喜好选择合适的操作习惯" />
                                                 </StackPanel>
                                                 <ComboBox MinWidth="150"
-                                                          Name="ClickPerference"
+                                                          Name="ClickPreference"
                                                           Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                          SelectionChanged="ClickPerference_SelectionChanged" />
+                                                          SelectionChanged="ClickPreference_SelectionChanged" />
                                             </RelativePanel>
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
@@ -832,9 +832,10 @@
                                                         RelativePanel.LeftOf="EnableSeer"
                                                         Margin="0,0,20,0">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="Seer预览"
+                                                    <TextBlock Text="Seer"
                                                                TextTrimming="CharacterEllipsis" />
                                                     <HyperlinkButton Content="下载链接"
+                                                                     x:Uid="SettingPageDownloadHyperlinkContent"
                                                                      FontSize="10"
                                                                      Padding="2"
                                                                      Margin="10,0,0,0"
@@ -844,12 +845,14 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           Text="Seer是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装Seer并确保Seer正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活Seer" />
+                                                           x:Uid="SettingPageSeerContent"
+                                                           Text="Seer是一款Windows平台下的快速查看工具。就像在MacOS中一样，但Seer运行速度更快，可定制化更高，支持格式更多。若要启用此功能，则您必须提前安装Seer并确保Seer正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活Seer" />
                                             </StackPanel>
                                             <ToggleSwitch Name="EnableSeer"
                                                           OnContent="启用"
                                                           OffContent="禁用"
                                                           Toggled="EnableSeer_Toggled"
+                                                          x:Uid="SettingPageSeerSwitch"
                                                           Style="{StaticResource SettingToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
@@ -869,13 +872,13 @@
                                                         RelativePanel.LeftOf="EnableQuicklook"
                                                         Margin="0,0,20,0">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="QuickLook预览"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               x:Uid="QuicklookHeader" />
+                                                    <TextBlock Text="QuickLook"
+                                                               TextTrimming="CharacterEllipsis" />
                                                     <HyperlinkButton FontSize="10"
                                                                      Padding="2"
                                                                      Margin="10,0,0,0"
                                                                      Content="下载链接"
+                                                                     x:Uid="SettingPageDownloadHyperlinkContent"
                                                                      NavigateUri="ms-windows-store://pdp/?ProductId=9NV4BS3L1H4S" />
                                                 </StackPanel>
                                                 <TextBlock x:Uid="QuicklookTipContent"

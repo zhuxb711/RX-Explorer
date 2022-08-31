@@ -976,10 +976,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Enabled</source>
           <target state="translated" state-qualifier="tm-suggestion">啟用</target>
         </trans-unit>
-        <trans-unit id="QuicklookHeader.Text" translate="yes" xml:space="preserve">
-          <source>Quicklook</source>
-          <target state="translated">Quicklook</target>
-        </trans-unit>
         <trans-unit id="QuicklookTipContent.Text" translate="yes" xml:space="preserve">
           <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
           <target state="translated">QuickLook是一個輔助軟體，可方便快捷地查看檔案內容。若要啟用此功能，必須預先安裝QuickLook並確保QuickLook正常執行。 您可以在RX 檔案總管中單擊任意檔案，然後按空格鍵以使用QuickLook</target>
@@ -4157,10 +4153,6 @@ Invalid names include
           <source>Hidden files will be shown after enabling this option</source>
           <target state="translated">啟用此選項後將顯示隱藏文件</target>
         </trans-unit>
-        <trans-unit id="SettingClickPerferenceDescription.Text" translate="yes" xml:space="preserve">
-          <source>Choose the appropriate operating habits according to your preferences</source>
-          <target state="translated">根據自己的喜好選擇合適的操作習慣</target>
-        </trans-unit>
         <trans-unit id="SettingHideProtectedSystemItemsDescription.Text" translate="yes" xml:space="preserve">
           <source>It is strongly recommended to keep this option selected, system files should not be modified or moved</source>
           <target state="translated">強烈建議保持選中此選項，不應修改或移動系統文件</target>
@@ -4295,11 +4287,11 @@ Invalid names include
         </trans-unit>
         <trans-unit id="FileExtensionSwitch.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
-          <target state="translated">已禁用</target>
+          <target state="translated">禁用</target>
         </trans-unit>
         <trans-unit id="FileExtensionSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
-          <target state="translated">已啟用</target>
+          <target state="translated">啟用</target>
         </trans-unit>
         <trans-unit id="AllowIndex.Content" translate="yes" xml:space="preserve">
           <source>Allow files on this drive to have contents indexed in addition to file properties</source>
@@ -4623,11 +4615,11 @@ Invalid names include
         </trans-unit>
         <trans-unit id="SettingPageExplorerContextMenuSwitch.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
-          <target state="translated">已禁用</target>
+          <target state="translated">禁用</target>
         </trans-unit>
         <trans-unit id="SettingPageExplorerContextMenuSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
-          <target state="translated">已啟用</target>
+          <target state="translated">啟用</target>
         </trans-unit>
         <trans-unit id="BluetoothSendFileButtonText" translate="yes" xml:space="preserve">
           <source>Send file</source>
@@ -4792,11 +4784,11 @@ Invalid names include
         </trans-unit>
         <trans-unit id="AppGuardSwitch.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
-          <target state="translated">已禁用</target>
+          <target state="translated">禁用</target>
         </trans-unit>
         <trans-unit id="AppGuardSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
-          <target state="translated">已啟用</target>
+          <target state="translated">啟用</target>
         </trans-unit>
         <trans-unit id="Operate_Text_RevealCurrentFolder" translate="yes" xml:space="preserve">
           <source>Reveal in navigation panel</source>
@@ -4826,9 +4818,29 @@ Invalid names include
           <source>Show label folders in Quick Access node</source>
           <target state="translated">在快速訪問節點中顯示標籤文件夾</target>
         </trans-unit>
-        <trans-unit id="SettingClickPerferenceLabel.Text" translate="yes" xml:space="preserve">
-          <source>Click perference</source>
-          <target state="new">Click perference</target>
+        <trans-unit id="SettingClickPreferenceLabel.Text" translate="yes" xml:space="preserve">
+          <source>Click preference</source>
+          <target state="translated">點擊偏好</target>
+        </trans-unit>
+        <trans-unit id="SettingPageDownloadHyperlinkContent.Content" translate="yes" xml:space="preserve">
+          <source>Download link</source>
+          <target state="translated">下載鏈接</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSeerContent.Text" translate="yes" xml:space="preserve">
+          <source>Seer is a quick view tool for Windows platform. Just like in MacOS, but Seer runs faster, is more customizable, and supports more formats. To enable this feature, you must install Seer in advance and ensure that Seer is running properly. You can activate Seer by selecting any file in the RX-Explorer and pressing the space bar</source>
+          <target state="translated">Seer是一款適用於Windows平台的快速查看工具。 就像在MacOS中一樣，但Seer運行速度更快，更可定制，並且支持更多格式。 要啟用此功能，您必須提前安裝Seer，並確保Seer運行正常。 您可以通過在RX-Explorer中選擇任何文件並按空格鍵來激活Seer</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSeerSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSeerSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">啟用</target>
+        </trans-unit>
+        <trans-unit id="SettingClickPerferenceDescription.Text" translate="yes" xml:space="preserve">
+          <source>Choose the appropriate operating habits according to your preferences</source>
+          <target state="translated">根據自己的喜好選擇合適的操作習慣</target>
         </trans-unit>
       </group>
     </body>

@@ -730,9 +730,6 @@
   <data name="EnableQuicklook.OnContent" xml:space="preserve">
     <value>启用</value>
   </data>
-  <data name="QuicklookHeader.Text" xml:space="preserve">
-    <value>Quicklook预览</value>
-  </data>
   <data name="QuicklookTipContent.Text" xml:space="preserve">
     <value>QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook</value>
   </data>
@@ -3130,9 +3127,6 @@
   <data name="SettingDisplayHiddenItemDescription.Text" xml:space="preserve">
     <value>启用此选项后将显示隐藏文件</value>
   </data>
-  <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
-    <value>根据您的喜好选择符合的操作习惯</value>
-  </data>
   <data name="SettingHideProtectedSystemItemsDescription.Text" xml:space="preserve">
     <value>强烈建议保持此项选中，系统文件不应被修改或移动</value>
   </data>
@@ -3606,10 +3600,10 @@
     <value>失去响应时恢复并重启本应用</value>
   </data>
   <data name="AppGuardSwitch.OffContent" xml:space="preserve">
-    <value>已禁用</value>
+    <value>禁用</value>
   </data>
   <data name="AppGuardSwitch.OnContent" xml:space="preserve">
-    <value>已启用</value>
+    <value>启用</value>
   </data>
   <data name="Operate_Text_RevealCurrentFolder" xml:space="preserve">
     <value>在导航面板中显示</value>
@@ -3631,5 +3625,23 @@
   </data>
   <data name="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" xml:space="preserve">
     <value>在快速访问节点中显示标签文件夹</value>
+  </data>
+  <data name="SettingClickPreferenceLabel.Text" xml:space="preserve">
+    <value>点击偏好</value>
+  </data>
+  <data name="SettingPageDownloadHyperlinkContent.Content" xml:space="preserve">
+    <value>下载链接</value>
+  </data>
+  <data name="SettingPageSeerContent.Text" xml:space="preserve">
+    <value>Seer是一款Windows平台下的快速查看工具。就像在MacOS中一样，但Seer运行速度更快，可定制化更高，支持格式更多。若要启用此功能，则您必须提前安装Seer并确保Seer正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活Seer</value>
+  </data>
+  <data name="SettingPageSeerSwitch.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="SettingPageSeerSwitch.OnContent" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
+    <value>根据自己的喜好选择合适的操作习惯</value>
   </data>
 </root>

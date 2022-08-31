@@ -739,9 +739,6 @@
   <data name="EnableQuicklook.OnContent" xml:space="preserve">
     <value>啟用</value>
   </data>
-  <data name="QuicklookHeader.Text" xml:space="preserve">
-    <value>Quicklook</value>
-  </data>
   <data name="QuicklookTipContent.Text" xml:space="preserve">
     <value>QuickLook是一個輔助軟體，可方便快捷地查看檔案內容。若要啟用此功能，必須預先安裝QuickLook並確保QuickLook正常執行。 您可以在RX 檔案總管中單擊任意檔案，然後按空格鍵以使用QuickLook</value>
   </data>
@@ -3130,9 +3127,6 @@
   <data name="SettingDisplayHiddenItemDescription.Text" xml:space="preserve">
     <value>啟用此選項後將顯示隱藏文件</value>
   </data>
-  <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
-    <value>根據自己的喜好選擇合適的操作習慣</value>
-  </data>
   <data name="SettingHideProtectedSystemItemsDescription.Text" xml:space="preserve">
     <value>強烈建議保持選中此選項，不應修改或移動系統文件</value>
   </data>
@@ -3233,10 +3227,10 @@
     <value>顯示文件擴展名</value>
   </data>
   <data name="FileExtensionSwitch.OffContent" xml:space="preserve">
-    <value>已禁用</value>
+    <value>禁用</value>
   </data>
   <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
-    <value>已啟用</value>
+    <value>啟用</value>
   </data>
   <data name="AllowIndex.Content" xml:space="preserve">
     <value>除了文件属性外，还允许索引此驱动器上的文件内容</value>
@@ -3479,10 +3473,10 @@
     <value>啟用此選項將在 Windows 資源管理器中添加“使用 RX-Explorer 打開”菜單項，以更快地啟動此應用程序</value>
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OffContent" xml:space="preserve">
-    <value>已禁用</value>
+    <value>禁用</value>
   </data>
   <data name="SettingPageExplorerContextMenuSwitch.OnContent" xml:space="preserve">
-    <value>已啟用</value>
+    <value>啟用</value>
   </data>
   <data name="BluetoothSendFileButtonText" xml:space="preserve">
     <value>发送档案</value>
@@ -3606,10 +3600,10 @@
     <value>凍結時恢復並重新啟動應用程序</value>
   </data>
   <data name="AppGuardSwitch.OffContent" xml:space="preserve">
-    <value>已禁用</value>
+    <value>禁用</value>
   </data>
   <data name="AppGuardSwitch.OnContent" xml:space="preserve">
-    <value>已啟用</value>
+    <value>啟用</value>
   </data>
   <data name="Operate_Text_RevealCurrentFolder" xml:space="preserve">
     <value>在導航面板中顯示</value>
@@ -3631,5 +3625,23 @@
   </data>
   <data name="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" xml:space="preserve">
     <value>在快速訪問節點中顯示標籤文件夾</value>
+  </data>
+  <data name="SettingClickPreferenceLabel.Text" xml:space="preserve">
+    <value>點擊偏好</value>
+  </data>
+  <data name="SettingPageDownloadHyperlinkContent.Content" xml:space="preserve">
+    <value>下載鏈接</value>
+  </data>
+  <data name="SettingPageSeerContent.Text" xml:space="preserve">
+    <value>Seer是一款適用於Windows平台的快速查看工具。 就像在MacOS中一樣，但Seer運行速度更快，更可定制，並且支持更多格式。 要啟用此功能，您必須提前安裝Seer，並確保Seer運行正常。 您可以通過在RX-Explorer中選擇任何文件並按空格鍵來激活Seer</value>
+  </data>
+  <data name="SettingPageSeerSwitch.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="SettingPageSeerSwitch.OnContent" xml:space="preserve">
+    <value>啟用</value>
+  </data>
+  <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
+    <value>根據自己的喜好選擇合適的操作習慣</value>
   </data>
 </root>

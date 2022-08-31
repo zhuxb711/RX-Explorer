@@ -964,10 +964,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Enabled</source>
           <target state="translated">启用</target>
         </trans-unit>
-        <trans-unit id="QuicklookHeader.Text" translate="yes" xml:space="preserve">
-          <source>Quicklook</source>
-          <target state="translated">Quicklook预览</target>
-        </trans-unit>
         <trans-unit id="QuicklookTipContent.Text" translate="yes" xml:space="preserve">
           <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
           <target state="translated">QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook</target>
@@ -4157,10 +4153,6 @@ Invalid names include
           <source>Hidden files will be shown after enabling this option</source>
           <target state="translated">启用此选项后将显示隐藏文件</target>
         </trans-unit>
-        <trans-unit id="SettingClickPerferenceDescription.Text" translate="yes" xml:space="preserve">
-          <source>Choose the appropriate operating habits according to your preferences</source>
-          <target state="translated">根据您的喜好选择符合的操作习惯</target>
-        </trans-unit>
         <trans-unit id="SettingHideProtectedSystemItemsDescription.Text" translate="yes" xml:space="preserve">
           <source>It is strongly recommended to keep this option selected, system files should not be modified or moved</source>
           <target state="translated">强烈建议保持此项选中，系统文件不应被修改或移动</target>
@@ -4792,11 +4784,11 @@ Invalid names include
         </trans-unit>
         <trans-unit id="AppGuardSwitch.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
-          <target state="translated">已禁用</target>
+          <target state="translated">禁用</target>
         </trans-unit>
         <trans-unit id="AppGuardSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
-          <target state="translated">已启用</target>
+          <target state="translated">启用</target>
         </trans-unit>
         <trans-unit id="Operate_Text_RevealCurrentFolder" translate="yes" xml:space="preserve">
           <source>Reveal in navigation panel</source>
@@ -4826,9 +4818,29 @@ Invalid names include
           <source>Show label folders in Quick Access node</source>
           <target state="translated">在快速访问节点中显示标签文件夹</target>
         </trans-unit>
-        <trans-unit id="SettingClickPerferenceLabel.Text" translate="yes" xml:space="preserve">
-          <source>Click perference</source>
-          <target state="new">Click perference</target>
+        <trans-unit id="SettingClickPreferenceLabel.Text" translate="yes" xml:space="preserve">
+          <source>Click preference</source>
+          <target state="translated">点击偏好</target>
+        </trans-unit>
+        <trans-unit id="SettingPageDownloadHyperlinkContent.Content" translate="yes" xml:space="preserve">
+          <source>Download link</source>
+          <target state="translated">下载链接</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSeerContent.Text" translate="yes" xml:space="preserve">
+          <source>Seer is a quick view tool for Windows platform. Just like in MacOS, but Seer runs faster, is more customizable, and supports more formats. To enable this feature, you must install Seer in advance and ensure that Seer is running properly. You can activate Seer by selecting any file in the RX-Explorer and pressing the space bar</source>
+          <target state="translated">Seer是一款Windows平台下的快速查看工具。就像在MacOS中一样，但Seer运行速度更快，可定制化更高，支持格式更多。若要启用此功能，则您必须提前安装Seer并确保Seer正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活Seer</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSeerSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSeerSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">启用</target>
+        </trans-unit>
+        <trans-unit id="SettingClickPerferenceDescription.Text" translate="yes" xml:space="preserve">
+          <source>Choose the appropriate operating habits according to your preferences</source>
+          <target state="translated">根据自己的喜好选择合适的操作习惯</target>
         </trans-unit>
       </group>
     </body>

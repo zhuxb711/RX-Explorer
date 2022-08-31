@@ -2004,7 +2004,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                     {
-                        if (await Exclusive.Controller.TryUnlockFileOccupy(File.Path, ((Button)sender).Name == "CloseForce"))
+                        if (await Exclusive.Controller.TryUnlockFileAsync(File.Path, ((Button)sender).Name == "CloseForce"))
                         {
                             UnlockText.Text = Globalization.GetString("Properties_Tools_Unlock_Success");
                         }

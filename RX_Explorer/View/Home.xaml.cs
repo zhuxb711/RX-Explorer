@@ -1622,11 +1622,15 @@ namespace RX_Explorer.View
                                     {
                                         using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                         {
-                                            if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
+                                            try
                                             {
-                                                LinkPath = Path.Combine(DesktopPath, $"{SItem.Name}.lnk"),
-                                                LinkTargetPath = SItem.Path
-                                            }))
+                                                await Exclusive.Controller.CreateLinkAsync(new LinkFileData
+                                                {
+                                                    LinkPath = Path.Combine(DesktopPath, $"{SItem.Name}.lnk"),
+                                                    LinkTargetPath = SItem.Path
+                                                });
+                                            }
+                                            catch (Exception)
                                             {
                                                 QueueContentDialog Dialog = new QueueContentDialog
                                                 {
@@ -1653,11 +1657,15 @@ namespace RX_Explorer.View
                                             {
                                                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                                 {
-                                                    if (!await Exclusive.Controller.CreateLinkAsync(new LinkFileData
+                                                    try
                                                     {
-                                                        LinkPath = Path.Combine(DataPath.Desktop, $"{SItem.Name}.lnk"),
-                                                        LinkTargetPath = SItem.Path
-                                                    }))
+                                                        await Exclusive.Controller.CreateLinkAsync(new LinkFileData
+                                                        {
+                                                            LinkPath = Path.Combine(DataPath.Desktop, $"{SItem.Name}.lnk"),
+                                                            LinkTargetPath = SItem.Path
+                                                        });
+                                                    }
+                                                    catch (Exception)
                                                     {
                                                         QueueContentDialog Dialog = new QueueContentDialog
                                                         {

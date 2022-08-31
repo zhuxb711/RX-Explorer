@@ -643,8 +643,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>Basic</value>
   </data>
-  <data name="SettingClickPerferenceLabel.Text" xml:space="preserve">
-    <value>Click perference</value>
+  <data name="SettingClickPreferenceLabel.Text" xml:space="preserve">
+    <value>Click preference</value>
   </data>
   <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</value>
@@ -892,9 +892,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="EnableQuicklook.OnContent" xml:space="preserve">
     <value>Enabled</value>
-  </data>
-  <data name="QuicklookHeader.Text" xml:space="preserve">
-    <value>Quicklook</value>
   </data>
   <data name="QuicklookTipContent.Text" xml:space="preserve">
     <value>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</value>
@@ -3741,5 +3738,17 @@ Invalid names include
   </data>
   <data name="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" xml:space="preserve">
     <value>Show label folders in Quick Access node</value>
+  </data>
+  <data name="SettingPageDownloadHyperlinkContent.Content" xml:space="preserve">
+    <value>Download link</value>
+  </data>
+  <data name="SettingPageSeerContent.Text" xml:space="preserve">
+    <value>Seer is a quick view tool for Windows platform. Just like in MacOS, but Seer runs faster, is more customizable, and supports more formats. To enable this feature, you must install Seer in advance and ensure that Seer is running properly. You can activate Seer by selecting any file in the RX-Explorer and pressing the space bar</value>
+  </data>
+  <data name="SettingPageSeerSwitch.OffContent" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="SettingPageSeerSwitch.OnContent" xml:space="preserve">
+    <value>Enabled</value>
   </data>
 </root>

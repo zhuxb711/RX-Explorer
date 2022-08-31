@@ -1140,8 +1140,8 @@ namespace RX_Explorer.View
                 UIMode.Items.Add(Globalization.GetString("Setting_UIMode_SolidColor"));
                 UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Custom"));
 
-                ClickPerference.Items.Add(Globalization.GetString("Click_Perference_2"));
-                ClickPerference.Items.Add(Globalization.GetString("Click_Perference_1"));
+                ClickPreference.Items.Add(Globalization.GetString("Click_Perference_2"));
+                ClickPreference.Items.Add(Globalization.GetString("Click_Perference_1"));
 
                 ThemeColor.Items.Add(Globalization.GetString("Font_Color_Black"));
                 ThemeColor.Items.Add(Globalization.GetString("Font_Color_White"));
@@ -1432,7 +1432,7 @@ namespace RX_Explorer.View
 
                 ViewHeightOffsetNumberBox.Value = ViewHeightOffset;
                 VerticalSplitViewLimitationNumberBox.Value = VerticalSplitViewLimitation;
-                ClickPerference.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
+                ClickPreference.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
                 TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
                 EnableQuicklook.IsOn = IsQuicklookEnabled;
                 EnableSeer.IsOn = IsSeerEnabled;
@@ -2805,9 +2805,9 @@ namespace RX_Explorer.View
             }
         }
 
-        private void ClickPerference_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ClickPreference_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            switch (ClickPerference.SelectedIndex)
+            switch (ClickPreference.SelectedIndex)
             {
                 case 0:
                     {

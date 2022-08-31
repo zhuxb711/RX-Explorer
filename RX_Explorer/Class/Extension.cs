@@ -396,72 +396,75 @@ namespace RX_Explorer.Class
         {
             return Task.Run(() =>
             {
-                UWP_HANDLE_ACCESS_OPTIONS Access = Mode switch
+                if (!string.IsNullOrEmpty(Item.Path))
                 {
-                    AccessMode.Read => UWP_HANDLE_ACCESS_OPTIONS.READ,
-                    AccessMode.ReadWrite or AccessMode.Exclusive => UWP_HANDLE_ACCESS_OPTIONS.READ | UWP_HANDLE_ACCESS_OPTIONS.WRITE,
-                    AccessMode.Write => UWP_HANDLE_ACCESS_OPTIONS.WRITE,
-                    _ => throw new NotSupportedException()
-                };
-
-                UWP_HANDLE_SHARING_OPTIONS Share = Mode switch
-                {
-                    AccessMode.Read => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ | UWP_HANDLE_SHARING_OPTIONS.SHARE_WRITE,
-                    AccessMode.ReadWrite or AccessMode.Write => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ,
-                    AccessMode.Exclusive => UWP_HANDLE_SHARING_OPTIONS.SHARE_NONE,
-                    _ => throw new NotSupportedException()
-                };
-
-                UWP_HANDLE_OPTIONS Optimize = UWP_HANDLE_OPTIONS.OVERLAPPED | Option switch
-                {
-                    OptimizeOption.None => UWP_HANDLE_OPTIONS.NONE,
-                    OptimizeOption.Sequential => UWP_HANDLE_OPTIONS.SEQUENTIAL_SCAN,
-                    OptimizeOption.RandomAccess => UWP_HANDLE_OPTIONS.RANDOM_ACCESS,
-                    _ => throw new NotSupportedException()
-                };
-
-                try
-                {
-                    IntPtr ComInterface = Marshal.GetComInterfaceForObject<IStorageItem, IStorageItemHandleAccess>(Item);
-
-                    if (ComInterface.CheckIfValidPtr())
+                    UWP_HANDLE_ACCESS_OPTIONS Access = Mode switch
                     {
-                        if (Marshal.GetObjectForIUnknown(ComInterface) is IStorageItemHandleAccess StorageHandleAccess)
+                        AccessMode.Read => UWP_HANDLE_ACCESS_OPTIONS.READ,
+                        AccessMode.ReadWrite or AccessMode.Exclusive => UWP_HANDLE_ACCESS_OPTIONS.READ | UWP_HANDLE_ACCESS_OPTIONS.WRITE,
+                        AccessMode.Write => UWP_HANDLE_ACCESS_OPTIONS.WRITE,
+                        _ => throw new NotSupportedException()
+                    };
+
+                    UWP_HANDLE_SHARING_OPTIONS Share = Mode switch
+                    {
+                        AccessMode.Read => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ | UWP_HANDLE_SHARING_OPTIONS.SHARE_WRITE,
+                        AccessMode.ReadWrite or AccessMode.Write => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ,
+                        AccessMode.Exclusive => UWP_HANDLE_SHARING_OPTIONS.SHARE_NONE,
+                        _ => throw new NotSupportedException()
+                    };
+
+                    UWP_HANDLE_OPTIONS Optimize = UWP_HANDLE_OPTIONS.OVERLAPPED | Option switch
+                    {
+                        OptimizeOption.None => UWP_HANDLE_OPTIONS.NONE,
+                        OptimizeOption.Sequential => UWP_HANDLE_OPTIONS.SEQUENTIAL_SCAN,
+                        OptimizeOption.RandomAccess => UWP_HANDLE_OPTIONS.RANDOM_ACCESS,
+                        _ => throw new NotSupportedException()
+                    };
+
+                    try
+                    {
+                        IntPtr ComInterface = Marshal.GetComInterfaceForObject<IStorageItem, IStorageItemHandleAccess>(Item);
+
+                        if (ComInterface.CheckIfValidPtr())
                         {
-                            int HResult = StorageHandleAccess.Create(Access, Share, Optimize, IntPtr.Zero, out IntPtr Handle);
-
-                            if (HResult != 0)
+                            if (Marshal.GetObjectForIUnknown(ComInterface) is IStorageItemHandleAccess StorageHandleAccess)
                             {
-                                Marshal.ThrowExceptionForHR(HResult);
-                            }
+                                int HResult = StorageHandleAccess.Create(Access, Share, Optimize, IntPtr.Zero, out IntPtr Handle);
 
-                            return new SafeFileHandle(Handle, true);
+                                if (HResult != 0)
+                                {
+                                    Marshal.ThrowExceptionForHR(HResult);
+                                }
+
+                                return new SafeFileHandle(Handle, true);
+                            }
                         }
                     }
-                }
-                catch (FileLoadException)
-                {
-                    LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because file is used by anther process, path: \"{Item.Path}\"");
-                }
-                catch (DirectoryNotFoundException)
-                {
-                    LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because directory is not found, path: \"{Item.Path}\"");
-                }
-                catch (FileNotFoundException)
-                {
-                    LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because file is not found, path: \"{Item.Path}\"");
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because do not have enough permission, path: \"{Item.Path}\"");
-                }
-                catch (BadImageFormatException)
-                {
-                    LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because the file is damaged, path: \"{Item.Path}\"");
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"Could not get handle from {nameof(IStorageItemHandleAccess)}, path: \"{Item.Path}\"");
+                    catch (FileLoadException)
+                    {
+                        LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because file is used by anther process, path: \"{Item.Path}\"");
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                        LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because directory is not found, path: \"{Item.Path}\"");
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because file is not found, path: \"{Item.Path}\"");
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because do not have enough permission, path: \"{Item.Path}\"");
+                    }
+                    catch (BadImageFormatException)
+                    {
+                        LogTracer.Log($"Could not get handle from {nameof(IStorageItemHandleAccess)} because the file is damaged, path: \"{Item.Path}\"");
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Could not get handle from {nameof(IStorageItemHandleAccess)}, path: \"{Item.Path}\"");
+                    }
                 }
 
                 return new SafeFileHandle(IntPtr.Zero, true);

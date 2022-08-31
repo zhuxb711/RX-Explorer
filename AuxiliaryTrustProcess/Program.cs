@@ -2179,7 +2179,9 @@ namespace AuxiliaryTrustProcess
                                     Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(' ') ? $"\"{Para.Trim('\"')}\"" : Para));
                                 }
 
-                                using (ShellLink Link = ShellLink.Create(Helper.GenerateUniquePathOnLocal(Package.LinkPath, CreateType.File), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
+                                string UniquePath = Helper.GenerateUniquePathOnLocal(Package.LinkPath, CreateType.File);
+
+                                using (ShellLink Link = ShellLink.Create(UniquePath, Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
                                 {
                                     Link.ShowState = Package.WindowState switch
                                     {
@@ -2196,7 +2198,14 @@ namespace AuxiliaryTrustProcess
                                     }
                                 }
 
-                                Value.Add("Success", string.Empty);
+                                if (File.Exists(UniquePath))
+                                {
+                                    Value.Add("Success", UniquePath);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Could not create the lnk file as expected");
+                                }
 
                                 break;
                             }
@@ -3352,7 +3361,7 @@ namespace AuxiliaryTrustProcess
                                                 double CurrentPosition = 0;
                                                 double EachTaskStep = 100d / SourceRelativePathMapping.Count;
 
-                                                foreach (KeyValuePair<string,string> SourceRelativePair in SourceRelativePathMapping)
+                                                foreach (KeyValuePair<string, string> SourceRelativePair in SourceRelativePathMapping)
                                                 {
                                                     Cancellation.Token.ThrowIfCancellationRequested();
 

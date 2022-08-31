@@ -564,7 +564,7 @@ namespace SystemLaunchHelper
                                         Process.Start(new ProcessStartInfo
                                         {
                                             FileName = "powershell.exe",
-                                            Arguments = $"-Command \"Start-Sleep -Seconds 10;Remove-Item -Path '{AppDomain.CurrentDomain.BaseDirectory}' -Recurse -Force\"",
+                                            Arguments = $"-Command \"Wait-Process -Id {Environment.ProcessId} -Timeout 30;Stop-Process -Id {Environment.ProcessId} -Force;Remove-Item -Path '{AppDomain.CurrentDomain.BaseDirectory}' -Recurse -Force\"",
                                             CreateNoWindow = true,
                                             UseShellExecute = false
                                         }).Dispose();

@@ -730,9 +730,6 @@
   <data name="EnableQuicklook.OnContent" xml:space="preserve">
     <value>Activé</value>
   </data>
-  <data name="QuicklookHeader.Text" xml:space="preserve">
-    <value>Quicklook</value>
-  </data>
   <data name="QuicklookTipContent.Text" xml:space="preserve">
     <value>QuickLook est un logiciel auxiliaire qui permet de visualiser rapidement et facilement le contenu des fichiers. Pour activer cette fonction, vous devez installer QuickLook à l'avance et vous assurer que QuickLook fonctionne correctement. Vous pouvez cliquer sur n'importe quel fichier dans RX Explorateur et appuyer sur la barre d'espace pour activer QuickLook</value>
   </data>
@@ -3130,9 +3127,6 @@ Les noms non valides incluent
   <data name="SettingDisplayHiddenItemDescription.Text" xml:space="preserve">
     <value>Les fichiers cachés seront affichés après avoir activé cette option</value>
   </data>
-  <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
-    <value>Choisissez les habitudes de fonctionnement appropriées en fonction de vos préférences</value>
-  </data>
   <data name="SettingHideProtectedSystemItemsDescription.Text" xml:space="preserve">
     <value>Il est fortement recommandé de garder cette option sélectionnée, les fichiers système ne doivent pas être modifiés ou déplacés</value>
   </data>
@@ -3631,5 +3625,23 @@ Les noms non valides incluent
   </data>
   <data name="SettingDisplayLabelFolderInQuickAccessNodeLabel.Text" xml:space="preserve">
     <value>Afficher les dossiers d'étiquettes dans le nœud d'accès rapide</value>
+  </data>
+  <data name="SettingClickPreferenceLabel.Text" xml:space="preserve">
+    <value>Préférence de clic</value>
+  </data>
+  <data name="SettingPageDownloadHyperlinkContent.Content" xml:space="preserve">
+    <value>Lien de téléchargement</value>
+  </data>
+  <data name="SettingPageSeerContent.Text" xml:space="preserve">
+    <value>Seer est un outil de visualisation rapide pour la plate-forme Windows. Tout comme dans MacOS, mais Seer s'exécute plus rapidement, est plus personnalisable et prend en charge plus de formats. Pour activer cette fonctionnalité, vous devez installer Seer à l'avance et vous assurer que Seer fonctionne correctement. Vous pouvez activer Seer en sélectionnant n'importe quel fichier dans le RX-Explorer et en appuyant sur la barre d'espace</value>
+  </data>
+  <data name="SettingPageSeerSwitch.OffContent" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="SettingPageSeerSwitch.OnContent" xml:space="preserve">
+    <value>Activé</value>
+  </data>
+  <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
+    <value>Choisissez les habitudes de fonctionnement appropriées selon vos préférences</value>
   </data>
 </root>

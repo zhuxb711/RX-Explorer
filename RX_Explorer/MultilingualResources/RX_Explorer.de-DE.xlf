@@ -1021,10 +1021,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Enabled</source>
           <target state="translated">Aktiviert</target>
         </trans-unit>
-        <trans-unit id="QuicklookHeader.Text" translate="yes" xml:space="preserve">
-          <source>Quicklook</source>
-          <target state="translated">Quicklook</target>
-        </trans-unit>
         <trans-unit id="QuicklookTipContent.Text" translate="yes" xml:space="preserve">
           <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
           <target state="translated">QuickLook ist eine Hilfssoftware für die bequeme und schnelle Anzeige von Dateiinhalten. Um diese Funktion zu aktivieren, müssen Sie QuickLook im Voraus installieren und sicherstellen, dass QuickLook ordnungsgemäß funktioniert. Sie können auf eine beliebige Datei im RX Explorer klicken und die Leertaste drücken, um QuickLook zu aktivieren.</target>
@@ -4157,10 +4153,6 @@ Inkorrekte Namen sind
           <source>Hidden files will be shown after enabling this option</source>
           <target state="translated">Versteckte Dateien werden angezeigt, nachdem diese Option aktiviert wurde</target>
         </trans-unit>
-        <trans-unit id="SettingClickPerferenceDescription.Text" translate="yes" xml:space="preserve">
-          <source>Choose the appropriate operating habits according to your preferences</source>
-          <target state="translated">Wählen Sie die passenden Betriebsgewohnheiten nach Ihren Vorlieben</target>
-        </trans-unit>
         <trans-unit id="SettingHideProtectedSystemItemsDescription.Text" translate="yes" xml:space="preserve">
           <source>It is strongly recommended to keep this option selected, system files should not be modified or moved</source>
           <target state="translated">Es wird dringend empfohlen, diese Option aktiviert zu lassen, Systemdateien sollten nicht geändert oder verschoben werden</target>
@@ -4826,9 +4818,29 @@ Inkorrekte Namen sind
           <source>Show label folders in Quick Access node</source>
           <target state="translated">Etikettenordner im Schnellzugriffsknoten anzeigen</target>
         </trans-unit>
-        <trans-unit id="SettingClickPerferenceLabel.Text" translate="yes" xml:space="preserve">
-          <source>Click perference</source>
-          <target state="new">Click perference</target>
+        <trans-unit id="SettingClickPreferenceLabel.Text" translate="yes" xml:space="preserve">
+          <source>Click preference</source>
+          <target state="translated">Klicken Sie auf Präferenz</target>
+        </trans-unit>
+        <trans-unit id="SettingPageDownloadHyperlinkContent.Content" translate="yes" xml:space="preserve">
+          <source>Download link</source>
+          <target state="translated">Link herunterladen</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSeerContent.Text" translate="yes" xml:space="preserve">
+          <source>Seer is a quick view tool for Windows platform. Just like in MacOS, but Seer runs faster, is more customizable, and supports more formats. To enable this feature, you must install Seer in advance and ensure that Seer is running properly. You can activate Seer by selecting any file in the RX-Explorer and pressing the space bar</source>
+          <target state="translated">Seer ist ein Schnellansichtstool für die Windows-Plattform. Genau wie in MacOS, aber Seer läuft schneller, ist anpassbarer und unterstützt mehr Formate. Um diese Funktion zu aktivieren, müssen Sie Seer im Voraus installieren und sicherstellen, dass Seer ordnungsgemäß ausgeführt wird. Sie können Seer aktivieren, indem Sie eine beliebige Datei im RX-Explorer auswählen und die Leertaste drücken</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSeerSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Deaktiviert</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSeerSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Ermöglicht</target>
+        </trans-unit>
+        <trans-unit id="SettingClickPerferenceDescription.Text" translate="yes" xml:space="preserve">
+          <source>Choose the appropriate operating habits according to your preferences</source>
+          <target state="translated">Wählen Sie die geeigneten Betriebsgewohnheiten nach Ihren Vorlieben</target>
         </trans-unit>
       </group>
     </body>
