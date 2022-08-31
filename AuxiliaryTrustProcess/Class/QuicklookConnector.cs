@@ -8,7 +8,7 @@ namespace AuxiliaryTrustProcess.Class
 {
     public static class QuicklookConnector
     {
-        private const int Timeout = 500;
+        private const int Timeout = 1000;
         private const string ToggleCommand = "QuickLook.App.PipeMessages.Toggle";
         private const string SwitchCommand = "QuickLook.App.PipeMessages.Switch";
         private static readonly string PipeName = $"QuickLook.App.Pipe.{WindowsIdentity.GetCurrent().User?.Value}";
@@ -35,6 +35,10 @@ namespace AuxiliaryTrustProcess.Class
                         }
                     }
                 }
+                catch (TimeoutException)
+                {
+                    LogTracer.Log($"Could not send Toggle command to Quicklook because it timeout after {Timeout}");
+                }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, $"An exception was threw in {nameof(ToggleService)}");
@@ -58,6 +62,10 @@ namespace AuxiliaryTrustProcess.Class
                             Writer.Flush();
                         }
                     }
+                }
+                catch (TimeoutException)
+                {
+                    LogTracer.Log($"Could not send Toggle command to Quicklook because it timeout after {Timeout}");
                 }
                 catch (Exception ex)
                 {

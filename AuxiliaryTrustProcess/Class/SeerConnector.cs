@@ -7,20 +7,21 @@ namespace AuxiliaryTrustProcess.Class
 {
     public sealed class SeerConnector
     {
+        private const int Timeout = 1000;
         private const uint ToggleCommand = 5000;
         private const uint VisibleCommand = 5004;
 
         [StructLayout(LayoutKind.Sequential)]
         private struct COPYDATASTRUCT
         {
-            public IntPtr dwData;
+            public UIntPtr dwData;
             public int cbData;
             public IntPtr lpData;
         }
 
         public static bool CheckIsAvailable()
         {
-            return User32.FindWindowEx(HWND.NULL, HWND.NULL, "SeerWindowClass", null).DangerousGetHandle().CheckIfValidPtr();
+            return User32.FindWindow("SeerWindowClass", null).DangerousGetHandle().CheckIfValidPtr();
         }
 
         public static void ToggleService(string Path)
@@ -29,7 +30,7 @@ namespace AuxiliaryTrustProcess.Class
             {
                 try
                 {
-                    HWND Window = User32.FindWindowEx(HWND.NULL, HWND.NULL, "SeerWindowClass", null);
+                    HWND Window = User32.FindWindow("SeerWindowClass", null);
 
                     if (Window.DangerousGetHandle().CheckIfValidPtr())
                     {
@@ -39,7 +40,7 @@ namespace AuxiliaryTrustProcess.Class
                         {
                             COPYDATASTRUCT ToggleData = new COPYDATASTRUCT
                             {
-                                dwData = new IntPtr(ToggleCommand),
+                                dwData = new UIntPtr(ToggleCommand),
                                 lpData = PathPtr,
                                 cbData = (Path.Length + 1) * 2
                             };
@@ -52,7 +53,12 @@ namespace AuxiliaryTrustProcess.Class
 
                                 try
                                 {
-                                    User32.SendMessage(Window, User32.WindowMessage.WM_COPYDATA, IntPtr.Zero, ToggleStructPtr);
+                                    IntPtr Result = IntPtr.Zero;
+
+                                    if (User32.SendMessageTimeout(Window, (uint)User32.WindowMessage.WM_COPYDATA, IntPtr.Zero, ToggleStructPtr, User32.SMTO.SMTO_ABORTIFHUNG, Timeout, ref Result) == IntPtr.Zero)
+                                    {
+                                        LogTracer.Log($"Could not send Toggle command to Seer because it timeout after {Timeout}");
+                                    }
                                 }
                                 finally
                                 {
@@ -83,13 +89,13 @@ namespace AuxiliaryTrustProcess.Class
             {
                 try
                 {
-                    HWND Window = User32.FindWindowEx(HWND.NULL, HWND.NULL, "SeerWindowClass", null);
+                    HWND Window = User32.FindWindow("SeerWindowClass", null);
 
                     if (Window.DangerousGetHandle().CheckIfValidPtr())
                     {
                         COPYDATASTRUCT VisibleData = new COPYDATASTRUCT
                         {
-                            dwData = new IntPtr(VisibleCommand),
+                            dwData = new UIntPtr(VisibleCommand),
                             lpData = IntPtr.Zero,
                             cbData = 0
                         };
@@ -102,43 +108,55 @@ namespace AuxiliaryTrustProcess.Class
 
                             try
                             {
-                                if (User32.SendMessage(Window, User32.WindowMessage.WM_COPYDATA, IntPtr.Zero, VisibleStructPtr) == new IntPtr(1))
+                                IntPtr Result = IntPtr.Zero;
+
+                                if (User32.SendMessageTimeout(Window, (uint)User32.WindowMessage.WM_COPYDATA, IntPtr.Zero, VisibleStructPtr, User32.SMTO.SMTO_ABORTIFHUNG, Timeout, ref Result) != IntPtr.Zero)
                                 {
-                                    IntPtr PathPtr = Marshal.StringToHGlobalUni(Path);
-
-                                    try
+                                    if (Result.ToInt64() > 0)
                                     {
-                                        COPYDATASTRUCT ToggleData = new COPYDATASTRUCT
-                                        {
-                                            dwData = new IntPtr(ToggleCommand),
-                                            lpData = PathPtr,
-                                            cbData = (Path.Length + 1) * 2
-                                        };
-
-                                        IntPtr ToggleStructPtr = Marshal.AllocHGlobal(Marshal.SizeOf<COPYDATASTRUCT>());
+                                        IntPtr PathPtr = Marshal.StringToHGlobalUni(Path);
 
                                         try
                                         {
-                                            Marshal.StructureToPtr(ToggleData, ToggleStructPtr, false);
+                                            COPYDATASTRUCT ToggleData = new COPYDATASTRUCT
+                                            {
+                                                dwData = new UIntPtr(ToggleCommand),
+                                                lpData = PathPtr,
+                                                cbData = (Path.Length + 1) * 2
+                                            };
+
+                                            IntPtr ToggleStructPtr = Marshal.AllocHGlobal(Marshal.SizeOf<COPYDATASTRUCT>());
 
                                             try
                                             {
-                                                User32.SendMessage(Window, User32.WindowMessage.WM_COPYDATA, IntPtr.Zero, ToggleStructPtr);
+                                                Marshal.StructureToPtr(ToggleData, ToggleStructPtr, false);
+
+                                                try
+                                                {
+                                                    if (User32.SendMessageTimeout(Window, (uint)User32.WindowMessage.WM_COPYDATA, IntPtr.Zero, ToggleStructPtr, User32.SMTO.SMTO_ABORTIFHUNG, Timeout, ref Result) == IntPtr.Zero)
+                                                    {
+                                                        LogTracer.Log($"Could not send Switch command to Seer because it timeout after {Timeout}");
+                                                    }
+                                                }
+                                                finally
+                                                {
+                                                    Marshal.DestroyStructure<COPYDATASTRUCT>(ToggleStructPtr);
+                                                }
                                             }
                                             finally
                                             {
-                                                Marshal.DestroyStructure<COPYDATASTRUCT>(ToggleStructPtr);
+                                                Marshal.FreeHGlobal(ToggleStructPtr);
                                             }
                                         }
                                         finally
                                         {
-                                            Marshal.FreeHGlobal(ToggleStructPtr);
+                                            Marshal.FreeHGlobal(PathPtr);
                                         }
                                     }
-                                    finally
-                                    {
-                                        Marshal.FreeHGlobal(PathPtr);
-                                    }
+                                }
+                                else
+                                {
+                                    LogTracer.Log($"Could not send Visible command to Seer because it timeout after {Timeout}");
                                 }
                             }
                             finally

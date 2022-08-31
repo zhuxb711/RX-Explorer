@@ -984,6 +984,9 @@ namespace RX_Explorer.View
             AnimationController.Current.AnimationStateChanged += Current_AnimationStateChanged;
             BackgroundController.Current.BackgroundTypeChanged += Current_BackgroundTypeChanged;
 
+            EnableSeer.RegisterPropertyChangedCallback(IsEnabledProperty, new DependencyPropertyChangedCallback(OnSeerEnableChanged));
+            EnableQuicklook.RegisterPropertyChangedCallback(IsEnabledProperty, new DependencyPropertyChangedCallback(OnQuicklookEnableChanged));
+
             if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
             {
                 if (FindName(nameof(CopyQQ)) is Button Btn)
@@ -998,12 +1001,6 @@ namespace RX_Explorer.View
             try
             {
                 await InitializeAsync();
-
-                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
-                {
-                    EnableSeer.IsEnabled = await Exclusive.Controller.CheckIfSeerIsAvailableAsync();
-                    EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync();
-                }
 
                 if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
@@ -4373,6 +4370,39 @@ namespace RX_Explorer.View
             finally
             {
                 ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void OnSeerEnableChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            if (EnableSeer.IsEnabled)
+            {
+                SeerTitle.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
+            }
+            else
+            {
+                SeerTitle.Foreground = new SolidColorBrush(Colors.Gray);
+            }
+        }
+
+        private void OnQuicklookEnableChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            if (EnableQuicklook.IsEnabled)
+            {
+                QuicklookTitle.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Light ? Colors.Black : Colors.White);
+            }
+            else
+            {
+                QuicklookTitle.Foreground = new SolidColorBrush(Colors.Gray);
+            }
+        }
+
+        private async void AdvancePanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+            {
+                EnableSeer.IsEnabled = await Exclusive.Controller.CheckIfSeerIsAvailableAsync();
+                EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync();
             }
         }
     }

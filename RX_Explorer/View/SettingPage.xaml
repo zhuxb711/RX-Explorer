@@ -783,7 +783,8 @@
                         </control:Case>
                         <control:Case Value="1">
                             <ScrollViewer Padding="20">
-                                <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                                <StackPanel Loaded="AdvancePanel_Loaded"
+                                            ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                                     <TextBlock Text="高级"
                                                x:Uid="SettingAdvance"
                                                FontSize="18" />
@@ -833,6 +834,7 @@
                                                         Margin="0,0,20,0">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="Seer"
+                                                               Name="SeerTitle"
                                                                TextTrimming="CharacterEllipsis" />
                                                     <HyperlinkButton Content="下载链接"
                                                                      x:Uid="SettingPageDownloadHyperlinkContent"
@@ -855,7 +857,7 @@
                                                           x:Uid="SettingPageSeerSwitch"
                                                           Style="{StaticResource SettingToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
-                                                          RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                          RelativePanel.AlignVerticalCenterWithPanel="True"/>
                                         </RelativePanel>
                                     </Border>
 
@@ -873,6 +875,7 @@
                                                         Margin="0,0,20,0">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="QuickLook"
+                                                               Name="QuicklookTitle"
                                                                TextTrimming="CharacterEllipsis" />
                                                     <HyperlinkButton FontSize="10"
                                                                      Padding="2"
@@ -895,7 +898,7 @@
                                                           Toggled="EnableQuicklook_Toggled"
                                                           Style="{StaticResource SettingToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
-                                                          RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                          RelativePanel.AlignVerticalCenterWithPanel="True"/>
                                         </RelativePanel>
                                     </Border>
 
