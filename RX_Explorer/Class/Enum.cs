@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum ProgramPriority
+    {
+        InnerViewer,
+        SystemDefault
+    }
+
     public enum SpecialPathEnum
     {
         OneDrive,

@@ -3644,4 +3644,16 @@
   <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
     <value>根據自己的喜好選擇合適的操作習慣</value>
   </data>
+  <data name="DefaultProgramPriority_InnerViewer" xml:space="preserve">
+    <value>內置查看器優先</value>
+  </data>
+  <data name="DefaultProgramPriority_SystemDefault" xml:space="preserve">
+    <value>系統默認優先</value>
+  </data>
+  <data name="SettingPageDefaultProgramPriorityContent.Text" xml:space="preserve">
+    <value>通過指定優先級來更改默認程序。 注意: 僅對用戶未指定默認程序的類型有效</value>
+  </data>
+  <data name="SettingPageDefaultProgramPriorityLabel.Text" xml:space="preserve">
+    <value>默認程序優先級</value>
+  </data>
 </root>

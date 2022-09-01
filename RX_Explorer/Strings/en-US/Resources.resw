@@ -3751,4 +3751,16 @@ Invalid names include
   <data name="SettingPageSeerSwitch.OnContent" xml:space="preserve">
     <value>Enabled</value>
   </data>
+  <data name="DefaultProgramPriority_InnerViewer" xml:space="preserve">
+    <value>Built-in viewer takes precedence</value>
+  </data>
+  <data name="DefaultProgramPriority_SystemDefault" xml:space="preserve">
+    <value>System default takes precedence</value>
+  </data>
+  <data name="SettingPageDefaultProgramPriorityContent.Text" xml:space="preserve">
+    <value>Change the default program by specifying the priority. Note: Valid only on types which the user has not specified a default program</value>
+  </data>
+  <data name="SettingPageDefaultProgramPriorityLabel.Text" xml:space="preserve">
+    <value>Default program priority</value>
+  </data>
 </root>

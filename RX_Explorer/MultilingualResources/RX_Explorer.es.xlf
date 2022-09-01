@@ -4842,6 +4842,22 @@ Las denominaciones no válidas son:
           <source>Choose the appropriate operating habits according to your preferences</source>
           <target state="translated">Elige los hábitos de funcionamiento adecuados según tus preferencias</target>
         </trans-unit>
+        <trans-unit id="DefaultProgramPriority_InnerViewer" translate="yes" xml:space="preserve">
+          <source>Built-in viewer takes precedence</source>
+          <target state="translated">El espectador incorporado tiene prioridad</target>
+        </trans-unit>
+        <trans-unit id="DefaultProgramPriority_SystemDefault" translate="yes" xml:space="preserve">
+          <source>System default takes precedence</source>
+          <target state="translated">El valor predeterminado del sistema tiene prioridad</target>
+        </trans-unit>
+        <trans-unit id="SettingPageDefaultProgramPriorityContent.Text" translate="yes" xml:space="preserve">
+          <source>Change the default program by specifying the priority. Note: Valid only on types which the user has not specified a default program</source>
+          <target state="translated">Cambie el programa predeterminado especificando la prioridad. Nota: Válido solo en tipos en los que el usuario no ha especificado un programa predeterminado</target>
+        </trans-unit>
+        <trans-unit id="SettingPageDefaultProgramPriorityLabel.Text" translate="yes" xml:space="preserve">
+          <source>Default program priority</source>
+          <target state="translated">Prioridad de programa predeterminada</target>
+        </trans-unit>
       </group>
     </body>
   </file>

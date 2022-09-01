@@ -91,28 +91,31 @@ namespace RX_Explorer.Class
 
         public async Task<bool> LaunchAsync(string FilePath)
         {
-            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+            if (System.IO.Path.IsPathRooted(Path))
             {
-                if (System.IO.Path.IsPathRooted(Path))
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
                     return await Exclusive.Controller.RunAsync(Path, System.IO.Path.GetDirectoryName(FilePath), Parameters: FilePath);
                 }
-                else
+            }
+            else
+            {
+                try
                 {
-                    try
-                    {
-                        StorageFile File = await StorageFile.GetFileFromPathAsync(FilePath);
+                    StorageFile File = await StorageFile.GetFileFromPathAsync(FilePath);
 
-                        if (await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Path, DisplayApplicationPicker = false }))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            throw new Exception();
-                        }
+                    if (await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Path, DisplayApplicationPicker = false }))
+                    {
+                        return true;
                     }
-                    catch (Exception)
+                    else
+                    {
+                        throw new Exception();
+                    }
+                }
+                catch (Exception)
+                {
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                     {
                         return await Exclusive.Controller.LaunchUWPFromPfnAsync(Path, FilePath);
                     }

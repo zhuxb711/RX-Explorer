@@ -3646,4 +3646,16 @@ Las denominaciones no válidas son:
   <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
     <value>Elige los hábitos de funcionamiento adecuados según tus preferencias</value>
   </data>
+  <data name="DefaultProgramPriority_InnerViewer" xml:space="preserve">
+    <value>El espectador incorporado tiene prioridad</value>
+  </data>
+  <data name="DefaultProgramPriority_SystemDefault" xml:space="preserve">
+    <value>El valor predeterminado del sistema tiene prioridad</value>
+  </data>
+  <data name="SettingPageDefaultProgramPriorityContent.Text" xml:space="preserve">
+    <value>Cambie el programa predeterminado especificando la prioridad. Nota: Válido solo en tipos en los que el usuario no ha especificado un programa predeterminado</value>
+  </data>
+  <data name="SettingPageDefaultProgramPriorityLabel.Text" xml:space="preserve">
+    <value>Prioridad de programa predeterminada</value>
+  </data>
 </root>

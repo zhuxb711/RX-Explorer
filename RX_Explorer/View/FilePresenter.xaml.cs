@@ -5177,171 +5177,217 @@ namespace RX_Explorer.View
                 {
                     case FileSystemStorageFile File:
                         {
-                            if (SettingPage.IsAlwaysOpenInNewTabEnabled)
+                            if (await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                             {
-                                await TabViewContainer.Current.CreateNewTabAsync(File.Path);
-                            }
-                            else
-                            {
-                                if (await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
+                                if (File is MTPStorageFile or FtpStorageFile)
                                 {
-                                    if (File is MTPStorageFile or FtpStorageFile)
+                                    switch (File.Type.ToLower())
                                     {
-                                        switch (File.Type.ToLower())
-                                        {
-                                            case ".exe":
-                                            case ".bat":
-                                            case ".msi":
-                                            case ".msc":
-                                            case ".lnk":
-                                            case ".url":
-                                            case ".cmd":
+                                        case ".exe":
+                                        case ".bat":
+                                        case ".msi":
+                                        case ".msc":
+                                        case ".lnk":
+                                        case ".url":
+                                        case ".cmd":
+                                            {
+                                                throw new NotSupportedException();
+                                            }
+                                        default:
+                                            {
+                                                if (Helper.GetSuitableInnerViewerPageType(File, out Type PageType))
                                                 {
-                                                    throw new NotSupportedException();
-                                                }
-                                            default:
-                                                {
-                                                    if (Helper.GetSuitableInnerViewerPageType(File, out Type PageType))
+                                                    if (SettingPage.IsAlwaysOpenInNewTabEnabled)
                                                     {
-                                                        Container.Renderer.RendererFrame.Navigate(PageType, File, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+                                                        await TabViewContainer.Current.CreateNewTabAsync(File.Path);
                                                     }
                                                     else
                                                     {
-                                                        throw new NotSupportedException();
+                                                        Container.Renderer.RendererFrame.Navigate(PageType, File, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
                                                     }
-
-                                                    break;
                                                 }
-                                        }
+                                                else
+                                                {
+                                                    throw new NotSupportedException();
+                                                }
+
+                                                break;
+                                            }
                                     }
-                                    else
+                                }
+                                else
+                                {
+                                    switch (File.Type.ToLower())
                                     {
-                                        switch (File.Type.ToLower())
-                                        {
-                                            case ".exe":
-                                            case ".bat":
-                                            case ".msi":
-                                            case ".cmd":
+                                        case ".exe":
+                                        case ".bat":
+                                        case ".msi":
+                                        case ".cmd":
+                                            {
+                                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                                 {
-                                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                                                    if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), RunAsAdmin: RunAsAdministrator))
                                                     {
-                                                        if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), RunAsAdmin: RunAsAdministrator))
-                                                        {
-                                                            throw new LaunchProgramException();
-                                                        }
+                                                        throw new LaunchProgramException();
                                                     }
-
-                                                    break;
                                                 }
-                                            case ".msc":
+
+                                                break;
+                                            }
+                                        case ".msc":
+                                            {
+                                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                                 {
-                                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                                                    if (!await Exclusive.Controller.RunAsync(File.Path, RunAsAdmin: RunAsAdministrator, Parameters: new string[] { File.Path }))
                                                     {
-                                                        if (!await Exclusive.Controller.RunAsync(File.Path, RunAsAdmin: RunAsAdministrator, Parameters: new string[] { File.Path }))
-                                                        {
-                                                            throw new LaunchProgramException();
-                                                        }
+                                                        throw new LaunchProgramException();
                                                     }
-
-                                                    break;
                                                 }
-                                            case ".lnk":
+
+                                                break;
+                                            }
+                                        case ".lnk":
+                                            {
+                                                if (File is LinkStorageFile Item)
                                                 {
-                                                    if (File is LinkStorageFile Item)
+                                                    if (Item.LinkType == ShellLinkType.Normal)
                                                     {
-                                                        if (Item.LinkType == ShellLinkType.Normal)
+                                                        switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath))
                                                         {
-                                                            switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath))
-                                                            {
-                                                                case FileSystemStorageFolder:
+                                                            case FileSystemStorageFolder:
+                                                                {
+                                                                    if (!await DisplayItemsInFolderAsync(Item.LinkTargetPath))
                                                                     {
-                                                                        if (!await DisplayItemsInFolderAsync(Item.LinkTargetPath))
-                                                                        {
-                                                                            throw new DirectoryNotFoundException();
-                                                                        }
-
-                                                                        break;
+                                                                        throw new DirectoryNotFoundException();
                                                                     }
-                                                                case FileSystemStorageFile:
+
+                                                                    break;
+                                                                }
+                                                            case FileSystemStorageFile:
+                                                                {
+                                                                    if (!await Item.LaunchAsync())
                                                                     {
-                                                                        if (!await Item.LaunchAsync())
-                                                                        {
-                                                                            throw new UnauthorizedAccessException();
-                                                                        }
-
-                                                                        break;
+                                                                        throw new UnauthorizedAccessException();
                                                                     }
-                                                            }
-                                                        }
-                                                        else if (!await Item.LaunchAsync())
-                                                        {
-                                                            throw new UnauthorizedAccessException();
+
+                                                                    break;
+                                                                }
                                                         }
                                                     }
-
-                                                    break;
-                                                }
-                                            case ".url":
-                                                {
-                                                    if (File is UrlStorageFile Item && !await Item.LaunchAsync())
+                                                    else if (!await Item.LaunchAsync())
                                                     {
                                                         throw new UnauthorizedAccessException();
                                                     }
-
-                                                    break;
                                                 }
-                                            default:
-                                                {
-                                                    string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
 
-                                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                                                break;
+                                            }
+                                        case ".url":
+                                            {
+                                                if (File is UrlStorageFile Item && !await Item.LaunchAsync())
+                                                {
+                                                    throw new UnauthorizedAccessException();
+                                                }
+
+                                                break;
+                                            }
+                                        default:
+                                            {
+                                                string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
+
+                                                if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath.Equals(ProgramPickerItem.InnerViewer.Path, StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    if (SettingPage.DefaultProgramPriority == ProgramPriority.InnerViewer && Helper.GetSuitableInnerViewerPageType(File, out Type PageType))
                                                     {
-                                                        if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath.Equals(ProgramPickerItem.InnerViewer.Path, StringComparison.OrdinalIgnoreCase))
+                                                        if (SettingPage.IsAlwaysOpenInNewTabEnabled)
                                                         {
-                                                            if (Helper.GetSuitableInnerViewerPageType(File, out Type PageType))
-                                                            {
-                                                                Container.Renderer.RendererFrame.Navigate(PageType, File, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
-                                                            }
-                                                            else if (!await Exclusive.Controller.RunAsync(File.Path))
-                                                            {
-                                                                throw new UnauthorizedAccessException();
-                                                            }
+                                                            await TabViewContainer.Current.CreateNewTabAsync(File.Path);
                                                         }
                                                         else
                                                         {
-                                                            if (await FileSystemStorageItemBase.CheckExistsAsync(AdminExecutablePath))
+                                                            Container.Renderer.RendererFrame.Navigate(PageType, File, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                                                        {
+                                                            if (!await Exclusive.Controller.RunAsync(File.Path))
                                                             {
-                                                                if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path))
+                                                                if (await File.GetStorageItemAsync() is StorageFile Item)
+                                                                {
+                                                                    if (!await Launcher.LaunchFileAsync(Item))
+                                                                    {
+                                                                        if (!await Launcher.LaunchFileAsync(Item, new LauncherOptions { DisplayApplicationPicker = true }))
+                                                                        {
+                                                                            throw new UnauthorizedAccessException();
+                                                                        }
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    throw new UnauthorizedAccessException();
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else if (await FileSystemStorageItemBase.CheckExistsAsync(AdminExecutablePath))
+                                                {
+                                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                                                    {
+                                                        if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path))
+                                                        {
+                                                            if (await File.GetStorageItemAsync() is StorageFile Item)
+                                                            {
+                                                                if (!await Launcher.LaunchFileAsync(Item, new LauncherOptions { DisplayApplicationPicker = true }))
                                                                 {
                                                                     throw new UnauthorizedAccessException();
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is AppInfo Info)
+                                                                throw new UnauthorizedAccessException();
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is AppInfo Info)
+                                                {
+                                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                                                    {
+                                                        if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                        {
+                                                            if (await File.GetStorageItemAsync() is StorageFile Item)
+                                                            {
+                                                                if (!await Launcher.LaunchFileAsync(Item, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName }))
                                                                 {
-                                                                    if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                                    if (!await Launcher.LaunchFileAsync(Item, new LauncherOptions { DisplayApplicationPicker = true }))
                                                                     {
                                                                         throw new UnauthorizedAccessException();
                                                                     }
                                                                 }
-                                                                else
-                                                                {
-                                                                    await OpenFileWithProgramPicker(File);
-                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                throw new UnauthorizedAccessException();
                                                             }
                                                         }
                                                     }
-
-                                                    break;
                                                 }
-                                        }
+                                                else
+                                                {
+                                                    await OpenWithProgramPicker(File);
+                                                }
+
+                                                break;
+                                            }
                                     }
                                 }
-                                else
-                                {
-                                    throw new FileNotFoundException();
-                                }
+                            }
+                            else
+                            {
+                                throw new FileNotFoundException();
                             }
 
                             break;
@@ -5422,7 +5468,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private async Task OpenFileWithProgramPicker(FileSystemStorageFile File)
+        private async Task OpenWithProgramPicker(FileSystemStorageFile File)
         {
             try
             {
@@ -5434,7 +5480,14 @@ namespace RX_Explorer.View
                     {
                         if (Helper.GetSuitableInnerViewerPageType(File, out Type PageType))
                         {
-                            Container.Renderer.RendererFrame.Navigate(PageType, File, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+                            if (SettingPage.IsAlwaysOpenInNewTabEnabled)
+                            {
+                                await TabViewContainer.Current.CreateNewTabAsync(File.Path);
+                            }
+                            else
+                            {
+                                Container.Renderer.RendererFrame.Navigate(PageType, File, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+                            }
                         }
                         else
                         {
@@ -5617,7 +5670,7 @@ namespace RX_Explorer.View
 
             if (SelectedItem is FileSystemStorageFile File)
             {
-                await OpenFileWithProgramPicker(File);
+                await OpenWithProgramPicker(File);
             }
         }
 

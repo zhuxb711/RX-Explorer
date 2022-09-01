@@ -4842,6 +4842,22 @@ Invalid names include
           <source>Choose the appropriate operating habits according to your preferences</source>
           <target state="translated">根据自己的喜好选择合适的操作习惯</target>
         </trans-unit>
+        <trans-unit id="DefaultProgramPriority_InnerViewer" translate="yes" xml:space="preserve">
+          <source>Built-in viewer takes precedence</source>
+          <target state="translated">内置查看器优先</target>
+        </trans-unit>
+        <trans-unit id="DefaultProgramPriority_SystemDefault" translate="yes" xml:space="preserve">
+          <source>System default takes precedence</source>
+          <target state="translated">系统默认程序优先</target>
+        </trans-unit>
+        <trans-unit id="SettingPageDefaultProgramPriorityContent.Text" translate="yes" xml:space="preserve">
+          <source>Change the default program by specifying the priority. Note: Valid only on types which the user has not specified a default program</source>
+          <target state="translated">通过指定优先级来更改默认程序。注意: 仅对用户尚未指定默认程序的类型有效</target>
+        </trans-unit>
+        <trans-unit id="SettingPageDefaultProgramPriorityLabel.Text" translate="yes" xml:space="preserve">
+          <source>Default program priority</source>
+          <target state="translated">默认程序优先级</target>
+        </trans-unit>
       </group>
     </body>
   </file>

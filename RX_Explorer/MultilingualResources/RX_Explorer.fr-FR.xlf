@@ -4842,6 +4842,22 @@ Les noms non valides incluent
           <source>Choose the appropriate operating habits according to your preferences</source>
           <target state="translated">Choisissez les habitudes de fonctionnement appropriées selon vos préférences</target>
         </trans-unit>
+        <trans-unit id="DefaultProgramPriority_InnerViewer" translate="yes" xml:space="preserve">
+          <source>Built-in viewer takes precedence</source>
+          <target state="translated">La visionneuse intégrée a priorité</target>
+        </trans-unit>
+        <trans-unit id="DefaultProgramPriority_SystemDefault" translate="yes" xml:space="preserve">
+          <source>System default takes precedence</source>
+          <target state="translated">La valeur par défaut du système a priorité</target>
+        </trans-unit>
+        <trans-unit id="SettingPageDefaultProgramPriorityContent.Text" translate="yes" xml:space="preserve">
+          <source>Change the default program by specifying the priority. Note: Valid only on types which the user has not specified a default program</source>
+          <target state="translated">Modifiez le programme par défaut en spécifiant la priorité. Remarque : Valable uniquement sur les types pour lesquels l'utilisateur n'a pas spécifié de programme par défaut</target>
+        </trans-unit>
+        <trans-unit id="SettingPageDefaultProgramPriorityLabel.Text" translate="yes" xml:space="preserve">
+          <source>Default program priority</source>
+          <target state="translated">Priorité du programme par défaut</target>
+        </trans-unit>
       </group>
     </body>
   </file>

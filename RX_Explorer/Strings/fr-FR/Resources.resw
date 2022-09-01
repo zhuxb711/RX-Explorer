@@ -3644,4 +3644,16 @@ Les noms non valides incluent
   <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
     <value>Choisissez les habitudes de fonctionnement appropriées selon vos préférences</value>
   </data>
+  <data name="DefaultProgramPriority_InnerViewer" xml:space="preserve">
+    <value>La visionneuse intégrée a priorité</value>
+  </data>
+  <data name="DefaultProgramPriority_SystemDefault" xml:space="preserve">
+    <value>La valeur par défaut du système a priorité</value>
+  </data>
+  <data name="SettingPageDefaultProgramPriorityContent.Text" xml:space="preserve">
+    <value>Modifiez le programme par défaut en spécifiant la priorité. Remarque : Valable uniquement sur les types pour lesquels l'utilisateur n'a pas spécifié de programme par défaut</value>
+  </data>
+  <data name="SettingPageDefaultProgramPriorityLabel.Text" xml:space="preserve">
+    <value>Priorité du programme par défaut</value>
+  </data>
 </root>

@@ -669,6 +669,22 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["ShutdownButtonBehavior"] = Enum.GetName(typeof(ShutdownBehaivor), value);
         }
 
+        public static ProgramPriority DefaultProgramPriority
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DefaultProgramPriority"] is string RawValue)
+                {
+                    return Enum.Parse<ProgramPriority>(RawValue);
+                }
+                else
+                {
+                    return ProgramPriority.InnerViewer;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["DefaultProgramPriority"] = Enum.GetName(typeof(ProgramPriority), value); 
+        }
+
         public static Color PredefineLabelForeground1
         {
             get
@@ -1151,6 +1167,9 @@ namespace RX_Explorer.View
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseBuildInAsDefault"));
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseEverythingAsDefault"));
 
+                DefaultProgramPriorityCombox.Items.Add(Globalization.GetString("DefaultProgramPriority_InnerViewer"));
+                DefaultProgramPriorityCombox.Items.Add(Globalization.GetString("DefaultProgramPriority_SystemDefault"));
+
                 ShutdownButtonBehaviorCombox.Items.Add(Globalization.GetString("ShutdownButtonBehavior_CloseApplication"));
                 ShutdownButtonBehaviorCombox.Items.Add(Globalization.GetString("ShutdownButtonBehavior_CloseInnerViewer"));
                 ShutdownButtonBehaviorCombox.Items.Add(Globalization.GetString("ShutdownButtonBehavior_AskEveryTime"));
@@ -1377,6 +1396,7 @@ namespace RX_Explorer.View
                 AlwaysOpenInNewTab.Checked -= AlwaysOpenInNewTab_Checked;
                 AlwaysOpenInNewTab.Unchecked -= AlwaysOpenInNewTab_Unchecked;
                 DefaultDisplayMode.SelectionChanged -= DefaultDisplayMode_SelectionChanged;
+                DefaultProgramPriorityCombox.SelectionChanged -= DefaultProgramPriorityCombox_SelectionChanged;
                 ShutdownButtonBehaviorCombox.SelectionChanged -= ShutdownButtonBehaviorCombox_SelectionChanged;
                 ViewHeightOffsetNumberBox.ValueChanged -= ViewHeightOffsetNumberBox_ValueChanged;
                 VerticalSplitViewLimitationNumberBox.ValueChanged -= VerticalSplitViewLimitationNumberBox_ValueChanged;
@@ -1463,6 +1483,12 @@ namespace RX_Explorer.View
                 PredefineLabelBox2.Text = PredefineLabelText2;
                 PredefineLabelBox3.Text = PredefineLabelText3;
                 PredefineLabelBox4.Text = PredefineLabelText4;
+                DefaultProgramPriorityCombox.SelectedIndex = DefaultProgramPriority switch
+                {
+                    ProgramPriority.InnerViewer => 0,
+                    ProgramPriority.SystemDefault => 1,
+                    _=> throw new NotSupportedException()
+                };
                 ShutdownButtonBehaviorCombox.SelectedIndex = ShutdownButtonBehavior switch
                 {
                     ShutdownBehaivor.CloseApplication => 0,
@@ -1591,6 +1617,7 @@ namespace RX_Explorer.View
                 AlwaysOpenInNewTab.Checked += AlwaysOpenInNewTab_Checked;
                 AlwaysOpenInNewTab.Unchecked += AlwaysOpenInNewTab_Unchecked;
                 DefaultDisplayMode.SelectionChanged += DefaultDisplayMode_SelectionChanged;
+                DefaultProgramPriorityCombox.SelectionChanged += DefaultProgramPriorityCombox_SelectionChanged;
                 ShutdownButtonBehaviorCombox.SelectionChanged += ShutdownButtonBehaviorCombox_SelectionChanged;
                 ViewHeightOffsetNumberBox.ValueChanged += ViewHeightOffsetNumberBox_ValueChanged;
                 VerticalSplitViewLimitationNumberBox.ValueChanged += VerticalSplitViewLimitationNumberBox_ValueChanged;
@@ -1623,6 +1650,27 @@ namespace RX_Explorer.View
                 ColorPickerChangeRegisterToken3 = PredefineTagColorPicker2.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker2SelectedColorChanged));
                 ColorPickerChangeRegisterToken4 = PredefineTagColorPicker3.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker3SelectedColorChanged));
                 ColorPickerChangeRegisterToken5 = PredefineTagColorPicker4.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker4SelectedColorChanged));
+            }
+        }
+
+        private void DefaultProgramPriorityCombox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                DefaultProgramPriority = DefaultProgramPriorityCombox.SelectedIndex switch
+                {
+                    0 => ProgramPriority.InnerViewer,
+                    1 => ProgramPriority.SystemDefault,
+                    _ => throw new NotSupportedException()
+                };
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(DefaultProgramPriorityCombox_SelectionChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 

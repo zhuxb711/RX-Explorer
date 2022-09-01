@@ -1474,6 +1474,36 @@
                                         <RelativePanel>
                                             <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                         RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="DefaultProgramPriorityCombox"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="默认程序优先级"
+                                                           x:Uid="SettingPageDefaultProgramPriorityLabel"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="通过指定优先级来更改默认程序。注意: 仅对用户尚未指定默认程序的类型有效"
+                                                           x:Uid="SettingPageDefaultProgramPriorityContent"
+                                                           FontSize="12"
+                                                           Foreground="Gray"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
+                                            <ComboBox MinWidth="200"
+                                                      Name="DefaultProgramPriorityCombox"
+                                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                                                      RelativePanel.AlignRightWithPanel="True"
+                                                      RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                        </RelativePanel>
+                                    </Border>
+
+                                    <Border Padding="20,10"
+                                            MinHeight="60"
+                                            Margin="0,5,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
                                                         RelativePanel.LeftOf="ShutdownButtonBehaviorCombox"
                                                         Margin="0,0,20,0">
                                                 <TextBlock Text="自定义关闭按钮的默认行为"

@@ -3646,4 +3646,16 @@ Inkorrekte Namen sind
   <data name="SettingClickPerferenceDescription.Text" xml:space="preserve">
     <value>Wählen Sie die geeigneten Betriebsgewohnheiten nach Ihren Vorlieben</value>
   </data>
+  <data name="DefaultProgramPriority_InnerViewer" xml:space="preserve">
+    <value>Der eingebaute Viewer hat Vorrang</value>
+  </data>
+  <data name="DefaultProgramPriority_SystemDefault" xml:space="preserve">
+    <value>Systemstandard hat Vorrang</value>
+  </data>
+  <data name="SettingPageDefaultProgramPriorityContent.Text" xml:space="preserve">
+    <value>Ändern Sie das Standardprogramm, indem Sie die Priorität angeben. Hinweis: Nur gültig für Typen, für die der Benutzer kein Standardprogramm angegeben hat</value>
+  </data>
+  <data name="SettingPageDefaultProgramPriorityLabel.Text" xml:space="preserve">
+    <value>Priorität des Standardprogramms</value>
+  </data>
 </root>
