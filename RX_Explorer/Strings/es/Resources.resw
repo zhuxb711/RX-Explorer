@@ -3658,4 +3658,13 @@ Las denominaciones no válidas son:
   <data name="SettingPageDefaultProgramPriorityLabel.Text" xml:space="preserve">
     <value>Prioridad de programa predeterminada</value>
   </data>
+  <data name="SettingClickPreferenceDescription.Text" xml:space="preserve">
+    <value>Elige el hábito de funcionamiento según tus preferencias</value>
+  </data>
+  <data name="SettingPageAlwaysOpenInNewTabContent.Text" xml:space="preserve">
+    <value>Habilitar esta opción abrirá la carpeta seleccionada en una nueva pestaña. Abre el visor integrado en una nueva pestaña si el tipo de archivo es compatible con el visor integrado y el visor integrado es el programa predeterminado para ese tipo</value>
+  </data>
+  <data name="SettingPageAlwaysOpenInNewTabLabel.Text" xml:space="preserve">
+    <value>Abre siempre los archivos y carpetas seleccionados en una pestaña nueva</value>
+  </data>
 </root>

@@ -1,5 +1,7 @@
 ﻿using RX_Explorer.View;
 using System;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
@@ -44,6 +46,15 @@ namespace RX_Explorer.Class
                         PageType = null;
                         return false;
                     }
+            }
+        }
+
+        public static async Task<byte[]> GetByteArrayFromRandomAccessStreamAsync(IRandomAccessStream Stream)
+        {
+            using (MemoryStream TempStream = new MemoryStream())
+            {
+                await Stream.AsStreamForRead().CopyToAsync(TempStream);
+                return TempStream.ToArray();
             }
         }
 

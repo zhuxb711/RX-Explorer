@@ -3658,4 +3658,13 @@ Inkorrekte Namen sind
   <data name="SettingPageDefaultProgramPriorityLabel.Text" xml:space="preserve">
     <value>Priorität des Standardprogramms</value>
   </data>
+  <data name="SettingClickPreferenceDescription.Text" xml:space="preserve">
+    <value>Wählen Sie die Betriebsweise nach Ihren Vorlieben</value>
+  </data>
+  <data name="SettingPageAlwaysOpenInNewTabContent.Text" xml:space="preserve">
+    <value>Wenn Sie diese Option aktivieren, wird der ausgewählte Ordner in einem neuen Tab geöffnet. Öffnet den integrierten Viewer in einer neuen Registerkarte, wenn der Dateityp vom integrierten Viewer unterstützt wird und der integrierte Viewer das Standardprogramm für diesen Typ ist</value>
+  </data>
+  <data name="SettingPageAlwaysOpenInNewTabLabel.Text" xml:space="preserve">
+    <value>Ausgewählte Dateien und Ordner immer in einem neuen Tab öffnen</value>
+  </data>
 </root>

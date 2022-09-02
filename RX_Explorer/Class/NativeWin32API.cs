@@ -242,6 +242,16 @@ namespace RX_Explorer.Class
         }
 
         [StructLayout(LayoutKind.Sequential)]
+        public struct DROPFILES
+        {
+            public int pFiles;
+            public int X;
+            public int Y;
+            public bool fNC;
+            public bool fWide;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
         public struct WIN32_FILE_ATTRIBUTE_DATA
         {
             public FileAttributes dwFileAttributes;

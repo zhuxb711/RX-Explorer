@@ -3656,4 +3656,13 @@ Les noms non valides incluent
   <data name="SettingPageDefaultProgramPriorityLabel.Text" xml:space="preserve">
     <value>Priorité du programme par défaut</value>
   </data>
+  <data name="SettingClickPreferenceDescription.Text" xml:space="preserve">
+    <value>Choisissez l'habitude de fonctionnement en fonction de vos préférences</value>
+  </data>
+  <data name="SettingPageAlwaysOpenInNewTabContent.Text" xml:space="preserve">
+    <value>L'activation de cette option ouvrira le dossier sélectionné dans un nouvel onglet. Ouvre la visionneuse intégrée dans un nouvel onglet si le type de fichier est pris en charge par la visionneuse intégrée et que la visionneuse intégrée est le programme par défaut pour ce type</value>
+  </data>
+  <data name="SettingPageAlwaysOpenInNewTabLabel.Text" xml:space="preserve">
+    <value>Toujours ouvrir les fichiers et dossiers sélectionnés dans un nouvel onglet</value>
+  </data>
 </root>

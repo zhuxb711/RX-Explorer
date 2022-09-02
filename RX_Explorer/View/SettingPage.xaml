@@ -688,10 +688,12 @@
                                                 <CheckBox Name="AlwaysOpenInNewTab">
                                                     <StackPanel>
                                                         <TextBlock Text="总是在新标签页中打开选中的文件和文件夹"
+                                                                   x:Uid="SettingPageAlwaysOpenInNewTabLabel"
                                                                    TextTrimming="CharacterEllipsis" />
                                                         <TextBlock Text="启用此选项后将使用新标签页打开所选的文件夹。若文件类型受内置查看器支持且内置查看器是该类型的默认打开方式，则在新标签页中打开内置查看器"
                                                                    FontSize="12"
                                                                    Foreground="Gray"
+                                                                   x:Uid="SettingPageAlwaysOpenInNewTabContent"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    TextWrapping="WrapWholeWords" />
                                                     </StackPanel>

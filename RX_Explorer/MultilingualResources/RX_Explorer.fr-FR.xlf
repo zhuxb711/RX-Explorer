@@ -4858,6 +4858,18 @@ Les noms non valides incluent
           <source>Default program priority</source>
           <target state="translated">Priorité du programme par défaut</target>
         </trans-unit>
+        <trans-unit id="SettingClickPreferenceDescription.Text" translate="yes" xml:space="preserve">
+          <source>Choose the operating habit according to your preferences</source>
+          <target state="translated">Choisissez l'habitude de fonctionnement en fonction de vos préférences</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysOpenInNewTabContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will open the selected folder in a new tab. Opens the built-in viewer in a new tab if the file type is supported by the built-in viewer and the built-in viewer is the default program for that type</source>
+          <target state="translated">L'activation de cette option ouvrira le dossier sélectionné dans un nouvel onglet. Ouvre la visionneuse intégrée dans un nouvel onglet si le type de fichier est pris en charge par la visionneuse intégrée et que la visionneuse intégrée est le programme par défaut pour ce type</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysOpenInNewTabLabel.Text" translate="yes" xml:space="preserve">
+          <source>Always open selected files and folders in a new tab</source>
+          <target state="translated">Toujours ouvrir les fichiers et dossiers sélectionnés dans un nouvel onglet</target>
+        </trans-unit>
       </group>
     </body>
   </file>

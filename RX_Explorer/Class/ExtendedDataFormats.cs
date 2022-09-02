@@ -7,5 +7,7 @@
         public static string NotSupportedStorageItem { get; } = "RX_Explorer_NotSupportedStorageItem";
 
         public static string TabItem { get; } = "RX_Explorer_TabItem";
+
+        public static string FileDrop { get; } = "FileDrop";
     }
 }

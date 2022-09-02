@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -5061,7 +5062,8 @@ namespace RX_Explorer.View
 
                     PasteButton.IsEnabled = Package.Contains(StandardDataFormats.StorageItems)
                                             || Package.Contains(ExtendedDataFormats.CompressionItems)
-                                            || Package.Contains(ExtendedDataFormats.NotSupportedStorageItem);
+                                            || Package.Contains(ExtendedDataFormats.NotSupportedStorageItem)
+                                            || Package.Contains(ExtendedDataFormats.FileDrop);
                 }
                 catch
                 {
@@ -5979,7 +5981,8 @@ namespace RX_Explorer.View
 
                 if (e.DataView.Contains(StandardDataFormats.StorageItems)
                     || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
-                    || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
+                    || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem)
+                    || e.DataView.Contains(ExtendedDataFormats.FileDrop))
                 {
                     if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                     {
@@ -6246,7 +6249,8 @@ namespace RX_Explorer.View
 
                 if (e.DataView.Contains(StandardDataFormats.StorageItems)
                     || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
-                    || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
+                    || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem)
+                    || e.DataView.Contains(ExtendedDataFormats.FileDrop))
                 {
                     switch ((sender as SelectorItem)?.Content)
                     {

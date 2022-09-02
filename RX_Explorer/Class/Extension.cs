@@ -246,13 +246,61 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return PathList;
+            if (View.Contains(ExtendedDataFormats.FileDrop))
+            {
+                try
+                {
+                    if (await View.GetDataAsync(ExtendedDataFormats.FileDrop) is IRandomAccessStream OriginStream)
+                    {
+                        byte[] OriginData = await Helper.GetByteArrayFromRandomAccessStreamAsync(OriginStream);
+
+                        if (OriginData.Length > 0)
+                        {
+                            IntPtr DropPointer = Marshal.AllocHGlobal(OriginData.Length);
+
+                            try
+                            {
+                                Marshal.Copy(OriginData, 0, DropPointer, OriginData.Length);
+                                NativeWin32API.DROPFILES DropStruct = Marshal.PtrToStructure<NativeWin32API.DROPFILES>(DropPointer);
+
+                                int ArrayLength = OriginData.Length - DropStruct.pFiles;
+
+                                if (ArrayLength > 0)
+                                {
+                                    byte[] ArrayData = new byte[ArrayLength];
+                                    Marshal.Copy(new IntPtr(DropPointer.ToInt64() + DropStruct.pFiles), ArrayData, 0, ArrayLength);
+
+                                    if (DropStruct.fWide)
+                                    {
+                                        PathList.AddRange(Encoding.Unicode.GetString(ArrayData).Split('\0', StringSplitOptions.RemoveEmptyEntries));
+                                    }
+                                    else
+                                    {
+                                        PathList.AddRange(Encoding.ASCII.GetString(ArrayData).Split('\0', StringSplitOptions.RemoveEmptyEntries));
+                                    }
+                                }
+                            }
+                            finally
+                            {
+                                Marshal.FreeHGlobal(DropPointer);
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    //No need to handle this exception
+                }
+            }
+
+            return PathList.Distinct().ToList();
         }
 
         public static async Task SetStorageItemDataAsync(this DataPackage Package, params FileSystemStorageItemBase[] Collection)
         {
             try
             {
+                IEnumerable<string> OriginItemPathList = Collection.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrWhiteSpace(Path));
                 IEnumerable<FileSystemStorageItemBase> SpecialItems = Collection.Where((Item) => Item is INotWin32StorageItem);
                 IEnumerable<FileSystemStorageItemBase> NormalItems = Collection.Except(SpecialItems);
 
@@ -275,6 +323,42 @@ namespace RX_Explorer.Class
                     Package.SetData(ExtendedDataFormats.NotSupportedStorageItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(PathOnlyList))));
                 }
 
+                if (OriginItemPathList.Any())
+                {
+                    try
+                    {
+                        NativeWin32API.DROPFILES DropStruct = new NativeWin32API.DROPFILES
+                        {
+                            pFiles = Marshal.SizeOf<NativeWin32API.DROPFILES>(),
+                            fWide = true
+                        };
+                        string RawPathString = $"{string.Join('\0', OriginItemPathList)}\0\0";
+                        byte[] RawPathByteArray = Encoding.Unicode.GetBytes(RawPathString);
+
+                        IntPtr DropPointer = Marshal.AllocHGlobal(DropStruct.pFiles + RawPathByteArray.Length);
+
+                        try
+                        {
+                            Marshal.StructureToPtr(DropStruct, DropPointer, false);
+                            Marshal.Copy(RawPathByteArray, 0, new IntPtr(DropPointer.ToInt64() + DropStruct.pFiles), RawPathByteArray.Length);
+
+                            byte[] OutputData = new byte[DropStruct.pFiles + RawPathByteArray.Length];
+                            Marshal.Copy(DropPointer, OutputData, 0, OutputData.Length);
+
+                            Package.SetData(ExtendedDataFormats.FileDrop, await Helper.CreateRandomAccessStreamAsync(OutputData));
+                        }
+                        finally
+                        {
+                            Marshal.FreeHGlobal(DropPointer);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        //No need to handle this exception
+                    }
+                }
+
+                Package.Properties.ApplicationName = Windows.ApplicationModel.Package.Current.DisplayName;
                 Package.Properties.PackageFamilyName = Windows.ApplicationModel.Package.Current.Id.FamilyName;
             }
             catch (Exception ex)

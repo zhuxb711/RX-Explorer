@@ -1,17 +1,27 @@
-﻿###Novedades de la versión 7.8.7.0
+﻿###Novedades de la versión 7.9.0.0
+
+#####Actualización de funciones
+
+>#####Se agregó una nueva opción para controlar si las carpetas de agregación de etiquetas deben mostrarse dentro del nodo de acceso rápido
+
+>#####Se agregó una nueva opción para controlar si el visor incorporado se usa primero de forma predeterminada
+
+>#####Se agregó soporte para Seer, que se puede usar para ver rápidamente el contenido del archivo
+
+>#####Se agregó una nueva opción para controlar si los archivos o carpetas siempre se abren en una nueva pestaña
+
+#####Mejora del rendimiento
+
+>#####Se mejoró el diseño de bloqueos asíncronos y se mejoró el rendimiento en algunos escenarios
 
 #####Corrección de errores
 
->#####Solucionado el problema de que la dirección del servidor ftp con el nombre de dominio no se identificaba correctamente
+>#####Se corrigió un problema relacionado con el manejo de parámetros de arranque que resultaba en una pestaña en blanco adicional al abrir la ruta raíz de la unidad
 
->#####Se solucionó un problema por el cual la dirección del servidor ftp con el protocolo IPv6 no se identificaba correctamente
+>#####Se solucionó el problema de que algunos colores de texto pueden ser anormales al cambiar al modo Acrílico personalizado si el sistema usa un tema claro y la aplicación usa un tema oscuro
 
->#####Arreglado el problema de no poder copiar/mover/eliminar en archivos ftp
+>#####Se arregló el raro caso de que el archivo de fuente especificado por el usuario causara un bloqueo si el archivo de fuente no está disponible o no se puede acceder a él. Si ocurre este problema, la aplicación volverá automáticamente a la fuente predeterminada
 
->#####Se solucionó el problema de que algunos subarchivos en la carpeta ftp no se podían enumerar en algunos casos especiales
+>#####Se solucionó el problema de que aparecía un cuadro de mensaje de error incluso si el acceso directo se creaba correctamente
 
->#####Se solucionó un problema que podía impedir la exploración de otras carpetas ftp al copiar archivos ftp
-
->#####Arreglado el problema del tiempo de modificación incorrecto de los archivos ftp
-
->#####Se solucionó un problema por el cual la subopción en "Integrar con componentes del sistema" no se podía habilitar
+>#####Se corrigieron algunos otros problemas que podrían causar fallas

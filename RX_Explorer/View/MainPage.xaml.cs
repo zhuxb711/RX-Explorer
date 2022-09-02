@@ -507,7 +507,8 @@ namespace RX_Explorer.View
                     {
                         ShouldPopKeepClipboardTip = Package.Contains(StandardDataFormats.StorageItems)
                                                     || Package.Contains(ExtendedDataFormats.CompressionItems)
-                                                    || Package.Contains(ExtendedDataFormats.NotSupportedStorageItem);
+                                                    || Package.Contains(ExtendedDataFormats.NotSupportedStorageItem)
+                                                    || Package.Contains(ExtendedDataFormats.FileDrop);
                     }
                 }
                 catch (Exception)

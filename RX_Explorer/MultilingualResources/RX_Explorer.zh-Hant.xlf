@@ -4858,6 +4858,18 @@ Invalid names include
           <source>Default program priority</source>
           <target state="translated">默認程序優先級</target>
         </trans-unit>
+        <trans-unit id="SettingClickPreferenceDescription.Text" translate="yes" xml:space="preserve">
+          <source>Choose the operating habit according to your preferences</source>
+          <target state="translated">根據您的喜好選擇操作習慣</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysOpenInNewTabContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will open the selected folder in a new tab. Opens the built-in viewer in a new tab if the file type is supported by the built-in viewer and the built-in viewer is the default program for that type</source>
+          <target state="translated">啟用此選項將在新選項卡中打開所選文件夾。 如果內置查看器支持文件類型並且內置查看器是該類型的默認程序，則在新選項卡中打開內置查看器</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysOpenInNewTabLabel.Text" translate="yes" xml:space="preserve">
+          <source>Always open selected files and folders in a new tab</source>
+          <target state="translated">始終在新選項卡中打開選定的文件和文件夾</target>
+        </trans-unit>
       </group>
     </body>
   </file>

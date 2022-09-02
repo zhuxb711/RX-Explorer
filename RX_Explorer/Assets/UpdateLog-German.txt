@@ -1,17 +1,27 @@
-﻿###Was ist neu in Ver.7.8.7.0
+﻿###Was ist neu in Ver.7.9.0.0
+
+#####Feature-Update
+
+>#####Neue Option hinzugefügt, um zu steuern, ob Label-Aggregationsordner innerhalb des Schnellzugriffsknotens angezeigt werden sollen
+
+>#####Neue Option hinzugefügt, um zu steuern, ob der integrierte Viewer standardmäßig zuerst verwendet wird
+
+>#####Unterstützung für Seer hinzugefügt, die verwendet werden kann, um den Dateiinhalt schnell anzuzeigen
+
+>#####Neue Option hinzugefügt, um zu steuern, ob Dateien oder Ordner immer in einem neuen Tab geöffnet werden
+
+#####Leistungsverbesserung
+
+>#####Das Design von asynchronen Sperren wurde verbessert und die Leistung in einigen Szenarien verbessert
 
 #####Fehlerbehebung
 
->#####Das Problem, dass die FTP-Serveradresse mit dem Domainnamen nicht korrekt identifiziert wurde, wurde behoben
+>#####Es wurde ein Problem im Zusammenhang mit der Handhabung von Startparametern behoben, das zu einem zusätzlichen leeren Tab führte, wenn der Stammpfad des Laufwerks geöffnet wurde
 
->#####Ein Problem wurde behoben, bei dem die FTP-Serveradresse mit dem IPv6-Protokoll nicht korrekt identifiziert wurde
+>#####Das Problem, dass einige Textfarben beim Wechseln in den benutzerdefinierten Acrylmodus ungewöhnlich sein können, wenn das System ein helles Design und die App ein dunkles Design verwendet, wurde behoben
 
->#####Das Problem, dass FTP-Dateien nicht kopiert/verschieben/löschen konnten, wurde behoben
+>#####Der seltene Fall, dass die vom Benutzer angegebene Schriftartdatei einen Absturz verursachte, wenn die Schriftartdatei nicht verfügbar oder nicht zugänglich war, wurde behoben. Wenn dieses Problem auftritt, kehrt die App automatisch zur Standardschriftart zurück
 
->#####Das Problem, dass einige Unterdateien im FTP-Ordner in einigen Sonderfällen nicht aufgelistet werden konnten, wurde behoben
+>#####Das Problem, dass eine Fehlermeldung erscheint, obwohl die Verknüpfung erfolgreich erstellt wurde, wurde behoben
 
->#####Ein Problem wurde behoben, das das Durchsuchen anderer FTP-Ordner beim Kopieren von FTP-Dateien verhindern konnte
-
->#####Das Problem der falschen Änderungszeit von FTP-Dateien wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem die Unteroption in „In Systemkomponenten integrieren“ nicht aktiviert werden konnte
+>#####Einige andere Probleme behoben, die zu Abstürzen führen konnten

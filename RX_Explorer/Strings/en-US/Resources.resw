@@ -3763,4 +3763,13 @@ Invalid names include
   <data name="SettingPageDefaultProgramPriorityLabel.Text" xml:space="preserve">
     <value>Default program priority</value>
   </data>
+  <data name="SettingClickPreferenceDescription.Text" xml:space="preserve">
+    <value>Choose the operating habit according to your preferences</value>
+  </data>
+  <data name="SettingPageAlwaysOpenInNewTabContent.Text" xml:space="preserve">
+    <value>Enabling this option will open the selected folder in a new tab. Opens the built-in viewer in a new tab if the file type is supported by the built-in viewer and the built-in viewer is the default program for that type</value>
+  </data>
+  <data name="SettingPageAlwaysOpenInNewTabLabel.Text" xml:space="preserve">
+    <value>Always open selected files and folders in a new tab</value>
+  </data>
 </root>

@@ -4858,6 +4858,18 @@ Invalid names include
           <source>Default program priority</source>
           <target state="translated">默认程序优先级</target>
         </trans-unit>
+        <trans-unit id="SettingClickPreferenceDescription.Text" translate="yes" xml:space="preserve">
+          <source>Choose the operating habit according to your preferences</source>
+          <target state="new">Choose the operating habit according to your preferences</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysOpenInNewTabContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will open the selected folder in a new tab. Opens the built-in viewer in a new tab if the file type is supported by the built-in viewer and the built-in viewer is the default program for that type</source>
+          <target state="new">Enabling this option will open the selected folder in a new tab. Opens the built-in viewer in a new tab if the file type is supported by the built-in viewer and the built-in viewer is the default program for that type</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysOpenInNewTabLabel.Text" translate="yes" xml:space="preserve">
+          <source>Always open selected files and folders in a new tab</source>
+          <target state="new">Always open selected files and folders in a new tab</target>
+        </trans-unit>
       </group>
     </body>
   </file>

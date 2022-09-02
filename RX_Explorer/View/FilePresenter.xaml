@@ -1696,19 +1696,23 @@
                     </controls:SwitchPresenter>
 
                     <TextBlock Name="HasFile"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
                                x:Uid="HasFile"
                                Text="无文件"
                                Grid.Row="1"
                                FontSize="20"
-                               Visibility="Collapsed" />
-                    <Canvas Grid.Row="1">
+                               Visibility="Collapsed"
+                               IsHitTestVisible="False"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+/>
+                    <Canvas Grid.Row="1"
+                            IsHitTestVisible="False">
                         <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
                                    Stroke="{ThemeResource SystemAccentColorLight2}"
                                    x:Name="DrawRectangle"
                                    Opacity="0.4" />
                     </Canvas>
+                    
                     <StackPanel Grid.Row="2"
                                 VerticalAlignment="Bottom">
                         <TextBlock x:Name="StatusTips"

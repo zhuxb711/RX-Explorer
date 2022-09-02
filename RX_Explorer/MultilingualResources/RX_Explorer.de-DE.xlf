@@ -4858,6 +4858,18 @@ Inkorrekte Namen sind
           <source>Default program priority</source>
           <target state="translated">Priorität des Standardprogramms</target>
         </trans-unit>
+        <trans-unit id="SettingClickPreferenceDescription.Text" translate="yes" xml:space="preserve">
+          <source>Choose the operating habit according to your preferences</source>
+          <target state="translated">Wählen Sie die Betriebsweise nach Ihren Vorlieben</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysOpenInNewTabContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will open the selected folder in a new tab. Opens the built-in viewer in a new tab if the file type is supported by the built-in viewer and the built-in viewer is the default program for that type</source>
+          <target state="translated">Wenn Sie diese Option aktivieren, wird der ausgewählte Ordner in einem neuen Tab geöffnet. Öffnet den integrierten Viewer in einer neuen Registerkarte, wenn der Dateityp vom integrierten Viewer unterstützt wird und der integrierte Viewer das Standardprogramm für diesen Typ ist</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysOpenInNewTabLabel.Text" translate="yes" xml:space="preserve">
+          <source>Always open selected files and folders in a new tab</source>
+          <target state="translated">Ausgewählte Dateien und Ordner immer in einem neuen Tab öffnen</target>
+        </trans-unit>
       </group>
     </body>
   </file>

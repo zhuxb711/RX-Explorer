@@ -4858,6 +4858,18 @@ Las denominaciones no válidas son:
           <source>Default program priority</source>
           <target state="translated">Prioridad de programa predeterminada</target>
         </trans-unit>
+        <trans-unit id="SettingClickPreferenceDescription.Text" translate="yes" xml:space="preserve">
+          <source>Choose the operating habit according to your preferences</source>
+          <target state="translated">Elige el hábito de funcionamiento según tus preferencias</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysOpenInNewTabContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will open the selected folder in a new tab. Opens the built-in viewer in a new tab if the file type is supported by the built-in viewer and the built-in viewer is the default program for that type</source>
+          <target state="translated">Habilitar esta opción abrirá la carpeta seleccionada en una nueva pestaña. Abre el visor integrado en una nueva pestaña si el tipo de archivo es compatible con el visor integrado y el visor integrado es el programa predeterminado para ese tipo</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysOpenInNewTabLabel.Text" translate="yes" xml:space="preserve">
+          <source>Always open selected files and folders in a new tab</source>
+          <target state="translated">Abre siempre los archivos y carpetas seleccionados en una pestaña nueva</target>
+        </trans-unit>
       </group>
     </body>
   </file>

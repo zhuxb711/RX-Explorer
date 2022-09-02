@@ -1,17 +1,27 @@
-﻿###What's new in Ver.7.8.7.0
+﻿###What's new in Ver.7.9.0.0
+
+#####Feature update
+
+>#####Added a new option to control whether label aggregation folders should be shown within the quick access node
+
+>#####Added a new option to control whether the built-in viewer is used first by default
+
+>#####Added support for Seer, which can be used to quickly view the file contents
+
+>#####Added a new option to control whether files or folders are always opened in a new tab
+
+#####Performance improvement
+
+>#####Improved the design of asynchronous locks and improved the performance in some scenarios
 
 #####Bug Fixes
 
->#####Fixed the problem that the ftp server address with the domain name were not correctly identified
+>#####Fixed an issue related to boot parameter handling that would result in an additional blank tab when opening the root path of the drive
 
->#####Fixed an issue where ftp server address with IPv6 protocol were not correctly identified
+>#####Fixed the problem that some text colors may be abnormal when switching to custom Acrylic mode if the system uses a light theme and the app uses a dark theme
 
->#####Fixed the problem of not being able to copy/move/delete on ftp files
+>#####Fixed the rare case that the font file specified by the user would cause a crash if the font file is unavailable or inaccessible. If this problem occurs, the app will automatically roll back to the default font
 
->#####Fixed the problem that some subfiles in ftp folder could not be enumerated in some special cases
+>#####Fixed the problem that an error message box will pop up even if the shortcut is successfully created
 
->#####Fixed an issue that could prevent browsing of other ftp folders when copying ftp files
-
->#####Fixed the problem of incorrect modification time of ftp files
-
->#####Fixed an issue where the sub-option in "Integrate with system components" could not be enabled
+>#####Fixed some other issues that could cause crashes

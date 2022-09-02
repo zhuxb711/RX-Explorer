@@ -887,7 +887,8 @@ namespace RX_Explorer.View
 
                 if (e.DataView.Contains(StandardDataFormats.StorageItems)
                     || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
-                    || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
+                    || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem)
+                    || e.DataView.Contains(ExtendedDataFormats.FileDrop))
                 {
                     if (e.OriginalSource is TabViewItem Item)
                     {
