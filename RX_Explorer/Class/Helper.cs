@@ -1,7 +1,7 @@
 ﻿using RX_Explorer.View;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
@@ -12,6 +12,31 @@ namespace RX_Explorer.Class
 {
     public static class Helper
     {
+        public static async Task<string> GetExecuteableFileDisplayNameAsync(string Path)
+        {
+            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFile File)
+            {
+                return await GetExecuteableFileDisplayNameAsync(File);
+            }
+
+            return string.Empty;
+        }
+
+        public static async Task<string> GetExecuteableFileDisplayNameAsync(FileSystemStorageFile File)
+        {
+            IReadOnlyDictionary<string, string> PropertiesDic = await File.GetPropertiesAsync(new string[] { "System.FileDescription" });
+
+            if (PropertiesDic.TryGetValue("System.FileDescription", out string Description))
+            {
+                return string.IsNullOrEmpty(Description) ? (File.DisplayName.EndsWith(File.Type, StringComparison.OrdinalIgnoreCase) 
+                                                                            ? Path.GetFileNameWithoutExtension(File.DisplayName) 
+                                                                            : File.DisplayName) 
+                                                         : Description;
+            }
+
+            return string.Empty;
+        }
+
         public static bool GetSuitableInnerViewerPageType(FileSystemStorageFile File, out Type PageType)
         {
             switch (File.Type.ToLower())

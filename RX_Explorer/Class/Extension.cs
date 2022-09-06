@@ -323,41 +323,6 @@ namespace RX_Explorer.Class
                     Package.SetData(ExtendedDataFormats.NotSupportedStorageItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(PathOnlyList))));
                 }
 
-                if (OriginItemPathList.Any())
-                {
-                    try
-                    {
-                        NativeWin32API.DROPFILES DropStruct = new NativeWin32API.DROPFILES
-                        {
-                            pFiles = Marshal.SizeOf<NativeWin32API.DROPFILES>(),
-                            fWide = true
-                        };
-                        string RawPathString = $"{string.Join('\0', OriginItemPathList)}\0\0";
-                        byte[] RawPathByteArray = Encoding.Unicode.GetBytes(RawPathString);
-
-                        IntPtr DropPointer = Marshal.AllocHGlobal(DropStruct.pFiles + RawPathByteArray.Length);
-
-                        try
-                        {
-                            Marshal.StructureToPtr(DropStruct, DropPointer, false);
-                            Marshal.Copy(RawPathByteArray, 0, new IntPtr(DropPointer.ToInt64() + DropStruct.pFiles), RawPathByteArray.Length);
-
-                            byte[] OutputData = new byte[DropStruct.pFiles + RawPathByteArray.Length];
-                            Marshal.Copy(DropPointer, OutputData, 0, OutputData.Length);
-
-                            Package.SetData(ExtendedDataFormats.FileDrop, await Helper.CreateRandomAccessStreamAsync(OutputData));
-                        }
-                        finally
-                        {
-                            Marshal.FreeHGlobal(DropPointer);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        //No need to handle this exception
-                    }
-                }
-
                 Package.Properties.ApplicationName = Windows.ApplicationModel.Package.Current.DisplayName;
                 Package.Properties.PackageFamilyName = Windows.ApplicationModel.Package.Current.Id.FamilyName;
             }

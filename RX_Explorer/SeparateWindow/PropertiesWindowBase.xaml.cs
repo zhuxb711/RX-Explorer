@@ -1329,37 +1329,46 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                     if (Regex.IsMatch(File.Name, @"\.(exe|bat|lnk|url)$"))
                                     {
-                                        string Description = string.Empty;
-
                                         if (File is LinkStorageFile Link)
                                         {
-                                            if (await FileSystemStorageItemBase.OpenAsync(Link.LinkTargetPath) is FileSystemStorageItemBase LinkTarget)
+                                            switch (await FileSystemStorageItemBase.OpenAsync(Link.LinkTargetPath))
                                             {
-                                                if (LinkTarget is FileSystemStorageFile)
-                                                {
-                                                    IReadOnlyDictionary<string, string> DescriptionResult = await LinkTarget.GetPropertiesAsync(new string[] { "System.FileDescription" });
-                                                    Description = DescriptionResult["System.FileDescription"];
-                                                }
-                                                else
-                                                {
-                                                    Description = LinkTarget.Name;
-                                                }
+                                                case FileSystemStorageFile TargetFile:
+                                                    {
+                                                        FileDescriptionContent.Text = await Helper.GetExecuteableFileDisplayNameAsync(TargetFile);
+                                                        break;
+                                                    }
+                                                case FileSystemStorageFolder TargetFolder:
+                                                    {
+                                                        FileDescriptionContent.Text = TargetFolder.DisplayName;
+                                                        break;
+                                                    }
+                                                default:
+                                                    {
+                                                        FileDescriptionContent.Text = string.Empty;
+                                                        break;
+                                                    }
                                             }
                                         }
                                         else
                                         {
-                                            IReadOnlyDictionary<string, string> DescriptionResult = await File.GetPropertiesAsync(new string[] { "System.FileDescription" });
-                                            Description = DescriptionResult["System.FileDescription"];
+                                            FileDescriptionContent.Text = await Helper.GetExecuteableFileDisplayNameAsync(File);
                                         }
-
-                                        FileDescriptionContent.Text = string.IsNullOrEmpty(Description) ? File.Name : Description;
                                     }
 
                                     ulong SizeOnDisk = await File.GetSizeOnDiskAsync();
-                                    FileSizeOnDiskContent.Text = SizeOnDisk > 0 ? $"{SizeOnDisk.GetFileSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Drive_Capacity_Unit")})" : Globalization.GetString("UnknownText");
 
-                                    bool IsDisplayTypeEmpty = string.IsNullOrEmpty(File.DisplayType);
+                                    if (SizeOnDisk > 0)
+                                    {
+                                        FileSizeOnDiskContent.Text = $"{SizeOnDisk.GetFileSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
+                                    }
+                                    else
+                                    {
+                                        FileSizeOnDiskContent.Text = Globalization.GetString("UnknownText");
+                                    }
+
                                     bool IsTypeEmpty = string.IsNullOrEmpty(File.Type);
+                                    bool IsDisplayTypeEmpty = string.IsNullOrEmpty(File.DisplayType);
 
                                     if (IsDisplayTypeEmpty && IsTypeEmpty)
                                     {
@@ -1448,13 +1457,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                             if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
                                                             {
                                                                 FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
-
-                                                                IReadOnlyDictionary<string, string> PropertiesDic = await OpenWithFile.GetPropertiesAsync(new string[] { "System.FileDescription" });
-
-                                                                if (PropertiesDic.TryGetValue("System.FileDescription", out string AppName))
-                                                                {
-                                                                    FileOpenWithContent.Text = string.IsNullOrEmpty(AppName) ? OpenWithFile.DisplayName : AppName;
-                                                                }
+                                                                FileOpenWithContent.Text = await Helper.GetExecuteableFileDisplayNameAsync(OpenWithFile);
                                                             }
                                                             else
                                                             {
@@ -1479,13 +1482,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                             if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
                                             {
                                                 FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
-
-                                                IReadOnlyDictionary<string, string> PropertiesDic = await OpenWithFile.GetPropertiesAsync(new string[] { "System.FileDescription" });
-
-                                                if (PropertiesDic.TryGetValue("System.FileDescription", out string AppName))
-                                                {
-                                                    FileOpenWithContent.Text = string.IsNullOrEmpty(AppName) ? OpenWithFile.DisplayName : AppName;
-                                                }
+                                                FileOpenWithContent.Text = await Helper.GetExecuteableFileDisplayNameAsync(OpenWithFile);
                                             }
                                             else
                                             {

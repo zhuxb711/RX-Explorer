@@ -1023,14 +1023,14 @@
                                                                    Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
                                                                    Opacity="{x:Bind ThumbnailStatus,Mode=OneWay,Converter={StaticResource ThumbnailStatusConverter}}"
                                                                    Stretch="Uniform" />
-                                                            <TextBlock VerticalAlignment="Center"
-                                                                       HorizontalAlignment="Left"
+                                                            <TextBlock x:Name="NameLabel"
                                                                        Grid.Column="1"
                                                                        Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                        Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                                                        TextTrimming="CharacterEllipsis"
-                                                                       PointerPressed="NameLabel_PointerPressed"
-                                                                       x:Name="NameLabel">
+                                                                       VerticalAlignment="Center"
+                                                                       HorizontalAlignment="Left"
+                                                                       PointerPressed="NameLabel_PointerPressed">
                                                                 <ToolTipService.ToolTip>
                                                                     <ToolTip Content="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                              Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
