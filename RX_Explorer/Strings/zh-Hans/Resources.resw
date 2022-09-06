@@ -3656,4 +3656,13 @@
   <data name="SettingPageDefaultProgramPriorityLabel.Text" xml:space="preserve">
     <value>默认程序优先级</value>
   </data>
+  <data name="SettingClickPreferenceDescription.Text" xml:space="preserve">
+    <value>根据自己的喜好选择合适的操作习惯</value>
+  </data>
+  <data name="SettingPageAlwaysOpenInNewTabContent.Text" xml:space="preserve">
+    <value>启用此选项后将使用新标签页打开所选的文件夹。若文件类型受内置查看器支持且内置查看器是该类型的默认打开方式，则在新标签页中打开内置查看器</value>
+  </data>
+  <data name="SettingPageAlwaysOpenInNewTabLabel.Text" xml:space="preserve">
+    <value>总是在新标签页中打开选中的文件和文件夹</value>
+  </data>
 </root>
