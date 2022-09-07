@@ -42,8 +42,8 @@ namespace RX_Explorer.Class
                 catch (Exception)
                 {
                     return new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                        ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                        : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
                 }
             }
 
@@ -157,7 +157,7 @@ namespace RX_Explorer.Class
 
             if (Size == 0)
             {
-                Size = Convert.ToUInt64(await ClientController.RunCommandAsync((Client) => Client.GetFileSizeAsync(RelatedPath, 0)));
+                Size = Convert.ToUInt64(await ClientController.RunCommandAsync((Client) => Client.GetFileSize(RelatedPath, 0)));
             }
         }
 
@@ -210,7 +210,7 @@ namespace RX_Explorer.Class
 
         public override async Task CopyAsync(string DirectoryPath, string NewName = null, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
+            if (await ClientController.RunCommandAsync((Client) => Client.FileExists(RelatedPath, CancelToken)))
             {
                 string TargetPath = System.IO.Path.Combine(DirectoryPath, Name);
 
@@ -226,9 +226,9 @@ namespace RX_Explorer.Class
                             {
                                 case CollisionOptions.OverrideOnCollision:
                                     {
-                                        if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                        if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetAnalysis.RelatedPath, CancelToken)))
                                         {
-                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFileAsync(TargetAnalysis.RelatedPath, CancelToken));
+                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFile(TargetAnalysis.RelatedPath, CancelToken));
                                         }
 
                                         using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
@@ -254,7 +254,7 @@ namespace RX_Explorer.Class
                                     }
                                 case CollisionOptions.Skip:
                                     {
-                                        if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                        if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetAnalysis.RelatedPath, CancelToken)))
                                         {
                                             using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                             using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
@@ -332,7 +332,7 @@ namespace RX_Explorer.Class
 
         public override async Task MoveAsync(string DirectoryPath, string NewName = null, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await ClientController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
+            if (await ClientController.RunCommandAsync((Client) => Client.FileExists(RelatedPath, CancelToken)))
             {
                 string TargetPath = System.IO.Path.Combine(DirectoryPath, Name);
 
@@ -348,7 +348,7 @@ namespace RX_Explorer.Class
                             {
                                 case CollisionOptions.OverrideOnCollision:
                                     {
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveFileAsync(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Overwrite, CancelToken)))
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveFile(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Overwrite, CancelToken)))
                                         {
                                             throw new Exception($"Could not move the file from: {Path} to: {TargetPath} on the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
                                         }
@@ -359,7 +359,7 @@ namespace RX_Explorer.Class
                                     {
                                         string UniquePath = await ClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
 
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveFileAsync(RelatedPath, UniquePath, FtpRemoteExists.NoCheck, CancelToken)))
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveFile(RelatedPath, UniquePath, FtpRemoteExists.NoCheck, CancelToken)))
                                         {
                                             throw new Exception($"Could not move the file from: {Path} to: {TargetAnalysis.Host + UniquePath} on the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
                                         }
@@ -368,7 +368,7 @@ namespace RX_Explorer.Class
                                     }
                                 case CollisionOptions.Skip:
                                     {
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveFileAsync(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Skip, CancelToken)))
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveFile(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Skip, CancelToken)))
                                         {
                                             throw new Exception($"Could not move the file from: {Path} to: {TargetPath} on the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
                                         }
@@ -406,16 +406,16 @@ namespace RX_Explorer.Class
         {
             using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
             {
-                if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
+                if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(RelatedPath, CancelToken)))
                 {
                     string TargetPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(RelatedPath), DesireName);
 
-                    if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetPath, CancelToken)))
+                    if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetPath, CancelToken)))
                     {
                         TargetPath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetPath, CreateType.File));
                     }
 
-                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.RenameAsync(RelatedPath, TargetPath, CancelToken));
+                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.Rename(RelatedPath, TargetPath, CancelToken));
 
                     return TargetPath;
                 }
@@ -430,9 +430,9 @@ namespace RX_Explorer.Class
         {
             using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
             {
-                if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(RelatedPath, CancelToken)))
+                if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(RelatedPath, CancelToken)))
                 {
-                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFileAsync(RelatedPath, CancelToken));
+                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFile(RelatedPath, CancelToken));
                 }
                 else
                 {

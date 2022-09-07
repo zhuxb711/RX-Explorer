@@ -5973,20 +5973,37 @@ namespace RX_Explorer.View
                     || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem)
                     || e.DataView.Contains(ExtendedDataFormats.FileDrop))
                 {
-                    if (e.Modifiers.HasFlag(DragDropModifiers.Control))
-                    {
-                        e.AcceptedOperation = DataPackageOperation.Copy;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{CurrentFolder.DisplayName}\"";
-                    }
-                    else
-                    {
-                        e.AcceptedOperation = DataPackageOperation.Move;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{CurrentFolder.DisplayName}\"";
-                    }
 
                     e.DragUIOverride.IsContentVisible = true;
                     e.DragUIOverride.IsCaptionVisible = true;
                     e.DragUIOverride.IsGlyphVisible = true;
+
+                    if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                    {
+                        if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                        {
+                            e.AcceptedOperation = DataPackageOperation.Move;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{CurrentFolder.DisplayName}\"";
+                        }
+                        else
+                        {
+                            e.AcceptedOperation = DataPackageOperation.Copy;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{CurrentFolder.DisplayName}\"";
+                        }
+                    }
+                    else
+                    {
+                        if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                        {
+                            e.AcceptedOperation = DataPackageOperation.Copy;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{CurrentFolder.DisplayName}\"";
+                        }
+                        else
+                        {
+                            e.AcceptedOperation = DataPackageOperation.Move;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{CurrentFolder.DisplayName}\"";
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -6201,11 +6218,64 @@ namespace RX_Explorer.View
                     NameEditBox.Visibility = Visibility.Collapsed;
                 }
 
+                if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                {
+                    args.AllowedOperations = DataPackageOperation.Copy;
+                    args.Data.RequestedOperation = DataPackageOperation.Copy;
+                }
+                else
+                {
+                    args.AllowedOperations = DataPackageOperation.Move;
+                    args.Data.RequestedOperation = DataPackageOperation.Move;
+                }
+
                 await args.Data.SetStorageItemDataAsync(SelectedItems.ToArray());
+
+                if (SelectedItems.Count() > 1)
+                {
+                    if (SelectedItems.OfType<INotWin32StorageItem>().Any())
+                    {
+                        Uri DefaultThumbnailUri = new Uri(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                            ? "ms-appx:///Assets/MultiItems_White.png"
+                                                            : "ms-appx:///Assets/MultiItems_Black.png");
+
+                        BitmapImage DefaultThumbnailImage = new BitmapImage(DefaultThumbnailUri)
+                        {
+                            DecodePixelHeight = 80,
+                            DecodePixelWidth = 80,
+                            DecodePixelType = DecodePixelType.Logical
+                        };
+
+                        args.DragUI.SetContentFromBitmapImage(DefaultThumbnailImage);
+                    }
+                    else
+                    {
+                        args.DragUI.SetContentFromDataPackage();
+                    }
+                }
+                else if (SelectedItems.SingleOrDefault() is INotWin32StorageItem)
+                {
+                    Uri DefaultThumbnailUri = new Uri(AppThemeController.Current.Theme == ElementTheme.Dark
+                            ? "ms-appx:///Assets/SingleItem_White.png"
+                            : "ms-appx:///Assets/SingleItem_Black.png");
+
+                    BitmapImage DefaultThumbnailImage = new BitmapImage(DefaultThumbnailUri)
+                    {
+                        DecodePixelHeight = 80,
+                        DecodePixelWidth = 80,
+                        DecodePixelType = DecodePixelType.Logical
+                    };
+
+                    args.DragUI.SetContentFromBitmapImage(DefaultThumbnailImage);
+                }
+                else
+                {
+                    args.DragUI.SetContentFromDataPackage();
+                }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, "Could not drag the storage itmes");
             }
             finally
             {
@@ -6245,31 +6315,46 @@ namespace RX_Explorer.View
                     {
                         case FileSystemStorageFolder Folder:
                             {
-                                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
-                                {
-                                    e.AcceptedOperation = DataPackageOperation.Copy;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.Name}\"";
-                                }
-                                else
-                                {
-                                    e.AcceptedOperation = DataPackageOperation.Move;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.Name}\"";
-                                }
-
                                 e.DragUIOverride.IsContentVisible = true;
                                 e.DragUIOverride.IsCaptionVisible = true;
                                 e.DragUIOverride.IsGlyphVisible = true;
+
+                                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                                {
+                                    if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                                    {
+                                        e.AcceptedOperation = DataPackageOperation.Move;
+                                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.DisplayName}\"";
+                                    }
+                                    else
+                                    {
+                                        e.AcceptedOperation = DataPackageOperation.Copy;
+                                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.DisplayName}\"";
+                                    }
+                                }
+                                else
+                                {
+                                    if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                                    {
+                                        e.AcceptedOperation = DataPackageOperation.Copy;
+                                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.DisplayName}\"";
+                                    }
+                                    else
+                                    {
+                                        e.AcceptedOperation = DataPackageOperation.Move;
+                                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.DisplayName}\"";
+                                    }
+                                }
 
                                 break;
                             }
                         case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
                             {
-                                e.AcceptedOperation = DataPackageOperation.Link;
-                                e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_RunWith").Replace("{Placeholder}", $"\"{File.Name}\"");
-
                                 e.DragUIOverride.IsContentVisible = true;
                                 e.DragUIOverride.IsCaptionVisible = true;
                                 e.DragUIOverride.IsGlyphVisible = true;
+                                e.AcceptedOperation = DataPackageOperation.Link;
+                                e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_RunWith").Replace("{Placeholder}", $"\"{File.DisplayName}\"");
 
                                 break;
                             }

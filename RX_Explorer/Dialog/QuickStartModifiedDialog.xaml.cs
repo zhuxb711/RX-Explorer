@@ -327,8 +327,8 @@ namespace RX_Explorer.Dialog
                                             catch (Exception)
                                             {
                                                 StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                                                                                           ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                                                                                           : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                                                                                                           ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                                                                                                           : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
 
                                                 using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
                                                 {
@@ -388,8 +388,8 @@ namespace RX_Explorer.Dialog
                                             catch (Exception)
                                             {
                                                 StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                                                                                ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                                                                                : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                                                                                                ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                                                                                                : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
 
                                                 using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
                                                 {
@@ -450,8 +450,8 @@ namespace RX_Explorer.Dialog
                                             catch (Exception)
                                             {
                                                 StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                                                                                    ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                                                                                    : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                                                                                                    ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                                                                                                    : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
 
                                                 using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
                                                 {
@@ -591,7 +591,7 @@ namespace RX_Explorer.Dialog
                     }
                     else
                     {
-                        Uri PageUri = AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
+                        Uri PageUri = AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/SingleItem_White.png") : new Uri("ms-appx:///Assets/SingleItem_Black.png");
 
                         StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(PageUri);
 
@@ -675,8 +675,8 @@ namespace RX_Explorer.Dialog
                     catch (Exception)
                     {
                         StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                                                                        ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                                                                        : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
 
                         using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
                         {
@@ -794,8 +794,8 @@ namespace RX_Explorer.Dialog
                     catch (Exception)
                     {
                         StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                                                                        ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                                                                        : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
 
                         using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
                         {

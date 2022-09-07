@@ -9,7 +9,7 @@ namespace RX_Explorer.Class
     public sealed class FtpSafeWriteStream : Stream
     {
         private readonly Stream BaseStream;
-        private readonly FtpClient Client;
+        private readonly AsyncFtpClient Client;
 
         public override bool CanRead => false;
 
@@ -60,25 +60,35 @@ namespace RX_Explorer.Class
         {
             BaseStream.Dispose();
 
-            while (true)
+            using (CancellationTokenSource Cancellation = new CancellationTokenSource(5000))
             {
-                FtpReply Reply = Client.GetReply();
-
-                if (Reply.Success)
+                try
                 {
-                    if ((Reply.Message?.Contains("NOOP")).GetValueOrDefault())
+                    while (true)
                     {
-                        continue;
+                        FtpReply Reply = Client.GetReply(Cancellation.Token).Result;
+
+                        if (Reply.Success)
+                        {
+                            if ((Reply.Message?.Contains("NOOP")).GetValueOrDefault())
+                            {
+                                continue;
+                            }
+                        }
+
+                        break;
                     }
                 }
-
-                break;
+                catch (Exception)
+                {
+                    //No need to handle this exception
+                }
             }
 
             base.Dispose(disposing);
         }
 
-        public FtpSafeWriteStream(FtpClient Client, Stream BaseStream)
+        public FtpSafeWriteStream(AsyncFtpClient Client, Stream BaseStream)
         {
             if (BaseStream == null)
             {

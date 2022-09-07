@@ -645,6 +645,35 @@
                                                             Loaded="ViewHeightOffsetNumberBox_Loaded" />
                                         </RelativePanel>
                                     </Border>
+
+                                    <Border Margin="0,5,0,0"
+                                            Padding="20,10"
+                                            MinHeight="60"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="DefaultDragBehaivorComboBox"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="默认拖放文件行为"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="指定向其他应用程序拖动文件时的默认采取行为" />
+                                            </StackPanel>
+                                            <ComboBox MinWidth="150"
+                                                      Name="DefaultDragBehaivorComboBox"
+                                                      RelativePanel.AlignRightWithPanel="True"
+                                                      RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+                                        </RelativePanel>
+                                    </Border>
+                                    
                                     <muxc:Expander Margin="0,5,0,0"
                                                    ExpandDirection="Down"
                                                    HorizontalAlignment="Stretch"
@@ -701,6 +730,7 @@
                                             </Border>
                                         </muxc:Expander.Content>
                                     </muxc:Expander>
+                                    
                                     <Border Margin="0,5,0,0"
                                             Padding="20,10"
                                             MinHeight="60"

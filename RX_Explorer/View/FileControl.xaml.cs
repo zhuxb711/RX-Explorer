@@ -2209,9 +2209,6 @@ namespace RX_Explorer.View
             {
                 e.Handled = true;
                 e.AcceptedOperation = DataPackageOperation.None;
-                e.DragUIOverride.IsContentVisible = true;
-                e.DragUIOverride.IsGlyphVisible = true;
-                e.DragUIOverride.IsCaptionVisible = true;
 
                 if (sender is Button Btn && Btn.DataContext is AddressBlock Block)
                 {
@@ -2222,15 +2219,35 @@ namespace RX_Explorer.View
                     {
                         if (!Block.Path.Equals(RootVirtualFolder.Current.Path, StringComparison.OrdinalIgnoreCase))
                         {
+                            e.DragUIOverride.IsContentVisible = true;
+                            e.DragUIOverride.IsGlyphVisible = true;
+                            e.DragUIOverride.IsCaptionVisible = true;
+
                             if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                             {
-                                e.AcceptedOperation = DataPackageOperation.Copy;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
+                                if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Move;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
+                                }
+                                else
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Copy;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
+                                }
                             }
                             else
                             {
-                                e.AcceptedOperation = DataPackageOperation.Move;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
+                                if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Copy;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
+                                }
+                                else
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Move;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
+                                }
                             }
                         }
                     }

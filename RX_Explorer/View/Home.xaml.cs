@@ -635,9 +635,6 @@ namespace RX_Explorer.View
         {
             e.Handled = true;
             e.AcceptedOperation = DataPackageOperation.None;
-            e.DragUIOverride.IsContentVisible = true;
-            e.DragUIOverride.IsCaptionVisible = true;
-            e.DragUIOverride.IsGlyphVisible = true;
 
             if (e.DataView.Contains(StandardDataFormats.StorageItems)
                 || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
@@ -648,31 +645,70 @@ namespace RX_Explorer.View
                 {
                     case LibraryStorageFolder Folder:
                         {
+                            e.DragUIOverride.IsContentVisible = true;
+                            e.DragUIOverride.IsCaptionVisible = true;
+                            e.DragUIOverride.IsGlyphVisible = true;
+
                             if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                             {
-                                e.AcceptedOperation = DataPackageOperation.Copy;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.Name}\"";
+                                if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Move;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.DisplayName}\"";
+                                }
+                                else
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Copy;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.DisplayName}\"";
+                                }
                             }
                             else
                             {
-                                e.AcceptedOperation = DataPackageOperation.Move;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.Name}\"";
+                                if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Copy;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.DisplayName}\"";
+                                }
+                                else
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Move;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.DisplayName}\"";
+                                }
                             }
-
 
                             break;
                         }
                     case DriveDataBase Drive when Drive is not LockedDriveData:
                         {
+                            e.DragUIOverride.IsContentVisible = true;
+                            e.DragUIOverride.IsCaptionVisible = true;
+                            e.DragUIOverride.IsGlyphVisible = true;
+
                             if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                             {
-                                e.AcceptedOperation = DataPackageOperation.Copy;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Drive.Name}\"";
+                                if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Move;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Drive.DisplayName}\"";
+                                }
+                                else
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Copy;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Drive.DisplayName}\"";
+                                }
                             }
                             else
                             {
-                                e.AcceptedOperation = DataPackageOperation.Move;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Drive.Name}\"";
+                                if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Copy;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Drive.DisplayName}\"";
+                                }
+                                else
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Move;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Drive.DisplayName}\"";
+                                }
                             }
 
                             break;

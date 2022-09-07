@@ -15,9 +15,9 @@ namespace RX_Explorer.Class
         {
             FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
-            if (await Controller.RunCommandAsync((Client) => Client.FileExistsAsync(Analysis.RelatedPath, CancelToken)).ConfigureAwait(false))
+            if (await Controller.RunCommandAsync((Client) => Client.FileExists(Analysis.RelatedPath, CancelToken)).ConfigureAwait(false))
             {
-                await Controller.RunCommandAsync((Client) => Client.DeleteFileAsync(Analysis.RelatedPath, CancelToken).ConfigureAwait(false));
+                await Controller.RunCommandAsync((Client) => Client.DeleteFile(Analysis.RelatedPath, CancelToken).ConfigureAwait(false));
             }
 
             BaseStream.Seek(0, SeekOrigin.Begin);

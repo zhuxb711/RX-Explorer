@@ -682,7 +682,23 @@ namespace RX_Explorer.View
                     return ProgramPriority.InnerViewer;
                 }
             }
-            set => ApplicationData.Current.LocalSettings.Values["DefaultProgramPriority"] = Enum.GetName(typeof(ProgramPriority), value); 
+            set => ApplicationData.Current.LocalSettings.Values["DefaultProgramPriority"] = Enum.GetName(typeof(ProgramPriority), value);
+        }
+
+        public static DragBehaivor DefaultDragBehaivor
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DefaultDragBehaivor"] is string RawValue)
+                {
+                    return Enum.Parse<DragBehaivor>(RawValue);
+                }
+                else
+                {
+                    return DragBehaivor.Copy;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["DefaultDragBehaivor"] = Enum.GetName(typeof(DragBehaivor), value);
         }
 
         public static Color PredefineLabelForeground1
@@ -1167,6 +1183,9 @@ namespace RX_Explorer.View
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseBuildInAsDefault"));
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseEverythingAsDefault"));
 
+                DefaultDragBehaivorComboBox.Items.Add(Globalization.GetString("DragBehaivor_Copy"));
+                DefaultDragBehaivorComboBox.Items.Add(Globalization.GetString("DragBehaivor_Move"));
+
                 DefaultProgramPriorityCombox.Items.Add(Globalization.GetString("DefaultProgramPriority_InnerViewer"));
                 DefaultProgramPriorityCombox.Items.Add(Globalization.GetString("DefaultProgramPriority_SystemDefault"));
 
@@ -1397,6 +1416,7 @@ namespace RX_Explorer.View
                 AlwaysOpenInNewTab.Unchecked -= AlwaysOpenInNewTab_Unchecked;
                 DefaultDisplayMode.SelectionChanged -= DefaultDisplayMode_SelectionChanged;
                 DefaultProgramPriorityCombox.SelectionChanged -= DefaultProgramPriorityCombox_SelectionChanged;
+                DefaultDragBehaivorComboBox.SelectionChanged -= DefaultDragBehaivorComboBox_SelectionChanged;
                 ShutdownButtonBehaviorCombox.SelectionChanged -= ShutdownButtonBehaviorCombox_SelectionChanged;
                 ViewHeightOffsetNumberBox.ValueChanged -= ViewHeightOffsetNumberBox_ValueChanged;
                 VerticalSplitViewLimitationNumberBox.ValueChanged -= VerticalSplitViewLimitationNumberBox_ValueChanged;
@@ -1487,13 +1507,19 @@ namespace RX_Explorer.View
                 {
                     ProgramPriority.InnerViewer => 0,
                     ProgramPriority.SystemDefault => 1,
-                    _=> throw new NotSupportedException()
+                    _ => throw new NotSupportedException()
                 };
                 ShutdownButtonBehaviorCombox.SelectedIndex = ShutdownButtonBehavior switch
                 {
                     ShutdownBehaivor.CloseApplication => 0,
                     ShutdownBehaivor.CloseInnerViewer => 1,
                     _ => 2
+                };
+                DefaultDragBehaivorComboBox.SelectedIndex = DefaultDragBehaivor switch
+                {
+                    DragBehaivor.Copy => 0,
+                    DragBehaivor.Move => 1,
+                    _ => throw new NotSupportedException()
                 };
 
 #if DEBUG
@@ -1619,6 +1645,7 @@ namespace RX_Explorer.View
                 DefaultDisplayMode.SelectionChanged += DefaultDisplayMode_SelectionChanged;
                 DefaultProgramPriorityCombox.SelectionChanged += DefaultProgramPriorityCombox_SelectionChanged;
                 ShutdownButtonBehaviorCombox.SelectionChanged += ShutdownButtonBehaviorCombox_SelectionChanged;
+                DefaultDragBehaivorComboBox.SelectionChanged += DefaultDragBehaivorComboBox_SelectionChanged;
                 ViewHeightOffsetNumberBox.ValueChanged += ViewHeightOffsetNumberBox_ValueChanged;
                 VerticalSplitViewLimitationNumberBox.ValueChanged += VerticalSplitViewLimitationNumberBox_ValueChanged;
 
@@ -1650,6 +1677,27 @@ namespace RX_Explorer.View
                 ColorPickerChangeRegisterToken3 = PredefineTagColorPicker2.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker2SelectedColorChanged));
                 ColorPickerChangeRegisterToken4 = PredefineTagColorPicker3.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker3SelectedColorChanged));
                 ColorPickerChangeRegisterToken5 = PredefineTagColorPicker4.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker4SelectedColorChanged));
+            }
+        }
+
+        private void DefaultDragBehaivorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                DefaultDragBehaivor = DefaultDragBehaivorComboBox.SelectedIndex switch
+                {
+                    0 => DragBehaivor.Copy,
+                    1 => DragBehaivor.Move,
+                    _ => throw new NotSupportedException()
+                };
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(DefaultDragBehaivorComboBox_SelectionChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 

@@ -1207,12 +1207,9 @@ namespace RX_Explorer.View
             try
             {
                 e.Handled = true;
+                e.AcceptedOperation = DataPackageOperation.None;
 
-                if (IsReadonlyMode || (e.DataView.Properties.TryGetValue("Source", out object Source) && Convert.ToString(Source) == "InnerCompressionViewer"))
-                {
-                    e.AcceptedOperation = DataPackageOperation.None;
-                }
-                else
+                if (!IsReadonlyMode && !(e.DataView.Properties.TryGetValue("Source", out object Source) && Convert.ToString(Source) == "InnerCompressionViewer"))
                 {
                     IReadOnlyList<string> PathList = await e.DataView.GetAsStorageItemPathListAsync();
 
@@ -1227,29 +1224,12 @@ namespace RX_Explorer.View
                                 Name = ZipFile.Name;
                             }
 
-                            if (e.Modifiers.HasFlag(DragDropModifiers.Control))
-                            {
-                                e.AcceptedOperation = DataPackageOperation.Copy;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Name}\"";
-                            }
-                            else
-                            {
-                                e.AcceptedOperation = DataPackageOperation.Move;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Name}\"";
-                            }
-
                             e.DragUIOverride.IsContentVisible = true;
                             e.DragUIOverride.IsCaptionVisible = true;
                             e.DragUIOverride.IsGlyphVisible = true;
+                            e.AcceptedOperation = DataPackageOperation.Copy;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Name}\"";
                         }
-                        else
-                        {
-                            e.AcceptedOperation = DataPackageOperation.None;
-                        }
-                    }
-                    else
-                    {
-                        e.AcceptedOperation = DataPackageOperation.None;
                     }
                 }
             }
@@ -1453,7 +1433,8 @@ namespace RX_Explorer.View
 
                 CancellationToken CancelToken = TaskCancellation.Token;
 
-                args.Data.RequestedOperation = DataPackageOperation.Move;
+                args.AllowedOperations = DataPackageOperation.Copy;
+                args.Data.RequestedOperation = DataPackageOperation.Copy;
                 args.Data.Properties.Add("Source", "InnerCompressionViewer");
                 args.Data.SetDataProvider(ExtendedDataFormats.CompressionItems, async (Request) =>
                 {

@@ -1433,7 +1433,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                     }
                                                     catch (Exception)
                                                     {
-                                                        FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                                        FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/SingleItem_White.png" : "ms-appx:///Assets/SingleItem_Black.png"));
                                                     }
 
                                                     break;
@@ -1450,7 +1450,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                         if (string.IsNullOrEmpty(AdminExecutablePath))
                                                         {
                                                             FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
-                                                            FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                                            FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/SingleItem_White.png" : "ms-appx:///Assets/SingleItem_Black.png"));
                                                         }
                                                         else
                                                         {
@@ -1468,7 +1468,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                     catch (Exception)
                                                     {
                                                         FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
-                                                        FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                                        FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/SingleItem_White.png" : "ms-appx:///Assets/SingleItem_Black.png"));
                                                     }
 
                                                     break;
@@ -1492,7 +1492,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                         catch (Exception)
                                         {
                                             FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
-                                            FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                            FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/SingleItem_White.png" : "ms-appx:///Assets/SingleItem_Black.png"));
                                         }
                                     }
                                     else
@@ -1526,13 +1526,13 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                             else
                                             {
                                                 FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
-                                                FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                                FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/SingleItem_White.png" : "ms-appx:///Assets/SingleItem_Black.png"));
                                             }
                                         }
                                         catch (Exception)
                                         {
                                             FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
-                                            FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                            FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/SingleItem_White.png" : "ms-appx:///Assets/SingleItem_Black.png"));
                                         }
                                     }
 
@@ -1718,7 +1718,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                     if (await FtpClientManager.GetClientControllerAsync(Analysis) is FtpClientController Controller)
                                     {
-                                        FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksumAsync(Analysis.RelatedPath, FtpHashAlgorithm.MD5, Md5Cancellation.Token));
+                                        FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksum(Analysis.RelatedPath, FtpHashAlgorithm.MD5, Md5Cancellation.Token));
 
                                         if (Hash.IsValid)
                                         {
@@ -1813,7 +1813,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                 if (await FtpClientManager.GetClientControllerAsync(Analysis) is FtpClientController Controller)
                                 {
-                                    FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksumAsync(Analysis.RelatedPath, FtpHashAlgorithm.SHA1, SHA1Cancellation.Token));
+                                    FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksum(Analysis.RelatedPath, FtpHashAlgorithm.SHA1, SHA1Cancellation.Token));
 
                                     if (Hash.IsValid)
                                     {
@@ -1907,7 +1907,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                 if (await FtpClientManager.GetClientControllerAsync(Analysis) is FtpClientController Controller)
                                 {
-                                    FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksumAsync(Analysis.RelatedPath, FtpHashAlgorithm.SHA256, SHA256Cancellation.Token));
+                                    FtpHash Hash = await Controller.RunCommandAsync((Client) => Client.GetChecksum(Analysis.RelatedPath, FtpHashAlgorithm.SHA256, SHA256Cancellation.Token));
 
                                     if (Hash.IsValid)
                                     {

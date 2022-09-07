@@ -151,8 +151,8 @@ namespace RX_Explorer.Class
             }
 
             return new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                        ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                        : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
         }
 
         protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
@@ -168,8 +168,8 @@ namespace RX_Explorer.Class
             }
 
             StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                                                                ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                                                                : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                                                                                ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                                                                                : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
             return await ThumbnailFile.OpenReadAsync();
         }
 

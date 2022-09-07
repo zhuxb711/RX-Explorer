@@ -3772,4 +3772,10 @@ Invalid names include
   <data name="SettingPageAlwaysOpenInNewTabLabel.Text" xml:space="preserve">
     <value>Always open selected files and folders in a new tab</value>
   </data>
+  <data name="DragBehaivor_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="DragBehaivor_Move" xml:space="preserve">
+    <value>Move</value>
+  </data>
 </root>

@@ -181,9 +181,9 @@ namespace RX_Explorer.Class
                         if (await FtpClientManager.GetClientControllerAsync(Analysis) is FtpClientController Controller)
                         {
                             if (Analysis.IsRootDirectory
-                                || await Controller.RunCommandAsync((Client) => Client.DirectoryExistsAsync(Analysis.RelatedPath))
-                                || await Controller.RunCommandAsync((Client) => Client.FileExistsAsync(Analysis.RelatedPath))
-                                || await Controller.RunCommandAsync((Client) => Client.GetNameListingAsync(Analysis.RelatedPath)
+                                || await Controller.RunCommandAsync((Client) => Client.DirectoryExists(Analysis.RelatedPath))
+                                || await Controller.RunCommandAsync((Client) => Client.FileExists(Analysis.RelatedPath))
+                                || await Controller.RunCommandAsync((Client) => Client.GetNameListing(Analysis.RelatedPath)
                                                                                       .ContinueWith((PreviousTask) =>
                                                                                       {
                                                                                           if (PreviousTask.Exception != null)
@@ -310,7 +310,7 @@ namespace RX_Explorer.Class
                             {
                                 return new FtpStorageFolder(Controller, new FtpFileData(Analysis));
                             }
-                            else if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                            else if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfo(Analysis.RelatedPath, true)) is FtpListItem Item)
                             {
                                 if (Item.Type.HasFlag(FtpObjectType.Directory))
                                 {
@@ -321,18 +321,18 @@ namespace RX_Explorer.Class
                                     return new FtpStorageFile(Controller, new FtpFileData(Analysis, Item));
                                 }
                             }
-                            else if (await Controller.RunCommandAsync((Client) => Client.GetNameListingAsync(Analysis.RelatedPath)
-                                                                                           .ContinueWith((PreviousTask) =>
-                                                                                           {
-                                                                                               if (PreviousTask.Exception != null)
-                                                                                               {
-                                                                                                   return false;
-                                                                                               }
-                                                                                               else
-                                                                                               {
-                                                                                                   return PreviousTask.Result.Length > 0;
-                                                                                               }
-                                                                                           }, TaskContinuationOptions.ExecuteSynchronously)))
+                            else if (await Controller.RunCommandAsync((Client) => Client.GetNameListing(Analysis.RelatedPath)
+                                                                                        .ContinueWith((PreviousTask) =>
+                                                                                        {
+                                                                                            if (PreviousTask.Exception != null)
+                                                                                            {
+                                                                                                return false;
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                return PreviousTask.Result.Length > 0;
+                                                                                            }
+                                                                                        }, TaskContinuationOptions.ExecuteSynchronously)))
                             {
                                 return new FtpStorageFolder(Controller, new FtpFileData(Analysis));
                             }
@@ -475,9 +475,9 @@ namespace RX_Explorer.Class
                             {
                                 case CreateOption.OpenIfExist:
                                     {
-                                        await Controller.RunCommandAsync((Client) => Client.CreateDirectoryAsync(Analysis.RelatedPath));
+                                        await Controller.RunCommandAsync((Client) => Client.CreateDirectory(Analysis.RelatedPath));
 
-                                        if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                                        if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfo(Analysis.RelatedPath, true)) is FtpListItem Item)
                                         {
                                             return new FtpStorageFolder(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                         }
@@ -488,9 +488,9 @@ namespace RX_Explorer.Class
                                     {
                                         string UniquePath = await Controller.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(Analysis.RelatedPath, CreateType.Folder));
 
-                                        if (await Controller.RunCommandAsync((Client) => Client.CreateDirectoryAsync(UniquePath)))
+                                        if (await Controller.RunCommandAsync((Client) => Client.CreateDirectory(UniquePath)))
                                         {
-                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(UniquePath, true)) is FtpListItem Item)
+                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfo(UniquePath, true)) is FtpListItem Item)
                                             {
                                                 return new FtpStorageFolder(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                             }
@@ -500,11 +500,11 @@ namespace RX_Explorer.Class
                                     }
                                 case CreateOption.ReplaceExisting:
                                     {
-                                        await Controller.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(Analysis.RelatedPath, FtpListOption.Recursive));
+                                        await Controller.RunCommandAsync((Client) => Client.DeleteDirectory(Analysis.RelatedPath, FtpListOption.Recursive));
 
-                                        if (await Controller.RunCommandAsync((Client) => Client.CreateDirectoryAsync(Analysis.RelatedPath)))
+                                        if (await Controller.RunCommandAsync((Client) => Client.CreateDirectory(Analysis.RelatedPath)))
                                         {
-                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfo(Analysis.RelatedPath, true)) is FtpListItem Item)
                                             {
                                                 return new FtpStorageFolder(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                             }
@@ -520,9 +520,9 @@ namespace RX_Explorer.Class
                             {
                                 case CreateOption.OpenIfExist:
                                     {
-                                        if (await Controller.RunCommandAsync((Client) => Client.UploadBytesAsync(Array.Empty<byte>(), Analysis.RelatedPath, FtpRemoteExists.Skip)) != FtpStatus.Failed)
+                                        if (await Controller.RunCommandAsync((Client) => Client.UploadBytes(Array.Empty<byte>(), Analysis.RelatedPath, FtpRemoteExists.Skip)) != FtpStatus.Failed)
                                         {
-                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfo(Analysis.RelatedPath, true)) is FtpListItem Item)
                                             {
                                                 return new FtpStorageFile(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                             }
@@ -534,9 +534,9 @@ namespace RX_Explorer.Class
                                     {
                                         string UniquePath = await Controller.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(Analysis.RelatedPath, CreateType.File));
 
-                                        if (await Controller.RunCommandAsync((Client) => Client.UploadBytesAsync(Array.Empty<byte>(), UniquePath, FtpRemoteExists.NoCheck)) == FtpStatus.Success)
+                                        if (await Controller.RunCommandAsync((Client) => Client.UploadBytes(Array.Empty<byte>(), UniquePath, FtpRemoteExists.NoCheck)) == FtpStatus.Success)
                                         {
-                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(UniquePath, true)) is FtpListItem Item)
+                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfo(UniquePath, true)) is FtpListItem Item)
                                             {
                                                 return new FtpStorageFile(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                             }
@@ -546,9 +546,9 @@ namespace RX_Explorer.Class
                                     }
                                 case CreateOption.ReplaceExisting:
                                     {
-                                        if (await Controller.RunCommandAsync((Client) => Client.UploadBytesAsync(Array.Empty<byte>(), Analysis.RelatedPath, FtpRemoteExists.Overwrite)) == FtpStatus.Success)
+                                        if (await Controller.RunCommandAsync((Client) => Client.UploadBytes(Array.Empty<byte>(), Analysis.RelatedPath, FtpRemoteExists.Overwrite)) == FtpStatus.Success)
                                         {
-                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfoAsync(Analysis.RelatedPath, true)) is FtpListItem Item)
+                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfo(Analysis.RelatedPath, true)) is FtpListItem Item)
                                             {
                                                 return new FtpStorageFile(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
                                             }

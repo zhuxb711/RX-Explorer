@@ -25,6 +25,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Package = Windows.ApplicationModel.Package;
 using RefreshRequestedEventArgs = RX_Explorer.Class.RefreshRequestedEventArgs;
@@ -744,7 +745,60 @@ namespace RX_Explorer.View
 
             try
             {
+                if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                {
+                    args.AllowedOperations = DataPackageOperation.Copy;
+                    args.Data.RequestedOperation = DataPackageOperation.Copy;
+                }
+                else
+                {
+                    args.AllowedOperations = DataPackageOperation.Move;
+                    args.Data.RequestedOperation = DataPackageOperation.Move;
+                }
+
                 await args.Data.SetStorageItemDataAsync(SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray());
+
+                if (SearchResultList.SelectedItems.Count() > 1)
+                {
+                    if (SearchResultList.SelectedItems.OfType<INotWin32StorageItem>().Any())
+                    {
+                        Uri DefaultThumbnailUri = new Uri(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                            ? "ms-appx:///Assets/MultiItems_White.png"
+                                                            : "ms-appx:///Assets/MultiItems_Black.png");
+
+                        BitmapImage DefaultThumbnailImage = new BitmapImage(DefaultThumbnailUri)
+                        {
+                            DecodePixelHeight = 80,
+                            DecodePixelWidth = 80,
+                            DecodePixelType = DecodePixelType.Logical
+                        };
+
+                        args.DragUI.SetContentFromBitmapImage(DefaultThumbnailImage);
+                    }
+                    else
+                    {
+                        args.DragUI.SetContentFromDataPackage();
+                    }
+                }
+                else if (SearchResultList.SelectedItems.SingleOrDefault() is INotWin32StorageItem)
+                {
+                    Uri DefaultThumbnailUri = new Uri(AppThemeController.Current.Theme == ElementTheme.Dark
+                            ? "ms-appx:///Assets/SingleItem_White.png"
+                            : "ms-appx:///Assets/SingleItem_Black.png");
+
+                    BitmapImage DefaultThumbnailImage = new BitmapImage(DefaultThumbnailUri)
+                    {
+                        DecodePixelHeight = 80,
+                        DecodePixelWidth = 80,
+                        DecodePixelType = DecodePixelType.Logical
+                    };
+
+                    args.DragUI.SetContentFromBitmapImage(DefaultThumbnailImage);
+                }
+                else
+                {
+                    args.DragUI.SetContentFromDataPackage();
+                }
             }
             catch (Exception ex)
             {

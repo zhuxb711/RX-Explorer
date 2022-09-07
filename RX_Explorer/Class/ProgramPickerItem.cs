@@ -22,8 +22,8 @@ namespace RX_Explorer.Class
         /// 默认图片
         /// </summary>
         private static readonly BitmapImage DefaultThumbnuil = new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ?
-                                                                               new Uri("ms-appx:///Assets/Page_Solid_White.png") :
-                                                                               new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                                               new Uri("ms-appx:///Assets/SingleItem_White.png") :
+                                                                               new Uri("ms-appx:///Assets/SingleItem_Black.png"));
         private static readonly BitmapImage InnerViewerThumbnail = new BitmapImage(new Uri("ms-appx:///Assets/AppLogo.png"));
 
         public static ProgramPickerItem InnerViewer { get; } = new ProgramPickerItem(InnerViewerThumbnail,

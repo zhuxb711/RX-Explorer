@@ -13,8 +13,8 @@ namespace RX_Explorer.Class
         private BitmapImage InnerThumbnail;
 
         public override BitmapImage Thumbnail => InnerThumbnail ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                                       ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                                       : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                                                       ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                                                       : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
 
         public override string Type => string.IsNullOrEmpty(base.Type) ? Globalization.GetString("File_Admin_DisplayType") : base.Type;
 

@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum DragBehaivor
+    {
+        Copy,
+        Move
+    }
+
     public enum ProgramPriority
     {
         InnerViewer,

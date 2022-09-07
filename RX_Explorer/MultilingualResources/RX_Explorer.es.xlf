@@ -4870,6 +4870,14 @@ Las denominaciones no válidas son:
           <source>Always open selected files and folders in a new tab</source>
           <target state="translated">Abre siempre los archivos y carpetas seleccionados en una pestaña nueva</target>
         </trans-unit>
+        <trans-unit id="DragBehaivor_Copy" translate="yes" xml:space="preserve">
+          <source>Copy</source>
+          <target state="new">Copy</target>
+        </trans-unit>
+        <trans-unit id="DragBehaivor_Move" translate="yes" xml:space="preserve">
+          <source>Move</source>
+          <target state="new">Move</target>
+        </trans-unit>
       </group>
     </body>
   </file>

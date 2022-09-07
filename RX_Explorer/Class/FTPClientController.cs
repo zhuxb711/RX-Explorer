@@ -12,7 +12,7 @@ namespace RX_Explorer.Class
     public sealed class FtpClientController : IDisposable
     {
         private bool IsDisposed;
-        private readonly FtpClient Client;
+        private readonly AsyncFtpClient Client;
         private readonly Thread ProcessThread;
         private readonly AsyncLock Locker = new AsyncLock();
         private readonly BlockingCollection<FTPTaskData> TaskCollection = new BlockingCollection<FTPTaskData>();
@@ -79,12 +79,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task RunCommandAsync(Func<FtpClient, Task> Executor)
+        public Task RunCommandAsync(Func<AsyncFtpClient, Task> Executor)
         {
             return RunCommandAsync<object>(Executor);
         }
 
-        public Task RunCommandAsync(Action<FtpClient> Executor)
+        public Task RunCommandAsync(Action<AsyncFtpClient> Executor)
         {
             return RunCommandAsync((Client) =>
             {
@@ -93,12 +93,12 @@ namespace RX_Explorer.Class
             });
         }
 
-        public Task<T> RunCommandAsync<T>(Func<FtpClient, T> Executor)
+        public Task<T> RunCommandAsync<T>(Func<AsyncFtpClient, T> Executor)
         {
             return RunCommandAsync((Client) => Task.FromResult(Executor(Client)));
         }
 
-        public async Task<T> RunCommandAsync<T>(Func<FtpClient, Task<T>> Executor)
+        public async Task<T> RunCommandAsync<T>(Func<AsyncFtpClient, Task<T>> Executor)
         {
             await ConnectAsync();
 
@@ -119,10 +119,10 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            Client.DataConnectionType = ConnectionType;
+                            Client.Config.DataConnectionType = ConnectionType;
 
-                            await Client.ConnectAsync(CancelToken);
-                            await Client.GetNameListingAsync(CancelToken);
+                            await Client.Connect(CancelToken);
+                            await Client.GetNameListing(CancelToken);
 
                             if (IsAvailable)
                             {
@@ -137,7 +137,7 @@ namespace RX_Explorer.Class
 
                     if (IsAvailable)
                     {
-                        LogTracer.Log($"Ftp server is connected, connection protocal: {Enum.GetName(typeof(FtpDataConnectionType), Client.DataConnectionType)} security protocal: {Client.SslProtocols}, encryption: {Client.EncryptionMode}, encoding: {Client.Encoding.EncodingName}");
+                        LogTracer.Log($"Ftp server is connected, connection protocal: {Enum.GetName(typeof(FtpDataConnectionType), Client.Config.DataConnectionType)} security protocal: {Client.Config.SslProtocols}, encryption: {Client.Config.EncryptionMode}, encoding: {Client.Encoding.EncodingName}");
                     }
                     else
                     {
@@ -147,7 +147,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public FtpClient DangerousGetFtpClient()
+        public AsyncFtpClient DangerousGetFtpClient()
         {
             return Client;
         }
@@ -197,9 +197,8 @@ namespace RX_Explorer.Class
             this.Password = Password;
             this.UseEncryption = UseEncryption;
 
-            Client = new FtpClient(Host, Port, UserName, Password)
+            Client = new AsyncFtpClient(Host, UserName, Password, Port, new FtpConfig
             {
-                Encoding = Encoding.UTF8,
                 TimeConversion = FtpDate.LocalTime,
                 TimeZone = TimeZoneInfo.Utc.BaseUtcOffset.Hours,
                 LocalTimeZone = TimeZoneInfo.Local.BaseUtcOffset.Hours,
@@ -210,6 +209,9 @@ namespace RX_Explorer.Class
                 RetryAttempts = 3,
                 ReadTimeout = 30000,
                 ConnectTimeout = 30000
+            })
+            {
+                Encoding = Encoding.UTF8,
             };
 
             ProcessThread = new Thread(ProcessCore)

@@ -27,8 +27,8 @@ namespace RX_Explorer.Class
         public override string DisplayName => Name;
 
         public override BitmapImage Thumbnail => base.Thumbnail ??= new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                                                        ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                                                        : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
 
         public FileSystemStorageFile(NativeFileData Data) : base(Data)
         {
@@ -49,8 +49,8 @@ namespace RX_Explorer.Class
         {
             return await base.GetThumbnailCoreAsync(Mode, ForceUpdate)
                                 ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                        ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                        : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                        ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                        : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
         }
 
         public async virtual Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
@@ -151,8 +151,8 @@ namespace RX_Explorer.Class
             catch (Exception)
             {
                 StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(AppThemeController.Current.Theme == ElementTheme.Dark
-                                                                                                ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
-                                                                                                : new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+                                                                                                ? new Uri("ms-appx:///Assets/SingleItem_White.png")
+                                                                                                : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
                 return await ThumbnailFile.OpenReadAsync();
             }
         }
@@ -269,9 +269,9 @@ namespace RX_Explorer.Class
                         {
                             case CollisionOptions.OverrideOnCollision:
                                 {
-                                    if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                    if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetAnalysis.RelatedPath, CancelToken)))
                                     {
-                                        await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFileAsync(TargetAnalysis.RelatedPath, CancelToken));
+                                        await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFile(TargetAnalysis.RelatedPath, CancelToken));
                                     }
 
                                     using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
@@ -295,7 +295,7 @@ namespace RX_Explorer.Class
                                 }
                             case CollisionOptions.Skip:
                                 {
-                                    if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                    if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetAnalysis.RelatedPath, CancelToken)))
                                     {
                                         using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
                                         {
@@ -334,9 +334,9 @@ namespace RX_Explorer.Class
                         {
                             case CollisionOptions.OverrideOnCollision:
                                 {
-                                    if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                    if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetAnalysis.RelatedPath, CancelToken)))
                                     {
-                                        await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFileAsync(TargetAnalysis.RelatedPath, CancelToken));
+                                        await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFile(TargetAnalysis.RelatedPath, CancelToken));
                                     }
 
                                     using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
@@ -360,7 +360,7 @@ namespace RX_Explorer.Class
                                 }
                             case CollisionOptions.Skip:
                                 {
-                                    if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                    if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetAnalysis.RelatedPath, CancelToken)))
                                     {
                                         using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
                                         {

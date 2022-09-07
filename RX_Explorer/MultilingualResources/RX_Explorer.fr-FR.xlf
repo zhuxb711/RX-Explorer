@@ -4870,6 +4870,14 @@ Les noms non valides incluent
           <source>Always open selected files and folders in a new tab</source>
           <target state="translated">Toujours ouvrir les fichiers et dossiers sélectionnés dans un nouvel onglet</target>
         </trans-unit>
+        <trans-unit id="DragBehaivor_Copy" translate="yes" xml:space="preserve">
+          <source>Copy</source>
+          <target state="new">Copy</target>
+        </trans-unit>
+        <trans-unit id="DragBehaivor_Move" translate="yes" xml:space="preserve">
+          <source>Move</source>
+          <target state="new">Move</target>
+        </trans-unit>
       </group>
     </body>
   </file>

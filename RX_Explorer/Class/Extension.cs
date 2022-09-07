@@ -43,14 +43,14 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
-        public static async Task<Stream> GetFtpFileStreamForWriteAsync(this FtpClient Client, string Path, FtpDataType DataType, CancellationToken CancelToken = default)
+        public static async Task<Stream> GetFtpFileStreamForWriteAsync(this AsyncFtpClient Client, string Path, FtpDataType DataType, CancellationToken CancelToken = default)
         {
-            return new FtpSafeWriteStream(Client, await Client.OpenWriteAsync(Path, DataType, false, CancelToken));
+            return new FtpSafeWriteStream(Client, await Client.OpenRead(Path, DataType, 0, false, CancelToken));
         }
 
-        public static async Task<Stream> GetFtpFileStreamForReadAsync(this FtpClient Client, string Path, FtpDataType DataType, long RestartPosition, long FileLength, CancellationToken CancelToken = default)
+        public static async Task<Stream> GetFtpFileStreamForReadAsync(this AsyncFtpClient Client, string Path, FtpDataType DataType, long RestartPosition, long FileLength, CancellationToken CancelToken = default)
         {
-            return new FtpSafeReadStream(Client, await Client.OpenReadAsync(Path, DataType, RestartPosition, FileLength, CancelToken));
+            return new FtpSafeReadStream(Client, await Client.OpenRead(Path, DataType, RestartPosition, FileLength, CancelToken));
         }
 
         public static string GetDateTimeDescription(this DateTimeOffset Time)
@@ -104,17 +104,17 @@ namespace RX_Explorer.Class
             return await CompleteSource.Task;
         }
 
-        public static async Task<string> GenerateUniquePathAsync(this FtpClient Client, string Path, CreateType ItemType)
+        public static async Task<string> GenerateUniquePathAsync(this AsyncFtpClient Client, string Path, CreateType ItemType)
         {
             string UniquePath = Path;
 
-            if (ItemType == CreateType.Folder ? await Client.DirectoryExistsAsync(UniquePath) : await Client.FileExistsAsync(UniquePath))
+            if (ItemType == CreateType.Folder ? await Client.DirectoryExists(UniquePath) : await Client.FileExists(UniquePath))
             {
                 string FileName = ItemType == CreateType.Folder ? System.IO.Path.GetFileName(Path) : System.IO.Path.GetFileNameWithoutExtension(Path);
                 string Extension = ItemType == CreateType.Folder ? string.Empty : System.IO.Path.GetExtension(Path);
                 string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
-                for (ushort Count = 1; ItemType == CreateType.Folder ? await Client.DirectoryExistsAsync(UniquePath) : await Client.FileExistsAsync(UniquePath); Count++)
+                for (ushort Count = 1; ItemType == CreateType.Folder ? await Client.DirectoryExists(UniquePath) : await Client.FileExists(UniquePath); Count++)
                 {
                     if (Regex.IsMatch(FileName, @".*\(\d+\)"))
                     {

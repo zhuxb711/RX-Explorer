@@ -565,12 +565,12 @@ namespace RX_Explorer.Class
                         {
                             case CollisionOptions.OverrideOnCollision:
                                 {
-                                    if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                    if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExists(TargetAnalysis.RelatedPath, CancelToken)))
                                     {
-                                        await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteDirectoryAsync(TargetAnalysis.RelatedPath, FtpListOption.Recursive, CancelToken));
+                                        await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteDirectory(TargetAnalysis.RelatedPath, FtpListOption.Recursive, CancelToken));
                                     }
 
-                                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(TargetAnalysis.RelatedPath, true, CancelToken));
+                                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectory(TargetAnalysis.RelatedPath, true, CancelToken));
 
                                     await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
                                     {
@@ -578,7 +578,7 @@ namespace RX_Explorer.Class
                                         {
                                             case FileSystemStorageFolder Folder:
                                                 {
-                                                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
+                                                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectory(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken));
 
                                                     break;
                                                 }
@@ -610,7 +610,7 @@ namespace RX_Explorer.Class
                                 {
                                     string UniquePath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.Folder));
 
-                                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(UniquePath, true, CancelToken));
+                                    await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectory(UniquePath, true, CancelToken));
 
                                     await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
                                     {
@@ -618,7 +618,7 @@ namespace RX_Explorer.Class
                                         {
                                             case FileSystemStorageFolder Folder:
                                                 {
-                                                    if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{UniquePath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken)))
+                                                    if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectory(@$"{UniquePath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken)))
                                                     {
                                                         throw new UnauthorizedAccessException(Folder.Path);
                                                     }
@@ -650,7 +650,7 @@ namespace RX_Explorer.Class
                                 }
                             case CollisionOptions.Skip:
                                 {
-                                    if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExistsAsync(TargetAnalysis.RelatedPath, CancelToken)))
+                                    if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExists(TargetAnalysis.RelatedPath, CancelToken)))
                                     {
                                         await foreach (FileSystemStorageItemBase Item in GetChildItemsAsync(true, true, true, CancelToken))
                                         {
@@ -658,7 +658,7 @@ namespace RX_Explorer.Class
                                             {
                                                 case FileSystemStorageFolder Folder:
                                                     {
-                                                        if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectoryAsync(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken)))
+                                                        if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.CreateDirectory(@$"{TargetAnalysis.RelatedPath}\{System.IO.Path.GetRelativePath(Path, Folder.Path)}", true, CancelToken)))
                                                         {
                                                             throw new UnauthorizedAccessException(Folder.Path);
                                                         }
