@@ -1,27 +1,23 @@
-﻿###Was ist neu in Ver.7.9.0.0
+﻿###Was ist neu in Ver.7.9.1.0
 
 #####Feature-Update
 
->#####Neue Option hinzugefügt, um zu steuern, ob Label-Aggregationsordner innerhalb des Schnellzugriffsknotens angezeigt werden sollen
+>######Option hinzugefügt, um das Standardverhalten beim Ziehen von Dateien zu steuern
 
->#####Neue Option hinzugefügt, um zu steuern, ob der integrierte Viewer standardmäßig zuerst verwendet wird
+>######Option hinzugefügt, um zu steuern, ob das Doppelklicken auf einen leeren Speicherort zum Zurückkehren zum übergeordneten Ordner aktiviert ist
 
->#####Unterstützung für Seer hinzugefügt, die verwendet werden kann, um den Dateiinhalt schnell anzuzeigen
+#####UI-Update
 
->#####Neue Option hinzugefügt, um zu steuern, ob Dateien oder Ordner immer in einem neuen Tab geöffnet werden
+>#####Aktualisierte Miniaturansichten beim Ziehen von Dateien
 
-#####Leistungsverbesserung
-
->#####Das Design von asynchronen Sperren wurde verbessert und die Leistung in einigen Szenarien verbessert
+>#####Das Standard-Miniaturbild wurde aktualisiert, das angezeigt wird, wenn das Datei-Miniaturbild nicht abgerufen werden kann
 
 #####Fehlerbehebung
 
->#####Es wurde ein Problem im Zusammenhang mit der Handhabung von Startparametern behoben, das zu einem zusätzlichen leeren Tab führte, wenn der Stammpfad des Laufwerks geöffnet wurde
+>#####Es wurde ein Problem behoben, bei dem es möglicherweise nicht möglich war, Dateien per Drag-and-Drop in andere Apps zu ziehen
 
->#####Das Problem, dass einige Textfarben beim Wechseln in den benutzerdefinierten Acrylmodus ungewöhnlich sein können, wenn das System ein helles Design und die App ein dunkles Design verwendet, wurde behoben
+>#####Es wurde ein Problem behoben, bei dem das Ziehen einer Datei auf den Desktop ein Menü öffnen konnte und zusätzliche Schritte zum Kopieren/Verschieben erforderlich waren
 
->#####Der seltene Fall, dass die vom Benutzer angegebene Schriftartdatei einen Absturz verursachte, wenn die Schriftartdatei nicht verfügbar oder nicht zugänglich war, wurde behoben. Wenn dieses Problem auftritt, kehrt die App automatisch zur Standardschriftart zurück
+>#####Das Problem, dass das Web-Symbol nicht automatisch abgerufen werden kann, wenn eine URL zum Schnellstart hinzugefügt wird, wurde behoben
 
->#####Das Problem, dass eine Fehlermeldung erscheint, obwohl die Verknüpfung erfolgreich erstellt wurde, wurde behoben
-
->#####Einige andere Probleme behoben, die zu Abstürzen führen konnten
+>#####Einige Übersetzungsprobleme behoben

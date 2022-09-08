@@ -4872,11 +4872,35 @@ Invalid names include
         </trans-unit>
         <trans-unit id="DragBehaivor_Copy" translate="yes" xml:space="preserve">
           <source>Copy</source>
-          <target state="new">Copy</target>
+          <target state="translated">复制</target>
         </trans-unit>
         <trans-unit id="DragBehaivor_Move" translate="yes" xml:space="preserve">
           <source>Move</source>
-          <target state="new">Move</target>
+          <target state="translated">移动</target>
+        </trans-unit>
+        <trans-unit id="DefaultDragBehaivorContent.Text" translate="yes" xml:space="preserve">
+          <source>Specifies the default behavior when dragging files with other applications</source>
+          <target state="translated">指定与其他应用程序拖动文件时默认采取的行为</target>
+        </trans-unit>
+        <trans-unit id="DefaultDragBehaivorLabel.Text" translate="yes" xml:space="preserve">
+          <source>Default drag and drop behavior</source>
+          <target state="translated">默认拖放行为</target>
+        </trans-unit>
+        <trans-unit id="DoubleClickGoToParentContent.Text" translate="yes" xml:space="preserve">
+          <source>This option controls whether double-clicking on empty space to go back to the parent folder is enabled</source>
+          <target state="translated">此选项控制是否启用双击空白处返回父文件夹的功能</target>
+        </trans-unit>
+        <trans-unit id="DoubleClickGoToParentLabel.Text" translate="yes" xml:space="preserve">
+          <source>Double click on empty space to go back to parent folder</source>
+          <target state="translated">双击空白处返回父文件夹</target>
+        </trans-unit>
+        <trans-unit id="DoubleClickGotoParentSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="DoubleClickGotoParentSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">启用</target>
         </trans-unit>
       </group>
     </body>

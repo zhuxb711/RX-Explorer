@@ -45,7 +45,7 @@ namespace RX_Explorer.Class
     {
         public static async Task<Stream> GetFtpFileStreamForWriteAsync(this AsyncFtpClient Client, string Path, FtpDataType DataType, CancellationToken CancelToken = default)
         {
-            return new FtpSafeWriteStream(Client, await Client.OpenRead(Path, DataType, 0, false, CancelToken));
+            return new FtpSafeWriteStream(Client, await Client.OpenWrite(Path, DataType, false, CancelToken));
         }
 
         public static async Task<Stream> GetFtpFileStreamForReadAsync(this AsyncFtpClient Client, string Path, FtpDataType DataType, long RestartPosition, long FileLength, CancellationToken CancelToken = default)

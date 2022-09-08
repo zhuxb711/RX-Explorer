@@ -986,6 +986,25 @@ namespace RX_Explorer.View
             }
         }
 
+        public static bool IsDoubleClickGoBackToParent
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DoubleClickGoBackToParent"] is bool Enabled)
+                {
+                    return Enabled;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["DoubleClickGoBackToParent"] = value;
+            }
+        }
+
         public static bool IsOpened { get; private set; }
 
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
@@ -1470,6 +1489,7 @@ namespace RX_Explorer.View
                 ViewHeightOffsetNumberBox.Value = ViewHeightOffset;
                 VerticalSplitViewLimitationNumberBox.Value = VerticalSplitViewLimitation;
                 ClickPreference.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
+                DoubleClickGoToParent.IsOn = IsDoubleClickGoBackToParent;
                 TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
                 EnableQuicklook.IsOn = IsQuicklookEnabled;
                 EnableSeer.IsOn = IsSeerEnabled;
@@ -4499,6 +4519,22 @@ namespace RX_Explorer.View
             {
                 EnableSeer.IsEnabled = await Exclusive.Controller.CheckIfSeerIsAvailableAsync();
                 EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync();
+            }
+        }
+
+        private void DoubleClickGoToParent_Toggled(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsDoubleClickGoBackToParent = DoubleClickGoToParent.IsOn;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(DoubleClickGoToParent_Toggled)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
     }

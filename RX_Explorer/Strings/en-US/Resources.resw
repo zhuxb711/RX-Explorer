@@ -3778,4 +3778,22 @@ Invalid names include
   <data name="DragBehaivor_Move" xml:space="preserve">
     <value>Move</value>
   </data>
+  <data name="DefaultDragBehaivorContent.Text" xml:space="preserve">
+    <value>Specifies the default behavior when dragging files with other applications</value>
+  </data>
+  <data name="DefaultDragBehaivorLabel.Text" xml:space="preserve">
+    <value>Default drag and drop behavior</value>
+  </data>
+  <data name="DoubleClickGoToParentContent.Text" xml:space="preserve">
+    <value>This option controls whether double-clicking on empty space to go back to the parent folder is enabled</value>
+  </data>
+  <data name="DoubleClickGoToParentLabel.Text" xml:space="preserve">
+    <value>Double click on empty space to go back to parent folder</value>
+  </data>
+  <data name="DoubleClickGotoParentSwitch.OffContent" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="DoubleClickGotoParentSwitch.OnContent" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
 </root>

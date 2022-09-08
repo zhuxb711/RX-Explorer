@@ -4568,7 +4568,7 @@ namespace RX_Explorer.View
                         await OpenSelectedItemAsync(Item).ConfigureAwait(false);
                     }
                 }
-                else if (Element is Grid)
+                else if (Element is Grid && SettingPage.IsDoubleClickGoBackToParent)
                 {
                     if (Path.GetPathRoot(CurrentFolder?.Path).Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
                     {

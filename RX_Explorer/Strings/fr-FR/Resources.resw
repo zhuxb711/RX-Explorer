@@ -3665,4 +3665,28 @@ Les noms non valides incluent
   <data name="SettingPageAlwaysOpenInNewTabLabel.Text" xml:space="preserve">
     <value>Toujours ouvrir les fichiers et dossiers sélectionnés dans un nouvel onglet</value>
   </data>
+  <data name="DragBehaivor_Copy" xml:space="preserve">
+    <value>Copie</value>
+  </data>
+  <data name="DragBehaivor_Move" xml:space="preserve">
+    <value>Déplacer</value>
+  </data>
+  <data name="DefaultDragBehaivorContent.Text" xml:space="preserve">
+    <value>Spécifie le comportement par défaut lors du déplacement de fichiers avec d'autres applications</value>
+  </data>
+  <data name="DefaultDragBehaivorLabel.Text" xml:space="preserve">
+    <value>Comportement de glisser-déposer par défaut</value>
+  </data>
+  <data name="DoubleClickGoToParentContent.Text" xml:space="preserve">
+    <value>Cette option contrôle si le double-clic sur un espace vide pour revenir au dossier parent est activé</value>
+  </data>
+  <data name="DoubleClickGoToParentLabel.Text" xml:space="preserve">
+    <value>Double-cliquez sur l'espace vide pour revenir au dossier parent</value>
+  </data>
+  <data name="DoubleClickGotoParentSwitch.OffContent" xml:space="preserve">
+    <value>Désactivée</value>
+  </data>
+  <data name="DoubleClickGotoParentSwitch.OnContent" xml:space="preserve">
+    <value>Activé</value>
+  </data>
 </root>

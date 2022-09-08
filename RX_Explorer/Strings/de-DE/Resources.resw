@@ -3667,4 +3667,28 @@ Inkorrekte Namen sind
   <data name="SettingPageAlwaysOpenInNewTabLabel.Text" xml:space="preserve">
     <value>Ausgewählte Dateien und Ordner immer in einem neuen Tab öffnen</value>
   </data>
+  <data name="DragBehaivor_Copy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="DragBehaivor_Move" xml:space="preserve">
+    <value>Bewegen</value>
+  </data>
+  <data name="DefaultDragBehaivorContent.Text" xml:space="preserve">
+    <value>Legt das Standardverhalten beim Ziehen von Dateien mit anderen Anwendungen fest</value>
+  </data>
+  <data name="DefaultDragBehaivorLabel.Text" xml:space="preserve">
+    <value>Standardmäßiges Drag-and-Drop-Verhalten</value>
+  </data>
+  <data name="DoubleClickGoToParentContent.Text" xml:space="preserve">
+    <value>Diese Option steuert, ob das Doppelklicken auf eine leere Stelle, um zum übergeordneten Ordner zurückzukehren, aktiviert ist</value>
+  </data>
+  <data name="DoubleClickGoToParentLabel.Text" xml:space="preserve">
+    <value>Doppelklicken Sie auf eine leere Stelle, um zum übergeordneten Ordner zurückzukehren</value>
+  </data>
+  <data name="DoubleClickGotoParentSwitch.OffContent" xml:space="preserve">
+    <value>Deaktiviert</value>
+  </data>
+  <data name="DoubleClickGotoParentSwitch.OnContent" xml:space="preserve">
+    <value>Ermöglicht</value>
+  </data>
 </root>

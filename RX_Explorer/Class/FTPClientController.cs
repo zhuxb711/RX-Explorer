@@ -2,6 +2,7 @@
 using Nito.AsyncEx;
 using System;
 using System.Collections.Concurrent;
+using System.Net;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading;

@@ -4872,11 +4872,35 @@ Las denominaciones no válidas son:
         </trans-unit>
         <trans-unit id="DragBehaivor_Copy" translate="yes" xml:space="preserve">
           <source>Copy</source>
-          <target state="new">Copy</target>
+          <target state="translated">Copiar</target>
         </trans-unit>
         <trans-unit id="DragBehaivor_Move" translate="yes" xml:space="preserve">
           <source>Move</source>
-          <target state="new">Move</target>
+          <target state="translated">Mover</target>
+        </trans-unit>
+        <trans-unit id="DefaultDragBehaivorContent.Text" translate="yes" xml:space="preserve">
+          <source>Specifies the default behavior when dragging files with other applications</source>
+          <target state="translated">Especifica el comportamiento predeterminado al arrastrar archivos con otras aplicaciones</target>
+        </trans-unit>
+        <trans-unit id="DefaultDragBehaivorLabel.Text" translate="yes" xml:space="preserve">
+          <source>Default drag and drop behavior</source>
+          <target state="translated">Comportamiento predeterminado de arrastrar y soltar</target>
+        </trans-unit>
+        <trans-unit id="DoubleClickGoToParentContent.Text" translate="yes" xml:space="preserve">
+          <source>This option controls whether double-clicking on empty space to go back to the parent folder is enabled</source>
+          <target state="translated">Esta opción controla si está habilitado hacer doble clic en un espacio vacío para volver a la carpeta principal</target>
+        </trans-unit>
+        <trans-unit id="DoubleClickGoToParentLabel.Text" translate="yes" xml:space="preserve">
+          <source>Double click on empty space to go back to parent folder</source>
+          <target state="translated">Haga doble clic en el espacio vacío para volver a la carpeta principal</target>
+        </trans-unit>
+        <trans-unit id="DoubleClickGotoParentSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Desactivado</target>
+        </trans-unit>
+        <trans-unit id="DoubleClickGotoParentSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
         </trans-unit>
       </group>
     </body>

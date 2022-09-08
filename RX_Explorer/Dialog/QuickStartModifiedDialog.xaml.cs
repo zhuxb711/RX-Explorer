@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -489,45 +488,44 @@ namespace RX_Explorer.Dialog
                                         new Uri($"http://www.google.com/s2/favicons?domain={Result.Host}")
                                     };
 
-                                    Ping PingTool = new Ping();
-
                                     foreach (Uri Analysier in (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified ? AvailableAnalysier : AvailableAnalysier.Reverse()).Prepend(new Uri($"{Result.Scheme}://{Result.Host}/favicon.ico")))
                                     {
                                         try
                                         {
-                                            PingReply Reply = await PingTool.SendPingAsync(Analysier.Host, 5000);
+                                            HttpWebRequest Request = WebRequest.CreateHttp(Analysier);
+                                            Request.Timeout = 10000;
+                                            Request.ReadWriteTimeout = 10000;
 
-                                            if (Reply.Status == IPStatus.Success)
+                                            using (WebResponse Response = await Request.GetResponseAsync())
+                                            using (Stream WebImageStream = Response.GetResponseStream())
+                                            using (MemoryStream TemplateStream = new MemoryStream())
                                             {
-                                                HttpWebRequest Request = WebRequest.CreateHttp(Analysier);
+                                                await WebImageStream.CopyToAsync(TemplateStream);
 
-                                                using (WebResponse Response = await Request.GetResponseAsync())
-                                                using (Stream WebImageStream = Response.GetResponseStream())
-                                                using (InMemoryRandomAccessStream TemplateStream = new InMemoryRandomAccessStream())
+                                                if (TemplateStream.Length > 0)
                                                 {
-                                                    await WebImageStream.CopyToAsync(TemplateStream.AsStreamForWrite());
+                                                    TemplateStream.Seek(0, SeekOrigin.Begin);
 
-                                                    if (TemplateStream.Size > 0)
+                                                    Icon.Source = await Helper.CreateBitmapImageAsync(TemplateStream.AsRandomAccessStream());
+
+                                                    TemplateStream.Seek(0, SeekOrigin.Begin);
+
+                                                    StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
+
+                                                    using (Stream LocalFileStream = await DownloadImage.OpenStreamForWriteAsync())
                                                     {
-                                                        TemplateStream.Seek(0);
-
-                                                        Icon.Source = await Helper.CreateBitmapImageAsync(TemplateStream);
-
-                                                        TemplateStream.Seek(0);
-
-                                                        StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
-
-                                                        using (Stream LocalFileStream = await DownloadImage.OpenStreamForWriteAsync())
-                                                        {
-                                                            await TemplateStream.AsStreamForRead().CopyToAsync(LocalFileStream);
-                                                        }
-
-                                                        ImageFile = DownloadImage;
+                                                        await TemplateStream.CopyToAsync(LocalFileStream);
                                                     }
-                                                }
 
-                                                break;
+                                                    ImageFile = DownloadImage;
+                                                }
+                                                else
+                                                {
+                                                    continue;
+                                                }
                                             }
+
+                                            break;
                                         }
                                         catch (Exception)
                                         {

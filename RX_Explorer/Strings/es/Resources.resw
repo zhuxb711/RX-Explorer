@@ -3667,4 +3667,28 @@ Las denominaciones no válidas son:
   <data name="SettingPageAlwaysOpenInNewTabLabel.Text" xml:space="preserve">
     <value>Abre siempre los archivos y carpetas seleccionados en una pestaña nueva</value>
   </data>
+  <data name="DragBehaivor_Copy" xml:space="preserve">
+    <value>Copiar</value>
+  </data>
+  <data name="DragBehaivor_Move" xml:space="preserve">
+    <value>Mover</value>
+  </data>
+  <data name="DefaultDragBehaivorContent.Text" xml:space="preserve">
+    <value>Especifica el comportamiento predeterminado al arrastrar archivos con otras aplicaciones</value>
+  </data>
+  <data name="DefaultDragBehaivorLabel.Text" xml:space="preserve">
+    <value>Comportamiento predeterminado de arrastrar y soltar</value>
+  </data>
+  <data name="DoubleClickGoToParentContent.Text" xml:space="preserve">
+    <value>Esta opción controla si está habilitado hacer doble clic en un espacio vacío para volver a la carpeta principal</value>
+  </data>
+  <data name="DoubleClickGoToParentLabel.Text" xml:space="preserve">
+    <value>Haga doble clic en el espacio vacío para volver a la carpeta principal</value>
+  </data>
+  <data name="DoubleClickGotoParentSwitch.OffContent" xml:space="preserve">
+    <value>Desactivado</value>
+  </data>
+  <data name="DoubleClickGotoParentSwitch.OnContent" xml:space="preserve">
+    <value>Activado</value>
+  </data>
 </root>

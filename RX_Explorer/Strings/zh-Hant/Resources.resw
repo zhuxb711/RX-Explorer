@@ -3665,4 +3665,28 @@
   <data name="SettingPageAlwaysOpenInNewTabLabel.Text" xml:space="preserve">
     <value>始終在新選項卡中打開選定的文件和文件夾</value>
   </data>
+  <data name="DragBehaivor_Copy" xml:space="preserve">
+    <value>拷貝</value>
+  </data>
+  <data name="DragBehaivor_Move" xml:space="preserve">
+    <value>移動</value>
+  </data>
+  <data name="DefaultDragBehaivorContent.Text" xml:space="preserve">
+    <value>指定與其他應用程序拖動文件時的默認行為</value>
+  </data>
+  <data name="DefaultDragBehaivorLabel.Text" xml:space="preserve">
+    <value>默認拖放行為</value>
+  </data>
+  <data name="DoubleClickGoToParentContent.Text" xml:space="preserve">
+    <value>This option controls whether double-clicking on empty space to go back to the parent folder is enabled</value>
+  </data>
+  <data name="DoubleClickGoToParentLabel.Text" xml:space="preserve">
+    <value>此選項控制是否啟用雙擊空白空間以返回父文件夾</value>
+  </data>
+  <data name="DoubleClickGotoParentSwitch.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="DoubleClickGotoParentSwitch.OnContent" xml:space="preserve">
+    <value>啟用</value>
+  </data>
 </root>
