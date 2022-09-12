@@ -745,15 +745,23 @@ namespace RX_Explorer.View
 
             try
             {
-                if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                switch (SettingPage.DefaultDragBehaivor)
                 {
-                    args.AllowedOperations = DataPackageOperation.Copy;
-                    args.Data.RequestedOperation = DataPackageOperation.Copy;
-                }
-                else
-                {
-                    args.AllowedOperations = DataPackageOperation.Move;
-                    args.Data.RequestedOperation = DataPackageOperation.Move;
+                    case DragBehaivor.Copy:
+                        {
+                            args.AllowedOperations = DataPackageOperation.Copy;
+                            break;
+                        }
+                    case DragBehaivor.Move:
+                        {
+                            args.AllowedOperations = DataPackageOperation.Move;
+                            break;
+                        }
+                    default:
+                        {
+                            args.AllowedOperations = DataPackageOperation.Copy | DataPackageOperation.Move | DataPackageOperation.Link;
+                            break;
+                        }
                 }
 
                 await args.Data.SetStorageItemDataAsync(SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray());

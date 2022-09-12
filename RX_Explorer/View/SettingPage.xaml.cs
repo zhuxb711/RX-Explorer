@@ -695,7 +695,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    return DragBehaivor.Copy;
+                    return DragBehaivor.None;
                 }
             }
             set => ApplicationData.Current.LocalSettings.Values["DefaultDragBehaivor"] = Enum.GetName(typeof(DragBehaivor), value);
@@ -1204,6 +1204,7 @@ namespace RX_Explorer.View
 
                 DefaultDragBehaivorComboBox.Items.Add(Globalization.GetString("DragBehaivor_Copy"));
                 DefaultDragBehaivorComboBox.Items.Add(Globalization.GetString("DragBehaivor_Move"));
+                DefaultDragBehaivorComboBox.Items.Add(Globalization.GetString("DragBehaivor_None"));
 
                 DefaultProgramPriorityCombox.Items.Add(Globalization.GetString("DefaultProgramPriority_InnerViewer"));
                 DefaultProgramPriorityCombox.Items.Add(Globalization.GetString("DefaultProgramPriority_SystemDefault"));
@@ -1539,6 +1540,7 @@ namespace RX_Explorer.View
                 {
                     DragBehaivor.Copy => 0,
                     DragBehaivor.Move => 1,
+                    DragBehaivor.None => 2,
                     _ => throw new NotSupportedException()
                 };
 
@@ -1708,6 +1710,7 @@ namespace RX_Explorer.View
                 {
                     0 => DragBehaivor.Copy,
                     1 => DragBehaivor.Move,
+                    2 => DragBehaivor.None,
                     _ => throw new NotSupportedException()
                 };
             }

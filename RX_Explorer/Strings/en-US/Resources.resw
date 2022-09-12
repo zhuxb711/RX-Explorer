@@ -3796,4 +3796,7 @@ Invalid names include
   <data name="DoubleClickGotoParentSwitch.OnContent" xml:space="preserve">
     <value>Enabled</value>
   </data>
+  <data name="DragBehaivor_None" xml:space="preserve">
+    <value>Not Specified</value>
+  </data>
 </root>

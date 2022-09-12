@@ -2223,9 +2223,9 @@ namespace RX_Explorer.View
                             e.DragUIOverride.IsGlyphVisible = true;
                             e.DragUIOverride.IsCaptionVisible = true;
 
-                            if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                            if (e.AllowedOperations.HasFlag(DataPackageOperation.Copy) && e.AllowedOperations.HasFlag(DataPackageOperation.Move))
                             {
-                                if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
+                                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                                 {
                                     e.AcceptedOperation = DataPackageOperation.Move;
                                     e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
@@ -2236,18 +2236,15 @@ namespace RX_Explorer.View
                                     e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
                                 }
                             }
-                            else
+                            else if (e.AllowedOperations.HasFlag(DataPackageOperation.Copy))
                             {
-                                if (SettingPage.DefaultDragBehaivor == DragBehaivor.Copy)
-                                {
-                                    e.AcceptedOperation = DataPackageOperation.Copy;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
-                                }
-                                else
-                                {
-                                    e.AcceptedOperation = DataPackageOperation.Move;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
-                                }
+                                e.AcceptedOperation = DataPackageOperation.Copy;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
+                            }
+                            else if (e.AllowedOperations.HasFlag(DataPackageOperation.Move))
+                            {
+                                e.AcceptedOperation = DataPackageOperation.Move;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
                             }
                         }
                     }
@@ -2273,7 +2270,7 @@ namespace RX_Explorer.View
 
                     DataPackage Package = new DataPackage
                     {
-                        RequestedOperation = DataPackageOperation.Move
+                        RequestedOperation = DataPackageOperation.Move,
                     };
 
                     await Package.SetStorageItemDataAsync(Folder);

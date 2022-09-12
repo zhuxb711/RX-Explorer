@@ -4902,6 +4902,10 @@ Les noms non valides incluent
           <source>Enabled</source>
           <target state="translated">Activé</target>
         </trans-unit>
+        <trans-unit id="DragBehaivor_None" translate="yes" xml:space="preserve">
+          <source>Not Specified</source>
+          <target state="new">Not Specified</target>
+        </trans-unit>
       </group>
     </body>
   </file>

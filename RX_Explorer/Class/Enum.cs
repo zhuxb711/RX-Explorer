@@ -5,7 +5,8 @@ namespace RX_Explorer.Class
     public enum DragBehaivor
     {
         Copy,
-        Move
+        Move,
+        None
     }
 
     public enum ProgramPriority
