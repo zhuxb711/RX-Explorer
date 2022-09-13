@@ -689,7 +689,7 @@ namespace RX_Explorer.View
         {
             get
             {
-                if (ApplicationData.Current.LocalSettings.Values["DefaultDragBehaivor"] is string RawValue)
+                if (ApplicationData.Current.LocalSettings.Values["DefaultDragBehaivorConfig"] is string RawValue)
                 {
                     return Enum.Parse<DragBehaivor>(RawValue);
                 }
@@ -698,7 +698,7 @@ namespace RX_Explorer.View
                     return DragBehaivor.None;
                 }
             }
-            set => ApplicationData.Current.LocalSettings.Values["DefaultDragBehaivor"] = Enum.GetName(typeof(DragBehaivor), value);
+            set => ApplicationData.Current.LocalSettings.Values["DefaultDragBehaivorConfig"] = Enum.GetName(typeof(DragBehaivor), value);
         }
 
         public static Color PredefineLabelForeground1
@@ -3115,15 +3115,32 @@ namespace RX_Explorer.View
                     if (JsonSerializer.Deserialize<Dictionary<string, string>>(JsonContent) is Dictionary<string, string> Dic)
                     {
                         if (Dic.TryGetValue("Identitifier", out string Id)
-                            && Id == "RX_Explorer_Export_Configuration"
                             && Dic.TryGetValue("HardwareUUID", out string HardwareId)
                             && Dic.TryGetValue("Configuration", out string Configuration)
                             && Dic.TryGetValue("ConfigHash", out string ConfigHash)
                             && Dic.TryGetValue("Database", out string Database)
                             && Dic.TryGetValue("DatabaseHash", out string DatabaseHash))
                         {
-                            if (HardwareId == new EasClientDeviceInformation().Id.ToString("D"))
+                            if (Id == "RX_Explorer_Export_Configuration")
                             {
+                                EasClientDeviceInformation EasDeviceInformation = new EasClientDeviceInformation();
+
+                                if (HardwareId != EasDeviceInformation.Id.ToString("D"))
+                                {
+                                    QueueContentDialog HardwareMissMatchDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                        Content = Globalization.GetString("QueueDialog_ImportConfiguration_HardwareMissMatch_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
+
+                                    if (await HardwareMissMatchDialog.ShowAsync() != ContentDialogResult.Primary)
+                                    {
+                                        return;
+                                    }
+                                }
+
                                 using (MD5 MD5Alg = MD5.Create())
                                 {
                                     string ConfigDecryptedString = Configuration.Decrypt(Package.Current.Id.FamilyName);
@@ -3306,7 +3323,7 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                LogTracer.Log("Import configuration failed because hardware id is not match");
+                                LogTracer.Log("Import configuration failed because Identitifier is incorrect");
 
                                 await new QueueContentDialog
                                 {

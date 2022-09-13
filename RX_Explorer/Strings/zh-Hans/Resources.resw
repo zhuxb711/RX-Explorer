@@ -3689,4 +3689,10 @@
   <data name="DoubleClickGotoParentSwitch.OnContent" xml:space="preserve">
     <value>启用</value>
   </data>
+  <data name="DragBehaivor_None" xml:space="preserve">
+    <value>不指定</value>
+  </data>
+  <data name="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" xml:space="preserve">
+    <value>正在导入的配置文件并非来源于当前计算机，导入未知来源的配置文件可能存在安全风险，是否继续导入?</value>
+  </data>
 </root>

@@ -3691,4 +3691,10 @@ Las denominaciones no válidas son:
   <data name="DoubleClickGotoParentSwitch.OnContent" xml:space="preserve">
     <value>Activado</value>
   </data>
+  <data name="DragBehaivor_None" xml:space="preserve">
+    <value>No Especificado</value>
+  </data>
+  <data name="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" xml:space="preserve">
+    <value>El archivo de configuración que se está importando no es de la computadora actual. La importación de archivos de configuración de fuentes desconocidas puede suponer un riesgo para la seguridad. ¿Quieres seguir importando?</value>
+  </data>
 </root>

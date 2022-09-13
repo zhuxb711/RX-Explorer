@@ -3689,4 +3689,10 @@
   <data name="DoubleClickGotoParentSwitch.OnContent" xml:space="preserve">
     <value>啟用</value>
   </data>
+  <data name="DragBehaivor_None" xml:space="preserve">
+    <value>未指定</value>
+  </data>
+  <data name="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" xml:space="preserve">
+    <value>導入的配置文件不是來自當前計算機。 從未知來源導入配置文件可能會帶來安全風險。 是否要繼續導入？</value>
+  </data>
 </root>

@@ -4904,7 +4904,11 @@ Invalid names include
         </trans-unit>
         <trans-unit id="DragBehaivor_None" translate="yes" xml:space="preserve">
           <source>Not Specified</source>
-          <target state="new">Not Specified</target>
+          <target state="translated">未指定</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" translate="yes" xml:space="preserve">
+          <source>The configuration file being imported is not from the current computer. Importing configuration files from unknown sources may pose a security risk. Do you want to continue importing?</source>
+          <target state="translated">導入的配置文件不是來自當前計算機。 從未知來源導入配置文件可能會帶來安全風險。 是否要繼續導入？</target>
         </trans-unit>
       </group>
     </body>

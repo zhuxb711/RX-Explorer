@@ -4904,7 +4904,11 @@ Inkorrekte Namen sind
         </trans-unit>
         <trans-unit id="DragBehaivor_None" translate="yes" xml:space="preserve">
           <source>Not Specified</source>
-          <target state="new">Not Specified</target>
+          <target state="translated">Nicht Spezifiziert</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" translate="yes" xml:space="preserve">
+          <source>The configuration file being imported is not from the current computer. Importing configuration files from unknown sources may pose a security risk. Do you want to continue importing?</source>
+          <target state="translated">Die importierte Konfigurationsdatei stammt nicht vom aktuellen Computer. Das Importieren von Konfigurationsdateien aus unbekannten Quellen kann ein Sicherheitsrisiko darstellen. Möchten Sie mit dem Importieren fortfahren?</target>
         </trans-unit>
       </group>
     </body>

@@ -3799,4 +3799,7 @@ Invalid names include
   <data name="DragBehaivor_None" xml:space="preserve">
     <value>Not Specified</value>
   </data>
+  <data name="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" xml:space="preserve">
+    <value>The configuration file being imported is not from the current computer. Importing configuration files from unknown sources may pose a security risk. Do you want to continue importing?</value>
+  </data>
 </root>

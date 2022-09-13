@@ -4904,7 +4904,11 @@ Las denominaciones no válidas son:
         </trans-unit>
         <trans-unit id="DragBehaivor_None" translate="yes" xml:space="preserve">
           <source>Not Specified</source>
-          <target state="new">Not Specified</target>
+          <target state="translated">No Especificado</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" translate="yes" xml:space="preserve">
+          <source>The configuration file being imported is not from the current computer. Importing configuration files from unknown sources may pose a security risk. Do you want to continue importing?</source>
+          <target state="translated">El archivo de configuración que se está importando no es de la computadora actual. La importación de archivos de configuración de fuentes desconocidas puede suponer un riesgo para la seguridad. ¿Quieres seguir importando?</target>
         </trans-unit>
       </group>
     </body>

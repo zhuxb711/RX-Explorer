@@ -3691,4 +3691,10 @@ Inkorrekte Namen sind
   <data name="DoubleClickGotoParentSwitch.OnContent" xml:space="preserve">
     <value>Ermöglicht</value>
   </data>
+  <data name="DragBehaivor_None" xml:space="preserve">
+    <value>Nicht Spezifiziert</value>
+  </data>
+  <data name="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" xml:space="preserve">
+    <value>Die importierte Konfigurationsdatei stammt nicht vom aktuellen Computer. Das Importieren von Konfigurationsdateien aus unbekannten Quellen kann ein Sicherheitsrisiko darstellen. Möchten Sie mit dem Importieren fortfahren?</value>
+  </data>
 </root>

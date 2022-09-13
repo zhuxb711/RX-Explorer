@@ -3689,4 +3689,10 @@ Les noms non valides incluent
   <data name="DoubleClickGotoParentSwitch.OnContent" xml:space="preserve">
     <value>Activé</value>
   </data>
+  <data name="DragBehaivor_None" xml:space="preserve">
+    <value>Non précisé</value>
+  </data>
+  <data name="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" xml:space="preserve">
+    <value>Le fichier de configuration importé ne provient pas de l'ordinateur actuel. L'importation de fichiers de configuration à partir de sources inconnues peut poser un risque de sécurité. Voulez-vous continuer à importer?</value>
+  </data>
 </root>
