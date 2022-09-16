@@ -6255,27 +6255,75 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        args.DragUI.SetContentFromDataPackage();
+                        DataPackageView View = args.Data.GetView();
+
+                        if (View.Contains(StandardDataFormats.StorageItems))
+                        {
+                            args.DragUI.SetContentFromDataPackage();
+                        }
+                        else
+                        {
+                            Uri DefaultThumbnailUri = new Uri(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                            ? "ms-appx:///Assets/MultiItems_White.png"
+                                                            : "ms-appx:///Assets/MultiItems_Black.png");
+
+                            BitmapImage DefaultThumbnailImage = new BitmapImage(DefaultThumbnailUri)
+                            {
+                                DecodePixelHeight = 80,
+                                DecodePixelWidth = 80,
+                                DecodePixelType = DecodePixelType.Logical
+                            };
+
+                            args.DragUI.SetContentFromBitmapImage(DefaultThumbnailImage);
+                        }
                     }
-                }
-                else if (SelectedItems.SingleOrDefault() is INotWin32StorageItem)
-                {
-                    Uri DefaultThumbnailUri = new Uri(AppThemeController.Current.Theme == ElementTheme.Dark
-                            ? "ms-appx:///Assets/SingleItem_White.png"
-                            : "ms-appx:///Assets/SingleItem_Black.png");
-
-                    BitmapImage DefaultThumbnailImage = new BitmapImage(DefaultThumbnailUri)
-                    {
-                        DecodePixelHeight = 80,
-                        DecodePixelWidth = 80,
-                        DecodePixelType = DecodePixelType.Logical
-                    };
-
-                    args.DragUI.SetContentFromBitmapImage(DefaultThumbnailImage);
                 }
                 else
                 {
-                    args.DragUI.SetContentFromDataPackage();
+                    switch (SelectedItems.SingleOrDefault())
+                    {
+                        case INotWin32StorageItem:
+                            {
+                                Uri DefaultThumbnailUri = new Uri(AppThemeController.Current.Theme == ElementTheme.Dark
+                                                                    ? "ms-appx:///Assets/SingleItem_White.png"
+                                                                    : "ms-appx:///Assets/SingleItem_Black.png");
+
+                                BitmapImage DefaultThumbnailImage = new BitmapImage(DefaultThumbnailUri)
+                                {
+                                    DecodePixelHeight = 80,
+                                    DecodePixelWidth = 80,
+                                    DecodePixelType = DecodePixelType.Logical
+                                };
+
+                                args.DragUI.SetContentFromBitmapImage(DefaultThumbnailImage);
+
+                                break;
+                            }
+                        case FileSystemStorageItemBase Item:
+                            {
+                                DataPackageView View = args.Data.GetView();
+
+                                if (View.Contains(StandardDataFormats.StorageItems))
+                                {
+                                    args.DragUI.SetContentFromDataPackage();
+                                }
+                                else
+                                {
+                                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(await Item.GetThumbnailRawStreamAsync(ThumbnailMode.ListView));
+
+                                    using (SoftwareBitmap OriginBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                    {
+                                        args.DragUI.SetContentFromSoftwareBitmap(ComputerVisionProvider.GenenateResizedThumbnail(OriginBitmap, 80, 80));
+                                    }
+                                }
+
+                                break;
+                            }
+                        default:
+                            {
+                                break;
+                            }
+                    }
                 }
             }
             catch (Exception ex)

@@ -124,7 +124,6 @@
         GetThumbnail,
         SetFileAttribute,
         GetMIMEContentType,
-        GetUrlTargetPath,
         GetAllInstalledUwpApplication,
         CheckPackageFamilyNameExist,
         GetSpecificInstalledUwpApplication,

@@ -1078,22 +1078,6 @@ namespace RX_Explorer.Class
             return string.Empty;
         }
 
-        public async Task<string> GetUrlTargetPathAsync(string Path)
-        {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetUrlTargetPath, ("ExecutePath", Path));
-
-            if (Response.TryGetValue("Success", out string TargetPath))
-            {
-                return TargetPath;
-            }
-            else if (Response.TryGetValue("Error", out string ErrorMessage))
-            {
-                LogTracer.Log($"An unexpected error was threw in {nameof(GetUrlTargetPathAsync)}, message: {ErrorMessage}");
-            }
-
-            return string.Empty;
-        }
-
         public async Task<string> GetTooltipTextAsync(string Path, CancellationToken CancelToken = default)
         {
             using (CancelToken.Register(() =>

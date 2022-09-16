@@ -1,23 +1,13 @@
-﻿###Quoi de neuf dans la version 7.9.1.0
-
-#####Mise à jour des fonctionnalités
-
->#####Ajout d'une option pour contrôler le comportement par défaut lors du déplacement de fichiers
-
->#####Ajout d'une option pour contrôler si le double-clic sur un emplacement vide pour revenir au dossier parent est activé
-
-#####Mise à jour de l'interface utilisateur
-
->#####Vignettes mises à jour lors du déplacement de fichiers
-
->#####Mise à jour de la vignette par défaut affichée lorsque la vignette du fichier ne peut pas être obtenue
+﻿###Quoi de neuf dans la version 7.9.2.0
 
 #####Corrections de bogues
 
->#####Correction d'un problème où il pourrait ne pas être en mesure de faire glisser et déposer des fichiers vers d'autres applications
+>#####Résolution du problème de l'impossibilité de glisser-déposer des fichiers dans RX-Explorer
 
->#####Correction d'un problème où le fait de faire glisser un fichier sur le bureau pouvait faire apparaître un menu et nécessiter des étapes supplémentaires pour copier/déplacer
+>#####Correction d'un problème qui pouvait permettre à l'utilisateur d'effectuer des actions non autorisées par l'initiateur de l'action de glissement
 
->#####Correction du problème d'obtention automatique de l'icône Web lors de l'ajout d'une URL au démarrage rapide
+>#####Correction du problème que plusieurs fichiers identiques peuvent être générés lors du déplacement de fichiers lnk ou de fichiers url de RX-Explorer vers n'importe quel emplacement
 
->#####Correction de quelques problèmes de traduction
+>#####Correction du problème d'affichage des vignettes lors du déplacement d'un seul fichier lnk ou url
+
+>#####Suppression d'un mécanisme empêchant les utilisateurs d'importer des fichiers de configuration exportés depuis d'autres ordinateurs, et ajout d'un avertissement de risque de sécurité pour cela

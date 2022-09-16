@@ -101,9 +101,8 @@ namespace RX_Explorer.Class
 
                         Request.Dispose();
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        LogTracer.Log(ex, $"Could not create streamed file for lnk file: {Path}");
                         Request.FailAndClose(StreamedFileFailureMode.CurrentlyUnavailable);
                     }
                 }, Reference);

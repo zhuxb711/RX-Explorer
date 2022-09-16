@@ -15,7 +15,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                string[] DisplayItems = CopyFrom.Where((Item) => !(Path.GetDirectoryName(Item)?.StartsWith(ApplicationData.Current.TemporaryFolder.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()).ToArray();
+                string[] DisplayItems = CopyFrom.Where((Item) => !Item.StartsWith(ApplicationData.Current.TemporaryFolder.Path, StringComparison.OrdinalIgnoreCase)).ToArray();
 
                 return DisplayItems.Length switch
                 {

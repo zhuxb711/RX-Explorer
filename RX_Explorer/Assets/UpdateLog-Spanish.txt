@@ -1,23 +1,13 @@
-﻿###Novedades de la versión 7.9.1.0
-
-#####Actualización de funciones
-
->#####Se agregó una opción para controlar el comportamiento predeterminado al arrastrar archivos
-
->#####Se agregó una opción para controlar si está habilitado hacer doble clic en una ubicación vacía para volver a la carpeta principal
-
-#####Actualización de la interfaz de usuario
-
->#####Miniaturas actualizadas al arrastrar archivos
-
->#####Se actualizó la miniatura predeterminada que se muestra cuando no se puede obtener la miniatura del archivo
+﻿###Novedades de la versión 7.9.2.0
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el cual no se podía arrastrar y soltar archivos en otras aplicaciones
+>#####Se solucionó el problema de no poder arrastrar y soltar archivos dentro de RX-Explorer
 
->#####Se solucionó un problema por el que arrastrar un archivo al escritorio podía mostrar un menú emergente y requerir pasos adicionales para copiar/mover
+>#####Se solucionó un problema que podía permitir al usuario realizar acciones no permitidas por el iniciador de acción de arrastre
 
->#####Se solucionó el problema de que el ícono web no se puede obtener automáticamente al agregar una URL al Inicio rápido
+>#####Se solucionó el problema de que se pueden generar múltiples archivos idénticos al arrastrar archivos lnk o archivos url desde RX-Explorer a cualquier ubicación
 
->#####Se corrigieron algunos problemas de traducción
+>#####Se solucionó el problema de que las miniaturas no se mostrarían al arrastrar un solo archivo lnk o url
+
+>#####Se eliminó un mecanismo que impedía a los usuarios importar archivos de configuración exportados desde otras computadoras y se agregó una advertencia de riesgo de seguridad para esto

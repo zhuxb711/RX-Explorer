@@ -1893,40 +1893,6 @@ namespace AuxiliaryTrustProcess
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.GetUrlTargetPath:
-                            {
-                                string ExecutePath = CommandValue["ExecutePath"];
-
-                                if (File.Exists(ExecutePath))
-                                {
-                                    if (Path.GetExtension(ExecutePath).Equals(".url", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        using (ShellItem Item = new ShellItem(ExecutePath))
-                                        {
-                                            Value.Add("Success", Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        string NewPath = Path.Combine(Path.GetDirectoryName(ExecutePath), $"{Path.GetFileNameWithoutExtension(ExecutePath)}.url");
-
-                                        File.Move(ExecutePath, NewPath);
-
-                                        using (ShellItem Item = new ShellItem(NewPath))
-                                        {
-                                            Value.Add("Success", Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl));
-                                        }
-
-                                        File.Move(NewPath, ExecutePath);
-                                    }
-                                }
-                                else
-                                {
-                                    Value.Add("Error", "File not found");
-                                }
-
-                                break;
-                            }
                         case AuxiliaryTrustProcessCommandType.GetThumbnail:
                             {
                                 string ExecutePath = CommandValue["ExecutePath"];

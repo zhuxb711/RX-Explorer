@@ -1,23 +1,13 @@
-﻿###What's new in Ver.7.9.1.0
-
-#####Feature update
-
->#####Added an option to control the default behavior when dragging files
-
->#####Added an option to control whether double-clicking an empty location to return to the parent folder is enabled
-
-#####UI update
-
->#####Updated thumbnails when dragging files
-
->#####Updated the default thumbnail displayed when the file thumbnail cannot be obtained
+﻿###What's new in Ver.7.9.2.0
 
 #####Bug Fixes
 
->#####Fixed an issue where it might not be able to drag and drop files to other apps
+>#####Fixed the problem of not being able to drag and drop files inside RX-Explorer
 
->#####Fixed an issue where dragging a file to the desktop might pop up a menu and require extra steps to copy/move
+>#####Fixed an issue that could allow the user to perform actions not allowed by the drag action initiator
 
->#####Fixed the problem that the web icon cannot be automatically obtained when adding a URL to the Quick Start
+>#####Fixed the problem that multiple identical files may be generated when dragging lnk files or url files from RX-Explorer to any location
 
->#####Fixed some translation issues
+>#####Fixed the problem that thumbnails will not be displayed when dragging a single lnk or url file
+
+>#####Removed a mechanism preventing users from importing configuration files exported from other computers, and added a security risk warning for this

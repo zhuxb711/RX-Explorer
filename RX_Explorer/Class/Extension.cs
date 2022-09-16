@@ -161,50 +161,27 @@ namespace RX_Explorer.Class
 
                 if (StorageItems.Count > 0)
                 {
-                    IEnumerable<IStorageItem> EmptyPathList = StorageItems.OfType<StorageFile>().Where((Item) => string.IsNullOrWhiteSpace(Item.Path));
+                    IEnumerable<StorageFile> EmptyPathCoreItemList = StorageItems.OfType<StorageFile>().Where((Item) => string.IsNullOrWhiteSpace(Item.Path));
 
-                    if (EmptyPathList.Any())
+                    if (EmptyPathCoreItemList.Any())
                     {
-                        foreach (StorageFile File in EmptyPathList)
+                        foreach (StorageFile File in EmptyPathCoreItemList.Where((Item) => !string.IsNullOrWhiteSpace(Item.Name)))
                         {
                             try
                             {
-                                if (File.Name.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, File.Name), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile TempFile)
                                 {
-                                    string TempFilePath = Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N"));
-
                                     using (Stream IncomeFileStream = await File.OpenStreamForReadAsync())
-                                    using (Stream TempFileStream = await FileSystemStorageItemBase.CreateTemporaryFileStreamAsync(TempFilePath))
+                                    using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     {
                                         await IncomeFileStream.CopyToAsync(TempFileStream);
-
-                                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
-                                        {
-                                            string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFilePath);
-
-                                            if (!string.IsNullOrWhiteSpace(UrlTarget))
-                                            {
-                                                PathList.Add(UrlTarget);
-                                            }
-                                        }
                                     }
+
+                                    PathList.Add(TempFile.Path);
                                 }
-                                else if (!string.IsNullOrWhiteSpace(File.Name))
+                                else
                                 {
-                                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, File.Name), CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
-                                    {
-                                        using (Stream IncomeFileStream = await File.OpenStreamForReadAsync())
-                                        using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
-                                        {
-                                            await IncomeFileStream.CopyToAsync(TempFileStream);
-                                        }
-
-                                        PathList.Add(TempFile.Path);
-                                    }
-                                    else
-                                    {
-                                        throw new Exception($"Could not create a temp file named {File.Name} during analysis empty path file in clipboard");
-                                    }
+                                    throw new Exception($"Could not create a temp file named {File.Name} during analysis empty path file in clipboard");
                                 }
                             }
                             catch (Exception ex)
@@ -300,18 +277,16 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IEnumerable<string> OriginItemPathList = Collection.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrWhiteSpace(Path));
-                IEnumerable<FileSystemStorageItemBase> SpecialItems = Collection.Where((Item) => Item is INotWin32StorageItem);
+                IEnumerable<FileSystemStorageItemBase> SpecialItems = Collection.Where((Item) => Item is INotWin32StorageItem or ILinkStorageFile or IUrlStorageFile);
                 IEnumerable<FileSystemStorageItemBase> NormalItems = Collection.Except(SpecialItems);
 
-                IEnumerable<IStorageItem> CoreStorageItemList = (await Task.WhenAll(NormalItems.Select((Item) => Item.GetStorageItemAsync()))).OfType<IStorageItem>();
+                IEnumerable<(string Path, IStorageItem CoreItem)> CoreStorageItemTupleList = await Task.WhenAll(NormalItems.Select((Item) => Item.GetStorageItemAsync().ContinueWith((Previous) => (Item.Path, Previous.Result), TaskContinuationOptions.ExecuteSynchronously)));
 
-                IReadOnlyList<string> CoreStorageItemPathList = CoreStorageItemList.Select((Item) => Item.Path).ToList();
-
-                IEnumerable<string> PathOnlyList = NormalItems.Select((Item) => Item.Path)
-                                                              .Where((Path) => !CoreStorageItemPathList.Contains(Path, StringComparer.OrdinalIgnoreCase))
-                                                              .Concat(SpecialItems.Select((Item) => Item.Path))
-                                                              .Where((Path) => !string.IsNullOrWhiteSpace(Path));
+                IEnumerable<IStorageItem> CoreStorageItemList = CoreStorageItemTupleList.Select((Item) => Item.CoreItem).OfType<IStorageItem>();
+                IEnumerable<string> PathOnlyList = CoreStorageItemTupleList.Where((Tuple) => Tuple.CoreItem is null)
+                                                                           .Select((Item) => Item.Path)
+                                                                           .Concat(SpecialItems.Select((Item) => Item.Path))
+                                                                           .Where((Path) => !string.IsNullOrWhiteSpace(Path));
 
                 if (CoreStorageItemList.Any())
                 {
