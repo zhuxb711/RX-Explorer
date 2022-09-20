@@ -20,10 +20,10 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Vanara.PInvoke.UserEnv">
-			<Version>3.4.7</Version>
+			<Version>3.4.8</Version>
 		</PackageReference>
 		<PackageReference Include="Vanara.Windows.Shell">
-			<Version>3.4.7</Version>
+			<Version>3.4.8</Version>
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>

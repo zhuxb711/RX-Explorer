@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -97,10 +98,14 @@ namespace RX_Explorer.Class
 
                 if (TotalSize > 0)
                 {
-                    ZipStrings.CodePage = EncodingSetting.CodePage;
+                    StringCodec Codec = new StringCodec
+                    {
+                        ForceZipLegacyEncoding = true,
+                        CodePage = EncodingSetting.CodePage
+                    };
 
                     using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.Sequential))
-                    using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
+                    using (ZipOutputStream OutputStream = (ZipOutputStream)typeof(ZipOutputStream).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, Type.DefaultBinder, new Type[] { typeof(Stream), typeof(StringCodec) }, Array.Empty<ParameterModifier>()).Invoke(new object[] { NewFileStream, Codec }))
                     {
                         OutputStream.SetLevel((int)Level);
                         OutputStream.UseZip64 = UseZip64.Dynamic;
@@ -123,7 +128,7 @@ namespace RX_Explorer.Class
                                                 Size = FileStream.Length
                                             };
 
-                                            OutputStream.PutNextEntry(NewEntry);
+                                            await OutputStream.PutNextEntryAsync(NewEntry, CancelToken);
 
                                             await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
@@ -131,7 +136,7 @@ namespace RX_Explorer.Class
                                             });
                                         }
 
-                                        OutputStream.CloseEntry();
+                                        await OutputStream.CloseEntryAsync(CancelToken);
 
                                         CurrentPosition += File.Size;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
@@ -156,7 +161,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        await OutputStream.FlushAsync();
+                        await OutputStream.FlushAsync(CancelToken);
                     }
                 }
             }
@@ -207,7 +212,7 @@ namespace RX_Explorer.Class
                                     Size = FileStream.Length
                                 };
 
-                                OutputStream.PutNextEntry(NewEntry);
+                                await OutputStream.PutNextEntryAsync(NewEntry, CancelToken);
 
                                 await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                 {
@@ -215,7 +220,7 @@ namespace RX_Explorer.Class
                                 });
                             }
 
-                            OutputStream.CloseEntry();
+                            await OutputStream.CloseEntryAsync(CancelToken);
 
                             ByteReadHandler?.Invoke(CurrentPosition += Item.Size);
 
@@ -231,8 +236,8 @@ namespace RX_Explorer.Class
                     DateTime = DateTime.Now
                 };
 
-                OutputStream.PutNextEntry(NewEntry);
-                OutputStream.CloseEntry();
+                await OutputStream.PutNextEntryAsync(NewEntry, CancelToken);
+                await OutputStream.CloseEntryAsync(CancelToken);
             }
         }
 
@@ -274,7 +279,7 @@ namespace RX_Explorer.Class
                     GZipStream.FileName = Source.Name;
 
                     await SourceFileStream.CopyToAsync(GZipStream, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
-                    await GZipStream.FlushAsync();
+                    await GZipStream.FlushAsync(CancelToken);
                 }
             }
             else
@@ -311,7 +316,7 @@ namespace RX_Explorer.Class
                 {
                     GZipStream.IsStreamOwner = false;
 
-                    await GZipStream.ReadAsync(new byte[128], 0, 128);
+                    await GZipStream.ReadAsync(new byte[128], 0, 128, CancelToken);
 
                     string GZipInnerFileName = GZipStream.GetFilename();
 
@@ -332,7 +337,7 @@ namespace RX_Explorer.Class
                         using (Stream NewFileStrem = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                         {
                             await GZipStream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
-                            await NewFileStrem.FlushAsync();
+                            await NewFileStrem.FlushAsync(CancelToken);
                         }
                     }
                     else
@@ -371,7 +376,7 @@ namespace RX_Explorer.Class
                 {
                     BZip2Stream.IsStreamOwner = false;
                     await SourceFileStream.CopyToAsync(BZip2Stream, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
-                    await BZip2Stream.FlushAsync();
+                    await BZip2Stream.FlushAsync(CancelToken);
                 }
             }
             else
@@ -410,7 +415,7 @@ namespace RX_Explorer.Class
                 {
                     BZip2Stream.IsStreamOwner = false;
                     await BZip2Stream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
-                    await NewFileStrem.FlushAsync();
+                    await NewFileStrem.FlushAsync(CancelToken);
                 }
             }
             else
@@ -514,7 +519,7 @@ namespace RX_Explorer.Class
                                             NewEntry.ModTime = DateTime.Now;
                                             NewEntry.Size = FileStream.Length;
 
-                                            OutputTarStream.PutNextEntry(NewEntry);
+                                            await OutputTarStream.PutNextEntryAsync(NewEntry, CancelToken);
 
                                             await FileStream.CopyToAsync(OutputTarStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
@@ -522,7 +527,7 @@ namespace RX_Explorer.Class
                                             });
                                         }
 
-                                        OutputTarStream.CloseEntry();
+                                        await OutputTarStream.CloseEntryAsync(CancelToken);
 
                                         CurrentPosition += File.Size;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
@@ -547,7 +552,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        await OutputTarStream.FlushAsync();
+                        await OutputTarStream.FlushAsync(CancelToken);
                     }
                 }
             }
@@ -616,7 +621,7 @@ namespace RX_Explorer.Class
                                             NewEntry.ModTime = DateTime.Now;
                                             NewEntry.Size = FileStream.Length;
 
-                                            OutputTarStream.PutNextEntry(NewEntry);
+                                            await OutputTarStream.PutNextEntryAsync(NewEntry, CancelToken);
 
                                             await FileStream.CopyToAsync(OutputTarStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
@@ -624,7 +629,7 @@ namespace RX_Explorer.Class
                                             });
                                         }
 
-                                        OutputTarStream.CloseEntry();
+                                        await OutputTarStream.CloseEntryAsync(CancelToken);
 
                                         CurrentPosition += File.Size;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
@@ -649,7 +654,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        await OutputTarStream.FlushAsync();
+                        await OutputTarStream.FlushAsync(CancelToken);
                     }
                 }
             }
@@ -709,7 +714,7 @@ namespace RX_Explorer.Class
                                             NewEntry.ModTime = DateTime.Now;
                                             NewEntry.Size = FileStream.Length;
 
-                                            OutputTarStream.PutNextEntry(NewEntry);
+                                            await OutputTarStream.PutNextEntryAsync(NewEntry, CancelToken);
 
                                             await FileStream.CopyToAsync(OutputTarStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
@@ -717,7 +722,7 @@ namespace RX_Explorer.Class
                                             });
                                         }
 
-                                        OutputTarStream.CloseEntry();
+                                        await OutputTarStream.CloseEntryAsync(CancelToken);
 
                                         CurrentPosition += File.Size;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
@@ -742,7 +747,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        await OutputTarStream.FlushAsync();
+                        await OutputTarStream.FlushAsync(CancelToken);
                     }
                 }
             }
@@ -789,7 +794,7 @@ namespace RX_Explorer.Class
                                 NewEntry.ModTime = DateTime.Now;
                                 NewEntry.Size = FileStream.Length;
 
-                                OutputStream.PutNextEntry(NewEntry);
+                                await OutputStream.PutNextEntryAsync(NewEntry, CancelToken);
 
                                 await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                 {
@@ -797,7 +802,7 @@ namespace RX_Explorer.Class
                                 });
                             }
 
-                            OutputStream.CloseEntry();
+                            await OutputStream.CloseEntryAsync(CancelToken);
 
                             ByteReadHandler?.Invoke(CurrentPosition += InnerFile.Size);
 
@@ -809,8 +814,8 @@ namespace RX_Explorer.Class
             if (ChildItemNumber == 0 && !string.IsNullOrEmpty(BaseFolderName))
             {
                 TarEntry NewEntry = TarEntry.CreateTarEntry($"{BaseFolderName}/");
-                OutputStream.PutNextEntry(NewEntry);
-                OutputStream.CloseEntry();
+                await OutputStream.PutNextEntryAsync(NewEntry, CancelToken);
+                await OutputStream.CloseEntryAsync(CancelToken);
             }
         }
 
@@ -950,7 +955,7 @@ namespace RX_Explorer.Class
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * Reader.Entry.CompressedSize)) * 100d / TotalSize), null));
                                         });
 
-                                        await OutputStream.FlushAsync();
+                                        await OutputStream.FlushAsync(CancelToken);
 
                                         CurrentPosition += Convert.ToUInt64(Reader.Entry.CompressedSize);
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
@@ -978,11 +983,15 @@ namespace RX_Explorer.Class
                             throw new UnauthorizedAccessException("Could not create folder");
                         }
                     }
+                case FileSystemStorageFolder:
+                    {
+                        return Path;
+                    }
                 default:
                     {
-                        if (await FileSystemStorageItemBase.CreateNewAsync(Path, CreateType.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(Path, CreateType.Folder, CreateOption.ReplaceExisting) is FileSystemStorageFolder NewFolder)
                         {
-                            return Path;
+                            return NewFolder.Path;
                         }
                         else
                         {
