@@ -14,10 +14,17 @@
                   Name="EncodingComboBox"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Stretch"
-                  SelectionChanged="EncodingCombo_SelectionChanged"
-                  DisplayMemberPath="EncodingName"
                   IsEnabled="False"
                   PlaceholderText="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}"
-                  ItemsSource="{x:Bind AvailableEncodings}" />
+                  ItemsSource="{x:Bind AvailableEncodings}"
+                  SelectionChanged="EncodingCombo_SelectionChanged">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="Cls:TextEncodingModel">
+                    <StackPanel>
+                        <TextBlock Text="{x:Bind DisplayName}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
     </Grid>
 </Cls:QueueContentDialog>

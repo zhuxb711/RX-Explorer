@@ -19,8 +19,7 @@ namespace RX_Explorer.Class
 {
     public static class CompressionUtil
     {
-
-        private static Encoding EncodingSetting = Encoding.Default;
+        private static Encoding EncodingSetting = Encoding.UTF8;
         private delegate void ByteReadChangedEventHandler(ulong ByteRead);
 
         public static async Task CreateZipAsync(IEnumerable<string> SourceItemGroup,

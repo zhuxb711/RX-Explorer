@@ -462,10 +462,15 @@ namespace RX_Explorer.View
                             IsReadonlyMode = true;
                         }
 
-                        ZipStrings.CodePage = Encoding.CodePage;
-
                         ZipFile = File;
-                        ZipObj = new ZipFile(CompressedStream);
+                        ZipObj = new ZipFile(CompressedStream)
+                        {
+                            StringCodec = new StringCodec
+                            {
+                                ForceZipLegacyEncoding = true,
+                                CodePage = Encoding.CodePage
+                            }
+                        };
 
                         await Task.WhenAll(DisplayItemsInEntryAsync(string.Empty), Task.Delay(500));
                     }

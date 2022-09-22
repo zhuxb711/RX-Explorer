@@ -12,7 +12,7 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class TextEncodingDialog : QueueContentDialog
     {
-        private readonly ObservableCollection<Encoding> AvailableEncodings = new ObservableCollection<Encoding>();
+        private readonly ObservableCollection<TextEncodingModel> AvailableEncodings = new ObservableCollection<TextEncodingModel>();
         private readonly FileSystemStorageFile TextFile;
         private Encoding userSelectedEncoding;
         public Encoding UserSelectedEncoding
@@ -29,45 +29,49 @@ namespace RX_Explorer.Dialog
         public TextEncodingDialog()
         {
             InitializeComponent();
-            Loading += TextEncodingDialog_Loading;
+            Loaded += TextEncodingDialog_Loaded;
         }
 
-        private async void TextEncodingDialog_Loading(FrameworkElement sender, object args)
+        private async void TextEncodingDialog_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
-                AvailableEncodings.AddRange(await GetAllEncodingsAsync());
+                IReadOnlyList<Encoding> AllEncodingList = await GetAllEncodingsAsync();
+
+                AvailableEncodings.AddRange(AllEncodingList.Select((Encoding) => new TextEncodingModel(Encoding)));
 
                 if (AvailableEncodings.Count == 0)
                 {
-                    AvailableEncodings.Add(Encoding.UTF8);
+                    AvailableEncodings.Add(new TextEncodingModel(Encoding.UTF8));
                 }
 
                 if (await DetectEncodingFromFileAsync() is Encoding DetectedEncoding)
                 {
-                    if (AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == DetectedEncoding.CodePage) is Encoding Coding)
+                    if (AvailableEncodings.FirstOrDefault((Model) => Model.TextEncoding.CodePage == DetectedEncoding.CodePage) is TextEncodingModel Model)
                     {
-                        EncodingComboBox.SelectedItem = Coding;
+                        EncodingComboBox.SelectedItem = Model;
                     }
                     else
                     {
-                        int Index = AvailableEncodings.Append(DetectedEncoding).OrderByFastStringSortAlgorithm((Encoding) => Encoding.EncodingName, SortDirection.Ascending).ToList().IndexOf(DetectedEncoding);
+                        TextEncodingModel NewModel = new TextEncodingModel(DetectedEncoding);
+
+                        int Index = AvailableEncodings.Select((Model) => Model.TextEncoding).Append(DetectedEncoding).OrderByFastStringSortAlgorithm((Encoding) => Encoding.EncodingName, SortDirection.Ascending).ToList().IndexOf(DetectedEncoding);
 
                         if (Index >= 0 && Index <= AvailableEncodings.Count)
                         {
-                            AvailableEncodings.Insert(Index, DetectedEncoding);
+                            AvailableEncodings.Insert(Index, NewModel);
                         }
                         else
                         {
-                            AvailableEncodings.Add(DetectedEncoding);
+                            AvailableEncodings.Add(NewModel);
                         }
 
-                        EncodingComboBox.SelectedItem = DetectedEncoding;
+                        EncodingComboBox.SelectedItem = NewModel;
                     }
                 }
                 else
                 {
-                    EncodingComboBox.SelectedItem = AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == Encoding.UTF8.CodePage);
+                    EncodingComboBox.SelectedItem = AvailableEncodings.FirstOrDefault((Model) => Model.TextEncoding.CodePage == Encoding.UTF8.CodePage);
                 }
             }
             catch (Exception ex)
@@ -122,9 +126,9 @@ namespace RX_Explorer.Dialog
 
         private void EncodingCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.SingleOrDefault() is Encoding Encoding)
+            if (e.AddedItems.SingleOrDefault() is TextEncodingModel Model)
             {
-                UserSelectedEncoding = Encoding;
+                UserSelectedEncoding = Model.TextEncoding;
             }
         }
     }

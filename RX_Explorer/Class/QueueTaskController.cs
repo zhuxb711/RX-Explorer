@@ -595,7 +595,7 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    CompressionUtil.SetEncoding(Encoding.Default);
+                                    CompressionUtil.SetEncoding(Encoding.UTF8);
 
                                     using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.CreateExtendedExecutionAsync().Result)
                                     {
