@@ -1,13 +1,17 @@
-﻿###Quoi de neuf dans la version 7.9.2.0
+﻿###Quoi de neuf dans la version 7.9.5.0
+
+#####Amélioration des performances
+
+>#####Amélioration des performances de lecture et d'écriture lors de la compression et de la décompression
+
+#####Mise à jour des composants
+
+>#####Mettre à niveau la version cible vers le dernier SDK Windows 11 22H2 (10.0.22621.0)
 
 #####Corrections de bogues
 
->#####Résolution du problème de l'impossibilité de glisser-déposer des fichiers dans RX-Explorer
+>#####Correction du problème que l'encodage par défaut est incorrect lors de la compression des fichiers et a été corrigé pour utiliser UTF8 comme encodage par défaut
 
->#####Correction d'un problème qui pouvait permettre à l'utilisateur d'effectuer des actions non autorisées par l'initiateur de l'action de glissement
+>#####Correction du problème selon lequel certains noms d'encodage peuvent être vides lorsque la boîte de dialogue d'encodage s'affiche après l'ouverture d'un fichier texte
 
->#####Correction du problème que plusieurs fichiers identiques peuvent être générés lors du déplacement de fichiers lnk ou de fichiers url de RX-Explorer vers n'importe quel emplacement
-
->#####Correction du problème d'affichage des vignettes lors du déplacement d'un seul fichier lnk ou url
-
->#####Suppression d'un mécanisme empêchant les utilisateurs d'importer des fichiers de configuration exportés depuis d'autres ordinateurs, et ajout d'un avertissement de risque de sécurité pour cela
+>#####Correction d'un problème où certains noms de polices pouvaient être vides lors de la sélection des polices d'application

@@ -787,7 +787,7 @@
                                                            x:Uid="LanguageComboBoxDescription"
                                                            Text="指定应用使用的语言，需要重启以生效" />
                                             </StackPanel>
-                                            <ComboBox MinWidth="200"
+                                            <ComboBox MinWidth="250"
                                                       Name="LanguageComboBox"
                                                       RelativePanel.AlignRightWithPanel="True"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -824,7 +824,7 @@
                                                            x:Uid="FontFamilyComboBoxDescription"
                                                            Text="指定应用使用的字体，需要重启以生效" />
                                             </StackPanel>
-                                            <ComboBox Width="250"
+                                            <ComboBox Width="300"
                                                       Name="FontFamilyComboBox"
                                                       RelativePanel.AlignRightWithPanel="True"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -832,13 +832,13 @@
                                                       Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}">
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate x:DataType="Cls:InstalledFonts">
-                                                        <Grid>
+                                                        <StackPanel>
                                                             <TextBlock Text="{x:Bind DisplayName}"
                                                                        FontFamily="{x:Bind FamilyName}"
                                                                        ToolTipService.ToolTip="{x:Bind DisplayName}"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        VerticalAlignment="Center" />
-                                                        </Grid>
+                                                        </StackPanel>
                                                     </DataTemplate>
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>

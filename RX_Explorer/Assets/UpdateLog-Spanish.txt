@@ -1,13 +1,17 @@
-﻿###Novedades de la versión 7.9.2.0
+﻿###Novedades de la versión 7.9.5.0
+
+#####Mejora del rendimiento
+
+>#####Mejora del rendimiento de lectura y escritura al comprimir y descomprimir
+
+#####Actualización de componentes
+
+>#####Actualice la versión de destino a la última SDK de Windows 11 22H2 (10.0.22621.0)
 
 #####Corrección de errores
 
->#####Se solucionó el problema de no poder arrastrar y soltar archivos dentro de RX-Explorer
+>#####Se solucionó el problema de que la codificación predeterminada es incorrecta al comprimir archivos y se corrigió para usar UTF8 como la codificación predeterminada
 
->#####Se solucionó un problema que podía permitir al usuario realizar acciones no permitidas por el iniciador de acción de arrastre
+>#####Se solucionó el problema de que algunos nombres de codificación pueden estar vacíos cuando aparecía el cuadro de diálogo de codificación después de abrir un archivo de texto
 
->#####Se solucionó el problema de que se pueden generar múltiples archivos idénticos al arrastrar archivos lnk o archivos url desde RX-Explorer a cualquier ubicación
-
->#####Se solucionó el problema de que las miniaturas no se mostrarían al arrastrar un solo archivo lnk o url
-
->#####Se eliminó un mecanismo que impedía a los usuarios importar archivos de configuración exportados desde otras computadoras y se agregó una advertencia de riesgo de seguridad para esto
+>#####Se solucionó un problema por el cual algunos nombres de fuente podían estar vacíos al seleccionar las fuentes de la aplicación

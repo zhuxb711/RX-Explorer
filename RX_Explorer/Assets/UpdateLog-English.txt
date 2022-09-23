@@ -1,13 +1,17 @@
-﻿###What's new in Ver.7.9.2.0
+﻿###What's new in Ver.7.9.5.0
+
+#####Performance improvement
+
+>#####Improved reading and writing performance when compressing and decompressing
+
+#####Component update
+
+>#####Upgrade the target version to the latest Windows 11 22H2 SDK (10.0.22621.0)
 
 #####Bug Fixes
 
->#####Fixed the problem of not being able to drag and drop files inside RX-Explorer
+>#####Fixed the problem that the default encoding is incorrect when compressing files and has been corrected to use UTF8 as the default encoding
 
->#####Fixed an issue that could allow the user to perform actions not allowed by the drag action initiator
+>#####Fixed the problem that some encoding names may be empty when the encoding dialog was poped up after opening a text file
 
->#####Fixed the problem that multiple identical files may be generated when dragging lnk files or url files from RX-Explorer to any location
-
->#####Fixed the problem that thumbnails will not be displayed when dragging a single lnk or url file
-
->#####Removed a mechanism preventing users from importing configuration files exported from other computers, and added a security risk warning for this
+>#####Fixed an issue where some font names could be empty when selecting application fonts
