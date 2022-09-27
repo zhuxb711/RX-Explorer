@@ -281,7 +281,7 @@ namespace RX_Explorer
 
                                 if (Window.Current.Content is Frame Frame)
                                 {
-                                    if (Frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
+                                    if (Frame.Content is MainPage Main && Main.NavFrame.Content is TabViewContainer TabContainer)
                                     {
                                         if (OpenPathListOnEachTab.Any())
                                         {
@@ -327,7 +327,7 @@ namespace RX_Explorer
 
                                 if (Window.Current.Content is Frame Frame)
                                 {
-                                    if (Frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
+                                    if (Frame.Content is MainPage Main && Main.NavFrame.Content is TabViewContainer TabContainer)
                                     {
                                         if (OpenPathListOnEachTab.Any())
                                         {

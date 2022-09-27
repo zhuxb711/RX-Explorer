@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum UIStyle
+    {
+        Normal,
+        Clearly
+    }
+
     public enum DragBehaivor
     {
         Copy,
@@ -112,7 +118,8 @@ namespace RX_Explorer.Class
         LanguageRestartRequired,
         FontFamilyRestartRequired,
         ConfigRestartRequired,
-        FullTrustBusy
+        FullTrustBusy,
+        UIStyleRestartRequired
     }
 
     public enum LabelKind

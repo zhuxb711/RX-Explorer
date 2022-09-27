@@ -4910,6 +4910,30 @@ Invalid names include
           <source>The configuration file being imported is not from the current computer. Importing configuration files from unknown sources may pose a security risk. Do you want to continue importing?</source>
           <target state="translated">導入的配置文件不是來自當前計算機。 從未知來源導入配置文件可能會帶來安全風險。 是否要繼續導入？</target>
         </trans-unit>
+        <trans-unit id="SystemTip_UIStyleRestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the app to activate the new UI style. It is not recommended that you continue to use this app, the new UI style will take effect at the next launch</source>
+          <target state="translated">請重新啟動應用程序以激活新的 UI 樣式。 不建議您繼續使用此應用，新的UI樣式將在下次啟動時生效</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleContent.Text" translate="yes" xml:space="preserve">
+          <source>This option is used to switch between "Regular" and "Minimalistic" styles. Note: Changing this option will require a restart of the application</source>
+          <target state="translated">此選項用於在“常規”和“簡約”樣式之間切換。 注意：更改此選項將需要重新啟動應用程序</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleLabel.Text" translate="yes" xml:space="preserve">
+          <source>Application UI style</source>
+          <target state="translated">應用程序界面風格</target>
+        </trans-unit>
+        <trans-unit id="SettingButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Settings</source>
+          <target state="translated">設置</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Minimalistic</source>
+          <target state="translated">简约</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Regular</source>
+          <target state="translated">常規</target>
+        </trans-unit>
       </group>
     </body>
   </file>

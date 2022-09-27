@@ -143,15 +143,15 @@ namespace RX_Explorer.View
                                         }
                                         else if (Result == ContentDialogResult.Secondary)
                                         {
-                                            if (!await EnterByPassword())
+                                            if (!await EnterByPasswordAsync())
                                             {
-                                                MainPage.Current.Nav.GoBack();
+                                                SecureAreaContainer.Current.Frame.GoBack();
                                                 return;
                                             }
                                         }
                                         else
                                         {
-                                            MainPage.Current.Nav.GoBack();
+                                            SecureAreaContainer.Current.Frame.GoBack();
                                             return;
                                         }
 
@@ -166,13 +166,14 @@ namespace RX_Explorer.View
                                             Content = Globalization.GetString("QueueDialog_WinHelloCredentialLost_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
+
                                         await Dialog.ShowAsync();
 
                                         ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
 
-                                        if (!await EnterByPassword())
+                                        if (!await EnterByPasswordAsync())
                                         {
-                                            MainPage.Current.Nav.GoBack();
+                                            SecureAreaContainer.Current.Frame.GoBack();
                                             return;
                                         }
 
@@ -192,15 +193,15 @@ namespace RX_Explorer.View
 
                                         if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                                         {
-                                            if (!await EnterByPassword())
+                                            if (!await EnterByPasswordAsync())
                                             {
-                                                MainPage.Current.Nav.GoBack();
+                                                SecureAreaContainer.Current.Frame.GoBack();
                                                 return;
                                             }
                                         }
                                         else
                                         {
-                                            MainPage.Current.Nav.GoBack();
+                                            SecureAreaContainer.Current.Frame.GoBack();
                                             return;
                                         }
 
@@ -210,9 +211,9 @@ namespace RX_Explorer.View
                         }
                         else
                         {
-                            if (!await EnterByPassword())
+                            if (!await EnterByPasswordAsync())
                             {
-                                MainPage.Current.Nav.GoBack();
+                                SecureAreaContainer.Current.Frame.GoBack();
                                 return;
                             }
                         }
@@ -249,13 +250,13 @@ namespace RX_Explorer.View
                                 }
                                 else
                                 {
-                                    MainPage.Current.Nav.GoBack();
+                                    SecureAreaContainer.Current.Frame.GoBack();
                                     return;
                                 }
                             }
                             else
                             {
-                                MainPage.Current.Nav.GoBack();
+                                SecureAreaContainer.Current.Frame.GoBack();
                                 return;
                             }
                         }
@@ -283,7 +284,7 @@ namespace RX_Explorer.View
                             await WindowsHelloAuthenticator.DeleteUserAsync();
                         }
 
-                        MainPage.Current.Nav.GoBack();
+                        SecureAreaContainer.Current.Frame.GoBack();
                         return;
                     }
                 }
@@ -316,7 +317,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private async Task<bool> EnterByPassword()
+        private async Task<bool> EnterByPasswordAsync()
         {
             return await new SecureAreaVerifyDialog(UnlockPassword).ShowAsync() is ContentDialogResult.Primary;
         }
@@ -382,7 +383,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    MainPage.Current.Nav.GoBack();
+                    SecureAreaContainer.Current.Frame.GoBack();
                 }
             }
         }

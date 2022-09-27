@@ -3695,4 +3695,22 @@
   <data name="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" xml:space="preserve">
     <value>正在导入的配置文件并非来源于当前计算机，导入未知来源的配置文件可能存在安全风险，是否继续导入?</value>
   </data>
+  <data name="SystemTip_UIStyleRestartContent" xml:space="preserve">
+    <value>请重新启动应用程序以激活新的UI样式。 不建议您继续使用此应用，新的UI样式将在下次启动时生效</value>
+  </data>
+  <data name="ApplicationStyleContent.Text" xml:space="preserve">
+    <value>此选项用于在“常规”和“简约”风格之间切换。 注意: 更改此选项将需要重新启动应用程序</value>
+  </data>
+  <data name="ApplicationStyleLabel.Text" xml:space="preserve">
+    <value>应用程序界面风格</value>
+  </data>
+  <data name="SettingButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="ApplicationStyleSwitch.OffContent" xml:space="preserve">
+    <value>简约</value>
+  </data>
+  <data name="ApplicationStyleSwitch.OnContent" xml:space="preserve">
+    <value>常规</value>
+  </data>
 </root>

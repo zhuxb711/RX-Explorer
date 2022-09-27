@@ -31,6 +31,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Navigation;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TabView = Microsoft.UI.Xaml.Controls.TabView;
@@ -754,13 +755,21 @@ namespace RX_Explorer.View
         {
             Loaded -= TabViewContainer_Loaded;
 
-            if ((MainPage.Current.ActivatePathArray?.Count).GetValueOrDefault() == 0)
+            if (SettingPage.ApplicationUIStyle == UIStyle.Clearly)
+            {
+                Window.Current.SetTitleBar(TitleBar);
+                SettingButton.Visibility = Visibility.Visible;
+                AltGoBackButton.Visibility = Visibility.Visible;
+                FunctionButtonArea.Padding = new Thickness(0, 0, CoreApplication.GetCurrentView().TitleBar.SystemOverlayRightInset, 0);
+            }
+
+            if ((MainPage.Current.ActivatePaths?.Count).GetValueOrDefault() == 0)
             {
                 await CreateNewTabAsync();
             }
             else
             {
-                await CreateNewTabAsync(MainPage.Current.ActivatePathArray);
+                await CreateNewTabAsync(MainPage.Current.ActivatePaths);
             }
 
             if (TabViewControl.FindChildOfName<Button>("AddButton") is Button AddBtn)
@@ -870,12 +879,37 @@ namespace RX_Explorer.View
                 };
             }
 
+            TabItemContentRenderer Renderer = new TabItemContentRenderer(Tab, ValidStorageItem.Select((Item) => Item.Path).ToArray());
+            Renderer.RendererFrame.Navigated += RendererFrame_Navigated;
+
             Tab.Content = new Frame
             {
-                Content = new TabItemContentRenderer(Tab, ValidStorageItem.Select((Item) => Item.Path).ToArray())
+                Content = Renderer
             };
 
             return Tab;
+        }
+
+        private void RendererFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            if (sender is Frame frame)
+            {
+                LayoutModeControl.IsEnabled = e.Content is FileControl;
+
+                switch (SettingPage.ApplicationUIStyle)
+                {
+                    case UIStyle.Normal:
+                        {
+                            MainPage.Current.NavView.IsBackEnabled = frame.CanGoBack;
+                            break;
+                        }
+                    case UIStyle.Clearly:
+                        {
+                            AltGoBackButton.IsEnabled = frame.CanGoBack;
+                            break;
+                        }
+                }
+            }
         }
 
         private void Tab_DragEnter(object sender, DragEventArgs e)
@@ -1366,6 +1400,22 @@ namespace RX_Explorer.View
                 }
 
                 await Task.Delay(500);
+            }
+        }
+
+        private async void SettingButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!SettingPage.IsOpened)
+            {
+                await MainPage.Current.Settings.ShowAsync();
+            }
+        }
+
+        private void AltGoBackButton_Click(object sender, RoutedEventArgs e)
+        {
+            if ((CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault())
+            {
+                CurrentTabRenderer.RendererFrame.GoBack();
             }
         }
     }

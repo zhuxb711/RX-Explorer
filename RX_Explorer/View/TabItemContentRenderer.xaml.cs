@@ -268,9 +268,6 @@ namespace RX_Explorer.View
 
         private async void BaseFrame_Navigated(object sender, NavigationEventArgs e)
         {
-            MainPage.Current.NavView.IsBackEnabled = BaseFrame.CanGoBack;
-            TabViewContainer.Current.LayoutModeControl.IsEnabled = e.Content is FileControl;
-
             if (e.Content is FileControl Control)
             {
                 BaseControl = Control;

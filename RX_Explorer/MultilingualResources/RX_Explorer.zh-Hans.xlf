@@ -4910,6 +4910,30 @@ Invalid names include
           <source>The configuration file being imported is not from the current computer. Importing configuration files from unknown sources may pose a security risk. Do you want to continue importing?</source>
           <target state="translated">正在导入的配置文件并非来源于当前计算机，导入未知来源的配置文件可能存在安全风险，是否继续导入?</target>
         </trans-unit>
+        <trans-unit id="SystemTip_UIStyleRestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the app to activate the new UI style. It is not recommended that you continue to use this app, the new UI style will take effect at the next launch</source>
+          <target state="translated">请重新启动应用程序以激活新的UI样式。 不建议您继续使用此应用，新的UI样式将在下次启动时生效</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleContent.Text" translate="yes" xml:space="preserve">
+          <source>This option is used to switch between "Regular" and "Minimalistic" styles. Note: Changing this option will require a restart of the application</source>
+          <target state="translated">此选项用于在“常规”和“简约”风格之间切换。 注意: 更改此选项将需要重新启动应用程序</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleLabel.Text" translate="yes" xml:space="preserve">
+          <source>Application UI style</source>
+          <target state="translated">应用程序界面风格</target>
+        </trans-unit>
+        <trans-unit id="SettingButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Settings</source>
+          <target state="translated">设置</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Minimalistic</source>
+          <target state="translated">简约</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Regular</source>
+          <target state="translated">常规</target>
+        </trans-unit>
       </group>
     </body>
   </file>

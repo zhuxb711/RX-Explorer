@@ -2,6 +2,7 @@
 using RX_Explorer.View;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Windows.System;
@@ -116,7 +117,16 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                if (await MonitorTrustProcessController.RegisterRestartRequestAsync(JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList)))
+                                string RecoveryData = string.Empty;
+
+                                IReadOnlyList<string[]> PathList = TabViewContainer.Current.OpenedPathList;
+
+                                if (PathList.SelectMany((Item) => Item).Any((Path) => Path != RootVirtualFolder.Current.Path))
+                                {
+                                    RecoveryData = JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList);
+                                }
+
+                                if (await MonitorTrustProcessController.RegisterRestartRequestAsync(RecoveryData))
                                 {
                                     if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
                                     {
@@ -141,7 +151,16 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                if (await MonitorTrustProcessController.RegisterRestartRequestAsync(JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList)))
+                                string RecoveryData = string.Empty;
+
+                                IReadOnlyList<string[]> PathList = TabViewContainer.Current.OpenedPathList;
+
+                                if (PathList.SelectMany((Item) => Item).Any((Path) => Path != RootVirtualFolder.Current.Path))
+                                {
+                                    RecoveryData = JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList);
+                                }
+
+                                if (await MonitorTrustProcessController.RegisterRestartRequestAsync(RecoveryData))
                                 {
                                     if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
                                     {
@@ -166,7 +185,16 @@ namespace RX_Explorer.Class
                             };
                             ActionButton.Click += async (s, e) =>
                             {
-                                if (await MonitorTrustProcessController.RegisterRestartRequestAsync(JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList)))
+                                string RecoveryData = string.Empty;
+
+                                IReadOnlyList<string[]> PathList = TabViewContainer.Current.OpenedPathList;
+
+                                if (PathList.SelectMany((Item) => Item).Any((Path) => Path != RootVirtualFolder.Current.Path))
+                                {
+                                    RecoveryData = JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList);
+                                }
+
+                                if (await MonitorTrustProcessController.RegisterRestartRequestAsync(RecoveryData))
                                 {
                                     if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
                                     {
@@ -177,6 +205,40 @@ namespace RX_Explorer.Class
 
                             InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
                             InfoTip.Message = Globalization.GetString("SystemTip_FontFamilyRestartContent");
+                            InfoTip.Severity = InfoBarSeverity.Warning;
+                            InfoTip.ActionButton = ActionButton;
+
+                            break;
+                        }
+                    case InfoTipType.UIStyleRestartRequired:
+                        {
+                            Button ActionButton = new Button
+                            {
+                                Content = Globalization.GetString("SystemTip_RestartRequiredActionButton"),
+                                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily
+                            };
+                            ActionButton.Click += async (s, e) =>
+                            {
+                                string RecoveryData = string.Empty;
+
+                                IReadOnlyList<string[]> PathList = TabViewContainer.Current.OpenedPathList;
+
+                                if (PathList.SelectMany((Item) => Item).Any((Path) => Path != RootVirtualFolder.Current.Path))
+                                {
+                                    RecoveryData = JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList);
+                                }
+
+                                if (await MonitorTrustProcessController.RegisterRestartRequestAsync(RecoveryData))
+                                {
+                                    if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                                    {
+                                        Application.Current.Exit();
+                                    }
+                                }
+                            };
+
+                            InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
+                            InfoTip.Message = Globalization.GetString("SystemTip_UIStyleRestartContent");
                             InfoTip.Severity = InfoBarSeverity.Warning;
                             InfoTip.ActionButton = ActionButton;
 

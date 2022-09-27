@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
@@ -46,9 +47,35 @@ namespace RX_Explorer.View
     {
         public static MainPage Current { get; private set; }
 
-        public IReadOnlyList<string[]> ActivatePathArray { get; }
+        public IReadOnlyList<string[]> ActivatePaths { get; }
 
-        private readonly Dictionary<Type, string> PageDictionary;
+        public Frame NavFrame
+        {
+            get
+            {
+                return SettingPage.ApplicationUIStyle switch
+                {
+                    UIStyle.Normal => NormalNav,
+                    UIStyle.Clearly => ClearlyNav,
+                    _ => throw new NotSupportedException()
+                };
+            }
+        }
+
+        private StackPanel BannerPanel
+        {
+            get
+            {
+                return SettingPage.ApplicationUIStyle switch
+                {
+                    UIStyle.Normal => NormalBannerPanel,
+                    UIStyle.Clearly => ClearlyBannerPanel,
+                    _ => throw new NotSupportedException()
+                };
+            }
+        }
+
+        private readonly IReadOnlyDictionary<Type, string> PageNameMapping;
 
         private readonly EntranceAnimationEffect EntranceEffectProvider;
 
@@ -56,20 +83,35 @@ namespace RX_Explorer.View
 
         private readonly DeviceWatcher BluetoothAudioWatcher;
 
-        public MainPage(Rect Parameter, IReadOnlyList<string[]> ActivatePathArray = null)
+        public MainPage(Rect Parameter, IReadOnlyList<string[]> PathArray = null)
         {
             InitializeComponent();
 
             Current = this;
-            this.ActivatePathArray = ActivatePathArray;
+            ActivatePaths = PathArray;
 
-            CoreApplicationViewTitleBar SystemBar = CoreApplication.GetCurrentView().TitleBar;
-            TitleBar.Margin = new Thickness(SystemBar.SystemOverlayLeftInset, TitleBar.Margin.Top, SystemBar.SystemOverlayRightInset, TitleBar.Margin.Bottom);
-            SystemBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
-            SystemBar.IsVisibleChanged += SystemBar_IsVisibleChanged;
-            ApplicationView.GetForCurrentView().TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+            switch (SettingPage.ApplicationUIStyle)
+            {
+                case UIStyle.Normal:
+                    {
+                        ModeSwitcher.Value = "Normal";
 
-            Window.Current.SetTitleBar(TitleBar);
+                        CoreApplicationViewTitleBar SystemBar = CoreApplication.GetCurrentView().TitleBar;
+                        SystemBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
+                        SystemBar.IsVisibleChanged += SystemBar_IsVisibleChanged;
+                        TitleBar.Margin = new Thickness(SystemBar.SystemOverlayLeftInset, TitleBar.Margin.Top, SystemBar.SystemOverlayRightInset, TitleBar.Margin.Bottom);
+
+                        Window.Current.SetTitleBar(TitleBar);
+                        break;
+                    }
+                case UIStyle.Clearly:
+                    {
+                        ModeSwitcher.Value = "Clearly";
+                        TitleBar.Visibility = Visibility.Collapsed;
+
+                        break;
+                    }
+            }
 
             Loaded += MainPage_Loaded;
             Loaded += MainPage_Loaded1;
@@ -102,17 +144,16 @@ namespace RX_Explorer.View
                 BackgroundEffectArea.RegisterPropertyChangedCallback(VisibilityProperty, new DependencyPropertyChangedCallback(OnBackgroundEffectAreaVisibilityChanged));
             }
 
-            PageDictionary = new Dictionary<Type, string>()
+            PageNameMapping = new Dictionary<Type, string>()
             {
                 {typeof(TabViewContainer),Globalization.GetString("MainPage_PageDictionary_Home_Label") },
-                {typeof(FileControl),Globalization.GetString("MainPage_PageDictionary_Home_Label") },
                 {typeof(SecureAreaContainer),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") },
                 {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
             };
 
             BluetoothAudioWatcher = DeviceInformation.CreateWatcher(AudioPlaybackConnection.GetDeviceSelector());
 
-            if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
+            if (!AnimationController.Current.IsDisableStartupAnimation && (PathArray?.Count).GetValueOrDefault() == 0)
             {
                 EntranceEffectProvider = new EntranceAnimationEffect(this, NavView, Parameter);
                 EntranceAnimationPreloadTask = EntranceEffectProvider.PrepareEntranceEffectAsync();
@@ -245,24 +286,29 @@ namespace RX_Explorer.View
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
+                    if (ApplicationData.Current.LocalSettings.Values["NavigationViewItemVisibilityMapping"] is string MappingJson)
                     {
-                        RecycleBinItem.Visibility = ShowRecycleBin ? Visibility.Visible : Visibility.Collapsed;
-                    }
+                        IReadOnlyDictionary<string, bool> Mapping = JsonSerializer.Deserialize<IReadOnlyDictionary<string, bool>>(MappingJson);
 
-                    if (ApplicationData.Current.LocalSettings.Values["ShouldShowQuickStartItem"] is bool ShowQuickStart)
-                    {
-                        QuickStartItem.Visibility = ShowQuickStart ? Visibility.Visible : Visibility.Collapsed;
-                    }
+                        if (Mapping.TryGetValue("RecycleBinItem", out bool IsCheckRecycleBinItem))
+                        {
+                            RecycleBinItem.Visibility = IsCheckRecycleBinItem ? Visibility.Visible : Visibility.Collapsed;
+                        }
 
-                    if (ApplicationData.Current.LocalSettings.Values["ShouldShowSecureAreaItem"] is bool ShowSecureArea)
-                    {
-                        SecureAreaItem.Visibility = ShowSecureArea ? Visibility.Visible : Visibility.Collapsed;
-                    }
+                        if (Mapping.TryGetValue("QuickStartItem", out bool IsCheckQuickStartItem))
+                        {
+                            QuickStartItem.Visibility = IsCheckQuickStartItem ? Visibility.Visible : Visibility.Collapsed;
+                        }
 
-                    if (ApplicationData.Current.LocalSettings.Values["ShouldShowBluetoothAudioItem"] is bool ShowBluetoothAudio)
-                    {
-                        BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
+                        if (Mapping.TryGetValue("SecureAreaItem", out bool IsCheckSecureAreaItem))
+                        {
+                            SecureAreaItem.Visibility = IsCheckSecureAreaItem ? Visibility.Visible : Visibility.Collapsed;
+                        }
+
+                        if (Mapping.TryGetValue("BluetoothAudioItem", out bool IsCheckBluetoothAudioItem))
+                        {
+                            BluetoothAudioItem.Visibility = IsCheckBluetoothAudioItem ? Visibility.Visible : Visibility.Collapsed;
+                        }
                     }
                 });
             }
@@ -297,10 +343,10 @@ namespace RX_Explorer.View
                 }
             }
 
-            Dictionary<string, Task<bool>> LabelItemExistenceMapping = new Dictionary<string, Task<bool>>(Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
-                                                                                                                                           .Where((Kind) => Kind != LabelKind.None)
-                                                                                                                                           .SelectMany((Kind) => SQLite.Current.GetPathListFromLabelKind(Kind))
-                                                                                                                                           .Select((Path) => new KeyValuePair<string, Task<bool>>(Path, FileSystemStorageItemBase.CheckExistsAsync(Path))));
+            IReadOnlyDictionary<string, Task<bool>> LabelItemExistenceMapping = new Dictionary<string, Task<bool>>(Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
+                                                                                                                                                    .Where((Kind) => Kind != LabelKind.None)
+                                                                                                                                                    .SelectMany((Kind) => SQLite.Current.GetPathListFromLabelKind(Kind))
+                                                                                                                                                    .Select((Path) => new KeyValuePair<string, Task<bool>>(Path, FileSystemStorageItemBase.CheckExistsAsync(Path))));
 
             await Task.WhenAll(LabelItemExistenceMapping.Values);
 
@@ -608,7 +654,7 @@ namespace RX_Explorer.View
                     SettingItem.SelectsOnInvoked = false;
                 }
 
-                Nav.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
+                NavFrame.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
 
                 if (AnimationController.Current.IsDisableStartupAnimation)
                 {
@@ -620,7 +666,7 @@ namespace RX_Explorer.View
                     {
                         OpacityAnimation.Begin();
 
-                        if ((ActivatePathArray?.Count).GetValueOrDefault() == 0)
+                        if ((ActivatePaths?.Count).GetValueOrDefault() == 0)
                         {
                             EntranceEffectProvider.StartEntranceEffect();
                         }
@@ -758,22 +804,25 @@ namespace RX_Explorer.View
 
         private void Nav_Navigated(object sender, NavigationEventArgs e)
         {
-            if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[e.SourcePageType]) is NavigationViewItem Item)
+            if (SettingPage.ApplicationUIStyle == UIStyle.Normal && PageNameMapping.TryGetValue(e.SourcePageType, out string Name))
             {
-                Item.IsSelected = true;
-            }
+                if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == Name) is NavigationViewItem Item)
+                {
+                    NavView.SelectedItem = Item;
+                }
 
-            if (PageDictionary[e.SourcePageType] == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
-            {
-                NavView.IsBackEnabled = (TabViewContainer.Current.CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault();
-            }
-            else if (PageDictionary[e.SourcePageType] == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
-            {
-                NavView.IsBackEnabled = (SecureAreaContainer.Current.Nav?.CanGoBack).GetValueOrDefault();
-            }
-            else
-            {
-                NavView.IsBackEnabled = false;
+                if (Name == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
+                {
+                    NavView.IsBackEnabled = (TabViewContainer.Current.CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault();
+                }
+                else if (Name == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
+                {
+                    NavView.IsBackEnabled = SecureAreaContainer.Current.NavFrame.CanGoBack;
+                }
+                else
+                {
+                    NavView.IsBackEnabled = false;
+                }
             }
         }
 
@@ -1042,15 +1091,15 @@ namespace RX_Explorer.View
 
                     if (InvokeString == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
                     {
-                        Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
+                        NavFrame.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (InvokeString == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
                     {
-                        Nav.Navigate(typeof(SecureAreaContainer), null, new DrillInNavigationTransitionInfo());
+                        NavFrame.Navigate(typeof(SecureAreaContainer), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (InvokeString == Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"))
                     {
-                        Nav.Navigate(typeof(RecycleBin), null, new DrillInNavigationTransitionInfo());
+                        NavFrame.Navigate(typeof(RecycleBin), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (InvokeString == Globalization.GetString("MainPage_QuickStart_Label"))
                     {
@@ -1103,7 +1152,7 @@ namespace RX_Explorer.View
 
         private void Nav_Navigating(object sender, NavigatingCancelEventArgs e)
         {
-            if (Nav.CurrentSourcePageType == e.SourcePageType)
+            if (NavFrame.CurrentSourcePageType == e.SourcePageType)
             {
                 e.Cancel = true;
             }
@@ -1113,24 +1162,19 @@ namespace RX_Explorer.View
         {
             try
             {
-                if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
+                if (NavFrame.CurrentSourcePageType == typeof(TabViewContainer))
                 {
                     if ((TabViewContainer.Current.CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault())
                     {
                         TabViewContainer.Current.CurrentTabRenderer.RendererFrame.GoBack();
                     }
                 }
-                else if (Nav.CurrentSourcePageType == typeof(SecureAreaContainer))
+                else if (NavFrame.CurrentSourcePageType == typeof(SecureAreaContainer))
                 {
-                    if ((SecureAreaContainer.Current.Nav?.CanGoBack).GetValueOrDefault())
+                    if (SecureAreaContainer.Current.NavFrame.CanGoBack)
                     {
-                        SecureAreaContainer.Current.Nav.GoBack();
+                        SecureAreaContainer.Current.NavFrame.GoBack();
                     }
-                }
-
-                if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[Nav.CurrentSourcePageType]) is NavigationViewItem Item)
-                {
-                    Item.IsSelected = true;
                 }
             }
             catch (Exception ex)
@@ -1597,40 +1641,29 @@ namespace RX_Explorer.View
 
         private void NavView_Loaded(object sender, RoutedEventArgs e)
         {
-            if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
+            if (ApplicationData.Current.LocalSettings.Values["NavigationViewItemVisibilityMapping"] is string MappingJson)
             {
-                RecycleBinItem.Visibility = ShowRecycleBin ? Visibility.Visible : Visibility.Collapsed;
-            }
-            else
-            {
-                RecycleBinItem.Visibility = Visibility.Visible;
-            }
+                IReadOnlyDictionary<string, bool> Mapping = JsonSerializer.Deserialize<IReadOnlyDictionary<string, bool>>(MappingJson);
 
-            if (ApplicationData.Current.LocalSettings.Values["ShouldShowQuickStartItem"] is bool ShowQuickStart)
-            {
-                QuickStartItem.Visibility = ShowQuickStart ? Visibility.Visible : Visibility.Collapsed;
-            }
-            else
-            {
-                QuickStartItem.Visibility = Visibility.Visible;
-            }
+                if (Mapping.TryGetValue("RecycleBinItem", out bool IsCheckRecycleBinItem))
+                {
+                    RecycleBinItem.Visibility = IsCheckRecycleBinItem ? Visibility.Visible : Visibility.Collapsed;
+                }
 
-            if (ApplicationData.Current.LocalSettings.Values["ShouldShowSecureAreaItem"] is bool ShowSecureArea)
-            {
-                SecureAreaItem.Visibility = ShowSecureArea ? Visibility.Visible : Visibility.Collapsed;
-            }
-            else
-            {
-                SecureAreaItem.Visibility = Visibility.Visible;
-            }
+                if (Mapping.TryGetValue("QuickStartItem", out bool IsCheckQuickStartItem))
+                {
+                    QuickStartItem.Visibility = IsCheckQuickStartItem ? Visibility.Visible : Visibility.Collapsed;
+                }
 
-            if (ApplicationData.Current.LocalSettings.Values["ShouldShowBluetoothAudioItem"] is bool ShowBluetoothAudio)
-            {
-                BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
-            }
-            else
-            {
-                BluetoothAudioItem.Visibility = Visibility.Visible;
+                if (Mapping.TryGetValue("SecureAreaItem", out bool IsCheckSecureAreaItem))
+                {
+                    SecureAreaItem.Visibility = IsCheckSecureAreaItem ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                if (Mapping.TryGetValue("BluetoothAudioItem", out bool IsCheckBluetoothAudioItem))
+                {
+                    BluetoothAudioItem.Visibility = IsCheckBluetoothAudioItem ? Visibility.Visible : Visibility.Collapsed;
+                }
             }
         }
 
@@ -1655,30 +1688,32 @@ namespace RX_Explorer.View
 
         private async void EditNavItem_Click(object sender, RoutedEventArgs e)
         {
-            EditNavigationViewItemDialog Dialog = new EditNavigationViewItemDialog();
-
-            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+            try
             {
-                if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
-                {
-                    RecycleBinItem.Visibility = ShowRecycleBin ? Visibility.Visible : Visibility.Collapsed;
-                }
+                EditNavigationViewItemDialog Dialog = new EditNavigationViewItemDialog();
 
-                if (ApplicationData.Current.LocalSettings.Values["ShouldShowQuickStartItem"] is bool ShowQuickStart)
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    QuickStartItem.Visibility = ShowQuickStart ? Visibility.Visible : Visibility.Collapsed;
-                }
+                    RecycleBinItem.Visibility = Dialog.RecycleBinItemChecked ? Visibility.Visible : Visibility.Collapsed;
+                    QuickStartItem.Visibility = Dialog.QuickStartItemChecked ? Visibility.Visible : Visibility.Collapsed;
+                    SecureAreaItem.Visibility = Dialog.SecureAreaItemChecked ? Visibility.Visible : Visibility.Collapsed;
+                    BluetoothAudioItem.Visibility = Dialog.BluetoothAudioItemChecked ? Visibility.Visible : Visibility.Collapsed;
 
-                if (ApplicationData.Current.LocalSettings.Values["ShouldShowSecureAreaItem"] is bool ShowSecureArea)
-                {
-                    SecureAreaItem.Visibility = ShowSecureArea ? Visibility.Visible : Visibility.Collapsed;
+                    ApplicationData.Current.LocalSettings.Values["NavigationViewItemVisibilityMapping"] = JsonSerializer.Serialize(new Dictionary<string, bool>
+                    {
+                        { "RecycleBinItem", Dialog.RecycleBinItemChecked },
+                        { "QuickStartItem", Dialog.QuickStartItemChecked },
+                        { "SecureAreaItem", Dialog.SecureAreaItemChecked },
+                        { "BluetoothAudioItem", Dialog.BluetoothAudioItemChecked },
+                    });
                 }
-
-                if (ApplicationData.Current.LocalSettings.Values["ShouldShowBluetoothAudioItem"] is bool ShowBluetoothAudio)
-                {
-                    BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
-                }
-
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not save the configuration of navigation view items");
+            }
+            finally
+            {
                 ApplicationData.Current.SignalDataChanged();
             }
         }

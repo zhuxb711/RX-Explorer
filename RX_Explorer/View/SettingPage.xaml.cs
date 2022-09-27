@@ -1005,6 +1005,25 @@ namespace RX_Explorer.View
             }
         }
 
+        public static UIStyle ApplicationUIStyle
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["ApplicationUIStyle"] is string Style)
+                {
+                    return Enum.Parse<UIStyle>(Style);
+                }
+                else
+                {
+                    return UIStyle.Normal;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["ApplicationUIStyle"] = Enum.GetName(typeof(UIStyle), value);
+            }
+        }
+
         public static bool IsOpened { get; private set; }
 
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
@@ -1230,6 +1249,11 @@ namespace RX_Explorer.View
                     DisableSelectionAnimation.Unchecked += DisableSelectionAnimation_Changed;
                 }
 
+                if (ApplicationUIStyle == UIStyle.Clearly)
+                {
+                    NavigationViewLayoutArea.Visibility = Visibility.Collapsed;
+                }
+
                 ApplicationData.Current.DataChanged += Current_DataChanged;
 
                 if (PictureList.Count == 0)
@@ -1430,6 +1454,7 @@ namespace RX_Explorer.View
                 InterceptFolderSwitch.Toggled -= InterceptFolder_Toggled;
                 AutoBoot.Toggled -= AutoBoot_Toggled;
                 WindowsExplorerContextMenu.Toggled -= WindowsExplorerContextMenu_Toggled;
+                ApplicationStyleSwitch.Toggled -= ApplicationStyleSwitch_Toggled;
                 HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
                 HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
                 AlwaysOpenInNewTab.Checked -= AlwaysOpenInNewTab_Checked;
@@ -1515,6 +1540,7 @@ namespace RX_Explorer.View
                 LoadWSLOnStartup.IsOn = IsLoadWSLFolderOnStartupEnabled;
                 AvoidRecycleBin.IsChecked = IsAvoidRecycleBinEnabled;
                 DeleteConfirmSwitch.IsOn = IsDoubleConfirmOnDeletionEnabled;
+                ApplicationStyleSwitch.IsOn = ApplicationUIStyle == UIStyle.Normal;
                 DefaultDisplayMode.SelectedIndex = DefaultDisplayModeIndex;
                 PredefineTagColorPicker1.SelectedColor = PredefineLabelForeground1;
                 PredefineTagColorPicker2.SelectedColor = PredefineLabelForeground2;
@@ -1657,13 +1683,14 @@ namespace RX_Explorer.View
 
                 UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
                 InterceptFolderSwitch.Toggled += InterceptFolder_Toggled;
-                DefaultTerminal.SelectionChanged += DefaultTerminal_SelectionChanged;
+                ApplicationStyleSwitch.Toggled += ApplicationStyleSwitch_Toggled;
                 AutoBoot.Toggled += AutoBoot_Toggled;
                 WindowsExplorerContextMenu.Toggled += WindowsExplorerContextMenu_Toggled;
                 HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
                 HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
                 AlwaysOpenInNewTab.Checked += AlwaysOpenInNewTab_Checked;
                 AlwaysOpenInNewTab.Unchecked += AlwaysOpenInNewTab_Unchecked;
+                DefaultTerminal.SelectionChanged += DefaultTerminal_SelectionChanged;
                 DefaultDisplayMode.SelectionChanged += DefaultDisplayMode_SelectionChanged;
                 DefaultProgramPriorityCombox.SelectionChanged += DefaultProgramPriorityCombox_SelectionChanged;
                 ShutdownButtonBehaviorCombox.SelectionChanged += ShutdownButtonBehaviorCombox_SelectionChanged;
@@ -4551,6 +4578,27 @@ namespace RX_Explorer.View
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(DoubleClickGoToParent_Toggled)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void ApplicationStyleSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ApplicationUIStyle = ApplicationStyleSwitch.IsOn ? UIStyle.Normal : UIStyle.Clearly;
+
+                if (!InfoTipController.Current.CheckIfAlreadyOpened(InfoTipType.UIStyleRestartRequired))
+                {
+                    InfoTipController.Current.Show(InfoTipType.UIStyleRestartRequired);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ApplicationStyleSwitch_Toggled)}");
             }
             finally
             {

@@ -7,20 +7,23 @@
                          mc:Ignorable="d"
                          Title="{x:Bind Cls:Globalization.GetString('CustomText')}"
                          PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
-                         SecondaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
-                         PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
+                         SecondaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}">
 
     <StackPanel>
         <CheckBox Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"
                   IsChecked="True"
                   IsEnabled="False" />
         <CheckBox Name="RecycleBinItemCheckBox"
+                  IsChecked="{x:Bind RecycleBinItemChecked,Mode=TwoWay}"
                   Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}" />
         <CheckBox Name="QuickStartItemCheckBox"
+                  IsChecked="{x:Bind QuickStartItemChecked,Mode=TwoWay}"
                   Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}" />
         <CheckBox Name="SecureAreaItemCheckBox"
+                  IsChecked="{x:Bind SecureAreaItemChecked,Mode=TwoWay}"
                   Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}" />
         <CheckBox Name="BluetoothAudioItemCheckBox"
+                  IsChecked="{x:Bind BluetoothAudioItemChecked,Mode=TwoWay}"
                   Content="{x:Bind Cls:Globalization.GetString('BluetoothAudio/Text')}" />
     </StackPanel>
 </Cls:QueueContentDialog>

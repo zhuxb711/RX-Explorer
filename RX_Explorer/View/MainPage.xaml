@@ -7,6 +7,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
+      xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
       mc:Ignorable="d"
       RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}">
 
@@ -340,7 +341,7 @@
         </muxc:TeachingTip>
     </Page.Resources>
 
-    <Grid x:Name="RootGrid">
+    <Grid>
         <Grid x:Name="BackgroundEffectArea"
               Visibility="{x:Bind Cls:BackgroundController.Current.IsMicaEffectEnabled,Mode=OneWay,Converter={StaticResource InverseConverter}}">
             <Border Name="CompositorAcrylicBackground"
@@ -361,117 +362,138 @@
             </Border>
         </Grid>
 
-        <muxc:NavigationView Name="NavView"
-                             x:FieldModifier="public"
-                             Opacity="0"
-                             PaneDisplayMode="Top"
-                             IsTitleBarAutoPaddingEnabled="True"
-                             SelectionFollowsFocus="Disabled"
-                             IsRightTapEnabled="True"
-                             IsHoldingEnabled="True"
-                             Holding="NavView_Holding"
-                             BackRequested="NavView_BackRequested"
-                             ItemInvoked="NavView_ItemInvoked"
-                             PaneClosing="NavView_PaneClosing"
-                             PaneOpening="NavView_PaneOpening"
-                             RightTapped="NavView_RightTapped"
-                             Loaded="NavView_Loaded">
-            <muxc:NavigationView.Resources>
-                <SolidColorBrush x:Key="NavigationViewTopPaneBackground"
-                                 Color="Transparent" />
-                <SolidColorBrush x:Key="NavigationViewContentBackground"
-                                 Color="Transparent" />
-                <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush"
-                                 Color="Transparent" />
-                <StaticResource x:Key="NavigationViewExpandedPaneBackground"
-                                ResourceKey="ElementCustomAcrylicBrush" />
-                <StaticResource x:Key="NavigationViewDefaultPaneBackground"
-                                ResourceKey="ElementCustomAcrylicBrush" />
-            </muxc:NavigationView.Resources>
-            <muxc:NavigationView.MenuItems>
-                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"
-                                         IsSelected="True">
-                    <muxc:NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xE8CC;" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}"
-                                         Name="RecycleBinItem">
-                    <muxc:NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xE107;" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem x:Name="QuickStartItem"
-                                         Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
-                                         SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xE179;"
-                                  x:Name="QuickStartIcon" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}"
-                                         Name="SecureAreaItem">
-                    <muxc:NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="ProtectedDocument" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem x:Name="BluetoothAudioItem"
-                                         SelectsOnInvoked="False">
-                    <RelativePanel>
-                        <TextBlock Text="蓝牙音频"
-                                   Name="BluetoothAudioText"
-                                   x:Uid="BluetoothAudio" />
-                        <Viewbox Margin="10,0,0,0"
-                                 Height="15"
-                                 RelativePanel.RightOf="BluetoothAudioText"
-                                 RelativePanel.AlignVerticalCenterWith="BluetoothAudioText">
-                            <FontIcon Glyph="&#xE9CE;"
-                                      Name="BluetoothAudioQuestion"
-                                      PointerPressed="BluetoothAudioQuestion_PointerPressed" />
-                        </Viewbox>
-                    </RelativePanel>
-                    <muxc:NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xE702;"
-                                  x:Name="BluetoothAudioIcon" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-            </muxc:NavigationView.MenuItems>
-            <muxc:NavigationView.Content>
+        <control:SwitchPresenter Name="ModeSwitcher"
+                                 x:FieldModifier="public">
+            <control:Case Value="Normal">
+                <Grid>
+                    <muxc:NavigationView Name="NavView"
+                                         x:FieldModifier="public"
+                                         Opacity="0"
+                                         PaneDisplayMode="Top"
+                                         IsTitleBarAutoPaddingEnabled="True"
+                                         SelectionFollowsFocus="Disabled"
+                                         IsRightTapEnabled="True"
+                                         IsHoldingEnabled="True"
+                                         Holding="NavView_Holding"
+                                         BackRequested="NavView_BackRequested"
+                                         ItemInvoked="NavView_ItemInvoked"
+                                         PaneClosing="NavView_PaneClosing"
+                                         PaneOpening="NavView_PaneOpening"
+                                         RightTapped="NavView_RightTapped"
+                                         Loaded="NavView_Loaded">
+                        <muxc:NavigationView.Resources>
+                            <SolidColorBrush x:Key="NavigationViewTopPaneBackground"
+                                             Color="Transparent" />
+                            <SolidColorBrush x:Key="NavigationViewContentBackground"
+                                             Color="Transparent" />
+                            <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush"
+                                             Color="Transparent" />
+                            <StaticResource x:Key="NavigationViewExpandedPaneBackground"
+                                            ResourceKey="ElementCustomAcrylicBrush" />
+                            <StaticResource x:Key="NavigationViewDefaultPaneBackground"
+                                            ResourceKey="ElementCustomAcrylicBrush" />
+                        </muxc:NavigationView.Resources>
+                        <muxc:NavigationView.MenuItems>
+                            <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"
+                                                     IsSelected="True">
+                                <muxc:NavigationViewItem.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xE8CC;" />
+                                </muxc:NavigationViewItem.Icon>
+                            </muxc:NavigationViewItem>
+                            <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}"
+                                                     Name="RecycleBinItem">
+                                <muxc:NavigationViewItem.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xE107;" />
+                                </muxc:NavigationViewItem.Icon>
+                            </muxc:NavigationViewItem>
+                            <muxc:NavigationViewItem x:Name="QuickStartItem"
+                                                     Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
+                                                     SelectsOnInvoked="False">
+                                <muxc:NavigationViewItem.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xE179;"
+                                              x:Name="QuickStartIcon" />
+                                </muxc:NavigationViewItem.Icon>
+                            </muxc:NavigationViewItem>
+                            <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}"
+                                                     Name="SecureAreaItem">
+                                <muxc:NavigationViewItem.Icon>
+                                    <SymbolIcon Symbol="ProtectedDocument" />
+                                </muxc:NavigationViewItem.Icon>
+                            </muxc:NavigationViewItem>
+                            <muxc:NavigationViewItem x:Name="BluetoothAudioItem"
+                                                     SelectsOnInvoked="False">
+                                <RelativePanel>
+                                    <TextBlock Text="蓝牙音频"
+                                               Name="BluetoothAudioText"
+                                               x:Uid="BluetoothAudio" />
+                                    <Viewbox Margin="10,0,0,0"
+                                             Height="15"
+                                             RelativePanel.RightOf="BluetoothAudioText"
+                                             RelativePanel.AlignVerticalCenterWith="BluetoothAudioText">
+                                        <FontIcon Glyph="&#xE9CE;"
+                                                  Name="BluetoothAudioQuestion"
+                                                  PointerPressed="BluetoothAudioQuestion_PointerPressed" />
+                                    </Viewbox>
+                                </RelativePanel>
+                                <muxc:NavigationViewItem.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xE702;"
+                                              x:Name="BluetoothAudioIcon" />
+                                </muxc:NavigationViewItem.Icon>
+                            </muxc:NavigationViewItem>
+                        </muxc:NavigationView.MenuItems>
+                        <muxc:NavigationView.Content>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Name="NormalBannerPanel"
+                                            ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}" />
+                                <Frame Name="NormalNav"
+                                       Navigating="Nav_Navigating"
+                                       Navigated="Nav_Navigated"
+                                       Grid.Row="1" />
+                            </Grid>
+                        </muxc:NavigationView.Content>
+                    </muxc:NavigationView>
+
+                    <Grid Height="32"
+                          Name="TitleLayout"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Margin="10,0,0,0">
+                        <Grid.TranslationTransition>
+                            <Vector3Transition />
+                        </Grid.TranslationTransition>
+                        <TextBlock FontSize="12"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   Name="AppName" />
+                    </Grid>
+                </Grid>
+            </control:Case>
+            <control:Case Value="Clearly">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <StackPanel Name="BannerPanel"
+                    <Frame Name="ClearlyNav"
+                           Navigating="Nav_Navigating" />
+                    <StackPanel Name="ClearlyBannerPanel"
+                                Grid.Row="1"
                                 ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}" />
-                    <Frame Name="Nav"
-                           Navigating="Nav_Navigating"
-                           Navigated="Nav_Navigated"
-                           x:FieldModifier="public"
-                           Grid.Row="2" />
                 </Grid>
-            </muxc:NavigationView.Content>
-        </muxc:NavigationView>
+            </control:Case>
+        </control:SwitchPresenter>
 
-        <Grid Height="32"
-              Name="TitleLayout"
-              HorizontalAlignment="Left"
-              VerticalAlignment="Top"
-              Margin="10,0,0,0">
-            <Grid.TranslationTransition>
-                <Vector3Transition />
-            </Grid.TranslationTransition>
-            <TextBlock FontSize="12"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Center"
-                       Name="AppName" />
-        </Grid>
 
         <local:SettingPage x:Name="Settings"
+                           x:FieldModifier="public"
                            Visibility="Collapsed" />
 
         <Border x:Name="TitleBar"

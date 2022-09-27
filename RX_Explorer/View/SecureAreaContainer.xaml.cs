@@ -8,6 +8,8 @@ namespace RX_Explorer.View
     {
         public static SecureAreaContainer Current { get; private set; }
 
+        public Frame NavFrame { get => Nav; }
+
         public SecureAreaContainer()
         {
             InitializeComponent();

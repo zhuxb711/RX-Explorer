@@ -3697,4 +3697,22 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" xml:space="preserve">
     <value>El archivo de configuración que se está importando no es de la computadora actual. La importación de archivos de configuración de fuentes desconocidas puede suponer un riesgo para la seguridad. ¿Quieres seguir importando?</value>
   </data>
+  <data name="SystemTip_UIStyleRestartContent" xml:space="preserve">
+    <value>Reinicie la aplicación para activar el nuevo estilo de interfaz de usuario. No se recomienda que continúe usando esta aplicación, el nuevo estilo de interfaz de usuario entrará en vigencia en el próximo lanzamiento</value>
+  </data>
+  <data name="ApplicationStyleContent.Text" xml:space="preserve">
+    <value>Esta opción se utiliza para cambiar entre los estilos "Regular" y "Minimalista". Nota: cambiar esta opción requerirá reiniciar la aplicación</value>
+  </data>
+  <data name="ApplicationStyleLabel.Text" xml:space="preserve">
+    <value>Estilo de interfaz de usuario de la aplicación</value>
+  </data>
+  <data name="SettingButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Ajustes</value>
+  </data>
+  <data name="ApplicationStyleSwitch.OffContent" xml:space="preserve">
+    <value>Minimalista</value>
+  </data>
+  <data name="ApplicationStyleSwitch.OnContent" xml:space="preserve">
+    <value>Regular</value>
+  </data>
 </root>

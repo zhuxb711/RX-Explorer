@@ -1,60 +1,48 @@
 ﻿using RX_Explorer.Class;
 using System.Collections.Generic;
+using System.Text.Json;
 using Windows.Storage;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer.Dialog
 {
     public sealed partial class EditNavigationViewItemDialog : QueueContentDialog
     {
+        public bool RecycleBinItemChecked { get; private set; } = true;
+
+        public bool QuickStartItemChecked { get; private set; } = true;
+
+        public bool SecureAreaItemChecked { get; private set; } = true;
+
+        public bool BluetoothAudioItemChecked { get; private set; } = true;
+
         public EditNavigationViewItemDialog()
         {
             InitializeComponent();
 
-            if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
+            if (ApplicationData.Current.LocalSettings.Values["NavigationViewItemVisibilityMapping"] is string MappingJson)
             {
-                RecycleBinItemCheckBox.IsChecked = ShowRecycleBin;
-            }
-            else
-            {
-                RecycleBinItemCheckBox.IsChecked = true;
-            }
+                IReadOnlyDictionary<string, bool> Mapping = JsonSerializer.Deserialize<IReadOnlyDictionary<string, bool>>(MappingJson);
 
-            if (ApplicationData.Current.LocalSettings.Values["ShouldShowQuickStartItem"] is bool ShowQuickStart)
-            {
-                QuickStartItemCheckBox.IsChecked = ShowQuickStart;
-            }
-            else
-            {
-                QuickStartItemCheckBox.IsChecked = true;
-            }
+                if (Mapping.TryGetValue("RecycleBinItem", out bool IsCheckRecycleBinItem))
+                {
+                    RecycleBinItemChecked = IsCheckRecycleBinItem;
+                }
 
-            if (ApplicationData.Current.LocalSettings.Values["ShouldShowSecureAreaItem"] is bool ShowSecureArea)
-            {
-                SecureAreaItemCheckBox.IsChecked = ShowSecureArea;
-            }
-            else
-            {
-                SecureAreaItemCheckBox.IsChecked = true;
-            }
+                if (Mapping.TryGetValue("QuickStartItem", out bool IsCheckQuickStartItem))
+                {
+                    QuickStartItemChecked = IsCheckQuickStartItem;
+                }
 
-            if (ApplicationData.Current.LocalSettings.Values["ShouldShowBluetoothAudioItem"] is bool ShowBluetoothAudio)
-            {
-                BluetoothAudioItemCheckBox.IsChecked = ShowBluetoothAudio;
-            }
-            else
-            {
-                BluetoothAudioItemCheckBox.IsChecked = true;
-            }
-        }
+                if (Mapping.TryGetValue("SecureAreaItem", out bool IsCheckSecureAreaItem))
+                {
+                    SecureAreaItemChecked = IsCheckSecureAreaItem;
+                }
 
-        private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
-        {
-            ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] = RecycleBinItemCheckBox.IsChecked.GetValueOrDefault();
-            ApplicationData.Current.LocalSettings.Values["ShouldShowQuickStartItem"] = QuickStartItemCheckBox.IsChecked.GetValueOrDefault();
-            ApplicationData.Current.LocalSettings.Values["ShouldShowSecureAreaItem"] = SecureAreaItemCheckBox.IsChecked.GetValueOrDefault();
-            ApplicationData.Current.LocalSettings.Values["ShouldShowBluetoothAudioItem"] = BluetoothAudioItemCheckBox.IsChecked.GetValueOrDefault();
+                if (Mapping.TryGetValue("BluetoothAudioItem", out bool IsCheckBluetoothAudioItem))
+                {
+                    BluetoothAudioItemChecked = IsCheckBluetoothAudioItem;
+                }
+            }
         }
     }
 }

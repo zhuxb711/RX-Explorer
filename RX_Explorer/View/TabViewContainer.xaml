@@ -72,120 +72,165 @@
                       SelectionChanged="TabViewControl_SelectionChanged"
                       TabCloseRequested="TabViewControl_TabCloseRequested"
                       AddTabButtonClick="TabViewControl_AddTabButtonClick">
-            <muxc:TabView.TabStripFooter>
-                <StackPanel Orientation="Horizontal"
-                            Margin="0,0,0,5"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            Height="28">
+            <muxc:TabView.TabStripHeader>
+                <Grid>
                     <Button Width="35"
-                            VerticalAlignment="Stretch"
-                            Click="VerticalSplitViewButton_Click"
-                            x:Name="VerticalSplitViewButton"
-                            x:Uid="VerticalSplitViewButton"
-                            ToolTipService.ToolTip="创建新的垂直拆分视图"
+                            Height="30"
+                            Margin="10,0,0,0"
+                            HorizontalContentAlignment="Center"
+                            VerticalAlignment="Bottom"
+                            x:Name="AltGoBackButton"
+                            Visibility="Collapsed"
+                            Click="AltGoBackButton_Click"
+                            ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('FileControlBackButton/ToolTipService/ToolTip')}"
                             Style="{StaticResource CustomTabViewStripButtonStyle}">
                         <Viewbox VerticalAlignment="Center"
                                  HorizontalAlignment="Center"
-                                 Width="20"
-                                 Height="20">
-                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xEA61;" />
+                                 Width="16"
+                                 Height="16">
+                            <SymbolIcon Symbol="Back" />
                         </Viewbox>
                     </Button>
-                    <Button Name="TaskListPanelButton"
-                            ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('TaskListPanelTitle/Text')}"
-                            Margin="1,0"
-                            Width="35"
-                            VerticalAlignment="Stretch"
-                            Click="TaskListPanelButton_Click"
-                            Style="{StaticResource CustomTabViewStripButtonStyle}">
-                        <Grid ChildrenTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
-                            <Viewbox Visibility="{x:Bind TaskListProgress.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
-                                     VerticalAlignment="Center"
+                </Grid>
+            </muxc:TabView.TabStripHeader>
+            <muxc:TabView.TabStripFooter>
+                <Grid>
+                    <Grid x:Name="TitleBar"
+                          Background="Transparent"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"/>
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,0,0,5"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                Height="28"
+                                Name="FunctionButtonArea">
+                        <Button Width="35"
+                                VerticalAlignment="Stretch"
+                                Click="VerticalSplitViewButton_Click"
+                                x:Name="VerticalSplitViewButton"
+                                x:Uid="VerticalSplitViewButton"
+                                ToolTipService.ToolTip="创建新的垂直拆分视图"
+                                Style="{StaticResource CustomTabViewStripButtonStyle}">
+                            <Viewbox VerticalAlignment="Center"
                                      HorizontalAlignment="Center"
                                      Width="20"
                                      Height="20">
                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Glyph="&#xE7C4;" />
+                                          Glyph="&#xEA61;" />
                             </Viewbox>
-                            <muxc:InfoBadge Name="TaskListBadge"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Center"
-                                            Width="14"
-                                            Height="14"
-                                            Background="{ThemeResource SystemBaseHighColor}"
-                                            Visibility="{x:Bind TaskListProgress.Visibility,Mode=OneWay}" />
-                            <muxc:ProgressRing Minimum="0"
-                                               Maximum="100"
-                                               Value="0"
-                                               Width="24"
-                                               Height="24"
-                                               Name="TaskListProgress"
-                                               Visibility="Collapsed"
-                                               IsActive="True"
-                                               IsIndeterminate="False"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center" />
-                        </Grid>
-                    </Button>
-                    <Button Width="35"
-                            VerticalAlignment="Stretch"
-                            x:Uid="ViewModeControl"
-                            IsEnabled="{x:Bind LayoutModeControl.IsEnabled,Mode=OneWay}"
-                            Style="{StaticResource CustomTabViewStripButtonStyle}">
-                        <Viewbox VerticalAlignment="Center"
-                                 HorizontalAlignment="Center"
-                                 Width="20"
-                                 Height="20">
-                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xF246;" />
-                        </Viewbox>
-                        <Button.Flyout>
-                            <Flyout Placement="BottomEdgeAlignedRight"
-                                    x:Name="ViewModeFlyout">
-                                <Flyout.FlyoutPresenterStyle>
-                                    <Style TargetType="FlyoutPresenter">
-                                        <Setter Property="CornerRadius"
-                                                Value="{StaticResource CustomCornerRadius}" />
-                                        <Setter Property="Padding"
-                                                Value="0" />
-                                        <Setter Property="Background"
-                                                Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
-                                    </Style>
-                                </Flyout.FlyoutPresenterStyle>
-                                <Grid Padding="10">
-                                    <ListView x:Name="ViewModeList"
-                                              SelectionMode="Single"
-                                              Width="220"
-                                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
-                                              ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
-                                              SelectedIndex="{x:Bind LayoutModeControl.ViewModeIndex,Mode=TwoWay}"
-                                              SelectionChanged="ViewModeList_SelectionChanged">
-                                        <ListView.ItemTemplate>
-                                            <DataTemplate x:DataType="Cls:LayoutModeModel">
-                                                <Grid Windows11NotPresent:Padding="10">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="20" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <Viewbox HorizontalAlignment="Stretch"
-                                                             VerticalAlignment="Center">
-                                                        <FontIcon Glyph="{x:Bind IconGlyph}" />
-                                                    </Viewbox>
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{x:Bind DisplayName}"
-                                                               VerticalAlignment="Center"
-                                                               Margin="10,0,0,0" />
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ListView.ItemTemplate>
-                                    </ListView>
-                                </Grid>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-                </StackPanel>
+                        </Button>
+                        <Button Name="TaskListPanelButton"
+                                ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('TaskListPanelTitle/Text')}"
+                                Margin="1,0,0,0"
+                                Width="35"
+                                VerticalAlignment="Stretch"
+                                Click="TaskListPanelButton_Click"
+                                Style="{StaticResource CustomTabViewStripButtonStyle}">
+                            <Grid ChildrenTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+                                <Viewbox Visibility="{x:Bind TaskListProgress.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Center"
+                                         Width="20"
+                                         Height="20">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xE7C4;" />
+                                </Viewbox>
+                                <muxc:InfoBadge Name="TaskListBadge"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                Width="14"
+                                                Height="14"
+                                                Background="{ThemeResource SystemBaseHighColor}"
+                                                Visibility="{x:Bind TaskListProgress.Visibility,Mode=OneWay}" />
+                                <muxc:ProgressRing Minimum="0"
+                                                   Maximum="100"
+                                                   Value="0"
+                                                   Width="24"
+                                                   Height="24"
+                                                   Name="TaskListProgress"
+                                                   Visibility="Collapsed"
+                                                   IsActive="True"
+                                                   IsIndeterminate="False"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
+                            </Grid>
+                        </Button>
+                        <Button Width="35"
+                                Margin="1,0,0,0"
+                                VerticalAlignment="Stretch"
+                                x:Uid="ViewModeControl"
+                                IsEnabled="{x:Bind LayoutModeControl.IsEnabled,Mode=OneWay}"
+                                Style="{StaticResource CustomTabViewStripButtonStyle}">
+                            <Viewbox VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     Width="20"
+                                     Height="20">
+                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                          Glyph="&#xF246;" />
+                            </Viewbox>
+                            <Button.Flyout>
+                                <Flyout Placement="BottomEdgeAlignedRight"
+                                        x:Name="ViewModeFlyout">
+                                    <Flyout.FlyoutPresenterStyle>
+                                        <Style TargetType="FlyoutPresenter">
+                                            <Setter Property="CornerRadius"
+                                                    Value="{StaticResource CustomCornerRadius}" />
+                                            <Setter Property="Padding"
+                                                    Value="0" />
+                                            <Setter Property="Background"
+                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                        </Style>
+                                    </Flyout.FlyoutPresenterStyle>
+                                    <Grid Padding="10">
+                                        <ListView x:Name="ViewModeList"
+                                                  SelectionMode="Single"
+                                                  Width="220"
+                                                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                                                  ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
+                                                  SelectedIndex="{x:Bind LayoutModeControl.ViewModeIndex,Mode=TwoWay}"
+                                                  SelectionChanged="ViewModeList_SelectionChanged">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="Cls:LayoutModeModel">
+                                                    <Grid Windows11NotPresent:Padding="10">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="20" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Viewbox HorizontalAlignment="Stretch"
+                                                                 VerticalAlignment="Center">
+                                                            <FontIcon Glyph="{x:Bind IconGlyph}" />
+                                                        </Viewbox>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{x:Bind DisplayName}"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="10,0,0,0" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </Grid>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
+                        <Button Name="SettingButton"
+                                Margin="1,0,0,0"
+                                Width="35"
+                                Visibility="Collapsed"
+                                VerticalAlignment="Stretch"
+                                x:Uid="SettingButton"
+                                Click="SettingButton_Click"
+                                Style="{StaticResource CustomTabViewStripButtonStyle}">
+                            <Viewbox VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     Width="20"
+                                     Height="20">
+                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                          Glyph="&#xE115;" />
+                            </Viewbox>
+                        </Button>
+                    </StackPanel>
+                </Grid>
             </muxc:TabView.TabStripFooter>
         </muxc:TabView>
     </Grid>

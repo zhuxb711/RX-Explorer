@@ -3695,4 +3695,22 @@
   <data name="QueueDialog_ImportConfiguration_HardwareMissMatch_Content" xml:space="preserve">
     <value>導入的配置文件不是來自當前計算機。 從未知來源導入配置文件可能會帶來安全風險。 是否要繼續導入？</value>
   </data>
+  <data name="SystemTip_UIStyleRestartContent" xml:space="preserve">
+    <value>請重新啟動應用程序以激活新的 UI 樣式。 不建議您繼續使用此應用，新的UI樣式將在下次啟動時生效</value>
+  </data>
+  <data name="ApplicationStyleContent.Text" xml:space="preserve">
+    <value>此選項用於在“常規”和“簡約”樣式之間切換。 注意：更改此選項將需要重新啟動應用程序</value>
+  </data>
+  <data name="ApplicationStyleLabel.Text" xml:space="preserve">
+    <value>應用程序界面風格</value>
+  </data>
+  <data name="SettingButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>設置</value>
+  </data>
+  <data name="ApplicationStyleSwitch.OffContent" xml:space="preserve">
+    <value>简约</value>
+  </data>
+  <data name="ApplicationStyleSwitch.OnContent" xml:space="preserve">
+    <value>常規</value>
+  </data>
 </root>

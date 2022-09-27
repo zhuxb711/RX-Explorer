@@ -4910,6 +4910,30 @@ Les noms non valides incluent
           <source>The configuration file being imported is not from the current computer. Importing configuration files from unknown sources may pose a security risk. Do you want to continue importing?</source>
           <target state="translated">Le fichier de configuration importé ne provient pas de l'ordinateur actuel. L'importation de fichiers de configuration à partir de sources inconnues peut poser un risque de sécurité. Voulez-vous continuer à importer?</target>
         </trans-unit>
+        <trans-unit id="SystemTip_UIStyleRestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the app to activate the new UI style. It is not recommended that you continue to use this app, the new UI style will take effect at the next launch</source>
+          <target state="translated">Veuillez redémarrer l'application pour activer le nouveau style d'interface utilisateur. Il n'est pas recommandé de continuer à utiliser cette application, le nouveau style d'interface utilisateur prendra effet au prochain lancement</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleContent.Text" translate="yes" xml:space="preserve">
+          <source>This option is used to switch between "Regular" and "Minimalistic" styles. Note: Changing this option will require a restart of the application</source>
+          <target state="translated">Cette option est utilisée pour basculer entre les styles "Normal" et "Minimaliste". Remarque : La modification de cette option nécessitera un redémarrage de l'application</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleLabel.Text" translate="yes" xml:space="preserve">
+          <source>Application UI style</source>
+          <target state="translated">Style d'interface utilisateur de l'application</target>
+        </trans-unit>
+        <trans-unit id="SettingButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Settings</source>
+          <target state="translated">Réglages</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Minimalistic</source>
+          <target state="translated">Minimaliste</target>
+        </trans-unit>
+        <trans-unit id="ApplicationStyleSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Regular</source>
+          <target state="translated">Habituel</target>
+        </trans-unit>
       </group>
     </body>
   </file>

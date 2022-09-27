@@ -207,8 +207,10 @@
                                                x:Uid="SettingBasicText"
                                                FontSize="18" />
                                     <Border Padding="20,10"
+                                            Margin="0,0,0,5"
                                             MinHeight="60"
                                             BorderThickness="1"
+                                            Name="NavigationViewLayoutArea"
                                             BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -235,6 +237,36 @@
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
                                                           Toggled="NavigationViewLayout_Toggled" />
+                                        </RelativePanel>
+                                    </Border>
+                                    <Border Padding="20,10"
+                                            MinHeight="60"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="ApplicationStyleSwitch"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="应用程序界面风格"
+                                                           x:Uid="ApplicationStyleLabel"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           x:Uid="ApplicationStyleContent"
+                                                           Text="此选项用于在“常规”和“简约”风格之间切换。注意: 更改此选项后需要重新启动本应用程序" />
+                                            </StackPanel>
+                                            <ToggleSwitch OnContent="常规"
+                                                          OffContent="简约"
+                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Name="ApplicationStyleSwitch"
+                                                          x:Uid="ApplicationStyleSwitch"
+                                                          RelativePanel.AlignRightWithPanel="True"
+                                                          RelativePanel.AlignVerticalCenterWithPanel="True" />
                                         </RelativePanel>
                                     </Border>
                                     <Border Margin="0,5,0,0"

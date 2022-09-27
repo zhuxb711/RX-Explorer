@@ -9,7 +9,6 @@
 
     <Grid>
         <Frame x:Name="Nav"
-               x:FieldModifier="public" 
                Navigated="Nav_Navigated"/>
     </Grid>
 </Page>
