@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FtpStorageFolder : FileSystemStorageFolder, IFtpStorageItem, INotWin32StorageItem, INotWin32StorageFolder
+    public class FtpStorageFolder : FileSystemStorageFolder, IFtpStorageItem, INotWin32StorageFolder
     {
         private readonly FtpFileData Data;
         private readonly FtpClientController ClientController;
@@ -51,9 +51,9 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        protected override Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override Task<StorageFolder> GetStorageItemCoreAsync()
         {
-            return Task.FromResult<IStorageItem>(null);
+            return Task.FromResult<StorageFolder>(null);
         }
 
         protected override Task LoadCoreAsync(bool ForceUpdate)

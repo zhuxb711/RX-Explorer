@@ -15,7 +15,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class MTPStorageFolder : FileSystemStorageFolder, IMTPStorageItem, INotWin32StorageItem, INotWin32StorageFolder
+    public class MTPStorageFolder : FileSystemStorageFolder, IMTPStorageItem, INotWin32StorageFolder
     {
         public string DeviceId => @$"\\?\{new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()}";
 
@@ -48,9 +48,9 @@ namespace RX_Explorer.Class
             return Task.CompletedTask;
         }
 
-        protected override Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override Task<StorageFolder> GetStorageItemCoreAsync()
         {
-            return Task.FromResult<IStorageItem>(null);
+            return Task.FromResult<StorageFolder>(null);
         }
 
         public override Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)

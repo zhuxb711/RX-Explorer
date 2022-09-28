@@ -1,6 +1,7 @@
 ﻿using FluentFTP;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
+using MorseCode.ITask;
 using RX_Explorer.Interface;
 using RX_Explorer.View;
 using SharedLibrary;
@@ -280,7 +281,7 @@ namespace RX_Explorer.Class
                 IEnumerable<FileSystemStorageItemBase> SpecialItems = Collection.Where((Item) => Item is INotWin32StorageItem or ILinkStorageFile or IUrlStorageFile);
                 IEnumerable<FileSystemStorageItemBase> NormalItems = Collection.Except(SpecialItems);
 
-                IEnumerable<(string Path, IStorageItem CoreItem)> CoreStorageItemTupleList = await Task.WhenAll(NormalItems.Select((Item) => Item.GetStorageItemAsync().ContinueWith((Previous) => (Item.Path, Previous.Result), TaskContinuationOptions.ExecuteSynchronously)));
+                IEnumerable<(string Path, IStorageItem CoreItem)> CoreStorageItemTupleList = await Task.WhenAll(NormalItems.Cast<ICoreFileSystemStorageItem<IStorageItem>>().Select((Item) => Item.GetStorageItemAsync().AsTask().ContinueWith((Previous) => (Item.Path, Previous.Result), TaskContinuationOptions.ExecuteSynchronously)));
 
                 IEnumerable<IStorageItem> CoreStorageItemList = CoreStorageItemTupleList.Select((Item) => Item.CoreItem).OfType<IStorageItem>();
                 IEnumerable<string> PathOnlyList = CoreStorageItemTupleList.Where((Tuple) => Tuple.CoreItem is null)

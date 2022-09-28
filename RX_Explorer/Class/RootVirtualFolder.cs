@@ -40,9 +40,9 @@ namespace RX_Explorer.Class
             return Task.CompletedTask;
         }
 
-        protected override Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override Task<StorageFolder> GetStorageItemCoreAsync()
         {
-            return Task.FromResult<IStorageItem>(null);
+            return Task.FromResult<StorageFolder>(null);
         }
 
         protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)

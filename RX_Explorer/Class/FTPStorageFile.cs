@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    internal class FtpStorageFile : FileSystemStorageFile, IFtpStorageItem, INotWin32StorageItem, INotWin32StorageFile
+    public class FtpStorageFile : FileSystemStorageFile, IFtpStorageItem, INotWin32StorageFile
     {
         private string InnerDisplayType;
         private readonly FtpFileData Data;
@@ -91,7 +91,7 @@ namespace RX_Explorer.Class
             return Task.FromResult<BitmapImage>(null);
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override async Task<StorageFile> GetStorageItemCoreAsync()
         {
             try
             {

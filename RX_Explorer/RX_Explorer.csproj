@@ -61,7 +61,7 @@
     <EnableGatekeeperAnalysis>true</EnableGatekeeperAnalysis>
     <DebugSymbols>true</DebugSymbols>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<NoLinkerSymbols>true</NoLinkerSymbols>
+    <NoLinkerSymbols>true</NoLinkerSymbols>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -89,7 +89,7 @@
     <EnableGatekeeperAnalysis>false</EnableGatekeeperAnalysis>
     <DebugSymbols>true</DebugSymbols>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<OutOfProcPDB>true</OutOfProcPDB>
+    <OutOfProcPDB>true</OutOfProcPDB>
   </PropertyGroup>
   <PropertyGroup>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
@@ -103,6 +103,7 @@
   <ItemGroup>
     <Compile Include="Class\AddressBlock.cs" />
     <Compile Include="Class\ExtendedDataFormats.cs" />
+    <Compile Include="Class\FileSystemStorageItemBaseGeneric.cs" />
     <Compile Include="Class\FtpClientController.cs" />
     <Compile Include="Class\FtpClientManager.cs" />
     <Compile Include="Class\FtpFileData.cs" />
@@ -248,6 +249,7 @@
     <Compile Include="Dialog\SecureAreaChangeLocationDialog.xaml.cs">
       <DependentUpon>SecureAreaChangeLocationDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Interface\ICoreFileSystemStorageItem.cs" />
     <Compile Include="Interface\IFtpStorageItem.cs" />
     <Compile Include="Interface\IMTPStorageItem.cs" />
     <Compile Include="Interface\INotWin32StorageFile.cs" />
@@ -843,6 +845,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
       <Version>2.8.1</Version>
+    </PackageReference>
+    <PackageReference Include="MorseCode.ITask">
+      <Version>2.0.3</Version>
     </PackageReference>
     <PackageReference Include="Nito.AsyncEx">
       <Version>5.1.2</Version>

@@ -14,7 +14,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class MTPStorageFile : FileSystemStorageFile, IMTPStorageItem, INotWin32StorageItem, INotWin32StorageFile
+    public class MTPStorageFile : FileSystemStorageFile, IMTPStorageItem, INotWin32StorageFile
     {
         private string InnerDisplayType;
 
@@ -150,7 +150,7 @@ namespace RX_Explorer.Class
             return Task.FromResult<IReadOnlyDictionary<string, string>>(new Dictionary<string, string>(Properties.Select((Prop) => new KeyValuePair<string, string>(Prop, string.Empty))));
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override async Task<StorageFile> GetStorageItemCoreAsync()
         {
             try
             {

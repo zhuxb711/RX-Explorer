@@ -74,7 +74,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override async Task<StorageFile> GetStorageItemCoreAsync()
         {
             try
             {

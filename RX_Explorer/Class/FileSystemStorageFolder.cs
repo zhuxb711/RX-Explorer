@@ -18,11 +18,11 @@ using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFolder : FileSystemStorageItemBase
+    public class FileSystemStorageFolder : FileSystemStorageItemBase<StorageFolder>
     {
         public override string Name => (System.IO.Path.GetPathRoot(Path)?.Equals(Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault() ? Path : System.IO.Path.GetFileName(Path);
 
-        public override string DisplayName => ((StorageItem as StorageFolder)?.DisplayName) ?? Name;
+        public override string DisplayName => (StorageItem?.DisplayName) ?? Name;
 
         public override string DisplayType => Type;
 
@@ -453,6 +453,8 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
+            await base.LoadCoreAsync(ForceUpdate);
+
             if (ForceUpdate)
             {
                 try
@@ -503,7 +505,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override async Task<StorageFolder> GetStorageItemCoreAsync()
         {
             try
             {

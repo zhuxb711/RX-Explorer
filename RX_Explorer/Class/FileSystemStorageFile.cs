@@ -16,13 +16,13 @@ using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFile : FileSystemStorageItemBase
+    public class FileSystemStorageFile : FileSystemStorageItemBase<StorageFile>
     {
         private string InnerDisplayType;
 
         public override string Type => string.IsNullOrEmpty(base.Type) ? Globalization.GetString("File_Admin_DisplayType") : base.Type;
 
-        public override string DisplayType => ((StorageItem as StorageFile)?.DisplayType) ?? (string.IsNullOrEmpty(InnerDisplayType) ? Type : InnerDisplayType);
+        public override string DisplayType => (StorageItem?.DisplayType) ?? (string.IsNullOrEmpty(InnerDisplayType) ? Type : InnerDisplayType);
 
         public override string DisplayName => Name;
 
@@ -159,6 +159,8 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
+            await base.LoadCoreAsync(ForceUpdate);
+
             try
             {
                 if (StorageItem == null)
@@ -232,7 +234,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override async Task<StorageFile> GetStorageItemCoreAsync()
         {
             try
             {

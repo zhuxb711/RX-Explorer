@@ -51,7 +51,7 @@ namespace RX_Explorer.Class
             await base.LoadCoreAsync(ForceUpdate);
         }
 
-        protected override async Task<IStorageItem> GetStorageItemCoreAsync()
+        protected override async Task<StorageFile> GetStorageItemCoreAsync()
         {
             if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
             {

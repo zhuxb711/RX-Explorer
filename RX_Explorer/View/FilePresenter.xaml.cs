@@ -4652,9 +4652,9 @@ namespace RX_Explorer.View
 
                                             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                             {
-                                                if (await CurrentFolder.CreateNewSubItemAsync($"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}", CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
+                                                if (await CurrentFolder.CreateNewSubItemAsync($"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}", CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                                                 {
-                                                    if (await Item.GetStorageItemAsync() is StorageFile DestinationFile)
+                                                    if (await NewFile.GetStorageItemAsync() is StorageFile DestinationFile)
                                                     {
                                                         await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp);
                                                         return;
