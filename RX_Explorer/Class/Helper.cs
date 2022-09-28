@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
@@ -28,9 +31,9 @@ namespace RX_Explorer.Class
 
             if (PropertiesDic.TryGetValue("System.FileDescription", out string Description))
             {
-                return string.IsNullOrEmpty(Description) ? (File.DisplayName.EndsWith(File.Type, StringComparison.OrdinalIgnoreCase) 
-                                                                            ? Path.GetFileNameWithoutExtension(File.DisplayName) 
-                                                                            : File.DisplayName) 
+                return string.IsNullOrEmpty(Description) ? (File.DisplayName.EndsWith(File.Type, StringComparison.OrdinalIgnoreCase)
+                                                                            ? Path.GetFileNameWithoutExtension(File.DisplayName)
+                                                                            : File.DisplayName)
                                                          : Description;
             }
 

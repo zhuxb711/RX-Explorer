@@ -11,6 +11,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.AccessControl;
@@ -830,6 +832,56 @@ namespace AuxiliaryTrustProcess
                 {
                     switch (Enum.Parse<AuxiliaryTrustProcessCommandType>(CommandValue["CommandType"]))
                     {
+                        case AuxiliaryTrustProcessCommandType.GetAvailableNetworkPort:
+                            {
+                                int Retry = 0;
+                                int RandomPort = 0;
+                                IPGlobalProperties IPProperties = IPGlobalProperties.GetIPGlobalProperties();
+
+                                IPEndPoint[] Listener = IPProperties.GetActiveTcpListeners();
+                                TcpConnectionInformation[] Connection = IPProperties.GetActiveTcpConnections();
+
+                                HashSet<int> TriedPorts = new HashSet<int>();
+                                Random Rand = new Random(Guid.NewGuid().GetHashCode());
+
+                                while (Retry < 200)
+                                {
+                                    while (true)
+                                    {
+                                        RandomPort = Rand.Next(1000, 30000);
+
+                                        if (!TriedPorts.Contains(RandomPort))
+                                        {
+                                            TriedPorts.Add(RandomPort);
+                                            break;
+                                        }
+                                    }
+
+
+                                    if (Connection.Select((Connection) => Connection.LocalEndPoint.Port)
+                                                  .Concat(Listener.Select((EndPoint) => EndPoint.Port))
+                                                  .Distinct()
+                                                  .All((CurrentPort) => CurrentPort != RandomPort))
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Retry++;
+                                    }
+                                }
+
+                                if (Retry < 200)
+                                {
+                                    Value.Add("Success", Convert.ToString(RandomPort));
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Could not get the available port after max retry times");
+                                }
+
+                                break;
+                            }
                         case AuxiliaryTrustProcessCommandType.SetWallpaperImage:
                             {
                                 string Path = CommandValue["Path"];

@@ -155,6 +155,7 @@
         GetRecyclePathFromOriginPath,
         GetFileAttribute,
         GetProcessHandle,
-        SetWallpaperImage
+        SetWallpaperImage,
+        GetAvailableNetworkPort
     }
 }

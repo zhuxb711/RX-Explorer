@@ -760,6 +760,7 @@ namespace RX_Explorer.View
                 Window.Current.SetTitleBar(TitleBar);
                 SettingButton.Visibility = Visibility.Visible;
                 AltGoBackButton.Visibility = Visibility.Visible;
+                RecycleButton.Visibility = Visibility.Visible;
                 FunctionButtonArea.Padding = new Thickness(0, 0, CoreApplication.GetCurrentView().TitleBar.SystemOverlayRightInset, 0);
             }
 

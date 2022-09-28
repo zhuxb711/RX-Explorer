@@ -506,6 +506,22 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public async Task<short> GetAvailableNetworkPortAsync()
+        {
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetAvailableNetworkPort);
+
+            if (Response.TryGetValue("Success", out string RawText))
+            {
+                return Convert.ToInt16(RawText);
+            }
+            else if (Response.TryGetValue("Error", out string ErrorMessage))
+            {
+                LogTracer.Log($"An unexpected error was threw in {nameof(GetAvailableNetworkPortAsync)}, message: {ErrorMessage}");
+            }
+
+            throw new Exception("Could not get an available port");
+        }
+
         public async Task<bool> SetWallpaperImageAsync(string Path)
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.SetWallpaperImage, ("Path", Path));

@@ -108,6 +108,7 @@
                         <Button Name="RecycleButton"
                                 Width="35"
                                 VerticalAlignment="Stretch"
+                                Visibility="Collapsed"
                                 Click="RecycleButton_Click"
                                 ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}"
                                 Style="{StaticResource CustomTabViewStripButtonStyle}">

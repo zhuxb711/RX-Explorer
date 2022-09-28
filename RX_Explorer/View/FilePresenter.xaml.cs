@@ -4772,7 +4772,7 @@ namespace RX_Explorer.View
 
                 try
                 {
-                    WiFiProvider = new WiFiShareProvider(ShareFile);
+                    WiFiProvider = await WiFiShareProvider.CreateAsync(ShareFile);
                     WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
                     WiFiProvider.StartListenRequest();
 
