@@ -1418,5 +1418,10 @@ namespace RX_Explorer.View
                 CurrentTabRenderer.RendererFrame.GoBack();
             }
         }
+
+        private void RecycleButton_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentTabRenderer.RendererFrame.Navigate(typeof(RecycleBin), null, new DrillInNavigationTransitionInfo());
+        }
     }
 }

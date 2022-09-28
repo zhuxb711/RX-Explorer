@@ -23,6 +23,7 @@
                PaneBackground="{ThemeResource ElementCustomAcrylicBrush}">
         <Grid>
             <Frame Name="BaseFrame"
+                   Navigating="BaseFrame_Navigating"
                    Navigated="BaseFrame_Navigated" />
             <controls:Loading x:Name="LoadingControl"
                               IsLoading="False"

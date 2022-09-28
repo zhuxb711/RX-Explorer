@@ -16,7 +16,6 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -4758,62 +4757,65 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-            if (SelectedItem != null)
+            if (SelectedItem is FileSystemStorageFile ShareFile)
             {
                 if (QRTeachTip.IsOpen)
                 {
                     QRTeachTip.IsOpen = false;
                 }
 
-                await Task.Run(() =>
+                if (Interlocked.Exchange(ref WiFiProvider, null) is WiFiShareProvider PreviousProvider)
                 {
-                    SpinWait.SpinUntil(() => WiFiProvider == null);
-                });
-
-                WiFiProvider = new WiFiShareProvider();
-                WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
-
-                using (MD5 MD5Alg = MD5.Create())
-                {
-                    string Hash = MD5Alg.GetHash(SelectedItem.Path);
-                    QRText.Text = WiFiProvider.CurrentUri + Hash;
-                    WiFiProvider.FilePathMap = new KeyValuePair<string, string>(Hash, SelectedItem.Path);
+                    PreviousProvider.ThreadExitedUnexpectly -= WiFiProvider_ThreadExitedUnexpectly;
+                    PreviousProvider.Dispose();
                 }
 
-                QrCodeEncodingOptions options = new QrCodeEncodingOptions()
+                try
                 {
-                    DisableECI = true,
-                    CharacterSet = "UTF-8",
-                    Width = 250,
-                    Height = 250,
-                    ErrorCorrection = ErrorCorrectionLevel.Q
-                };
+                    WiFiProvider = new WiFiShareProvider(ShareFile);
+                    WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
+                    WiFiProvider.StartListenRequest();
 
-                BarcodeWriter Writer = new BarcodeWriter
-                {
-                    Format = BarcodeFormat.QR_CODE,
-                    Options = options
-                };
+                    BarcodeWriter Writer = new BarcodeWriter
+                    {
+                        Format = BarcodeFormat.QR_CODE,
+                        Options = new QrCodeEncodingOptions()
+                        {
+                            Width = 250,
+                            Height = 250,
+                            DisableECI = true,
+                            CharacterSet = "UTF-8",
+                            ErrorCorrection = ErrorCorrectionLevel.Q
+                        }
+                    };
 
-                WriteableBitmap Bitmap = Writer.Write(QRText.Text);
-                using (SoftwareBitmap PreTransImage = SoftwareBitmap.CreateCopyFromBuffer(Bitmap.PixelBuffer, BitmapPixelFormat.Bgra8, 250, 250))
-                using (SoftwareBitmap TransferImage = ComputerVisionProvider.ExtendImageBorder(PreTransImage, Colors.White, 0, 75, 75, 0))
-                {
-                    SoftwareBitmapSource Source = new SoftwareBitmapSource();
-                    QRImage.Source = Source;
-                    await Source.SetBitmapAsync(TransferImage);
+                    using (SoftwareBitmap PreTransImage = SoftwareBitmap.CreateCopyFromBuffer(Writer.Write(WiFiProvider.CurrentUri).PixelBuffer, BitmapPixelFormat.Bgra8, 250, 250))
+                    using (SoftwareBitmap TransferImage = ComputerVisionProvider.ExtendImageBorder(PreTransImage, Colors.White, 0, 75, 75, 0))
+                    {
+                        SoftwareBitmapSource Source = new SoftwareBitmapSource();
+                        QRImage.Source = Source;
+                        await Source.SetBitmapAsync(TransferImage);
+                    }
+
+                    QRText.Text = WiFiProvider.CurrentUri;
+                    QRTeachTip.Target = ItemPresenter.ContainerFromItem(ShareFile) as FrameworkElement;
+                    QRTeachTip.IsOpen = true;
                 }
+                catch (Exception ex)
+                {
+                    QRTeachTip.IsOpen = false;
 
-                await Task.Delay(500);
-
-                QRTeachTip.Target = ItemPresenter.ContainerFromItem(SelectedItem) as FrameworkElement;
-                QRTeachTip.IsOpen = true;
-
-                await WiFiProvider.StartToListenRequest().ConfigureAwait(false);
+                    await new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_WiFiError_Content") + ex.Message,
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    }.ShowAsync();
+                }
             }
         }
 
-        private async void WiFiProvider_ThreadExitedUnexpectly(object sender, Exception e)
+        private async void WiFiProvider_ThreadExitedUnexpectly(object sender, Exception ex)
         {
             await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
             {
@@ -4822,7 +4824,7 @@ namespace RX_Explorer.View
                 await new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_WiFiError_Content") + e.Message,
+                    Content = Globalization.GetString("QueueDialog_WiFiError_Content") + ex.Message,
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 }.ShowAsync();
             });
@@ -5710,9 +5712,11 @@ namespace RX_Explorer.View
 
         private void QRTeachTip_Closing(TeachingTip sender, TeachingTipClosingEventArgs args)
         {
-            QRImage.Source = null;
-            WiFiProvider.Dispose();
-            WiFiProvider = null;
+            if (Interlocked.Exchange(ref WiFiProvider, null) is WiFiShareProvider Provider)
+            {
+                Provider.ThreadExitedUnexpectly -= WiFiProvider_ThreadExitedUnexpectly;
+                Provider.Dispose();
+            }
         }
 
         private async void CreateFile_Click(object sender, RoutedEventArgs e)

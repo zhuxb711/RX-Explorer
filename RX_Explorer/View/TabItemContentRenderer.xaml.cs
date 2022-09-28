@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Navigation;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 using FontIconSource = Microsoft.UI.Xaml.Controls.FontIconSource;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
+using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.View
 {
@@ -273,20 +274,47 @@ namespace RX_Explorer.View
                 BaseControl = Control;
             }
 
-            if (e.Content is FileControl)
+            switch (e.Content)
             {
-                if (CurrentPresenter?.CurrentFolder != null)
-                {
-                    TabItem.IconSource = new ImageIconSource { ImageSource = await CurrentPresenter.CurrentFolder.GetThumbnailAsync(ThumbnailMode.ListView) };
-                }
-                else
-                {
-                    TabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
-                }
-            }
-            else
-            {
-                TabItem.IconSource = new FontIconSource { Glyph = "\uE8A1" };
+                case FileControl:
+                    {
+                        if (CurrentPresenter?.CurrentFolder is FileSystemStorageFolder Folder)
+                        {
+                            TabItem.IconSource = new ImageIconSource
+                            {
+                                ImageSource = await Folder.GetThumbnailAsync(ThumbnailMode.ListView)
+                            };
+                        }
+                        else
+                        {
+                            TabItem.IconSource = new SymbolIconSource
+                            {
+                                Symbol = Symbol.Document
+                            };
+                        }
+
+                        break;
+                    }
+                case RecycleBin:
+                    {
+                        TabItem.IconSource = new FontIconSource
+                        {
+                            Glyph = "\uE07F",
+                            FontFamily = new FontFamily("Segoe MDL2 Assets")
+                        };
+
+                        break;
+                    }
+                default:
+                    {
+                        TabItem.IconSource = new FontIconSource
+                        {
+                            Glyph = "\uE18B",
+                            FontFamily = new FontFamily("Segoe MDL2 Assets")
+                        };
+
+                        break;
+                    }
             }
 
             if (TabItem.Header is TextBlock HeaderBlock)
@@ -301,6 +329,7 @@ namespace RX_Explorer.View
                     SearchPage => Globalization.GetString("BuildIn_SearchPage_Description"),
                     CompressionViewer => Globalization.GetString("BuildIn_CompressionViewer_Description"),
                     FileControl => CurrentPresenter?.CurrentFolder?.DisplayName ?? $"<{Globalization.GetString("UnknownText")}>",
+                    RecycleBin => Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"),
                     _ => $"<{Globalization.GetString("UnknownText")}>"
                 };
             }
@@ -330,6 +359,14 @@ namespace RX_Explorer.View
         {
             GC.SuppressFinalize(this);
             BaseControl?.Dispose();
+        }
+
+        private void BaseFrame_Navigating(object sender, NavigatingCancelEventArgs e)
+        {
+            if (BaseFrame.CurrentSourcePageType == e.SourcePageType)
+            {
+                e.Cancel = true;
+            }
         }
 
         ~TabItemContentRenderer()

@@ -105,7 +105,22 @@
                                 VerticalAlignment="Bottom"
                                 Height="28"
                                 Name="FunctionButtonArea">
+                        <Button Name="RecycleButton"
+                                Width="35"
+                                VerticalAlignment="Stretch"
+                                Click="RecycleButton_Click"
+                                ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}"
+                                Style="{StaticResource CustomTabViewStripButtonStyle}">
+                            <Viewbox VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     Width="20"
+                                     Height="20">
+                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                          Glyph="&#xE107;" />
+                            </Viewbox>
+                        </Button>
                         <Button Width="35"
+                                Margin="1,0,0,0"
                                 VerticalAlignment="Stretch"
                                 Click="VerticalSplitViewButton_Click"
                                 x:Name="VerticalSplitViewButton"
