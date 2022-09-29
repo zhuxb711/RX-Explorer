@@ -169,18 +169,29 @@ namespace RX_Explorer.View
             {
                 await TaskBarController.SetTaskBarProgressAsync(e.ProgressValue);
 
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                 {
                     TaskListProgress.Value = e.ProgressValue;
 
                     if (e.ProgressValue >= 100)
                     {
-                        _ = Task.Delay(800).ContinueWith((_) => TaskListProgress.Visibility = Visibility.Collapsed, TaskScheduler.FromCurrentSynchronizationContext());
+                        await Task.Delay(800).ContinueWith((_) =>
+                        {
+                            TaskListProgress.Visibility = Visibility.Collapsed;
+                            TaskBarController.SetBadge(0);
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                     else
                     {
                         TaskListProgress.Visibility = Visibility.Visible;
-                        TaskListBadge.Value = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
+
+                        int CurrentTaskNumber = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
+
+                        if (TaskListBadge.Value != CurrentTaskNumber)
+                        {
+                            TaskListBadge.Value = CurrentTaskNumber;
+                            TaskBarController.SetBadge(Convert.ToUInt32(CurrentTaskNumber));
+                        }
                     }
                 });
             }
@@ -196,7 +207,13 @@ namespace RX_Explorer.View
 
         private void ListItemSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            TaskListBadge.Value = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
+            int CurrentTaskNumber = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
+
+            if (TaskListBadge.Value != CurrentTaskNumber)
+            {
+                TaskListBadge.Value = CurrentTaskNumber;
+                TaskBarController.SetBadge(Convert.ToUInt32(CurrentTaskNumber));
+            }
         }
 
         private async void CommonAccessCollection_LibraryNotFound(object sender, IEnumerable<string> ErrorList)

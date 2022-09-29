@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Windows.Data.Xml.Dom;
+using Windows.UI.Notifications;
 using Windows.UI.ViewManagement;
 
 namespace RX_Explorer.Class
@@ -14,6 +16,25 @@ namespace RX_Explorer.Class
             lock (Locker)
             {
                 ApplicationView.GetForCurrentView().Title = Text ?? string.Empty;
+            }
+        }
+
+        public static void SetBadge(uint Count)
+        {
+            if (Count > 0)
+            {
+                XmlDocument BadgeXml = BadgeUpdateManager.GetTemplateContent(BadgeTemplateType.BadgeNumber);
+
+                if (BadgeXml.SelectSingleNode("/badge") is XmlElement Element)
+                {
+                    Element.SetAttribute("value", Convert.ToString(Count));
+                }
+
+                BadgeUpdateManager.CreateBadgeUpdaterForApplication().Update(new BadgeNotification(BadgeXml));
+            }
+            else
+            {
+                BadgeUpdateManager.CreateBadgeUpdaterForApplication().Clear();
             }
         }
 
