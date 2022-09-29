@@ -48,6 +48,7 @@ using ZXing.QrCode;
 using ZXing.QrCode.Internal;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using RefreshRequestedEventArgs = RX_Explorer.Class.RefreshRequestedEventArgs;
+using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer.View
@@ -3128,7 +3129,20 @@ namespace RX_Explorer.View
 
         private async Task SetExtraInformationOnCurrentFolderAsync()
         {
-            Container.Renderer.TabItem.IconSource = new ImageIconSource { ImageSource = await CurrentFolder.GetThumbnailAsync(ThumbnailMode.ListView) };
+            try
+            {
+                Container.Renderer.TabItem.IconSource = new ImageIconSource
+                {
+                    ImageSource = await CurrentFolder.GetThumbnailAsync(ThumbnailMode.ListView)
+                };
+            }
+            catch (Exception)
+            {
+                Container.Renderer.TabItem.IconSource = new SymbolIconSource
+                {
+                    Symbol = Symbol.Document
+                };
+            }
 
             if (await CurrentFolder.GetStorageItemAsync() is StorageFolder CoreItem && CoreItem.Name != CoreItem.DisplayName)
             {

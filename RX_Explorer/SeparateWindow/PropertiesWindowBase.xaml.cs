@@ -1456,8 +1456,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                         {
                                                             if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
                                                             {
-                                                                FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
                                                                 FileOpenWithContent.Text = await Helper.GetExecuteableFileDisplayNameAsync(OpenWithFile);
+                                                                FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
                                                             }
                                                             else
                                                             {
@@ -1481,8 +1481,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                         {
                                             if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
                                             {
-                                                FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
                                                 FileOpenWithContent.Text = await Helper.GetExecuteableFileDisplayNameAsync(OpenWithFile);
+                                                FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
                                             }
                                             else
                                             {

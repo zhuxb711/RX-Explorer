@@ -328,9 +328,11 @@ namespace RX_Explorer.Class
 
         protected virtual async Task<BitmapImage> GetThumbnailCoreAsync()
         {
-            BitmapImage Thumbnail = await DriveFolder.GetThumbnailAsync(ThumbnailMode.SingleItem);
-
-            if (!string.IsNullOrEmpty(Thumbnail?.UriSource?.AbsoluteUri))
+            try
+            {
+                return await DriveFolder.GetThumbnailAsync(ThumbnailMode.SingleItem);
+            }
+            catch (Exception)
             {
                 switch (BitlockerStatusCode)
                 {
@@ -338,55 +340,46 @@ namespace RX_Explorer.Class
                         {
                             if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                Thumbnail = new BitmapImage(SystemDriveIconUri);
+                                return new BitmapImage(SystemDriveIconUri);
                             }
                             else if (DriveType == DriveType.Network)
                             {
-                                Thumbnail = new BitmapImage(NetworkDriveIconUri);
+                                return new BitmapImage(NetworkDriveIconUri);
                             }
                             else
                             {
-                                Thumbnail = new BitmapImage(NormalDriveIconUri);
+                                return new BitmapImage(NormalDriveIconUri);
                             }
-
-                            break;
                         }
                     case 6:
                         {
-                            Thumbnail = new BitmapImage(NormalDriveLockedIconUri);
-                            break;
+                            return new BitmapImage(NormalDriveLockedIconUri);
                         }
                     case 3:
                     case 2:
                         {
                             if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                Thumbnail = new BitmapImage(SystemDriveIconUri);
+                                return new BitmapImage(SystemDriveIconUri);
                             }
                             else
                             {
-                                Thumbnail = new BitmapImage(NormalDriveIconUri);
+                                return new BitmapImage(NormalDriveIconUri);
                             }
-
-                            break;
                         }
                     default:
                         {
                             if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                Thumbnail = new BitmapImage(SystemDriveUnLockedIconUri);
+                                return new BitmapImage(SystemDriveUnLockedIconUri);
                             }
                             else
                             {
-                                Thumbnail = new BitmapImage(NormalDriveUnLockedIconUri);
+                                return new BitmapImage(NormalDriveUnLockedIconUri);
                             }
-
-                            break;
                         }
                 }
             }
-
-            return Thumbnail;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)

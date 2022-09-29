@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 using Windows.Storage.FileProperties;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
-using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 using FontIconSource = Microsoft.UI.Xaml.Controls.FontIconSource;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
-using Windows.UI.Xaml.Media;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer.View
 {
@@ -280,10 +280,20 @@ namespace RX_Explorer.View
                     {
                         if (CurrentPresenter?.CurrentFolder is FileSystemStorageFolder Folder)
                         {
-                            TabItem.IconSource = new ImageIconSource
+                            try
                             {
-                                ImageSource = await Folder.GetThumbnailAsync(ThumbnailMode.ListView)
-                            };
+                                TabItem.IconSource = new ImageIconSource
+                                {
+                                    ImageSource = await Folder.GetThumbnailAsync(ThumbnailMode.ListView)
+                                };
+                            }
+                            catch (Exception)
+                            {
+                                TabItem.IconSource = new SymbolIconSource
+                                {
+                                    Symbol = Symbol.Document
+                                };
+                            }
                         }
                         else
                         {

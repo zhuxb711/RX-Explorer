@@ -861,25 +861,14 @@ namespace RX_Explorer.Class
                         {
                             await LoadCoreAsync(false);
 
-                            List<Task> ParallelLoadTasks = new List<Task>()
-                            {
-                                GetThumbnailOverlayAsync(),
-                            };
-
-                            if (ShouldGenerateThumbnail)
-                            {
-                                ParallelLoadTasks.Add(GetThumbnailAsync(ThumbnailMode));
-                            }
-
-                            if (SpecialPath.IsPathIncluded(Path, SpecialPathEnum.OneDrive)
-                                || SpecialPath.IsPathIncluded(Path, SpecialPathEnum.Dropbox))
-                            {
-                                ParallelLoadTasks.Add(GetSyncStatusAsync());
-                            }
-
                             CancelToken.ThrowIfCancellationRequested();
 
-                            await Task.WhenAll(ParallelLoadTasks);
+                            await Task.WhenAll(new Task[]
+                            {
+                                GetThumbnailOverlayAsync(),
+                                ShouldGenerateThumbnail? GetThumbnailAsync(ThumbnailMode) : Task.CompletedTask,
+                                SpecialPath.IsPathIncluded(Path, SpecialPathEnum.OneDrive) || SpecialPath.IsPathIncluded(Path, SpecialPathEnum.Dropbox) ? GetSyncStatusAsync() : Task.CompletedTask
+                            });
                         }
                     }
                     finally
@@ -944,13 +933,16 @@ namespace RX_Explorer.Class
 
         public virtual async Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
         {
-            if (await ((ICoreFileSystemStorageItem<IStorageItem>)this).GetStorageItemAsync() is IStorageItem Item)
+            if (this is ICoreFileSystemStorageItem<IStorageItem> CoreItem)
             {
-                SafeFileHandle Handle = await Task.Run(() => Item.GetSafeFileHandleAsync(Mode, Option));
-
-                if (!Handle.IsInvalid)
+                if (await CoreItem.GetStorageItemAsync() is IStorageItem Item)
                 {
-                    return Handle;
+                    SafeFileHandle Handle = await Task.Run(() => Item.GetSafeFileHandleAsync(Mode, Option));
+
+                    if (!Handle.IsInvalid)
+                    {
+                        return Handle;
+                    }
                 }
             }
 
@@ -1007,51 +999,52 @@ namespace RX_Explorer.Class
 
             IEnumerable<string> DistinctProperties = Properties.Distinct();
 
-            if (await ((ICoreFileSystemStorageItem<IStorageItem>)this).GetStorageItemAsync() is IStorageItem Item)
+            if (this is ICoreFileSystemStorageItem<IStorageItem> CoreItem)
             {
-                try
+                if (await CoreItem.GetStorageItemAsync() is IStorageItem Item)
                 {
-                    Dictionary<string, string> Result = new Dictionary<string, string>();
-
-                    BasicProperties Basic = await Item.GetBasicPropertiesAsync();
-                    IDictionary<string, object> UwpResult = await Basic.RetrievePropertiesAsync(DistinctProperties);
-
-                    List<string> MissingKeys = new List<string>(DistinctProperties.Except(UwpResult.Keys));
-
-                    foreach (KeyValuePair<string, object> Pair in UwpResult)
+                    try
                     {
-                        string Value = Pair.Value switch
-                        {
-                            IEnumerable<string> Array => string.Join(", ", Array),
-                            _ => Convert.ToString(Pair.Value)
-                        };
+                        Dictionary<string, string> Result = new Dictionary<string, string>();
 
-                        if (string.IsNullOrEmpty(Value))
+                        BasicProperties Basic = await Item.GetBasicPropertiesAsync();
+                        IDictionary<string, object> UwpResult = await Basic.RetrievePropertiesAsync(DistinctProperties);
+
+                        List<string> MissingKeys = new List<string>(DistinctProperties.Except(UwpResult.Keys));
+
+                        foreach (KeyValuePair<string, object> Pair in UwpResult)
                         {
-                            MissingKeys.Add(Pair.Key);
+                            string Value = Pair.Value switch
+                            {
+                                IEnumerable<string> Array => string.Join(", ", Array),
+                                _ => Convert.ToString(Pair.Value)
+                            };
+
+                            if (string.IsNullOrEmpty(Value))
+                            {
+                                MissingKeys.Add(Pair.Key);
+                            }
+                            else
+                            {
+                                Result.Add(Pair.Key, Value);
+                            }
                         }
-                        else
+
+                        if (MissingKeys.Count > 0)
                         {
-                            Result.Add(Pair.Key, Value);
+                            Result.AddRange(await GetPropertiesCoreAsync(MissingKeys));
                         }
+
+                        return Result;
                     }
-
-                    if (MissingKeys.Count > 0)
+                    catch (Exception)
                     {
-                        Result.AddRange(await GetPropertiesCoreAsync(MissingKeys));
+                        //No need to handle this exception
                     }
-
-                    return Result;
-                }
-                catch
-                {
-                    return await GetPropertiesCoreAsync(DistinctProperties);
                 }
             }
-            else
-            {
-                return await GetPropertiesCoreAsync(DistinctProperties);
-            }
+
+            return await GetPropertiesCoreAsync(DistinctProperties);
         }
 
         public virtual async Task MoveAsync(string DirectoryPath, string NewName = null, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
@@ -1229,69 +1222,57 @@ namespace RX_Explorer.Class
 
         protected virtual async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            try
+            if (this is ICoreFileSystemStorageItem<IStorageItem> CoreItem)
             {
-                if (await ((ICoreFileSystemStorageItem<IStorageItem>)this).GetStorageItemAsync(ForceUpdate)is IStorageItem Item)
+                if (await CoreItem.GetStorageItemAsync(ForceUpdate) is IStorageItem Item)
                 {
                     if (await Item.GetThumbnailBitmapAsync(Mode) is BitmapImage LocalThumbnail)
                     {
                         return LocalThumbnail;
                     }
                 }
-
-                try
-                {
-                    if (GetBulkAccessSharedController(out var ControllerRef))
-                    {
-                        using (ControllerRef)
-                        using (IRandomAccessStream ThumbnailStream = await ControllerRef.Value.Controller.GetThumbnailAsync(Type))
-                        {
-                            return await Helper.CreateBitmapImageAsync(ThumbnailStream);
-                        }
-                    }
-                    else
-                    {
-                        using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
-                        using (IRandomAccessStream ThumbnailStream = await Exclusive.Controller.GetThumbnailAsync(Type))
-                        {
-                            return await Helper.CreateBitmapImageAsync(ThumbnailStream);
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
             }
-            catch (Exception ex)
+
+            if (GetBulkAccessSharedController(out var ControllerRef))
             {
-                LogTracer.Log(ex, $"Could not get thumbnail of path: \"{Path}\"");
+                using (ControllerRef)
+                using (IRandomAccessStream ThumbnailStream = await ControllerRef.Value.Controller.GetThumbnailAsync(Type))
+                {
+                    return await Helper.CreateBitmapImageAsync(ThumbnailStream);
+                }
             }
-
-            return null;
+            else
+            {
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                using (IRandomAccessStream ThumbnailStream = await Exclusive.Controller.GetThumbnailAsync(Type))
+                {
+                    return await Helper.CreateBitmapImageAsync(ThumbnailStream);
+                }
+            }
         }
 
         protected virtual async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            if (await ((ICoreFileSystemStorageItem<IStorageItem>)this).GetStorageItemAsync(ForceUpdate) is IStorageItem Item)
+            if (this is ICoreFileSystemStorageItem<IStorageItem> CoreItem)
             {
-                return await Item.GetThumbnailRawStreamAsync(Mode);
+                if (await CoreItem.GetStorageItemAsync(ForceUpdate) is IStorageItem Item)
+                {
+                    return await Item.GetThumbnailRawStreamAsync(Mode);
+                }
+            }
+
+            if (GetBulkAccessSharedController(out var ControllerRef))
+            {
+                using (ControllerRef)
+                {
+                    return await ControllerRef.Value.Controller.GetThumbnailAsync(Type);
+                }
             }
             else
             {
-                if (GetBulkAccessSharedController(out var ControllerRef))
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    using (ControllerRef)
-                    {
-                        return await ControllerRef.Value.Controller.GetThumbnailAsync(Type);
-                    }
-                }
-                else
-                {
-                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
-                    {
-                        return await Exclusive.Controller.GetThumbnailAsync(Type);
-                    }
+                    return await Exclusive.Controller.GetThumbnailAsync(Type);
                 }
             }
         }
