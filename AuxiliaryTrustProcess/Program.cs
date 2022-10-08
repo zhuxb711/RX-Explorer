@@ -2801,8 +2801,38 @@ namespace AuxiliaryTrustProcess
                             {
                                 string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
                                 string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper");
+                                string VersionLockPath = Path.Combine(SystemLaunchHelperTargetBaseFolder, "Version.lock");
+                                string CurrentVersion = Helper.GetInstalledUwpApplicationVersion(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName));
 
-                                Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+                                bool NeedsUpdateSystemLaunchHelper = false;
+
+                                if (File.Exists(VersionLockPath))
+                                {
+                                    using (StreamReader Reader = File.OpenText(VersionLockPath))
+                                    {
+                                        if (Reader.ReadLine() != CurrentVersion)
+                                        {
+                                            NeedsUpdateSystemLaunchHelper = true;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    NeedsUpdateSystemLaunchHelper = true;
+                                }
+
+                                if (NeedsUpdateSystemLaunchHelper)
+                                {
+                                    Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+
+                                    if (!string.IsNullOrEmpty(CurrentVersion))
+                                    {
+                                        using (StreamWriter Writer = File.CreateText(VersionLockPath))
+                                        {
+                                            Writer.WriteLine(CurrentVersion);
+                                        }
+                                    }
+                                }
 
                                 using (Process HelperProcess = Process.Start(new ProcessStartInfo
                                 {
@@ -2816,12 +2846,11 @@ namespace AuxiliaryTrustProcess
                                     switch (HelperProcess.ExitCode)
                                     {
                                         case 0:
-                                        case 1:
                                             {
                                                 Value.Add("Success", string.Empty);
                                                 break;
                                             }
-                                        case 2:
+                                        case 1:
                                             {
                                                 Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                                 break;
@@ -2840,8 +2869,38 @@ namespace AuxiliaryTrustProcess
                             {
                                 string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
                                 string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper");
+                                string VersionLockPath = Path.Combine(SystemLaunchHelperTargetBaseFolder, "Version.lock");
+                                string CurrentVersion = Helper.GetInstalledUwpApplicationVersion(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName));
 
-                                Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+                                bool NeedsUpdateSystemLaunchHelper = false;
+
+                                if (File.Exists(VersionLockPath))
+                                {
+                                    using (StreamReader Reader = File.OpenText(VersionLockPath))
+                                    {
+                                        if (Reader.ReadLine() != CurrentVersion)
+                                        {
+                                            NeedsUpdateSystemLaunchHelper = true;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    NeedsUpdateSystemLaunchHelper = true;
+                                }
+
+                                if (NeedsUpdateSystemLaunchHelper)
+                                {
+                                    Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+
+                                    if (!string.IsNullOrEmpty(CurrentVersion))
+                                    {
+                                        using (StreamWriter Writer = File.CreateText(VersionLockPath))
+                                        {
+                                            Writer.WriteLine(CurrentVersion);
+                                        }
+                                    }
+                                }
 
                                 using (Process HelperProcess = Process.Start(new ProcessStartInfo
                                 {
@@ -2855,12 +2914,11 @@ namespace AuxiliaryTrustProcess
                                     switch (HelperProcess.ExitCode)
                                     {
                                         case 0:
-                                        case 1:
                                             {
                                                 Value.Add("Success", string.Empty);
                                                 break;
                                             }
-                                        case 2:
+                                        case 1:
                                             {
                                                 Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                                 break;
@@ -2905,19 +2963,10 @@ namespace AuxiliaryTrustProcess
                                     {
                                         case 0:
                                             {
-                                                if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
-                                                {
-                                                    Directory.Delete(SystemLaunchHelperTargetBaseFolder, true);
-                                                }
-
-                                                goto case 1;
-                                            }
-                                        case 1:
-                                            {
                                                 Value.Add("Success", string.Empty);
                                                 break;
                                             }
-                                        case 2:
+                                        case 1:
                                             {
                                                 Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                                 break;
@@ -2962,19 +3011,10 @@ namespace AuxiliaryTrustProcess
                                     {
                                         case 0:
                                             {
-                                                if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
-                                                {
-                                                    Directory.Delete(SystemLaunchHelperTargetBaseFolder, true);
-                                                }
-
-                                                goto case 1;
-                                            }
-                                        case 1:
-                                            {
                                                 Value.Add("Success", string.Empty);
                                                 break;
                                             }
-                                        case 2:
+                                        case 1:
                                             {
                                                 Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                                 break;

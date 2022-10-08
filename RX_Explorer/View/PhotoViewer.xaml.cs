@@ -625,20 +625,29 @@ namespace RX_Explorer.View
             SingleClickCancellation?.Dispose();
             SingleClickCancellation = new CancellationTokenSource();
 
-            Task.Delay(500).ContinueWith((_, Input) =>
+            Task.Delay(300).ContinueWith((_, Input) =>
             {
-                if (Input is CancellationToken Token && !Token.IsCancellationRequested)
+                if (Input is (CancellationToken CancelToken, Point PressPoint))
                 {
-                    if (PhotoGridViewBorder.Opacity == 0)
+                    if (!CancelToken.IsCancellationRequested)
                     {
-                        GridViewEnterAnimation.Begin();
-                    }
-                    else
-                    {
-                        GridViewExitAnimation.Begin();
+                        if (PhotoGridViewBorder.Opacity == 0)
+                        {
+                            Point GlobalPoint = Window.Current.CoreWindow.PointerPosition;
+                            Point CurrentPoint = new Point(GlobalPoint.X - Window.Current.Bounds.X, GlobalPoint.Y - Window.Current.Bounds.Y);
+
+                            if (Math.Abs(CurrentPoint.X - PressPoint.X) < 15 && Math.Abs(CurrentPoint.Y - PressPoint.Y) < 15)
+                            {
+                                GridViewEnterAnimation.Begin();
+                            }
+                        }
+                        else
+                        {
+                            GridViewExitAnimation.Begin();
+                        }
                     }
                 }
-            }, SingleClickCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
+            }, (SingleClickCancellation.Token, e.GetCurrentPoint(null).Position), TaskScheduler.FromCurrentSynchronizationContext());
 
             if (ZoomSlider.Value > 1)
             {

@@ -22,7 +22,7 @@ namespace AuxiliaryTrustProcess.Class
 {
     public static class Helper
     {
-        public static string GetActualNamedPipeNameFromUwpApplication(string PipeId, string AppContainerName = null, int ProcessId = 0)
+        public static string GetActualNamedPipeFromUwpApplication(string PipeId, string AppContainerName = null, int ProcessId = 0)
         {
             if (ProcessId > 0)
             {
@@ -157,14 +157,7 @@ namespace AuxiliaryTrustProcess.Class
         {
             if (File.Exists(From))
             {
-                if (File.Exists(To))
-                {
-                    File.Copy(From, To, true);
-                }
-                else
-                {
-                    throw new FileNotFoundException(To);
-                }
+                File.Copy(From, To, true);
             }
             else if (Directory.Exists(From))
             {
@@ -175,17 +168,32 @@ namespace AuxiliaryTrustProcess.Class
 
                 Directory.CreateDirectory(To);
 
-                foreach (string Path in Directory.EnumerateDirectories(From, "*", SearchOption.AllDirectories).Concat(Directory.EnumerateFiles(From, "*", SearchOption.AllDirectories)))
+                foreach (string SubPath in Directory.EnumerateFileSystemEntries(From, "*", SearchOption.AllDirectories))
                 {
-                    string TargetPath = System.IO.Path.Combine(To, System.IO.Path.GetRelativePath(From, Path));
-
-                    if (File.Exists(Path))
+                    if (Directory.Exists(SubPath))
                     {
-                        File.Copy(Path, TargetPath, true);
+                        Directory.CreateDirectory(Path.Combine(To, Path.GetRelativePath(From, SubPath)));
                     }
-                    else if (Directory.Exists(Path))
+                    else if (File.Exists(SubPath))
                     {
-                        Directory.CreateDirectory(TargetPath);
+                        DirectoryInfo TargetDirectory = Directory.CreateDirectory(Path.Combine(To, Path.GetRelativePath(From, Path.GetDirectoryName(SubPath))));
+
+                        string TargetFilePath = Path.Combine(TargetDirectory.FullName, Path.GetFileName(SubPath));
+
+                        if (File.GetAttributes(SubPath).HasFlag(FileAttributes.Encrypted))
+                        {
+                            Kernel32.COPYFILE2_EXTENDED_PARAMETERS Parameters = new Kernel32.COPYFILE2_EXTENDED_PARAMETERS
+                            {
+                                dwCopyFlags = Kernel32.COPY_FILE.COPY_FILE_ALLOW_DECRYPTED_DESTINATION,
+                                dwSize = Convert.ToUInt32(Marshal.SizeOf<Kernel32.COPYFILE2_EXTENDED_PARAMETERS>())
+                            };
+
+                            Kernel32.CopyFile2(SubPath, TargetFilePath, ref Parameters).ThrowIfFailed();
+                        }
+                        else
+                        {
+                            File.Copy(SubPath, TargetFilePath, true);
+                        }
                     }
                 }
             }
@@ -684,6 +692,44 @@ namespace AuxiliaryTrustProcess.Class
             }
 
             return false;
+        }
+
+        public static string GetInstalledUwpApplicationVersion(string PackageFullName)
+        {
+            Kernel32.PACKAGE_INFO_REFERENCE Reference = new Kernel32.PACKAGE_INFO_REFERENCE();
+
+            if (Kernel32.OpenPackageInfoByFullName(PackageFullName, 0, ref Reference).Succeeded)
+            {
+                try
+                {
+                    uint PackageInfoLength = 0;
+
+                    if (Kernel32.GetPackageInfo(Reference, (uint)(Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_HEAD | Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_DIRECT), ref PackageInfoLength, IntPtr.Zero, out _) == Win32Error.ERROR_INSUFFICIENT_BUFFER)
+                    {
+                        IntPtr Buffer = Marshal.AllocHGlobal(Convert.ToInt32(PackageInfoLength));
+
+                        try
+                        {
+                            if (Kernel32.GetPackageInfo(Reference, (uint)(Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_HEAD | Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_DIRECT), ref PackageInfoLength, Buffer, out uint Count).Succeeded && Count > 0)
+                            {
+                                Kernel32.PACKAGE_VERSION.DUMMYSTRUCTNAME VersionParts = Marshal.PtrToStructure<Kernel32.PACKAGE_INFO>(Buffer).packageId.version.Parts;
+
+                                return $"{VersionParts.Major}.{VersionParts.Minor}.{VersionParts.Build}.{VersionParts.Revision}";
+                            }
+                        }
+                        finally
+                        {
+                            Marshal.FreeHGlobal(Buffer);
+                        }
+                    }
+                }
+                finally
+                {
+                    Kernel32.ClosePackageInfo(Reference);
+                }
+            }
+
+            return string.Empty;
         }
 
         public static InstalledApplicationPackage GetSpecificInstalledUwpApplication(string PackageFamilyName)

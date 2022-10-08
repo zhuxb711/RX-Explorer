@@ -39,6 +39,6 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="Vanara.PInvoke.Kernel32" Version="3.4.8" />
+	  <PackageReference Include="Vanara.PInvoke.Kernel32" Version="3.4.9" />
 	</ItemGroup>
 </Project>

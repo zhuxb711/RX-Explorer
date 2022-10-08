@@ -1041,7 +1041,6 @@
                                                                      x:Name="NameEditBox"
                                                                      Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                      Grid.Column="1"
-                                                                     Grid.ColumnSpan="2"
                                                                      IsSpellCheckEnabled="False"
                                                                      Visibility="Collapsed" />
                                                             <Border Padding="5,0"

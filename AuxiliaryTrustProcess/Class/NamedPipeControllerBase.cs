@@ -19,7 +19,7 @@ namespace AuxiliaryTrustProcess.Class
         protected NamedPipeControllerBase(string PackageFamilyName, string Id)
         {
             PipeId = Id;
-            PipeStream = new NamedPipeClientStream(".", Helper.GetActualNamedPipeNameFromUwpApplication(PipeId, Helper.GetPackageNameFromPackageFamilyName(PackageFamilyName)), PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+            PipeStream = new NamedPipeClientStream(".", Helper.GetActualNamedPipeFromUwpApplication(PipeId, Helper.GetPackageNameFromPackageFamilyName(PackageFamilyName)), PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
         }
 
         public virtual void Dispose()

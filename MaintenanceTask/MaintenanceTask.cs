@@ -32,6 +32,10 @@ namespace MaintenanceTask
                                        ClearTemporaryFolderAsync(Cancellation.Token));
                 }
             }
+            catch (OperationCanceledException)
+            {
+                // No need to handle this exception
+            }
             catch (Exception ex)
             {
 #if DEBUG
@@ -75,31 +79,40 @@ namespace MaintenanceTask
 
         private async Task CopyFolderAsync(StorageFolder From, StorageFolder To, CancellationToken CancelToken = default)
         {
+            const uint FetchItemEachNum = 50;
+
             StorageItemQueryResult Query = From.CreateItemQueryWithOptions(new QueryOptions
             {
                 FolderDepth = FolderDepth.Shallow,
                 IndexerOption = IndexerOption.DoNotUseIndexer
             });
 
-            foreach (IStorageItem Item in await Query.GetItemsAsync())
+            for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += FetchItemEachNum)
             {
-                if (CancelToken.IsCancellationRequested)
+                IReadOnlyList<IStorageItem> StorageItemList = await Query.GetItemsAsync(Index, FetchItemEachNum);
+
+                if (StorageItemList.Count == 0)
                 {
                     break;
                 }
 
-                switch (Item)
+                foreach (IStorageItem Item in StorageItemList)
                 {
-                    case StorageFolder SubFolder:
-                        {
-                            await CopyFolderAsync(SubFolder, await To.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.ReplaceExisting));
-                            break;
-                        }
-                    case StorageFile SubFile:
-                        {
-                            await SubFile.CopyAsync(To, SubFile.Name, NameCollisionOption.ReplaceExisting);
-                            break;
-                        }
+                    CancelToken.ThrowIfCancellationRequested();
+
+                    switch (Item)
+                    {
+                        case StorageFolder SubFolder:
+                            {
+                                await CopyFolderAsync(SubFolder, await To.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.ReplaceExisting));
+                                break;
+                            }
+                        case StorageFile SubFile:
+                            {
+                                await SubFile.CopyAsync(To, SubFile.Name, NameCollisionOption.ReplaceExisting);
+                                break;
+                            }
+                    }
                 }
             }
         }
@@ -112,25 +125,30 @@ namespace MaintenanceTask
             }
             catch (Exception)
             {
+                const uint FetchItemEachNum = 50;
+
                 StorageItemQueryResult Query = ApplicationData.Current.TemporaryFolder.CreateItemQueryWithOptions(new QueryOptions
                 {
                     IndexerOption = IndexerOption.DoNotUseIndexer,
                     FolderDepth = FolderDepth.Shallow
                 });
 
-                List<Task> ParallelTask = new List<Task>();
-
-                foreach (IStorageItem Item in await Query.GetItemsAsync())
+                for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += FetchItemEachNum)
                 {
-                    if (CancelToken.IsCancellationRequested)
+                    IReadOnlyList<IStorageItem> StorageItemList = await Query.GetItemsAsync(Index, FetchItemEachNum);
+
+                    if (StorageItemList.Count == 0)
                     {
                         break;
                     }
 
-                    ParallelTask.Add(Item.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask());
-                }
+                    foreach (IStorageItem Item in StorageItemList)
+                    {
+                        CancelToken.ThrowIfCancellationRequested();
 
-                await Task.WhenAll(ParallelTask);
+                        await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    }
+                }
             }
         }
 

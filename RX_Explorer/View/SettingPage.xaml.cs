@@ -1005,6 +1005,25 @@ namespace RX_Explorer.View
             }
         }
 
+        public static bool IsShowDetailsWhenHover
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["ShowDetailsWhenHover"] is bool Enabled)
+                {
+                    return Enabled;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["ShowDetailsWhenHover"] = value;
+            }
+        }
+
         public static UIStyle ApplicationUIStyle
         {
             get
@@ -1516,6 +1535,7 @@ namespace RX_Explorer.View
                 VerticalSplitViewLimitationNumberBox.Value = VerticalSplitViewLimitation;
                 ClickPreference.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
                 DoubleClickGoToParent.IsOn = IsDoubleClickGoBackToParent;
+                ShowDetailsWhenHover.IsOn = IsShowDetailsWhenHover;
                 TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
                 EnableQuicklook.IsOn = IsQuicklookEnabled;
                 EnableSeer.IsOn = IsSeerEnabled;
@@ -4599,6 +4619,22 @@ namespace RX_Explorer.View
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(ApplicationStyleSwitch_Toggled)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void ShowDetailsWhenHover_Toggled(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsShowDetailsWhenHover = ShowDetailsWhenHover.IsOn;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ShowDetailsWhenHover_Toggled)}");
             }
             finally
             {

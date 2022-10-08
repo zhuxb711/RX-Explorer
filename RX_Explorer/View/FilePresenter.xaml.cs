@@ -6445,7 +6445,7 @@ namespace RX_Explorer.View
                     }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                 }
 
-                if (Item is not INotWin32StorageItem)
+                if (Item is not INotWin32StorageItem && SettingPage.IsShowDetailsWhenHover)
                 {
                     DelayTooltipCancellation?.Cancel();
                     DelayTooltipCancellation?.Dispose();

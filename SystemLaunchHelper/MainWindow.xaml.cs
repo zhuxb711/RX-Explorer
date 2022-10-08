@@ -108,7 +108,7 @@ namespace SystemLaunchHelper
 
                                     if (!IsRegistryCheckingSuccess)
                                     {
-                                        ExitCode = 2;
+                                        ExitCode = 1;
                                     }
                                 }
 
@@ -220,7 +220,7 @@ namespace SystemLaunchHelper
 
                                     if (!IsRegistryCheckingSuccess)
                                     {
-                                        ExitCode = 2;
+                                        ExitCode = 1;
                                     }
                                 }
 
@@ -314,14 +314,20 @@ namespace SystemLaunchHelper
 #endif
                                     }
 
-                                    if (IsAnotherRegistryKeyExists)
+                                    if (!IsAnotherRegistryKeyExists)
                                     {
-                                        ExitCode = 1;
+                                        Process.Start(new ProcessStartInfo
+                                        {
+                                            FileName = "powershell.exe",
+                                            Arguments = $"-Command \"Wait-Process -Id {Environment.ProcessId} -Timeout 30;Stop-Process -Id {Environment.ProcessId} -Force;Remove-Item -Path '{AppDomain.CurrentDomain.BaseDirectory}' -Recurse -Force\"",
+                                            CreateNoWindow = true,
+                                            UseShellExecute = false
+                                        }).Dispose();
                                     }
                                 }
                                 else
                                 {
-                                    ExitCode = 2;
+                                    ExitCode = 1;
                                 }
 
                                 break;
@@ -436,14 +442,20 @@ namespace SystemLaunchHelper
 #endif
                                     }
 
-                                    if (IsAnotherRegistryKeyExists)
+                                    if (!IsAnotherRegistryKeyExists)
                                     {
-                                        ExitCode = 1;
+                                        Process.Start(new ProcessStartInfo
+                                        {
+                                            FileName = "powershell.exe",
+                                            Arguments = $"-Command \"Wait-Process -Id {Environment.ProcessId} -Timeout 30;Stop-Process -Id {Environment.ProcessId} -Force;Remove-Item -Path '{AppDomain.CurrentDomain.BaseDirectory}' -Recurse -Force\"",
+                                            CreateNoWindow = true,
+                                            UseShellExecute = false
+                                        }).Dispose();
                                     }
                                 }
                                 else
                                 {
-                                    ExitCode = 2;
+                                    ExitCode = 1;
                                 }
 
                                 break;
@@ -606,7 +618,7 @@ namespace SystemLaunchHelper
             }
             catch (Exception ex)
             {
-                ExitCode = 3;
+                ExitCode = 2;
 
 #if DEBUG
                 if (Debugger.IsAttached)
