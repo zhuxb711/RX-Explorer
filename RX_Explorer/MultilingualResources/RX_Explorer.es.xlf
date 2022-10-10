@@ -4934,6 +4934,22 @@ Las denominaciones no válidas son:
           <source>Regular</source>
           <target state="translated">Regular</target>
         </trans-unit>
+        <trans-unit id="PreviewFileOnHoverContent.Text" translate="yes" xml:space="preserve">
+          <source>This option controls whether a preview of a file's properties is displayed when the pointer hovers over the file</source>
+          <target state="translated">Esta opción controla si se muestra una vista previa de las propiedades del archivo cuando el puntero pasa sobre el archivo</target>
+        </trans-unit>
+        <trans-unit id="PreviewFileOnHoverSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Desactivar</target>
+        </trans-unit>
+        <trans-unit id="PreviewFileOnHoverSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Habilitar</target>
+        </trans-unit>
+        <trans-unit id="PreviewFileOnHoverTitle.Text" translate="yes" xml:space="preserve">
+          <source>Preview file properties while hovering</source>
+          <target state="translated">Previsualización de las propiedades del archivo en hover</target>
+        </trans-unit>
       </group>
     </body>
   </file>

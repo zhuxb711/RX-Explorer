@@ -4934,6 +4934,22 @@ Invalid names include
           <source>Regular</source>
           <target state="translated">常规</target>
         </trans-unit>
+        <trans-unit id="PreviewFileOnHoverContent.Text" translate="yes" xml:space="preserve">
+          <source>This option controls whether a preview of a file's properties is displayed when the pointer hovers over the file</source>
+          <target state="translated">此选项控制是否在指针悬停于文件之上时显示文件属性的预览</target>
+        </trans-unit>
+        <trans-unit id="PreviewFileOnHoverSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="PreviewFileOnHoverSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">启用</target>
+        </trans-unit>
+        <trans-unit id="PreviewFileOnHoverTitle.Text" translate="yes" xml:space="preserve">
+          <source>Preview file properties while hovering</source>
+          <target state="translated">悬停时预览文件属性</target>
+        </trans-unit>
       </group>
     </body>
   </file>

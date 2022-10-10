@@ -3715,4 +3715,16 @@ Inkorrekte Namen sind
   <data name="ApplicationStyleSwitch.OnContent" xml:space="preserve">
     <value>Regulär</value>
   </data>
+  <data name="PreviewFileOnHoverContent.Text" xml:space="preserve">
+    <value>Diese Option steuert, ob eine Vorschau der Eigenschaften einer Datei angezeigt wird, wenn der Mauszeiger über die Datei fährt</value>
+  </data>
+  <data name="PreviewFileOnHoverSwitch.OffContent" xml:space="preserve">
+    <value>Deaktiviert</value>
+  </data>
+  <data name="PreviewFileOnHoverSwitch.OnContent" xml:space="preserve">
+    <value>Aktiviert</value>
+  </data>
+  <data name="PreviewFileOnHoverTitle.Text" xml:space="preserve">
+    <value>Vorschau der Dateieigenschaften beim Bewegen des Mauszeigers</value>
+  </data>
 </root>

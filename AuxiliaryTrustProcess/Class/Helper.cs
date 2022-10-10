@@ -153,11 +153,49 @@ namespace AuxiliaryTrustProcess.Class
             return 0;
         }
 
-        public static void CopyTo(string From, string To)
+        public static void CopyFileOrFolderTo(string From, string To)
         {
+            static void CopyFileCore(string From, string To)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(To));
+
+                try
+                {
+                    Kernel32.COPYFILE2_EXTENDED_PARAMETERS Parameters = new Kernel32.COPYFILE2_EXTENDED_PARAMETERS
+                    {
+                        dwSize = Convert.ToUInt32(Marshal.SizeOf<Kernel32.COPYFILE2_EXTENDED_PARAMETERS>()),
+                        pProgressRoutine = (ref Kernel32.COPYFILE2_MESSAGE message, IntPtr _) =>
+                        {
+                            if (message.Type == Kernel32.COPYFILE2_MESSAGE_TYPE.COPYFILE2_CALLBACK_STREAM_FINISHED)
+                            {
+                                Kernel32.FlushFileBuffers(message.Info.StreamFinished.hDestinationFile);
+                            }
+
+                            return Kernel32.COPYFILE2_MESSAGE_ACTION.COPYFILE2_PROGRESS_CONTINUE;
+                        }
+                    };
+
+                    if (File.GetAttributes(From).HasFlag(FileAttributes.Encrypted))
+                    {
+                        Parameters.dwCopyFlags = Kernel32.COPY_FILE.COPY_FILE_ALLOW_DECRYPTED_DESTINATION;
+                    }
+
+                    Kernel32.CopyFile2(From, To, ref Parameters).ThrowIfFailed();
+                }
+                catch (Exception)
+                {
+                    using (FileStream OriginStream = new FileStream(From, FileMode.Open, FileAccess.Read))
+                    using (FileStream TargetStream = new FileStream(To, FileMode.Create, FileAccess.Write))
+                    {
+                        OriginStream.CopyTo(TargetStream);
+                        TargetStream.Flush();
+                    }
+                }
+            }
+
             if (File.Exists(From))
             {
-                File.Copy(From, To, true);
+                CopyFileCore(From, To);
             }
             else if (Directory.Exists(From))
             {
@@ -174,26 +212,9 @@ namespace AuxiliaryTrustProcess.Class
                     {
                         Directory.CreateDirectory(Path.Combine(To, Path.GetRelativePath(From, SubPath)));
                     }
-                    else if (File.Exists(SubPath))
+                    else
                     {
-                        DirectoryInfo TargetDirectory = Directory.CreateDirectory(Path.Combine(To, Path.GetRelativePath(From, Path.GetDirectoryName(SubPath))));
-
-                        string TargetFilePath = Path.Combine(TargetDirectory.FullName, Path.GetFileName(SubPath));
-
-                        if (File.GetAttributes(SubPath).HasFlag(FileAttributes.Encrypted))
-                        {
-                            Kernel32.COPYFILE2_EXTENDED_PARAMETERS Parameters = new Kernel32.COPYFILE2_EXTENDED_PARAMETERS
-                            {
-                                dwCopyFlags = Kernel32.COPY_FILE.COPY_FILE_ALLOW_DECRYPTED_DESTINATION,
-                                dwSize = Convert.ToUInt32(Marshal.SizeOf<Kernel32.COPYFILE2_EXTENDED_PARAMETERS>())
-                            };
-
-                            Kernel32.CopyFile2(SubPath, TargetFilePath, ref Parameters).ThrowIfFailed();
-                        }
-                        else
-                        {
-                            File.Copy(SubPath, TargetFilePath, true);
-                        }
+                        CopyFileCore(SubPath, Path.Combine(To, Path.GetRelativePath(From, Path.GetDirectoryName(SubPath)), Path.GetFileName(SubPath)));
                     }
                 }
             }

@@ -3715,4 +3715,16 @@ Las denominaciones no válidas son:
   <data name="ApplicationStyleSwitch.OnContent" xml:space="preserve">
     <value>Regular</value>
   </data>
+  <data name="PreviewFileOnHoverContent.Text" xml:space="preserve">
+    <value>Esta opción controla si se muestra una vista previa de las propiedades del archivo cuando el puntero pasa sobre el archivo</value>
+  </data>
+  <data name="PreviewFileOnHoverSwitch.OffContent" xml:space="preserve">
+    <value>Desactivar</value>
+  </data>
+  <data name="PreviewFileOnHoverSwitch.OnContent" xml:space="preserve">
+    <value>Habilitar</value>
+  </data>
+  <data name="PreviewFileOnHoverTitle.Text" xml:space="preserve">
+    <value>Previsualización de las propiedades del archivo en hover</value>
+  </data>
 </root>

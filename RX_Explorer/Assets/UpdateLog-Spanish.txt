@@ -1,17 +1,21 @@
-﻿###Novedades de la versión 7.9.5.0
+﻿###Novedades de la versión 7.9.7.0
+
+#####Actualización de funciones
+
+>#####Se a ñadió un nuevo estilo de interfaz que ahora puede cambiar entre los estilos minimalistas y generales
+
+>#####Reconstruir el código relacionado con el uso compartido de WiFi para mejorar la disponibilidad y eliminar algunos problemas potenciales
+
+>#####Se a ñadió un nuevo elemento de configuración para controlar si la vista previa de las propiedades del archivo aparece cuando el ratón pasa sobre el archivo
+
+>#####El número de tareas en curso se sincronizará ahora con la barra de tareas del sistema
 
 #####Mejora del rendimiento
 
->#####Mejora del rendimiento de lectura y escritura al comprimir y descomprimir
+>#####Reducir la necesidad de copiar cuando se habilitan los ajustes relacionados con la integración con los componentes del sistema
 
-#####Actualización de componentes
+#####Bug Fix
 
->#####Actualice la versión de destino a la última SDK de Windows 11 22H2 (10.0.22621.0)
+>#####Fijo un problem a en el que el selector de previsualización de imagen inferior se repite y luego desaparece mientras arrastra una imagen en un Estado de zoom en el visor de imagen integrado
 
-#####Corrección de errores
-
->#####Se solucionó el problema de que la codificación predeterminada es incorrecta al comprimir archivos y se corrigió para usar UTF8 como la codificación predeterminada
-
->#####Se solucionó el problema de que algunos nombres de codificación pueden estar vacíos cuando aparecía el cuadro de diálogo de codificación después de abrir un archivo de texto
-
->#####Se solucionó un problema por el cual algunos nombres de fuente podían estar vacíos al seleccionar las fuentes de la aplicación
+>#####Fijo un problem a en el que la configuración relacionada con la integración con los componentes del sistema no se puede activar correctamente en algunos casos especiales

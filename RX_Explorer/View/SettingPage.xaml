@@ -376,18 +376,21 @@
                                                         RelativePanel.AlignLeftWithPanel="True"
                                                         RelativePanel.LeftOf="ShowDetailsWhenHover"
                                                         Margin="0,0,20,0">
-                                                <TextBlock Text="悬停时显示文件概览"
+                                                <TextBlock Text="悬停时预览文件属性"
+                                                           x:Uid="PreviewFileOnHoverTitle"
                                                            TextTrimming="CharacterEllipsis" />
                                                 <TextBlock FontSize="12"
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           Text="此选项控制是否在指针悬停于文件之上时显示文件概览信息" />
+                                                           x:Uid="PreviewFileOnHoverContent"
+                                                           Text="此选项控制是否在指针悬停于文件之上时显示文件属性的预览" />
                                             </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
                                                           Style="{StaticResource SettingToggleSwitchStyle}"
                                                           Name="ShowDetailsWhenHover"
+                                                          x:Uid="PreviewFileOnHoverSwitch"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
                                                           Toggled="ShowDetailsWhenHover_Toggled" />

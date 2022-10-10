@@ -4934,6 +4934,22 @@ Inkorrekte Namen sind
           <source>Regular</source>
           <target state="translated">Regulär</target>
         </trans-unit>
+        <trans-unit id="PreviewFileOnHoverContent.Text" translate="yes" xml:space="preserve">
+          <source>This option controls whether a preview of a file's properties is displayed when the pointer hovers over the file</source>
+          <target state="translated">Diese Option steuert, ob eine Vorschau der Eigenschaften einer Datei angezeigt wird, wenn der Mauszeiger über die Datei fährt</target>
+        </trans-unit>
+        <trans-unit id="PreviewFileOnHoverSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Deaktiviert</target>
+        </trans-unit>
+        <trans-unit id="PreviewFileOnHoverSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Aktiviert</target>
+        </trans-unit>
+        <trans-unit id="PreviewFileOnHoverTitle.Text" translate="yes" xml:space="preserve">
+          <source>Preview file properties while hovering</source>
+          <target state="translated">Vorschau der Dateieigenschaften beim Bewegen des Mauszeigers</target>
+        </trans-unit>
       </group>
     </body>
   </file>

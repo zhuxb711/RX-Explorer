@@ -2823,13 +2823,14 @@ namespace AuxiliaryTrustProcess
 
                                 if (NeedsUpdateSystemLaunchHelper)
                                 {
-                                    Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+                                    Helper.CopyFileOrFolderTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
                                     if (!string.IsNullOrEmpty(CurrentVersion))
                                     {
                                         using (StreamWriter Writer = File.CreateText(VersionLockPath))
                                         {
                                             Writer.WriteLine(CurrentVersion);
+                                            Writer.Flush();
                                         }
                                     }
                                 }
@@ -2891,13 +2892,14 @@ namespace AuxiliaryTrustProcess
 
                                 if (NeedsUpdateSystemLaunchHelper)
                                 {
-                                    Helper.CopyTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
+                                    Helper.CopyFileOrFolderTo(SystemLaunchHelperOriginBaseFolder, SystemLaunchHelperTargetBaseFolder);
 
                                     if (!string.IsNullOrEmpty(CurrentVersion))
                                     {
                                         using (StreamWriter Writer = File.CreateText(VersionLockPath))
                                         {
                                             Writer.WriteLine(CurrentVersion);
+                                            Writer.Flush();
                                         }
                                     }
                                 }
@@ -2935,27 +2937,12 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RestoreFolderInterception:
                             {
-                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper");
-                                string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
-                                string SystemLaunchHelperOriginExecutable = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
-                                string SystemLaunchHelperTargetExecutable = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
-
-                                ProcessStartInfo ProcessInfo = new ProcessStartInfo
+                                using (Process HelperProcess = Process.Start(new ProcessStartInfo
                                 {
                                     UseShellExecute = false,
                                     Arguments = "-Command RestoreFolder",
-                                };
-
-                                if (File.Exists(SystemLaunchHelperTargetExecutable))
-                                {
-                                    ProcessInfo.FileName = SystemLaunchHelperTargetExecutable;
-                                }
-                                else
-                                {
-                                    ProcessInfo.FileName = SystemLaunchHelperOriginExecutable;
-                                }
-
-                                using (Process HelperProcess = Process.Start(ProcessInfo))
+                                    FileName = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper", "SystemLaunchHelper.exe")
+                                }))
                                 {
                                     HelperProcess.WaitForExit();
 
@@ -2983,27 +2970,13 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RestoreWinEInterception:
                             {
-                                string SystemLaunchHelperOriginBaseFolder = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper");
-                                string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
-                                string SystemLaunchHelperOriginExecutable = Path.Combine(SystemLaunchHelperOriginBaseFolder, "SystemLaunchHelper.exe");
-                                string SystemLaunchHelperTargetExecutable = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
 
-                                ProcessStartInfo ProcessInfo = new ProcessStartInfo
+                                using (Process HelperProcess = Process.Start(new ProcessStartInfo
                                 {
                                     UseShellExecute = false,
                                     Arguments = "-Command RestoreWinE",
-                                };
-
-                                if (File.Exists(SystemLaunchHelperTargetExecutable))
-                                {
-                                    ProcessInfo.FileName = SystemLaunchHelperTargetExecutable;
-                                }
-                                else
-                                {
-                                    ProcessInfo.FileName = SystemLaunchHelperOriginExecutable;
-                                }
-
-                                using (Process HelperProcess = Process.Start(ProcessInfo))
+                                    FileName = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper", "SystemLaunchHelper.exe")
+                                }))
                                 {
                                     HelperProcess.WaitForExit();
 

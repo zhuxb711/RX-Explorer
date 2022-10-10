@@ -1,17 +1,21 @@
-﻿###Quoi de neuf dans la version 7.9.5.0
+﻿###Quoi de neuf dans la version 7.9.7.0
 
-#####Amélioration des performances
+#####Mise à jour de la fonction
 
->#####Amélioration des performances de lecture et d'écriture lors de la compression et de la décompression
+>#####Un nouveau style d'interface a été ajouté et vous pouvez maintenant basculer entre les styles minimaliste et général
 
-#####Mise à jour des composants
+>#####Reconstruire le Code de partage wifi pour améliorer la disponibilité et éliminer certains problèmes potentiels
 
->#####Mettre à niveau la version cible vers le dernier SDK Windows 11 22H2 (10.0.22621.0)
+>#####Ajout d'un nouvel élément de configuration pour contrôler si l'aperçu des propriétés du fichier apparaît lorsque la souris survole le fichier
 
-#####Corrections de bogues
+>#####Le nombre de tâches en cours sera maintenant synchronisé avec la barre des tâches du système
 
->#####Correction du problème que l'encodage par défaut est incorrect lors de la compression des fichiers et a été corrigé pour utiliser UTF8 comme encodage par défaut
+#####Amélioration du rendement
 
->#####Correction du problème selon lequel certains noms d'encodage peuvent être vides lorsque la boîte de dialogue d'encodage s'affiche après l'ouverture d'un fichier texte
+>#####Réduire le contenu à copier lorsque les paramètres liés à l'intégration avec les composants du système sont activés
 
->#####Correction d'un problème où certains noms de polices pouvaient être vides lors de la sélection des polices d'application
+#####Correction des bogues
+
+>#####Correction d'un problème avec le sélecteur d'aperçu d'image inférieur qui se répète et disparaît lorsque vous faites glisser une image dans le visionneur d'image intégré pour l'agrandir
+
+>#####Correction d'un problème d'activation incorrecte des paramètres liés à l'intégration avec les composants du système dans certaines circonstances exceptionnelles

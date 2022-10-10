@@ -475,7 +475,7 @@ namespace RX_Explorer
                 }
 
                 StringBuilder Builder = new StringBuilder()
-                                        .AppendLine($"Version: {string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}")
+                                        .AppendLine($"Version: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}")
                                         .AppendLine()
                                         .AppendLine("The following is the error message:")
                                         .AppendLine("------------------------------------")

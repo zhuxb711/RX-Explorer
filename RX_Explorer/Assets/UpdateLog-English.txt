@@ -1,17 +1,21 @@
-﻿###What's new in Ver.7.9.5.0
+﻿###What's new in Ver.7.9.7.0
+
+#####Function update
+
+>#####Added a new interface style, which can now be switched between "Minimalistic" and "Regular" styles
+
+>#####Reconstructed WiFi sharing related code to improve usability and eliminate some potential problems
+
+>#####A new setting item has been added to control whether the file attribute preview will pop up when the mouse hovers over the file
+
+>#####The number of tasks in progress will now be synchronized to the system taskbar
 
 #####Performance improvement
 
->#####Improved reading and writing performance when compressing and decompressing
+>#####Reduce the content that needs to be copied when enabling the settings related to "Integration with System Components"
 
-#####Component update
+#####Bug fix
 
->#####Upgrade the target version to the latest Windows 11 22H2 SDK (10.0.22621.0)
+>#####Fixed the problem that the bottom picture preview selector will appear repeatedly and then disappear when dragging a picture in a magnified state in the built-in picture viewer
 
-#####Bug Fixes
-
->#####Fixed the problem that the default encoding is incorrect when compressing files and has been corrected to use UTF8 as the default encoding
-
->#####Fixed the problem that some encoding names may be empty when the encoding dialog was poped up after opening a text file
-
->#####Fixed an issue where some font names could be empty when selecting application fonts
+>#####Fixed the problem that the settings related to "Integration with System Components" cannot be enabled correctly under some special circumstances

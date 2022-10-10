@@ -196,7 +196,7 @@ namespace RX_Explorer.Class
                                         .AppendLine("------------------------------------")
                                         .AppendLine("Source: RX-Explorer")
                                         .AppendLine()
-                                        .AppendLine($"Version: {string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}")
+                                        .AppendLine($"Version: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}")
                                         .AppendLine()
                                         .AppendLine($"Exception: {Ex}")
                                         .AppendLine()

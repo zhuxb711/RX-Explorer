@@ -3820,4 +3820,16 @@ Invalid names include
   <data name="ApplicationStyleSwitch.OnContent" xml:space="preserve">
     <value>Regular</value>
   </data>
+  <data name="PreviewFileOnHoverContent.Text" xml:space="preserve">
+    <value>This option controls whether a preview of a file's properties is displayed when the pointer hovers over the file</value>
+  </data>
+  <data name="PreviewFileOnHoverSwitch.OffContent" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="PreviewFileOnHoverSwitch.OnContent" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="PreviewFileOnHoverTitle.Text" xml:space="preserve">
+    <value>Preview file properties while hovering</value>
+  </data>
 </root>

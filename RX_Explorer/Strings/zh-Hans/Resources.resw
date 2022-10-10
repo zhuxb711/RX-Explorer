@@ -3713,4 +3713,16 @@
   <data name="ApplicationStyleSwitch.OnContent" xml:space="preserve">
     <value>常规</value>
   </data>
+  <data name="PreviewFileOnHoverContent.Text" xml:space="preserve">
+    <value>此选项控制是否在指针悬停于文件之上时显示文件属性的预览</value>
+  </data>
+  <data name="PreviewFileOnHoverSwitch.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="PreviewFileOnHoverSwitch.OnContent" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="PreviewFileOnHoverTitle.Text" xml:space="preserve">
+    <value>悬停时预览文件属性</value>
+  </data>
 </root>

@@ -1,17 +1,21 @@
-﻿###Was ist neu in Ver.7.9.5.0
+﻿###Was ist neu in Ver.7.9.7.0
+
+####Funktionsupdate
+
+>#####Neuer Schnittstellenstil hinzugefügt, der nun zwischen "Minimalistic" und "Regular" umgeschaltet werden kann
+
+>#####Rekonstruierter WLAN-Freigabecode zur Verbesserung der Benutzerfreundlichkeit und zur Beseitigung potenzieller Probleme
+
+>#####Ein neues Einstellungselement wurde hinzugefügt, um zu steuern, ob die Dateiattributvorschau angezeigt wird, wenn die Maus über die Datei fährt
+
+>#####Die Anzahl der laufenden Aufgaben wird nun mit der Taskleiste des Systems synchronisiert
 
 #####Leistungsverbesserung
 
->#####Verbesserte Lese- und Schreibleistung beim Komprimieren und Dekomprimieren
+>#####Reduzieren Sie den Inhalt, der kopiert werden muss, wenn Sie die Einstellungen im Zusammenhang mit "Integration mit Systemkomponenten" aktivieren
 
-#####Komponentenaktualisierung
+#####Bugfix
 
->#####Aktualisieren Sie die Zielversion auf das neueste Windows 11 22H2 SDK (10.0.22621.0)
+>#####Problem behoben, dass der untere Bildvorschauwähler wiederholt erscheint und dann verschwindet, wenn ein Bild in einem vergrößerten Zustand im eingebauten Bildbetrachter gezogen wird
 
-#####Fehlerbehebung
-
->#####Das Problem, dass die Standardcodierung beim Komprimieren von Dateien falsch ist, wurde behoben und es wurde korrigiert, dass UTF8 als Standardcodierung verwendet wird
-
->#####Das Problem, dass einige Codierungsnamen leer sein konnten, wenn der Codierungsdialog nach dem Öffnen einer Textdatei angezeigt wurde, wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem einige Schriftartnamen bei der Auswahl von Anwendungsschriftarten leer sein konnten
+>#####Problem behoben, dass die Einstellungen im Zusammenhang mit "Integration mit Systemkomponenten" unter bestimmten Umständen nicht korrekt aktiviert werden konnten
