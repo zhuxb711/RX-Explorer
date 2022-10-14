@@ -95,12 +95,17 @@ namespace RX_Explorer.View
                     case ".sle":
                         {
                             Stream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                            SLEInputStream SLEStream = new SLEInputStream(Stream, SecureArea.AESKey);
 
-                            SLEHeader Header = SLEHeader.GetHeader(Stream);
-
-                            if (Header.Version >= SLEVersion.Version_1_5_0 && Path.GetExtension(Header.FileName).Equals(".pdf", StringComparison.OrdinalIgnoreCase))
+                            if (SLEStream.Header.Core.Version >= SLEVersion.SLE150 && Path.GetExtension(SLEStream.Header.Core.FileName).Equals(".pdf", StringComparison.OrdinalIgnoreCase))
                             {
-                                PdfStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                                PdfStream = SLEStream;
+                            }
+                            else
+                            {
+                                Stream.Dispose();
+                                SLEStream.Dispose();
+                                throw new NotSupportedException();
                             }
 
                             break;
@@ -110,21 +115,20 @@ namespace RX_Explorer.View
                             PdfStream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
                             break;
                         }
+                    default:
+                        {
+                            throw new NotSupportedException();
+                        }
                 }
 
                 if (CancelToken.IsCancellationRequested)
                 {
-                    PdfStream?.Dispose();
+                    PdfStream.Dispose();
                 }
                 else
                 {
                     try
                     {
-                        if (PdfStream == null)
-                        {
-                            throw new NotSupportedException();
-                        }
-
                         try
                         {
                             Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream.AsRandomAccessStream());

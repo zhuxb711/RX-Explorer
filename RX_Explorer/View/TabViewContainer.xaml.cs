@@ -836,7 +836,8 @@ namespace RX_Explorer.View
                 IconSource = new SymbolIconSource { Symbol = Symbol.Document },
                 Header = Header
             };
-            Tab.DragEnter += Tab_DragEnter;
+            Tab.Drop += Tab_Drop;
+            Tab.DragOver += Tab_DragOver;
             Tab.PointerEntered += Tab_PointerEntered;
             Tab.PointerExited += Tab_PointerExited;
             Tab.PointerPressed += Tab_PointerPressed;
@@ -908,6 +909,75 @@ namespace RX_Explorer.View
             return Tab;
         }
 
+        private async void Tab_Drop(object sender, DragEventArgs e)
+        {
+            DragOperationDeferral Deferral = e.GetDeferral();
+
+            try
+            {
+                e.Handled = true;
+
+                if (e.DataView.Contains(ExtendedDataFormats.TabItem))
+                {
+                    if (await e.DataView.GetDataAsync(ExtendedDataFormats.TabItem) is IRandomAccessStream RandomStream)
+                    {
+                        RandomStream.Seek(0);
+
+                        using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
+                        {
+                            string RawText = Reader.ReadToEnd();
+
+                            if (!string.IsNullOrEmpty(RawText))
+                            {
+                                int InsertIndex = TabCollection.Count;
+
+                                for (int i = 0; i < TabCollection.Count; i++)
+                                {
+                                    if (TabViewControl.ContainerFromIndex(i) is TabViewItem Tab)
+                                    {
+                                        Point Position = e.GetPosition(Tab);
+
+                                        if (Position.X < Tab.ActualWidth)
+                                        {
+                                            if (Position.X < Tab.ActualWidth / 2)
+                                            {
+                                                InsertIndex = i;
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                InsertIndex = i + 1;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                IEnumerable<string> PathList = JsonSerializer.Deserialize<IEnumerable<string>>(RawText);
+
+                                if (PathList.Any())
+                                {
+                                    await CreateNewTabAsync(InsertIndex, PathList.Where((Path) => !string.IsNullOrWhiteSpace(Path)).ToArray());
+                                }
+                                else
+                                {
+                                    await CreateNewTabAsync(InsertIndex);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw when trying to drop a tab");
+            }
+            finally
+            {
+                Deferral.Complete();
+            }
+        }
+
         private void RendererFrame_Navigated(object sender, NavigationEventArgs e)
         {
             if (sender is Frame frame)
@@ -930,34 +1000,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private void Tab_DragEnter(object sender, DragEventArgs e)
-        {
-            try
-            {
-                e.Handled = true;
-                e.AcceptedOperation = DataPackageOperation.None;
-
-                if (e.DataView.Contains(StandardDataFormats.StorageItems)
-                    || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
-                    || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem)
-                    || e.DataView.Contains(ExtendedDataFormats.FileDrop))
-                {
-                    if (e.OriginalSource is TabViewItem Item)
-                    {
-                        TabViewControl.SelectedItem = Item;
-                    }
-                }
-                else if (e.DataView.Contains(ExtendedDataFormats.TabItem))
-                {
-                    e.AcceptedOperation = DataPackageOperation.Copy;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An exception was threw when trying fetch the clipboard data");
-            }
-        }
-
         private void Tab_PointerCanceled(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             DelayPreviewCancel?.Cancel();
@@ -966,6 +1008,27 @@ namespace RX_Explorer.View
         private void Tab_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             DelayPreviewCancel?.Cancel();
+        }
+
+        private void Tab_DragOver(object sender, DragEventArgs e)
+        {
+            try
+            {
+                if (e.OriginalSource is TabViewItem Item)
+                {
+                    if (e.DataView.Contains(StandardDataFormats.StorageItems)
+                        || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
+                        || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem)
+                        || e.DataView.Contains(ExtendedDataFormats.FileDrop))
+                    {
+                        TabViewControl.SelectedItem = Item;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw when trying fetch the clipboard data");
+            }
         }
 
         private void Tab_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -1066,7 +1129,9 @@ namespace RX_Explorer.View
 
         private async void TabViewControl_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
         {
-            args.Data.RequestedOperation = DataPackageOperation.Copy;
+            DelayPreviewCancel?.Cancel();
+
+            args.Data.RequestedOperation = DataPackageOperation.Move;
 
             if (args.Tab.Content is Frame RootFrame && RootFrame.Content is TabItemContentRenderer Renderer)
             {
@@ -1076,7 +1141,7 @@ namespace RX_Explorer.View
                 }
                 else if (Renderer.Presenters.Any())
                 {
-                    args.Data.SetData(ExtendedDataFormats.TabItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)))));
+                    args.Data.SetData(ExtendedDataFormats.TabItem, await Helper.CreateRandomAccessStreamAsync(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path).Where((Path) => !string.IsNullOrWhiteSpace(Path)).ToArray()))));
                 }
                 else
                 {
@@ -1090,11 +1155,10 @@ namespace RX_Explorer.View
             try
             {
                 e.Handled = true;
-                e.AcceptedOperation = DataPackageOperation.None;
 
                 if (e.DataView.Contains(ExtendedDataFormats.TabItem))
                 {
-                    e.AcceptedOperation = DataPackageOperation.Copy;
+                    e.AcceptedOperation = DataPackageOperation.Move;
                 }
             }
             catch (Exception ex)
@@ -1115,14 +1179,14 @@ namespace RX_Explorer.View
                 {
                     if (await e.DataView.GetDataAsync(ExtendedDataFormats.TabItem) is IRandomAccessStream RandomStream)
                     {
+                        RandomStream.Seek(0);
+
                         using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
                         {
                             string RawText = Reader.ReadToEnd();
 
                             if (!string.IsNullOrEmpty(RawText))
                             {
-                                IEnumerable<string> PathArray = JsonSerializer.Deserialize<IEnumerable<string>>(RawText);
-
                                 int InsertIndex = TabCollection.Count;
 
                                 for (int i = 0; i < TabCollection.Count; i++)
@@ -1147,9 +1211,11 @@ namespace RX_Explorer.View
                                     }
                                 }
 
-                                if (PathArray.Any())
+                                IEnumerable<string> PathList = JsonSerializer.Deserialize<IEnumerable<string>>(RawText);
+
+                                if (PathList.Any())
                                 {
-                                    await CreateNewTabAsync(InsertIndex, PathArray.Where((Path) => !string.IsNullOrWhiteSpace(Path)).ToArray());
+                                    await CreateNewTabAsync(InsertIndex, PathList.Where((Path) => !string.IsNullOrWhiteSpace(Path)).ToArray());
                                 }
                                 else
                                 {
@@ -1191,7 +1257,8 @@ namespace RX_Explorer.View
                         Renderer.Dispose();
                     }
 
-                    Tab.DragEnter -= Tab_DragEnter;
+                    Tab.Drop -= Tab_Drop;
+                    Tab.DragOver -= Tab_DragOver;
                     Tab.PointerEntered -= Tab_PointerEntered;
                     Tab.PointerExited -= Tab_PointerExited;
                     Tab.PointerPressed -= Tab_PointerPressed;
@@ -1440,6 +1507,32 @@ namespace RX_Explorer.View
         private void RecycleButton_Click(object sender, RoutedEventArgs e)
         {
             CurrentTabRenderer.RendererFrame.Navigate(typeof(RecycleBin), null, new DrillInNavigationTransitionInfo());
+        }
+
+        private async void TabViewControl_TabDroppedOutside(TabView sender, TabViewTabDroppedOutsideEventArgs args)
+        {
+            if (TabCollection.Count > 1
+                && args.Tab is TabViewItem Tab
+                && Tab.Content is Frame BaseFrame
+                && BaseFrame.Content is TabItemContentRenderer Renderer)
+            {
+                string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
+                {
+                    Renderer.Presenters.Select((Presenter) => Presenter.CurrentFolder?.Path)
+                                       .Where((Path) => !string.IsNullOrWhiteSpace(Path))
+                                       .ToArray()
+                }));
+
+                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
+            }
+        }
+
+        private async void TabViewControl_TabDragCompleted(TabView sender, TabViewTabDragCompletedEventArgs args)
+        {
+            if (args.Tab is TabViewItem Tab)
+            {
+                await CleanUpAndRemoveTabItem(Tab);
+            }
         }
     }
 }

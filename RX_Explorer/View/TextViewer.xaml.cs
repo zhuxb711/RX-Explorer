@@ -87,12 +87,17 @@ namespace RX_Explorer.View
                     case ".sle":
                         {
                             Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                            SLEInputStream SLEStream = new SLEInputStream(Stream, SecureArea.AESKey);
 
-                            SLEHeader Header = SLEHeader.GetHeader(Stream);
-
-                            if (Header.Version >= SLEVersion.Version_1_5_0)
+                            if (SLEStream.Header.Core.Version >= SLEVersion.SLE150)
                             {
-                                TextStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                                TextStream = SLEStream;
+                            }
+                            else
+                            {
+                                Stream.Dispose();
+                                SLEStream.Dispose();
+                                throw new NotSupportedException();
                             }
 
                             break;
@@ -102,17 +107,17 @@ namespace RX_Explorer.View
                             TextStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
                             break;
                         }
+                    default:
+                        {
+                            throw new NotSupportedException();
+                        }
                 }
 
                 try
                 {
                     if (!CancelToken.IsCancellationRequested)
                     {
-                        if (TextStream == null)
-                        {
-                            throw new NotSupportedException();
-                        }
-                        else if (TextStream is SLEInputStream)
+                        if (TextStream is SLEInputStream)
                         {
                             Save.IsEnabled = false;
                         }

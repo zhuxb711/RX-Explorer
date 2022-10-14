@@ -15,7 +15,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.Storage;
@@ -427,13 +426,19 @@ namespace RX_Explorer.View
                 {
                     case ".sle":
                         {
-                            Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                            Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                            SLEInputStream SLEStream = new SLEInputStream(FileStream, SecureArea.AESKey);
 
-                            SLEHeader Header = SLEHeader.GetHeader(Stream);
-
-                            if (Header.Version >= SLEVersion.Version_1_5_0 && Path.GetExtension(Header.FileName).Equals(".zip", StringComparison.OrdinalIgnoreCase))
+                            if (SLEStream.Header.Core.Version >= SLEVersion.SLE150
+                                && Path.GetExtension(SLEStream.Header.Core.FileName).Equals(".zip", StringComparison.OrdinalIgnoreCase))
                             {
-                                CompressedStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                                CompressedStream = SLEStream;
+                            }
+                            else
+                            {
+                                SLEStream.Dispose();
+                                FileStream.Dispose();
+                                throw new NotSupportedException();
                             }
 
                             break;
@@ -443,25 +448,25 @@ namespace RX_Explorer.View
                             CompressedStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess);
                             break;
                         }
+                    default:
+                        {
+                            throw new NotSupportedException();
+                        }
                 }
 
                 if (CancelToken.IsCancellationRequested)
                 {
-                    CompressedStream?.Dispose();
+                    CompressedStream.Dispose();
                 }
                 else
                 {
+                    if (CompressedStream is SLEInputStream)
+                    {
+                        IsReadonlyMode = true;
+                    }
+
                     try
                     {
-                        if (CompressedStream == null)
-                        {
-                            throw new NotSupportedException();
-                        }
-                        else if (CompressedStream is SLEInputStream)
-                        {
-                            IsReadonlyMode = true;
-                        }
-
                         ZipFile = File;
                         ZipObj = new ZipFile(CompressedStream)
                         {

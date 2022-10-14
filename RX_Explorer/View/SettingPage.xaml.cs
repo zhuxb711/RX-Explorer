@@ -2243,7 +2243,7 @@ namespace RX_Explorer.View
                                             await DecryptedFStream.FlushAsync();
                                         }
 
-                                        await DecryptedFile.RenameAsync(SLEStream.Header.FileName);
+                                        await DecryptedFile.RenameAsync(SLEStream.Header.Core.FileName);
                                     }
                                 }
                             }

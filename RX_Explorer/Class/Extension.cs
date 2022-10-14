@@ -227,9 +227,11 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (await View.GetDataAsync(ExtendedDataFormats.FileDrop) is IRandomAccessStream OriginStream)
+                    if (await View.GetDataAsync(ExtendedDataFormats.FileDrop) is IRandomAccessStream RandomStream)
                     {
-                        byte[] OriginData = await Helper.GetByteArrayFromRandomAccessStreamAsync(OriginStream);
+                        RandomStream.Seek(0);
+
+                        byte[] OriginData = await Helper.GetByteArrayFromRandomAccessStreamAsync(RandomStream);
 
                         if (OriginData.Length > 0)
                         {

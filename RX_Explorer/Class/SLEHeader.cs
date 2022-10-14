@@ -2,18 +2,15 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 namespace RX_Explorer.Class
 {
     public sealed class SLEHeader
     {
-        public SLEVersion Version { get; }
+        public SLEHeaderCore Core { get; }
 
-        public int KeySize { get; }
-
-        public string FileName { get; }
-
-        public int HeaderLength { get; set; }
+        public int HeaderSize { get; private set; }
 
         public static SLEHeader GetHeader(Stream BaseFileStream)
         {
@@ -21,59 +18,57 @@ namespace RX_Explorer.Class
 
             try
             {
-                StringBuilder Builder = new StringBuilder();
-
                 using (StreamReader Reader = new StreamReader(BaseFileStream, Encoding.UTF8, true, 512, true))
                 {
-                    for (int Count = 0; Reader.Peek() >= 0; Count++)
+                    char[] Buffer = new char[512];
+
+                    if (Reader.ReadBlock(Buffer, 0, 512) > 0)
                     {
-                        if (Count > 512)
+                        // Check the file whether version is lower than SLE200
+                        if (Buffer[0] == '$')
                         {
-                            throw new FileDamagedException("File damaged, could not be decrypted");
-                        }
+                            int EndSignalIndex = Array.LastIndexOf(Buffer, '$');
 
-                        char NextChar = (char)Reader.Read();
+                            if (EndSignalIndex > 1)
+                            {
+                                string RawInfoData = new string(Buffer.Take(EndSignalIndex + 1).ToArray());
 
-                        if (Builder.Length > 0 && NextChar == '$')
-                        {
-                            Builder.Append(NextChar);
-                            break;
+                                if (!string.IsNullOrWhiteSpace(RawInfoData))
+                                {
+                                    if (RawInfoData.Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string InfoData)
+                                    {
+                                        string[] FieldArray = InfoData.Split('|', StringSplitOptions.RemoveEmptyEntries);
+
+                                        SLEVersion Version = FieldArray.Length switch
+                                        {
+                                            2 => SLEVersion.SLE100,
+                                            3 => (SLEVersion)Convert.ToInt32(FieldArray[2]),
+                                            _ => throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted")
+                                        };
+
+                                        return new SLEHeader(new SLEHeaderCore(Version, FieldArray[1], Convert.ToInt32(FieldArray[0])), Encoding.UTF8.GetBytes(RawInfoData).Length);
+                                    }
+                                }
+                            }
                         }
                         else
                         {
-                            Builder.Append(NextChar);
+                            // Check the file whether version is higher than SLE200
+                            try
+                            {
+                                string BufferString = new string(Buffer);
+                                SLEHeaderCore Core = JsonSerializer.Deserialize<SLEHeaderCore>(BufferString.TrimEnd('\0'));
+                                return new SLEHeader(Core, Encoding.UTF8.GetBytes(BufferString).Length);
+                            }
+                            catch (Exception)
+                            {
+                                // No need to handle this exception
+                            }
                         }
                     }
                 }
 
-                string RawInfoData = Builder.ToString();
-
-                if (string.IsNullOrWhiteSpace(RawInfoData))
-                {
-                    throw new FileDamagedException("File damaged, could not be decrypted");
-                }
-
-                int HeaderLength = Encoding.UTF8.GetBytes(RawInfoData).Length;
-
-                BaseFileStream.Seek(HeaderLength, SeekOrigin.Begin);
-
-                if (RawInfoData.Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string InfoData)
-                {
-                    string[] FieldArray = InfoData.Split('|', StringSplitOptions.RemoveEmptyEntries);
-
-                    SLEVersion Version = FieldArray.Length switch
-                    {
-                        2 => SLEVersion.Version_1_0_0,
-                        3 => (SLEVersion)Convert.ToInt32(FieldArray[2]),
-                        _ => throw new FileDamagedException("File damaged, could not be decrypted")
-                    };
-
-                    return new SLEHeader(Version, FieldArray[1], Convert.ToInt32(FieldArray[0]), HeaderLength);
-                }
-                else
-                {
-                    throw new FileDamagedException("File damaged, could not be decrypted");
-                }
+                throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted");
             }
             finally
             {
@@ -81,27 +76,61 @@ namespace RX_Explorer.Class
             }
         }
 
-        private SLEHeader(SLEVersion Version, string FileName, int KeySize, int HeaderLength)
+        public void WriteHeader(Stream BaseFileStream)
         {
-            if (string.IsNullOrWhiteSpace(FileName))
-            {
-                throw new ArgumentException("FileName could not be empty", nameof(FileName));
-            }
+            BaseFileStream.Seek(0, SeekOrigin.Begin);
 
-            if (KeySize != 256 && KeySize != 128)
+            using (StreamWriter Writer = new StreamWriter(BaseFileStream, Encoding.UTF8, 512, true))
             {
-                throw new InvalidDataException("KeySize could only be set with 128 or 256");
-            }
+                if (Core.Version >= SLEVersion.SLE200)
+                {
+                    Writer.Write(JsonSerializer.Serialize(Core).PadRight(512, '\0'));
+                }
+                else
+                {
+                    Writer.Write($"${Core.KeySize}|{Core.FileName.Replace('$', '_')}|{(int)Core.Version}$");
+                }
 
-            this.Version = Version;
-            this.FileName = FileName;
-            this.KeySize = KeySize;
-            this.HeaderLength = HeaderLength;
+                Writer.Flush();
+            }
         }
 
-        public SLEHeader(SLEVersion Version, string FileName, int KeySize) : this(Version, FileName, KeySize, 0)
+        private SLEHeader(SLEHeaderCore Core, int HeaderSize)
         {
+            this.Core = Core;
+            this.HeaderSize = HeaderSize;
+        }
 
+        public SLEHeader(SLEVersion Version, string FileName, int KeySize)
+        {
+            Core = new SLEHeaderCore(Version, FileName, KeySize);
+            HeaderSize = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(Core)).Length;
+        }
+
+        public sealed class SLEHeaderCore
+        {
+            public int KeySize { get; }
+
+            public string FileName { get; }
+
+            public SLEVersion Version { get; }
+
+            public SLEHeaderCore(SLEVersion Version, string FileName, int KeySize)
+            {
+                if (string.IsNullOrWhiteSpace(FileName))
+                {
+                    throw new ArgumentException("FileName could not be empty", nameof(FileName));
+                }
+
+                if (KeySize != 256 && KeySize != 128)
+                {
+                    throw new InvalidDataException("KeySize could only be set with 128 or 256");
+                }
+
+                this.KeySize = KeySize;
+                this.FileName = FileName;
+                this.Version = Version;
+            }
         }
     }
 }

@@ -1,34 +1,49 @@
 ﻿using RX_Explorer.Class;
+using SharedLibrary;
 using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace RX_Explorer.Dialog
 {
     public sealed partial class SecureFilePropertyDialog : QueueContentDialog
     {
-        public SecureFilePropertyDialog(FileSystemStorageFile SFile, SLEHeader Header)
+        public static async Task<SecureFilePropertyDialog> CreateAsync(FileSystemStorageFile SFile)
         {
-            InitializeComponent();
-
             if (SFile == null)
             {
                 throw new ArgumentNullException(nameof(SFile), "Parameter could not be null");
             }
 
-            if (Header == null)
+            if (!SFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
             {
-                throw new ArgumentNullException(nameof(Header), "Parameter could not be null");
+                throw new ArgumentException("File must be end with .sle", nameof(SFile));
             }
 
-            FileNameLabel.Text = SFile.DisplayName;
-            FileTypeLabel.Text = SFile.DisplayType;
-            FileSizeLabel.Text = SFile.Size.GetFileSizeDescription();
-            VersionLabel.Text = string.Join('.', Convert.ToString((int)Header.Version).ToCharArray());
-            LevelLabel.Text = Header.KeySize switch
+            using (Stream FileStream = await SFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
             {
-                128 => "AES-128bit",
-                256 => "AES-256bit",
-                _ => throw new NotSupportedException()
-            };
+                SLEHeader Header = SLEHeader.GetHeader(FileStream);
+
+                return new SecureFilePropertyDialog(SFile.DisplayName,
+                                                    SFile.DisplayType, SFile.Size.GetFileSizeDescription(),
+                                                    string.Join('.', Convert.ToString((int)Header.Core.Version).ToCharArray()),
+                                                    Header.Core.KeySize switch
+                                                    {
+                                                        128 => "AES-128bit",
+                                                        256 => "AES-256bit",
+                                                        _ => throw new NotSupportedException()
+                                                    });
+            }
+        }
+
+        private SecureFilePropertyDialog(string DisplayName, string DisplayType, string SizeDescription, string Version, string Level)
+        {
+            InitializeComponent();
+            FileNameLabel.Text = DisplayName;
+            FileTypeLabel.Text = DisplayType;
+            FileSizeLabel.Text = SizeDescription;
+            VersionLabel.Text = Version;
+            LevelLabel.Text = Level;
         }
     }
 }

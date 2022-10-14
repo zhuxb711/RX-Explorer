@@ -68,31 +68,26 @@ namespace RX_Explorer.View
                 if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
                     using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    using (SLEInputStream SLEStream = new SLEInputStream(Stream, SecureArea.AESKey))
                     {
-                        if (!CancelToken.IsCancellationRequested)
+                        CancelToken.ThrowIfCancellationRequested();
+
+                        if (SLEStream.Header.Core.Version >= SLEVersion.SLE150)
                         {
-                            SLEHeader Header = SLEHeader.GetHeader(Stream);
+                            Adjust.IsEnabled = false;
+                            SetAsWallpaper.IsEnabled = false;
 
-                            if (Header.Version >= SLEVersion.Version_1_5_0)
-                            {
-                                Adjust.IsEnabled = false;
-                                SetAsWallpaper.IsEnabled = false;
+                            PhotoCollection.Add(new PhotoDisplayItem(await Helper.CreateBitmapImageAsync(SLEStream.AsRandomAccessStream())));
 
-                                using (IRandomAccessStream RandomStream = new SLEInputStream(Stream, SecureArea.AESKey).AsRandomAccessStream())
-                                {
-                                    PhotoCollection.Add(new PhotoDisplayItem(await Helper.CreateBitmapImageAsync(RandomStream)));
-                                }
+                            await Task.Delay(500);
 
-                                await Task.Delay(500);
-
-                                PhotoGirdView.SelectionChanged += PhotoGirdView_SelectionChanged;
-                                PhotoGirdView.SelectedIndex = -1;
-                                PhotoGirdView.SelectedIndex = 0;
-                            }
-                            else
-                            {
-                                throw new NotSupportedException();
-                            }
+                            PhotoGirdView.SelectionChanged += PhotoGirdView_SelectionChanged;
+                            PhotoGirdView.SelectedIndex = -1;
+                            PhotoGirdView.SelectedIndex = 0;
+                        }
+                        else
+                        {
+                            throw new NotSupportedException();
                         }
                     }
                 }

@@ -11,45 +11,21 @@ namespace RX_Explorer.Class
     {
         private const int BlockSize = 16;
 
-        public override bool CanRead
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool CanRead => false;
 
-        public override bool CanSeek
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool CanSeek => false;
 
-        public override bool CanWrite
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool CanWrite => true;
 
-        public override long Length
-        {
-            get
-            {
-                return Math.Max(BaseFileStream.Length - Header.HeaderLength - BlockSize, 0);
-            }
-        }
+        public override long Length => Math.Max(BaseFileStream.Length - Header.HeaderSize - BlockSize, 0);
 
         public override long Position
         {
             get
             {
-                if (Header.Version == SLEVersion.Version_1_5_0)
+                if (Header.Core.Version >= SLEVersion.SLE150)
                 {
-                    return Math.Max(BaseFileStream.Position - Header.HeaderLength - BlockSize, 0);
+                    return Math.Max(BaseFileStream.Position - Header.HeaderSize - BlockSize, 0);
                 }
                 else
                 {
@@ -96,39 +72,32 @@ namespace RX_Explorer.Class
         {
             try
             {
-                switch (Header.Version)
+                if (Header.Core.Version >= SLEVersion.SLE150)
                 {
-                    case SLEVersion.Version_1_5_0:
+                    long StartPosition = Position + offset;
+                    long CurrentBlockIndex = StartPosition / BlockSize;
+
+                    byte[] XorBuffer = new byte[BlockSize];
+
+                    for (int Index = 0; Index < count; Index += BlockSize)
+                    {
+                        Array.ConstrainedCopy(BitConverter.GetBytes(CurrentBlockIndex++), 0, Counter, BlockSize / 2, 8);
+
+                        Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
+
+                        int ValidDataLength = Math.Min(BlockSize, count - Index);
+
+                        for (int Index2 = 0; Index2 < ValidDataLength; Index2++)
                         {
-                            long StartPosition = Position + offset;
-                            long CurrentBlockIndex = StartPosition / BlockSize;
-
-                            byte[] XorBuffer = new byte[BlockSize];
-
-                            for (int Index = 0; Index < count; Index += BlockSize)
-                            {
-                                Array.ConstrainedCopy(BitConverter.GetBytes(CurrentBlockIndex++), 0, Counter, BlockSize / 2, 8);
-
-                                Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
-
-                                int ValidDataLength = Math.Min(BlockSize, count - Index);
-
-                                for (int Index2 = 0; Index2 < ValidDataLength; Index2++)
-                                {
-                                    XorBuffer[Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
-                                }
-
-                                BaseFileStream.Write(XorBuffer, offset, ValidDataLength);
-                            }
-
-                            break;
+                            XorBuffer[Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
                         }
-                    case SLEVersion.Version_1_1_0:
-                    case SLEVersion.Version_1_0_0:
-                        {
-                            TransformStream.Write(buffer, offset, count);
-                            break;
-                        }
+
+                        BaseFileStream.Write(XorBuffer, offset, ValidDataLength);
+                    }
+                }
+                else
+                {
+                    TransformStream.Write(buffer, offset, count);
                 }
             }
             catch (Exception ex)
@@ -139,30 +108,35 @@ namespace RX_Explorer.Class
 
         private ICryptoTransform CreateAesEncryptor()
         {
-            int KeyLengthNeed = Header.KeySize / 8;
+            if (Key.Any((Char) => Char > '\u007F'))
+            {
+                throw new NotSupportedException($"Only ASCII char is allowed in {nameof(Key)}");
+            }
+
+            int KeyLengthNeed = Header.Core.KeySize / 8;
 
             byte[] KeyArray;
 
             if (Key.Length > KeyLengthNeed)
             {
-                KeyArray = Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed));
+                KeyArray = Encoding.ASCII.GetBytes(Key.Substring(0, KeyLengthNeed));
             }
             else if (Key.Length < KeyLengthNeed)
             {
-                KeyArray = Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+                KeyArray = Encoding.ASCII.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
             }
             else
             {
-                KeyArray = Encoding.UTF8.GetBytes(Key);
+                KeyArray = Encoding.ASCII.GetBytes(Key);
             }
 
-            switch (Header.Version)
+            switch (Header.Core.Version)
             {
-                case SLEVersion.Version_1_5_0:
+                case >= SLEVersion.SLE150:
                     {
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            KeySize = Header.KeySize,
+                            KeySize = Header.Core.KeySize,
                             Mode = CipherMode.ECB,
                             Padding = PaddingMode.None,
                             Key = KeyArray
@@ -171,11 +145,11 @@ namespace RX_Explorer.Class
                             return AES.CreateEncryptor();
                         }
                     }
-                case SLEVersion.Version_1_1_0:
+                case SLEVersion.SLE110:
                     {
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            KeySize = Header.KeySize,
+                            KeySize = Header.Core.KeySize,
                             Mode = CipherMode.CBC,
                             Padding = PaddingMode.PKCS7,
                             Key = KeyArray,
@@ -189,7 +163,7 @@ namespace RX_Explorer.Class
                     {
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            KeySize = Header.KeySize,
+                            KeySize = Header.Core.KeySize,
                             Mode = CipherMode.CBC,
                             Padding = PaddingMode.Zeros,
                             Key = KeyArray,
@@ -200,16 +174,6 @@ namespace RX_Explorer.Class
                         }
                     }
             }
-        }
-
-        private void WriteHeader()
-        {
-            byte[] ExtraInfo = Encoding.UTF8.GetBytes($"${Header.KeySize}|{Header.FileName.Replace('$', '_')}|{(int)Header.Version}$");
-            BaseFileStream.Write(ExtraInfo, 0, ExtraInfo.Length);
-            Header.HeaderLength = ExtraInfo.Length;
-
-            byte[] PasswordConfirm = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
-            Write(PasswordConfirm, 0, PasswordConfirm.Length);
         }
 
         protected override void Dispose(bool disposing)
@@ -223,7 +187,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public SLEOutputStream(Stream BaseFileStream, SLEHeader Header, string Key)
+        public SLEOutputStream(Stream BaseFileStream, SLEVersion Version, string FileName, string Key, int KeySize)
         {
             if (BaseFileStream == null)
             {
@@ -240,30 +204,28 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
             }
 
-            this.BaseFileStream = BaseFileStream;
-            this.Header = Header;
             this.Key = Key;
+            this.BaseFileStream = BaseFileStream;
 
             Transform = CreateAesEncryptor();
 
-            switch (Header.Version)
+            if (Version >= SLEVersion.SLE150)
             {
-                case SLEVersion.Version_1_5_0:
-                    {
-                        byte[] Nonce = new EasClientDeviceInformation().Id.ToByteArray().Take(8).ToArray();
-                        Array.Resize(ref Nonce, 16);
-                        Counter = Nonce;
-                        break;
-                    }
-                case SLEVersion.Version_1_1_0:
-                case SLEVersion.Version_1_0_0:
-                    {
-                        TransformStream = new CryptoStream(BaseFileStream, Transform, CryptoStreamMode.Write);
-                        break;
-                    }
+                Counter = new EasClientDeviceInformation().Id.ToByteArray().Take(8).Concat(Enumerable.Repeat<byte>(0, 8)).ToArray();
+            }
+            else
+            {
+                TransformStream = new CryptoStream(BaseFileStream, Transform, CryptoStreamMode.Read);
             }
 
-            WriteHeader();
+            Header = new SLEHeader(Version, FileName, KeySize);
+            Header.WriteHeader(BaseFileStream);
+
+            using (StreamWriter Writer = new StreamWriter(this, Encoding.UTF8, 128, true))
+            {
+                Writer.Write("PASSWORD_CORRECT");
+                Writer.Flush();
+            }
         }
     }
 }

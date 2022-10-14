@@ -145,9 +145,10 @@ namespace RX_Explorer.Class
 
     public enum SLEVersion
     {
-        Version_1_0_0 = 100,
-        Version_1_1_0 = 110,
-        Version_1_5_0 = 150
+        SLE100 = 100,
+        SLE110 = 110,
+        SLE150 = 150,
+        SLE200 = 200
     }
 
     public enum SyncStatus
