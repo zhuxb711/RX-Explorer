@@ -442,9 +442,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="SearchType.Text" xml:space="preserve">
     <value>Typ</value>
   </data>
-  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
-    <value>Datei hinzufügen</value>
-  </data>
   <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
     <value>Löschen</value>
   </data>
@@ -1441,9 +1438,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>Einige angeheftete Ordner können nicht gefunden werden. Möchten Sie sie automatisch entfernen? Einschließlich:</value>
-  </data>
-  <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
-    <value>Sicherheitsbereich ünterstützt das Importieren von Ordnern nicht. Alle Ordner wurden gefiltert.</value>
   </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
     <value>Danke für ihre Unterstützung von RX-Explorer. Der Sicherheitsbereich wurde entsperrt.</value>

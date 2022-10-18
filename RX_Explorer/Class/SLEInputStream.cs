@@ -36,7 +36,7 @@ namespace RX_Explorer.Class
             {
                 if (Header.Core.Version >= SLEVersion.SLE150)
                 {
-                    BaseFileStream.Position = Convert.ToInt64(value) + FileContentOffset;
+                    BaseFileStream.Position = value + FileContentOffset;
                 }
                 else
                 {
@@ -60,84 +60,75 @@ namespace RX_Explorer.Class
             throw new NotSupportedException();
         }
 
-        public override int Read(byte[] buffer, int offset, int Count)
+        public override int Read(byte[] buffer, int offset, int count)
         {
-            try
+            if (Header.Core.Version >= SLEVersion.SLE150)
             {
-                if (Header.Core.Version >= SLEVersion.SLE150)
+                if (Position + offset > Length)
                 {
-                    if (Position + offset > Length)
-                    {
-                        return 0;
-                    }
-                    else
-                    {
-                        long StartPosition = Position + offset;
-                        long CurrentBlockIndex = StartPosition / BlockSize;
-
-                        byte[] FileDataBuffer = new byte[Count];
-                        byte[] XorBuffer = new byte[BlockSize];
-
-                        int ByteRead = BaseFileStream.Read(FileDataBuffer, offset, FileDataBuffer.Length);
-
-                        long StartBlockOffset = StartPosition % BlockSize;
-                        long EndBlockOffset = (StartPosition + ByteRead) % BlockSize;
-
-                        long Index = 0;
-
-                        while (true)
-                        {
-                            Array.ConstrainedCopy(BitConverter.GetBytes(CurrentBlockIndex++), 0, Counter, BlockSize / 2, 8);
-
-                            Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
-
-                            if (Index == 0)
-                            {
-                                long LoopCount = Math.Min(BlockSize - StartBlockOffset, Count);
-
-                                for (int Index2 = 0; Index2 < LoopCount; Index2++)
-                                {
-                                    buffer[Index2] = (byte)(XorBuffer[Index2 + StartBlockOffset] ^ FileDataBuffer[Index2]);
-                                }
-
-                                Index += LoopCount;
-                            }
-                            else if (Index + BlockSize > ByteRead)
-                            {
-                                long LoopCount = Math.Min(EndBlockOffset, Count - Index);
-
-                                for (int Index2 = 0; Index2 < LoopCount; Index2++)
-                                {
-                                    buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ FileDataBuffer[Index + Index2]);
-                                }
-
-                                break;
-                            }
-                            else
-                            {
-                                long LoopCount = Math.Min(BlockSize, Count - Index);
-
-                                for (int Index2 = 0; Index2 < LoopCount; Index2++)
-                                {
-                                    buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ FileDataBuffer[Index + Index2]);
-                                }
-
-                                Index += LoopCount;
-                            }
-                        }
-
-                        return ByteRead;
-                    }
+                    return 0;
                 }
                 else
                 {
-                    return TransformStream.Read(buffer, offset, Count);
+                    long StartPosition = Position + offset;
+                    long CurrentBlockIndex = StartPosition / BlockSize;
+
+                    byte[] XorBuffer = new byte[BlockSize];
+
+                    int ByteRead = BaseFileStream.Read(buffer, offset, count);
+
+                    long StartBlockOffset = StartPosition % BlockSize;
+                    long EndBlockOffset = (StartPosition + ByteRead) % BlockSize;
+
+                    long Index = 0;
+
+                    while (true)
+                    {
+                        Array.ConstrainedCopy(BitConverter.GetBytes(CurrentBlockIndex++), 0, Counter, BlockSize / 2, 8);
+
+                        Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
+
+                        if (Index == 0)
+                        {
+                            long LoopCount = Math.Min(BlockSize - StartBlockOffset, count);
+
+                            for (int Index2 = 0; Index2 < LoopCount; Index2++)
+                            {
+                                buffer[Index2] = (byte)(XorBuffer[Index2 + StartBlockOffset] ^ buffer[Index2]);
+                            }
+
+                            Index += LoopCount;
+                        }
+                        else if (Index + BlockSize > ByteRead)
+                        {
+                            long LoopCount = Math.Min(EndBlockOffset, count - Index);
+
+                            for (int Index2 = 0; Index2 < LoopCount; Index2++)
+                            {
+                                buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
+                            }
+
+                            break;
+                        }
+                        else
+                        {
+                            long LoopCount = Math.Min(BlockSize, count - Index);
+
+                            for (int Index2 = 0; Index2 < LoopCount; Index2++)
+                            {
+                                buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
+                            }
+
+                            Index += LoopCount;
+                        }
+                    }
+
+                    return ByteRead;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(SLEInputStream.Read)} threw an exception");
-                return 0;
+                return TransformStream.Read(buffer, offset, count);
             }
         }
 

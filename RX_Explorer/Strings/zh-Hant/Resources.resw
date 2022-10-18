@@ -436,9 +436,6 @@
   <data name="SearchType.Text" xml:space="preserve">
     <value>類型</value>
   </data>
-  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
-    <value>新增檔案</value>
-  </data>
   <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
     <value>刪除</value>
   </data>
@@ -1395,9 +1392,6 @@
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>無法找到一些釘選的資料夾，您想自動刪除它們嗎? 包含:</value>
-  </data>
-  <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
-    <value>加密庫不支持移入資料夾，所有資料夾均已篩選</value>
   </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
     <value>感謝您對RX 檔案管理的支持，加密庫已解鎖</value>

@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum StorageType
+    {
+        File,
+        Folder,
+    }
+
     public enum UIStyle
     {
         Normal,

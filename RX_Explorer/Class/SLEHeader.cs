@@ -53,7 +53,7 @@ namespace RX_Explorer.Class
                                             _ => throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted")
                                         };
 
-                                        return new SLEHeader(Version, HeaderEncoding, FieldArray[1], Convert.ToInt32(FieldArray[0]), HeaderEncoding.GetByteCount(RawInfoData));
+                                        return new SLEHeader(Version, StorageType.File, HeaderEncoding, FieldArray[1], Convert.ToInt32(FieldArray[0]), HeaderEncoding.GetByteCount(RawInfoData));
                                     }
                                 }
                             }
@@ -121,12 +121,12 @@ namespace RX_Explorer.Class
             this.HeaderSize = HeaderSize;
         }
 
-        private SLEHeader(SLEVersion Version, Encoding HeaderEncoding, string FileName, int KeySize, int HeaderSize) : this(new SLEHeaderCore(Version, FileName, KeySize), HeaderEncoding, HeaderSize)
+        private SLEHeader(SLEVersion Version, StorageType OriginType, Encoding HeaderEncoding, string FileName, int KeySize, int HeaderSize) : this(new SLEHeaderCore(Version, OriginType, FileName, KeySize), HeaderEncoding, HeaderSize)
         {
 
         }
 
-        public SLEHeader(SLEVersion Version, Encoding HeaderEncoding, string FileName, int KeySize) : this(new SLEHeaderCore(Version, FileName, KeySize), HeaderEncoding, 0)
+        public SLEHeader(SLEVersion Version, StorageType OriginType, Encoding HeaderEncoding, string FileName, int KeySize) : this(new SLEHeaderCore(Version, OriginType, FileName, KeySize), HeaderEncoding, 0)
         {
 
         }
@@ -139,7 +139,9 @@ namespace RX_Explorer.Class
 
             public SLEVersion Version { get; }
 
-            public SLEHeaderCore(SLEVersion Version, string FileName, int KeySize)
+            public StorageType OriginType { get; }
+
+            public SLEHeaderCore(SLEVersion Version, StorageType OriginType, string FileName, int KeySize)
             {
                 if (string.IsNullOrWhiteSpace(FileName))
                 {
@@ -151,9 +153,15 @@ namespace RX_Explorer.Class
                     throw new InvalidDataException("KeySize could only be set with 128 or 256");
                 }
 
+                if (Version <= SLEVersion.SLE150 && OriginType == StorageType.Folder)
+                {
+                    throw new NotSupportedException($"Version under {SLEVersion.SLE200} is not support for ecrypt folder");
+                }
+
                 this.KeySize = KeySize;
                 this.FileName = FileName;
                 this.Version = Version;
+                this.OriginType = OriginType;
             }
         }
     }

@@ -427,9 +427,6 @@
   <data name="SearchType.Text" xml:space="preserve">
     <value>类型</value>
   </data>
-  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
-    <value>添加文件</value>
-  </data>
   <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
     <value>删除</value>
   </data>
@@ -1376,9 +1373,6 @@
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>无法找到一些已固定的文件夹，是否希望自动移除这些文件夹? 包括:</value>
-  </data>
-  <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
-    <value>安全域不支持导入文件夹类型，所有文件夹类型均已被过滤</value>
   </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
     <value>感谢您对RX文件管理器的支持，安全域功能已经解锁</value>

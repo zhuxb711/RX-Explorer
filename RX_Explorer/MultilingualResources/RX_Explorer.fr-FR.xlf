@@ -560,10 +560,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Type</source>
           <target state="translated">Type</target>
         </trans-unit>
-        <trans-unit id="SecureAreaAddFileButton.Label" translate="yes" xml:space="preserve">
-          <source>Add file</source>
-          <target state="translated">Ajouter fichier</target>
-        </trans-unit>
         <trans-unit id="SecureAreaDeleteButton.Label" translate="yes" xml:space="preserve">
           <source>Delete</source>
           <target state="translated">Supprimer</target>
@@ -1816,10 +1812,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_PinFolderNotFound_Content" translate="yes" xml:space="preserve">
           <source>Unable to find some pinned folders, would you like to remove them automatically? Including:</source>
           <target state="translated">Impossible de trouver certains dossiers épinglés, souhaitez-vous les supprimer automatiquement ? Y compris:</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_SecureAreaImportFiliter_Content" translate="yes" xml:space="preserve">
-          <source>Security Area does not support importing folder, all folders have been filtered</source>
-          <target state="translated">L'Espace Sécurisé ne prend pas en charge l'importation de dossiers, tous les dossiers ont été filtrés</target>
         </trans-unit>
         <trans-unit id="QueueDialog_SecureAreaUnlock_Content" translate="yes" xml:space="preserve">
           <source>Thank you for your support of the RX Explorer, the security area has been unlocked</source>
@@ -4949,6 +4941,10 @@ Les noms non valides incluent
         <trans-unit id="PreviewFileOnHoverTitle.Text" translate="yes" xml:space="preserve">
           <source>Preview file properties while hovering</source>
           <target state="translated">Aperçu des propriétés du fichier en vol stationnaire</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaAddButton.Label" translate="yes" xml:space="preserve">
+          <source>Add</source>
+          <target state="new">Add</target>
         </trans-unit>
       </group>
     </body>

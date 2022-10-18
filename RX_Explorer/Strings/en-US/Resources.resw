@@ -559,8 +559,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SearchType.Text" xml:space="preserve">
     <value>Type</value>
   </data>
-  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
-    <value>Add file</value>
+  <data name="SecureAreaAddButton.Label" xml:space="preserve">
+    <value>Add</value>
   </data>
   <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
     <value>Delete</value>
@@ -1561,9 +1561,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>Unable to find some pinned folders, would you like to remove them automatically? Including:</value>
-  </data>
-  <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
-    <value>Security Area does not support importing folder, all folders have been filtered</value>
   </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
     <value>Thank you for your support of the RX Explorer, the security area has been unlocked</value>

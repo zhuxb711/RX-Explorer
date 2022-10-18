@@ -20,27 +20,27 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
-                              MinWidth="200"
+                              MinWidth="220"
                               Click="ItemOpen_Click" />
                 <AppBarButton Icon="Import"
                               Label="导出"
-                              MinWidth="200"
+                              MinWidth="220"
                               x:Uid="SecureAreaExportButton"
                               Click="ExportFile_Click" />
                 <AppBarButton Icon="Delete"
                               Label="删除"
-                              MinWidth="200"
+                              MinWidth="220"
                               x:Uid="SecureAreaDeleteButton"
                               Click="DeleteFile_Click" />
                 <AppBarButton Icon="Rename"
                               Label="重命名"
-                              MinWidth="200"
+                              MinWidth="220"
                               x:Uid="SecureAreaRenameButton"
                               x:Name="RenameFile"
                               Click="RenameFile_Click" />
                 <AppBarButton Icon="Tag"
                               Label="属性"
-                              MinWidth="200"
+                              MinWidth="220"
                               x:Uid="SecureAreaProperty"
                               x:Name="Property"
                               Click="Property_Click" />
@@ -52,12 +52,12 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Import"
                               Label="导出"
-                              MinWidth="200"
+                              MinWidth="220"
                               x:Uid="SecureAreaExportButton"
                               Click="ExportFile_Click" />
                 <AppBarButton Icon="Delete"
                               Label="删除"
-                              MinWidth="200"
+                              MinWidth="220"
                               x:Uid="SecureAreaDeleteButton"
                               Click="DeleteFile_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -67,10 +67,30 @@
                                Placement="BottomEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
-                              Label="添加文件"
-                              MinWidth="200"
-                              x:Uid="SecureAreaAddFileButton"
-                              Click="AddFile_Click" />
+                              Label="添加"
+                              MinWidth="220"
+                              x:Uid="SecureAreaAddButton">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Text="文件"
+                                            MinWidth="150"
+                                            Click="PickFile_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xE1A5;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="文件夹"
+                                            MinWidth="150"
+                                            Click="PickFolder_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xE197;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
         <muxc:TeachingTip x:Name="WindowsHelloTip"
@@ -91,16 +111,48 @@
 
     <Grid Name="WholeArea">
         <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <CommandBar Background="Transparent"
                     DefaultLabelPosition="Right">
-            <AppBarButton Label="添加文件"
+            <AppBarButton Label="添加"
                           Icon="Add"
-                          x:Uid="SecureAreaAddFileButton"
-                          Name="AddFile"
-                          Click="AddFile_Click" />
+                          x:Uid="SecureAreaAddButton">
+                <AppBarButton.Flyout>
+                    <Flyout Placement="Bottom"
+                            x:Name="PickItemFlyout">
+                        <Flyout.FlyoutPresenterStyle>
+                            <Style TargetType="FlyoutPresenter">
+                                <Setter Property="CornerRadius"
+                                        Value="{StaticResource CustomCornerRadius}" />
+                                <Setter Property="Background"
+                                        Value="{ThemeResource ElementCustomAcrylicBrush}" />
+                            </Style>
+                        </Flyout.FlyoutPresenterStyle>
+                        <StackPanel MaxWidth="230">
+                            <TextBlock Text="您要选择文件还是文件夹"
+                                       TextWrapping="WrapWholeWords"
+                                       x:Uid="SecureAreaPickItemType" />
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,10,0,0">
+                                <Button Content="文件"
+                                        Width="100"
+                                        x:Uid="SecureAreaPickFile"
+                                        Name="PickFile"
+                                        Click="PickFile_Click"/>
+                                <Button Content="文件夹"
+                                        Width="100"
+                                        Margin="10,0,0,0"
+                                        x:Uid="SecureAreaPickFolder"
+                                        Name="PickFolder"
+                                        Click="PickFolder_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Flyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
             <AppBarButton Label="导出"
                           Icon="Import"
                           x:Uid="SecureAreaExportButton"

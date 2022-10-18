@@ -13,7 +13,7 @@ namespace RX_Explorer.Class
 
         public override bool CanRead => false;
 
-        public override bool CanSeek => false;
+        public override bool CanSeek => true;
 
         public override bool CanWrite => true;
 
@@ -34,7 +34,14 @@ namespace RX_Explorer.Class
             }
             set
             {
-                throw new NotSupportedException();
+                if (Header.Core.Version >= SLEVersion.SLE150)
+                {
+                    BaseFileStream.Position = value + FileContentOffset;
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
             }
         }
 
@@ -61,49 +68,100 @@ namespace RX_Explorer.Class
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new NotSupportedException();
+            if (Header.Core.Version >= SLEVersion.SLE150)
+            {
+                switch (origin)
+                {
+                    case SeekOrigin.Begin:
+                        {
+                            Position = offset;
+                            break;
+                        }
+                    case SeekOrigin.Current:
+                        {
+                            Position += offset;
+                            break;
+                        }
+                    case SeekOrigin.End:
+                        {
+                            Position = Length + offset;
+                            break;
+                        }
+                }
+
+                return Position;
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
         }
 
         public override void SetLength(long value)
         {
-            throw new NotSupportedException();
+            BaseFileStream.SetLength(Math.Max(value + FileContentOffset, 0));
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            try
+            if (Header.Core.Version >= SLEVersion.SLE150)
             {
-                if (Header.Core.Version >= SLEVersion.SLE150)
+                long StartPosition = Position + offset;
+                long CurrentBlockIndex = StartPosition / BlockSize;
+
+                byte[] XorBuffer = new byte[BlockSize];
+
+                long StartBlockOffset = StartPosition % BlockSize;
+                long EndBlockOffset = (StartPosition + count) % BlockSize;
+
+                long Index = 0;
+
+                while (true)
                 {
-                    long StartPosition = Position + offset;
-                    long CurrentBlockIndex = StartPosition / BlockSize;
+                    Array.ConstrainedCopy(BitConverter.GetBytes(CurrentBlockIndex++), 0, Counter, BlockSize / 2, 8);
 
-                    byte[] XorBuffer = new byte[BlockSize];
+                    Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
 
-                    for (int Index = 0; Index < count; Index += BlockSize)
+                    if (Index == 0)
                     {
-                        Array.ConstrainedCopy(BitConverter.GetBytes(CurrentBlockIndex++), 0, Counter, BlockSize / 2, 8);
+                        long LoopCount = Math.Min(BlockSize - StartBlockOffset, count);
 
-                        Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
-
-                        int ValidDataLength = Math.Min(BlockSize, count - Index);
-
-                        for (int Index2 = 0; Index2 < ValidDataLength; Index2++)
+                        for (int Index2 = 0; Index2 < LoopCount; Index2++)
                         {
-                            XorBuffer[Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
+                            buffer[Index2] = (byte)(XorBuffer[Index2 + StartBlockOffset] ^ buffer[Index2]);
                         }
 
-                        BaseFileStream.Write(XorBuffer, offset, ValidDataLength);
+                        Index += LoopCount;
+                    }
+                    else if (Index + BlockSize > count)
+                    {
+                        long LoopCount = Math.Min(EndBlockOffset, count - Index);
+
+                        for (int Index2 = 0; Index2 < LoopCount; Index2++)
+                        {
+                            buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
+                        }
+
+                        break;
+                    }
+                    else
+                    {
+                        long LoopCount = Math.Min(BlockSize, count - Index);
+
+                        for (int Index2 = 0; Index2 < LoopCount; Index2++)
+                        {
+                            buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
+                        }
+
+                        Index += LoopCount;
                     }
                 }
-                else
-                {
-                    TransformStream.Write(buffer, offset, count);
-                }
+
+                BaseFileStream.Write(buffer, offset, count);
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(SLEOutputStream.Write)} threw an exception");
+                TransformStream.Write(buffer, offset, count);
             }
         }
 
@@ -206,7 +264,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public SLEOutputStream(Stream BaseFileStream, SLEVersion Version, Encoding HeaderEncoding, string FileName, string Key, int KeySize)
+        public SLEOutputStream(Stream BaseFileStream, SLEVersion Version, StorageType OriginType, Encoding HeaderEncoding, string FileName, string Key, int KeySize)
         {
             if (BaseFileStream == null)
             {
@@ -226,7 +284,7 @@ namespace RX_Explorer.Class
             this.Key = Key;
             this.BaseFileStream = BaseFileStream;
 
-            Header = new SLEHeader(Version, HeaderEncoding, FileName, KeySize);
+            Header = new SLEHeader(Version, OriginType, HeaderEncoding, FileName, KeySize);
             Header.WriteHeader(BaseFileStream);
             FileContentOffset = Header.HeaderSize + Header.HeaderEncoding.GetByteCount("PASSWORD_CORRECT");
             Transform = CreateAesEncryptor();
