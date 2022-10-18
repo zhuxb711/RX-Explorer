@@ -467,7 +467,7 @@ namespace RX_Explorer.View
                                         using (Stream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                         using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, SLEVersion.SLE200, StorageType.Folder, new UTF8Encoding(false), OriginFolder.Name, AESKey, AESKeySize))
                                         {
-                                            await CompressionUtil.CreateTarAsync(new FileSystemStorageFolder[] { OriginFolder }, SLEStream, CompressionLevel.PackageOnly, CompressionAlgorithm.None, CancelToken, async (s, e) =>
+                                            await CompressionUtil.CreateZipAsync(new FileSystemStorageFolder[] { OriginFolder }, SLEStream, CompressionLevel.PackageOnly, CompressionAlgorithm.None, CancelToken, async (s, e) =>
                                             {
                                                 if (TotalSize > 0)
                                                 {

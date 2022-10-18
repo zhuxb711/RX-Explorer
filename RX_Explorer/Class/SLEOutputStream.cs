@@ -104,64 +104,75 @@ namespace RX_Explorer.Class
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (Header.Core.Version >= SLEVersion.SLE150)
+            if (Position + offset > Length)
             {
-                long StartPosition = Position + offset;
-                long CurrentBlockIndex = StartPosition / BlockSize;
-
-                byte[] XorBuffer = new byte[BlockSize];
-
-                long StartBlockOffset = StartPosition % BlockSize;
-                long EndBlockOffset = (StartPosition + count) % BlockSize;
-
-                long Index = 0;
-
-                while (true)
-                {
-                    Array.ConstrainedCopy(BitConverter.GetBytes(CurrentBlockIndex++), 0, Counter, BlockSize / 2, 8);
-
-                    Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
-
-                    if (Index == 0)
-                    {
-                        long LoopCount = Math.Min(BlockSize - StartBlockOffset, count);
-
-                        for (int Index2 = 0; Index2 < LoopCount; Index2++)
-                        {
-                            buffer[Index2] = (byte)(XorBuffer[Index2 + StartBlockOffset] ^ buffer[Index2]);
-                        }
-
-                        Index += LoopCount;
-                    }
-                    else if (Index + BlockSize > count)
-                    {
-                        long LoopCount = Math.Min(EndBlockOffset, count - Index);
-
-                        for (int Index2 = 0; Index2 < LoopCount; Index2++)
-                        {
-                            buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
-                        }
-
-                        break;
-                    }
-                    else
-                    {
-                        long LoopCount = Math.Min(BlockSize, count - Index);
-
-                        for (int Index2 = 0; Index2 < LoopCount; Index2++)
-                        {
-                            buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
-                        }
-
-                        Index += LoopCount;
-                    }
-                }
-
-                BaseFileStream.Write(buffer, offset, count);
+                throw new ArgumentOutOfRangeException();
             }
-            else
+
+            int Count = Math.Max(0, Math.Min(buffer.Length, count));
+
+            if (Count > 0)
             {
-                TransformStream.Write(buffer, offset, count);
+                if (Header.Core.Version >= SLEVersion.SLE150)
+                {
+                    long StartPosition = Position + offset;
+                    long CurrentBlockIndex = StartPosition / BlockSize;
+
+                    byte[] XorBuffer = new byte[BlockSize];
+                    byte[] OutputBuffer = new byte[Count];
+
+                    long StartBlockOffset = StartPosition % BlockSize;
+                    long EndBlockOffset = (StartPosition + Count) % BlockSize;
+
+                    long Index = 0;
+
+                    while (true)
+                    {
+                        Array.ConstrainedCopy(BitConverter.GetBytes(CurrentBlockIndex++), 0, Counter, BlockSize / 2, 8);
+
+                        Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
+
+                        if (Index == 0)
+                        {
+                            long LoopCount = Math.Min(BlockSize - StartBlockOffset, Count);
+
+                            for (int Index2 = 0; Index2 < LoopCount; Index2++)
+                            {
+                                OutputBuffer[Index2] = (byte)(XorBuffer[Index2 + StartBlockOffset] ^ buffer[Index2]);
+                            }
+
+                            Index += LoopCount;
+                        }
+                        else if (Index + BlockSize > Count)
+                        {
+                            long LoopCount = Math.Min(EndBlockOffset, Count - Index);
+
+                            for (int Index2 = 0; Index2 < LoopCount; Index2++)
+                            {
+                                OutputBuffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
+                            }
+
+                            break;
+                        }
+                        else
+                        {
+                            long LoopCount = Math.Min(BlockSize, Count - Index);
+
+                            for (int Index2 = 0; Index2 < LoopCount; Index2++)
+                            {
+                                OutputBuffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
+                            }
+
+                            Index += LoopCount;
+                        }
+                    }
+
+                    BaseFileStream.Write(OutputBuffer, offset, Count);
+                }
+                else
+                {
+                    TransformStream.Write(buffer, offset, Count);
+                }
             }
         }
 

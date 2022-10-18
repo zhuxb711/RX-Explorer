@@ -62,20 +62,28 @@ namespace RX_Explorer.Class
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (Header.Core.Version >= SLEVersion.SLE150)
+            if (Position == Length - 1)
             {
-                if (Position + offset > Length)
-                {
-                    return 0;
-                }
-                else
+                return 0;
+            }
+
+            if (Position + offset > Length)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            int Count = Math.Max(0, Math.Min(buffer.Length, count));
+
+            if (Count > 0)
+            {
+                if (Header.Core.Version >= SLEVersion.SLE150)
                 {
                     long StartPosition = Position + offset;
                     long CurrentBlockIndex = StartPosition / BlockSize;
 
                     byte[] XorBuffer = new byte[BlockSize];
 
-                    int ByteRead = BaseFileStream.Read(buffer, offset, count);
+                    int ByteRead = BaseFileStream.Read(buffer, offset, Count);
 
                     long StartBlockOffset = StartPosition % BlockSize;
                     long EndBlockOffset = (StartPosition + ByteRead) % BlockSize;
@@ -90,7 +98,7 @@ namespace RX_Explorer.Class
 
                         if (Index == 0)
                         {
-                            long LoopCount = Math.Min(BlockSize - StartBlockOffset, count);
+                            long LoopCount = Math.Min(BlockSize - StartBlockOffset, Count);
 
                             for (int Index2 = 0; Index2 < LoopCount; Index2++)
                             {
@@ -101,7 +109,7 @@ namespace RX_Explorer.Class
                         }
                         else if (Index + BlockSize > ByteRead)
                         {
-                            long LoopCount = Math.Min(EndBlockOffset, count - Index);
+                            long LoopCount = Math.Min(EndBlockOffset, Count - Index);
 
                             for (int Index2 = 0; Index2 < LoopCount; Index2++)
                             {
@@ -112,7 +120,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            long LoopCount = Math.Min(BlockSize, count - Index);
+                            long LoopCount = Math.Min(BlockSize, Count - Index);
 
                             for (int Index2 = 0; Index2 < LoopCount; Index2++)
                             {
@@ -125,10 +133,14 @@ namespace RX_Explorer.Class
 
                     return ByteRead;
                 }
+                else
+                {
+                    return TransformStream.Read(buffer, offset, Count);
+                }
             }
             else
             {
-                return TransformStream.Read(buffer, offset, count);
+                return 0;
             }
         }
 

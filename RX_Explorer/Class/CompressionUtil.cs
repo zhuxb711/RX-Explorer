@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
 
 namespace RX_Explorer.Class
 {
@@ -1092,6 +1093,8 @@ namespace RX_Explorer.Class
             }
             else
             {
+                ulong CurrentPosition = 0;
+
                 ReaderOptions ReadOptions = new ReaderOptions
                 {
                     LookForHeader = true,
@@ -1148,13 +1151,17 @@ namespace RX_Explorer.Class
                             if (await FileSystemStorageItemBase.CreateNewAsync(DestFileName, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                             {
                                 using (Stream OutputStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                using (EntryStream EntryStream = Reader.OpenEntryStream())
                                 {
-                                    using (EntryStream EntryStream = Reader.OpenEntryStream())
+                                    await EntryStream.CopyToAsync(OutputStream, Reader.Entry.Size, CancelToken, (s, e) =>
                                     {
-                                        await EntryStream.CopyToAsync(OutputStream, Reader.Entry.Size, CancelToken, ProgressHandler);
-                                    }
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * Reader.Entry.CompressedSize)) * 100d / CompressedItemStream.Length), null));
+                                    });
 
                                     await OutputStream.FlushAsync(CancelToken);
+
+                                    CurrentPosition += Convert.ToUInt64(Reader.Entry.CompressedSize);
+                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / CompressedItemStream.Length), null));
                                 }
                             }
                         }
