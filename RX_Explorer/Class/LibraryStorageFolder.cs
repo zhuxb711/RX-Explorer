@@ -16,14 +16,14 @@ namespace RX_Explorer.Class
             {
                 NativeFileData Data = NativeWin32API.GetStorageItemRawData(Path);
 
-                if (Data.IsDataValid)
-                {
-                    return new LibraryStorageFolder(LibType, Data);
-                }
-                else
+                if (Data.IsInvalid)
                 {
                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
                     return new LibraryStorageFolder(LibType, await Folder.GetNativeFileDataAsync());
+                }
+                else
+                {
+                    return new LibraryStorageFolder(LibType, Data);
                 }
             }
             catch (Exception ex)

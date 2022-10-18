@@ -87,7 +87,7 @@ namespace RX_Explorer.View
                     case ".sle":
                         {
                             Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
-                            SLEInputStream SLEStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                            SLEInputStream SLEStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.AESKey);
 
                             if (SLEStream.Header.Core.Version >= SLEVersion.SLE150)
                             {

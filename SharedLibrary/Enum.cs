@@ -1,5 +1,11 @@
 ﻿namespace SharedLibrary
 {
+    public enum IOPreference
+    {
+        NoPreference,
+        PreferUseMoreMemory,
+    }
+
     public enum AccountType
     {
         Group,

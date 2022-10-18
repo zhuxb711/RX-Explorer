@@ -12,26 +12,33 @@ namespace RX_Explorer.Class
 
         public int HeaderSize { get; private set; }
 
-        public static SLEHeader GetHeader(Stream BaseFileStream)
+        public Encoding HeaderEncoding { get; }
+
+        public static SLEHeader GetHeader(Stream BaseFileStream, Encoding HeaderEncoding = null)
         {
             long OriginPosition = BaseFileStream.Position;
 
             try
             {
-                using (StreamReader Reader = new StreamReader(BaseFileStream, Encoding.UTF8, true, 512, true))
+                if (HeaderEncoding == null)
                 {
-                    char[] Buffer = new char[512];
+                    HeaderEncoding = new UTF8Encoding(false);
+                }
 
-                    if (Reader.ReadBlock(Buffer, 0, 512) > 0)
+                try
+                {
+                    using (BinaryReader Reader = new BinaryReader(BaseFileStream, HeaderEncoding, true))
                     {
                         // Check the file whether version is lower than SLE200
-                        if (Buffer[0] == '$')
+                        if (Reader.PeekChar() == '$')
                         {
-                            int EndSignalIndex = Array.LastIndexOf(Buffer, '$');
+                            char[] Chars = Reader.ReadChars(512);
+
+                            int EndSignalIndex = Array.FindIndex(Chars, 1, (Char) => Char == '$');
 
                             if (EndSignalIndex > 1)
                             {
-                                string RawInfoData = new string(Buffer.Take(EndSignalIndex + 1).ToArray());
+                                string RawInfoData = new string(Chars.Take(EndSignalIndex + 1).ToArray());
 
                                 if (!string.IsNullOrWhiteSpace(RawInfoData))
                                 {
@@ -46,7 +53,7 @@ namespace RX_Explorer.Class
                                             _ => throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted")
                                         };
 
-                                        return new SLEHeader(new SLEHeaderCore(Version, FieldArray[1], Convert.ToInt32(FieldArray[0])), Encoding.UTF8.GetBytes(RawInfoData).Length);
+                                        return new SLEHeader(Version, HeaderEncoding, FieldArray[1], Convert.ToInt32(FieldArray[0]), HeaderEncoding.GetByteCount(RawInfoData));
                                     }
                                 }
                             }
@@ -54,18 +61,18 @@ namespace RX_Explorer.Class
                         else
                         {
                             // Check the file whether version is higher than SLE200
-                            try
+                            int HeaderContentSize = Reader.ReadInt32();
+
+                            if (HeaderContentSize > 0)
                             {
-                                string BufferString = new string(Buffer);
-                                SLEHeaderCore Core = JsonSerializer.Deserialize<SLEHeaderCore>(BufferString.TrimEnd('\0'));
-                                return new SLEHeader(Core, Encoding.UTF8.GetBytes(BufferString).Length);
-                            }
-                            catch (Exception)
-                            {
-                                // No need to handle this exception
+                                return new SLEHeader(JsonSerializer.Deserialize<SLEHeaderCore>(HeaderEncoding.GetString(Reader.ReadBytes(HeaderContentSize))), HeaderEncoding, HeaderContentSize + BitConverter.GetBytes(int.MaxValue).Length);
                             }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not analysis the header of SLE file");
                 }
 
                 throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted");
@@ -80,31 +87,48 @@ namespace RX_Explorer.Class
         {
             BaseFileStream.Seek(0, SeekOrigin.Begin);
 
-            using (StreamWriter Writer = new StreamWriter(BaseFileStream, Encoding.UTF8, 512, true))
+            if (Core.Version >= SLEVersion.SLE200)
             {
-                if (Core.Version >= SLEVersion.SLE200)
+                using (BinaryWriter Writer = new BinaryWriter(BaseFileStream, HeaderEncoding, true))
                 {
-                    Writer.Write(JsonSerializer.Serialize(Core).PadRight(512, '\0'));
+                    string HeaderContent = JsonSerializer.Serialize(Core);
+                    Writer.Write(HeaderEncoding.GetByteCount(HeaderContent));
+                    Writer.Write(HeaderEncoding.GetBytes(JsonSerializer.Serialize(Core)));
+                    Writer.Flush();
                 }
-                else
-                {
-                    Writer.Write($"${Core.KeySize}|{Core.FileName.Replace('$', '_')}|{(int)Core.Version}$");
-                }
-
-                Writer.Flush();
             }
+            else
+            {
+                using (StreamWriter Writer = new StreamWriter(BaseFileStream, HeaderEncoding, 512, true))
+                {
+                    Writer.Write($"${string.Join('|', Core.KeySize, Core.FileName.Replace('$', '_'), (int)Core.Version)}$");
+                    Writer.Flush();
+                }
+            }
+
+            HeaderSize = (int)BaseFileStream.Length;
         }
 
-        private SLEHeader(SLEHeaderCore Core, int HeaderSize)
+        private SLEHeader(SLEHeaderCore Core, Encoding HeaderEncoding, int HeaderSize)
         {
+            if (Core.Version <= SLEVersion.SLE150 && !new UTF8Encoding(false).Equals(HeaderEncoding))
+            {
+                throw new ArgumentException($"Header encoding must be {nameof(UTF8Encoding)} without BOM if the version is lower or equals than {SLEVersion.SLE150}");
+            }
+
             this.Core = Core;
+            this.HeaderEncoding = HeaderEncoding;
             this.HeaderSize = HeaderSize;
         }
 
-        public SLEHeader(SLEVersion Version, string FileName, int KeySize)
+        private SLEHeader(SLEVersion Version, Encoding HeaderEncoding, string FileName, int KeySize, int HeaderSize) : this(new SLEHeaderCore(Version, FileName, KeySize), HeaderEncoding, HeaderSize)
         {
-            Core = new SLEHeaderCore(Version, FileName, KeySize);
-            HeaderSize = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(Core)).Length;
+
+        }
+
+        public SLEHeader(SLEVersion Version, Encoding HeaderEncoding, string FileName, int KeySize) : this(new SLEHeaderCore(Version, FileName, KeySize), HeaderEncoding, 0)
+        {
+
         }
 
         public sealed class SLEHeaderCore

@@ -427,7 +427,7 @@ namespace RX_Explorer.View
                     case ".sle":
                         {
                             Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
-                            SLEInputStream SLEStream = new SLEInputStream(FileStream, SecureArea.AESKey);
+                            SLEInputStream SLEStream = new SLEInputStream(FileStream, new UTF8Encoding(false), SecureArea.AESKey);
 
                             if (SLEStream.Header.Core.Version >= SLEVersion.SLE150
                                 && Path.GetExtension(SLEStream.Header.Core.FileName).Equals(".zip", StringComparison.OrdinalIgnoreCase))

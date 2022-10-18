@@ -17,7 +17,7 @@ namespace RX_Explorer.Class
 
         public override bool CanWrite => false;
 
-        public override long Length => Math.Max(BaseFileStream.Length - Header.HeaderSize - BlockSize, 0);
+        public override long Length => Math.Max(BaseFileStream.Length - FileContentOffset, 0);
 
         public override long Position
         {
@@ -25,7 +25,7 @@ namespace RX_Explorer.Class
             {
                 if (Header.Core.Version >= SLEVersion.SLE150)
                 {
-                    return Math.Max(BaseFileStream.Position - Header.HeaderSize - BlockSize, 0);
+                    return Math.Max(BaseFileStream.Position - FileContentOffset, 0);
                 }
                 else
                 {
@@ -36,7 +36,7 @@ namespace RX_Explorer.Class
             {
                 if (Header.Core.Version >= SLEVersion.SLE150)
                 {
-                    BaseFileStream.Position = Convert.ToInt64(value) + Header.HeaderSize + BlockSize;
+                    BaseFileStream.Position = Convert.ToInt64(value) + FileContentOffset;
                 }
                 else
                 {
@@ -52,6 +52,7 @@ namespace RX_Explorer.Class
         private readonly ICryptoTransform Transform;
         private readonly string Key;
         private readonly byte[] Counter;
+        private readonly int FileContentOffset;
         private bool IsDisposed;
 
         public override void Flush()
@@ -251,16 +252,31 @@ namespace RX_Explorer.Class
             }
         }
 
-        private bool VerifyPassword()
+        private bool VerifyPasswordCheckPoint()
         {
             BaseFileStream.Seek(Header.HeaderSize, SeekOrigin.Begin);
 
-            byte[] PasswordConfirm = new byte[BlockSize];
-            Read(PasswordConfirm, 0, PasswordConfirm.Length);
-            return Encoding.UTF8.GetString(PasswordConfirm) == "PASSWORD_CORRECT";
+            try
+            {
+                using (StreamReader Reader = new StreamReader(this, Header.HeaderEncoding, true, 128, true))
+                {
+                    char[] BlockBuffer = new char[Header.HeaderEncoding.GetByteCount("PASSWORD_CORRECT")];
+
+                    if (Reader.ReadBlock(BlockBuffer, 0, BlockBuffer.Length) > 0)
+                    {
+                        return new string(BlockBuffer) == "PASSWORD_CORRECT";
+                    }
+                }
+
+                return false;
+            }
+            finally
+            {
+                BaseFileStream.Seek(FileContentOffset, SeekOrigin.Begin);
+            }
         }
 
-        public SLEInputStream(Stream BaseFileStream, string Key)
+        public SLEInputStream(Stream BaseFileStream, Encoding HeaderEncoding, string Key)
         {
             if (BaseFileStream == null)
             {
@@ -281,7 +297,8 @@ namespace RX_Explorer.Class
             this.BaseFileStream = BaseFileStream;
             this.BaseFileStream.Seek(0, SeekOrigin.Begin);
 
-            Header = SLEHeader.GetHeader(this.BaseFileStream);
+            Header = SLEHeader.GetHeader(this.BaseFileStream, HeaderEncoding);
+            FileContentOffset = Header.HeaderSize + Header.HeaderEncoding.GetByteCount("PASSWORD_CORRECT");
             Transform = CreateAesDecryptor();
 
             if (Header.Core.Version >= SLEVersion.SLE150)
@@ -293,7 +310,7 @@ namespace RX_Explorer.Class
                 TransformStream = new CryptoStream(BaseFileStream, Transform, CryptoStreamMode.Read);
             }
 
-            if (!VerifyPassword())
+            if (!VerifyPasswordCheckPoint())
             {
                 throw new PasswordErrorException("Password is not correct");
             }

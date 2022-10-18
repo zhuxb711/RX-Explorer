@@ -183,16 +183,7 @@ namespace RX_Explorer.Class
                 {
                     NativeFileData Data = NativeWin32API.GetStorageItemRawData(Path);
 
-                    if (Data.IsDataValid)
-                    {
-                        Size = Data.Size;
-                        IsReadOnly = Data.IsReadOnly;
-                        IsHiddenItem = Data.IsHiddenItem;
-                        IsSystemItem = Data.IsSystemItem;
-                        ModifiedTime = Data.ModifiedTime;
-                        LastAccessTime = Data.LastAccessTime;
-                    }
-                    else
+                    if (Data.IsInvalid)
                     {
                         if (await GetStorageItemCoreAsync() is StorageFile File)
                         {
@@ -223,6 +214,15 @@ namespace RX_Explorer.Class
                                 IsSystemItem = Attribute.HasFlag(FileAttributes.System);
                             }
                         }
+                    }
+                    else
+                    {
+                        Size = Data.Size;
+                        IsReadOnly = Data.IsReadOnly;
+                        IsHiddenItem = Data.IsHiddenItem;
+                        IsSystemItem = Data.IsSystemItem;
+                        ModifiedTime = Data.ModifiedTime;
+                        LastAccessTime = Data.LastAccessTime;
                     }
                 }
             }

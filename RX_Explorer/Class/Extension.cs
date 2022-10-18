@@ -412,9 +412,19 @@ namespace RX_Explorer.Class
         {
             using (SafeFileHandle Handle = await Item.GetSafeFileHandleAsync(AccessMode.Read, OptimizeOption.None))
             {
-                NativeFileData Data = await Task.Run(() => NativeWin32API.GetStorageItemRawDataFromHandle(Item.Path, Handle.DangerousGetHandle()));
-                Data.SetStorageItemOnAvailable(Item);
-                return Data;
+                return await Task.Run(() => NativeWin32API.GetStorageItemRawDataFromHandle(Item.Path, Handle.DangerousGetHandle())).ContinueWith((PreviousTask) =>
+                {
+                    if (PreviousTask.Exception is Exception Ex)
+                    {
+                        LogTracer.Log(Ex, "Could not get storage item raw data from the handle");
+                    }
+                    else
+                    {
+                        PreviousTask.Result.SetStorageItemOnAvailable(Item);
+                    }
+
+                    return PreviousTask.Result;
+                });
             }
         }
 

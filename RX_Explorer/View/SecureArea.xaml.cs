@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -401,83 +402,126 @@ namespace RX_Explorer.View
             }
         }
 
-        private async Task ImportFilesAsync(IEnumerable<StorageFile> FileList)
+        private async Task ImportFilesAsync(IEnumerable<FileSystemStorageFile> FileList, CancellationToken CancelToken = default)
         {
             if (FileList.Any())
             {
-                ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Importing"));
+                ulong CurrentPosition = 0;
+                ulong TotalSize = Convert.ToUInt64(FileList.Sum((Item) => Convert.ToInt64(Item.Size)));
 
-                try
+                foreach (FileSystemStorageFile OriginFile in FileList)
                 {
-                    IReadOnlyList<FileSystemStorageFile> NewFileList = (await Task.WhenAll(FileList.Select((Item) => Item.GetNativeFileDataAsync()))).Select((Item) => new FileSystemStorageFile(Item)).ToList();
+                    CancelToken.ThrowIfCancellationRequested();
 
-                    ulong CurrentPosition = 0;
-                    ulong TotalSize = Convert.ToUInt64(NewFileList.Sum((Item) => Convert.ToInt64(Item.Size)));
-                    CancellationToken CancelToken = Cancellation.Token;
-
-                    foreach (FileSystemStorageFile OriginFile in NewFileList)
+                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(SecureFolder.Path, $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}.sle"), CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
                     {
-                        CancelToken.ThrowIfCancellationRequested();
-
-                        if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(SecureFolder.Path, $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}.sle"), CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
+                        using (Stream OriginFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                        using (Stream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                        using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, SLEVersion.SLE200, new UTF8Encoding(false), OriginFile.Name, AESKey, AESKeySize))
                         {
-                            using (Stream OriginFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                            using (Stream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
-                            using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, SLEVersion.SLE150, OriginFile.Name, AESKey, AESKeySize))
+                            await OriginFStream.CopyToAsync(SLEStream, OriginFStream.Length, CancelToken, async (s, e) =>
                             {
-                                await OriginFStream.CopyToAsync(SLEStream, OriginFStream.Length, CancelToken, async (s, e) =>
+                                if (TotalSize > 0)
                                 {
-                                    if (TotalSize > 0)
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                        {
-                                            ProBar.IsIndeterminate = false;
-                                            ProBar.Value = Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize));
-                                        });
-                                    }
-                                });
+                                        ProBar.IsIndeterminate = false;
+                                        ProBar.Value = Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize));
+                                    });
+                                }
+                            });
 
-                                await SLEStream.FlushAsync();
-                            }
+                            await SLEStream.FlushAsync();
+                        }
 
-                            CurrentPosition += OriginFile.Size;
+                        CurrentPosition += OriginFile.Size;
 
-                            if (TotalSize > 0)
+                        if (TotalSize > 0)
+                        {
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    ProBar.Value = Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize));
-                                });
-                            }
+                                ProBar.Value = Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize));
+                            });
+                        }
 
-                            if (await FileSystemStorageItemBase.OpenAsync(EncryptedFile.Path) is FileSystemStorageFile RefreshedItem)
-                            {
-                                SecureCollection.Add(RefreshedItem);
-                            }
+                        if (await FileSystemStorageItemBase.OpenAsync(EncryptedFile.Path) is FileSystemStorageFile RefreshedItem)
+                        {
+                            SecureCollection.Add(RefreshedItem);
                         }
                     }
                 }
-                catch (OperationCanceledException)
-                {
-                    //No need to handle this exception
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An exception was threw when importing file");
+            }
+        }
 
-                    QueueContentDialog Dialog = new QueueContentDialog
+        private async Task ExportFilesAsync(IEnumerable<FileSystemStorageFile> FileList, FileSystemStorageFolder ExportTarget, CancellationToken CancelToken = default)
+        {
+            if (FileList.Any())
+            {
+                ulong CurrentPosition = 0;
+                ulong TotalSize = Convert.ToUInt64(FileList.Sum((Item) => Convert.ToInt64(Item.Size)));
+
+                foreach (FileSystemStorageFile EncryptedFile in FileList)
+                {
+                    CancelToken.ThrowIfCancellationRequested();
+
+                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ExportTarget.Path, Path.GetRandomFileName()), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile DecryptedFile)
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
+                        try
+                        {
+                            using (Stream EncryptedFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                            using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, new UTF8Encoding(false), AESKey))
+                            {
+                                using (Stream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                {
+                                    await SLEStream.CopyToAsync(DecryptedFStream, EncryptedFStream.Length, CancelToken, async (s, e) =>
+                                    {
+                                        if (TotalSize > 0)
+                                        {
+                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                            {
+                                                ProBar.IsIndeterminate = false;
+                                                ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * EncryptedFile.Size)) * 100d / TotalSize);
+                                            });
+                                        }
+                                    });
 
-                    await Dialog.ShowAsync();
+                                    await DecryptedFStream.FlushAsync();
+                                }
+
+                                CurrentPosition += EncryptedFile.Size;
+
+                                if (TotalSize > 0)
+                                {
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                    {
+                                        ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
+                                    });
+                                }
+
+                                await DecryptedFile.RenameAsync(SLEStream.Header.Core.Version >= SLEVersion.SLE110 ? SLEStream.Header.Core.FileName : $"{Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{SLEStream.Header.Core.FileName}", true, CancelToken);
+                            }
+
+                            await EncryptedFile.DeleteAsync(true, true, CancelToken).ContinueWith((PreviousTask) =>
+                            {
+                                if (PreviousTask.Exception is Exception ex)
+                                {
+                                    LogTracer.Log(ex, "Could not delete the encrypted file after decryption is finished");
+                                }
+                                else
+                                {
+                                    SecureCollection.Remove(EncryptedFile);
+                                }
+                            }, TaskScheduler.FromCurrentSynchronizationContext());
+                        }
+                        catch (Exception)
+                        {
+                            await DecryptedFile.DeleteAsync(true, true, CancelToken);
+                            throw;
+                        }
+                    }
                 }
-                finally
-                {
-                    ActivateLoading(false);
-                }
+
+                await Launcher.LaunchFolderPathAsync(ExportTarget.Path);
             }
         }
 
@@ -492,7 +536,36 @@ namespace RX_Explorer.View
 
             if (await Picker.PickMultipleFilesAsync() is IReadOnlyList<StorageFile> PickedFiles)
             {
-                await ImportFilesAsync(PickedFiles);
+                if (PickedFiles.Count > 0)
+                {
+                    ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Importing"));
+
+                    try
+                    {
+                        await ImportFilesAsync((await Task.WhenAll(PickedFiles.Select((Item) => Item.GetNativeFileDataAsync()))).Select((Item) => new FileSystemStorageFile(Item)), Cancellation.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        //No need to handle this exception
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "An exception was threw when importing file");
+
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
+                    finally
+                    {
+                        ActivateLoading(false);
+                    }
+                }
             }
         }
 
@@ -500,11 +573,13 @@ namespace RX_Explorer.View
         {
             try
             {
-                if (e.DataView.Contains(StandardDataFormats.StorageItems))
-                {
-                    IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
+                IReadOnlyList<string> PathList = await e.DataView.GetAsStorageItemPathListAsync();
 
-                    if (Items.Any((Item) => Item is StorageFolder))
+                if (PathList.Count > 0)
+                {
+                    IReadOnlyList<FileSystemStorageItemBase> ItemList = await FileSystemStorageItemBase.OpenInBatchAsync(PathList).ToArrayAsync();
+
+                    if (ItemList.OfType<FileSystemStorageFolder>().Any())
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -516,7 +591,33 @@ namespace RX_Explorer.View
                         await Dialog.ShowAsync();
                     }
 
-                    await ImportFilesAsync(Items.OfType<StorageFile>());
+                    ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Importing"));
+
+                    try
+                    {
+                        await ImportFilesAsync(ItemList.OfType<FileSystemStorageFile>(), Cancellation.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        //No need to handle this exception
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "An exception was threw when importing file");
+
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
+                    finally
+                    {
+                        ActivateLoading(false);
+                    }
                 }
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
@@ -710,72 +811,7 @@ namespace RX_Explorer.View
 
                     try
                     {
-                        ulong CurrentPosition = 0;
-                        ulong TotalSize = Convert.ToUInt64(SelectedItems.Sum((Item) => Convert.ToInt64(Item.Size)));
-                        CancellationToken CancelToken = Cancellation.Token;
-
-                        foreach (FileSystemStorageFile EncryptedFile in SelectedItems)
-                        {
-                            CancelToken.ThrowIfCancellationRequested();
-
-                            if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(Folder.Path, Path.GetRandomFileName()), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile DecryptedFile)
-                            {
-                                try
-                                {
-                                    using (Stream EncryptedFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                                    using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, AESKey))
-                                    {
-                                        using (Stream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
-                                        {
-                                            await SLEStream.CopyToAsync(DecryptedFStream, EncryptedFStream.Length, CancelToken, async (s, e) =>
-                                            {
-                                                if (TotalSize > 0)
-                                                {
-                                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                    {
-                                                        ProBar.IsIndeterminate = false;
-                                                        ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * EncryptedFile.Size)) * 100d / TotalSize);
-                                                    });
-                                                }
-                                            });
-
-                                            await DecryptedFStream.FlushAsync();
-                                        }
-
-                                        CurrentPosition += EncryptedFile.Size;
-
-                                        if (TotalSize > 0)
-                                        {
-                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
-                                            });
-                                        }
-
-                                        await DecryptedFile.RenameAsync(SLEStream.Header.Core.Version >= SLEVersion.SLE110 ? SLEStream.Header.Core.FileName : $"{Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{SLEStream.Header.Core.FileName}", true, CancelToken);
-                                    }
-
-                                    await EncryptedFile.DeleteAsync(true, true, CancelToken).ContinueWith((PreviousTask) =>
-                                    {
-                                        if (PreviousTask.Exception is Exception ex)
-                                        {
-                                            LogTracer.Log(ex, "Could not delete the encrypted file after decryption is finished");
-                                        }
-                                        else
-                                        {
-                                            SecureCollection.Remove(EncryptedFile);
-                                        }
-                                    }, TaskScheduler.FromCurrentSynchronizationContext());
-                                }
-                                catch (Exception)
-                                {
-                                    await DecryptedFile.DeleteAsync(true, true, CancelToken);
-                                    throw;
-                                }
-                            }
-                        }
-
-                        await Launcher.LaunchFolderAsync(Folder);
+                        await ExportFilesAsync(SelectedItems, new FileSystemStorageFolder(await Folder.GetNativeFileDataAsync()), Cancellation.Token);
                     }
                     catch (PasswordErrorException)
                     {

@@ -17,7 +17,7 @@ namespace RX_Explorer.Class
 
         public override bool CanWrite => true;
 
-        public override long Length => Math.Max(BaseFileStream.Length - Header.HeaderSize - BlockSize, 0);
+        public override long Length => Math.Max(BaseFileStream.Length - FileContentOffset, 0);
 
         public override long Position
         {
@@ -25,7 +25,7 @@ namespace RX_Explorer.Class
             {
                 if (Header.Core.Version >= SLEVersion.SLE150)
                 {
-                    return Math.Max(BaseFileStream.Position - Header.HeaderSize - BlockSize, 0);
+                    return Math.Max(BaseFileStream.Position - FileContentOffset, 0);
                 }
                 else
                 {
@@ -46,6 +46,7 @@ namespace RX_Explorer.Class
 
         private readonly CryptoStream TransformStream;
         private readonly byte[] Counter;
+        private readonly int FileContentOffset;
         private bool IsDisposed;
 
         public override void Flush()
@@ -176,6 +177,24 @@ namespace RX_Explorer.Class
             }
         }
 
+        private void WritePasswordCheckPoint()
+        {
+            BaseFileStream.Seek(Header.HeaderSize, SeekOrigin.Begin);
+
+            try
+            {
+                using (StreamWriter Writer = new StreamWriter(this, Header.HeaderEncoding, 128, true))
+                {
+                    Writer.Write("PASSWORD_CORRECT");
+                    Writer.Flush();
+                }
+            }
+            finally
+            {
+                BaseFileStream.Seek(FileContentOffset, SeekOrigin.Begin);
+            }
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (!IsDisposed)
@@ -187,7 +206,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public SLEOutputStream(Stream BaseFileStream, SLEVersion Version, string FileName, string Key, int KeySize)
+        public SLEOutputStream(Stream BaseFileStream, SLEVersion Version, Encoding HeaderEncoding, string FileName, string Key, int KeySize)
         {
             if (BaseFileStream == null)
             {
@@ -207,6 +226,9 @@ namespace RX_Explorer.Class
             this.Key = Key;
             this.BaseFileStream = BaseFileStream;
 
+            Header = new SLEHeader(Version, HeaderEncoding, FileName, KeySize);
+            Header.WriteHeader(BaseFileStream);
+            FileContentOffset = Header.HeaderSize + Header.HeaderEncoding.GetByteCount("PASSWORD_CORRECT");
             Transform = CreateAesEncryptor();
 
             if (Version >= SLEVersion.SLE150)
@@ -218,14 +240,7 @@ namespace RX_Explorer.Class
                 TransformStream = new CryptoStream(BaseFileStream, Transform, CryptoStreamMode.Read);
             }
 
-            Header = new SLEHeader(Version, FileName, KeySize);
-            Header.WriteHeader(BaseFileStream);
-
-            using (StreamWriter Writer = new StreamWriter(this, Encoding.UTF8, 128, true))
-            {
-                Writer.Write("PASSWORD_CORRECT");
-                Writer.Flush();
-            }
+            WritePasswordCheckPoint();
         }
     }
 }

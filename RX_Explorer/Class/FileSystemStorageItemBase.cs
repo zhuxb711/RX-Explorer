@@ -417,15 +417,15 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public static async Task<Stream> CreateTemporaryFileStreamAsync(string TempFilePath = null)
+        public static async Task<Stream> CreateTemporaryFileStreamAsync(string TempFilePath = null, IOPreference Preference = IOPreference.NoPreference)
         {
-            SafeFileHandle Handle = NativeWin32API.CreateTemporaryFileHandle(TempFilePath);
+            SafeFileHandle Handle = NativeWin32API.CreateTemporaryFileHandle(TempFilePath, Preference);
 
             if (Handle.IsInvalid)
             {
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    Handle = await Exclusive.Controller.CreateTemporaryFileHandleAsync(TempFilePath);
+                    Handle = await Exclusive.Controller.CreateTemporaryFileHandleAsync(TempFilePath, Preference);
                 }
             }
 
@@ -1152,7 +1152,7 @@ namespace RX_Explorer.Class
 
         protected FileSystemStorageItemBase(NativeFileData Data) : this(Data?.Path)
         {
-            if ((Data?.IsDataValid).GetValueOrDefault())
+            if (!(Data?.IsInvalid).GetValueOrDefault(true))
             {
                 Size = Data.Size;
                 StorageItem = Data.StorageItem;

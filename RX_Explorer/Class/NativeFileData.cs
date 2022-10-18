@@ -17,7 +17,7 @@ namespace RX_Explorer.Class
 
         public bool IsHiddenItem => Attributes.HasFlag(FileAttributes.Hidden);
 
-        public bool IsDataValid { get; } = true;
+        public bool IsInvalid { get; }
 
         public FileAttributes Attributes { get; }
 
@@ -34,12 +34,8 @@ namespace RX_Explorer.Class
             StorageItem = Item;
         }
 
-        public NativeFileData(string Path, NativeWin32API.WIN32_FIND_DATA Data)
+        public NativeFileData(string Path, NativeWin32API.WIN32_FIND_DATA Data) : this(Path, ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow, Data.dwFileAttributes)
         {
-            this.Path = Path;
-            Size = ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
-            Attributes = Data.dwFileAttributes;
-
             if (NativeWin32API.FileTimeToSystemTime(ref Data.ftLastWriteTime, out NativeWin32API.SYSTEMTIME ModTime))
             {
                 ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
@@ -56,12 +52,8 @@ namespace RX_Explorer.Class
             }
         }
 
-        public NativeFileData(string Path, ulong Size, FileAttributes Attributes, FILETIME LWTime, FILETIME CTime, FILETIME LAime)
+        public NativeFileData(string Path, ulong Size, FileAttributes Attributes, FILETIME LWTime, FILETIME CTime, FILETIME LAime) : this(Path, Size, Attributes)
         {
-            this.Path = Path;
-            this.Size = Size;
-            this.Attributes = Attributes;
-
             if (NativeWin32API.FileTimeToSystemTime(ref LWTime, out NativeWin32API.SYSTEMTIME ModTime))
             {
                 ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
@@ -78,10 +70,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        public NativeFileData(string Path)
+        public NativeFileData(string Path) : this(Path, 0, 0)
         {
-            IsDataValid = false;
+            IsInvalid = true;
+        }
+
+        private NativeFileData(string Path, ulong Size, FileAttributes Attributes)
+        {
             this.Path = Path;
+            this.Size = Size;
+            this.Attributes = Attributes;
         }
     }
 }

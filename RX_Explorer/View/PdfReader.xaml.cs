@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Data.Pdf;
@@ -95,7 +96,7 @@ namespace RX_Explorer.View
                     case ".sle":
                         {
                             Stream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
-                            SLEInputStream SLEStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                            SLEInputStream SLEStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.AESKey);
 
                             if (SLEStream.Header.Core.Version >= SLEVersion.SLE150 && Path.GetExtension(SLEStream.Header.Core.FileName).Equals(".pdf", StringComparison.OrdinalIgnoreCase))
                             {

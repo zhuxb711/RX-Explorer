@@ -459,41 +459,44 @@ namespace RX_Explorer.Class
                 {
                     NativeFileData Data = NativeWin32API.GetStorageItemRawData(Path);
 
-                    if (Data.IsDataValid)
+                    if (Data.IsInvalid)
+                    {
+                        if (await GetStorageItemCoreAsync() is StorageFolder Folder)
+                        {
+                            ModifiedTime = await Folder.GetModifiedTimeAsync();
+                            LastAccessTime = await Folder.GetLastAccessTimeAsync();
+
+                            if (GetBulkAccessSharedController(out var ControllerRef))
+                            {
+                                using (ControllerRef)
+                                {
+                                    FileAttributes Attribute = await ControllerRef.Value.Controller.GetFileAttributeAsync(Path);
+
+                                    IsReadOnly = Attribute.HasFlag(FileAttributes.ReadOnly);
+                                    IsHiddenItem = Attribute.HasFlag(FileAttributes.Hidden);
+                                    IsSystemItem = Attribute.HasFlag(FileAttributes.System);
+                                }
+                            }
+                            else
+                            {
+                                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                                {
+                                    FileAttributes Attribute = await ControllerRef.Value.Controller.GetFileAttributeAsync(Path);
+
+                                    IsReadOnly = Attribute.HasFlag(FileAttributes.ReadOnly);
+                                    IsHiddenItem = Attribute.HasFlag(FileAttributes.Hidden);
+                                    IsSystemItem = Attribute.HasFlag(FileAttributes.System);
+                                }
+                            }
+                        }
+                    }
+                    else
                     {
                         IsReadOnly = Data.IsReadOnly;
                         IsHiddenItem = Data.IsHiddenItem;
                         IsSystemItem = Data.IsSystemItem;
                         ModifiedTime = Data.ModifiedTime;
                         LastAccessTime = Data.LastAccessTime;
-                    }
-                    else if (await GetStorageItemCoreAsync() is StorageFolder Folder)
-                    {
-                        ModifiedTime = await Folder.GetModifiedTimeAsync();
-                        LastAccessTime = await Folder.GetLastAccessTimeAsync();
-
-                        if (GetBulkAccessSharedController(out var ControllerRef))
-                        {
-                            using (ControllerRef)
-                            {
-                                FileAttributes Attribute = await ControllerRef.Value.Controller.GetFileAttributeAsync(Path);
-
-                                IsReadOnly = Attribute.HasFlag(FileAttributes.ReadOnly);
-                                IsHiddenItem = Attribute.HasFlag(FileAttributes.Hidden);
-                                IsSystemItem = Attribute.HasFlag(FileAttributes.System);
-                            }
-                        }
-                        else
-                        {
-                            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
-                            {
-                                FileAttributes Attribute = await ControllerRef.Value.Controller.GetFileAttributeAsync(Path);
-
-                                IsReadOnly = Attribute.HasFlag(FileAttributes.ReadOnly);
-                                IsHiddenItem = Attribute.HasFlag(FileAttributes.Hidden);
-                                IsSystemItem = Attribute.HasFlag(FileAttributes.System);
-                            }
-                        }
                     }
                 }
                 catch (Exception ex)

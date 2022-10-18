@@ -16,6 +16,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +46,7 @@ using AnimationDirection = Windows.UI.Composition.AnimationDirection;
 using Expander = Microsoft.UI.Xaml.Controls.Expander;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
+using UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding;
 
 namespace RX_Explorer.View
 {
@@ -2235,7 +2237,7 @@ namespace RX_Explorer.View
                                 if (await FileSystemStorageItemBase.CreateNewAsync(DecryptedFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                                 {
                                     using (Stream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                                    using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, SecureArea.AESKey))
+                                    using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, new UTF8Encoding(false), SecureArea.AESKey))
                                     {
                                         using (Stream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                         {

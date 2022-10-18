@@ -975,8 +975,28 @@ namespace AuxiliaryTrustProcess
                         case AuxiliaryTrustProcessCommandType.CreateTemporaryFileHandle:
                             {
                                 string TempFilePath = CommandValue["TempFilePath"];
+                                IOPreference Preference = Enum.Parse<IOPreference>(CommandValue["Preference"]);
+                                FileFlagsAndAttributes FileAttribute = FileFlagsAndAttributes.FILE_FLAG_DELETE_ON_CLOSE | FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED;
 
-                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(string.IsNullOrEmpty(TempFilePath) ? Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")) : TempFilePath, Kernel32.FileAccess.GENERIC_READ | Kernel32.FileAccess.GENERIC_WRITE, FileShare.Read | FileShare.Write | FileShare.Delete, null, FileMode.CreateNew, FileFlagsAndAttributes.FILE_FLAG_DELETE_ON_CLOSE | FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED | FileFlagsAndAttributes.FILE_FLAG_RANDOM_ACCESS))
+                                if (Preference == IOPreference.PreferUseMoreMemory)
+                                {
+                                    Kernel32.MEMORYSTATUSEX Status = Kernel32.MEMORYSTATUSEX.Default;
+
+                                    if (Kernel32.GlobalMemoryStatusEx(ref Status))
+                                    {
+                                        if (Status.dwMemoryLoad <= 90 && Status.ullAvailPhys >= 1073741824)
+                                        {
+                                            FileAttribute |= FileFlagsAndAttributes.FILE_ATTRIBUTE_TEMPORARY;
+                                        }
+                                    }
+                                }
+
+                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(string.IsNullOrEmpty(TempFilePath) ? Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.tmp") : TempFilePath,
+                                                                                       Kernel32.FileAccess.GENERIC_READ | Kernel32.FileAccess.GENERIC_WRITE,
+                                                                                       FileShare.Read | FileShare.Write | FileShare.Delete,
+                                                                                       null,
+                                                                                       FileMode.CreateNew,
+                                                                                       FileAttribute))
                                 {
                                     if (Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), Handle.DangerousGetHandle(), ExplorerProcess.Handle, out IntPtr TargetHandle, default, default, Kernel32.DUPLICATE_HANDLE_OPTIONS.DUPLICATE_SAME_ACCESS))
                                     {
