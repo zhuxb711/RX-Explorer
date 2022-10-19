@@ -96,7 +96,7 @@ namespace RX_Explorer.View
                     case ".sle":
                         {
                             Stream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
-                            SLEInputStream SLEStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.AESKey);
+                            SLEInputStream SLEStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.EncryptionKey);
 
                             if (SLEStream.Header.Core.Version >= SLEVersion.SLE150 && Path.GetExtension(SLEStream.Header.Core.FileName).Equals(".pdf", StringComparison.OrdinalIgnoreCase))
                             {

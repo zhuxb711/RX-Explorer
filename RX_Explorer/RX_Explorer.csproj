@@ -118,6 +118,7 @@
     <Compile Include="Class\LibraryFolderRecord.cs" />
     <Compile Include="Class\ListViewColumnWidthSaver.cs" />
     <Compile Include="Class\PixelNumberFormatter.cs" />
+    <Compile Include="Class\SecureAreaFileModel.cs" />
     <Compile Include="Class\SequentialVirtualRandomAccessStream.cs" />
     <Compile Include="Class\TextEncodingModel.cs" />
     <Compile Include="Class\ViewHeightOffsetSaver.cs" />

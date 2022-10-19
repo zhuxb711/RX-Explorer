@@ -53,7 +53,7 @@ namespace RX_Explorer.Class
                                                         : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
         }
 
-        public async virtual Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
+        public async virtual Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option = OptimizeOption.None)
         {
             try
             {

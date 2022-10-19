@@ -454,9 +454,6 @@
   <data name="SecureAreaProperty.Label" xml:space="preserve">
     <value>属性</value>
   </data>
-  <data name="SecureAreaRenameButton.Label" xml:space="preserve">
-    <value>重命名</value>
-  </data>
   <data name="SecureAreaSettingAboutHeader.Text" xml:space="preserve">
     <value>关于</value>
   </data>
@@ -3718,5 +3715,23 @@
   </data>
   <data name="PreviewFileOnHoverTitle.Text" xml:space="preserve">
     <value>悬停时预览文件属性</value>
+  </data>
+  <data name="SecureAreaAddButton.Label" xml:space="preserve">
+    <value>添加</value>
+  </data>
+  <data name="SecureAreaFlyoutPickFile.Text" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="SecureAreaFlyoutPickFolder.Text" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="SecureAreaPickFile.Content" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="SecureAreaPickFolder.Content" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="SecureAreaPickItemType.Text" xml:space="preserve">
+    <value>您要选择文件还是文件夹</value>
   </data>
 </root>

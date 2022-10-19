@@ -53,7 +53,14 @@ namespace RX_Explorer.Class
                                             _ => throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted")
                                         };
 
-                                        return new SLEHeader(Version, StorageType.File, HeaderEncoding, FieldArray[1], Convert.ToInt32(FieldArray[0]), HeaderEncoding.GetByteCount(RawInfoData));
+                                        SLEKeySize KeySize = Convert.ToInt32(FieldArray[0]) switch
+                                        {
+                                            128 => SLEKeySize.AES128,
+                                            256 => SLEKeySize.AES256,
+                                            _ => throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted")
+                                        };
+
+                                        return new SLEHeader(Version, SLEOriginType.File, KeySize, HeaderEncoding, FieldArray[1], HeaderEncoding.GetByteCount(RawInfoData));
                                     }
                                 }
                             }
@@ -121,39 +128,39 @@ namespace RX_Explorer.Class
             this.HeaderSize = HeaderSize;
         }
 
-        private SLEHeader(SLEVersion Version, StorageType OriginType, Encoding HeaderEncoding, string FileName, int KeySize, int HeaderSize) : this(new SLEHeaderCore(Version, OriginType, FileName, KeySize), HeaderEncoding, HeaderSize)
+        private SLEHeader(SLEVersion Version, SLEOriginType OriginType, SLEKeySize KeySize, Encoding HeaderEncoding, string FileName, int HeaderSize) : this(new SLEHeaderCore(Version, OriginType, KeySize, FileName), HeaderEncoding, HeaderSize)
         {
 
         }
 
-        public SLEHeader(SLEVersion Version, StorageType OriginType, Encoding HeaderEncoding, string FileName, int KeySize) : this(new SLEHeaderCore(Version, OriginType, FileName, KeySize), HeaderEncoding, 0)
+        public SLEHeader(SLEVersion Version, SLEOriginType OriginType, SLEKeySize KeySize, Encoding HeaderEncoding, string FileName) : this(new SLEHeaderCore(Version, OriginType, KeySize, FileName), HeaderEncoding, 0)
         {
 
         }
 
         public sealed class SLEHeaderCore
         {
-            public int KeySize { get; }
-
             public string FileName { get; }
 
             public SLEVersion Version { get; }
 
-            public StorageType OriginType { get; }
+            public SLEKeySize KeySize { get; }
 
-            public SLEHeaderCore(SLEVersion Version, StorageType OriginType, string FileName, int KeySize)
+            public SLEOriginType OriginType { get; }
+
+            public SLEHeaderCore(SLEVersion Version, SLEOriginType OriginType, SLEKeySize KeySize, string FileName)
             {
                 if (string.IsNullOrWhiteSpace(FileName))
                 {
                     throw new ArgumentException("FileName could not be empty", nameof(FileName));
                 }
 
-                if (KeySize != 256 && KeySize != 128)
+                if (KeySize is not SLEKeySize.AES128 and not SLEKeySize.AES256)
                 {
-                    throw new InvalidDataException("KeySize could only be set with 128 or 256");
+                    throw new ArgumentException("KeySize could only be set with 128 or 256", nameof(KeySize));
                 }
 
-                if (Version <= SLEVersion.SLE150 && OriginType == StorageType.Folder)
+                if (Version <= SLEVersion.SLE150 && OriginType == SLEOriginType.Folder)
                 {
                     throw new NotSupportedException($"Version under {SLEVersion.SLE200} is not support for ecrypt folder");
                 }

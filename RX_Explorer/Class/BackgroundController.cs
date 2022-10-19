@@ -540,7 +540,7 @@ namespace RX_Explorer.Class
                         {
                             if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile ImageFile)
                             {
-                                using (Stream Stream = await ImageFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                                using (Stream Stream = await ImageFile.GetStreamFromFileAsync(AccessMode.Read))
                                 {
                                     BingPictureBursh.ImageSource = await Helper.CreateBitmapImageAsync(Stream.AsRandomAccessStream());
                                 }

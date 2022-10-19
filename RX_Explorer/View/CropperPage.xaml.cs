@@ -50,7 +50,7 @@ namespace RX_Explorer.View
                 {
                     OriginFile = Item.PhotoFile;
 
-                    using (Stream FileStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    using (Stream FileStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read))
                     {
                         BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(FileStream.AsRandomAccessStream());
                         OriginImage = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
@@ -236,7 +236,7 @@ namespace RX_Explorer.View
         private async Task SaveToFileAsync(FileSystemStorageFile File)
         {
             using (InMemoryRandomAccessStream TempStream = new InMemoryRandomAccessStream())
-            using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.RandomAccess))
+            using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Exclusive))
             {
                 switch (File.Type.ToLower())
                 {

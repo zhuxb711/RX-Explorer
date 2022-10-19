@@ -68,8 +68,8 @@ namespace RX_Explorer.View
             {
                 if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                    using (SLEInputStream SLEStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.AESKey))
+                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
+                    using (SLEInputStream SLEStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.EncryptionKey))
                     {
                         CancelToken.ThrowIfCancellationRequested();
 
@@ -216,7 +216,7 @@ namespace RX_Explorer.View
                             LastZoomCenter = ZoomTransform(ImageControl, new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2), 1);
                         }
 
-                        using (Stream FileStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Exclusive, OptimizeOption.RandomAccess))
+                        using (Stream FileStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Exclusive))
                         using (InMemoryRandomAccessStream MemoryStream = new InMemoryRandomAccessStream())
                         {
                             BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(FileStream.AsRandomAccessStream());
@@ -263,7 +263,7 @@ namespace RX_Explorer.View
 
                     BitmapDecoder Decoder = null;
 
-                    using (Stream OriginStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    using (Stream OriginStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Read))
                     {
                         Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
                     }
@@ -276,9 +276,9 @@ namespace RX_Explorer.View
 
                         try
                         {
-                            using (Stream SourceStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                            using (Stream SourceStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Read))
                             using (IRandomAccessStream ResultStream = await GeneralTransformer.TranscodeFromImageAsync(SourceStream.AsRandomAccessStream(), Dialog.TargetFile.Type, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode))
-                            using (Stream TargetStream = await Dialog.TargetFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                            using (Stream TargetStream = await Dialog.TargetFile.GetStreamFromFileAsync(AccessMode.Write))
                             {
                                 await ResultStream.AsStreamForRead().CopyToAsync(TargetStream);
                             }
@@ -370,7 +370,7 @@ namespace RX_Explorer.View
                         LastZoomCenter = ZoomTransform(ImageControl, new Point(ImageControl.ActualWidth / 2, ImageControl.ActualHeight / 2), 1);
                     }
 
-                    using (Stream FStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    using (Stream FStream = await Item.PhotoFile.GetStreamFromFileAsync(AccessMode.Read))
                     {
                         BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(FStream.AsRandomAccessStream());
 
@@ -420,7 +420,7 @@ namespace RX_Explorer.View
                         {
                             string TempFilePath = Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"{Guid.NewGuid():N}{Item.PhotoFile.Type.ToLower()}");
 
-                            using (Stream TempStream = await FileSystemStorageItemBase.CreateTemporaryFileStreamAsync(TempFilePath))
+                            using (Stream TempStream = await FileSystemStorageItemBase.CreateTemporaryFileStreamAsync(TempFilePath, IOPreference.PreferUseMoreMemory))
                             {
                                 await PhotoStream.CopyToAsync(TempStream);
 
@@ -443,7 +443,7 @@ namespace RX_Explorer.View
                                     {
                                         try
                                         {
-                                            using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                            using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Write))
                                             {
                                                 await PhotoStream.CopyToAsync(TempFileStream);
                                             }

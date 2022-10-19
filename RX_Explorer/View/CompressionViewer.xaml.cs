@@ -427,7 +427,7 @@ namespace RX_Explorer.View
                     case ".sle":
                         {
                             Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
-                            SLEInputStream SLEStream = new SLEInputStream(FileStream, new UTF8Encoding(false), SecureArea.AESKey);
+                            SLEInputStream SLEStream = new SLEInputStream(FileStream, new UTF8Encoding(false), SecureArea.EncryptionKey);
 
                             if (SLEStream.Header.Core.Version >= SLEVersion.SLE150
                                 && Path.GetExtension(SLEStream.Header.Core.FileName).Equals(".zip", StringComparison.OrdinalIgnoreCase))
@@ -943,7 +943,7 @@ namespace RX_Explorer.View
                     {
                         if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TargetFile)
                         {
-                            using (Stream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                            using (Stream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write))
                             using (Stream ZipStream = ZipObj.GetInputStream(Entry))
                             {
                                 await ZipStream.CopyToAsync(Stream, Entry.Size, Token, (s, e) =>

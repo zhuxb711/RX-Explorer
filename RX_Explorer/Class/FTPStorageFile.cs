@@ -160,35 +160,20 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
+        public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option = OptimizeOption.None)
         {
             FtpClientController AuxiliaryController = await FtpClientController.DuplicateClientControllerAsync(ClientController);
 
             Stream OriginStream = await AuxiliaryController.RunCommandAsync((Client) => Client.GetFtpFileStreamForReadAsync(RelatedPath, FtpDataType.Binary, 0, (long)Size));
+            SequentialVirtualRandomAccessStream RandomAccessStream = await SequentialVirtualRandomAccessStream.CreateAsync(OriginStream);
 
-            if (Option == OptimizeOption.Sequential)
+            if (Mode == AccessMode.Read)
             {
-                if (Mode == AccessMode.Read)
-                {
-                    return OriginStream;
-                }
-                else
-                {
-                    return new FtpFileSaveOnFlushStream(Path, AuxiliaryController, OriginStream);
-                }
+                return RandomAccessStream;
             }
             else
             {
-                SequentialVirtualRandomAccessStream RandomAccessStream = await SequentialVirtualRandomAccessStream.CreateAsync(OriginStream);
-
-                if (Mode == AccessMode.Read)
-                {
-                    return RandomAccessStream;
-                }
-                else
-                {
-                    return new FtpFileSaveOnFlushStream(Path, AuxiliaryController, RandomAccessStream);
-                }
+                return new FtpFileSaveOnFlushStream(Path, AuxiliaryController, RandomAccessStream);
             }
         }
 
@@ -282,8 +267,8 @@ namespace RX_Explorer.Class
                             {
                                 if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
                                 {
+                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                     using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     {
                                         await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                     }
@@ -295,8 +280,8 @@ namespace RX_Explorer.Class
                             {
                                 if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                                 {
+                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                     using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     {
                                         await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                     }
@@ -310,8 +295,8 @@ namespace RX_Explorer.Class
                                 {
                                     if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
                                     {
+                                        using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                         using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                        using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                         {
                                             await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                         }

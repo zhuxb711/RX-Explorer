@@ -10,8 +10,7 @@ namespace RX_Explorer.Class
     {
         private int HasWroteAnyData;
         private readonly AsyncLock FlushLocker = new AsyncLock();
-
-        protected Stream BaseStream { get; }
+        private readonly Stream BaseStream;
 
         public override bool CanRead => true;
 
@@ -45,7 +44,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected abstract Task FlushCoreAsync(CancellationToken CancelToken);
+        protected abstract Task FlushCoreAsync(CancellationToken CancelToken = default);
 
         public override int Read(byte[] buffer, int offset, int count)
         {

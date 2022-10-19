@@ -49,7 +49,7 @@ namespace RX_Explorer.Class
 
         private readonly ICryptoTransform Transform;
         private readonly Stream BaseFileStream;
-        private readonly string Key;
+        private readonly string EncryptionKey;
 
         private readonly CryptoStream TransformStream;
         private readonly byte[] Counter;
@@ -178,26 +178,26 @@ namespace RX_Explorer.Class
 
         private ICryptoTransform CreateAesEncryptor()
         {
-            if (Key.Any((Char) => Char > '\u007F'))
+            if (EncryptionKey.Any((Char) => Char > '\u007F'))
             {
-                throw new NotSupportedException($"Only ASCII char is allowed in {nameof(Key)}");
+                throw new NotSupportedException($"Only ASCII char is allowed in {nameof(EncryptionKey)}");
             }
 
-            int KeyLengthNeed = Header.Core.KeySize / 8;
+            int KeyLengthNeed = (int)Header.Core.KeySize / 8;
 
             byte[] KeyArray;
 
-            if (Key.Length > KeyLengthNeed)
+            if (EncryptionKey.Length > KeyLengthNeed)
             {
-                KeyArray = Encoding.ASCII.GetBytes(Key.Substring(0, KeyLengthNeed));
+                KeyArray = Encoding.ASCII.GetBytes(EncryptionKey.Substring(0, KeyLengthNeed));
             }
-            else if (Key.Length < KeyLengthNeed)
+            else if (EncryptionKey.Length < KeyLengthNeed)
             {
-                KeyArray = Encoding.ASCII.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+                KeyArray = Encoding.ASCII.GetBytes(EncryptionKey.PadRight(KeyLengthNeed, '0'));
             }
             else
             {
-                KeyArray = Encoding.ASCII.GetBytes(Key);
+                KeyArray = Encoding.ASCII.GetBytes(EncryptionKey);
             }
 
             switch (Header.Core.Version)
@@ -206,7 +206,7 @@ namespace RX_Explorer.Class
                     {
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            KeySize = Header.Core.KeySize,
+                            KeySize = (int)Header.Core.KeySize,
                             Mode = CipherMode.ECB,
                             Padding = PaddingMode.None,
                             Key = KeyArray
@@ -219,7 +219,7 @@ namespace RX_Explorer.Class
                     {
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            KeySize = Header.Core.KeySize,
+                            KeySize = (int)Header.Core.KeySize,
                             Mode = CipherMode.CBC,
                             Padding = PaddingMode.PKCS7,
                             Key = KeyArray,
@@ -233,7 +233,7 @@ namespace RX_Explorer.Class
                     {
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            KeySize = Header.Core.KeySize,
+                            KeySize = (int)Header.Core.KeySize,
                             Mode = CipherMode.CBC,
                             Padding = PaddingMode.Zeros,
                             Key = KeyArray,
@@ -275,7 +275,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public SLEOutputStream(Stream BaseFileStream, SLEVersion Version, StorageType OriginType, Encoding HeaderEncoding, string FileName, string Key, int KeySize)
+        public SLEOutputStream(Stream BaseFileStream, SLEVersion Version, SLEOriginType OriginType, SLEKeySize KeySize, Encoding HeaderEncoding, string FileName, string EncryptionKey)
         {
             if (BaseFileStream == null)
             {
@@ -287,15 +287,15 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("BaseStream must be writable", nameof(BaseFileStream));
             }
 
-            if (string.IsNullOrEmpty(Key))
+            if (string.IsNullOrEmpty(EncryptionKey))
             {
-                throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
+                throw new ArgumentNullException(nameof(EncryptionKey), "Parameter could not be null or empty");
             }
 
-            this.Key = Key;
+            this.EncryptionKey = EncryptionKey;
             this.BaseFileStream = BaseFileStream;
 
-            Header = new SLEHeader(Version, OriginType, HeaderEncoding, FileName, KeySize);
+            Header = new SLEHeader(Version, OriginType, KeySize, HeaderEncoding, FileName);
             Header.WriteHeader(BaseFileStream);
             FileContentOffset = Header.HeaderSize + Header.HeaderEncoding.GetByteCount("PASSWORD_CORRECT");
             Transform = CreateAesEncryptor();

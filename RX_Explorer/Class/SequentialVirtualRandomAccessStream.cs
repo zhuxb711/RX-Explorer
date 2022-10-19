@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedLibrary;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +11,6 @@ namespace RX_Explorer.Class
         private bool IsDisposed;
         private readonly Stream SequentialStream;
         private readonly Stream TempStream;
-        private readonly long SequentialStreamLength;
 
         public override bool CanRead => true;
 
@@ -18,7 +18,7 @@ namespace RX_Explorer.Class
 
         public override bool CanWrite => true;
 
-        public override long Length => SequentialStreamLength > 0 ? SequentialStreamLength : SequentialStream.Length;
+        public override long Length => SequentialStream.Length;
 
         public override long Position { get; set; }
 
@@ -160,21 +160,15 @@ namespace RX_Explorer.Class
             Dispose(true);
         }
 
-        public static Task<SequentialVirtualRandomAccessStream> CreateAsync(Stream SequentialStream)
+        public static async Task<SequentialVirtualRandomAccessStream> CreateAsync(Stream SequentialStream)
         {
-            return CreateAsync(SequentialStream, 0);
+            return new SequentialVirtualRandomAccessStream(SequentialStream, await FileSystemStorageItemBase.CreateTemporaryFileStreamAsync(Preference: SequentialStream.Length >= 1073741824 ? IOPreference.NoPreference : IOPreference.PreferUseMoreMemory));
         }
 
-        public static async Task<SequentialVirtualRandomAccessStream> CreateAsync(Stream SequentialStream, long StreamLength)
-        {
-            return new SequentialVirtualRandomAccessStream(SequentialStream, await FileSystemStorageItemBase.CreateTemporaryFileStreamAsync(), StreamLength);
-        }
-
-        private SequentialVirtualRandomAccessStream(Stream SequentialStream, Stream TempStream, long SequentialStreamLength = 0)
+        private SequentialVirtualRandomAccessStream(Stream SequentialStream, Stream TempStream)
         {
             this.TempStream = TempStream;
             this.SequentialStream = SequentialStream;
-            this.SequentialStreamLength = SequentialStreamLength;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace RX_Explorer.Class
         private readonly string Path;
         private readonly FtpClientController Controller;
 
-        protected override async Task FlushCoreAsync(CancellationToken CancelToken)
+        protected override async Task FlushCoreAsync(CancellationToken CancelToken = default)
         {
             FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
@@ -20,11 +20,11 @@ namespace RX_Explorer.Class
                 await Controller.RunCommandAsync((Client) => Client.DeleteFile(Analysis.RelatedPath, CancelToken).ConfigureAwait(false));
             }
 
-            BaseStream.Seek(0, SeekOrigin.Begin);
+            Seek(0, SeekOrigin.Begin);
 
             using (Stream TargetStream = await Controller.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(Analysis.RelatedPath, FtpDataType.Binary, CancelToken)).ConfigureAwait(false))
             {
-                await BaseStream.CopyToAsync(TargetStream, CancelToken: CancelToken).ConfigureAwait(false);
+                await this.CopyToAsync(TargetStream, CancelToken: CancelToken).ConfigureAwait(false);
             }
         }
 

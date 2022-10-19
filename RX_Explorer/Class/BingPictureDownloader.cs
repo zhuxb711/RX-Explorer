@@ -29,7 +29,7 @@ namespace RX_Explorer.Class
                             if (!string.IsNullOrWhiteSpace(DownloadPath))
                             {
                                 using (Stream DownloadStream = await DownloadBingPictureAsync(DownloadPath))
-                                using (Stream ExistFileStream = await ExistFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
+                                using (Stream ExistFileStream = await ExistFile.GetStreamFromFileAsync(AccessMode.ReadWrite))
                                 {
                                     bool IsHashDifferent = false;
 

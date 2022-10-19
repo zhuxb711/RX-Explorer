@@ -616,10 +616,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Property</source>
           <target state="translated">Propiedad</target>
         </trans-unit>
-        <trans-unit id="SecureAreaRenameButton.Label" translate="yes" xml:space="preserve">
-          <source>Rename</source>
-          <target state="translated">Renombrar</target>
-        </trans-unit>
         <trans-unit id="SecureAreaSettingAboutHeader.Text" translate="yes" xml:space="preserve">
           <source>About</source>
           <target state="translated">Quiénes somos</target>
@@ -4944,7 +4940,27 @@ Las denominaciones no válidas son:
         </trans-unit>
         <trans-unit id="SecureAreaAddButton.Label" translate="yes" xml:space="preserve">
           <source>Add</source>
-          <target state="new">Add</target>
+          <target state="translated">Añadir</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaFlyoutPickFile.Text" translate="yes" xml:space="preserve">
+          <source>File</source>
+          <target state="translated">Archivo</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaFlyoutPickFolder.Text" translate="yes" xml:space="preserve">
+          <source>Folder</source>
+          <target state="translated">Carpeta</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaPickFile.Content" translate="yes" xml:space="preserve">
+          <source>File</source>
+          <target state="translated">Archivo</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaPickFolder.Content" translate="yes" xml:space="preserve">
+          <source>Folder</source>
+          <target state="translated">Carpeta</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaPickItemType.Text" translate="yes" xml:space="preserve">
+          <source>Do you want to select a file or folder</source>
+          <target state="translated">Desea seleccionar un archivo o carpeta</target>
         </trans-unit>
       </group>
     </body>

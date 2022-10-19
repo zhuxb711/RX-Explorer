@@ -2,7 +2,7 @@
 
 namespace RX_Explorer.Class
 {
-    public enum StorageType
+    public enum SLEOriginType
     {
         File,
         Folder,
@@ -155,6 +155,12 @@ namespace RX_Explorer.Class
         SLE110 = 110,
         SLE150 = 150,
         SLE200 = 200
+    }
+
+    public enum SLEKeySize
+    {
+        AES128 = 128,
+        AES256 = 256
     }
 
     public enum SyncStatus

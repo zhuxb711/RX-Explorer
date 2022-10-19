@@ -395,15 +395,22 @@ namespace RX_Explorer.Class
             return default;
         }
 
-        public static FileStream CreateStreamFromFile(string Path, AccessMode AccessMode, OptimizeOption Option)
+        public static FileStream CreateStreamFromFile(string Path, AccessMode AccessMode, OptimizeOption Option = OptimizeOption.None)
         {
-            FILE_ATTRIBUTE_FLAG Flags = FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | Option switch
+            FILE_ATTRIBUTE_FLAG Flags = FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped;
+
+            // About SEQUENTIAL_SCAN & RANDOM_ACCESS flags
+            // These two flags takes no effect if we only write data into the file (Only takes effect on ReadFile related API)
+            // https://devblogs.microsoft.com/oldnewthing/20120120-00/?p=8493
+            if (AccessMode != AccessMode.Write && Option != OptimizeOption.None)
             {
-                OptimizeOption.None => FILE_ATTRIBUTE_FLAG.File_Attribute_Normal,
-                OptimizeOption.Sequential => FILE_ATTRIBUTE_FLAG.File_Flag_Sequential_Scan,
-                OptimizeOption.RandomAccess => FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access,
-                _ => throw new NotSupportedException()
-            };
+                Flags |= Option switch
+                {
+                    OptimizeOption.Sequential => FILE_ATTRIBUTE_FLAG.File_Flag_Sequential_Scan,
+                    OptimizeOption.RandomAccess => FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access,
+                    _ => throw new NotSupportedException()
+                };
+            }
 
             SafeFileHandle Handle = AccessMode switch
             {

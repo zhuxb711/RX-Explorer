@@ -608,10 +608,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Property</source>
           <target state="translated" state-qualifier="tm-suggestion">內容</target>
         </trans-unit>
-        <trans-unit id="SecureAreaRenameButton.Label" translate="yes" xml:space="preserve">
-          <source>Rename</source>
-          <target state="translated" state-qualifier="tm-suggestion">重新命名</target>
-        </trans-unit>
         <trans-unit id="SecureAreaSettingAboutHeader.Text" translate="yes" xml:space="preserve">
           <source>About</source>
           <target state="translated" state-qualifier="tm-suggestion">關於</target>
@@ -4944,7 +4940,27 @@ Invalid names include
         </trans-unit>
         <trans-unit id="SecureAreaAddButton.Label" translate="yes" xml:space="preserve">
           <source>Add</source>
-          <target state="new">Add</target>
+          <target state="translated">添加</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaFlyoutPickFile.Text" translate="yes" xml:space="preserve">
+          <source>File</source>
+          <target state="translated">檔案</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaFlyoutPickFolder.Text" translate="yes" xml:space="preserve">
+          <source>Folder</source>
+          <target state="translated">資料夾</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaPickFile.Content" translate="yes" xml:space="preserve">
+          <source>File</source>
+          <target state="translated">檔案</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaPickFolder.Content" translate="yes" xml:space="preserve">
+          <source>Folder</source>
+          <target state="translated">資料夾</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaPickItemType.Text" translate="yes" xml:space="preserve">
+          <source>Do you want to select a file or folder</source>
+          <target state="translated">是否要選擇檔案或資料夾</target>
         </trans-unit>
       </group>
     </body>

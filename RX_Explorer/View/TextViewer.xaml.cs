@@ -86,8 +86,8 @@ namespace RX_Explorer.View
                 {
                     case ".sle":
                         {
-                            Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
-                            SLEInputStream SLEStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.AESKey);
+                            Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read);
+                            SLEInputStream SLEStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.EncryptionKey);
 
                             if (SLEStream.Header.Core.Version >= SLEVersion.SLE150)
                             {
@@ -104,7 +104,7 @@ namespace RX_Explorer.View
                         }
                     case ".txt":
                         {
-                            TextStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                            TextStream = await File.GetStreamFromFileAsync(AccessMode.Read);
                             break;
                         }
                     default:
@@ -185,7 +185,7 @@ namespace RX_Explorer.View
             {
                 if (await FileSystemStorageItemBase.CreateNewAsync(TextFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile File)
                 {
-                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Write))
                     {
                         Stream.SetLength(0);
 

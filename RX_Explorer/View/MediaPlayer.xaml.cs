@@ -110,7 +110,7 @@ namespace RX_Explorer.View
                 if (TargetMediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
                     using (Stream Stream = await TargetMediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                    using (SLEInputStream MediaStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.AESKey))
+                    using (SLEInputStream MediaStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.EncryptionKey))
                     {
                         if (MediaStream.Header.Core.Version >= SLEVersion.SLE150)
                         {
@@ -443,7 +443,7 @@ namespace RX_Explorer.View
                 {
                     if (Path.GetExtension(args.MediaBinder.Token).Equals(".sle", StringComparison.OrdinalIgnoreCase))
                     {
-                        SLEInputStream MediaStream = new SLEInputStream(await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess), new UTF8Encoding(false), SecureArea.AESKey);
+                        SLEInputStream MediaStream = new SLEInputStream(await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess), new UTF8Encoding(false), SecureArea.EncryptionKey);
 
                         if (MediaStream.Header.Core.Version >= SLEVersion.SLE150)
                         {
@@ -458,7 +458,7 @@ namespace RX_Explorer.View
                                     case ".wma":
                                     case ".m4a":
                                         {
-                                            using (SLEInputStream MediaInfoStream = new SLEInputStream(await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess), new UTF8Encoding(false), SecureArea.AESKey))
+                                            using (SLEInputStream MediaInfoStream = new SLEInputStream(await MediaFile.GetStreamFromFileAsync(AccessMode.Read), new UTF8Encoding(false), SecureArea.EncryptionKey))
                                             {
                                                 byte[] CoverData = GetMusicCoverFromStream(MediaInfoStream.Header.Core.FileName, MediaInfoStream);
 
@@ -516,7 +516,7 @@ namespace RX_Explorer.View
                                         {
                                             MusicName.Text = MediaFile.Name;
 
-                                            using (Stream FileStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                                            using (Stream FileStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read))
                                             {
                                                 byte[] CoverData = GetMusicCoverFromStream(MediaFile.Name, FileStream);
 

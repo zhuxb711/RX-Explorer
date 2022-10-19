@@ -14,13 +14,14 @@
     <Page.Resources>
         <Cls:SizeDescriptionConverter x:Key="SizeConverter" />
 
-        <muxc:CommandBarFlyout x:Name="FileFlyout"
+        <muxc:CommandBarFlyout x:Name="NormalFlyout"
                                ShouldConstrainToRootBounds="False"
                                Placement="BottomEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
                               MinWidth="220"
+                              x:Name="OpenFile"
                               Click="ItemOpen_Click" />
                 <AppBarButton Icon="Import"
                               Label="导出"
@@ -32,34 +33,12 @@
                               MinWidth="220"
                               x:Uid="SecureAreaDeleteButton"
                               Click="DeleteFile_Click" />
-                <AppBarButton Icon="Rename"
-                              Label="重命名"
-                              MinWidth="220"
-                              x:Uid="SecureAreaRenameButton"
-                              x:Name="RenameFile"
-                              Click="RenameFile_Click" />
                 <AppBarButton Icon="Tag"
                               Label="属性"
                               MinWidth="220"
                               x:Uid="SecureAreaProperty"
                               x:Name="Property"
                               Click="Property_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-        <muxc:CommandBarFlyout x:Name="MixedFlyout"
-                               ShouldConstrainToRootBounds="False"
-                               Placement="BottomEdgeAlignedLeft">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Import"
-                              Label="导出"
-                              MinWidth="220"
-                              x:Uid="SecureAreaExportButton"
-                              Click="ExportFile_Click" />
-                <AppBarButton Icon="Delete"
-                              Label="删除"
-                              MinWidth="220"
-                              x:Uid="SecureAreaDeleteButton"
-                              Click="DeleteFile_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
@@ -74,6 +53,7 @@
                         <MenuFlyout>
                             <MenuFlyoutItem Text="文件"
                                             MinWidth="150"
+                                            x:Uid="SecureAreaFlyoutPickFile"
                                             Click="PickFile_Click">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -82,6 +62,7 @@
                             </MenuFlyoutItem>
                             <MenuFlyoutItem Text="文件夹"
                                             MinWidth="150"
+                                            x:Uid="SecureAreaFlyoutPickFolder"
                                             Click="PickFolder_Click">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -171,48 +152,48 @@
                           Name="Setting"
                           Click="Setting_Click" />
         </CommandBar>
-        <GridView IsRightTapEnabled="True"
-                  Name="SecureGridView"
+        <GridView Name="SecureGridView"
                   Grid.Row="1"
                   AllowDrop="True"
                   ItemsSource="{x:Bind SecureCollection}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
-                  Padding="20,10,20,10"
+                  Padding="20,10"
                   SelectionMode="Extended"
-                  IsHoldingEnabled="True"
                   IsDoubleTapEnabled="True"
                   Drop="Grid_Drop"
                   DragEnter="SecureGridView_DragEnter"
                   SelectionChanged="SecureGridView_SelectionChanged"
                   DoubleTapped="SecureGridView_DoubleTapped"
-                  Holding="SecureGridView_Holding"
-                  RightTapped="SecureGridView_RightTapped"
-                  ContainerContentChanging="SecureGridView_ContainerContentChanging" >
+                  ContextRequested="SecureGridView_ContextRequested"
+                  ContextCanceled="SecureGridView_ContextCanceled">
             <GridView.ItemTemplate>
-                <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
-                    <StackPanel Padding="5"
-                                Width="220"
-                                Orientation="Horizontal">
+                <DataTemplate x:DataType="Cls:SecureAreaFileModel">
+                    <Grid Padding="5"
+                          Width="250"
+                          Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
                         <Image VerticalAlignment="Center"
                                Stretch="Uniform"
                                Source="ms-appx:///Assets/LockFile.png"
                                Height="55"
                                Width="55" />
-                        <StackPanel Orientation="Vertical"
-                                    VerticalAlignment="Top"
-                                    Margin="5,0,0,0">
-                            <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                        <StackPanel Margin="5,0,0,0"
+                                    Grid.Column="1"
+                                    VerticalAlignment="Top">
+                            <TextBlock Text="{x:Bind Name}"
                                        Name="NameLabel"
                                        TextTrimming="CharacterEllipsis"
                                        HorizontalAlignment="Left"
-                                       MaxWidth="150"
                                        FontSize="16">
                                 <ToolTipService.ToolTip>
-                                    <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                    <ToolTip Content="{x:Bind Name}"
                                              Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                 </ToolTipService.ToolTip>
                             </TextBlock>
-                            <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
+                            <TextBlock Text="{x:Bind DisplayType}"
                                        TextTrimming="CharacterEllipsis"
                                        HorizontalAlignment="Left"
                                        MaxWidth="150"
@@ -223,7 +204,7 @@
                                        HorizontalAlignment="Left"
                                        FontSize="13" />
                         </StackPanel>
-                    </StackPanel>
+                    </Grid>
                 </DataTemplate>
             </GridView.ItemTemplate>
             <GridView.ItemsPanel>

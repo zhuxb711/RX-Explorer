@@ -4692,7 +4692,7 @@ namespace RX_Explorer.View
                                     {
                                         BitmapDecoder Decoder = null;
 
-                                        using (Stream OriginStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                                        using (Stream OriginStream = await File.GetStreamFromFileAsync(AccessMode.Read))
                                         {
                                             Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
                                         }
@@ -4701,9 +4701,9 @@ namespace RX_Explorer.View
 
                                         if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                         {
-                                            using (Stream SourceStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                                            using (Stream SourceStream = await File.GetStreamFromFileAsync(AccessMode.Read))
                                             using (IRandomAccessStream ResultStream = await GeneralTransformer.TranscodeFromImageAsync(SourceStream.AsRandomAccessStream(), Dialog.TargetFile.Type, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode))
-                                            using (Stream TargetStream = await Dialog.TargetFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                            using (Stream TargetStream = await Dialog.TargetFile.GetStreamFromFileAsync(AccessMode.Write))
                                             {
                                                 await ResultStream.AsStreamForRead().CopyToAsync(TargetStream);
                                             }
@@ -8434,9 +8434,10 @@ namespace RX_Explorer.View
 
         private async void ViewControl_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
+            args.Handled = true;
+
             if (args.TryGetPosition(sender, out Point Position))
             {
-                args.Handled = true;
                 Container.ShouldNotAcceptShortcutKeyInput = true;
 
                 try

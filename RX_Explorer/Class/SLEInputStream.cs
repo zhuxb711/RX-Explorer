@@ -192,7 +192,7 @@ namespace RX_Explorer.Class
                 throw new NotSupportedException($"Only ASCII char is allowed in {nameof(Key)}");
             }
 
-            int KeyLengthNeed = Header.Core.KeySize / 8;
+            int KeyLengthNeed = (int)Header.Core.KeySize / 8;
 
             byte[] KeyArray;
 
@@ -217,7 +217,7 @@ namespace RX_Explorer.Class
                         {
                             Mode = CipherMode.ECB,
                             Padding = PaddingMode.None,
-                            KeySize = Header.Core.KeySize,
+                            KeySize = (int)Header.Core.KeySize,
                             Key = KeyArray,
                         })
                         {
@@ -230,7 +230,7 @@ namespace RX_Explorer.Class
                         {
                             Mode = CipherMode.CBC,
                             Padding = PaddingMode.PKCS7,
-                            KeySize = Header.Core.KeySize,
+                            KeySize = (int)Header.Core.KeySize,
                             Key = KeyArray,
                             IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
                         })
@@ -244,7 +244,7 @@ namespace RX_Explorer.Class
                         {
                             Mode = CipherMode.CBC,
                             Padding = PaddingMode.Zeros,
-                            KeySize = Header.Core.KeySize,
+                            KeySize = (int)Header.Core.KeySize,
                             Key = KeyArray,
                             IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
                         })
