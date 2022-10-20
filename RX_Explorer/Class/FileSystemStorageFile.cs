@@ -53,7 +53,7 @@ namespace RX_Explorer.Class
                                                         : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
         }
 
-        public async virtual Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
+        public async virtual Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option = OptimizeOption.None)
         {
             try
             {
@@ -183,16 +183,7 @@ namespace RX_Explorer.Class
                 {
                     NativeFileData Data = NativeWin32API.GetStorageItemRawData(Path);
 
-                    if (Data.IsDataValid)
-                    {
-                        Size = Data.Size;
-                        IsReadOnly = Data.IsReadOnly;
-                        IsHiddenItem = Data.IsHiddenItem;
-                        IsSystemItem = Data.IsSystemItem;
-                        ModifiedTime = Data.ModifiedTime;
-                        LastAccessTime = Data.LastAccessTime;
-                    }
-                    else
+                    if (Data.IsInvalid)
                     {
                         if (await GetStorageItemCoreAsync() is StorageFile File)
                         {
@@ -223,6 +214,15 @@ namespace RX_Explorer.Class
                                 IsSystemItem = Attribute.HasFlag(FileAttributes.System);
                             }
                         }
+                    }
+                    else
+                    {
+                        Size = Data.Size;
+                        IsReadOnly = Data.IsReadOnly;
+                        IsHiddenItem = Data.IsHiddenItem;
+                        IsSystemItem = Data.IsSystemItem;
+                        ModifiedTime = Data.ModifiedTime;
+                        LastAccessTime = Data.LastAccessTime;
                     }
                 }
             }

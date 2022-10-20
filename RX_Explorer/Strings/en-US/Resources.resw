@@ -559,8 +559,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SearchType.Text" xml:space="preserve">
     <value>Type</value>
   </data>
-  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
-    <value>Add file</value>
+  <data name="SecureAreaAddButton.Label" xml:space="preserve">
+    <value>Add</value>
   </data>
   <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
     <value>Delete</value>
@@ -588,9 +588,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="SecureAreaProperty.Label" xml:space="preserve">
     <value>Property</value>
-  </data>
-  <data name="SecureAreaRenameButton.Label" xml:space="preserve">
-    <value>Rename</value>
   </data>
   <data name="SecureAreaSettingAboutHeader.Text" xml:space="preserve">
     <value>About</value>
@@ -1561,9 +1558,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>Unable to find some pinned folders, would you like to remove them automatically? Including:</value>
-  </data>
-  <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
-    <value>Security Area does not support importing folder, all folders have been filtered</value>
   </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
     <value>Thank you for your support of the RX Explorer, the security area has been unlocked</value>
@@ -3831,5 +3825,20 @@ Invalid names include
   </data>
   <data name="PreviewFileOnHoverTitle.Text" xml:space="preserve">
     <value>Preview file properties while hovering</value>
+  </data>
+  <data name="SecureAreaFlyoutPickFile.Text" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="SecureAreaFlyoutPickFolder.Text" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="SecureAreaPickFile.Content" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="SecureAreaPickFolder.Content" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="SecureAreaPickItemType.Text" xml:space="preserve">
+    <value>Do you want to select a file or folder</value>
   </data>
 </root>

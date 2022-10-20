@@ -11,7 +11,7 @@ namespace RX_Explorer.Class
     public class CredentialProtector
     {
         private readonly string VaultName;
-        private readonly PasswordVault Vault;
+        private readonly PasswordVault Vault = new PasswordVault();
 
         /// <summary>
         /// 从凭据保护器中取得密码
@@ -22,15 +22,15 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (Vault.RetrieveAll().FirstOrDefault((Cre) => Cre.Resource == VaultName && Cre.UserName == UserName) is PasswordCredential Credential)
+                if (Vault.FindAllByResource(VaultName).FirstOrDefault((Cre) => Cre.UserName == UserName) is PasswordCredential Credential)
                 {
                     Credential.RetrievePassword();
                     return Credential.Password;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                LogTracer.Log(ex);
+                // No need to handle this exception
             }
 
             return string.Empty;
@@ -49,9 +49,9 @@ namespace RX_Explorer.Class
             {
                 Vault.Add(new PasswordCredential(VaultName, UserName, Password));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                LogTracer.Log(ex);
+                // No need to handle this exception
             }
         }
 
@@ -59,31 +59,44 @@ namespace RX_Explorer.Class
         {
             try
             {
-                foreach (PasswordCredential Credential in Vault.RetrieveAll().Where((Cre) => Cre.Resource == VaultName && Cre.UserName == UserName))
+                foreach (PasswordCredential Credential in Vault.FindAllByResource(VaultName).Where((Cre) => Cre.UserName == UserName))
                 {
                     Vault.Remove(Credential);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                LogTracer.Log(ex);
+                // No need to handle this exception
             }
         }
 
         public bool CheckExists(string UserName)
         {
-            return Vault.RetrieveAll().Any((Cre) => Cre.Resource == VaultName && Cre.UserName == UserName);
+            try
+            {
+                return Vault.FindAllByResource(VaultName).Any((Cre) => Cre.UserName == UserName);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public IReadOnlyList<string> GetAccountList()
         {
-            return Vault.RetrieveAll().Where((Cre) => Cre.Resource == VaultName).Select((Cre) => Cre.UserName).ToList();
+            try
+            {
+                return Vault.FindAllByResource(VaultName).Select((Cre) => Cre.UserName).ToArray();
+            }
+            catch (Exception)
+            {
+                return Array.Empty<string>();
+            }
         }
 
         public CredentialProtector(string VaultName)
         {
             this.VaultName = VaultName;
-            Vault = new PasswordVault();
         }
     }
 }

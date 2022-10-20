@@ -11,7 +11,7 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class ResetDialog : QueueContentDialog
     {
-        public StorageFolder ExportFolder { get; private set; }
+        public FileSystemStorageFolder ExportFolder { get; private set; }
 
         public bool IsClearSecureFolder { get; private set; }
 
@@ -50,8 +50,8 @@ namespace RX_Explorer.Dialog
 
             if (!IsClearSecureFolder && ExportFolder == null)
             {
-                ChoosePositionTip.IsOpen = true;
                 args.Cancel = true;
+                ChoosePositionTip.IsOpen = true;
             }
         }
 
@@ -74,7 +74,10 @@ namespace RX_Explorer.Dialog
             };
             Picker.FileTypeFilter.Add("*");
 
-            ExportFolder = await Picker.PickSingleFolderAsync();
+            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
+            {
+                ExportFolder = new FileSystemStorageFolder(await Folder.GetNativeFileDataAsync());
+            }
         }
     }
 }

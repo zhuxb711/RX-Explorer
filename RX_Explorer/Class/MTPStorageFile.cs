@@ -103,7 +103,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
+        public override async Task<Stream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option = OptimizeOption.None)
         {
             FileAccess Access = Mode switch
             {

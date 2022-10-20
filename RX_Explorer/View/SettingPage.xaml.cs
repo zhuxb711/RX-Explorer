@@ -16,6 +16,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +46,7 @@ using AnimationDirection = Windows.UI.Composition.AnimationDirection;
 using Expander = Microsoft.UI.Xaml.Controls.Expander;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
+using UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding;
 
 namespace RX_Explorer.View
 {
@@ -2228,22 +2230,18 @@ namespace RX_Explorer.View
                     {
                         try
                         {
-                            await foreach (FileSystemStorageFile Item in SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File))
+                            await foreach (FileSystemStorageFile Item in SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File).OfType<FileSystemStorageFile>())
                             {
-                                string DecryptedFilePath = Path.Combine(Dialog.ExportFolder.Path, Path.GetRandomFileName());
-
-                                if (await FileSystemStorageItemBase.CreateNewAsync(DecryptedFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
+                                using (Stream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read))
+                                using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, new UTF8Encoding(false), SecureArea.EncryptionKey))
                                 {
-                                    using (Stream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                                    using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, SecureArea.AESKey))
+                                    if (await Dialog.ExportFolder.CreateNewSubItemAsync(SLEStream.Header.Core.Version >= SLEVersion.SLE110 ? SLEStream.Header.Core.FileName : $"{Path.GetFileNameWithoutExtension(Item.Name)}{SLEStream.Header.Core.FileName}", CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                                     {
-                                        using (Stream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                        using (Stream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write))
                                         {
                                             await SLEStream.CopyToAsync(DecryptedFStream, 2048);
                                             await DecryptedFStream.FlushAsync();
                                         }
-
-                                        await DecryptedFile.RenameAsync(SLEStream.Header.FileName);
                                     }
                                 }
                             }
@@ -2509,7 +2507,7 @@ namespace RX_Explorer.View
 
                 if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile File)
                 {
-                    using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    using (Stream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read))
                     {
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.BingPicture, await Helper.CreateBitmapImageAsync(FileStream.AsRandomAccessStream()));
 

@@ -86,6 +86,9 @@ namespace RX_Explorer.Class
         [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern bool GetFileAttributesExFromAppW(string lpFileName, GET_FILEEX_INFO_LEVELS fInfoLevelId, out WIN32_FILE_ATTRIBUTE_DATA lpFileInformation);
 
+        [DllImport("api-ms-win-core-sysinfo-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern bool GlobalMemoryStatusEx(ref MEMORYSTATUSEX lpBuffer);
+
         public enum GET_FILEEX_INFO_LEVELS
         {
             GetFileExInfoStandard,
@@ -363,15 +366,51 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static FileStream CreateStreamFromFile(string Path, AccessMode AccessMode, OptimizeOption Option)
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MEMORYSTATUSEX
         {
-            FILE_ATTRIBUTE_FLAG Flags = FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | Option switch
+            public uint dwLength;
+            public uint dwMemoryLoad;
+            public ulong ullTotalPhys;
+            public ulong ullAvailPhys;
+            public ulong ullTotalPageFile;
+            public ulong ullAvailPageFile;
+            public ulong ullTotalVirtual;
+            public ulong ullAvailVirtual;
+            public ulong ullAvailExtendedVirtual;
+        }
+
+        public static MEMORYSTATUSEX GetGlobalMemoryStatus()
+        {
+            MEMORYSTATUSEX Status = new MEMORYSTATUSEX
             {
-                OptimizeOption.None => FILE_ATTRIBUTE_FLAG.File_Attribute_Normal,
-                OptimizeOption.Sequential => FILE_ATTRIBUTE_FLAG.File_Flag_Sequential_Scan,
-                OptimizeOption.RandomAccess => FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access,
-                _ => throw new NotSupportedException()
+                dwLength = Convert.ToUInt32(Marshal.SizeOf<MEMORYSTATUSEX>())
             };
+
+            if (GlobalMemoryStatusEx(ref Status))
+            {
+                return Status;
+            }
+
+            return default;
+        }
+
+        public static FileStream CreateStreamFromFile(string Path, AccessMode AccessMode, OptimizeOption Option = OptimizeOption.None)
+        {
+            FILE_ATTRIBUTE_FLAG Flags = FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped;
+
+            // About SEQUENTIAL_SCAN & RANDOM_ACCESS flags
+            // These two flags takes no effect if we only write data into the file (Only takes effect on ReadFile related API)
+            // https://devblogs.microsoft.com/oldnewthing/20120120-00/?p=8493
+            if (AccessMode != AccessMode.Write && Option != OptimizeOption.None)
+            {
+                Flags |= Option switch
+                {
+                    OptimizeOption.Sequential => FILE_ATTRIBUTE_FLAG.File_Flag_Sequential_Scan,
+                    OptimizeOption.RandomAccess => FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access,
+                    _ => throw new NotSupportedException()
+                };
+            }
 
             SafeFileHandle Handle = AccessMode switch
             {
@@ -484,9 +523,30 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public static SafeFileHandle CreateTemporaryFileHandle(string TempFilePath = null)
+        public static SafeFileHandle CreateTemporaryFileHandle(string TempFilePath = null, IOPreference Preference = IOPreference.NoPreference)
         {
-            return CreateFileFromApp(string.IsNullOrEmpty(TempFilePath) ? Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N")) : TempFilePath, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Flag_Delete_On_Close | FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access, IntPtr.Zero);
+            FILE_ATTRIBUTE_FLAG FileAttribute = FILE_ATTRIBUTE_FLAG.File_Flag_Delete_On_Close | FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped;
+
+            if (Preference == IOPreference.PreferUseMoreMemory)
+            {
+                MEMORYSTATUSEX Status = GetGlobalMemoryStatus();
+
+                if (!Status.Equals(default))
+                {
+                    if (Status.dwMemoryLoad <= 90 && Status.ullAvailPhys >= 1073741824)
+                    {
+                        FileAttribute |= FILE_ATTRIBUTE_FLAG.File_Attribute_Temporary;
+                    }
+                }
+            }
+
+            return CreateFileFromApp(string.IsNullOrEmpty(TempFilePath) ? Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"{Path.GetRandomFileName()}.tmp") : TempFilePath,
+                                     FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write,
+                                     FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete,
+                                     IntPtr.Zero,
+                                     CREATE_OPTION.Create_New,
+                                     FileAttribute,
+                                     IntPtr.Zero);
         }
 
         public static bool CreateFileFromPath(string Path, CreateOption Option, out string NewFilePath)
@@ -992,7 +1052,7 @@ namespace RX_Explorer.Class
         {
             NativeFileData Data = GetStorageItemRawDataFromHandle(Path, FileHandle);
 
-            if (Data.IsDataValid)
+            if (!Data.IsInvalid)
             {
                 if (Data.Attributes.HasFlag(FileAttributes.Directory))
                 {
@@ -1014,10 +1074,8 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
     }
 }

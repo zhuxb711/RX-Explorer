@@ -71,7 +71,8 @@
                       TabDragStarting="TabViewControl_TabDragStarting"
                       SelectionChanged="TabViewControl_SelectionChanged"
                       TabCloseRequested="TabViewControl_TabCloseRequested"
-                      AddTabButtonClick="TabViewControl_AddTabButtonClick">
+                      AddTabButtonClick="TabViewControl_AddTabButtonClick"
+                      TabDragCompleted="TabViewControl_TabDragCompleted">
             <muxc:TabView.TabStripHeader>
                 <Grid>
                     <Button Width="35"

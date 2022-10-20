@@ -427,9 +427,6 @@
   <data name="SearchType.Text" xml:space="preserve">
     <value>Type</value>
   </data>
-  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
-    <value>Ajouter fichier</value>
-  </data>
   <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
     <value>Supprimer</value>
   </data>
@@ -456,9 +453,6 @@
   </data>
   <data name="SecureAreaProperty.Label" xml:space="preserve">
     <value>Propriété</value>
-  </data>
-  <data name="SecureAreaRenameButton.Label" xml:space="preserve">
-    <value>Renommer</value>
   </data>
   <data name="SecureAreaSettingAboutHeader.Text" xml:space="preserve">
     <value>A propos</value>
@@ -1376,9 +1370,6 @@
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>Impossible de trouver certains dossiers épinglés, souhaitez-vous les supprimer automatiquement ? Y compris:</value>
-  </data>
-  <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
-    <value>L'Espace Sécurisé ne prend pas en charge l'importation de dossiers, tous les dossiers ont été filtrés</value>
   </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
     <value>Merci pour votre support de RX Explorateur, l'Espace Sécurisé a été débloqué</value>
@@ -3724,5 +3715,23 @@ Les noms non valides incluent
   </data>
   <data name="PreviewFileOnHoverTitle.Text" xml:space="preserve">
     <value>Aperçu des propriétés du fichier en vol stationnaire</value>
+  </data>
+  <data name="SecureAreaAddButton.Label" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
+  <data name="SecureAreaFlyoutPickFile.Text" xml:space="preserve">
+    <value>Fichier</value>
+  </data>
+  <data name="SecureAreaFlyoutPickFolder.Text" xml:space="preserve">
+    <value>Dossier</value>
+  </data>
+  <data name="SecureAreaPickFile.Content" xml:space="preserve">
+    <value>Fichier</value>
+  </data>
+  <data name="SecureAreaPickFolder.Content" xml:space="preserve">
+    <value>Dossier</value>
+  </data>
+  <data name="SecureAreaPickItemType.Text" xml:space="preserve">
+    <value>Voulez - vous sélectionner un fichier ou un dossier</value>
   </data>
 </root>

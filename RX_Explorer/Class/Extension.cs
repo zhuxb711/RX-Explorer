@@ -172,7 +172,7 @@ namespace RX_Explorer.Class
                                 if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, File.Name), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile TempFile)
                                 {
                                     using (Stream IncomeFileStream = await File.OpenStreamForReadAsync())
-                                    using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                    using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Write))
                                     {
                                         await IncomeFileStream.CopyToAsync(TempFileStream);
                                     }
@@ -227,9 +227,11 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (await View.GetDataAsync(ExtendedDataFormats.FileDrop) is IRandomAccessStream OriginStream)
+                    if (await View.GetDataAsync(ExtendedDataFormats.FileDrop) is IRandomAccessStream RandomStream)
                     {
-                        byte[] OriginData = await Helper.GetByteArrayFromRandomAccessStreamAsync(OriginStream);
+                        RandomStream.Seek(0);
+
+                        byte[] OriginData = await Helper.GetByteArrayFromRandomAccessStreamAsync(RandomStream);
 
                         if (OriginData.Length > 0)
                         {
@@ -410,19 +412,29 @@ namespace RX_Explorer.Class
         {
             using (SafeFileHandle Handle = await Item.GetSafeFileHandleAsync(AccessMode.Read, OptimizeOption.None))
             {
-                NativeFileData Data = await Task.Run(() => NativeWin32API.GetStorageItemRawDataFromHandle(Item.Path, Handle.DangerousGetHandle()));
-                Data.SetStorageItemOnAvailable(Item);
-                return Data;
+                return await Task.Run(() => NativeWin32API.GetStorageItemRawDataFromHandle(Item.Path, Handle.DangerousGetHandle())).ContinueWith((PreviousTask) =>
+                {
+                    if (PreviousTask.Exception is Exception Ex)
+                    {
+                        LogTracer.Log(Ex, "Could not get storage item raw data from the handle");
+                    }
+                    else
+                    {
+                        PreviousTask.Result.SetStorageItemOnAvailable(Item);
+                    }
+
+                    return PreviousTask.Result;
+                });
             }
         }
 
-        public static Task<SafeFileHandle> GetSafeFileHandleAsync(this IStorageItem Item, AccessMode Mode, OptimizeOption Option)
+        public static Task<SafeFileHandle> GetSafeFileHandleAsync(this IStorageItem Item, AccessMode Mode, OptimizeOption Option = OptimizeOption.None)
         {
             return Task.Run(() =>
             {
                 if (!string.IsNullOrEmpty(Item.Path))
                 {
-                    UWP_HANDLE_ACCESS_OPTIONS Access = Mode switch
+                    UWP_HANDLE_ACCESS_OPTIONS AccessOptions = Mode switch
                     {
                         AccessMode.Read => UWP_HANDLE_ACCESS_OPTIONS.READ,
                         AccessMode.ReadWrite or AccessMode.Exclusive => UWP_HANDLE_ACCESS_OPTIONS.READ | UWP_HANDLE_ACCESS_OPTIONS.WRITE,
@@ -430,7 +442,7 @@ namespace RX_Explorer.Class
                         _ => throw new NotSupportedException()
                     };
 
-                    UWP_HANDLE_SHARING_OPTIONS Share = Mode switch
+                    UWP_HANDLE_SHARING_OPTIONS ShareOptions = Mode switch
                     {
                         AccessMode.Read => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ | UWP_HANDLE_SHARING_OPTIONS.SHARE_WRITE,
                         AccessMode.ReadWrite or AccessMode.Write => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ,
@@ -438,13 +450,20 @@ namespace RX_Explorer.Class
                         _ => throw new NotSupportedException()
                     };
 
-                    UWP_HANDLE_OPTIONS Optimize = UWP_HANDLE_OPTIONS.OVERLAPPED | Option switch
+                    UWP_HANDLE_OPTIONS OptOptions = UWP_HANDLE_OPTIONS.OVERLAPPED;
+
+                    // About SEQUENTIAL_SCAN & RANDOM_ACCESS flags
+                    // These two flags takes no effect if we only write data into the file (Only takes effect on ReadFile related API)
+                    // https://devblogs.microsoft.com/oldnewthing/20120120-00/?p=8493
+                    if (Mode != AccessMode.Write && Option != OptimizeOption.None)
                     {
-                        OptimizeOption.None => UWP_HANDLE_OPTIONS.NONE,
-                        OptimizeOption.Sequential => UWP_HANDLE_OPTIONS.SEQUENTIAL_SCAN,
-                        OptimizeOption.RandomAccess => UWP_HANDLE_OPTIONS.RANDOM_ACCESS,
-                        _ => throw new NotSupportedException()
-                    };
+                        OptOptions |= Option switch
+                        {
+                            OptimizeOption.Sequential => UWP_HANDLE_OPTIONS.SEQUENTIAL_SCAN,
+                            OptimizeOption.RandomAccess => UWP_HANDLE_OPTIONS.RANDOM_ACCESS,
+                            _ => throw new NotSupportedException()
+                        };
+                    }
 
                     try
                     {
@@ -454,7 +473,7 @@ namespace RX_Explorer.Class
                         {
                             if (Marshal.GetObjectForIUnknown(ComInterface) is IStorageItemHandleAccess StorageHandleAccess)
                             {
-                                int HResult = StorageHandleAccess.Create(Access, Share, Optimize, IntPtr.Zero, out IntPtr Handle);
+                                int HResult = StorageHandleAccess.Create(AccessOptions, ShareOptions, OptOptions, IntPtr.Zero, out IntPtr Handle);
 
                                 if (HResult != 0)
                                 {

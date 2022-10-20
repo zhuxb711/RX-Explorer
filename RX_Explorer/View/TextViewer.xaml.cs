@@ -86,21 +86,30 @@ namespace RX_Explorer.View
                 {
                     case ".sle":
                         {
-                            Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                            Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read);
+                            SLEInputStream SLEStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.EncryptionKey);
 
-                            SLEHeader Header = SLEHeader.GetHeader(Stream);
-
-                            if (Header.Version >= SLEVersion.Version_1_5_0)
+                            if (SLEStream.Header.Core.Version >= SLEVersion.SLE150)
                             {
-                                TextStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                                TextStream = SLEStream;
+                            }
+                            else
+                            {
+                                Stream.Dispose();
+                                SLEStream.Dispose();
+                                throw new NotSupportedException();
                             }
 
                             break;
                         }
                     case ".txt":
                         {
-                            TextStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                            TextStream = await File.GetStreamFromFileAsync(AccessMode.Read);
                             break;
+                        }
+                    default:
+                        {
+                            throw new NotSupportedException();
                         }
                 }
 
@@ -108,11 +117,7 @@ namespace RX_Explorer.View
                 {
                     if (!CancelToken.IsCancellationRequested)
                     {
-                        if (TextStream == null)
-                        {
-                            throw new NotSupportedException();
-                        }
-                        else if (TextStream is SLEInputStream)
+                        if (TextStream is SLEInputStream)
                         {
                             Save.IsEnabled = false;
                         }
@@ -180,7 +185,7 @@ namespace RX_Explorer.View
             {
                 if (await FileSystemStorageItemBase.CreateNewAsync(TextFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile File)
                 {
-                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                    using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Write))
                     {
                         Stream.SetLength(0);
 

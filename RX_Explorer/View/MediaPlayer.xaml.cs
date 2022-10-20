@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TagLib;
@@ -109,12 +110,11 @@ namespace RX_Explorer.View
                 if (TargetMediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
                     using (Stream Stream = await TargetMediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                    using (SLEInputStream MediaStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.EncryptionKey))
                     {
-                        SLEHeader Header = SLEHeader.GetHeader(Stream);
-
-                        if (Header.Version >= SLEVersion.Version_1_5_0)
+                        if (MediaStream.Header.Core.Version >= SLEVersion.SLE150)
                         {
-                            switch (Path.GetExtension(Header.FileName).ToLower())
+                            switch (Path.GetExtension(MediaStream.Header.Core.FileName).ToLower())
                             {
                                 case ".mp3":
                                 case ".flac":
@@ -131,25 +131,22 @@ namespace RX_Explorer.View
 
                                         MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                                         Props.Type = MediaPlaybackType.Music;
-                                        Props.MusicProperties.Title = Header.FileName;
+                                        Props.MusicProperties.Title = MediaStream.Header.Core.FileName;
 
                                         try
                                         {
-                                            using (SLEInputStream MediaStream = new SLEInputStream(Stream, SecureArea.AESKey))
+                                            byte[] CoverData = GetMusicCoverFromStream(MediaStream.Header.Core.FileName, MediaStream);
+
+                                            if (CoverData.Length > 0)
                                             {
-                                                byte[] CoverData = GetMusicCoverFromStream(Header.FileName, MediaStream);
-
-                                                if (CoverData.Length > 0)
-                                                {
-                                                    Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await Helper.CreateRandomAccessStreamAsync(CoverData));
-                                                }
-                                                else
-                                                {
-                                                    Props.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/LockFile.png"));
-                                                }
-
-                                                Props.MusicProperties.AlbumArtist = GetArtistFromStream(Header.FileName, MediaStream);
+                                                Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await Helper.CreateRandomAccessStreamAsync(CoverData));
                                             }
+                                            else
+                                            {
+                                                Props.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/LockFile.png"));
+                                            }
+
+                                            Props.MusicProperties.AlbumArtist = GetArtistFromStream(MediaStream.Header.Core.FileName, MediaStream);
                                         }
                                         catch (Exception)
                                         {
@@ -178,7 +175,7 @@ namespace RX_Explorer.View
                                         MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                                         Props.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/LockFile.png"));
                                         Props.Type = MediaPlaybackType.Video;
-                                        Props.VideoProperties.Title = Header.FileName;
+                                        Props.VideoProperties.Title = MediaStream.Header.Core.FileName;
 
                                         Item.ApplyDisplayProperties(Props);
 
@@ -446,31 +443,28 @@ namespace RX_Explorer.View
                 {
                     if (Path.GetExtension(args.MediaBinder.Token).Equals(".sle", StringComparison.OrdinalIgnoreCase))
                     {
-                        Stream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
+                        SLEInputStream MediaStream = new SLEInputStream(await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess), new UTF8Encoding(false), SecureArea.EncryptionKey);
 
-                        SLEHeader Header = SLEHeader.GetHeader(Stream);
-
-                        if (Header.Version >= SLEVersion.Version_1_5_0)
+                        if (MediaStream.Header.Core.Version >= SLEVersion.SLE150)
                         {
-                            args.SetStream(new SLEInputStream(Stream, SecureArea.AESKey).AsRandomAccessStream(), MIMEMapping[Path.GetExtension(Header.FileName).ToLower()]);
+                            args.SetStream(MediaStream.AsRandomAccessStream(), MIMEMapping[Path.GetExtension(MediaStream.Header.Core.FileName).ToLower()]);
 
                             try
                             {
-                                switch (Path.GetExtension(Header.FileName).ToLower())
+                                switch (Path.GetExtension(MediaStream.Header.Core.FileName).ToLower())
                                 {
                                     case ".mp3":
                                     case ".flac":
                                     case ".wma":
                                     case ".m4a":
                                         {
-                                            await CoreApplication.MainView.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
+                                            using (SLEInputStream MediaInfoStream = new SLEInputStream(await MediaFile.GetStreamFromFileAsync(AccessMode.Read), new UTF8Encoding(false), SecureArea.EncryptionKey))
                                             {
-                                                MusicName.Text = Header.FileName;
+                                                byte[] CoverData = GetMusicCoverFromStream(MediaInfoStream.Header.Core.FileName, MediaInfoStream);
 
-                                                using (Stream FileStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                                                using (SLEInputStream MediaStream = new SLEInputStream(FileStream, SecureArea.AESKey))
+                                                await CoreApplication.MainView.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
                                                 {
-                                                    byte[] CoverData = GetMusicCoverFromStream(Header.FileName, MediaStream);
+                                                    MusicName.Text = MediaInfoStream.Header.Core.FileName;
 
                                                     if (CoverData.Length > 0)
                                                     {
@@ -480,8 +474,8 @@ namespace RX_Explorer.View
                                                     {
                                                         MusicCover.Source = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
                                                     }
-                                                }
-                                            });
+                                                });
+                                            }
 
                                             break;
                                         }
@@ -491,6 +485,11 @@ namespace RX_Explorer.View
                             {
                                 //No need to handle this exception
                             }
+                        }
+                        else
+                        {
+                            MediaStream.Dispose();
+                            throw new NotSupportedException();
                         }
                     }
                     else
@@ -517,7 +516,7 @@ namespace RX_Explorer.View
                                         {
                                             MusicName.Text = MediaFile.Name;
 
-                                            using (Stream FileStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                                            using (Stream FileStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read))
                                             {
                                                 byte[] CoverData = GetMusicCoverFromStream(MediaFile.Name, FileStream);
 

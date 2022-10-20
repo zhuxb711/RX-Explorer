@@ -205,7 +205,7 @@ namespace RX_Explorer.Class
 
                     List<Task> LongRunningTaskList = new List<Task>();
 
-                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType is DriveType.Fixed or DriveType.Network or DriveType.CDRom))
+                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType is DriveType.Fixed or DriveType.Network or DriveType.CDRom or DriveType.Ram))
                     {
                         Task LoadTask = DriveDataBase.CreateAsync(Drive).ContinueWith((PreviousTask) =>
                         {
@@ -265,6 +265,36 @@ namespace RX_Explorer.Class
                             {
                                 LongRunningTaskList.Add(LoadTask);
                             }
+                        }
+                    }
+
+                    foreach (StorageFolder ExternalDeviceFolder in await KnownFolders.RemovableDevices.GetFoldersAsync())
+                    {
+                        Task LoadTask = DriveDataBase.CreateAsync(DriveType.Removable, new FileSystemStorageFolder(await ExternalDeviceFolder.GetNativeFileDataAsync())).ContinueWith((PreviousTask) =>
+                        {
+                            if (PreviousTask.Exception is Exception Ex)
+                            {
+                                LogTracer.Log(Ex, $"Ignore the drive \"{ExternalDeviceFolder.Name}\" because we could not get details from this drive");
+                            }
+                            else
+                            {
+                                if (PreviousTask.Result is DriveDataBase DriveData)
+                                {
+                                    if (!DriveList.Contains(DriveData))
+                                    {
+                                        DriveList.Add(DriveData);
+                                    }
+                                }
+                                else
+                                {
+                                    LogTracer.Log($"Ignore the drive \"{ExternalDeviceFolder.Name}\" because we could not get details from this drive");
+                                }
+                            }
+                        }, default, TaskContinuationOptions.PreferFairness, TaskScheduler.FromCurrentSynchronizationContext());
+
+                        if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
+                        {
+                            LongRunningTaskList.Add(LoadTask);
                         }
                     }
 

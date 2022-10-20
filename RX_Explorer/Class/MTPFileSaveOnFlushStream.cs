@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedLibrary;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,15 +11,15 @@ namespace RX_Explorer.Class
     {
         private readonly string Path;
 
-        protected override async Task FlushCoreAsync(CancellationToken CancelToken)
+        protected override async Task FlushCoreAsync(CancellationToken CancelToken = default)
         {
             string TempFilePath = System.IO.Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N"));
 
-            using (Stream TempStream = await FileSystemStorageItemBase.CreateTemporaryFileStreamAsync(TempFilePath))
+            using (Stream TempStream = await FileSystemStorageItemBase.CreateTemporaryFileStreamAsync(TempFilePath, Length >= 1073741824 ? IOPreference.NoPreference : IOPreference.PreferUseMoreMemory))
             {
-                BaseStream.Seek(0, SeekOrigin.Begin);
+                Seek(0, SeekOrigin.Begin);
 
-                await BaseStream.CopyToAsync(TempStream, 1024, CancelToken);
+                await this.CopyToAsync(TempStream, CancelToken: CancelToken);
                 await TempStream.FlushAsync();
 
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))

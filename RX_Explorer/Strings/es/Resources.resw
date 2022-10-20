@@ -442,9 +442,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="SearchType.Text" xml:space="preserve">
     <value>Tipo</value>
   </data>
-  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
-    <value>Añadir archivo</value>
-  </data>
   <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
     <value>Eliminar</value>
   </data>
@@ -471,9 +468,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="SecureAreaProperty.Label" xml:space="preserve">
     <value>Propiedad</value>
-  </data>
-  <data name="SecureAreaRenameButton.Label" xml:space="preserve">
-    <value>Renombrar</value>
   </data>
   <data name="SecureAreaSettingAboutHeader.Text" xml:space="preserve">
     <value>Quiénes somos</value>
@@ -1441,9 +1435,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>No se pueden encontrar algunas carpetas ancladas, ¿le gustaría eliminarlas automáticamente? Incluido:</value>
-  </data>
-  <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
-    <value>El Área de seguridad no es compatible con la importación de carpetas; todas las carpetas se han filtrado.</value>
   </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
     <value>Muchas gracias por tu apoyo a RX Explorer; el Área de seguridad se ha desbloqueado.</value>
@@ -3726,5 +3717,23 @@ Las denominaciones no válidas son:
   </data>
   <data name="PreviewFileOnHoverTitle.Text" xml:space="preserve">
     <value>Previsualización de las propiedades del archivo en hover</value>
+  </data>
+  <data name="SecureAreaAddButton.Label" xml:space="preserve">
+    <value>Añadir</value>
+  </data>
+  <data name="SecureAreaFlyoutPickFile.Text" xml:space="preserve">
+    <value>Archivo</value>
+  </data>
+  <data name="SecureAreaFlyoutPickFolder.Text" xml:space="preserve">
+    <value>Carpeta</value>
+  </data>
+  <data name="SecureAreaPickFile.Content" xml:space="preserve">
+    <value>Archivo</value>
+  </data>
+  <data name="SecureAreaPickFolder.Content" xml:space="preserve">
+    <value>Carpeta</value>
+  </data>
+  <data name="SecureAreaPickItemType.Text" xml:space="preserve">
+    <value>Desea seleccionar un archivo o carpeta</value>
   </data>
 </root>

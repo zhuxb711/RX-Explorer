@@ -169,7 +169,7 @@
                                         <Setter Property="CornerRadius"
                                                 Value="{StaticResource CustomCornerRadius}" />
                                         <Setter Property="Background"
-                                                Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                                Value="{ThemeResource ElementCustomAcrylicBrush}" />
                                     </Style>
                                 </Flyout.FlyoutPresenterStyle>
                                 <StackPanel MaxWidth="230">

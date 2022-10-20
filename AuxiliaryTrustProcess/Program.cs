@@ -975,8 +975,28 @@ namespace AuxiliaryTrustProcess
                         case AuxiliaryTrustProcessCommandType.CreateTemporaryFileHandle:
                             {
                                 string TempFilePath = CommandValue["TempFilePath"];
+                                IOPreference Preference = Enum.Parse<IOPreference>(CommandValue["Preference"]);
+                                FileFlagsAndAttributes FileAttribute = FileFlagsAndAttributes.FILE_FLAG_DELETE_ON_CLOSE | FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED;
 
-                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(string.IsNullOrEmpty(TempFilePath) ? Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")) : TempFilePath, Kernel32.FileAccess.GENERIC_READ | Kernel32.FileAccess.GENERIC_WRITE, FileShare.Read | FileShare.Write | FileShare.Delete, null, FileMode.CreateNew, FileFlagsAndAttributes.FILE_FLAG_DELETE_ON_CLOSE | FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED | FileFlagsAndAttributes.FILE_FLAG_RANDOM_ACCESS))
+                                if (Preference == IOPreference.PreferUseMoreMemory)
+                                {
+                                    Kernel32.MEMORYSTATUSEX Status = Kernel32.MEMORYSTATUSEX.Default;
+
+                                    if (Kernel32.GlobalMemoryStatusEx(ref Status))
+                                    {
+                                        if (Status.dwMemoryLoad <= 90 && Status.ullAvailPhys >= 1073741824)
+                                        {
+                                            FileAttribute |= FileFlagsAndAttributes.FILE_ATTRIBUTE_TEMPORARY;
+                                        }
+                                    }
+                                }
+
+                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(string.IsNullOrEmpty(TempFilePath) ? Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.tmp") : TempFilePath,
+                                                                                       Kernel32.FileAccess.GENERIC_READ | Kernel32.FileAccess.GENERIC_WRITE,
+                                                                                       FileShare.Read | FileShare.Write | FileShare.Delete,
+                                                                                       null,
+                                                                                       FileMode.CreateNew,
+                                                                                       FileAttribute))
                                 {
                                     if (Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), Handle.DangerousGetHandle(), ExplorerProcess.Handle, out IntPtr TargetHandle, default, default, Kernel32.DUPLICATE_HANDLE_OPTIONS.DUPLICATE_SAME_ACCESS))
                                     {
@@ -1897,7 +1917,7 @@ namespace AuxiliaryTrustProcess
                                             _ => throw new NotSupportedException()
                                         };
 
-                                        FileFlagsAndAttributes Flags = FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL;
+                                        FileFlagsAndAttributes Flags;
 
                                         if (Directory.Exists(ExecutePath))
                                         {
@@ -1905,13 +1925,20 @@ namespace AuxiliaryTrustProcess
                                         }
                                         else
                                         {
-                                            Flags = FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED | Option switch
+                                            Flags = FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED;
+
+                                            // About SEQUENTIAL_SCAN & RANDOM_ACCESS flags
+                                            // These two flags takes no effect if we only write data into the file (Only takes effect on ReadFile related API)
+                                            // https://devblogs.microsoft.com/oldnewthing/20120120-00/?p=8493
+                                            if (Mode != AccessMode.Write && Option != OptimizeOption.None)
                                             {
-                                                OptimizeOption.None => FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL,
-                                                OptimizeOption.Sequential => FileFlagsAndAttributes.FILE_FLAG_SEQUENTIAL_SCAN,
-                                                OptimizeOption.RandomAccess => FileFlagsAndAttributes.FILE_FLAG_RANDOM_ACCESS,
-                                                _ => throw new NotSupportedException()
-                                            };
+                                                Flags |= Option switch
+                                                {
+                                                    OptimizeOption.Sequential => FileFlagsAndAttributes.FILE_FLAG_SEQUENTIAL_SCAN,
+                                                    OptimizeOption.RandomAccess => FileFlagsAndAttributes.FILE_FLAG_RANDOM_ACCESS,
+                                                    _ => throw new NotSupportedException()
+                                                };
+                                            }
                                         }
 
                                         using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(ExecutePath, Access, Share, null, FileMode.Open, Flags))

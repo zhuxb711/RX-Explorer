@@ -10,7 +10,7 @@ namespace RX_Explorer.Dialog
 
         public bool IsEnableWindowsHello { get; private set; }
 
-        public int AESKeySize { get; private set; }
+        public SLEKeySize EncryptionKeySize { get; private set; }
 
         public SecureAreaWelcomeDialog()
         {
@@ -58,7 +58,7 @@ namespace RX_Explorer.Dialog
 
             Password = PrimaryPassword.Password;
             IsEnableWindowsHello = UseWinHel.IsChecked.GetValueOrDefault();
-            AESKeySize = SecureLevel.SelectedIndex == 0 ? 128 : 256;
+            EncryptionKeySize = SecureLevel.SelectedIndex == 0 ? SLEKeySize.AES128 : SLEKeySize.AES256;
         }
 
         private async void UseWinHel_Checked(object sender, Windows.UI.Xaml.RoutedEventArgs e)

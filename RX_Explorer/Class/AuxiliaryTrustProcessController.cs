@@ -554,9 +554,9 @@ namespace RX_Explorer.Class
             return string.Empty;
         }
 
-        public async Task<SafeFileHandle> CreateTemporaryFileHandleAsync(string TempFilePath = null)
+        public async Task<SafeFileHandle> CreateTemporaryFileHandleAsync(string TempFilePath = null, IOPreference Preference = IOPreference.NoPreference)
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CreateTemporaryFileHandle, ("TempFilePath", TempFilePath ?? string.Empty));
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CreateTemporaryFileHandle, ("TempFilePath", TempFilePath ?? string.Empty), ("Preference", Enum.GetName(typeof(IOPreference), Preference)));
 
             if (Response.TryGetValue("Success", out string HandleString))
             {
@@ -1804,14 +1804,7 @@ namespace RX_Explorer.Class
                     {
                         NativeFileData Data = NativeWin32API.GetStorageItemRawData(PropertyDic["ActualPath"]);
 
-                        if (Data.IsDataValid)
-                        {
-                            ItemResult.Add(PropertyDic["StorageType"] == "Folder"
-                                                    ? new RecycleStorageFolder(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
-                                                    : new RecycleStorageFile(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
-
-                        }
-                        else
+                        if (Data.IsInvalid)
                         {
                             switch (PropertyDic["StorageType"])
                             {
@@ -1828,6 +1821,13 @@ namespace RX_Explorer.Class
                                         break;
                                     }
                             }
+                        }
+                        else
+                        {
+                            ItemResult.Add(PropertyDic["StorageType"] == "Folder"
+                                                    ? new RecycleStorageFolder(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
+                                                    : new RecycleStorageFile(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+
                         }
                     }
                     catch (Exception ex)

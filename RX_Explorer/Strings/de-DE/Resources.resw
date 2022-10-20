@@ -442,9 +442,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="SearchType.Text" xml:space="preserve">
     <value>Typ</value>
   </data>
-  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
-    <value>Datei hinzufügen</value>
-  </data>
   <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
     <value>Löschen</value>
   </data>
@@ -471,9 +468,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="SecureAreaProperty.Label" xml:space="preserve">
     <value>Eigenschaft</value>
-  </data>
-  <data name="SecureAreaRenameButton.Label" xml:space="preserve">
-    <value>Umbenennen</value>
   </data>
   <data name="SecureAreaSettingAboutHeader.Text" xml:space="preserve">
     <value>Über</value>
@@ -1441,9 +1435,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
     <value>Einige angeheftete Ordner können nicht gefunden werden. Möchten Sie sie automatisch entfernen? Einschließlich:</value>
-  </data>
-  <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
-    <value>Sicherheitsbereich ünterstützt das Importieren von Ordnern nicht. Alle Ordner wurden gefiltert.</value>
   </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
     <value>Danke für ihre Unterstützung von RX-Explorer. Der Sicherheitsbereich wurde entsperrt.</value>
@@ -3726,5 +3717,23 @@ Inkorrekte Namen sind
   </data>
   <data name="PreviewFileOnHoverTitle.Text" xml:space="preserve">
     <value>Vorschau der Dateieigenschaften beim Bewegen des Mauszeigers</value>
+  </data>
+  <data name="SecureAreaAddButton.Label" xml:space="preserve">
+    <value>Hinzufügen</value>
+  </data>
+  <data name="SecureAreaFlyoutPickFile.Text" xml:space="preserve">
+    <value>Datei</value>
+  </data>
+  <data name="SecureAreaFlyoutPickFolder.Text" xml:space="preserve">
+    <value>Ordner</value>
+  </data>
+  <data name="SecureAreaPickFile.Content" xml:space="preserve">
+    <value>Datei</value>
+  </data>
+  <data name="SecureAreaPickFolder.Content" xml:space="preserve">
+    <value>Ordner</value>
+  </data>
+  <data name="SecureAreaPickItemType.Text" xml:space="preserve">
+    <value>Möchten Sie eine Datei oder einen Ordner auswählen</value>
   </data>
 </root>

@@ -54,7 +54,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                        using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read))
                         {
                             ActualSource = await Helper.CreateBitmapImageAsync(ActualStream.AsRandomAccessStream());
                         }
@@ -95,7 +95,7 @@ namespace RX_Explorer.Class
                         }
                         catch (Exception)
                         {
-                            using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
+                            using (Stream ActualStream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read))
                             {
                                 ThumbnailSource = await Helper.CreateBitmapImageAsync(ActualStream.AsRandomAccessStream());
                             }

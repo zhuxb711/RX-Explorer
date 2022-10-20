@@ -473,7 +473,7 @@ namespace RX_Explorer.Class
 
                                                             if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
                                                             {
-                                                                using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                                                using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                                                 {
                                                                     await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                     {
@@ -533,7 +533,7 @@ namespace RX_Explorer.Class
 
                                                             if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
                                                             {
-                                                                using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                                                using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                                                 {
                                                                     await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                     {
@@ -595,7 +595,7 @@ namespace RX_Explorer.Class
 
                                                                 if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
                                                                 {
-                                                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
+                                                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                                                     {
                                                                         await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, (s, e) =>
                                                                         {

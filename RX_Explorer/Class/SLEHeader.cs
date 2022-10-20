@@ -2,78 +2,87 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 namespace RX_Explorer.Class
 {
     public sealed class SLEHeader
     {
-        public SLEVersion Version { get; }
+        public SLEHeaderCore Core { get; }
 
-        public int KeySize { get; }
+        public int HeaderSize { get; private set; }
 
-        public string FileName { get; }
+        public Encoding HeaderEncoding { get; }
 
-        public int HeaderLength { get; set; }
-
-        public static SLEHeader GetHeader(Stream BaseFileStream)
+        public static SLEHeader GetHeader(Stream BaseFileStream, Encoding HeaderEncoding = null)
         {
             long OriginPosition = BaseFileStream.Position;
 
             try
             {
-                StringBuilder Builder = new StringBuilder();
-
-                using (StreamReader Reader = new StreamReader(BaseFileStream, Encoding.UTF8, true, 512, true))
+                if (HeaderEncoding == null)
                 {
-                    for (int Count = 0; Reader.Peek() >= 0; Count++)
+                    HeaderEncoding = new UTF8Encoding(false);
+                }
+
+                try
+                {
+                    using (BinaryReader Reader = new BinaryReader(BaseFileStream, HeaderEncoding, true))
                     {
-                        if (Count > 512)
+                        // Check the file whether version is lower than SLE200
+                        if (Reader.PeekChar() == '$')
                         {
-                            throw new FileDamagedException("File damaged, could not be decrypted");
-                        }
+                            char[] Chars = Reader.ReadChars(512);
 
-                        char NextChar = (char)Reader.Read();
+                            int EndSignalIndex = Array.FindIndex(Chars, 1, (Char) => Char == '$');
 
-                        if (Builder.Length > 0 && NextChar == '$')
-                        {
-                            Builder.Append(NextChar);
-                            break;
+                            if (EndSignalIndex > 1)
+                            {
+                                string RawInfoData = new string(Chars.Take(EndSignalIndex + 1).ToArray());
+
+                                if (!string.IsNullOrWhiteSpace(RawInfoData))
+                                {
+                                    if (RawInfoData.Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string InfoData)
+                                    {
+                                        string[] FieldArray = InfoData.Split('|', StringSplitOptions.RemoveEmptyEntries);
+
+                                        SLEVersion Version = FieldArray.Length switch
+                                        {
+                                            2 => SLEVersion.SLE100,
+                                            3 => (SLEVersion)Convert.ToInt32(FieldArray[2]),
+                                            _ => throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted")
+                                        };
+
+                                        SLEKeySize KeySize = Convert.ToInt32(FieldArray[0]) switch
+                                        {
+                                            128 => SLEKeySize.AES128,
+                                            256 => SLEKeySize.AES256,
+                                            _ => throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted")
+                                        };
+
+                                        return new SLEHeader(Version, SLEOriginType.File, KeySize, HeaderEncoding, FieldArray[1], HeaderEncoding.GetByteCount(RawInfoData));
+                                    }
+                                }
+                            }
                         }
                         else
                         {
-                            Builder.Append(NextChar);
+                            // Check the file whether version is higher than SLE200
+                            int HeaderContentSize = Reader.ReadInt32();
+
+                            if (HeaderContentSize > 0)
+                            {
+                                return new SLEHeader(JsonSerializer.Deserialize<SLEHeaderCore>(HeaderEncoding.GetString(Reader.ReadBytes(HeaderContentSize))), HeaderEncoding, HeaderContentSize + BitConverter.GetBytes(int.MaxValue).Length);
+                            }
                         }
                     }
                 }
-
-                string RawInfoData = Builder.ToString();
-
-                if (string.IsNullOrWhiteSpace(RawInfoData))
+                catch (Exception ex)
                 {
-                    throw new FileDamagedException("File damaged, could not be decrypted");
+                    LogTracer.Log(ex, "Could not analysis the header of SLE file");
                 }
 
-                int HeaderLength = Encoding.UTF8.GetBytes(RawInfoData).Length;
-
-                BaseFileStream.Seek(HeaderLength, SeekOrigin.Begin);
-
-                if (RawInfoData.Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string InfoData)
-                {
-                    string[] FieldArray = InfoData.Split('|', StringSplitOptions.RemoveEmptyEntries);
-
-                    SLEVersion Version = FieldArray.Length switch
-                    {
-                        2 => SLEVersion.Version_1_0_0,
-                        3 => (SLEVersion)Convert.ToInt32(FieldArray[2]),
-                        _ => throw new FileDamagedException("File damaged, could not be decrypted")
-                    };
-
-                    return new SLEHeader(Version, FieldArray[1], Convert.ToInt32(FieldArray[0]), HeaderLength);
-                }
-                else
-                {
-                    throw new FileDamagedException("File damaged, could not be decrypted");
-                }
+                throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted");
             }
             finally
             {
@@ -81,27 +90,86 @@ namespace RX_Explorer.Class
             }
         }
 
-        private SLEHeader(SLEVersion Version, string FileName, int KeySize, int HeaderLength)
+        public void WriteHeader(Stream BaseFileStream)
         {
-            if (string.IsNullOrWhiteSpace(FileName))
+            BaseFileStream.Seek(0, SeekOrigin.Begin);
+
+            if (Core.Version >= SLEVersion.SLE200)
             {
-                throw new ArgumentException("FileName could not be empty", nameof(FileName));
+                using (BinaryWriter Writer = new BinaryWriter(BaseFileStream, HeaderEncoding, true))
+                {
+                    string HeaderContent = JsonSerializer.Serialize(Core);
+                    Writer.Write(HeaderEncoding.GetByteCount(HeaderContent));
+                    Writer.Write(HeaderEncoding.GetBytes(JsonSerializer.Serialize(Core)));
+                    Writer.Flush();
+                }
+            }
+            else
+            {
+                using (StreamWriter Writer = new StreamWriter(BaseFileStream, HeaderEncoding, 512, true))
+                {
+                    Writer.Write($"${string.Join('|', Core.KeySize, Core.FileName.Replace('$', '_'), (int)Core.Version)}$");
+                    Writer.Flush();
+                }
             }
 
-            if (KeySize != 256 && KeySize != 128)
-            {
-                throw new InvalidDataException("KeySize could only be set with 128 or 256");
-            }
-
-            this.Version = Version;
-            this.FileName = FileName;
-            this.KeySize = KeySize;
-            this.HeaderLength = HeaderLength;
+            HeaderSize = (int)BaseFileStream.Length;
         }
 
-        public SLEHeader(SLEVersion Version, string FileName, int KeySize) : this(Version, FileName, KeySize, 0)
+        private SLEHeader(SLEHeaderCore Core, Encoding HeaderEncoding, int HeaderSize)
+        {
+            if (Core.Version <= SLEVersion.SLE150 && !new UTF8Encoding(false).Equals(HeaderEncoding))
+            {
+                throw new ArgumentException($"Header encoding must be {nameof(UTF8Encoding)} without BOM if the version is lower or equals than {SLEVersion.SLE150}");
+            }
+
+            this.Core = Core;
+            this.HeaderEncoding = HeaderEncoding;
+            this.HeaderSize = HeaderSize;
+        }
+
+        private SLEHeader(SLEVersion Version, SLEOriginType OriginType, SLEKeySize KeySize, Encoding HeaderEncoding, string FileName, int HeaderSize) : this(new SLEHeaderCore(Version, OriginType, KeySize, FileName), HeaderEncoding, HeaderSize)
         {
 
+        }
+
+        public SLEHeader(SLEVersion Version, SLEOriginType OriginType, SLEKeySize KeySize, Encoding HeaderEncoding, string FileName) : this(new SLEHeaderCore(Version, OriginType, KeySize, FileName), HeaderEncoding, 0)
+        {
+
+        }
+
+        public sealed class SLEHeaderCore
+        {
+            public string FileName { get; }
+
+            public SLEVersion Version { get; }
+
+            public SLEKeySize KeySize { get; }
+
+            public SLEOriginType OriginType { get; }
+
+            public SLEHeaderCore(SLEVersion Version, SLEOriginType OriginType, SLEKeySize KeySize, string FileName)
+            {
+                if (string.IsNullOrWhiteSpace(FileName))
+                {
+                    throw new ArgumentException("FileName could not be empty", nameof(FileName));
+                }
+
+                if (KeySize is not SLEKeySize.AES128 and not SLEKeySize.AES256)
+                {
+                    throw new ArgumentException("KeySize could only be set with 128 or 256", nameof(KeySize));
+                }
+
+                if (Version <= SLEVersion.SLE150 && OriginType == SLEOriginType.Folder)
+                {
+                    throw new NotSupportedException($"Version under {SLEVersion.SLE200} is not support for ecrypt folder");
+                }
+
+                this.KeySize = KeySize;
+                this.FileName = FileName;
+                this.Version = Version;
+                this.OriginType = OriginType;
+            }
         }
     }
 }

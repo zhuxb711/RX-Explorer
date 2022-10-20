@@ -707,7 +707,7 @@ namespace RX_Explorer.Class
 
                                     using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.CreateExtendedExecutionAsync().Result)
                                     {
-                                        CompressionUtil.ExtractAllAsync(DModel.DecompressionFrom, DModel.DecompressionTo, DModel.ShouldCreateFolder, CancelToken, (s, e) =>
+                                        CompressionUtil.ExtractAsync(DModel.DecompressionFrom, DModel.DecompressionTo, DModel.ShouldCreateFolder, CancelToken, (s, e) =>
                                         {
                                             Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {
