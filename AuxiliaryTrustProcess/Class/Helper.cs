@@ -369,10 +369,8 @@ namespace AuxiliaryTrustProcess.Class
             return default;
         }
 
-        public static IReadOnlyList<HWND> GetCurrentWindowsHandle()
+        public static IEnumerable<HWND> GetCurrentWindowsHandle()
         {
-            List<HWND> HandleList = new List<HWND>();
-
             HWND Handle = HWND.NULL;
 
             while (true)
@@ -386,11 +384,9 @@ namespace AuxiliaryTrustProcess.Class
 
                 if (User32.IsWindowVisible(Handle) && !User32.IsIconic(Handle))
                 {
-                    HandleList.Add(Handle);
+                    yield return Handle;
                 }
             }
-
-            return HandleList;
         }
 
         public static string GetMIMEFromPath(string Path)

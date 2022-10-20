@@ -411,6 +411,27 @@ namespace RX_Explorer.View
                                     }
                                 }
 
+                                if (SettingPage.IsQuicklookEnabled)
+                                {
+                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                                    {
+                                        if (await Exclusive.Controller.CheckQuicklookWindowVisibleAsync())
+                                        {
+                                            await Exclusive.Controller.CloseQuicklookWindowAsync();
+                                        }
+                                    }
+                                }
+                                else if (SettingPage.IsSeerEnabled)
+                                {
+                                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                                    {
+                                        if (await Exclusive.Controller.CheckSeerWindowVisibleAsync())
+                                        {
+                                            await Exclusive.Controller.CloseSeerWindowAsync();
+                                        }
+                                    }
+                                }
+
                                 break;
                             }
                         default:
@@ -495,15 +516,15 @@ namespace RX_Explorer.View
                                                 {
                                                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                                     {
-                                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
+                                                        if (await Exclusive.Controller.CheckQuicklookAvailableAsync())
                                                         {
                                                             if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
                                                             {
-                                                                await Exclusive.Controller.ToggleQuicklookAsync(Device.Path);
+                                                                await Exclusive.Controller.ToggleQuicklookWindowAsync(Device.Path);
                                                             }
                                                             else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library && !string.IsNullOrEmpty(Library.Path))
                                                             {
-                                                                await Exclusive.Controller.ToggleQuicklookAsync(Library.Path);
+                                                                await Exclusive.Controller.ToggleQuicklookWindowAsync(Library.Path);
                                                             }
                                                         }
                                                     }
@@ -512,15 +533,15 @@ namespace RX_Explorer.View
                                                 {
                                                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                                     {
-                                                        if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
+                                                        if (await Exclusive.Controller.CheckSeerAvailableAsync())
                                                         {
                                                             if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
                                                             {
-                                                                await Exclusive.Controller.ToggleSeerAsync(Device.Path);
+                                                                await Exclusive.Controller.ToggleSeerWindowAsync(Device.Path);
                                                             }
                                                             else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library && !string.IsNullOrEmpty(Library.Path))
                                                             {
-                                                                await Exclusive.Controller.ToggleSeerAsync(Library.Path);
+                                                                await Exclusive.Controller.ToggleSeerWindowAsync(Library.Path);
                                                             }
                                                         }
                                                     }

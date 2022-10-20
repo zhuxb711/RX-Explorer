@@ -1,4 +1,5 @@
 ﻿using AuxiliaryTrustProcess.Class;
+using AuxiliaryTrustProcess.Interface;
 using MediaDevices;
 using SharedLibrary;
 using System;
@@ -3029,59 +3030,129 @@ namespace AuxiliaryTrustProcess
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.ToggleQuicklook:
+                        case AuxiliaryTrustProcessCommandType.ToggleQuicklookWindow:
                             {
                                 string ExecutePath = CommandValue["ExecutePath"];
 
-                                if (!string.IsNullOrEmpty(ExecutePath))
+                                if (string.IsNullOrEmpty(ExecutePath))
                                 {
-                                    QuicklookConnector.ToggleService(ExecutePath);
+                                    Value.Add("Error", "Path could not be empty");
+                                }
+                                else if (QuicklookServiceProvider.Current.ToggleServiceWindow(ExecutePath))
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Could not send the command to quick look service");
                                 }
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.SwitchQuicklook:
+                        case AuxiliaryTrustProcessCommandType.SwitchQuicklookWindow:
                             {
                                 string ExecutePath = CommandValue["ExecutePath"];
 
-                                if (!string.IsNullOrEmpty(ExecutePath))
+                                if (string.IsNullOrEmpty(ExecutePath))
                                 {
-                                    QuicklookConnector.SwitchService(ExecutePath);
+                                    Value.Add("Error", "Path could not be empty");
+                                }
+                                else if (QuicklookServiceProvider.Current.SwitchServiceWindow(ExecutePath))
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Could not send the command to quick look service");
                                 }
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.CheckQuicklook:
+                        case AuxiliaryTrustProcessCommandType.CheckQuicklookAvailable:
                             {
-                                Value.Add("Success", Convert.ToString(QuicklookConnector.CheckIsAvailable()));
+                                Value.Add("Success", Convert.ToString(QuicklookServiceProvider.Current.CheckServiceAvailable()));
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.ToggleSeer:
+                        case AuxiliaryTrustProcessCommandType.CheckQuicklookWindowVisible:
                             {
-                                string ExecutePath = CommandValue["ExecutePath"];
+                                Value.Add("Success", Convert.ToString(QuicklookServiceProvider.Current.CheckWindowVisible()));
 
-                                if (!string.IsNullOrEmpty(ExecutePath))
+                                break;
+                            }
+                        case AuxiliaryTrustProcessCommandType.CloseQuicklookWindow:
+                            {
+                                if (QuicklookServiceProvider.Current.CloseServiceWindow())
                                 {
-                                    SeerConnector.ToggleService(ExecutePath);
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Could not send the command to quick look service");
                                 }
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.SwitchSeer:
+                        case AuxiliaryTrustProcessCommandType.ToggleSeerWindow:
                             {
                                 string ExecutePath = CommandValue["ExecutePath"];
 
-                                if (!string.IsNullOrEmpty(ExecutePath))
+                                if (string.IsNullOrEmpty(ExecutePath))
                                 {
-                                    SeerConnector.SwitchService(ExecutePath);
+                                    Value.Add("Error", "Path could not be empty");
+                                }
+                                else if (SeerServiceProvider.Current.ToggleServiceWindow(ExecutePath))
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Could not send the command to seer service");
                                 }
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.CheckSeer:
+                        case AuxiliaryTrustProcessCommandType.SwitchSeerWindow:
                             {
-                                Value.Add("Success", Convert.ToString(SeerConnector.CheckIsAvailable()));
+                                string ExecutePath = CommandValue["ExecutePath"];
+
+                                if (string.IsNullOrEmpty(ExecutePath))
+                                {
+                                    Value.Add("Error", "Path could not be empty");
+                                }
+                                else if(SeerServiceProvider.Current.SwitchServiceWindow(ExecutePath))
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Could not send the command to seer service");
+                                }
+
+                                break;
+                            }
+                        case AuxiliaryTrustProcessCommandType.CheckSeerAvailable:
+                            {
+                                Value.Add("Success", Convert.ToString(SeerServiceProvider.Current.CheckServiceAvailable()));
+
+                                break;
+                            }
+                        case AuxiliaryTrustProcessCommandType.CheckSeerWindowVisible:
+                            {
+                                Value.Add("Success", Convert.ToString(SeerServiceProvider.Current.CheckWindowVisible()));
+
+                                break;
+                            }
+                        case AuxiliaryTrustProcessCommandType.CloseSeerWindow:
+                            {
+                                if (SeerServiceProvider.Current.CloseServiceWindow())
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Could not send the command to seer service");
+                                }
 
                                 break;
                             }
@@ -4228,7 +4299,7 @@ namespace AuxiliaryTrustProcess
 
                                                         if (Information.HasValue)
                                                         {
-                                                            IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
+                                                            IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle().ToArray();
 
                                                             using (Process OpenedProcess = Process.GetProcessById(Information.Value.UniqueProcessId.ToInt32()))
                                                             {
@@ -4277,7 +4348,7 @@ namespace AuxiliaryTrustProcess
                                                 {
                                                     try
                                                     {
-                                                        IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
+                                                        IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle().ToArray();
 
                                                         using (Process OpenedProcess = Process.GetProcessById(Convert.ToInt32(PInfo.dwProcessId)))
                                                         {

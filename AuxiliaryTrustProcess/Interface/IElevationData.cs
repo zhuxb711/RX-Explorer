@@ -1,4 +1,4 @@
-﻿namespace AuxiliaryTrustProcess.Class
+﻿namespace AuxiliaryTrustProcess.Interface
 {
     public interface IElevationData
     {

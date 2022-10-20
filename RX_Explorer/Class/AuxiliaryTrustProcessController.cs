@@ -1668,29 +1668,9 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task ToggleQuicklookAsync(string Path)
+        public async Task<bool> CheckQuicklookAvailableAsync()
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.ToggleQuicklook, ("ExecutePath", Path));
-
-            if (Response.TryGetValue("Error", out string ErrorMessage))
-            {
-                LogTracer.Log($"An unexpected error was threw in {nameof(ToggleQuicklookAsync)}, message: {ErrorMessage}");
-            }
-        }
-
-        public async Task SwitchQuicklookAsync(string Path)
-        {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.SwitchQuicklook, ("ExecutePath", Path));
-
-            if (Response.TryGetValue("Error", out string ErrorMessage))
-            {
-                LogTracer.Log($"An unexpected error was threw in {nameof(SwitchQuicklookAsync)}, message: {ErrorMessage}");
-            }
-        }
-
-        public async Task<bool> CheckIfQuicklookIsAvailableAsync()
-        {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CheckQuicklook);
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CheckQuicklookAvailable);
 
             if (Response.TryGetValue("Success", out string Result))
             {
@@ -1698,15 +1678,63 @@ namespace RX_Explorer.Class
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
-                LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfQuicklookIsAvailableAsync)}, message: {ErrorMessage}");
+                LogTracer.Log($"An unexpected error was threw in {nameof(CheckQuicklookAvailableAsync)}, message: {ErrorMessage}");
             }
 
             return false;
         }
 
-        public async Task<bool> CheckIfSeerIsAvailableAsync()
+        public async Task<bool> ToggleQuicklookWindowAsync(string Path)
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CheckSeer);
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.ToggleQuicklookWindow, ("ExecutePath", Path));
+
+            if (Response.ContainsKey("Success"))
+            {
+                return true;
+            }
+            else if (Response.TryGetValue("Error", out string ErrorMessage))
+            {
+                LogTracer.Log($"An unexpected error was threw in {nameof(ToggleQuicklookWindowAsync)}, message: {ErrorMessage}");
+            }
+
+            return false;
+        }
+
+        public async Task<bool> SwitchQuicklookWindowAsync(string Path)
+        {
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.SwitchQuicklookWindow, ("ExecutePath", Path));
+
+            if (Response.ContainsKey("Success"))
+            {
+                return true;
+            }
+            else if (Response.TryGetValue("Error", out string ErrorMessage))
+            {
+                LogTracer.Log($"An unexpected error was threw in {nameof(SwitchQuicklookWindowAsync)}, message: {ErrorMessage}");
+            }
+
+            return false;
+        }
+
+        public async Task<bool> CloseQuicklookWindowAsync()
+        {
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CloseQuicklookWindow);
+
+            if (Response.ContainsKey("Success"))
+            {
+                return true;
+            }
+            else if (Response.TryGetValue("Error", out string ErrorMessage))
+            {
+                LogTracer.Log($"An unexpected error was threw in {nameof(CloseQuicklookWindowAsync)}, message: {ErrorMessage}");
+            }
+
+            return false;
+        }
+
+        public async Task<bool> CheckQuicklookWindowVisibleAsync()
+        {
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CheckQuicklookWindowVisible);
 
             if (Response.TryGetValue("Success", out string Result))
             {
@@ -1714,30 +1742,90 @@ namespace RX_Explorer.Class
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
-                LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfSeerIsAvailableAsync)}, message: {ErrorMessage}");
+                LogTracer.Log($"An unexpected error was threw in {nameof(CheckQuicklookWindowVisibleAsync)}, message: {ErrorMessage}");
             }
 
             return false;
         }
 
-        public async Task ToggleSeerAsync(string Path)
+        public async Task<bool> CheckSeerAvailableAsync()
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.ToggleSeer, ("ExecutePath", Path));
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CheckSeerAvailable);
 
-            if (Response.TryGetValue("Error", out string ErrorMessage))
+            if (Response.TryGetValue("Success", out string Result))
             {
-                LogTracer.Log($"An unexpected error was threw in {nameof(ToggleSeerAsync)}, message: {ErrorMessage}");
+                return Convert.ToBoolean(Result);
             }
+            else if (Response.TryGetValue("Error", out string ErrorMessage))
+            {
+                LogTracer.Log($"An unexpected error was threw in {nameof(CheckSeerAvailableAsync)}, message: {ErrorMessage}");
+            }
+
+            return false;
         }
 
-        public async Task SwitchSeerAsync(string Path)
+        public async Task<bool> CheckSeerWindowVisibleAsync()
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.SwitchSeer, ("ExecutePath", Path));
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CheckSeerWindowVisible);
 
-            if (Response.TryGetValue("Error", out string ErrorMessage))
+            if (Response.TryGetValue("Success", out string Result))
             {
-                LogTracer.Log($"An unexpected error was threw in {nameof(SwitchSeerAsync)}, message: {ErrorMessage}");
+                return Convert.ToBoolean(Result);
             }
+            else if (Response.TryGetValue("Error", out string ErrorMessage))
+            {
+                LogTracer.Log($"An unexpected error was threw in {nameof(CheckSeerWindowVisibleAsync)}, message: {ErrorMessage}");
+            }
+
+            return false;
+        }
+
+        public async Task<bool> ToggleSeerWindowAsync(string Path)
+        {
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.ToggleSeerWindow, ("ExecutePath", Path));
+
+            if (Response.ContainsKey("Success"))
+            {
+                return true;
+            }
+            else if (Response.TryGetValue("Error", out string ErrorMessage))
+            {
+                LogTracer.Log($"An unexpected error was threw in {nameof(ToggleSeerWindowAsync)}, message: {ErrorMessage}");
+            }
+
+            return false;
+        }
+
+        public async Task<bool> SwitchSeerWindowAsync(string Path)
+        {
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.SwitchSeerWindow, ("ExecutePath", Path));
+
+            if (Response.ContainsKey("Success"))
+            {
+                return true;
+            }
+            else if (Response.TryGetValue("Error", out string ErrorMessage))
+            {
+                LogTracer.Log($"An unexpected error was threw in {nameof(SwitchSeerWindowAsync)}, message: {ErrorMessage}");
+            }
+
+            return false;
+        }
+
+        public async Task<bool> CloseSeerWindowAsync()
+        {
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.CloseSeerWindow);
+
+            if (Response.ContainsKey("Success"))
+            {
+                return true;
+            }
+            else if (Response.TryGetValue("Error", out string ErrorMessage))
+            {
+                LogTracer.Log($"An unexpected error was threw in {nameof(CloseSeerWindowAsync)}, message: {ErrorMessage}");
+            }
+
+            return false;
         }
 
         public async Task<string> GetDefaultAssociationFromPathAsync(string Path)

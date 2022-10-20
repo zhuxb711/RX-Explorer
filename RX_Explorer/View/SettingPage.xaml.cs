@@ -4582,8 +4582,8 @@ namespace RX_Explorer.View
         {
             using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
             {
-                EnableSeer.IsEnabled = await Exclusive.Controller.CheckIfSeerIsAvailableAsync();
-                EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync();
+                EnableSeer.IsEnabled = await Exclusive.Controller.CheckSeerAvailableAsync();
+                EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckQuicklookAvailableAsync();
             }
         }
 

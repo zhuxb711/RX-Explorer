@@ -1,4 +1,5 @@
-﻿using SharedLibrary;
+﻿using AuxiliaryTrustProcess.Interface;
+using SharedLibrary;
 
 namespace AuxiliaryTrustProcess.Class
 {

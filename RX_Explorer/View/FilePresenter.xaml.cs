@@ -2685,13 +2685,13 @@ namespace RX_Explorer.View
                                 {
                                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                     {
-                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
+                                        if (await Exclusive.Controller.CheckQuicklookAvailableAsync())
                                         {
                                             string ViewPathWithQuicklook = SelectedItem?.Path;
 
                                             if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
                                             {
-                                                await Exclusive.Controller.ToggleQuicklookAsync(ViewPathWithQuicklook);
+                                                await Exclusive.Controller.ToggleQuicklookWindowAsync(ViewPathWithQuicklook);
                                             }
                                         }
                                     }
@@ -2700,13 +2700,13 @@ namespace RX_Explorer.View
                                 {
                                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                     {
-                                        if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
+                                        if (await Exclusive.Controller.CheckSeerAvailableAsync())
                                         {
                                             string ViewPathWithSeer = SelectedItem?.Path;
 
                                             if (!string.IsNullOrEmpty(ViewPathWithSeer))
                                             {
-                                                await Exclusive.Controller.ToggleSeerAsync(ViewPathWithSeer);
+                                                await Exclusive.Controller.ToggleSeerWindowAsync(ViewPathWithSeer);
                                             }
                                         }
                                     }
@@ -4261,11 +4261,11 @@ namespace RX_Explorer.View
                         {
                             using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                             {
-                                if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
+                                if (await Exclusive.Controller.CheckQuicklookAvailableAsync())
                                 {
                                     if (!string.IsNullOrEmpty(Item.Path))
                                     {
-                                        await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                                        await Exclusive.Controller.SwitchQuicklookWindowAsync(Item.Path);
                                     }
                                 }
                             }
@@ -4274,11 +4274,11 @@ namespace RX_Explorer.View
                         {
                             using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                             {
-                                if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
+                                if (await Exclusive.Controller.CheckSeerAvailableAsync())
                                 {
                                     if (!string.IsNullOrEmpty(Item.Path))
                                     {
-                                        await Exclusive.Controller.SwitchSeerAsync(Item.Path);
+                                        await Exclusive.Controller.SwitchSeerWindowAsync(Item.Path);
                                     }
                                 }
                             }

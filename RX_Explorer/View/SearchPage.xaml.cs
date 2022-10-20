@@ -178,11 +178,11 @@ namespace RX_Explorer.View
                                 {
                                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                     {
-                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
+                                        if (await Exclusive.Controller.CheckQuicklookAvailableAsync())
                                         {
                                             if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
                                             {
-                                                await Exclusive.Controller.ToggleQuicklookAsync(Item.Path);
+                                                await Exclusive.Controller.ToggleQuicklookWindowAsync(Item.Path);
                                             }
                                         }
                                     }
@@ -191,11 +191,11 @@ namespace RX_Explorer.View
                                 {
                                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                                     {
-                                        if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
+                                        if (await Exclusive.Controller.CheckSeerAvailableAsync())
                                         {
                                             if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
                                             {
-                                                await Exclusive.Controller.ToggleSeerAsync(Item.Path);
+                                                await Exclusive.Controller.ToggleSeerWindowAsync(Item.Path);
                                             }
                                         }
                                     }
@@ -1475,11 +1475,11 @@ namespace RX_Explorer.View
                     {
                         using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                         {
-                            if (await Exclusive.Controller.CheckIfQuicklookIsAvailableAsync())
+                            if (await Exclusive.Controller.CheckQuicklookAvailableAsync())
                             {
                                 if (!string.IsNullOrEmpty(Item.Path))
                                 {
-                                    await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                                    await Exclusive.Controller.SwitchQuicklookWindowAsync(Item.Path);
                                 }
                             }
                         }
@@ -1488,11 +1488,11 @@ namespace RX_Explorer.View
                     {
                         using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                         {
-                            if (await Exclusive.Controller.CheckIfSeerIsAvailableAsync())
+                            if (await Exclusive.Controller.CheckSeerAvailableAsync())
                             {
                                 if (!string.IsNullOrEmpty(Item.Path))
                                 {
-                                    await Exclusive.Controller.SwitchSeerAsync(Item.Path);
+                                    await Exclusive.Controller.SwitchSeerWindowAsync(Item.Path);
                                 }
                             }
                         }

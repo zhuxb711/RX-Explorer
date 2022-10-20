@@ -1,4 +1,6 @@
-﻿namespace AuxiliaryTrustProcess.Class
+﻿using AuxiliaryTrustProcess.Interface;
+
+namespace AuxiliaryTrustProcess.Class
 {
     public sealed class ElevationRenameData : IElevationData
     {

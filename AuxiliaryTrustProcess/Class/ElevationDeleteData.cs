@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AuxiliaryTrustProcess.Interface;
 
 namespace AuxiliaryTrustProcess.Class
 {
