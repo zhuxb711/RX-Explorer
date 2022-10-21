@@ -1,4 +1,4 @@
-﻿###Novedades de la versión 8.0.0.0
+﻿###Novedades de la versión 8.0.1.0
 
 #####Actualización de funciones
 

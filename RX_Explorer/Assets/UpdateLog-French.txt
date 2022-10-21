@@ -1,4 +1,4 @@
-﻿###Quoi de neuf dans la version 8.0.0.0
+﻿###Quoi de neuf dans la version 8.0.1.0
 
 #####Mise à jour des fonctionnalités
 

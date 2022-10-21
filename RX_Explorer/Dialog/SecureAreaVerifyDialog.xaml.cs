@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using RX_Explorer.View;
 using Windows.UI.Xaml.Controls;
 
 
@@ -6,17 +7,14 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class SecureAreaVerifyDialog : QueueContentDialog
     {
-        private string UnlockPassword;
-
-        public SecureAreaVerifyDialog(string UnlockPassword)
+        public SecureAreaVerifyDialog()
         {
             InitializeComponent();
-            this.UnlockPassword = UnlockPassword;
         }
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (UnlockPassword != PrimaryPassword.Password)
+            if (SecureArea.UnlockPassword != PrimaryPassword.Password)
             {
                 args.Cancel = true;
                 ErrorTip.IsOpen = true;

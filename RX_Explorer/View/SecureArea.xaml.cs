@@ -31,13 +31,12 @@ namespace RX_Explorer.View
 {
     public sealed partial class SecureArea : Page
     {
+        private bool IsNewStart = true;
+        private bool IsNavigatedFromInnerViewer;
+        private CancellationTokenSource Cancellation;
+        private ListViewBaseSelectionExtension SelectionExtension;
         private readonly PointerEventHandler PointerPressedHandler;
-
-        private readonly string DefaultSecureAreaFolderPath;
-
         private readonly ObservableCollection<SecureAreaFileModel> SecureCollection;
-
-        private FileSystemStorageFolder SecureFolder;
 
         private static readonly CredentialProtector Protecter = new CredentialProtector("RX_Secure_Vault");
 
@@ -49,22 +48,102 @@ namespace RX_Explorer.View
             private set => Protecter.RequestProtection("SecureAreaPrimaryPassword", value);
         }
 
-        private SLEKeySize EncryptionKeySize;
+        private SLEKeySize EncryptionKeySize
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] is int KeySize)
+                {
+                    return (SLEKeySize)KeySize;
+                }
+                else
+                {
+                    return default;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = (int)value;
+            }
+        }
 
-        private bool IsNewStart = true;
+        private bool IsEnableWindowsHello
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] is bool EnableWindowsHello)
+                {
+                    return EnableWindowsHello;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = value;
+            }
+        }
 
-        private bool IsNavigatedFromInnerViewer;
+        private string SecureAreaStorageLocation
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] is string Location)
+                {
+                    return Location;
+                }
+                else
+                {
+                    return Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] = value;
+            }
+        }
 
-        private CancellationTokenSource Cancellation;
-
-        private ListViewBaseSelectionExtension SelectionExtension;
+        private SecureAreaLockMode LockMode
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is string LockMode)
+                {
+                    switch (LockMode)
+                    {
+                        case "CloseLockMode":
+                            {
+                                return SecureAreaLockMode.RestartLockMode;
+                            }
+                        case "ImmediateLockMode":
+                            {
+                                return SecureAreaLockMode.InstantLockMode;
+                            }
+                        default:
+                            {
+                                return Enum.Parse<SecureAreaLockMode>(LockMode);
+                            }
+                    }
+                }
+                else
+                {
+                    return SecureAreaLockMode.InstantLockMode;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] = Enum.GetName(typeof(SecureAreaLockMode), value);
+            }
+        }
 
         public SecureArea()
         {
             InitializeComponent();
 
+            Cancellation = new CancellationTokenSource();
             SecureCollection = new ObservableCollection<SecureAreaFileModel>();
-            DefaultSecureAreaFolderPath = Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
             PointerPressedHandler = new PointerEventHandler(SecureGridView_PointerPressed);
             SecureCollection.CollectionChanged += SecureCollection_CollectionChanged;
             Loaded += SecureArea_Loaded;
@@ -84,10 +163,8 @@ namespace RX_Explorer.View
             if (!IsNavigatedFromInnerViewer)
             {
                 ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = true;
-                EmptyTips.Visibility = Visibility.Collapsed;
                 SecureCollection.Clear();
                 SelectionExtension?.Dispose();
-                Cancellation?.Dispose();
             }
         }
 
@@ -95,6 +172,7 @@ namespace RX_Explorer.View
         {
             CoreApplication.MainView.CoreWindow.KeyDown += SecureArea_KeyDown;
             SecureGridView.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
+            EmptyTips.Visibility = Visibility.Collapsed;
 
             if (IsNavigatedFromInnerViewer)
             {
@@ -102,19 +180,15 @@ namespace RX_Explorer.View
             }
             else
             {
-                WholeArea.Visibility = Visibility.Collapsed;
-
                 ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = false;
 
                 if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsFirstEnterSecureArea"))
                 {
-                    EncryptionKeySize = (SLEKeySize)Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"]);
-
-                    if (!(ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is string LockMode && LockMode == nameof(CloseLockMode) && !IsNewStart))
+                    if (IsNewStart || LockMode == SecureAreaLockMode.InstantLockMode)
                     {
                         IsNavigatedFromInnerViewer = false;
 
-                        if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]))
+                        if (IsEnableWindowsHello)
                         {
                         RETRY:
                             switch (await WindowsHelloAuthenticator.VerifyUserAsync())
@@ -145,13 +219,21 @@ namespace RX_Explorer.View
                                         {
                                             if (!await EnterByPasswordAsync())
                                             {
-                                                SecureAreaContainer.Current.Frame.GoBack();
+                                                if (SecureAreaContainer.Current.Frame.CanGoBack)
+                                                {
+                                                    SecureAreaContainer.Current.Frame.GoBack();
+                                                }
+
                                                 return;
                                             }
                                         }
                                         else
                                         {
-                                            SecureAreaContainer.Current.Frame.GoBack();
+                                            if (SecureAreaContainer.Current.Frame.CanGoBack)
+                                            {
+                                                SecureAreaContainer.Current.Frame.GoBack();
+                                            }
+
                                             return;
                                         }
 
@@ -160,20 +242,22 @@ namespace RX_Explorer.View
                                 case AuthenticatorState.UserNotRegistered:
                                 case AuthenticatorState.CredentialNotFound:
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        IsEnableWindowsHello = false;
+
+                                        await new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                             Content = Globalization.GetString("QueueDialog_WinHelloCredentialLost_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        await Dialog.ShowAsync();
-
-                                        ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
+                                        }.ShowAsync();
 
                                         if (!await EnterByPasswordAsync())
                                         {
-                                            SecureAreaContainer.Current.Frame.GoBack();
+                                            if (SecureAreaContainer.Current.Frame.CanGoBack)
+                                            {
+                                                SecureAreaContainer.Current.Frame.GoBack();
+                                            }
+
                                             return;
                                         }
 
@@ -181,6 +265,8 @@ namespace RX_Explorer.View
                                     }
                                 case AuthenticatorState.WindowsHelloUnsupport:
                                     {
+                                        IsEnableWindowsHello = false;
+
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_WarningTitle"),
@@ -189,19 +275,25 @@ namespace RX_Explorer.View
                                             CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
                                         };
 
-                                        ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
-
-                                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                         {
                                             if (!await EnterByPasswordAsync())
                                             {
-                                                SecureAreaContainer.Current.Frame.GoBack();
+                                                if (SecureAreaContainer.Current.Frame.CanGoBack)
+                                                {
+                                                    SecureAreaContainer.Current.Frame.GoBack();
+                                                }
+
                                                 return;
                                             }
                                         }
                                         else
                                         {
-                                            SecureAreaContainer.Current.Frame.GoBack();
+                                            if (SecureAreaContainer.Current.Frame.CanGoBack)
+                                            {
+                                                SecureAreaContainer.Current.Frame.GoBack();
+                                            }
+
                                             return;
                                         }
 
@@ -213,7 +305,11 @@ namespace RX_Explorer.View
                         {
                             if (!await EnterByPasswordAsync())
                             {
-                                SecureAreaContainer.Current.Frame.GoBack();
+                                if (SecureAreaContainer.Current.Frame.CanGoBack)
+                                {
+                                    SecureAreaContainer.Current.Frame.GoBack();
+                                }
+
                                 return;
                             }
                         }
@@ -250,13 +346,21 @@ namespace RX_Explorer.View
                                 }
                                 else
                                 {
-                                    SecureAreaContainer.Current.Frame.GoBack();
+                                    if (SecureAreaContainer.Current.Frame.CanGoBack)
+                                    {
+                                        SecureAreaContainer.Current.Frame.GoBack();
+                                    }
+
                                     return;
                                 }
                             }
                             else
                             {
-                                SecureAreaContainer.Current.Frame.GoBack();
+                                if (SecureAreaContainer.Current.Frame.CanGoBack)
+                                {
+                                    SecureAreaContainer.Current.Frame.GoBack();
+                                }
+
                                 return;
                             }
                         }
@@ -270,11 +374,9 @@ namespace RX_Explorer.View
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        EncryptionKeySize = Dialog.EncryptionKeySize;
                         UnlockPassword = Dialog.Password;
-
-                        ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = Dialog.EncryptionKeySize;
-                        ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = Dialog.IsEnableWindowsHello;
+                        EncryptionKeySize = Dialog.EncryptionKeySize;
+                        IsEnableWindowsHello = Dialog.IsEnableWindowsHello;
                         ApplicationData.Current.LocalSettings.Values["IsFirstEnterSecureArea"] = false;
                     }
                     else
@@ -288,10 +390,6 @@ namespace RX_Explorer.View
                         return;
                     }
                 }
-
-                WholeArea.Visibility = Visibility.Visible;
-                SelectionExtension = new ListViewBaseSelectionExtension(SecureGridView, DrawRectangle);
-                Cancellation = new CancellationTokenSource();
 
                 await LoadSecureAreaAsync();
             }
@@ -319,43 +417,18 @@ namespace RX_Explorer.View
 
         private async Task<bool> EnterByPasswordAsync()
         {
-            return await new SecureAreaVerifyDialog(UnlockPassword).ShowAsync() is ContentDialogResult.Primary;
+            return await new SecureAreaVerifyDialog().ShowAsync() is ContentDialogResult.Primary;
         }
 
         private async Task LoadSecureAreaAsync()
         {
             IsNewStart = false;
-
             SecureCollection.Clear();
+            SelectionExtension = new ListViewBaseSelectionExtension(SecureGridView, DrawRectangle);
 
         Retry:
-            string SecureAreaFolderPath;
-
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("SecureAreaStorageLocation", out object SPath))
+            if (await FileSystemStorageItemBase.CreateNewAsync(SecureAreaStorageLocation, CreateType.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder SecureFolder)
             {
-                SecureAreaFolderPath = Convert.ToString(SPath);
-            }
-            else
-            {
-                SecureAreaFolderPath = DefaultSecureAreaFolderPath;
-                ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] = DefaultSecureAreaFolderPath;
-            }
-
-            FileSystemStorageItemBase SItem;
-
-            if (SecureAreaFolderPath.Equals(DefaultSecureAreaFolderPath, StringComparison.OrdinalIgnoreCase))
-            {
-                SItem = await FileSystemStorageItemBase.CreateNewAsync(SecureAreaFolderPath, CreateType.Folder, CreateOption.OpenIfExist);
-            }
-            else
-            {
-                SItem = await FileSystemStorageItemBase.OpenAsync(SecureAreaFolderPath);
-            }
-
-            if (SItem is FileSystemStorageFolder SFolder)
-            {
-                SecureFolder = SFolder;
-
                 try
                 {
                     await foreach (FileSystemStorageFile SFile in SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File, AdvanceFilter: (Name) => Path.GetExtension(Name).Equals(".sle", StringComparison.OrdinalIgnoreCase)).OfType<FileSystemStorageFile>())
@@ -383,7 +456,10 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    SecureAreaContainer.Current.Frame.GoBack();
+                    if (SecureAreaContainer.Current.Frame.CanGoBack)
+                    {
+                        SecureAreaContainer.Current.Frame.GoBack();
+                    }
                 }
             }
         }
@@ -392,13 +468,13 @@ namespace RX_Explorer.View
         {
             if (e.Action != NotifyCollectionChangedAction.Reset)
             {
-                if (SecureCollection.Count == 0)
+                if (SecureCollection.Count > 0)
                 {
-                    EmptyTips.Visibility = Visibility.Visible;
+                    EmptyTips.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    EmptyTips.Visibility = Visibility.Collapsed;
+                    EmptyTips.Visibility = Visibility.Visible;
                 }
             }
         }
@@ -437,7 +513,7 @@ namespace RX_Explorer.View
                 {
                     CancelToken.ThrowIfCancellationRequested();
 
-                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(SecureFolder.Path, $"{Path.GetRandomFileName()}.sle"), CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
+                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(SecureAreaStorageLocation, $"{Path.GetRandomFileName()}.sle"), CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
                     {
                         try
                         {
@@ -507,7 +583,15 @@ namespace RX_Explorer.View
                         }
                         catch (Exception)
                         {
-                            await EncryptedFile.DeleteAsync(true, true, CancelToken);
+                            try
+                            {
+                                await EncryptedFile.DeleteAsync(true, true, CancelToken);
+                            }
+                            catch (Exception)
+                            {
+                                // No need to handle this exception
+                            }
+
                             throw;
                         }
                     }
@@ -556,7 +640,15 @@ namespace RX_Explorer.View
                                         }
                                         catch (Exception)
                                         {
-                                            await DecryptedFile.DeleteAsync(true, true, CancelToken);
+                                            try
+                                            {
+                                                await DecryptedFile.DeleteAsync(true, true, CancelToken);
+                                            }
+                                            catch (Exception)
+                                            {
+                                                // No need to handle this exception
+                                            }
+
                                             throw;
                                         }
                                     }
@@ -942,10 +1034,40 @@ namespace RX_Explorer.View
 
         private async void SettingPane_PaneOpening(SplitView sender, object args)
         {
+            StorageLocation.Text = SecureAreaStorageLocation;
+
+            switch (LockMode)
+            {
+                case SecureAreaLockMode.InstantLockMode:
+                    {
+                        InstantLockMode.IsChecked = true;
+                        break;
+                    }
+                case SecureAreaLockMode.RestartLockMode:
+                    {
+                        RestartLockMode.IsChecked = true;
+                        break;
+                    }
+            }
+
+            switch (EncryptionKeySize)
+            {
+                case SLEKeySize.AES128:
+                    {
+                        AES128Mode.IsChecked = true;
+                        break;
+                    }
+                case SLEKeySize.AES256:
+                    {
+                        AES256Mode.IsChecked = true;
+                        break;
+                    }
+            }
+
             if (await WindowsHelloAuthenticator.CheckSupportAsync())
             {
                 UseWindowsHello.IsEnabled = true;
-                UseWindowsHello.IsOn = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]);
+                UseWindowsHello.IsOn = IsEnableWindowsHello;
             }
             else
             {
@@ -953,59 +1075,31 @@ namespace RX_Explorer.View
                 UseWindowsHello.IsEnabled = false;
             }
 
-            if (Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"]) == 128)
-            {
-                AES128Mode.IsChecked = true;
-            }
-            else
-            {
-                AES256Mode.IsChecked = true;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is string LockMode)
-            {
-                if (LockMode == nameof(ImmediateLockMode))
-                {
-                    ImmediateLockMode.IsChecked = true;
-                }
-                else if (LockMode == nameof(CloseLockMode))
-                {
-                    CloseLockMode.IsChecked = true;
-                }
-            }
-            else
-            {
-                ImmediateLockMode.IsChecked = true;
-                ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] = nameof(ImmediateLockMode);
-            }
-
-            StorageLocation.Text = Convert.ToString(ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"]);
-
             UseWindowsHello.Toggled += UseWindowsHello_Toggled;
             AES128Mode.Checked += AES128Mode_Checked;
             AES256Mode.Checked += AES256Mode_Checked;
-            ImmediateLockMode.Checked += ImmediateLockMode_Checked;
-            CloseLockMode.Checked += CloseLockMode_Checked;
+            InstantLockMode.Checked += InstantLockMode_Checked;
+            RestartLockMode.Checked += RestartLockMode_Checked;
         }
 
-        private void CloseLockMode_Checked(object sender, RoutedEventArgs e)
+        private void RestartLockMode_Checked(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] = nameof(CloseLockMode);
+            LockMode = SecureAreaLockMode.RestartLockMode;
         }
 
-        private void ImmediateLockMode_Checked(object sender, RoutedEventArgs e)
+        private void InstantLockMode_Checked(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] = nameof(ImmediateLockMode);
+            LockMode = SecureAreaLockMode.InstantLockMode;
         }
 
         private async void UseWindowsHello_Toggled(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = UseWindowsHello.IsOn ? true : false;
+            IsEnableWindowsHello = UseWindowsHello.IsOn;
 
             if (UseWindowsHello.IsOn)
             {
             RETRY:
-                if ((await WindowsHelloAuthenticator.RegisterUserAsync()) != AuthenticatorState.RegisterSuccess)
+                if (await WindowsHelloAuthenticator.RegisterUserAsync() != AuthenticatorState.RegisterSuccess)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -1014,31 +1108,32 @@ namespace RX_Explorer.View
                         PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                     };
-                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         goto RETRY;
                     }
 
                     UseWindowsHello.Toggled -= UseWindowsHello_Toggled;
                     UseWindowsHello.IsOn = false;
-                    ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
+                    IsEnableWindowsHello = false;
                     UseWindowsHello.Toggled += UseWindowsHello_Toggled;
                 }
             }
             else
             {
-                await WindowsHelloAuthenticator.DeleteUserAsync().ConfigureAwait(false);
+                await WindowsHelloAuthenticator.DeleteUserAsync();
             }
         }
 
         private void AES128Mode_Checked(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = 128;
+            EncryptionKeySize = SLEKeySize.AES128;
         }
 
         private void AES256Mode_Checked(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = 256;
+            EncryptionKeySize = SLEKeySize.AES256;
         }
 
         private void SettingPane_PaneClosing(SplitView sender, SplitViewPaneClosingEventArgs args)
@@ -1046,14 +1141,14 @@ namespace RX_Explorer.View
             UseWindowsHello.Toggled -= UseWindowsHello_Toggled;
             AES128Mode.Checked -= AES128Mode_Checked;
             AES256Mode.Checked -= AES256Mode_Checked;
-            ImmediateLockMode.Checked -= ImmediateLockMode_Checked;
-            CloseLockMode.Checked -= CloseLockMode_Checked;
+            InstantLockMode.Checked -= InstantLockMode_Checked;
+            RestartLockMode.Checked -= RestartLockMode_Checked;
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            Cancellation?.Cancel();
-            Cancellation?.Dispose();
+            Cancellation.Cancel();
+            Cancellation.Dispose();
             Cancellation = new CancellationTokenSource();
         }
 
@@ -1068,10 +1163,6 @@ namespace RX_Explorer.View
 
             if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
             {
-                string OldPath = Convert.ToString(ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"]);
-
-                StorageLocation.Text = Folder.Path;
-                ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] = Folder.Path;
 
                 if (SecureCollection.Count > 0)
                 {
@@ -1089,21 +1180,22 @@ namespace RX_Explorer.View
                         });
 
                         await LoadSecureAreaAsync();
+
+                        StorageLocation.Text = Folder.Path;
+                        SecureAreaStorageLocation = Folder.Path;
                     }
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, "Transferring in SecureArea failed for unexpected error");
 
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        await new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_SecureAreaTransferFileFailed_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                        }.ShowAsync();
 
-                        await Dialog.ShowAsync();
-
-                        await Launcher.LaunchFolderPathAsync(OldPath);
+                        await Launcher.LaunchFolderPathAsync(SecureAreaStorageLocation);
                     }
                     finally
                     {

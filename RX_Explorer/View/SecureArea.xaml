@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-      xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       mc:Ignorable="d"
       Background="Transparent"
@@ -90,7 +90,7 @@
                           Subtitle="默认情况下AES-128-CBC模式已经提供足够的安全性，但是您也可以选择AES-256-CBC模式以获得更加好的安全保护。第二代酷睿处理器以上等级的处理器均支持两种模式的硬件加速，因此无需担心性能问题" />
     </Page.Resources>
 
-    <Grid Name="WholeArea">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -122,13 +122,13 @@
                                         Width="100"
                                         x:Uid="SecureAreaPickFile"
                                         Name="PickFile"
-                                        Click="PickFile_Click"/>
+                                        Click="PickFile_Click" />
                                 <Button Content="文件夹"
                                         Width="100"
                                         Margin="10,0,0,0"
                                         x:Uid="SecureAreaPickFolder"
                                         Name="PickFolder"
-                                        Click="PickFolder_Click"/>
+                                        Click="PickFolder_Click" />
                             </StackPanel>
                         </StackPanel>
                     </Flyout>
@@ -152,68 +152,6 @@
                           Name="Setting"
                           Click="Setting_Click" />
         </CommandBar>
-        <GridView Name="SecureGridView"
-                  Grid.Row="1"
-                  AllowDrop="True"
-                  ItemsSource="{x:Bind SecureCollection}"
-                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
-                  Padding="20,10"
-                  SelectionMode="Extended"
-                  IsDoubleTapEnabled="True"
-                  Drop="Grid_Drop"
-                  DragEnter="SecureGridView_DragEnter"
-                  SelectionChanged="SecureGridView_SelectionChanged"
-                  DoubleTapped="SecureGridView_DoubleTapped"
-                  ContextRequested="SecureGridView_ContextRequested"
-                  ContextCanceled="SecureGridView_ContextCanceled">
-            <GridView.ItemTemplate>
-                <DataTemplate x:DataType="Cls:SecureAreaFileModel">
-                    <Grid Padding="5"
-                          Width="250"
-                          Background="Transparent">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Image VerticalAlignment="Center"
-                               Stretch="Uniform"
-                               Source="ms-appx:///Assets/LockFile.png"
-                               Height="55"
-                               Width="55" />
-                        <StackPanel Margin="5,0,0,0"
-                                    Grid.Column="1"
-                                    VerticalAlignment="Top">
-                            <TextBlock Text="{x:Bind Name}"
-                                       Name="NameLabel"
-                                       TextTrimming="CharacterEllipsis"
-                                       HorizontalAlignment="Left"
-                                       FontSize="16">
-                                <ToolTipService.ToolTip>
-                                    <ToolTip Content="{x:Bind Name}"
-                                             Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
-                                </ToolTipService.ToolTip>
-                            </TextBlock>
-                            <TextBlock Text="{x:Bind DisplayType}"
-                                       TextTrimming="CharacterEllipsis"
-                                       HorizontalAlignment="Left"
-                                       MaxWidth="150"
-                                       FontSize="13" />
-                            <TextBlock Text="{x:Bind Size,Converter={StaticResource SizeConverter}}"
-                                       TextTrimming="CharacterEllipsis"
-                                       MaxWidth="150"
-                                       HorizontalAlignment="Left"
-                                       FontSize="13" />
-                        </StackPanel>
-                    </Grid>
-                </DataTemplate>
-            </GridView.ItemTemplate>
-            <GridView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <ItemsWrapGrid Orientation="Horizontal"
-                                   HorizontalAlignment="Stretch" />
-                </ItemsPanelTemplate>
-            </GridView.ItemsPanel>
-        </GridView>
         <SplitView Grid.Row="1"
                    Canvas.ZIndex="1"
                    PanePlacement="Right"
@@ -223,6 +161,94 @@
                    PaneOpening="SettingPane_PaneOpening"
                    PaneClosing="SettingPane_PaneClosing"
                    PaneBackground="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+            <Grid>
+                <GridView Name="SecureGridView"
+                          Grid.Row="1"
+                          AllowDrop="True"
+                          ItemsSource="{x:Bind SecureCollection}"
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
+                          Padding="20,10"
+                          SelectionMode="Extended"
+                          IsDoubleTapEnabled="True"
+                          Drop="Grid_Drop"
+                          DragEnter="SecureGridView_DragEnter"
+                          SelectionChanged="SecureGridView_SelectionChanged"
+                          DoubleTapped="SecureGridView_DoubleTapped"
+                          ContextRequested="SecureGridView_ContextRequested"
+                          ContextCanceled="SecureGridView_ContextCanceled">
+                    <GridView.ItemTemplate>
+                        <DataTemplate x:DataType="Cls:SecureAreaFileModel">
+                            <Grid Padding="5"
+                                  Width="250"
+                                  Background="Transparent">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image VerticalAlignment="Center"
+                                       Stretch="Uniform"
+                                       Source="ms-appx:///Assets/LockFile.png"
+                                       Height="55"
+                                       Width="55" />
+                                <StackPanel Margin="5,0,0,0"
+                                            Grid.Column="1"
+                                            VerticalAlignment="Top">
+                                    <TextBlock Text="{x:Bind Name}"
+                                               Name="NameLabel"
+                                               TextTrimming="CharacterEllipsis"
+                                               HorizontalAlignment="Left"
+                                               FontSize="16">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip Content="{x:Bind Name}"
+                                             Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                </ToolTipService.ToolTip>
+                                    </TextBlock>
+                                    <TextBlock Text="{x:Bind DisplayType}"
+                                               TextTrimming="CharacterEllipsis"
+                                               HorizontalAlignment="Left"
+                                               MaxWidth="150"
+                                               FontSize="13" />
+                                    <TextBlock Text="{x:Bind Size,Converter={StaticResource SizeConverter}}"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxWidth="150"
+                                               HorizontalAlignment="Left"
+                                               FontSize="13" />
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal"
+                                           HorizontalAlignment="Stretch" />
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+                </GridView>
+
+                <StackPanel Grid.RowSpan="2"
+                            Visibility="Collapsed"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            IsHitTestVisible="False"
+                            Name="EmptyTips"
+                            ChildrenTransitions="{x:Bind Cls:AnimationController.Current.PaneTopTransitions,Mode=OneWay}">
+                    <Image Source="ms-appx:///Assets/Lock.png"
+                           Stretch="Uniform"
+                           Width="100" />
+                    <TextBlock Text="点击按钮或拖动文件到此处"
+                               x:Uid="SecureAreaDropText"
+                               FontSize="18"
+                               TextAlignment="Center"
+                               Margin="0,20,0,0" />
+                </StackPanel>
+
+                <Canvas Grid.Row="1">
+                    <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
+                               Stroke="{ThemeResource SystemAccentColorLight2}"
+                               x:Name="DrawRectangle"
+                               Opacity="0.4" />
+                </Canvas>
+            </Grid>
             <SplitView.Pane>
                 <ScrollViewer VerticalScrollMode="Auto"
                               HorizontalScrollMode="Disabled">
@@ -236,7 +262,7 @@
                                            RelativePanel.AlignLeftWithPanel="True"
                                            RelativePanel.AlignVerticalCenterWithPanel="True"
                                            TextTrimming="CharacterEllipsis"
-                                           Name="UseWindowsHelloHeader"/>
+                                           Name="UseWindowsHelloHeader" />
                                 <Viewbox Margin="10,0,0,0"
                                          Height="15"
                                          Name="WindowsHelloQuestion"
@@ -278,11 +304,11 @@
                             <RadioButton Content="离开此页面时立刻锁定"
                                          x:Uid="SecureAreaSettingLockMode1"
                                          Margin="0,10,0,0"
-                                         Name="ImmediateLockMode" />
+                                         Name="InstantLockMode" />
                             <RadioButton Content="此应用关闭时锁定"
                                          x:Uid="SecureAreaSettingLockMode2"
                                          Margin="0,10,0,0"
-                                         Name="CloseLockMode" />
+                                         Name="RestartLockMode" />
                         </StackPanel>
                         <StackPanel  Margin="0,20,0,0">
                             <TextBlock Text="{x:Bind Cls:Globalization.GetString('SecureArea_StorageLocation_Title')}"
@@ -316,55 +342,30 @@
             </SplitView.Pane>
         </SplitView>
 
-        <StackPanel Grid.RowSpan="2"
-                    Visibility="Collapsed"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    IsHitTestVisible="False"
-                    Name="EmptyTips"
-                    ChildrenTransitions="{x:Bind Cls:AnimationController.Current.PaneTopTransitions,Mode=OneWay}">
-            <Image Source="ms-appx:///Assets/Lock.png"
-                   Stretch="Uniform"
-                   Width="100" />
-            <TextBlock Text="点击按钮或拖动文件到此处"
-                       x:Uid="SecureAreaDropText"
-                       FontSize="18"
-                       TextAlignment="Center"
-                       Margin="0,20,0,0" />
-        </StackPanel>
-
-        <Canvas Grid.Row="1">
-            <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
-                       Stroke="{ThemeResource SystemAccentColorLight2}"
-                       x:Name="DrawRectangle"
-                       Opacity="0.4" />
-        </Canvas>
-        
-        <control:Loading x:Name="LoadingControl"
-                         IsLoading="False"
-                         Grid.RowSpan="2">
-            <control:Loading.Background>
+        <controls:Loading x:Name="LoadingControl"
+                          IsLoading="False"
+                          Grid.RowSpan="2">
+            <controls:Loading.Background>
                 <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
                                     TintOpacity="0.6"
                                     BlurAmount="3" />
-            </control:Loading.Background>
-            <StackPanel Width="220">
+            </controls:Loading.Background>
+            <StackPanel Width="230">
                 <TextBlock Name="LoadingText"
                            FontSize="15"
                            TextAlignment="Center" />
-                <muxc:ProgressBar Margin="0,10,0,0" 
+                <muxc:ProgressBar Margin="0,10,0,0"
                                   Maximum="100"
                                   Minimum="0"
-                                  Name="ProBar"/>
+                                  Name="ProBar" />
                 <Button Content="取消"
                         Margin="0,10,0,0"
                         x:Uid="SecureAreaImportCancelButton"
                         Name="CancelButton"
                         FontSize="12"
                         HorizontalAlignment="Center"
-                        Click="CancelButton_Click"
-                        Style="{ThemeResource ButtonRevealStyle}" />
+                        Click="CancelButton_Click" />
             </StackPanel>
-        </control:Loading>
+        </controls:Loading>
     </Grid>
 </Page>

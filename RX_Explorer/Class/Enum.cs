@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum SecureAreaLockMode
+    {
+        InstantLockMode,
+        RestartLockMode
+    }
+
     public enum SLEOriginType
     {
         File,
