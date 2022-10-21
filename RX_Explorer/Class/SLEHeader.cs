@@ -8,9 +8,14 @@ namespace RX_Explorer.Class
 {
     public sealed class SLEHeader
     {
-        public SLEHeaderCore Core { get; }
-
         public int HeaderSize { get; private set; }
+
+        public int ContentOffset
+        {
+            get => HeaderSize + HeaderEncoding.GetByteCount("PASSWORD_CORRECT");
+        }
+
+        public SLEHeaderCore Core { get; }
 
         public Encoding HeaderEncoding { get; }
 
@@ -108,7 +113,7 @@ namespace RX_Explorer.Class
             {
                 using (StreamWriter Writer = new StreamWriter(BaseFileStream, HeaderEncoding, 512, true))
                 {
-                    Writer.Write($"${string.Join('|', Core.KeySize, Core.FileName.Replace('$', '_'), (int)Core.Version)}$");
+                    Writer.Write($"${string.Join('|', (int)Core.KeySize, Core.FileName.Replace('$', '_'), (int)Core.Version)}$");
                     Writer.Flush();
                 }
             }

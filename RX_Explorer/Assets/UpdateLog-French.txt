@@ -1,21 +1,23 @@
-﻿###Quoi de neuf dans la version 7.9.7.0
+﻿###Quoi de neuf dans la version 8.0.0.0
 
-#####Mise à jour de la fonction
+#####Mise à jour des fonctionnalités
 
->#####Un nouveau style d'interface a été ajouté et vous pouvez maintenant basculer entre les styles minimaliste et général
+>#####"Zone de sécurité" prend désormais en charge l'importation directe des objets du dossier
 
->#####Reconstruire le Code de partage wifi pour améliorer la disponibilité et éliminer certains problèmes potentiels
+>#####Amélioration de l'algorithme de chiffrement et de déchiffrement de "Security Area" et mise à niveau du format de fichier SLE vers la version 2.0.0
 
->#####Ajout d'un nouvel élément de configuration pour contrôler si l'aperçu des propriétés du fichier apparaît lorsque la souris survole le fichier
+>#####"Secure Area" masquera désormais les vrais noms de fichiers pour échapper aux recherches par des logiciels tels que Everything
 
->#####Le nombre de tâches en cours sera maintenant synchronisé avec la barre des tâches du système
+>#####Rétablit à nouveau la fonction de glisser-déposer de l'onglet complet, les problèmes connexes ont été résolus
 
-#####Amélioration du rendement
+#####Améliorations des performances
 
->#####Réduire le contenu à copier lorsque les paramètres liés à l'intégration avec les composants du système sont activés
+>#####Amélioration des paramètres d'optimisation lors de la lecture des flux de fichiers
 
-#####Correction des bogues
+>#####Lors de la création d'un fichier temporaire à usage interne dans certains cas, le fichier résidera en mémoire autant que possible pour réduire les opérations d'E/S
 
->#####Correction d'un problème avec le sélecteur d'aperçu d'image inférieur qui se répète et disparaît lorsque vous faites glisser une image dans le visionneur d'image intégré pour l'agrandir
+#####Corrections de bogues
 
->#####Correction d'un problème d'activation incorrecte des paramètres liés à l'intégration avec les composants du système dans certaines circonstances exceptionnelles
+>#####Correction d'un problème où "Secure Area" pouvait ne pas être en mesure de déchiffrer les fichiers SLE au format 1.0.0
+
+>#####Correction d'un problème où appuyer sur la touche Échap après avoir prévisualisé un fichier avec Seer ou Quicklook ne fermait pas la fenêtre de prévisualisation

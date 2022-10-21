@@ -1211,8 +1211,8 @@ namespace RX_Explorer.View
 
             FileOpenPicker Picker = new FileOpenPicker
             {
-                SuggestedStartLocation = PickerLocationId.ComputerFolder,
-                ViewMode = PickerViewMode.Thumbnail
+                ViewMode = PickerViewMode.Thumbnail,
+                SuggestedStartLocation = PickerLocationId.ComputerFolder
             };
             Picker.FileTypeFilter.Add("*");
 

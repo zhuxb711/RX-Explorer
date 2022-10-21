@@ -2,6 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SharedLibrary
 {
@@ -12,7 +13,7 @@ namespace SharedLibrary
             return Ptr != IntPtr.Zero && Ptr.ToInt64() != -1;
         }
 
-        public static string Encrypt(this string OriginText, string Key)
+        public static async Task<string> EncryptAsync(this string OriginText, string Key)
         {
             if (string.IsNullOrEmpty(OriginText))
             {
@@ -24,35 +25,34 @@ namespace SharedLibrary
                 throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
             }
 
-            try
+            Encoding Encoding = new UTF8Encoding(false);
+
+            using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
             {
-                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                KeySize = 128,
+                Key = Encoding.GetBytes(Key.Length > 16 ? Key.Substring(0, 16) : Key.PadRight(16, '0')),
+                Mode = CipherMode.CBC,
+                Padding = PaddingMode.PKCS7,
+                IV = Encoding.GetBytes("KUsaWlEy2XN5b6y8")
+            })
+            {
+                using (MemoryStream EncryptStream = new MemoryStream())
+                using (ICryptoTransform Encryptor = AES.CreateEncryptor())
+                using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
                 {
-                    KeySize = 128,
-                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
-                    Mode = CipherMode.CBC,
-                    Padding = PaddingMode.PKCS7,
-                    IV = Encoding.UTF8.GetBytes("KUsaWlEy2XN5b6y8")
-                })
-                {
-                    using (MemoryStream EncryptStream = new MemoryStream())
-                    using (ICryptoTransform Encryptor = AES.CreateEncryptor())
-                    using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
+                    using (StreamWriter Writer = new StreamWriter(TransformStream, Encoding, 512, true))
                     {
-                        byte[] OriginBytes = Encoding.UTF8.GetBytes(OriginText);
-                        TransformStream.Write(OriginBytes, 0, OriginBytes.Length);
-                        TransformStream.FlushFinalBlock();
-                        return Convert.ToBase64String(EncryptStream.ToArray());
+                        await Writer.WriteAsync(OriginText);
                     }
+
+                    TransformStream.FlushFinalBlock();
+
+                    return Convert.ToBase64String(EncryptStream.ToArray());
                 }
-            }
-            catch
-            {
-                return null;
             }
         }
 
-        public static string Decrypt(this string OriginText, string Key)
+        public static async Task<string> DecryptAsync(this string OriginText, string Key)
         {
             if (string.IsNullOrEmpty(OriginText))
             {
@@ -64,31 +64,24 @@ namespace SharedLibrary
                 throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
             }
 
-            try
+            Encoding Encoding = new UTF8Encoding(false);
+
+            using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
             {
-                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                KeySize = 128,
+                Key = Encoding.GetBytes(Key.Length > 16 ? Key.Substring(0, 16) : Key.PadRight(16, '0')),
+                Mode = CipherMode.CBC,
+                Padding = PaddingMode.PKCS7,
+                IV = Encoding.GetBytes("KUsaWlEy2XN5b6y8")
+            })
+            {
+                using (MemoryStream EncryptStream = new MemoryStream(Convert.FromBase64String(OriginText)))
+                using (ICryptoTransform Decryptor = AES.CreateDecryptor())
+                using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Decryptor, CryptoStreamMode.Read))
+                using (StreamReader Reader = new StreamReader(TransformStream, Encoding, true, 512, true))
                 {
-                    KeySize = 128,
-                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
-                    Mode = CipherMode.CBC,
-                    Padding = PaddingMode.PKCS7,
-                    IV = Encoding.UTF8.GetBytes("KUsaWlEy2XN5b6y8")
-                })
-                {
-                    using (MemoryStream DecryptStream = new MemoryStream())
-                    using (ICryptoTransform Decryptor = AES.CreateDecryptor())
-                    using (CryptoStream TransformStream = new CryptoStream(DecryptStream, Decryptor, CryptoStreamMode.Write))
-                    {
-                        byte[] EncryptedBytes = Convert.FromBase64String(OriginText);
-                        TransformStream.Write(EncryptedBytes, 0, EncryptedBytes.Length);
-                        TransformStream.FlushFinalBlock();
-                        return Encoding.UTF8.GetString(DecryptStream.ToArray());
-                    }
+                    return await Reader.ReadToEndAsync();
                 }
-            }
-            catch
-            {
-                return null;
             }
         }
     }

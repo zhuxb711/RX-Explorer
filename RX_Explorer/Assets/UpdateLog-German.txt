@@ -1,21 +1,23 @@
-﻿###Was ist neu in Ver.7.9.7.0
+﻿###Was ist neu in Ver.8.0.0.0
 
-####Funktionsupdate
+#####Feature-Update
 
->#####Neuer Schnittstellenstil hinzugefügt, der nun zwischen "Minimalistic" und "Regular" umgeschaltet werden kann
+>#####"Sicherheitsbereich" unterstützt jetzt den direkten Import der Ordnerobjekte
 
->#####Rekonstruierter WLAN-Freigabecode zur Verbesserung der Benutzerfreundlichkeit und zur Beseitigung potenzieller Probleme
+>#####Verbesserte den Verschlüsselungs- und Entschlüsselungsalgorithmus von „Security Area“ und aktualisierte das SLE-Dateiformat auf Version 2.0.0
 
->#####Ein neues Einstellungselement wurde hinzugefügt, um zu steuern, ob die Dateiattributvorschau angezeigt wird, wenn die Maus über die Datei fährt
+>#####„Sicherer Bereich“ verbirgt jetzt echte Dateinamen, um Suchvorgängen durch Software wie Everything zu entgehen
 
->#####Die Anzahl der laufenden Aufgaben wird nun mit der Taskleiste des Systems synchronisiert
+>#####Bringt wieder die vollständige Tab-Drag-and-Drop-Funktion zurück, verwandte Probleme wurden behoben
 
-#####Leistungsverbesserung
+#####Leistungsverbesserungen
 
->#####Reduzieren Sie den Inhalt, der kopiert werden muss, wenn Sie die Einstellungen im Zusammenhang mit "Integration mit Systemkomponenten" aktivieren
+>#####Verbesserte Optimierungsparameter beim Lesen von Dateistreams
 
-#####Bugfix
+>#####Beim Erstellen einer temporären Datei für den internen Gebrauch wird die Datei in manchen Fällen so weit wie möglich im Speicher verbleiben, um den E/A-Betrieb zu reduzieren
 
->#####Problem behoben, dass der untere Bildvorschauwähler wiederholt erscheint und dann verschwindet, wenn ein Bild in einem vergrößerten Zustand im eingebauten Bildbetrachter gezogen wird
+#####Fehlerbehebung
 
->#####Problem behoben, dass die Einstellungen im Zusammenhang mit "Integration mit Systemkomponenten" unter bestimmten Umständen nicht korrekt aktiviert werden konnten
+>#####Ein Problem wurde behoben, bei dem „Secure Area“ SLE-Dateien im 1.0.0-Format möglicherweise nicht entschlüsseln konnte
+
+>#####Es wurde ein Problem behoben, bei dem das Drücken der Esc-Taste nach der Vorschau einer Datei mit Seer oder Quicklook das Vorschaufenster nicht schloss

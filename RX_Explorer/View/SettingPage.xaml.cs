@@ -2675,8 +2675,8 @@ namespace RX_Explorer.View
         {
             FileOpenPicker Picker = new FileOpenPicker
             {
-                SuggestedStartLocation = PickerLocationId.PicturesLibrary,
-                ViewMode = PickerViewMode.Thumbnail
+                ViewMode = PickerViewMode.Thumbnail,
+                SuggestedStartLocation = PickerLocationId.ComputerFolder
             };
             Picker.FileTypeFilter.Add(".png");
             Picker.FileTypeFilter.Add(".jpg");
@@ -3146,7 +3146,7 @@ namespace RX_Explorer.View
             FileOpenPicker Picker = new FileOpenPicker
             {
                 ViewMode = PickerViewMode.List,
-                SuggestedStartLocation = PickerLocationId.Desktop
+                SuggestedStartLocation = PickerLocationId.ComputerFolder
             };
 
             Picker.FileTypeFilter.Add(".json");
@@ -3188,7 +3188,7 @@ namespace RX_Explorer.View
 
                                 using (MD5 MD5Alg = MD5.Create())
                                 {
-                                    string ConfigDecryptedString = Configuration.Decrypt(Package.Current.Id.FamilyName);
+                                    string ConfigDecryptedString = await Configuration.DecryptAsync(Package.Current.Id.FamilyName);
 
                                     if (MD5Alg.GetHash(ConfigDecryptedString).Equals(ConfigHash, StringComparison.OrdinalIgnoreCase))
                                     {
@@ -3235,7 +3235,7 @@ namespace RX_Explorer.View
                                             }
                                         }
 
-                                        string DatabaseDecryptedString = Database.Decrypt(Package.Current.Id.FamilyName);
+                                        string DatabaseDecryptedString = await Database.DecryptAsync(Package.Current.Id.FamilyName);
 
                                         if (MD5Alg.GetHash(DatabaseDecryptedString).Equals(DatabaseHash, StringComparison.OrdinalIgnoreCase))
                                         {
@@ -3305,7 +3305,7 @@ namespace RX_Explorer.View
                                             if (Dic.TryGetValue("CustomImageDataPackageArray", out string CustomImageData)
                                                 && Dic.TryGetValue("CustomImageDataPackageArrayHash", out string CustomImageDataHash))
                                             {
-                                                string CustomImageDataDecryptedString = CustomImageData.Decrypt(Package.Current.Id.FamilyName);
+                                                string CustomImageDataDecryptedString = await CustomImageData.DecryptAsync(Package.Current.Id.FamilyName);
 
                                                 if (MD5Alg.GetHash(CustomImageDataDecryptedString).Equals(CustomImageDataHash, StringComparison.OrdinalIgnoreCase))
                                                 {
@@ -3458,11 +3458,11 @@ namespace RX_Explorer.View
                         {
                             { "Identitifier", "RX_Explorer_Export_Configuration" },
                             { "HardwareUUID", new EasClientDeviceInformation().Id.ToString("D") },
-                            { "Configuration",  ConfigurationString.Encrypt(Package.Current.Id.FamilyName) },
+                            { "Configuration",  await ConfigurationString.EncryptAsync(Package.Current.Id.FamilyName) },
                             { "ConfigHash", MD5Alg.GetHash(ConfigurationString) },
-                            { "Database", DatabaseString.Encrypt(Package.Current.Id.FamilyName) },
+                            { "Database", await DatabaseString.EncryptAsync(Package.Current.Id.FamilyName) },
                             { "DatabaseHash", MD5Alg.GetHash(DatabaseString) },
-                            { "CustomImageDataPackageArray", CustomImageString.Encrypt(Package.Current.Id.FamilyName) },
+                            { "CustomImageDataPackageArray", await CustomImageString.EncryptAsync(Package.Current.Id.FamilyName) },
                             { "CustomImageDataPackageArrayHash", MD5Alg.GetHash(CustomImageString) }
                         };
 

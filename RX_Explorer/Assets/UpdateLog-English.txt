@@ -1,21 +1,23 @@
-﻿###What's new in Ver.7.9.7.0
+﻿###What's new in Ver.8.0.0.0
 
-#####Function update
+#####Feature update
 
->#####Added a new interface style, which can now be switched between "Minimalistic" and "Regular" styles
+>#####"Security Area" now supports import the folder objects directly
 
->#####Reconstructed WiFi sharing related code to improve usability and eliminate some potential problems
+>#####Improved the encryption and decryption algorithm of "Security Area" and upgraded the SLE file format to version 2.0.0
 
->#####A new setting item has been added to control whether the file attribute preview will pop up when the mouse hovers over the file
+>#####"Secure Area" will now hide real file names to evade searches by software such as Everything
 
->#####The number of tasks in progress will now be synchronized to the system taskbar
+>#####Brings back the full tab drag and drop function again, related issues have been resolved
 
-#####Performance improvement
+#####Performance enhancements
 
->#####Reduce the content that needs to be copied when enabling the settings related to "Integration with System Components"
+>#####Improved optimization parameters when reading file streams
 
-#####Bug fix
+>#####When creating a temporary file for internal use in some cases, the file will reside in memory as much as possible to reduce I/O operation
 
->#####Fixed the problem that the bottom picture preview selector will appear repeatedly and then disappear when dragging a picture in a magnified state in the built-in picture viewer
+#####Bug Fixes
 
->#####Fixed the problem that the settings related to "Integration with System Components" cannot be enabled correctly under some special circumstances
+>#####Fixed an issue where "Secure Area" might not be able to decrypt SLE files in 1.0.0 format
+
+>#####Fixed an issue where pressing the Esc key after previewing a file with Seer or Quicklook would not close the preview window

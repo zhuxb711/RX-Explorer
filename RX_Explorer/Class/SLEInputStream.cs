@@ -17,7 +17,7 @@ namespace RX_Explorer.Class
 
         public override bool CanWrite => false;
 
-        public override long Length => Math.Max(BaseFileStream.Length - FileContentOffset, 0);
+        public override long Length => Math.Max(BaseFileStream.Length - Header.ContentOffset, 0);
 
         public override long Position
         {
@@ -25,7 +25,7 @@ namespace RX_Explorer.Class
             {
                 if (Header.Core.Version >= SLEVersion.SLE150)
                 {
-                    return Math.Max(BaseFileStream.Position - FileContentOffset, 0);
+                    return Math.Max(BaseFileStream.Position - Header.ContentOffset, 0);
                 }
                 else
                 {
@@ -36,7 +36,7 @@ namespace RX_Explorer.Class
             {
                 if (Header.Core.Version >= SLEVersion.SLE150)
                 {
-                    BaseFileStream.Position = value + FileContentOffset;
+                    BaseFileStream.Position = value + Header.ContentOffset;
                 }
                 else
                 {
@@ -50,9 +50,7 @@ namespace RX_Explorer.Class
         private readonly Stream BaseFileStream;
         private readonly CryptoStream TransformStream;
         private readonly ICryptoTransform Transform;
-        private readonly string Key;
         private readonly byte[] Counter;
-        private readonly int FileContentOffset;
         private bool IsDisposed;
 
         public override void Flush()
@@ -185,31 +183,16 @@ namespace RX_Explorer.Class
             throw new NotSupportedException();
         }
 
-        private ICryptoTransform CreateAesDecryptor()
+        private ICryptoTransform CreateAesDecryptor(SLEVersion Version, string DecryptionKey, int KeySize)
         {
-            if (Key.Any((Char) => Char > '\u007F'))
+            if (DecryptionKey.Any((Char) => Char > '\u007F'))
             {
-                throw new NotSupportedException($"Only ASCII char is allowed in {nameof(Key)}");
+                throw new NotSupportedException($"Only ASCII char is allowed in {nameof(DecryptionKey)}");
             }
 
-            int KeyLengthNeed = (int)Header.Core.KeySize / 8;
+            int KeyWordsNeeded = KeySize / 8;
 
-            byte[] KeyArray;
-
-            if (Key.Length > KeyLengthNeed)
-            {
-                KeyArray = Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed));
-            }
-            else if (Key.Length < KeyLengthNeed)
-            {
-                KeyArray = Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
-            }
-            else
-            {
-                KeyArray = Encoding.UTF8.GetBytes(Key);
-            }
-
-            switch (Header.Core.Version)
+            switch (Version)
             {
                 case >= SLEVersion.SLE150:
                     {
@@ -217,8 +200,8 @@ namespace RX_Explorer.Class
                         {
                             Mode = CipherMode.ECB,
                             Padding = PaddingMode.None,
-                            KeySize = (int)Header.Core.KeySize,
-                            Key = KeyArray,
+                            KeySize = KeySize,
+                            Key = Encoding.ASCII.GetBytes(DecryptionKey.Length > KeyWordsNeeded ? DecryptionKey.Substring(0, KeyWordsNeeded) : DecryptionKey.PadRight(KeyWordsNeeded, '0')),
                         })
                         {
                             return AES.CreateEncryptor();
@@ -230,9 +213,9 @@ namespace RX_Explorer.Class
                         {
                             Mode = CipherMode.CBC,
                             Padding = PaddingMode.PKCS7,
-                            KeySize = (int)Header.Core.KeySize,
-                            Key = KeyArray,
-                            IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
+                            KeySize = KeySize,
+                            Key = Encoding.ASCII.GetBytes(DecryptionKey.Length > KeyWordsNeeded ? DecryptionKey.Substring(0, KeyWordsNeeded) : DecryptionKey.PadRight(KeyWordsNeeded, '0')),
+                            IV = new UTF8Encoding(false).GetBytes("HqVQ2YgUnUlRNp5Z")
                         })
                         {
                             return AES.CreateDecryptor();
@@ -244,9 +227,9 @@ namespace RX_Explorer.Class
                         {
                             Mode = CipherMode.CBC,
                             Padding = PaddingMode.Zeros,
-                            KeySize = (int)Header.Core.KeySize,
-                            Key = KeyArray,
-                            IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
+                            KeySize = KeySize,
+                            Key = Encoding.ASCII.GetBytes(DecryptionKey.Length > KeyWordsNeeded ? DecryptionKey.Substring(0, KeyWordsNeeded) : DecryptionKey.PadRight(KeyWordsNeeded, '0')),
+                            IV = new UTF8Encoding(false).GetBytes("HqVQ2YgUnUlRNp5Z")
                         })
                         {
                             return AES.CreateDecryptor();
@@ -275,11 +258,11 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                BaseFileStream.Seek(FileContentOffset, SeekOrigin.Begin);
+                BaseFileStream.Seek(Header.ContentOffset, SeekOrigin.Begin);
             }
         }
 
-        public SLEInputStream(Stream BaseFileStream, Encoding HeaderEncoding, string Key)
+        public SLEInputStream(Stream BaseFileStream, Encoding HeaderEncoding, string DecryptionKey)
         {
             if (BaseFileStream == null)
             {
@@ -291,18 +274,16 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("BaseStream must be writable", nameof(BaseFileStream));
             }
 
-            if (string.IsNullOrEmpty(Key))
+            if (string.IsNullOrEmpty(DecryptionKey))
             {
-                throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
+                throw new ArgumentNullException(nameof(DecryptionKey), "Parameter could not be null or empty");
             }
 
-            this.Key = Key;
             this.BaseFileStream = BaseFileStream;
             this.BaseFileStream.Seek(0, SeekOrigin.Begin);
 
-            Header = SLEHeader.GetHeader(this.BaseFileStream, HeaderEncoding);
-            FileContentOffset = Header.HeaderSize + Header.HeaderEncoding.GetByteCount("PASSWORD_CORRECT");
-            Transform = CreateAesDecryptor();
+            Header = SLEHeader.GetHeader(BaseFileStream, HeaderEncoding);
+            Transform = CreateAesDecryptor(Header.Core.Version, DecryptionKey, (int)Header.Core.KeySize);
 
             if (Header.Core.Version >= SLEVersion.SLE150)
             {

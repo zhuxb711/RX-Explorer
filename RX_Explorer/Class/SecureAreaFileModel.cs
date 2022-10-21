@@ -10,9 +10,9 @@ namespace RX_Explorer.Class
 
         public ulong Size { get; }
 
-        public string DisplayType 
-        { 
-            get => $"SLE{(OriginType == SLEOriginType.File ? Globalization.GetString("File_Admin_DisplayType") : Globalization.GetString("Folder_Admin_DisplayType"))}"; 
+        public string DisplayType
+        {
+            get => $"SLE{(OriginType == SLEOriginType.File ? Globalization.GetString("File_Admin_DisplayType") : Globalization.GetString("Folder_Admin_DisplayType"))}";
         }
 
         public string Path { get; }

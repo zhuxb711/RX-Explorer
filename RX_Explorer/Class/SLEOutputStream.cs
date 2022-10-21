@@ -17,7 +17,7 @@ namespace RX_Explorer.Class
 
         public override bool CanWrite => true;
 
-        public override long Length => Math.Max(BaseFileStream.Length - FileContentOffset, 0);
+        public override long Length => Math.Max(BaseFileStream.Length - Header.ContentOffset, 0);
 
         public override long Position
         {
@@ -25,7 +25,7 @@ namespace RX_Explorer.Class
             {
                 if (Header.Core.Version >= SLEVersion.SLE150)
                 {
-                    return Math.Max(BaseFileStream.Position - FileContentOffset, 0);
+                    return Math.Max(BaseFileStream.Position - Header.ContentOffset, 0);
                 }
                 else
                 {
@@ -36,7 +36,7 @@ namespace RX_Explorer.Class
             {
                 if (Header.Core.Version >= SLEVersion.SLE150)
                 {
-                    BaseFileStream.Position = value + FileContentOffset;
+                    BaseFileStream.Position = value + Header.ContentOffset;
                 }
                 else
                 {
@@ -49,11 +49,8 @@ namespace RX_Explorer.Class
 
         private readonly ICryptoTransform Transform;
         private readonly Stream BaseFileStream;
-        private readonly string EncryptionKey;
-
         private readonly CryptoStream TransformStream;
         private readonly byte[] Counter;
-        private readonly int FileContentOffset;
         private bool IsDisposed;
 
         public override void Flush()
@@ -99,7 +96,7 @@ namespace RX_Explorer.Class
 
         public override void SetLength(long value)
         {
-            BaseFileStream.SetLength(Math.Max(value + FileContentOffset, 0));
+            BaseFileStream.SetLength(Math.Max(value + Header.ContentOffset, 0));
         }
 
         public override void Write(byte[] buffer, int offset, int count)
@@ -176,40 +173,25 @@ namespace RX_Explorer.Class
             }
         }
 
-        private ICryptoTransform CreateAesEncryptor()
+        private ICryptoTransform CreateAesEncryptor(SLEVersion Version, string EncryptionKey, int KeySize)
         {
             if (EncryptionKey.Any((Char) => Char > '\u007F'))
             {
                 throw new NotSupportedException($"Only ASCII char is allowed in {nameof(EncryptionKey)}");
             }
 
-            int KeyLengthNeed = (int)Header.Core.KeySize / 8;
+            int KeyWordsNeeded = KeySize / 8;
 
-            byte[] KeyArray;
-
-            if (EncryptionKey.Length > KeyLengthNeed)
-            {
-                KeyArray = Encoding.ASCII.GetBytes(EncryptionKey.Substring(0, KeyLengthNeed));
-            }
-            else if (EncryptionKey.Length < KeyLengthNeed)
-            {
-                KeyArray = Encoding.ASCII.GetBytes(EncryptionKey.PadRight(KeyLengthNeed, '0'));
-            }
-            else
-            {
-                KeyArray = Encoding.ASCII.GetBytes(EncryptionKey);
-            }
-
-            switch (Header.Core.Version)
+            switch (Version)
             {
                 case >= SLEVersion.SLE150:
                     {
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            KeySize = (int)Header.Core.KeySize,
+                            KeySize = KeySize,
                             Mode = CipherMode.ECB,
                             Padding = PaddingMode.None,
-                            Key = KeyArray
+                            Key = Encoding.ASCII.GetBytes(EncryptionKey.Length > KeyWordsNeeded ? EncryptionKey.Substring(0, KeyWordsNeeded) : EncryptionKey.PadRight(KeyWordsNeeded, '0'))
                         })
                         {
                             return AES.CreateEncryptor();
@@ -219,11 +201,11 @@ namespace RX_Explorer.Class
                     {
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            KeySize = (int)Header.Core.KeySize,
+                            KeySize = KeySize,
                             Mode = CipherMode.CBC,
                             Padding = PaddingMode.PKCS7,
-                            Key = KeyArray,
-                            IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
+                            Key = Encoding.ASCII.GetBytes(EncryptionKey.Length > KeyWordsNeeded ? EncryptionKey.Substring(0, KeyWordsNeeded) : EncryptionKey.PadRight(KeyWordsNeeded, '0')),
+                            IV = new UTF8Encoding(false).GetBytes("HqVQ2YgUnUlRNp5Z")
                         })
                         {
                             return AES.CreateEncryptor();
@@ -233,11 +215,11 @@ namespace RX_Explorer.Class
                     {
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            KeySize = (int)Header.Core.KeySize,
+                            KeySize = KeySize,
                             Mode = CipherMode.CBC,
                             Padding = PaddingMode.Zeros,
-                            Key = KeyArray,
-                            IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
+                            Key = Encoding.ASCII.GetBytes(EncryptionKey.Length > KeyWordsNeeded ? EncryptionKey.Substring(0, KeyWordsNeeded) : EncryptionKey.PadRight(KeyWordsNeeded, '0')),
+                            IV = new UTF8Encoding(false).GetBytes("HqVQ2YgUnUlRNp5Z")
                         })
                         {
                             return AES.CreateEncryptor();
@@ -260,7 +242,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                BaseFileStream.Seek(FileContentOffset, SeekOrigin.Begin);
+                BaseFileStream.Seek(Header.ContentOffset, SeekOrigin.Begin);
             }
         }
 
@@ -292,13 +274,12 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(EncryptionKey), "Parameter could not be null or empty");
             }
 
-            this.EncryptionKey = EncryptionKey;
             this.BaseFileStream = BaseFileStream;
+            this.BaseFileStream.Seek(0, SeekOrigin.Begin);
 
             Header = new SLEHeader(Version, OriginType, KeySize, HeaderEncoding, FileName);
             Header.WriteHeader(BaseFileStream);
-            FileContentOffset = Header.HeaderSize + Header.HeaderEncoding.GetByteCount("PASSWORD_CORRECT");
-            Transform = CreateAesEncryptor();
+            Transform = CreateAesEncryptor(Header.Core.Version, EncryptionKey, (int)Header.Core.KeySize);
 
             if (Version >= SLEVersion.SLE150)
             {
@@ -306,7 +287,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                TransformStream = new CryptoStream(BaseFileStream, Transform, CryptoStreamMode.Read);
+                TransformStream = new CryptoStream(BaseFileStream, Transform, CryptoStreamMode.Write);
             }
 
             WritePasswordCheckPoint();

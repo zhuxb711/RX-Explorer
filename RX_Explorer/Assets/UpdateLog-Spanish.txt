@@ -1,21 +1,23 @@
-﻿###Novedades de la versión 7.9.7.0
+﻿###Novedades de la versión 8.0.0.0
 
 #####Actualización de funciones
 
->#####Se a ñadió un nuevo estilo de interfaz que ahora puede cambiar entre los estilos minimalistas y generales
+>#####"Área de seguridad" ahora admite importar los objetos de la carpeta directamente
 
->#####Reconstruir el código relacionado con el uso compartido de WiFi para mejorar la disponibilidad y eliminar algunos problemas potenciales
+>#####Se mejoró el algoritmo de cifrado y descifrado del "Área de seguridad" y se actualizó el formato de archivo SLE a la versión 2.0.0
 
->#####Se a ñadió un nuevo elemento de configuración para controlar si la vista previa de las propiedades del archivo aparece cuando el ratón pasa sobre el archivo
+>#####"Área segura" ahora ocultará los nombres de archivo reales para evadir búsquedas por software como Everything
 
->#####El número de tareas en curso se sincronizará ahora con la barra de tareas del sistema
+>#####Recupera la función de arrastrar y soltar de la pestaña completa, los problemas relacionados se han resuelto
 
-#####Mejora del rendimiento
+#####Mejoras de rendimiento
 
->#####Reducir la necesidad de copiar cuando se habilitan los ajustes relacionados con la integración con los componentes del sistema
+>#####Parámetros de optimización mejorados al leer secuencias de archivos
 
-#####Bug Fix
+>#####Al crear un archivo temporal para uso interno en algunos casos, el archivo residirá en la memoria tanto como sea posible para reducir la operación de E/S
 
->#####Fijo un problem a en el que el selector de previsualización de imagen inferior se repite y luego desaparece mientras arrastra una imagen en un Estado de zoom en el visor de imagen integrado
+#####Corrección de errores
 
->#####Fijo un problem a en el que la configuración relacionada con la integración con los componentes del sistema no se puede activar correctamente en algunos casos especiales
+>#####Se solucionó un problema por el cual "Área segura" podría no ser capaz de descifrar archivos SLE en formato 1.0.0
+
+>#####Se solucionó un problema por el que al presionar la tecla Esc después de obtener una vista previa de un archivo con Seer o Quicklook no se cerraba la ventana de vista previa
