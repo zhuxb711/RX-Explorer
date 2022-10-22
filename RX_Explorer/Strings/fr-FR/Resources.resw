@@ -1321,8 +1321,7 @@
     <value>Une erreur inattendue s'est produite lors du déchiffrement du fichier, le processus d'exportation est terminé</value>
   </data>
   <data name="QueueDialog_DecryptPasswordError_Content" xml:space="preserve">
-    <value>Le déchiffrement a échoué à cause d'un mauvais mot de passe, la tâche d'exportation a été interrompue \r\rCeci peut être causé par une discordance dans les données des fichiers à déchiffrer</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Le déchiffrement a échoué à cause d'un mauvais mot de passe, la tâche d'exportation a été interrompue. Ceci peut être causé par une discordance dans les données des fichiers à déchiffrer</value>
   </data>
   <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
     <value>Cette opération va supprimer de manière les fichiers. Voulez-vous continuer?</value>
@@ -1351,9 +1350,8 @@
   <data name="QueueDialog_FeedBackRepeatError_Content" xml:space="preserve">
     <value>Le même commentaire existe déjà, s'il vous plaît merci de ne pas créer de copies</value>
   </data>
-  <data name="QueueDialog_FileDamageError_Content" xml:space="preserve">
-    <value>Parce que la structure interne du fichier à déchiffrer est endommagée et que le déchiffrement échoue, la tâche d'exportation a été interrompue \r\rCeci peut être dû au fait que les données du fichier sont endommagées ou modifiées</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+  <data name="QueueDialog_SLEHeaderInvalid_Content" xml:space="preserve">
+    <value>Parce que la structure interne du fichier à déchiffrer est endommagée et que le déchiffrement échoue, la tâche d'exportation a été interrompue. Ceci peut être dû au fait que les données du fichier sont endommagées ou modifiées</value>
   </data>
   <data name="QueueDialog_LocateFileFailure_Content" xml:space="preserve">
     <value>Impossible de trouver le fichier correspondant, il a pu être déplacé ou supprimé</value>

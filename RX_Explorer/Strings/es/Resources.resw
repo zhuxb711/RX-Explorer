@@ -1386,8 +1386,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Se ha producido un error inesperado al descifrar el archivo; el proceso de exportación ha finalizado.</value>
   </data>
   <data name="QueueDialog_DecryptPasswordError_Content" xml:space="preserve">
-    <value>El descifrado ha fallado debido a una contraseña de descodificación incorrecta; la tarea de exportación se ha cancelado. \r\rEsto puede deberse a una discrepancia en los datos de los archivos que se desean descifrar.</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>El descifrado ha fallado debido a una contraseña de descodificación incorrecta; la tarea de exportación se ha cancelado. Esto puede deberse a una discrepancia en los datos de los archivos que se desean descifrar.</value>
   </data>
   <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
     <value>Esta operación eliminará estos archivos. ¿Deseas continuar?</value>
@@ -1416,9 +1415,8 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_FeedBackRepeatError_Content" xml:space="preserve">
     <value>Ya existe el mismo comentario; por favor, no lo vuelvas a enviar.</value>
   </data>
-  <data name="QueueDialog_FileDamageError_Content" xml:space="preserve">
-    <value>Dado que la estructura interna del archivo para descifrar está dañada y el descifrado ha fallado, la tarea de exportación se ha cancelado. \r\rEsto puede deberse a que los datos de archivo estén dañados o se hayan modificado.</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+  <data name="QueueDialog_SLEHeaderInvalid_Content" xml:space="preserve">
+    <value>Dado que la estructura interna del archivo para descifrar está dañada y el descifrado ha fallado, la tarea de exportación se ha cancelado. Esto puede deberse a que los datos de archivo estén dañados o se hayan modificado.</value>
   </data>
   <data name="QueueDialog_LocateFileFailure_Content" xml:space="preserve">
     <value>No se ha podido encontrar el archivo correspondiente; es posible que se haya movido o eliminado.</value>

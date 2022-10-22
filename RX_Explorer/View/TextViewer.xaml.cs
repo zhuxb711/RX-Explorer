@@ -133,7 +133,7 @@ namespace RX_Explorer.View
 
                         using (BinaryReader Reader = new BinaryReader(TextStream, TextEncoding, true))
                         {
-                            LineData = await CollectLineDataAsync(new string(Reader.ReadChars(Convert.ToInt32(TextStream.Length))));
+                            LineData = await CollectLineDataAsync(new string(TextEncoding.GetChars(Reader.ReadBytes(Convert.ToInt32(TextStream.Length)))));
                             LineBreakDisplay.Text = string.Join(" \\ ", LineData.Values.Select((Data) => Data.LineBreakDescription).Where((Text) => !string.IsNullOrEmpty(Text)).Distinct());
                         }
 

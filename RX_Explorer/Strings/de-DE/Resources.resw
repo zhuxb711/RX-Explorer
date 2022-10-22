@@ -1386,8 +1386,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Ein unerwarteter Fehler ist während der Dateientschlüsselung aufgeterten. Der Exportprozess ist beendet.</value>
   </data>
   <data name="QueueDialog_DecryptPasswordError_Content" xml:space="preserve">
-    <value>Die Entschlüsselung ist fehlgeschlagen wegen eines falschen Entschlüsselungspassworts. Die Exportaufgabe wurde beendet. \r\rDas könnte durch einen Konflikt in den Daten der zu entschlüsselnden Dateien verursacht worden sein.</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Die Entschlüsselung ist fehlgeschlagen wegen eines falschen Entschlüsselungspassworts. Die Exportaufgabe wurde beendet. Das könnte durch einen Konflikt in den Daten der zu entschlüsselnden Dateien verursacht worden sein.</value>
   </data>
   <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
     <value>Dieser Vorgang wird diese Dateien löschen. Fortfahren?</value>
@@ -1416,9 +1415,8 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_FeedBackRepeatError_Content" xml:space="preserve">
     <value>Das gleiche Feedback existiert bereits. Bitte senden Sie es nicht erneut.</value>
   </data>
-  <data name="QueueDialog_FileDamageError_Content" xml:space="preserve">
-    <value>Da die interne Struktur der zu entschlüsselnden Datei beschädigt ist und die Entschlüsselung fehlschlägt, wurde die Exportaufgabe beendet. \r\rDas könnte durch eine beschädigte oder bearbeitete Datei verursacht worden sien.</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+  <data name="QueueDialog_SLEHeaderInvalid_Content" xml:space="preserve">
+    <value>Da die interne Struktur der zu entschlüsselnden Datei beschädigt ist und die Entschlüsselung fehlschlägt, wurde die Exportaufgabe beendet. Das könnte durch eine beschädigte oder bearbeitete Datei verursacht worden sien.</value>
   </data>
   <data name="QueueDialog_LocateFileFailure_Content" xml:space="preserve">
     <value>Zugehörige Datei konnte nicht gefunden werden. Sie wurde vielleicht verschoben oder gelöscht.</value>

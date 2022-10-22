@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace RX_Explorer.Class
 {
@@ -30,64 +30,109 @@ namespace RX_Explorer.Class
                     HeaderEncoding = new UTF8Encoding(false);
                 }
 
+                // Check the file whether version is lower than SLE200
                 try
                 {
-                    using (BinaryReader Reader = new BinaryReader(BaseFileStream, HeaderEncoding, true))
+                    using (StreamReader Reader = new StreamReader(BaseFileStream, HeaderEncoding, true, 512, true))
                     {
-                        // Check the file whether version is lower than SLE200
-                        if (Reader.PeekChar() == '$')
+                        if (Convert.ToChar(Reader.Peek()) == '$')
                         {
-                            char[] Chars = Reader.ReadChars(512);
+                            StringBuilder Builder = new StringBuilder(256);
 
-                            int EndSignalIndex = Array.FindIndex(Chars, 1, (Char) => Char == '$');
-
-                            if (EndSignalIndex > 1)
+                            for (int Index = 0; Index < 256; Index++)
                             {
-                                string RawInfoData = new string(Chars.Take(EndSignalIndex + 1).ToArray());
+                                int CharInt = Reader.Read();
 
-                                if (!string.IsNullOrWhiteSpace(RawInfoData))
+                                if (CharInt < 0)
                                 {
-                                    if (RawInfoData.Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string InfoData)
-                                    {
-                                        string[] FieldArray = InfoData.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                                    break;
+                                }
 
-                                        SLEVersion Version = FieldArray.Length switch
-                                        {
-                                            2 => SLEVersion.SLE100,
-                                            3 => (SLEVersion)Convert.ToInt32(FieldArray[2]),
-                                            _ => throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted")
-                                        };
+                                char Char = Convert.ToChar(CharInt);
 
-                                        SLEKeySize KeySize = Convert.ToInt32(FieldArray[0]) switch
-                                        {
-                                            128 => SLEKeySize.AES128,
-                                            256 => SLEKeySize.AES256,
-                                            _ => throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted")
-                                        };
+                                Builder.Append(Char);
 
-                                        return new SLEHeader(Version, SLEOriginType.File, KeySize, HeaderEncoding, FieldArray[1], HeaderEncoding.GetByteCount(RawInfoData));
-                                    }
+                                if (Builder.Length > 1 && Char == '$')
+                                {
+                                    break;
                                 }
                             }
-                        }
-                        else
-                        {
-                            // Check the file whether version is higher than SLE200
-                            int HeaderContentSize = Reader.ReadInt32();
 
-                            if (HeaderContentSize > 0)
+                            Match RegexMatch = Regex.Match(Builder.ToString(), @"^\$(?<HeaderFields>(.+))\$$");
+
+                            if (RegexMatch.Success)
                             {
-                                return new SLEHeader(JsonSerializer.Deserialize<SLEHeaderCore>(HeaderEncoding.GetString(Reader.ReadBytes(HeaderContentSize))), HeaderEncoding, HeaderContentSize + BitConverter.GetBytes(int.MaxValue).Length);
+                                string[] HeaderFields = RegexMatch.Groups["HeaderFields"].Value.Split('|', StringSplitOptions.RemoveEmptyEntries);
+
+                                if (HeaderFields.Length == 3)
+                                {
+                                    SLEVersion Version = HeaderFields.Length switch
+                                    {
+                                        2 => SLEVersion.SLE100,
+                                        3 => (SLEVersion)Convert.ToInt32(HeaderFields[2]),
+                                        _ => throw new SLEHeaderInvalidException("SLE header structure invalid, version parsing failed")
+                                    };
+
+                                    SLEKeySize KeySize = Convert.ToInt32(HeaderFields[0]) switch
+                                    {
+                                        128 => SLEKeySize.AES128,
+                                        256 => SLEKeySize.AES256,
+                                        _ => throw new SLEHeaderInvalidException("SLE header structure invalid, key size parsing failed")
+                                    };
+
+                                    return new SLEHeader(Version, SLEOriginType.File, KeySize, HeaderEncoding, HeaderFields[1], HeaderEncoding.GetByteCount(Builder.ToString()));
+                                }
+                                else
+                                {
+                                    throw new SLEHeaderInvalidException("SLE header structure invalid, header fields number checking failed");
+                                }
+                            }
+                            else
+                            {
+                                throw new SLEHeaderInvalidException("SLE header structure invalid, regex checking on header failed");
                             }
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not SLEHeaderInvalidException)
                 {
-                    LogTracer.Log(ex, "Could not analysis the header of SLE file");
+                    LogTracer.Log(ex, $"Could not analyze the header as {SLEVersion.SLE150} or lower format");
                 }
 
-                throw new FileDamagedException("Encrypted file structure invalid, could not be decrypted");
+                BaseFileStream.Seek(OriginPosition, SeekOrigin.Begin);
+
+                // Check the file whether version is higher than SLE200
+                try
+                {
+                    using (BinaryReader Reader = new BinaryReader(BaseFileStream, HeaderEncoding, true))
+                    {
+                        int HeaderSize = Reader.ReadInt32();
+
+                        if (HeaderSize > 0)
+                        {
+                            byte[] HeaderBytes = Reader.ReadBytes(HeaderSize);
+
+                            if (HeaderBytes.Length == HeaderSize)
+                            {
+                                return new SLEHeader(JsonSerializer.Deserialize<SLEHeaderCore>(HeaderEncoding.GetString(HeaderBytes)), HeaderEncoding, HeaderSize + BitConverter.GetBytes(int.MaxValue).Length);
+                            }
+                            else
+                            {
+                                throw new SLEHeaderInvalidException("SLE header structure invalid, header is not completed and not match the header size");
+                            }
+                        }
+                        else
+                        {
+                            throw new SLEHeaderInvalidException("SLE header structure invalid, header length checking failed");
+                        }
+                    }
+                }
+                catch (Exception ex) when (ex is not SLEHeaderInvalidException)
+                {
+                    LogTracer.Log(ex, $"Could not analyze the header as {SLEVersion.SLE200} or higher format");
+                }
+
+                throw new SLEHeaderInvalidException($"SLE header structure invalid, the header is not match with any {nameof(SLEVersion)}");
             }
             finally
             {
@@ -123,7 +168,12 @@ namespace RX_Explorer.Class
 
         private SLEHeader(SLEHeaderCore Core, Encoding HeaderEncoding, int HeaderSize)
         {
-            if (Core.Version <= SLEVersion.SLE150 && !new UTF8Encoding(false).Equals(HeaderEncoding))
+            if (HeaderEncoding == null)
+            {
+                throw new ArgumentNullException(nameof(HeaderEncoding));
+            }
+
+            if (Core.Version <= SLEVersion.SLE150 && !(HeaderEncoding.Equals(new UTF8Encoding(false)) || HeaderEncoding.Equals(Encoding.UTF8)))
             {
                 throw new ArgumentException($"Header encoding must be {nameof(UTF8Encoding)} without BOM if the version is lower or equals than {SLEVersion.SLE150}");
             }

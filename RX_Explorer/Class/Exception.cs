@@ -68,17 +68,17 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 文件损坏异常
     /// </summary>
-    public sealed class FileDamagedException : Exception
+    public sealed class SLEHeaderInvalidException : Exception
     {
-        public FileDamagedException(string ErrorMessage) : base(ErrorMessage)
+        public SLEHeaderInvalidException(string ErrorMessage) : base(ErrorMessage)
         {
         }
 
-        public FileDamagedException() : base()
+        public SLEHeaderInvalidException() : base()
         {
         }
 
-        public FileDamagedException(string message, Exception innerException) : base(message, innerException)
+        public SLEHeaderInvalidException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

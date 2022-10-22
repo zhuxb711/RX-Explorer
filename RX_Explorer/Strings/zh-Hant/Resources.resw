@@ -1340,8 +1340,7 @@
     <value>解密檔案時發生意外錯誤</value>
   </data>
   <data name="QueueDialog_DecryptPasswordError_Content" xml:space="preserve">
-    <value>由於解密密碼錯誤，解密失敗，任務終止\r\r這可能是由於要解密的檔案數據不匹配所致</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>由於解密密碼錯誤，解密失敗，任務終止。這可能是由於要解密的檔案數據不匹配所致</value>
   </data>
   <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
     <value>此操作將刪除這些檔案。 是否繼續？</value>
@@ -1370,9 +1369,8 @@
   <data name="QueueDialog_FeedBackRepeatError_Content" xml:space="preserve">
     <value>已有相同的回饋，請不要重複提交</value>
   </data>
-  <data name="QueueDialog_FileDamageError_Content" xml:space="preserve">
-    <value>因為要解密的檔案的內部結構已損壞並且解密失敗，所以導出任務已終止\r\r這可能是由於檔案的數據被損壞或修改引起的</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+  <data name="QueueDialog_SLEHeaderInvalid_Content" xml:space="preserve">
+    <value>因為要解密的檔案的內部結構已損壞並且解密失敗，所以導出任務已終止。這可能是由於檔案的數據被損壞或修改引起的</value>
   </data>
   <data name="QueueDialog_LocateFileFailure_Content" xml:space="preserve">
     <value>找不到相應的檔案，它可能已被移動或刪除</value>

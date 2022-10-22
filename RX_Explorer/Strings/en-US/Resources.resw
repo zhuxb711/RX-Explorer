@@ -1509,8 +1509,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>An unexpected error occurred while decrypting the file, the export process has ended</value>
   </data>
   <data name="QueueDialog_DecryptPasswordError_Content" xml:space="preserve">
-    <value>The decryption failed due to the wrong decryption password, the export task has been terminated \r\rThis may be caused by a mismatch in the data of the files to be decrypted</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>The decryption failed due to the wrong decryption password, the export task has been terminated. This may be caused by a mismatch in the data of the files to be decrypted</value>
   </data>
   <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
     <value>This operation will delete these files. Whether to continue?</value>
@@ -1539,9 +1538,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_FeedBackRepeatError_Content" xml:space="preserve">
     <value>The same feedback already exists, please do not submit it repeatedly</value>
   </data>
-  <data name="QueueDialog_FileDamageError_Content" xml:space="preserve">
-    <value>Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r\rThis may be caused by the file data being damaged or modified</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+  <data name="QueueDialog_SLEHeaderInvalid_Content" xml:space="preserve">
+    <value>Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated. This may be caused by the file data being damaged or modified</value>
   </data>
   <data name="QueueDialog_LocateFileFailure_Content" xml:space="preserve">
     <value>Could not find the corresponding file, it may have been moved or deleted</value>

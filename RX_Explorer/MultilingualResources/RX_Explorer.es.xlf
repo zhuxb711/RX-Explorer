@@ -1829,9 +1829,8 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Se ha producido un error inesperado al descifrar el archivo; el proceso de exportación ha finalizado.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DecryptPasswordError_Content" translate="yes" xml:space="preserve">
-          <source>The decryption failed due to the wrong decryption password, the export task has been terminated \r\rThis may be caused by a mismatch in the data of the files to be decrypted</source>
-          <target state="translated">El descifrado ha fallado debido a una contraseña de descodificación incorrecta; la tarea de exportación se ha cancelado. \r\rEsto puede deberse a una discrepancia en los datos de los archivos que se desean descifrar.</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>The decryption failed due to the wrong decryption password, the export task has been terminated. This may be caused by a mismatch in the data of the files to be decrypted</source>
+          <target state="translated">El descifrado ha fallado debido a una contraseña de descodificación incorrecta; la tarea de exportación se ha cancelado. Esto puede deberse a una discrepancia en los datos de los archivos que se desean descifrar.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFiles_Content" translate="yes" xml:space="preserve">
           <source>This operation will delete these files. Whether to continue?</source>
@@ -1869,10 +1868,9 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>The same feedback already exists, please do not submit it repeatedly</source>
           <target state="translated">Ya existe el mismo comentario; por favor, no lo vuelvas a enviar.</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_FileDamageError_Content" translate="yes" xml:space="preserve">
-          <source>Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r\rThis may be caused by the file data being damaged or modified</source>
-          <target state="translated">Dado que la estructura interna del archivo para descifrar está dañada y el descifrado ha fallado, la tarea de exportación se ha cancelado. \r\rEsto puede deberse a que los datos de archivo estén dañados o se hayan modificado.</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        <trans-unit id="QueueDialog_SLEHeaderInvalid_Content" translate="yes" xml:space="preserve">
+          <source>Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated. This may be caused by the file data being damaged or modified</source>
+          <target state="translated">Dado que la estructura interna del archivo para descifrar está dañada y el descifrado ha fallado, la tarea de exportación se ha cancelado. Esto puede deberse a que los datos de archivo estén dañados o se hayan modificado.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_LocateFileFailure_Content" translate="yes" xml:space="preserve">
           <source>Could not find the corresponding file, it may have been moved or deleted</source>

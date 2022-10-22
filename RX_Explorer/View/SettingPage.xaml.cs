@@ -2257,12 +2257,12 @@ namespace RX_Explorer.View
 
                             await Dialog1.ShowAsync();
                         }
-                        catch (FileDamagedException)
+                        catch (SLEHeaderInvalidException)
                         {
                             QueueContentDialog Dialog1 = new QueueContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
+                                Content = Globalization.GetString("QueueDialog_SLEHeaderInvalid_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 

@@ -1743,9 +1743,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">解密文件时出现意外错误，导出过程已经终止</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DecryptPasswordError_Content" translate="yes" xml:space="preserve">
-          <source>The decryption failed due to the wrong decryption password, the export task has been terminated \r\rThis may be caused by a mismatch in the data of the files to be decrypted</source>
-          <target state="translated">由于解密密码错误，解密失败，导出任务已经终止\r\r这可能是由于待解密文件数据不匹配造成的</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>The decryption failed due to the wrong decryption password, the export task has been terminated. This may be caused by a mismatch in the data of the files to be decrypted</source>
+          <target state="translated">由于解密密码错误，解密失败，导出任务已经终止。这可能是由于待解密文件数据不匹配造成的</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFiles_Content" translate="yes" xml:space="preserve">
           <source>This operation will delete these files. Whether to continue?</source>
@@ -1783,10 +1782,9 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>The same feedback already exists, please do not submit it repeatedly</source>
           <target state="translated">已存在相同的反馈内容，请勿重复提交</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_FileDamageError_Content" translate="yes" xml:space="preserve">
-          <source>Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r\rThis may be caused by the file data being damaged or modified</source>
-          <target state="translated">由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        <trans-unit id="QueueDialog_SLEHeaderInvalid_Content" translate="yes" xml:space="preserve">
+          <source>Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated. This may be caused by the file data being damaged or modified</source>
+          <target state="translated">由于待解密文件的内部结构损坏，解密失败，导出任务已经终止。这可能是由于文件数据已损坏或被修改造成的</target>
         </trans-unit>
         <trans-unit id="QueueDialog_LocateFileFailure_Content" translate="yes" xml:space="preserve">
           <source>Could not find the corresponding file, it may have been moved or deleted</source>

@@ -896,12 +896,12 @@ namespace RX_Explorer.View
                             }
                         }
                     }
-                    catch (FileDamagedException)
+                    catch (SLEHeaderInvalidException)
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
+                            Content = Globalization.GetString("QueueDialog_SLEHeaderInvalid_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
@@ -948,12 +948,12 @@ namespace RX_Explorer.View
 
                         await Dialog.ShowAsync();
                     }
-                    catch (FileDamagedException)
+                    catch (SLEHeaderInvalidException)
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
+                            Content = Globalization.GetString("QueueDialog_SLEHeaderInvalid_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
@@ -992,12 +992,12 @@ namespace RX_Explorer.View
                 {
                     await new SecureFilePropertyDialog(Model).ShowAsync();
                 }
-                catch (FileDamagedException)
+                catch (SLEHeaderInvalidException)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
+                        Content = Globalization.GetString("QueueDialog_SLEHeaderInvalid_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
@@ -1154,54 +1154,56 @@ namespace RX_Explorer.View
 
         private async void ChangeLocation_Click(object sender, RoutedEventArgs args)
         {
-            FolderPicker Picker = new FolderPicker
+            try
             {
-                ViewMode = PickerViewMode.List,
-                SuggestedStartLocation = PickerLocationId.ComputerFolder
-            };
-            Picker.FileTypeFilter.Add("*");
-
-            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
-            {
-
-                if (SecureCollection.Count > 0)
+                FolderPicker Picker = new FolderPicker
                 {
-                    ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Transfering"));
+                    ViewMode = PickerViewMode.List,
+                    SuggestedStartLocation = PickerLocationId.ComputerFolder
+                };
+                Picker.FileTypeFilter.Add("*");
 
-                    try
+                if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
+                {
+                    if (SecureCollection.Count > 0)
                     {
-                        await FileSystemStorageItemBase.MoveAsync(new Dictionary<string, string>(SecureCollection.Select((Item) => new KeyValuePair<string, string>(Item.Path, null))), Folder.Path, SkipOperationRecord: true, ProgressHandler: async (s, e) =>
+                        ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Transfering"));
+
+                        try
                         {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            await FileSystemStorageItemBase.MoveAsync(new Dictionary<string, string>(SecureCollection.Select((Item) => new KeyValuePair<string, string>(Item.Path, null))), Folder.Path, SkipOperationRecord: true, ProgressHandler: async (s, e) =>
                             {
-                                ProBar.IsIndeterminate = false;
-                                ProBar.Value = e.ProgressPercentage;
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    ProBar.IsIndeterminate = false;
+                                    ProBar.Value = e.ProgressPercentage;
+                                });
                             });
-                        });
-
-                        await LoadSecureAreaAsync();
-
-                        StorageLocation.Text = Folder.Path;
-                        SecureAreaStorageLocation = Folder.Path;
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Transferring in SecureArea failed for unexpected error");
-
-                        await new QueueContentDialog
+                        }
+                        finally
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_SecureAreaTransferFileFailed_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        }.ShowAsync();
+                            ActivateLoading(false);
+                        }
+                    }
 
-                        await Launcher.LaunchFolderPathAsync(SecureAreaStorageLocation);
-                    }
-                    finally
-                    {
-                        ActivateLoading(false);
-                    }
+                    StorageLocation.Text = Folder.Path;
+                    SecureAreaStorageLocation = Folder.Path;
+
+                    await LoadSecureAreaAsync();
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Transferring in SecureArea failed for unexpected error");
+
+                await new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_SecureAreaTransferFileFailed_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                }.ShowAsync();
+
+                await Launcher.LaunchFolderPathAsync(SecureAreaStorageLocation);
             }
         }
 
@@ -1242,12 +1244,12 @@ namespace RX_Explorer.View
                             }
                         }
                     }
-                    catch (FileDamagedException)
+                    catch (SLEHeaderInvalidException)
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
+                            Content = Globalization.GetString("QueueDialog_SLEHeaderInvalid_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 

@@ -2969,7 +2969,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     UseShellExecute = false,
                                     Arguments = "-Command RestoreFolder",
-                                    FileName = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper", "SystemLaunchHelper.exe")
+                                    FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper", "SystemLaunchHelper.exe")
                                 }))
                                 {
                                     HelperProcess.WaitForExit();
@@ -2998,12 +2998,11 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RestoreWinEInterception:
                             {
-
                                 using (Process HelperProcess = Process.Start(new ProcessStartInfo
                                 {
                                     UseShellExecute = false,
                                     Arguments = "-Command RestoreWinE",
-                                    FileName = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper", "SystemLaunchHelper.exe")
+                                    FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper", "SystemLaunchHelper.exe")
                                 }))
                                 {
                                     HelperProcess.WaitForExit();
@@ -3120,7 +3119,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     Value.Add("Error", "Path could not be empty");
                                 }
-                                else if(SeerServiceProvider.Current.SwitchServiceWindow(ExecutePath))
+                                else if (SeerServiceProvider.Current.SwitchServiceWindow(ExecutePath))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
@@ -4565,7 +4564,8 @@ namespace AuxiliaryTrustProcess
                 catch (Exception ex)
                 {
                     Value.Clear();
-                    Value.Add("Error", ex.Message);
+                    Value.Add("Error", $"An unexpected exception was threw, type: {ex.GetType().FullName}, message: {ex.Message}");
+                    LogTracer.Log(ex, $"An unexpected exception was threw, type: {ex.GetType().FullName}, message: {ex.Message}");
                 }
             }
 
