@@ -121,6 +121,20 @@
                                           Glyph="&#xE107;" />
                             </Viewbox>
                         </Button>
+                        <Button Name="SecureAreaButton"
+                                Width="35"
+                                VerticalAlignment="Stretch"
+                                Visibility="Collapsed"
+                                Click="SecureAreaButton_Click"
+                                ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}"
+                                Style="{StaticResource CustomTabViewStripButtonStyle}">
+                            <Viewbox VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     Width="20"
+                                     Height="20">
+                                <SymbolIcon Symbol="ProtectedDocument" />
+                            </Viewbox>
+                        </Button>
                         <Button Width="35"
                                 Margin="1,0,0,0"
                                 VerticalAlignment="Stretch"

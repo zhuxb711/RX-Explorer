@@ -800,6 +800,7 @@ namespace RX_Explorer.View
                 SettingButton.Visibility = Visibility.Visible;
                 AltGoBackButton.Visibility = Visibility.Visible;
                 RecycleButton.Visibility = Visibility.Visible;
+                SecureAreaButton.Visibility = Visibility.Visible;
                 FunctionButtonArea.Padding = new Thickness(0, 0, CoreApplication.GetCurrentView().TitleBar.SystemOverlayRightInset, 0);
             }
 
@@ -1522,6 +1523,11 @@ namespace RX_Explorer.View
                     }
                 }
             }
+        }
+
+        private void SecureAreaButton_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentTabRenderer.RendererFrame.Navigate(typeof(SecureAreaContainer), null, new DrillInNavigationTransitionInfo());
         }
     }
 }

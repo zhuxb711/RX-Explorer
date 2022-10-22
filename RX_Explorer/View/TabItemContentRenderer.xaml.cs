@@ -305,6 +305,15 @@ namespace RX_Explorer.View
 
                         break;
                     }
+                case SecureAreaContainer:
+                    {
+                        TabItem.IconSource = new SymbolIconSource
+                        {
+                            Symbol = Symbol.ProtectedDocument
+                        };
+
+                        break;
+                    }
                 default:
                     {
                         TabItem.IconSource = new FontIconSource
@@ -330,6 +339,7 @@ namespace RX_Explorer.View
                     CompressionViewer => Globalization.GetString("BuildIn_CompressionViewer_Description"),
                     FileControl => CurrentPresenter?.CurrentFolder?.DisplayName ?? $"<{Globalization.GetString("UnknownText")}>",
                     RecycleBin => Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"),
+                    SecureAreaContainer => Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"),
                     _ => $"<{Globalization.GetString("UnknownText")}>"
                 };
             }

@@ -95,7 +95,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <CommandBar Background="Transparent"
+        <CommandBar Background="{ThemeResource ElementCustomAcrylicBrush}"
                     DefaultLabelPosition="Right">
             <AppBarButton Label="添加"
                           Icon="Add"
@@ -160,7 +160,7 @@
                    Name="SettingPane"
                    PaneOpening="SettingPane_PaneOpening"
                    PaneClosing="SettingPane_PaneClosing"
-                   PaneBackground="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                   PaneBackground="{ThemeResource ElementCustomAcrylicBrush}">
             <Grid>
                 <GridView Name="SecureGridView"
                           Grid.Row="1"
@@ -234,12 +234,12 @@
                             ChildrenTransitions="{x:Bind Cls:AnimationController.Current.PaneTopTransitions,Mode=OneWay}">
                     <Image Source="ms-appx:///Assets/Lock.png"
                            Stretch="Uniform"
-                           Width="100" />
+                           Width="90" />
                     <TextBlock Text="点击按钮或拖动文件到此处"
                                x:Uid="SecureAreaDropText"
-                               FontSize="18"
+                               FontSize="16"
                                TextAlignment="Center"
-                               Margin="0,20,0,0" />
+                               Margin="0,10,0,0" />
                 </StackPanel>
 
                 <Canvas Grid.Row="1">
@@ -248,6 +248,32 @@
                                x:Name="DrawRectangle"
                                Opacity="0.4" />
                 </Canvas>
+
+                <controls:Loading x:Name="LoadingControl"
+                                  IsLoading="False"
+                                  Grid.RowSpan="2">
+                    <controls:Loading.Background>
+                        <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
+                                            TintOpacity="0.6"
+                                            BlurAmount="3" />
+                    </controls:Loading.Background>
+                    <StackPanel Width="230">
+                        <TextBlock Name="LoadingText"
+                                   FontSize="15"
+                                   TextAlignment="Center" />
+                        <muxc:ProgressBar Margin="0,10,0,0"
+                                          Maximum="100"
+                                          Minimum="0"
+                                          Name="ProBar" />
+                        <Button Content="取消"
+                                Margin="0,10,0,0"
+                                x:Uid="SecureAreaImportCancelButton"
+                                Name="CancelButton"
+                                FontSize="12"
+                                HorizontalAlignment="Center"
+                                Click="CancelButton_Click" />
+                    </StackPanel>
+                </controls:Loading>
             </Grid>
             <SplitView.Pane>
                 <ScrollViewer VerticalScrollMode="Auto"
@@ -301,14 +327,14 @@
                         <StackPanel Margin="0,20,0,0">
                             <TextBlock Text="安全域锁定模式"
                                        x:Uid="SecureAreaSettingLockModeHeader" />
-                            <RadioButton Content="离开此页面时立刻锁定"
-                                         x:Uid="SecureAreaSettingLockMode1"
-                                         Margin="0,10,0,0"
-                                         Name="InstantLockMode" />
                             <RadioButton Content="此应用关闭时锁定"
                                          x:Uid="SecureAreaSettingLockMode2"
                                          Margin="0,10,0,0"
                                          Name="RestartLockMode" />
+                            <RadioButton Content="离开此页面时立刻锁定"
+                                         x:Uid="SecureAreaSettingLockMode1"
+                                         Margin="0,10,0,0"
+                                         Name="InstantLockMode" />
                         </StackPanel>
                         <StackPanel  Margin="0,20,0,0">
                             <TextBlock Text="{x:Bind Cls:Globalization.GetString('SecureArea_StorageLocation_Title')}"
@@ -341,31 +367,5 @@
                 </ScrollViewer>
             </SplitView.Pane>
         </SplitView>
-
-        <controls:Loading x:Name="LoadingControl"
-                          IsLoading="False"
-                          Grid.RowSpan="2">
-            <controls:Loading.Background>
-                <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
-                                    TintOpacity="0.6"
-                                    BlurAmount="3" />
-            </controls:Loading.Background>
-            <StackPanel Width="230">
-                <TextBlock Name="LoadingText"
-                           FontSize="15"
-                           TextAlignment="Center" />
-                <muxc:ProgressBar Margin="0,10,0,0"
-                                  Maximum="100"
-                                  Minimum="0"
-                                  Name="ProBar" />
-                <Button Content="取消"
-                        Margin="0,10,0,0"
-                        x:Uid="SecureAreaImportCancelButton"
-                        Name="CancelButton"
-                        FontSize="12"
-                        HorizontalAlignment="Center"
-                        Click="CancelButton_Click" />
-            </StackPanel>
-        </controls:Loading>
     </Grid>
 </Page>
