@@ -69,7 +69,7 @@ namespace RX_Explorer.View
                 if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
                     using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
-                    using (SLEInputStream SLEStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.EncryptionKey))
+                    using (SLEInputStream SLEStream = new SLEInputStream(Stream, new UTF8Encoding(false), KeyGenerator.GetMD5WithLength(SettingPage.SecureAreaUnlockPassword, 16)))
                     {
                         CancelToken.ThrowIfCancellationRequested();
 

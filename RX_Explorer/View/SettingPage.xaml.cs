@@ -1045,7 +1045,104 @@ namespace RX_Explorer.View
             }
         }
 
+        internal static string SecureAreaUnlockPassword
+        {
+            get => Protecter.GetPassword("SecureAreaPrimaryPassword");
+            set => Protecter.RequestProtection("SecureAreaPrimaryPassword", value);
+        }
+
+        public static SLEKeySize SecureAreaEncryptionKeySize
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] is int KeySize)
+                {
+                    return (SLEKeySize)KeySize;
+                }
+                else
+                {
+                    return default;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = (int)value;
+            }
+        }
+
+        public static bool IsSecureAreaWindowsHelloEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] is bool EnableWindowsHello)
+                {
+                    return EnableWindowsHello;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = value;
+            }
+        }
+
+        public static string SecureAreaStorageLocation
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] is string Location)
+                {
+                    return Location;
+                }
+                else
+                {
+                    return Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] = value;
+            }
+        }
+
+        public static SecureAreaLockMode SecureAreaLockMode
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is string LockMode)
+                {
+                    switch (LockMode)
+                    {
+                        case "CloseLockMode":
+                            {
+                                return SecureAreaLockMode.RestartLockMode;
+                            }
+                        case "ImmediateLockMode":
+                            {
+                                return SecureAreaLockMode.InstantLockMode;
+                            }
+                        default:
+                            {
+                                return Enum.Parse<SecureAreaLockMode>(LockMode);
+                            }
+                    }
+                }
+                else
+                {
+                    return SecureAreaLockMode.InstantLockMode;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] = Enum.GetName(typeof(SecureAreaLockMode), value);
+            }
+        }
+
         public static bool IsOpened { get; private set; }
+        private static readonly CredentialProtector Protecter = new CredentialProtector("RX_Secure_Vault");
 
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
 
@@ -2233,7 +2330,7 @@ namespace RX_Explorer.View
                             await foreach (FileSystemStorageFile Item in SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File).OfType<FileSystemStorageFile>())
                             {
                                 using (Stream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read))
-                                using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, new UTF8Encoding(false), SecureArea.EncryptionKey))
+                                using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, new UTF8Encoding(false), KeyGenerator.GetMD5WithLength(SecureAreaUnlockPassword, 16)))
                                 {
                                     if (await Dialog.ExportFolder.CreateNewSubItemAsync(SLEStream.Header.Core.Version >= SLEVersion.SLE110 ? SLEStream.Header.Core.FileName : $"{Path.GetFileNameWithoutExtension(Item.Name)}{SLEStream.Header.Core.FileName}", CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                                     {

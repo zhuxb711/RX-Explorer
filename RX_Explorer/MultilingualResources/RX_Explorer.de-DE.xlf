@@ -533,8 +533,8 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">Entsperrpasswort setzen</target>
         </trans-unit>
         <trans-unit id="SAWelcomeDialogSecureLevel.Header" translate="yes" xml:space="preserve">
-          <source>Security Level</source>
-          <target state="translated">Sicherheitsstufe</target>
+          <source>Encryption strength Level</source>
+          <target state="translated">Stufe der Verschlüsselungsstärke</target>
         </trans-unit>
         <trans-unit id="SAWelcomeDialogUseWH.Content" translate="yes" xml:space="preserve">
           <source>Use Windows Hello instead of password authentication</source>
@@ -589,8 +589,8 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">Klicke auf die Schaltfläche oder ziehen Sie die Datei hierher.</target>
         </trans-unit>
         <trans-unit id="SecureAreaEncryptTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>The AES-128-CBC mode already provides sufficient security by default, but you can also choose the AES-256-CBC mode for better security protection. Processors of the second generation Core processors and above support two modes of hardware acceleration, so there is no need to worry about performance issues</source>
-          <target state="translated">Der AES-128-CBC-Modus bietet bereits standardmäßig ausreichende Sicherheit, aber Sie können auch den AES-256-CBC-Modus für einen besseren Sicherheitsschutz wählen. Prozessoren der zweiten Generation von Core-Prozessoren und darüber unterstützen zwei Hardware-Beschleunigungsmodi, sodass Sie sich keine Sorgen über Leistungsprobleme machen müssen.</target>
+          <source>The 128bit AES-CTR mode already provides sufficient security by default, but you can also choose the 256bit AES-CTR mode for better security protection. Processors of the second generation Core processors and above support two modes of hardware acceleration, so there is no need to worry about performance issues</source>
+          <target state="translated">Der 128-Bit-AES-CTR-Modus bietet standardmäßig bereits ausreichende Sicherheit, Sie können jedoch auch den 256-Bit-AES-CTR-Modus für einen besseren Sicherheitsschutz wählen. Prozessoren der zweiten Generation von Core-Prozessoren und höher unterstützen zwei Modi der Hardwarebeschleunigung, sodass Sie sich keine Gedanken über Leistungsprobleme machen müssen</target>
         </trans-unit>
         <trans-unit id="SecureAreaEncryptTip.Title" translate="yes" xml:space="preserve">
           <source>AES mode</source>
@@ -625,8 +625,8 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">RX-integrierter Dateitresor</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAboutText2.Text" translate="yes" xml:space="preserve">
-          <source>Based on AES-CBC algorithm, combined with multiple system-level security authentication measures to ensure the secure storage of files</source>
-          <target state="translated">Basierend auf dem AES-CBC-Algorithmus, kombiniert mit mehreren Sicherheitsauthentifizierungsmaßnahmen auf Systemebene, um die sichere Speicherung von Dateien zu gewährleisten</target>
+          <source>Based on AES-CTR algorithm, combined with multiple system-level security authentication measures to ensure the secure storage of files</source>
+          <target state="translated">Basierend auf dem AES-CTR-Algorithmus, kombiniert mit mehreren Sicherheitsauthentifizierungsmaßnahmen auf Systemebene, um die sichere Speicherung von Dateien zu gewährleisten</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAESMode1.Content" translate="yes" xml:space="preserve">
           <source>AES-128bit mode</source>
@@ -4959,6 +4959,14 @@ Inkorrekte Namen sind
         <trans-unit id="SecureAreaPickItemType.Text" translate="yes" xml:space="preserve">
           <source>Do you want to select a file or folder</source>
           <target state="translated">Möchten Sie eine Datei oder einen Ordner auswählen</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialogStorageLocation.Header" translate="yes" xml:space="preserve">
+          <source>Specify the encrypted file storage location (optional)</source>
+          <target state="translated">Geben Sie den Speicherort der verschlüsselten Datei an (optional)</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialogStorageLocationBrowse.Content" translate="yes" xml:space="preserve">
+          <source>Browse</source>
+          <target state="translated">Durchsuche</target>
         </trans-unit>
       </group>
     </body>

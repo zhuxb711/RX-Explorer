@@ -1,23 +1,15 @@
-﻿###Novedades de la versión 8.0.1.0
+﻿###Novedades de la versión 8.0.2.0
 
-#####Actualización de funciones
+#####Actualización de la interfaz de usuario
 
->#####"Área de seguridad" ahora admite importar los objetos de la carpeta directamente
-
->#####Se mejoró el algoritmo de cifrado y descifrado del "Área de seguridad" y se actualizó el formato de archivo SLE a la versión 2.0.0
-
->#####"Área segura" ahora ocultará los nombres de archivo reales para evadir búsquedas por software como Everything
-
->#####Recupera la función de arrastrar y soltar de la pestaña completa, los problemas relacionados se han resuelto
-
-#####Mejoras de rendimiento
-
->#####Parámetros de optimización mejorados al leer secuencias de archivos
-
->#####Al crear un archivo temporal para uso interno en algunos casos, el archivo residirá en la memoria tanto como sea posible para reducir la operación de E/S
+>#####La interfaz de usuario de "Área segura" ha recibido mejoras menores
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el cual "Área segura" podría no ser capaz de descifrar archivos SLE en formato 1.0.0
+>#####Se solucionó un problema por el que abrir o cerrar las funciones relacionadas con la "Integración con los componentes del sistema" varias veces podía provocar un error
 
->#####Se solucionó un problema por el que al presionar la tecla Esc después de obtener una vista previa de un archivo con Seer o Quicklook no se cerraba la ventana de vista previa
+>#####Se solucionó un problema por el cual algunos archivos SLE para las versiones 1.5.0 y anteriores no se descifraban correctamente
+
+>#####Se solucionó un problema por el cual el visor incorporado podría fallar al obtener una vista previa de algunos archivos SLE
+
+>#####Se solucionó el problema de que la ubicación de almacenamiento del "Área de seguridad" no se puede cambiar si no hay archivos cifrados

@@ -38,104 +38,10 @@ namespace RX_Explorer.View
         private readonly PointerEventHandler PointerPressedHandler;
         private readonly ObservableCollection<SecureAreaFileModel> SecureCollection;
 
-        private static readonly CredentialProtector Protecter = new CredentialProtector("RX_Secure_Vault");
-
-        internal static string EncryptionKey => KeyGenerator.GetMD5WithLength(UnlockPassword, 16);
-
-        internal static string UnlockPassword
+        private bool Initialized
         {
-            get => Protecter.GetPassword("SecureAreaPrimaryPassword");
-            private set => Protecter.RequestProtection("SecureAreaPrimaryPassword", value);
-        }
-
-        private SLEKeySize EncryptionKeySize
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] is int KeySize)
-                {
-                    return (SLEKeySize)KeySize;
-                }
-                else
-                {
-                    return default;
-                }
-            }
-            set
-            {
-                ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = (int)value;
-            }
-        }
-
-        private bool IsEnableWindowsHello
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] is bool EnableWindowsHello)
-                {
-                    return EnableWindowsHello;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            set
-            {
-                ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = value;
-            }
-        }
-
-        private string SecureAreaStorageLocation
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] is string Location)
-                {
-                    return Location;
-                }
-                else
-                {
-                    return Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
-                }
-            }
-            set
-            {
-                ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] = value;
-            }
-        }
-
-        private SecureAreaLockMode LockMode
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is string LockMode)
-                {
-                    switch (LockMode)
-                    {
-                        case "CloseLockMode":
-                            {
-                                return SecureAreaLockMode.RestartLockMode;
-                            }
-                        case "ImmediateLockMode":
-                            {
-                                return SecureAreaLockMode.InstantLockMode;
-                            }
-                        default:
-                            {
-                                return Enum.Parse<SecureAreaLockMode>(LockMode);
-                            }
-                    }
-                }
-                else
-                {
-                    return SecureAreaLockMode.InstantLockMode;
-                }
-            }
-            set
-            {
-                ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] = Enum.GetName(typeof(SecureAreaLockMode), value);
-            }
+            get => ApplicationData.Current.LocalSettings.Values.ContainsKey("IsFirstEnterSecureArea");
+            set => ApplicationData.Current.LocalSettings.Values["IsFirstEnterSecureArea"] = value;
         }
 
         public SecureArea()
@@ -182,13 +88,13 @@ namespace RX_Explorer.View
             {
                 ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = false;
 
-                if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsFirstEnterSecureArea"))
+                if (Initialized)
                 {
-                    if (IsNewStart || LockMode == SecureAreaLockMode.InstantLockMode)
+                    if (IsNewStart || SettingPage.SecureAreaLockMode == SecureAreaLockMode.InstantLockMode)
                     {
                         IsNavigatedFromInnerViewer = false;
 
-                        if (IsEnableWindowsHello)
+                        if (SettingPage.IsSecureAreaWindowsHelloEnabled)
                         {
                         RETRY:
                             switch (await WindowsHelloAuthenticator.VerifyUserAsync())
@@ -242,7 +148,7 @@ namespace RX_Explorer.View
                                 case AuthenticatorState.UserNotRegistered:
                                 case AuthenticatorState.CredentialNotFound:
                                     {
-                                        IsEnableWindowsHello = false;
+                                        SettingPage.IsSecureAreaWindowsHelloEnabled = false;
 
                                         await new QueueContentDialog
                                         {
@@ -265,7 +171,7 @@ namespace RX_Explorer.View
                                     }
                                 case AuthenticatorState.WindowsHelloUnsupport:
                                     {
-                                        IsEnableWindowsHello = false;
+                                        SettingPage.IsSecureAreaWindowsHelloEnabled = false;
 
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
@@ -374,10 +280,11 @@ namespace RX_Explorer.View
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        UnlockPassword = Dialog.Password;
-                        EncryptionKeySize = Dialog.EncryptionKeySize;
-                        IsEnableWindowsHello = Dialog.IsEnableWindowsHello;
-                        ApplicationData.Current.LocalSettings.Values["IsFirstEnterSecureArea"] = false;
+                        Initialized = true;
+                        SettingPage.SecureAreaUnlockPassword = Dialog.Password;
+                        SettingPage.SecureAreaStorageLocation = Dialog.StorageLocation;
+                        SettingPage.SecureAreaEncryptionKeySize = Dialog.EncryptionKeySize;
+                        SettingPage.IsSecureAreaWindowsHelloEnabled = Dialog.IsEnableWindowsHello;
                     }
                     else
                     {
@@ -427,7 +334,7 @@ namespace RX_Explorer.View
             SelectionExtension = new ListViewBaseSelectionExtension(SecureGridView, DrawRectangle);
 
         Retry:
-            if (await FileSystemStorageItemBase.CreateNewAsync(SecureAreaStorageLocation, CreateType.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder SecureFolder)
+            if (await FileSystemStorageItemBase.CreateNewAsync(SettingPage.SecureAreaStorageLocation, CreateType.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder SecureFolder)
             {
                 try
                 {
@@ -513,7 +420,7 @@ namespace RX_Explorer.View
                 {
                     CancelToken.ThrowIfCancellationRequested();
 
-                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(SecureAreaStorageLocation, $"{Path.GetRandomFileName()}.sle"), CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
+                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(SettingPage.SecureAreaStorageLocation, $"{Path.GetRandomFileName()}.sle"), CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
                     {
                         try
                         {
@@ -523,7 +430,7 @@ namespace RX_Explorer.View
                                     {
                                         using (Stream OriginFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                         using (Stream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write))
-                                        using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, Version, SLEOriginType.File, EncryptionKeySize, new UTF8Encoding(false), OriginFile.Name, EncryptionKey))
+                                        using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, Version, SLEOriginType.File, SettingPage.SecureAreaEncryptionKeySize, new UTF8Encoding(false), OriginFile.Name, KeyGenerator.GetMD5WithLength(SettingPage.SecureAreaUnlockPassword, 16)))
                                         {
                                             await OriginFStream.CopyToAsync(SLEStream, OriginFStream.Length, CancelToken, async (s, e) =>
                                             {
@@ -545,7 +452,7 @@ namespace RX_Explorer.View
                                 case FileSystemStorageFolder OriginFolder:
                                     {
                                         using (Stream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write))
-                                        using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, Version, SLEOriginType.Folder, EncryptionKeySize, new UTF8Encoding(false), OriginFolder.Name, EncryptionKey))
+                                        using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, Version, SLEOriginType.Folder, SettingPage.SecureAreaEncryptionKeySize, new UTF8Encoding(false), OriginFolder.Name, KeyGenerator.GetMD5WithLength(SettingPage.SecureAreaUnlockPassword, 16)))
                                         {
                                             await CompressionUtil.CreateZipAsync(new FileSystemStorageFolder[] { OriginFolder }, SLEStream, CompressionLevel.PackageOnly, CompressionAlgorithm.None, CancelToken, async (s, e) =>
                                             {
@@ -611,7 +518,7 @@ namespace RX_Explorer.View
                     CancelToken.ThrowIfCancellationRequested();
 
                     using (Stream EncryptedFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Read))
-                    using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, new UTF8Encoding(false), EncryptionKey))
+                    using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, new UTF8Encoding(false), KeyGenerator.GetMD5WithLength(SettingPage.SecureAreaUnlockPassword, 16)))
                     {
                         switch (SLEStream.Header.Core.OriginType)
                         {
@@ -877,40 +784,34 @@ namespace RX_Explorer.View
         {
             if (SecureGridView.SelectedItem is SecureAreaFileModel Item)
             {
-                if (Item.OriginType == SLEOriginType.File)
+                try
                 {
-                    try
-                    {
-                        if (await FileSystemStorageItemBase.OpenAsync(Item.Path) is FileSystemStorageFile File)
-                        {
-                            if (!await TryOpenInternally(File))
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_OpenFailedNotSupported_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog.ShowAsync();
-                            }
-                        }
-                    }
-                    catch (SLEHeaderInvalidException)
+                    if (!await TryOpenInternalAsync(Item))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_SLEHeaderInvalid_Content"),
+                            Content = Globalization.GetString("QueueDialog_OpenFailedNotSupported_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
                         await Dialog.ShowAsync();
                     }
-                    catch (Exception ex)
+                }
+                catch (SLEHeaderInvalidException)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        LogTracer.Log(ex, "Could not open the SLE file");
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_SLEHeaderInvalid_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not open the SLE file");
                 }
             }
         }
@@ -923,8 +824,8 @@ namespace RX_Explorer.View
             {
                 FolderPicker Picker = new FolderPicker
                 {
-                    SuggestedStartLocation = PickerLocationId.Desktop,
-                    ViewMode = PickerViewMode.Thumbnail
+                    ViewMode = PickerViewMode.List,
+                    SuggestedStartLocation = PickerLocationId.ComputerFolder
                 };
 
                 Picker.FileTypeFilter.Add("*");
@@ -1034,9 +935,9 @@ namespace RX_Explorer.View
 
         private async void SettingPane_PaneOpening(SplitView sender, object args)
         {
-            StorageLocation.Text = SecureAreaStorageLocation;
+            StorageLocation.Text = SettingPage.SecureAreaStorageLocation;
 
-            switch (LockMode)
+            switch (SettingPage.SecureAreaLockMode)
             {
                 case SecureAreaLockMode.InstantLockMode:
                     {
@@ -1050,7 +951,7 @@ namespace RX_Explorer.View
                     }
             }
 
-            switch (EncryptionKeySize)
+            switch (SettingPage.SecureAreaEncryptionKeySize)
             {
                 case SLEKeySize.AES128:
                     {
@@ -1067,7 +968,7 @@ namespace RX_Explorer.View
             if (await WindowsHelloAuthenticator.CheckSupportAsync())
             {
                 UseWindowsHello.IsEnabled = true;
-                UseWindowsHello.IsOn = IsEnableWindowsHello;
+                UseWindowsHello.IsOn = SettingPage.IsSecureAreaWindowsHelloEnabled;
             }
             else
             {
@@ -1084,17 +985,17 @@ namespace RX_Explorer.View
 
         private void RestartLockMode_Checked(object sender, RoutedEventArgs e)
         {
-            LockMode = SecureAreaLockMode.RestartLockMode;
+            SettingPage.SecureAreaLockMode = SecureAreaLockMode.RestartLockMode;
         }
 
         private void InstantLockMode_Checked(object sender, RoutedEventArgs e)
         {
-            LockMode = SecureAreaLockMode.InstantLockMode;
+            SettingPage.SecureAreaLockMode = SecureAreaLockMode.InstantLockMode;
         }
 
         private async void UseWindowsHello_Toggled(object sender, RoutedEventArgs e)
         {
-            IsEnableWindowsHello = UseWindowsHello.IsOn;
+            SettingPage.IsSecureAreaWindowsHelloEnabled = UseWindowsHello.IsOn;
 
             if (UseWindowsHello.IsOn)
             {
@@ -1116,7 +1017,7 @@ namespace RX_Explorer.View
 
                     UseWindowsHello.Toggled -= UseWindowsHello_Toggled;
                     UseWindowsHello.IsOn = false;
-                    IsEnableWindowsHello = false;
+                    SettingPage.IsSecureAreaWindowsHelloEnabled = false;
                     UseWindowsHello.Toggled += UseWindowsHello_Toggled;
                 }
             }
@@ -1128,12 +1029,12 @@ namespace RX_Explorer.View
 
         private void AES128Mode_Checked(object sender, RoutedEventArgs e)
         {
-            EncryptionKeySize = SLEKeySize.AES128;
+            SettingPage.SecureAreaEncryptionKeySize = SLEKeySize.AES128;
         }
 
         private void AES256Mode_Checked(object sender, RoutedEventArgs e)
         {
-            EncryptionKeySize = SLEKeySize.AES256;
+            SettingPage.SecureAreaEncryptionKeySize = SLEKeySize.AES256;
         }
 
         private void SettingPane_PaneClosing(SplitView sender, SplitViewPaneClosingEventArgs args)
@@ -1187,7 +1088,7 @@ namespace RX_Explorer.View
                     }
 
                     StorageLocation.Text = Folder.Path;
-                    SecureAreaStorageLocation = Folder.Path;
+                    SettingPage.SecureAreaStorageLocation = Folder.Path;
 
                     await LoadSecureAreaAsync();
                 }
@@ -1203,7 +1104,7 @@ namespace RX_Explorer.View
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 }.ShowAsync();
 
-                await Launcher.LaunchFolderPathAsync(SecureAreaStorageLocation);
+                await Launcher.LaunchFolderPathAsync(SettingPage.SecureAreaStorageLocation);
             }
         }
 
@@ -1223,55 +1124,47 @@ namespace RX_Explorer.View
 
         private async void SecureGridView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement).DataContext is SecureAreaFileModel Item)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is SecureAreaFileModel Item)
             {
-                if (Item.OriginType == SLEOriginType.File)
+                try
                 {
-                    try
-                    {
-                        if (await FileSystemStorageItemBase.OpenAsync(Item.Path) is FileSystemStorageFile File)
-                        {
-                            if (!await TryOpenInternally(File))
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_OpenFailedNotSupported_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog.ShowAsync();
-                            }
-                        }
-                    }
-                    catch (SLEHeaderInvalidException)
+                    if (!await TryOpenInternalAsync(Item))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_SLEHeaderInvalid_Content"),
+                            Content = Globalization.GetString("QueueDialog_OpenFailedNotSupported_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
                         await Dialog.ShowAsync();
                     }
-                    catch (Exception ex)
+                }
+                catch (SLEHeaderInvalidException)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        LogTracer.Log(ex, "Could not open the SLE file");
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_SLEHeaderInvalid_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not open the SLE file");
                 }
             }
         }
 
-        private async Task<bool> TryOpenInternally(FileSystemStorageFile SFile)
+        private async Task<bool> TryOpenInternalAsync(SecureAreaFileModel Item)
         {
-            using (Stream Stream = await SFile.GetStreamFromFileAsync(AccessMode.Read))
+            if (Item.OriginType == SLEOriginType.File)
             {
-                SLEHeader Header = SLEHeader.GetHeader(Stream);
-
-                if (Header.Core.Version >= SLEVersion.SLE150)
+                if (await FileSystemStorageItemBase.OpenAsync(Item.Path) is FileSystemStorageFile File)
                 {
-                    Type InternalType = Path.GetExtension(Header.Core.FileName.ToLower()) switch
+                    Type InternalType = Path.GetExtension(Item.Name.ToLower()) switch
                     {
                         ".jpg" or ".jpeg" or ".png" or ".bmp" => typeof(PhotoViewer),
                         ".mkv" or ".mp4" or ".mp3" or
@@ -1289,14 +1182,14 @@ namespace RX_Explorer.View
                                                                         ? new DrillInNavigationTransitionInfo()
                                                                         : new SuppressNavigationTransitionInfo();
 
-                        Frame.Navigate(InternalType, SFile, NavigationTransition);
+                        Frame.Navigate(InternalType, File, NavigationTransition);
 
                         return true;
                     }
                 }
-
-                return false;
             }
+
+            return false;
         }
 
         private async void PickFile_Click(object sender, RoutedEventArgs e)
@@ -1351,8 +1244,8 @@ namespace RX_Explorer.View
 
             FolderPicker Picker = new FolderPicker
             {
-                SuggestedStartLocation = PickerLocationId.ComputerFolder,
-                ViewMode = PickerViewMode.Thumbnail
+                ViewMode = PickerViewMode.List,
+                SuggestedStartLocation = PickerLocationId.ComputerFolder
             };
             Picker.FileTypeFilter.Add("*");
 

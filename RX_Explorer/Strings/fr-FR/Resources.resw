@@ -392,7 +392,7 @@
     <value>Définir le mot de passe de déverrouillage</value>
   </data>
   <data name="SAWelcomeDialogSecureLevel.Header" xml:space="preserve">
-    <value>Niveau de sécurité</value>
+    <value>Niveau de force de chiffrement</value>
   </data>
   <data name="SAWelcomeDialogUseWH.Content" xml:space="preserve">
     <value>Utiliser Windows Hello plutôt qu'un mot de passe</value>
@@ -434,7 +434,7 @@
     <value>Cliquez sur le bouton ou faites glisser le fichier ici</value>
   </data>
   <data name="SecureAreaEncryptTip.Subtitle" xml:space="preserve">
-    <value>Le mode AES-128-CBC permet un niveau suffisant de sécurité par défaut, cependant, vous pouvez choisir le mode AES-256-CBC pour une meilleure sécurité. Les processeurs de deuxième génération et au delà supportent deux modes d'accélération matérielle, donc il n'y a aucun risque lié aux performances.</value>
+    <value>Le mode AES-CTR 128 bits offre déjà une sécurité suffisante par défaut, mais vous pouvez également choisir le mode AES-CTR 256 bits pour une meilleure protection de la sécurité. Les processeurs des processeurs Core de deuxième génération et supérieurs prennent en charge deux modes d'accélération matérielle, il n'y a donc pas besoin de s'inquiéter des problèmes de performances</value>
   </data>
   <data name="SecureAreaEncryptTip.Title" xml:space="preserve">
     <value>AES mode</value>
@@ -461,7 +461,7 @@
     <value>RX coffre-fort de fichiers intégré</value>
   </data>
   <data name="SecureAreaSettingAboutText2.Text" xml:space="preserve">
-    <value>Basé sur l'algorithme AES-CBC et combiné à de multiples mesures d'authentification de sécurité au niveau du système pour garantir le stockage sécurisé des fichiers</value>
+    <value>Basé sur l'algorithme AES-CTR et combiné à de multiples mesures d'authentification de sécurité au niveau du système pour garantir le stockage sécurisé des fichiers</value>
   </data>
   <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
     <value>AES-128bit mode</value>
@@ -3731,5 +3731,11 @@ Les noms non valides incluent
   </data>
   <data name="SecureAreaPickItemType.Text" xml:space="preserve">
     <value>Voulez - vous sélectionner un fichier ou un dossier</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocation.Header" xml:space="preserve">
+    <value>Spécifiez l'emplacement de stockage du fichier chiffré (facultatif)</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocationBrowse.Content" xml:space="preserve">
+    <value>Feuilleter</value>
   </data>
 </root>

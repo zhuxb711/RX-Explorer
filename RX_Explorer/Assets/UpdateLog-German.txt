@@ -1,23 +1,15 @@
-﻿###Was ist neu in Ver.8.0.1.0
+﻿###Was ist neu in Ver.8.0.2.0
 
-#####Feature-Update
+#####UI-Update
 
->#####"Sicherheitsbereich" unterstützt jetzt den direkten Import der Ordnerobjekte
-
->#####Verbesserte den Verschlüsselungs- und Entschlüsselungsalgorithmus von „Security Area“ und aktualisierte das SLE-Dateiformat auf Version 2.0.0
-
->#####„Sicherer Bereich“ verbirgt jetzt echte Dateinamen, um Suchvorgängen durch Software wie Everything zu entgehen
-
->#####Bringt wieder die vollständige Tab-Drag-and-Drop-Funktion zurück, verwandte Probleme wurden behoben
-
-#####Leistungsverbesserungen
-
->#####Verbesserte Optimierungsparameter beim Lesen von Dateistreams
-
->#####Beim Erstellen einer temporären Datei für den internen Gebrauch wird die Datei in manchen Fällen so weit wie möglich im Speicher verbleiben, um den E/A-Betrieb zu reduzieren
+>#####Die Benutzeroberfläche von "Sicherer Bereich" wurde geringfügig verbessert
 
 #####Fehlerbehebung
 
->#####Ein Problem wurde behoben, bei dem „Secure Area“ SLE-Dateien im 1.0.0-Format möglicherweise nicht entschlüsseln konnte
+>#####Es wurde ein Problem behoben, bei dem das mehrmalige Öffnen oder Schließen der „Integration mit Systemkomponenten“-bezogenen Funktionen zu einem Fehler führen konnte
 
->#####Es wurde ein Problem behoben, bei dem das Drücken der Esc-Taste nach der Vorschau einer Datei mit Seer oder Quicklook das Vorschaufenster nicht schloss
+>#####Es wurde ein Problem behoben, bei dem einige SLE-Dateien für die Versionen 1.5.0 und niedriger möglicherweise nicht korrekt entschlüsselt werden
+
+>#####Es wurde ein Problem behoben, bei dem der integrierte Viewer einige SLE-Dateien möglicherweise nicht in der Vorschau anzeigen konnte
+
+>#####Es wurde ein Problem behoben, bei dem der Speicherort des "Sicherheitsbereichs" nicht geändert werden konnte, wenn keine verschlüsselten Dateien vorhanden waren

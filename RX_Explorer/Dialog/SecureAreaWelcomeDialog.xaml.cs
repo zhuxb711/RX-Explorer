@@ -1,4 +1,8 @@
 ﻿using RX_Explorer.Class;
+using RX_Explorer.View;
+using System;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Controls;
 
 
@@ -8,6 +12,8 @@ namespace RX_Explorer.Dialog
     {
         public string Password { get; private set; }
 
+        public string StorageLocation { get; private set; }
+
         public bool IsEnableWindowsHello { get; private set; }
 
         public SLEKeySize EncryptionKeySize { get; private set; }
@@ -16,11 +22,14 @@ namespace RX_Explorer.Dialog
         {
             InitializeComponent();
 
-            Loading += SecureAreaWelcomeDialog_Loading;
+            Location.Text = SettingPage.SecureAreaStorageLocation;
+            StorageLocation = SettingPage.SecureAreaStorageLocation;
 
             SecureLevel.Items.Add($"AES-128bit ({Globalization.GetString("SecureArea_AES_128Level_Description")})");
             SecureLevel.Items.Add($"AES-256bit ({Globalization.GetString("SecureArea_AES_256Level_Description")})");
             SecureLevel.SelectedIndex = 0;
+
+            Loading += SecureAreaWelcomeDialog_Loading;
         }
 
         private async void SecureAreaWelcomeDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)
@@ -31,34 +40,52 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (string.IsNullOrWhiteSpace(PrimaryPassword.Password))
-            {
-                EmptyTip.Target = PrimaryPassword;
-                EmptyTip.IsOpen = true;
-                args.Cancel = true;
-                return;
-            }
+            ContentDialogButtonClickDeferral Deferral = args.GetDeferral();
 
-            if (string.IsNullOrWhiteSpace(ConfirmPassword.Password))
+            try
             {
-                EmptyTip.Target = ConfirmPassword;
-                EmptyTip.IsOpen = true;
-                args.Cancel = true;
-                return;
+                if (string.IsNullOrWhiteSpace(PrimaryPassword.Password))
+                {
+                    args.Cancel = true;
+                    EmptyTip.Target = PrimaryPassword;
+                    EmptyTip.IsOpen = true;
+                }
+                else if (string.IsNullOrWhiteSpace(ConfirmPassword.Password))
+                {
+                    args.Cancel = true;
+                    EmptyTip.Target = ConfirmPassword;
+                    EmptyTip.IsOpen = true;
+                }
+                else if (PrimaryPassword.Password != ConfirmPassword.Password)
+                {
+                    args.Cancel = true;
+                    PasswordErrorTip.IsOpen = true;
+                }
+                else if (!await FileSystemStorageItemBase.CheckExistsAsync(Location.Text))
+                {
+                    args.Cancel = true;
+                    EmptyTip.Target = Location;
+                    EmptyTip.IsOpen = true;
+                }
+                else
+                {
+                    StorageLocation = Location.Text;
+                    Password = PrimaryPassword.Password;
+                    IsEnableWindowsHello = UseWinHel.IsChecked.GetValueOrDefault();
+                    EncryptionKeySize = SecureLevel.SelectedIndex == 0 ? SLEKeySize.AES128 : SLEKeySize.AES256;
+                }
             }
-
-            if (PrimaryPassword.Password != ConfirmPassword.Password)
+            catch (Exception ex)
             {
-                PasswordErrorTip.IsOpen = true;
                 args.Cancel = true;
-                return;
+                LogTracer.Log(ex, "Could not initialize the SecureArea");
             }
-
-            Password = PrimaryPassword.Password;
-            IsEnableWindowsHello = UseWinHel.IsChecked.GetValueOrDefault();
-            EncryptionKeySize = SecureLevel.SelectedIndex == 0 ? SLEKeySize.AES128 : SLEKeySize.AES256;
+            finally
+            {
+                Deferral.Complete();
+            }
         }
 
         private async void UseWinHel_Checked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
@@ -84,6 +111,23 @@ namespace RX_Explorer.Dialog
         private async void UseWinHel_Unchecked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
             await WindowsHelloAuthenticator.DeleteUserAsync().ConfigureAwait(false);
+        }
+
+        private async void BrowserStorageLocation_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            FolderPicker Picker = new FolderPicker
+            {
+                ViewMode = PickerViewMode.List,
+                SuggestedStartLocation = PickerLocationId.ComputerFolder
+            };
+
+            Picker.FileTypeFilter.Add("*");
+
+            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
+            {
+                Location.Text = Folder.Path;
+                StorageLocation = Folder.Path;
+            }
         }
     }
 }

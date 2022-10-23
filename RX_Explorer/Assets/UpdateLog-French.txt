@@ -1,23 +1,15 @@
-﻿###Quoi de neuf dans la version 8.0.1.0
+﻿###Quoi de neuf dans la version 8.0.2.0
 
-#####Mise à jour des fonctionnalités
+#####Mise à jour de l'interface utilisateur
 
->#####"Zone de sécurité" prend désormais en charge l'importation directe des objets du dossier
-
->#####Amélioration de l'algorithme de chiffrement et de déchiffrement de "Security Area" et mise à niveau du format de fichier SLE vers la version 2.0.0
-
->#####"Secure Area" masquera désormais les vrais noms de fichiers pour échapper aux recherches par des logiciels tels que Everything
-
->#####Rétablit à nouveau la fonction de glisser-déposer de l'onglet complet, les problèmes connexes ont été résolus
-
-#####Améliorations des performances
-
->#####Amélioration des paramètres d'optimisation lors de la lecture des flux de fichiers
-
->#####Lors de la création d'un fichier temporaire à usage interne dans certains cas, le fichier résidera en mémoire autant que possible pour réduire les opérations d'E/S
+>#####L'interface utilisateur de "Secure Area" a reçu des améliorations mineures
 
 #####Corrections de bogues
 
->#####Correction d'un problème où "Secure Area" pouvait ne pas être en mesure de déchiffrer les fichiers SLE au format 1.0.0
+>#####Résolution d'un problème où l'ouverture ou la fermeture répétée des fonctions liées à "l'intégration avec les composants du système" peut entraîner un échec
 
->#####Correction d'un problème où appuyer sur la touche Échap après avoir prévisualisé un fichier avec Seer ou Quicklook ne fermait pas la fenêtre de prévisualisation
+>#####Correction d'un problème où certains fichiers SLE pour les versions 1.5.0 et inférieures peuvent ne pas être déchiffrés correctement
+
+>#####Correction d'un problème où la visionneuse intégrée pouvait ne pas prévisualiser certains fichiers SLE
+
+>#####Résolution d'un problème empêchant de modifier l'emplacement de stockage de la "zone de sécurité" s'il n'y a pas de fichiers cryptés

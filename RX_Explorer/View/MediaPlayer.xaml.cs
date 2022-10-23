@@ -110,7 +110,7 @@ namespace RX_Explorer.View
                 if (TargetMediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
                     using (Stream Stream = await TargetMediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                    using (SLEInputStream MediaStream = new SLEInputStream(Stream, new UTF8Encoding(false), SecureArea.EncryptionKey))
+                    using (SLEInputStream MediaStream = new SLEInputStream(Stream, new UTF8Encoding(false), KeyGenerator.GetMD5WithLength(SettingPage.SecureAreaUnlockPassword, 16)))
                     {
                         if (MediaStream.Header.Core.Version >= SLEVersion.SLE150)
                         {
@@ -443,7 +443,7 @@ namespace RX_Explorer.View
                 {
                     if (Path.GetExtension(args.MediaBinder.Token).Equals(".sle", StringComparison.OrdinalIgnoreCase))
                     {
-                        SLEInputStream MediaStream = new SLEInputStream(await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess), new UTF8Encoding(false), SecureArea.EncryptionKey);
+                        SLEInputStream MediaStream = new SLEInputStream(await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess), new UTF8Encoding(false), KeyGenerator.GetMD5WithLength(SettingPage.SecureAreaUnlockPassword, 16));
 
                         if (MediaStream.Header.Core.Version >= SLEVersion.SLE150)
                         {
@@ -458,7 +458,7 @@ namespace RX_Explorer.View
                                     case ".wma":
                                     case ".m4a":
                                         {
-                                            using (SLEInputStream MediaInfoStream = new SLEInputStream(await MediaFile.GetStreamFromFileAsync(AccessMode.Read), new UTF8Encoding(false), SecureArea.EncryptionKey))
+                                            using (SLEInputStream MediaInfoStream = new SLEInputStream(await MediaFile.GetStreamFromFileAsync(AccessMode.Read), new UTF8Encoding(false), KeyGenerator.GetMD5WithLength(SettingPage.SecureAreaUnlockPassword, 16)))
                                             {
                                                 byte[] CoverData = GetMusicCoverFromStream(MediaInfoStream.Header.Core.FileName, MediaInfoStream);
 

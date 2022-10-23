@@ -60,33 +60,45 @@ namespace RX_Explorer.Class
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (Position == Length - 1)
+            if (buffer == null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+
+            if (offset < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            }
+
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
+            if (offset + count > buffer.Length)
+            {
+                throw new ArgumentException("The sum of offset and count is larger than the buffer length");
+            }
+
+            if (count == 0 || Position == Length)
             {
                 return 0;
             }
 
-            if (Position + offset > Length)
+            if (Header.Core.Version >= SLEVersion.SLE150)
             {
-                throw new ArgumentOutOfRangeException();
-            }
+                long StartPosition = Position;
+                long CurrentBlockIndex = StartPosition / BlockSize;
 
-            int Count = Math.Max(0, Math.Min(buffer.Length, count));
+                int ByteRead = BaseFileStream.Read(buffer, 0, count);
 
-            if (Count > 0)
-            {
-                if (Header.Core.Version >= SLEVersion.SLE150)
+                if (ByteRead > 0)
                 {
-                    long StartPosition = Position + offset;
-                    long CurrentBlockIndex = StartPosition / BlockSize;
-
-                    byte[] XorBuffer = new byte[BlockSize];
-
-                    int ByteRead = BaseFileStream.Read(buffer, offset, Count);
-
+                    long TransformIndex = 0;
                     long StartBlockOffset = StartPosition % BlockSize;
                     long EndBlockOffset = (StartPosition + ByteRead) % BlockSize;
 
-                    long Index = 0;
+                    byte[] XorBuffer = new byte[BlockSize];
 
                     while (true)
                     {
@@ -94,51 +106,47 @@ namespace RX_Explorer.Class
 
                         Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
 
-                        if (Index == 0)
+                        if (TransformIndex == 0)
                         {
-                            long LoopCount = Math.Min(BlockSize - StartBlockOffset, Count);
+                            long LoopCount = Math.Min(BlockSize - StartBlockOffset, count);
 
-                            for (int Index2 = 0; Index2 < LoopCount; Index2++)
+                            for (int Index = 0; Index < LoopCount; Index++)
                             {
-                                buffer[Index2] = (byte)(XorBuffer[Index2 + StartBlockOffset] ^ buffer[Index2]);
+                                buffer[Index + offset] = (byte)(XorBuffer[Index + StartBlockOffset] ^ buffer[Index + offset]);
                             }
 
-                            Index += LoopCount;
+                            TransformIndex += LoopCount;
                         }
-                        else if (Index + BlockSize > ByteRead)
+                        else if (TransformIndex + BlockSize > ByteRead)
                         {
-                            long LoopCount = Math.Min(EndBlockOffset, Count - Index);
+                            long LoopCount = Math.Min(EndBlockOffset, count - TransformIndex);
 
-                            for (int Index2 = 0; Index2 < LoopCount; Index2++)
+                            for (int Index = 0; Index < LoopCount; Index++)
                             {
-                                buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
+                                buffer[TransformIndex + Index + offset] = (byte)(XorBuffer[Index] ^ buffer[TransformIndex + Index + offset]);
                             }
 
                             break;
                         }
                         else
                         {
-                            long LoopCount = Math.Min(BlockSize, Count - Index);
+                            long LoopCount = Math.Min(BlockSize, count - TransformIndex);
 
-                            for (int Index2 = 0; Index2 < LoopCount; Index2++)
+                            for (int Index = 0; Index < LoopCount; Index++)
                             {
-                                buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
+                                buffer[TransformIndex + Index + offset] = (byte)(XorBuffer[Index] ^ buffer[TransformIndex + Index + offset]);
                             }
 
-                            Index += LoopCount;
+                            TransformIndex += LoopCount;
                         }
                     }
+                }
 
-                    return ByteRead;
-                }
-                else
-                {
-                    return TransformStream.Read(buffer, offset, Count);
-                }
+                return ByteRead;
             }
             else
             {
-                return 0;
+                return TransformStream.Read(buffer, offset, count);
             }
         }
 

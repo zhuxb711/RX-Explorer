@@ -1,23 +1,15 @@
-﻿###What's new in Ver.8.0.1.0
+﻿###What's new in Ver.8.0.2.0
 
-#####Feature update
+#####UI update
 
->#####"Security Area" now supports import the folder objects directly
-
->#####Improved the encryption and decryption algorithm of "Security Area" and upgraded the SLE file format to version 2.0.0
-
->#####"Secure Area" will now hide real file names to evade searches by software such as Everything
-
->#####Brings back the full tab drag and drop function again, related issues have been resolved
-
-#####Performance enhancements
-
->#####Improved optimization parameters when reading file streams
-
->#####When creating a temporary file for internal use in some cases, the file will reside in memory as much as possible to reduce I/O operation
+>######The UI of "Secure Area" has received minor improvements
 
 #####Bug Fixes
 
->#####Fixed an issue where "Secure Area" might not be able to decrypt SLE files in 1.0.0 format
+>######Fixed an issue that opening or closing the "Integration with system components" related functions multiple times may lead to failure
 
->#####Fixed an issue where pressing the Esc key after previewing a file with Seer or Quicklook would not close the preview window
+>######Fixed an issue where some SLE files for versions 1.5.0 and below may not be decrypted correctly
+
+>######Fixed an issue where the built-in viewer might fail to preview some SLE files
+
+>######Fixed an issue that the storage location of the "Security Area" cannot be changed if there are no encrypted files

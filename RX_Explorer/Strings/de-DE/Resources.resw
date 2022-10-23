@@ -407,7 +407,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Entsperrpasswort setzen</value>
   </data>
   <data name="SAWelcomeDialogSecureLevel.Header" xml:space="preserve">
-    <value>Sicherheitsstufe</value>
+    <value>Stufe der Verschlüsselungsstärke</value>
   </data>
   <data name="SAWelcomeDialogUseWH.Content" xml:space="preserve">
     <value>Windows Hello statt Passwort Authentifizierung benutzen</value>
@@ -449,7 +449,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Klicke auf die Schaltfläche oder ziehen Sie die Datei hierher.</value>
   </data>
   <data name="SecureAreaEncryptTip.Subtitle" xml:space="preserve">
-    <value>Der AES-128-CBC-Modus bietet bereits standardmäßig ausreichende Sicherheit, aber Sie können auch den AES-256-CBC-Modus für einen besseren Sicherheitsschutz wählen. Prozessoren der zweiten Generation von Core-Prozessoren und darüber unterstützen zwei Hardware-Beschleunigungsmodi, sodass Sie sich keine Sorgen über Leistungsprobleme machen müssen.</value>
+    <value>Der 128-Bit-AES-CTR-Modus bietet standardmäßig bereits ausreichende Sicherheit, Sie können jedoch auch den 256-Bit-AES-CTR-Modus für einen besseren Sicherheitsschutz wählen. Prozessoren der zweiten Generation von Core-Prozessoren und höher unterstützen zwei Modi der Hardwarebeschleunigung, sodass Sie sich keine Gedanken über Leistungsprobleme machen müssen</value>
   </data>
   <data name="SecureAreaEncryptTip.Title" xml:space="preserve">
     <value>AES-Modus</value>
@@ -476,7 +476,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>RX-integrierter Dateitresor</value>
   </data>
   <data name="SecureAreaSettingAboutText2.Text" xml:space="preserve">
-    <value>Basierend auf dem AES-CBC-Algorithmus, kombiniert mit mehreren Sicherheitsauthentifizierungsmaßnahmen auf Systemebene, um die sichere Speicherung von Dateien zu gewährleisten</value>
+    <value>Basierend auf dem AES-CTR-Algorithmus, kombiniert mit mehreren Sicherheitsauthentifizierungsmaßnahmen auf Systemebene, um die sichere Speicherung von Dateien zu gewährleisten</value>
   </data>
   <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
     <value>AES-128bit Modus</value>
@@ -3733,5 +3733,11 @@ Inkorrekte Namen sind
   </data>
   <data name="SecureAreaPickItemType.Text" xml:space="preserve">
     <value>Möchten Sie eine Datei oder einen Ordner auswählen</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocation.Header" xml:space="preserve">
+    <value>Geben Sie den Speicherort der verschlüsselten Datei an (optional)</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocationBrowse.Content" xml:space="preserve">
+    <value>Durchsuche</value>
   </data>
 </root>

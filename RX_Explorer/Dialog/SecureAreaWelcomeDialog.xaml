@@ -18,18 +18,18 @@
                               Title="Tips"
                               Subtitle="此处为必填项，不能留空"
                               IsLightDismissEnabled="True"
-                              PreferredPlacement="TopRight" />
+                              PreferredPlacement="Bottom" />
 
         <controls:TeachingTip x:Name="PasswordErrorTip"
                               Title="Tips"
                               x:Uid="SAWelcomeDialogErrorTip"
                               Subtitle="输入的密码不一致，请检查一下密码"
                               IsLightDismissEnabled="True"
-                              PreferredPlacement="TopRight"
+                              PreferredPlacement="Bottom"
                               Target="{x:Bind ConfirmPassword}" />
     </Cls:QueueContentDialog.Resources>
 
-    <Grid MinWidth="320">
+    <Grid Width="420">
         <StackPanel>
             <PasswordBox Header="主密码"
                          PlaceholderText="设置解锁密码"
@@ -40,11 +40,27 @@
                          x:Uid="SAWelcomeDialogConfrimPassword"
                          Margin="0,10,0,0"
                          Name="ConfirmPassword" />
-            <ComboBox Header="安全等级"
+            <ComboBox Header="加密强度等级"
                       x:Uid="SAWelcomeDialogSecureLevel"
                       Margin="0,10,0,0"
                       Name="SecureLevel"
-                      Width="220" />
+                      Width="250" />
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Header="指定加密文件存储位置(可选)"
+                         Name="Location"
+                         x:Uid="SAWelcomeDialogStorageLocation"/>
+                <Button Grid.Column="1" 
+                        Content="浏览"
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Bottom"
+                        Name="BrowserStorageLocation"
+                        x:Uid="SAWelcomeDialogStorageLocationBrowse"
+                        Click="BrowserStorageLocation_Click"/>
+            </Grid>
             <StackPanel Orientation="Horizontal">
                 <CheckBox Content="使用Windows Hello代替密码认证"
                           x:Uid="SAWelcomeDialogUseWH"

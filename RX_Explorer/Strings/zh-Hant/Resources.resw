@@ -401,7 +401,7 @@
     <value>設定解鎖密碼</value>
   </data>
   <data name="SAWelcomeDialogSecureLevel.Header" xml:space="preserve">
-    <value>安全性等級</value>
+    <value>加密強度等級</value>
   </data>
   <data name="SAWelcomeDialogUseWH.Content" xml:space="preserve">
     <value>使用Windows Hello代替密碼驗證</value>
@@ -443,7 +443,7 @@
     <value>單擊按鈕或將檔案移動到此處</value>
   </data>
   <data name="SecureAreaEncryptTip.Subtitle" xml:space="preserve">
-    <value>預設狀況下，AES-128-CBC模式已經提供了足夠的安全性，但是您也可以選擇AES-256-CBC模式以獲得更好的安全保護。 Intel Core第二代處理器及更高版本的處理器支持兩種硬體加速模式，因此不需擔心性能的問題</value>
+    <value>預設狀況下，128bit AES-CTR模式已經提供了足夠的安全性，但是您也可以選擇256bit AES-CTR模式以獲得更好的安全保護。 Intel Core第二代處理器及更高版本的處理器支持兩種硬體加速模式，因此不需擔心性能的問題</value>
   </data>
   <data name="SecureAreaEncryptTip.Title" xml:space="preserve">
     <value>進階加密標準模式</value>
@@ -470,7 +470,7 @@
     <value>RX內建資料庫</value>
   </data>
   <data name="SecureAreaSettingAboutText2.Text" xml:space="preserve">
-    <value>基於AES-CBC算法及結合多種系統級安全認證措施，確保檔案安全無虞</value>
+    <value>基於AES-CTR算法及結合多種系統級安全認證措施，確保檔案安全無虞</value>
   </data>
   <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
     <value>AES-128bit 模式</value>
@@ -3731,5 +3731,11 @@
   </data>
   <data name="SecureAreaPickItemType.Text" xml:space="preserve">
     <value>是否要選擇檔案或資料夾</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocation.Header" xml:space="preserve">
+    <value>指定加密文件存儲位置(可選)</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocationBrowse.Content" xml:space="preserve">
+    <value>瀏覽</value>
   </data>
 </root>

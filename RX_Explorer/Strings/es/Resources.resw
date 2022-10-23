@@ -407,7 +407,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Establecer contraseña de desbloqueo</value>
   </data>
   <data name="SAWelcomeDialogSecureLevel.Header" xml:space="preserve">
-    <value>Nivel de seguridad</value>
+    <value>Nivel de fuerza de cifrado</value>
   </data>
   <data name="SAWelcomeDialogUseWH.Content" xml:space="preserve">
     <value>Usar Windows Hello en vez de autenticación con contraseña</value>
@@ -449,7 +449,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Pulsa el botón o arrastra el archivo aquí.</value>
   </data>
   <data name="SecureAreaEncryptTip.Subtitle" xml:space="preserve">
-    <value>El modo AES-128-CBC ya ofrece seguridad suficiente por defecto, pero puedes elegir también el modo AES-256-CBC para una mayor seguridad. Los procesadores de segunda generación y superiores son compatibles con los dos modos de aceleración de hardware, por lo que no tienes que preocuparte de problemas de rendimiento.</value>
+    <value>El modo AES-CTR de 128 bits ya proporciona suficiente seguridad de forma predeterminada, pero también puede elegir el modo AES-CTR de 256 bits para una mejor protección de seguridad. Los procesadores de la segunda generación de procesadores Core y superiores admiten dos modos de aceleración de hardware, por lo que no hay necesidad de preocuparse por los problemas de rendimiento.</value>
   </data>
   <data name="SecureAreaEncryptTip.Title" xml:space="preserve">
     <value>Modo AES</value>
@@ -476,7 +476,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Sistema de protección archivos integrado en RX</value>
   </data>
   <data name="SecureAreaSettingAboutText2.Text" xml:space="preserve">
-    <value>Basado en un algoritmo AES-CB, combinado con múltiples medidas de autenticación de seguridad a nivel del sistema para garantizar un almacenamiento seguro de los archivos.</value>
+    <value>Basado en un algoritmo AES-CTR, combinado con múltiples medidas de autenticación de seguridad a nivel del sistema para garantizar un almacenamiento seguro de los archivos.</value>
   </data>
   <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
     <value>Modo AES-128bit</value>
@@ -3733,5 +3733,11 @@ Las denominaciones no válidas son:
   </data>
   <data name="SecureAreaPickItemType.Text" xml:space="preserve">
     <value>Desea seleccionar un archivo o carpeta</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocation.Header" xml:space="preserve">
+    <value>Especifique la ubicación de almacenamiento de archivos cifrados (opcional)</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocationBrowse.Content" xml:space="preserve">
+    <value>Navegar</value>
   </data>
 </root>

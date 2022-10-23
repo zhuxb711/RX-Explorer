@@ -14,7 +14,7 @@ namespace RX_Explorer.Dialog
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (SecureArea.UnlockPassword != PrimaryPassword.Password)
+            if (SettingPage.SecureAreaUnlockPassword != PrimaryPassword.Password)
             {
                 args.Cancel = true;
                 ErrorTip.IsOpen = true;

@@ -392,7 +392,7 @@
     <value>设置解锁密码</value>
   </data>
   <data name="SAWelcomeDialogSecureLevel.Header" xml:space="preserve">
-    <value>安全等级</value>
+    <value>加密强度等级</value>
   </data>
   <data name="SAWelcomeDialogUseWH.Content" xml:space="preserve">
     <value>使用Windows Hello代替密码认证</value>
@@ -434,7 +434,7 @@
     <value>点击按钮或拖动文件到此处</value>
   </data>
   <data name="SecureAreaEncryptTip.Subtitle" xml:space="preserve">
-    <value>默认情况下AES-128-CBC模式已经提供足够的安全性，但是您也可以选择AES-256-CBC模式以获得更加好的安全保护。第二代酷睿处理器以上等级的处理器均支持两种模式的硬件加速，因此无需担心性能问题</value>
+    <value>默认情况下128bit AES-CTR模式已经提供足够的安全性，但是您也可以选择256bit AES-CTR模式以获得更加好的安全保护。第二代酷睿处理器以上等级的处理器均支持两种模式的硬件加速，因此无需担心性能问题</value>
   </data>
   <data name="SecureAreaEncryptTip.Title" xml:space="preserve">
     <value>AES模式</value>
@@ -461,7 +461,7 @@
     <value>RX内建文件保险箱</value>
   </data>
   <data name="SecureAreaSettingAboutText2.Text" xml:space="preserve">
-    <value>基于AES-CBC算法，结合多项系统级安全认证措施，确保文件安全存储</value>
+    <value>基于AES-CTR算法，结合多项系统级安全认证措施，确保文件安全存储</value>
   </data>
   <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
     <value>AES-128bit 模式</value>
@@ -3731,5 +3731,11 @@
   </data>
   <data name="SecureAreaPickItemType.Text" xml:space="preserve">
     <value>您要选择文件还是文件夹</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocation.Header" xml:space="preserve">
+    <value>指定加密文件存储位置(可选)</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocationBrowse.Content" xml:space="preserve">
+    <value>浏览</value>
   </data>
 </root>

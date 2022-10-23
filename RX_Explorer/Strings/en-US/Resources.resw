@@ -524,7 +524,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Set unlock password</value>
   </data>
   <data name="SAWelcomeDialogSecureLevel.Header" xml:space="preserve">
-    <value>Security Level</value>
+    <value>Encryption strength Level</value>
   </data>
   <data name="SAWelcomeDialogUseWH.Content" xml:space="preserve">
     <value>Use Windows Hello instead of password authentication</value>
@@ -569,7 +569,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Click the button or drag the file here</value>
   </data>
   <data name="SecureAreaEncryptTip.Subtitle" xml:space="preserve">
-    <value>The AES-128-CBC mode already provides sufficient security by default, but you can also choose the AES-256-CBC mode for better security protection. Processors of the second generation Core processors and above support two modes of hardware acceleration, so there is no need to worry about performance issues</value>
+    <value>The 128bit AES-CTR mode already provides sufficient security by default, but you can also choose the 256bit AES-CTR mode for better security protection. Processors of the second generation Core processors and above support two modes of hardware acceleration, so there is no need to worry about performance issues</value>
   </data>
   <data name="SecureAreaEncryptTip.Title" xml:space="preserve">
     <value>AES mode</value>
@@ -596,7 +596,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>RX built-in file vault</value>
   </data>
   <data name="SecureAreaSettingAboutText2.Text" xml:space="preserve">
-    <value>Based on AES-CBC algorithm, combined with multiple system-level security authentication measures to ensure the secure storage of files</value>
+    <value>Based on AES-CTR algorithm, combined with multiple system-level security authentication measures to ensure the secure storage of files</value>
   </data>
   <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
     <value>AES-128bit mode</value>
@@ -3838,5 +3838,11 @@ Invalid names include
   </data>
   <data name="SecureAreaPickItemType.Text" xml:space="preserve">
     <value>Do you want to select a file or folder</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocation.Header" xml:space="preserve">
+    <value>Specify the encrypted file storage location (optional)</value>
+  </data>
+  <data name="SAWelcomeDialogStorageLocationBrowse.Content" xml:space="preserve">
+    <value>Browse</value>
   </data>
 </root>
