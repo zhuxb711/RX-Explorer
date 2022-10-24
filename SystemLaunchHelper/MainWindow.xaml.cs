@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using CommandLine;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,6 +18,18 @@ namespace SystemLaunchHelper
 {
     public partial class MainWindow : Window
     {
+        private class CommandLineOptions
+        {
+            [Option('C', "Command", Required = false, HelpText = "Set the command to execute on the process launch")]
+            public string Command { get; set; }
+
+            [Option('S', "SuppressSelfDeletion", Required = false, HelpText = "Suppress self deletion when all the function was switched off")]
+            public bool SuppressSelfDeletion { get; set; }
+
+            [Value(0, Required = false, HelpText = "Launch the process with the file path list")]
+            public IEnumerable<string> PathList { get; set; }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -25,15 +38,11 @@ namespace SystemLaunchHelper
 
         private void ExecutionCoreFunction()
         {
-            int ExitCode = 0;
-
-            try
+            Application.Current.Shutdown(Parser.Default.ParseArguments<CommandLineOptions>(Environment.GetCommandLineArgs().Skip(1)).MapResult((Options) =>
             {
-                IEnumerable<string> ActivationArgs = Environment.GetCommandLineArgs().Skip(1);
-
-                if (ActivationArgs.FirstOrDefault() == "-Command")
+                try
                 {
-                    switch (ActivationArgs.LastOrDefault())
+                    switch (Options.Command)
                     {
                         case "InterceptWinE":
                             {
@@ -75,8 +84,6 @@ namespace SystemLaunchHelper
                                         }
                                     }
 
-                                    bool IsRegistryCheckingSuccess = true;
-
                                     try
                                     {
                                         using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\shell\opennewwindow\command", RegistryRights.ReadKey))
@@ -85,7 +92,7 @@ namespace SystemLaunchHelper
                                             {
                                                 if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase) || Key.GetValue("DelegateExecute") != null)
                                                 {
-                                                    IsRegistryCheckingSuccess = false;
+                                                    return 1;
                                                 }
                                             }
                                         }
@@ -104,11 +111,6 @@ namespace SystemLaunchHelper
 
                                         Debug.WriteLine($"Registry checking failed, message: {ex.Message}");
 #endif
-                                    }
-
-                                    if (!IsRegistryCheckingSuccess)
-                                    {
-                                        ExitCode = 1;
                                     }
                                 }
 
@@ -154,8 +156,6 @@ namespace SystemLaunchHelper
                                         }
                                     }
 
-                                    bool IsRegistryCheckingSuccess = true;
-
                                     try
                                     {
                                         using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Directory\shell\open\command", RegistryRights.ReadKey))
@@ -164,7 +164,7 @@ namespace SystemLaunchHelper
                                             {
                                                 if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    IsRegistryCheckingSuccess = false;
+                                                    return 1;
                                                 }
                                             }
                                         }
@@ -175,7 +175,7 @@ namespace SystemLaunchHelper
                                             {
                                                 if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    IsRegistryCheckingSuccess = false;
+                                                    return 1;
                                                 }
                                             }
                                         }
@@ -186,7 +186,7 @@ namespace SystemLaunchHelper
                                             {
                                                 if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    IsRegistryCheckingSuccess = false;
+                                                    return 1;
                                                 }
                                             }
                                         }
@@ -197,7 +197,7 @@ namespace SystemLaunchHelper
                                             {
                                                 if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    IsRegistryCheckingSuccess = false;
+                                                    return 1;
                                                 }
                                             }
                                         }
@@ -215,12 +215,7 @@ namespace SystemLaunchHelper
                                         }
 
                                         Debug.WriteLine($"Registry checking failed, message: {ex.Message}");
-#endif                                    
-                                    }
-
-                                    if (!IsRegistryCheckingSuccess)
-                                    {
-                                        ExitCode = 1;
+#endif
                                     }
                                 }
 
@@ -239,8 +234,6 @@ namespace SystemLaunchHelper
                                     RegisterProcess.WaitForExit();
                                 }
 
-                                bool IsRegistryCheckingSuccess = true;
-
                                 try
                                 {
                                     using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\shell\opennewwindow\command", RegistryRights.ReadKey))
@@ -249,7 +242,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Convert.ToString(Key.GetValue("DelegateExecute")) != "{11dbb47c-a525-400b-9e80-a54615a090c0}" || !string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
                                             {
-                                                IsRegistryCheckingSuccess = false;
+                                                return 1;
                                             }
                                         }
                                     }
@@ -270,7 +263,7 @@ namespace SystemLaunchHelper
 #endif
                                 }
 
-                                if (IsRegistryCheckingSuccess)
+                                if (!Options.SuppressSelfDeletion)
                                 {
                                     bool IsAnotherRegistryKeyExists = false;
 
@@ -325,10 +318,6 @@ namespace SystemLaunchHelper
                                         }).Dispose();
                                     }
                                 }
-                                else
-                                {
-                                    ExitCode = 1;
-                                }
 
                                 break;
                             }
@@ -345,8 +334,6 @@ namespace SystemLaunchHelper
                                     RegisterProcess.WaitForExit();
                                 }
 
-                                bool IsRegistryCheckingSuccess = true;
-
                                 try
                                 {
                                     using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey(@"Folder\Directory\open\command", RegistryRights.ReadKey))
@@ -355,7 +342,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Convert.ToString(Key.GetValue("DelegateExecute")) != "{11dbb47c-a525-400b-9e80-a54615a090c0}" || !string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
                                             {
-                                                IsRegistryCheckingSuccess = false;
+                                                return 1;
                                             }
                                         }
                                     }
@@ -366,7 +353,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (!string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
                                             {
-                                                IsRegistryCheckingSuccess = false;
+                                                return 1;
                                             }
                                         }
                                     }
@@ -377,7 +364,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Convert.ToString(Key.GetValue(string.Empty)) != Environment.ExpandEnvironmentVariables(@"%SystemRoot%\Explorer.exe"))
                                             {
-                                                IsRegistryCheckingSuccess = false;
+                                                return 1;
                                             }
                                         }
                                     }
@@ -388,7 +375,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (!string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
                                             {
-                                                IsRegistryCheckingSuccess = false;
+                                                return 1;
                                             }
                                         }
                                     }
@@ -409,7 +396,7 @@ namespace SystemLaunchHelper
 #endif
                                 }
 
-                                if (IsRegistryCheckingSuccess)
+                                if (!Options.SuppressSelfDeletion)
                                 {
                                     bool IsAnotherRegistryKeyExists = false;
 
@@ -453,172 +440,202 @@ namespace SystemLaunchHelper
                                         }).Dispose();
                                     }
                                 }
-                                else
+
+                                break;
+                            }
+                        default:
+                            {
+                                if (Options.PathList.Any())
                                 {
-                                    ExitCode = 1;
+                                    string StartupArguments = $"{string.Join(' ', Options.PathList.Select((Item) => $"\"{Item}\""))}";
+
+                                    if (Helper.CheckIfPackageFamilyNameExist("36186RuoFan.USB_q3e6crc0w375t"))
+                                    {
+                                        try
+                                        {
+                                            Process.Start(new ProcessStartInfo
+                                            {
+                                                FileName = "RX-Explorer.exe",
+                                                Arguments = StartupArguments,
+                                                UseShellExecute = false
+                                            }).Dispose();
+                                        }
+                                        catch (Exception)
+                                        {
+                                            Helper.LaunchApplicationFromPackageFamilyName("36186RuoFan.USB_q3e6crc0w375t", Options.PathList.ToArray());
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notification.lock")))
+                                        {
+                                            if (string.IsNullOrEmpty(StartupArguments))
+                                            {
+                                                Process.Start(new ProcessStartInfo
+                                                {
+                                                    FileName = "explorer.exe",
+                                                    UseShellExecute = false
+                                                }).Dispose();
+                                            }
+                                            else
+                                            {
+                                                Process.Start(new ProcessStartInfo
+                                                {
+                                                    FileName = "explorer.exe",
+                                                    Arguments = $"\"{StartupArguments}\"",
+                                                    UseShellExecute = false
+                                                }).Dispose();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            string CurrentCultureCode = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.ToLower();
+
+                                            string TipText = CurrentCultureCode switch
+                                            {
+                                                "zh" => "检测到RX文件管理器已被卸载，但卸载前已启用与系统集成相关功能，这可能导致Windows文件管理器无法正常使用，您是否希望还原为默认设置?",
+                                                "fr" => "Il est détecté que le RX-Explorer a été désinstallé, mais les fonctions liées à l'intégration du système ont été activées avant la désinstallation, ce qui peut casser l'Explorateur Windows. Voulez-vous restaurer les paramètres par défaut?",
+                                                "es" => "Se detecta que el RX-Explorer se ha desinstalado, pero las funciones relacionadas con la integración del sistema se han habilitado antes de la desinstalación, lo que puede dañar el Explorador de Windows. ¿Desea restaurar la configuración predeterminada?",
+                                                "de" => "Es wurde festgestellt, dass der RX-Explorer deinstalliert wurde, aber die systemintegrationsbezogenen Funktionen vor der Deinstallation aktiviert wurden, was den Windows Explorer beschädigen kann. Möchten Sie die Standardeinstellungen wiederherstellen?",
+                                                _ => "It is detected that the RX-Explorer has been uninstalled, but the system integration-related functions have been enabled before uninstalling, which may broken the Windows Explorer. Do you want to restore to the default settings?"
+                                            };
+
+                                            string TipHeader = CurrentCultureCode switch
+                                            {
+                                                "zh" => "警告",
+                                                "fr" => "Avertissement",
+                                                "es" => "Advertencia",
+                                                "de" => "Warnung",
+                                                _ => "Warning"
+                                            };
+
+                                            string FirstButtonText = CurrentCultureCode switch
+                                            {
+                                                "zh" => "确认",
+                                                "fr" => "Confirmer",
+                                                "es" => "Confirmar",
+                                                "de" => "Bestätigen Sie",
+                                                _ => "Confirm"
+                                            };
+
+                                            string SecondButtonText = CurrentCultureCode switch
+                                            {
+                                                "zh" => "取消",
+                                                "fr" => "Annuler",
+                                                "es" => "Cancelar",
+                                                "de" => "Stornieren",
+                                                _ => "Cancel"
+                                            };
+
+                                            string ThirdButtonText = CurrentCultureCode switch
+                                            {
+                                                "zh" => "不再提示",
+                                                "fr" => "Ne rappelle pas",
+                                                "es" => "No recordar",
+                                                "de" => "Erinner dich nicht",
+                                                _ => "Do not remind"
+                                            };
+
+                                            MessageDialog Dialog = new MessageDialog(TipText, TipHeader)
+                                            {
+                                                DefaultCommandIndex = 0,
+                                                CancelCommandIndex = 1
+                                            };
+                                            Dialog.Commands.Add(new UICommand(FirstButtonText, null, 0));
+                                            Dialog.Commands.Add(new UICommand(SecondButtonText, null, 1));
+                                            Dialog.Commands.Add(new UICommand(ThirdButtonText, null, 2));
+
+                                            WindowInteropHelper Helper = new WindowInteropHelper(this);
+                                            InitializeWithWindow.Initialize(Dialog, Helper.EnsureHandle());
+
+                                            switch (Dialog.ShowAsync().AsTask().Result.Id)
+                                            {
+                                                case 0:
+                                                    {
+                                                        using (Process RegisterProcess = Process.Start(new ProcessStartInfo
+                                                        {
+                                                            FileName = "regedit.exe",
+                                                            Verb = "runas",
+                                                            UseShellExecute = true,
+                                                            Arguments = $"/s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\RestoreAll.reg")}\"",
+                                                        }))
+                                                        {
+                                                            RegisterProcess.WaitForExit();
+                                                        }
+
+                                                        Process.Start(new ProcessStartInfo
+                                                        {
+                                                            FileName = "powershell.exe",
+                                                            Arguments = $"-Command \"Wait-Process -Id {Environment.ProcessId} -Timeout 30;Stop-Process -Id {Environment.ProcessId} -Force;Remove-Item -Path '{AppDomain.CurrentDomain.BaseDirectory}' -Recurse -Force\"",
+                                                            CreateNoWindow = true,
+                                                            UseShellExecute = false
+                                                        }).Dispose();
+
+                                                        goto case 1;
+                                                    }
+                                                case 1:
+                                                    {
+                                                        if (string.IsNullOrEmpty(StartupArguments))
+                                                        {
+                                                            Process.Start(new ProcessStartInfo
+                                                            {
+                                                                FileName = "explorer.exe",
+                                                                UseShellExecute = false
+                                                            }).Dispose();
+                                                        }
+                                                        else
+                                                        {
+                                                            Process.Start(new ProcessStartInfo
+                                                            {
+                                                                FileName = "explorer.exe",
+                                                                Arguments = $"\"{StartupArguments}\"",
+                                                                UseShellExecute = false
+                                                            }).Dispose();
+                                                        }
+
+                                                        break;
+                                                    }
+                                                case 2:
+                                                    {
+                                                        File.OpenHandle(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notification.lock"), FileMode.OpenOrCreate).Dispose();
+
+                                                        goto case 1;
+                                                    }
+                                            }
+                                        }
+                                    }
                                 }
 
                                 break;
                             }
                     }
-                }
-                else
-                {
-                    string StartupArguments = $"{string.Join(' ', ActivationArgs.Select((Item) => $"\"{Item}\""))}";
 
-                    if (Helper.CheckIfPackageFamilyNameExist("36186RuoFan.USB_q3e6crc0w375t"))
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+#if DEBUG
+                    if (Debugger.IsAttached)
                     {
-                        Process.Start(new ProcessStartInfo
-                        {
-                            FileName = "RX-Explorer.exe",
-                            Arguments = StartupArguments,
-                            UseShellExecute = false
-                        }).Dispose();
+                        Debugger.Break();
                     }
                     else
                     {
-                        if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notification.lock")))
-                        {
-                            if (string.IsNullOrEmpty(StartupArguments))
-                            {
-                                Process.Start(new ProcessStartInfo
-                                {
-                                    FileName = "explorer.exe",
-                                    UseShellExecute = false
-                                }).Dispose();
-                            }
-                            else
-                            {
-                                Process.Start(new ProcessStartInfo
-                                {
-                                    FileName = "explorer.exe",
-                                    Arguments = $"\"{StartupArguments}\"",
-                                    UseShellExecute = false
-                                }).Dispose();
-                            }
-                        }
-                        else
-                        {
-                            string CurrentCultureCode = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.ToLower();
-
-                            string TipText = CurrentCultureCode switch
-                            {
-                                "zh" => "检测到RX文件管理器已被卸载，但卸载前已启用与系统集成相关功能，这可能导致Windows文件管理器无法正常使用，您是否希望还原为默认设置?",
-                                "fr" => "Il est détecté que le RX-Explorer a été désinstallé, mais les fonctions liées à l'intégration du système ont été activées avant la désinstallation, ce qui peut casser l'Explorateur Windows. Voulez-vous restaurer les paramètres par défaut?",
-                                "es" => "Se detecta que el RX-Explorer se ha desinstalado, pero las funciones relacionadas con la integración del sistema se han habilitado antes de la desinstalación, lo que puede dañar el Explorador de Windows. ¿Desea restaurar la configuración predeterminada?",
-                                "de" => "Es wurde festgestellt, dass der RX-Explorer deinstalliert wurde, aber die systemintegrationsbezogenen Funktionen vor der Deinstallation aktiviert wurden, was den Windows Explorer beschädigen kann. Möchten Sie die Standardeinstellungen wiederherstellen?",
-                                _ => "It is detected that the RX-Explorer has been uninstalled, but the system integration-related functions have been enabled before uninstalling, which may broken the Windows Explorer. Do you want to restore to the default settings?"
-                            };
-
-                            string TipHeader = CurrentCultureCode switch
-                            {
-                                "zh" => "警告",
-                                "fr" => "Avertissement",
-                                "es" => "Advertencia",
-                                "de" => "Warnung",
-                                _ => "Warning"
-                            };
-
-                            string FirstButtonText = CurrentCultureCode switch
-                            {
-                                "zh" => "确认",
-                                "fr" => "Confirmer",
-                                "es" => "Confirmar",
-                                "de" => "Bestätigen Sie",
-                                _ => "Confirm"
-                            };
-
-                            string SecondButtonText = CurrentCultureCode switch
-                            {
-                                "zh" => "取消",
-                                "fr" => "Annuler",
-                                "es" => "Cancelar",
-                                "de" => "Stornieren",
-                                _ => "Cancel"
-                            };
-
-                            string ThirdButtonText = CurrentCultureCode switch
-                            {
-                                "zh" => "不再提示",
-                                "fr" => "Ne rappelle pas",
-                                "es" => "No recordar",
-                                "de" => "Erinner dich nicht",
-                                _ => "Do not remind"
-                            };
-
-                            MessageDialog Dialog = new MessageDialog(TipText, TipHeader)
-                            {
-                                DefaultCommandIndex = 0,
-                                CancelCommandIndex = 1
-                            };
-                            Dialog.Commands.Add(new UICommand(FirstButtonText, null, 0));
-                            Dialog.Commands.Add(new UICommand(SecondButtonText, null, 1));
-                            Dialog.Commands.Add(new UICommand(ThirdButtonText, null, 2));
-
-                            WindowInteropHelper Helper = new WindowInteropHelper(this);
-                            InitializeWithWindow.Initialize(Dialog, Helper.EnsureHandle());
-
-                            switch (Dialog.ShowAsync().AsTask().Result.Id)
-                            {
-                                case 0:
-                                    {
-                                        using (Process RegisterProcess = Process.Start(new ProcessStartInfo
-                                        {
-                                            FileName = "regedit.exe",
-                                            Verb = "runas",
-                                            UseShellExecute = true,
-                                            Arguments = $"/s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\RestoreAll.reg")}\"",
-                                        }))
-                                        {
-                                            RegisterProcess.WaitForExit();
-                                        }
-
-                                        Process.Start(new ProcessStartInfo
-                                        {
-                                            FileName = "powershell.exe",
-                                            Arguments = $"-Command \"Wait-Process -Id {Environment.ProcessId} -Timeout 30;Stop-Process -Id {Environment.ProcessId} -Force;Remove-Item -Path '{AppDomain.CurrentDomain.BaseDirectory}' -Recurse -Force\"",
-                                            CreateNoWindow = true,
-                                            UseShellExecute = false
-                                        }).Dispose();
-
-                                        goto case 1;
-                                    }
-                                case 1:
-                                    {
-                                        if (string.IsNullOrEmpty(StartupArguments))
-                                        {
-                                            Process.Start(new ProcessStartInfo
-                                            {
-                                                FileName = "explorer.exe",
-                                                UseShellExecute = false
-                                            }).Dispose();
-                                        }
-                                        else
-                                        {
-                                            Process.Start(new ProcessStartInfo
-                                            {
-                                                FileName = "explorer.exe",
-                                                Arguments = $"\"{StartupArguments}\"",
-                                                UseShellExecute = false
-                                            }).Dispose();
-                                        }
-
-                                        break;
-                                    }
-                                case 2:
-                                    {
-                                        File.OpenHandle(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Notification.lock"), FileMode.OpenOrCreate).Dispose();
-
-                                        goto case 1;
-                                    }
-                            }
-                        }
+                        Debugger.Launch();
                     }
+
+                    Debug.WriteLine($"Unexpected exception was threw, message: {ex.Message}");
+#endif
+
+                    return -1;
                 }
-            }
-            catch (Exception ex)
+            },
+            (ErrorList) =>
             {
-                ExitCode = 2;
+                if (ErrorList.Any(e => e.Tag is ErrorType.HelpRequestedError or ErrorType.VersionRequestedError))
+                {
+                    return 0;
+                }
 
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -630,13 +647,11 @@ namespace SystemLaunchHelper
                     Debugger.Launch();
                 }
 
-                Debug.WriteLine($"Unexpected exception was thew, message: {ex.Message}");
+                Debug.WriteLine($"Unexpected exception was threw during parsing the launch parameters");
 #endif
-            }
-            finally
-            {
-                Application.Current.Shutdown(ExitCode);
-            }
+
+                return 2;
+            }));
         }
     }
 }

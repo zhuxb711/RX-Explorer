@@ -2867,7 +2867,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     FileName = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe"),
                                     UseShellExecute = false,
-                                    Arguments = "-Command InterceptFolder",
+                                    Arguments = "--Command InterceptFolder",
                                 }))
                                 {
                                     HelperProcess.WaitForExit();
@@ -2882,6 +2882,11 @@ namespace AuxiliaryTrustProcess
                                         case 1:
                                             {
                                                 Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
+                                                break;
+                                            }
+                                        case 2:
+                                            {
+                                                Value.Add("Error", "Could not parse the launch arguements");
                                                 break;
                                             }
                                         default:
@@ -2936,7 +2941,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     FileName = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe"),
                                     UseShellExecute = false,
-                                    Arguments = "-Command InterceptWinE",
+                                    Arguments = "--Command InterceptWinE",
                                 }))
                                 {
                                     HelperProcess.WaitForExit();
@@ -2951,6 +2956,11 @@ namespace AuxiliaryTrustProcess
                                         case 1:
                                             {
                                                 Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
+                                                break;
+                                            }
+                                        case 2:
+                                            {
+                                                Value.Add("Error", "Could not parse the launch arguements");
                                                 break;
                                             }
                                         default:
@@ -2965,32 +2975,89 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RestoreFolderInterception:
                             {
-                                using (Process HelperProcess = Process.Start(new ProcessStartInfo
-                                {
-                                    UseShellExecute = false,
-                                    Arguments = "-Command RestoreFolder",
-                                    FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper", "SystemLaunchHelper.exe")
-                                }))
-                                {
-                                    HelperProcess.WaitForExit();
+                                string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
+                                string SystemLaunchHelperTargetExecuteable = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
 
-                                    switch (HelperProcess.ExitCode)
+                                if (File.Exists(SystemLaunchHelperTargetExecuteable))
+                                {
+                                    using (Process HelperProcess = Process.Start(new ProcessStartInfo
                                     {
-                                        case 0:
+                                        UseShellExecute = false,
+                                        Arguments = "--Command RestoreFolder",
+                                        FileName = SystemLaunchHelperTargetExecuteable
+                                    }))
+                                    {
+                                        HelperProcess.WaitForExit();
+
+                                        switch (HelperProcess.ExitCode)
+                                        {
+                                            case 0:
+                                                {
+                                                    Value.Add("Success", string.Empty);
+                                                    break;
+                                                }
+                                            case 1:
+                                                {
+                                                    Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
+                                                    break;
+                                                }
+                                            case 2:
+                                                {
+                                                    Value.Add("Error", "Could not parse the launch arguements");
+                                                    break;
+                                                }
+                                            default:
+                                                {
+                                                    Value.Add("Error", "Unknown exception was threw in SystemLaunchHelper");
+                                                    break;
+                                                }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
+                                    {
+                                        Directory.Delete(SystemLaunchHelperTargetBaseFolder, true);
+                                    }
+
+                                    string SystemLaunchHelperOriginExecuteable = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper", "SystemLaunchHelper.exe");
+
+                                    if (File.Exists(SystemLaunchHelperOriginExecuteable))
+                                    {
+                                        using (Process HelperProcess = Process.Start(new ProcessStartInfo
+                                        {
+                                            UseShellExecute = false,
+                                            Arguments = "--SuppressSelfDeletion --Command RestoreFolder",
+                                            FileName = SystemLaunchHelperOriginExecuteable
+                                        }))
+                                        {
+                                            HelperProcess.WaitForExit();
+
+                                            switch (HelperProcess.ExitCode)
                                             {
-                                                Value.Add("Success", string.Empty);
-                                                break;
+                                                case 0:
+                                                    {
+                                                        Value.Add("Success", string.Empty);
+                                                        break;
+                                                    }
+                                                case 1:
+                                                    {
+                                                        Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
+                                                        break;
+                                                    }
+                                                case 2:
+                                                    {
+                                                        Value.Add("Error", "Could not parse the launch arguements");
+                                                        break;
+                                                    }
+                                                default:
+                                                    {
+                                                        Value.Add("Error", "Unknown exception was threw in SystemLaunchHelper");
+                                                        break;
+                                                    }
                                             }
-                                        case 1:
-                                            {
-                                                Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
-                                                break;
-                                            }
-                                        default:
-                                            {
-                                                Value.Add("Error", "Unknown exception was threw in SystemLaunchHelper");
-                                                break;
-                                            }
+                                        }
                                     }
                                 }
 
@@ -2998,32 +3065,89 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RestoreWinEInterception:
                             {
-                                using (Process HelperProcess = Process.Start(new ProcessStartInfo
-                                {
-                                    UseShellExecute = false,
-                                    Arguments = "-Command RestoreWinE",
-                                    FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper", "SystemLaunchHelper.exe")
-                                }))
-                                {
-                                    HelperProcess.WaitForExit();
+                                string SystemLaunchHelperTargetBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RX-Explorer_Launch_Helper");
+                                string SystemLaunchHelperTargetExecuteable = Path.Combine(SystemLaunchHelperTargetBaseFolder, "SystemLaunchHelper.exe");
 
-                                    switch (HelperProcess.ExitCode)
+                                if (File.Exists(SystemLaunchHelperTargetExecuteable))
+                                {
+                                    using (Process HelperProcess = Process.Start(new ProcessStartInfo
                                     {
-                                        case 0:
+                                        UseShellExecute = false,
+                                        Arguments = "--Command RestoreWinE",
+                                        FileName = SystemLaunchHelperTargetExecuteable
+                                    }))
+                                    {
+                                        HelperProcess.WaitForExit();
+
+                                        switch (HelperProcess.ExitCode)
+                                        {
+                                            case 0:
+                                                {
+                                                    Value.Add("Success", string.Empty);
+                                                    break;
+                                                }
+                                            case 1:
+                                                {
+                                                    Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
+                                                    break;
+                                                }
+                                            case 2:
+                                                {
+                                                    Value.Add("Error", "Could not parse the launch arguements");
+                                                    break;
+                                                }
+                                            default:
+                                                {
+                                                    Value.Add("Error", "Unknown exception was threw in SystemLaunchHelper");
+                                                    break;
+                                                }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (Directory.Exists(SystemLaunchHelperTargetBaseFolder))
+                                    {
+                                        Directory.Delete(SystemLaunchHelperTargetBaseFolder, true);
+                                    }
+
+                                    string SystemLaunchHelperOriginExecuteable = Path.Combine(Helper.GetInstalledPathFromPackageFullName(Helper.GetPackageFullNameFromPackageFamilyName(ExplorerPackageFamilyName)), "SystemLaunchHelper", "SystemLaunchHelper.exe");
+
+                                    if (File.Exists(SystemLaunchHelperOriginExecuteable))
+                                    {
+                                        using (Process HelperProcess = Process.Start(new ProcessStartInfo
+                                        {
+                                            UseShellExecute = false,
+                                            Arguments = "--SuppressSelfDeletion --Command RestoreWinE",
+                                            FileName = SystemLaunchHelperOriginExecuteable
+                                        }))
+                                        {
+                                            HelperProcess.WaitForExit();
+
+                                            switch (HelperProcess.ExitCode)
                                             {
-                                                Value.Add("Success", string.Empty);
-                                                break;
+                                                case 0:
+                                                    {
+                                                        Value.Add("Success", string.Empty);
+                                                        break;
+                                                    }
+                                                case 1:
+                                                    {
+                                                        Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
+                                                        break;
+                                                    }
+                                                case 2:
+                                                    {
+                                                        Value.Add("Error", "Could not parse the launch arguements");
+                                                        break;
+                                                    }
+                                                default:
+                                                    {
+                                                        Value.Add("Error", "Unknown exception was threw in SystemLaunchHelper");
+                                                        break;
+                                                    }
                                             }
-                                        case 1:
-                                            {
-                                                Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
-                                                break;
-                                            }
-                                        default:
-                                            {
-                                                Value.Add("Error", "Unknown exception was threw in SystemLaunchHelper");
-                                                break;
-                                            }
+                                        }
                                     }
                                 }
 
