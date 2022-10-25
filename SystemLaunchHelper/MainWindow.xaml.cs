@@ -39,6 +39,8 @@ namespace SystemLaunchHelper
             public IEnumerable<string> PathList { get; set; }
         }
 
+        private readonly string ExplorerPackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t";
+
         public MainWindow()
         {
             InitializeComponent();
@@ -464,7 +466,7 @@ namespace SystemLaunchHelper
                                 {
                                     string StartupArguments = $"{string.Join(' ', Options.PathList.Select((Item) => $"\"{Item}\""))}";
 
-                                    if (Helper.CheckIfPackageFamilyNameExist("36186RuoFan.USB_q3e6crc0w375t"))
+                                    if (Helper.CheckIfPackageFamilyNameExist(ExplorerPackageFamilyName))
                                     {
                                         try
                                         {
@@ -477,7 +479,7 @@ namespace SystemLaunchHelper
                                         }
                                         catch (Exception)
                                         {
-                                            if (!Helper.LaunchApplicationFromPackageFamilyName("36186RuoFan.USB_q3e6crc0w375t", Options.PathList.ToArray()))
+                                            if (!Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, Options.PathList.ToArray()))
                                             {
                                                 return ExitCodeEnum.FailedOnLaunchExplorer;
                                             }

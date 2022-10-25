@@ -41,6 +41,6 @@
 	<ItemGroup>
 	  <PackageReference Include="CommandLineParser" Version="2.9.1" />
 	  <PackageReference Include="Vanara.PInvoke.Kernel32" Version="3.4.9" />
-	  <PackageReference Include="Vanara.Windows.Shell" Version="3.4.9" />
+	  <PackageReference Include="Vanara.PInvoke.Shell32" Version="3.4.9" />
 	</ItemGroup>
 </Project>
