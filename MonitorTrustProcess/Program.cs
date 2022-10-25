@@ -298,23 +298,23 @@ namespace MonitorTrustProcess
                                 ExplorerProcess.Exited -= ExplorerProcess_Exited;
                                 ExplorerProcess.Kill();
 
-                                Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "/Recovery:Freeze", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                                Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "--RecoveryReason", Enum.GetName(RestartReason.Freeze), "--RecoveryData", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
                                 break;
                             }
                         case RestartReason.Crash:
                             {
-                                Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "/Recovery:Crash", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                                Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "--RecoveryReason", Enum.GetName(RestartReason.Crash), "--RecoveryData", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
                                 break;
                             }
                         case RestartReason.Restart:
                             {
                                 if (string.IsNullOrEmpty(RecoveryData))
                                 {
-                                    Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName);
+                                    Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "--RecoveryReason", Enum.GetName(RestartReason.Restart));
                                 }
                                 else
                                 {
-                                    Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "/Recovery:Restart", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                                    Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "--RecoveryReason", Enum.GetName(RestartReason.Restart), "--RecoveryData", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
                                 }
 
                                 break;

@@ -5349,7 +5349,7 @@ namespace RX_Explorer.View
                                                 {
                                                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                                     {
-                                                        if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                        if (!await Exclusive.Controller.LaunchFromAppModelIdAsync(Info.AppUserModelId, File.Path))
                                                         {
                                                             if (await File.GetStorageItemAsync() is StorageFile Item)
                                                             {

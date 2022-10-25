@@ -113,7 +113,7 @@ namespace RX_Explorer.Class
                 {
                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                     {
-                        return await Exclusive.Controller.LaunchUWPFromPfnAsync(Path, FilePath);
+                        return await Exclusive.Controller.LaunchFromPackageFamilyNameAsync(Path, FilePath);
                     }
                 }
             }

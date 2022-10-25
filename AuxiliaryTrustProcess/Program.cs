@@ -2872,21 +2872,26 @@ namespace AuxiliaryTrustProcess
                                 {
                                     HelperProcess.WaitForExit();
 
-                                    switch (HelperProcess.ExitCode)
+                                    switch ((SystemLaunchHelperExitCodeEnum)HelperProcess.ExitCode)
                                     {
-                                        case 0:
+                                        case SystemLaunchHelperExitCodeEnum.Success:
                                             {
                                                 Value.Add("Success", string.Empty);
                                                 break;
                                             }
-                                        case 1:
+                                        case SystemLaunchHelperExitCodeEnum.FailedOnRegistryCheck:
                                             {
                                                 Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                                 break;
                                             }
-                                        case 2:
+                                        case SystemLaunchHelperExitCodeEnum.FailedOnParseArguments:
                                             {
                                                 Value.Add("Error", "Could not parse the launch arguements");
+                                                break;
+                                            }
+                                        case SystemLaunchHelperExitCodeEnum.FailedOnLaunchExplorer:
+                                            {
+                                                Value.Add("Error", "Could not launch the explorer process");
                                                 break;
                                             }
                                         default:
@@ -2946,21 +2951,26 @@ namespace AuxiliaryTrustProcess
                                 {
                                     HelperProcess.WaitForExit();
 
-                                    switch (HelperProcess.ExitCode)
+                                    switch ((SystemLaunchHelperExitCodeEnum)HelperProcess.ExitCode)
                                     {
-                                        case 0:
+                                        case SystemLaunchHelperExitCodeEnum.Success:
                                             {
                                                 Value.Add("Success", string.Empty);
                                                 break;
                                             }
-                                        case 1:
+                                        case SystemLaunchHelperExitCodeEnum.FailedOnRegistryCheck:
                                             {
                                                 Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                                 break;
                                             }
-                                        case 2:
+                                        case SystemLaunchHelperExitCodeEnum.FailedOnParseArguments:
                                             {
                                                 Value.Add("Error", "Could not parse the launch arguements");
+                                                break;
+                                            }
+                                        case SystemLaunchHelperExitCodeEnum.FailedOnLaunchExplorer:
+                                            {
+                                                Value.Add("Error", "Could not launch the explorer process");
                                                 break;
                                             }
                                         default:
@@ -2989,21 +2999,26 @@ namespace AuxiliaryTrustProcess
                                     {
                                         HelperProcess.WaitForExit();
 
-                                        switch (HelperProcess.ExitCode)
+                                        switch ((SystemLaunchHelperExitCodeEnum)HelperProcess.ExitCode)
                                         {
-                                            case 0:
+                                            case SystemLaunchHelperExitCodeEnum.Success:
                                                 {
                                                     Value.Add("Success", string.Empty);
                                                     break;
                                                 }
-                                            case 1:
+                                            case SystemLaunchHelperExitCodeEnum.FailedOnRegistryCheck:
                                                 {
                                                     Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                                     break;
                                                 }
-                                            case 2:
+                                            case SystemLaunchHelperExitCodeEnum.FailedOnParseArguments:
                                                 {
                                                     Value.Add("Error", "Could not parse the launch arguements");
+                                                    break;
+                                                }
+                                            case SystemLaunchHelperExitCodeEnum.FailedOnLaunchExplorer:
+                                                {
+                                                    Value.Add("Error", "Could not launch the explorer process");
                                                     break;
                                                 }
                                             default:
@@ -3034,21 +3049,26 @@ namespace AuxiliaryTrustProcess
                                         {
                                             HelperProcess.WaitForExit();
 
-                                            switch (HelperProcess.ExitCode)
+                                            switch ((SystemLaunchHelperExitCodeEnum)HelperProcess.ExitCode)
                                             {
-                                                case 0:
+                                                case SystemLaunchHelperExitCodeEnum.Success:
                                                     {
                                                         Value.Add("Success", string.Empty);
                                                         break;
                                                     }
-                                                case 1:
+                                                case SystemLaunchHelperExitCodeEnum.FailedOnRegistryCheck:
                                                     {
                                                         Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                                         break;
                                                     }
-                                                case 2:
+                                                case SystemLaunchHelperExitCodeEnum.FailedOnParseArguments:
                                                     {
                                                         Value.Add("Error", "Could not parse the launch arguements");
+                                                        break;
+                                                    }
+                                                case SystemLaunchHelperExitCodeEnum.FailedOnLaunchExplorer:
+                                                    {
+                                                        Value.Add("Error", "Could not launch the explorer process");
                                                         break;
                                                     }
                                                 default:
@@ -3079,21 +3099,26 @@ namespace AuxiliaryTrustProcess
                                     {
                                         HelperProcess.WaitForExit();
 
-                                        switch (HelperProcess.ExitCode)
+                                        switch ((SystemLaunchHelperExitCodeEnum)HelperProcess.ExitCode)
                                         {
-                                            case 0:
+                                            case SystemLaunchHelperExitCodeEnum.Success:
                                                 {
                                                     Value.Add("Success", string.Empty);
                                                     break;
                                                 }
-                                            case 1:
+                                            case SystemLaunchHelperExitCodeEnum.FailedOnRegistryCheck:
                                                 {
                                                     Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                                     break;
                                                 }
-                                            case 2:
+                                            case SystemLaunchHelperExitCodeEnum.FailedOnParseArguments:
                                                 {
                                                     Value.Add("Error", "Could not parse the launch arguements");
+                                                    break;
+                                                }
+                                            case SystemLaunchHelperExitCodeEnum.FailedOnLaunchExplorer:
+                                                {
+                                                    Value.Add("Error", "Could not launch the explorer process");
                                                     break;
                                                 }
                                             default:
@@ -3124,21 +3149,26 @@ namespace AuxiliaryTrustProcess
                                         {
                                             HelperProcess.WaitForExit();
 
-                                            switch (HelperProcess.ExitCode)
+                                            switch ((SystemLaunchHelperExitCodeEnum)HelperProcess.ExitCode)
                                             {
-                                                case 0:
+                                                case SystemLaunchHelperExitCodeEnum.Success:
                                                     {
                                                         Value.Add("Success", string.Empty);
                                                         break;
                                                     }
-                                                case 1:
+                                                case SystemLaunchHelperExitCodeEnum.FailedOnRegistryCheck:
                                                     {
                                                         Value.Add("Error", "Registry checking failed in SystemLaunchHelper");
                                                         break;
                                                     }
-                                                case 2:
+                                                case SystemLaunchHelperExitCodeEnum.FailedOnParseArguments:
                                                     {
                                                         Value.Add("Error", "Could not parse the launch arguements");
+                                                        break;
+                                                    }
+                                                case SystemLaunchHelperExitCodeEnum.FailedOnLaunchExplorer:
+                                                    {
+                                                        Value.Add("Error", "Could not launch the explorer process");
                                                         break;
                                                     }
                                                 default:

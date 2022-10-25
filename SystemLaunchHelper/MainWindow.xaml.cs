@@ -18,6 +18,15 @@ namespace SystemLaunchHelper
 {
     public partial class MainWindow : Window
     {
+        private enum ExitCodeEnum
+        {
+            Success = 0,
+            FailedOnUnknownReason = -1,
+            FailedOnRegistryCheck = 1,
+            FailedOnParseArguments = 2,
+            FailedOnLaunchExplorer = 3,
+        }
+
         private class CommandLineOptions
         {
             [Option('C', "Command", Required = false, HelpText = "Set the command to execute on the process launch")]
@@ -38,7 +47,13 @@ namespace SystemLaunchHelper
 
         private void ExecutionCoreFunction()
         {
-            Application.Current.Shutdown(Parser.Default.ParseArguments<CommandLineOptions>(Environment.GetCommandLineArgs().Skip(1)).MapResult((Options) =>
+            ExitCodeEnum ExitCode = new Parser((With) =>
+            {
+                With.AutoHelp = true;
+                With.CaseInsensitiveEnumValues = true;
+                With.IgnoreUnknownArguments = true;
+                With.CaseSensitive = true;
+            }).ParseArguments<CommandLineOptions>(Environment.GetCommandLineArgs().Skip(1)).MapResult((Options) =>
             {
                 try
                 {
@@ -92,7 +107,7 @@ namespace SystemLaunchHelper
                                             {
                                                 if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase) || Key.GetValue("DelegateExecute") != null)
                                                 {
-                                                    return 1;
+                                                    return ExitCodeEnum.FailedOnRegistryCheck;
                                                 }
                                             }
                                         }
@@ -164,7 +179,7 @@ namespace SystemLaunchHelper
                                             {
                                                 if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    return 1;
+                                                    return ExitCodeEnum.FailedOnRegistryCheck;
                                                 }
                                             }
                                         }
@@ -175,7 +190,7 @@ namespace SystemLaunchHelper
                                             {
                                                 if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    return 1;
+                                                    return ExitCodeEnum.FailedOnRegistryCheck;
                                                 }
                                             }
                                         }
@@ -186,7 +201,7 @@ namespace SystemLaunchHelper
                                             {
                                                 if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    return 1;
+                                                    return ExitCodeEnum.FailedOnRegistryCheck;
                                                 }
                                             }
                                         }
@@ -197,7 +212,7 @@ namespace SystemLaunchHelper
                                             {
                                                 if (!Convert.ToString(Key.GetValue(string.Empty)).Contains(CurrentPath, StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    return 1;
+                                                    return ExitCodeEnum.FailedOnRegistryCheck;
                                                 }
                                             }
                                         }
@@ -242,7 +257,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Convert.ToString(Key.GetValue("DelegateExecute")) != "{11dbb47c-a525-400b-9e80-a54615a090c0}" || !string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
                                             {
-                                                return 1;
+                                                return ExitCodeEnum.FailedOnRegistryCheck;
                                             }
                                         }
                                     }
@@ -342,7 +357,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Convert.ToString(Key.GetValue("DelegateExecute")) != "{11dbb47c-a525-400b-9e80-a54615a090c0}" || !string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
                                             {
-                                                return 1;
+                                                return ExitCodeEnum.FailedOnRegistryCheck;
                                             }
                                         }
                                     }
@@ -353,7 +368,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (!string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
                                             {
-                                                return 1;
+                                                return ExitCodeEnum.FailedOnRegistryCheck;
                                             }
                                         }
                                     }
@@ -364,7 +379,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (Convert.ToString(Key.GetValue(string.Empty)) != Environment.ExpandEnvironmentVariables(@"%SystemRoot%\Explorer.exe"))
                                             {
-                                                return 1;
+                                                return ExitCodeEnum.FailedOnRegistryCheck;
                                             }
                                         }
                                     }
@@ -375,7 +390,7 @@ namespace SystemLaunchHelper
                                         {
                                             if (!string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
                                             {
-                                                return 1;
+                                                return ExitCodeEnum.FailedOnRegistryCheck;
                                             }
                                         }
                                     }
@@ -462,7 +477,10 @@ namespace SystemLaunchHelper
                                         }
                                         catch (Exception)
                                         {
-                                            Helper.LaunchApplicationFromPackageFamilyName("36186RuoFan.USB_q3e6crc0w375t", Options.PathList.ToArray());
+                                            if (!Helper.LaunchApplicationFromPackageFamilyName("36186RuoFan.USB_q3e6crc0w375t", Options.PathList.ToArray()))
+                                            {
+                                                return ExitCodeEnum.FailedOnLaunchExplorer;
+                                            }
                                         }
                                     }
                                     else
@@ -610,7 +628,7 @@ namespace SystemLaunchHelper
                             }
                     }
 
-                    return 0;
+                    return ExitCodeEnum.Success;
                 }
                 catch (Exception ex)
                 {
@@ -627,14 +645,14 @@ namespace SystemLaunchHelper
                     Debug.WriteLine($"Unexpected exception was threw, message: {ex.Message}");
 #endif
 
-                    return -1;
+                    return ExitCodeEnum.FailedOnUnknownReason;
                 }
             },
             (ErrorList) =>
             {
                 if (ErrorList.Any(e => e.Tag is ErrorType.HelpRequestedError or ErrorType.VersionRequestedError))
                 {
-                    return 0;
+                    return ExitCodeEnum.Success;
                 }
 
 #if DEBUG
@@ -650,8 +668,10 @@ namespace SystemLaunchHelper
                 Debug.WriteLine($"Unexpected exception was threw during parsing the launch parameters");
 #endif
 
-                return 2;
-            }));
+                return ExitCodeEnum.FailedOnParseArguments;
+            });
+
+            Application.Current.Shutdown((int)ExitCode);
         }
     }
 }

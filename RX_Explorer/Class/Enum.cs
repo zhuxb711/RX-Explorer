@@ -2,6 +2,14 @@
 
 namespace RX_Explorer.Class
 {
+    public enum RecoveryReason
+    {
+        None,
+        Crash,
+        Freeze,
+        Restart
+    }
+
     public enum SecureAreaLockMode
     {
         InstantLockMode,
