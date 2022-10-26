@@ -1,6 +1,7 @@
 ﻿using FluentFTP;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,24 +56,16 @@ namespace RX_Explorer.Class
         {
             BaseStream.Dispose();
 
-            using (CancellationTokenSource Cancellation = new CancellationTokenSource(5000))
+            using (CancellationTokenSource Cancellation = new CancellationTokenSource(15000))
             {
                 try
                 {
-                    while (true)
-                    {
-                        FtpReply Reply = Client.GetReply(Cancellation.Token).Result;
-
-                        if (Reply.Success)
-                        {
-                            if ((Reply.Message?.Contains("NOOP")).GetValueOrDefault())
-                            {
-                                continue;
-                            }
-                        }
-
-                        break;
-                    }
+                    ((Task<FtpReply>)typeof(AsyncFtpClient).GetMethod("GetReplyAsyncInternal",
+                                                                      BindingFlags.Instance | BindingFlags.NonPublic,
+                                                                      Type.DefaultBinder,
+                                                                      new Type[] { typeof(CancellationToken), typeof(string), typeof(bool) },
+                                                                      Array.Empty<ParameterModifier>())
+                                                           .Invoke(Client, new object[] { Cancellation.Token, null, true })).Wait(Cancellation.Token);
                 }
                 catch (Exception)
                 {

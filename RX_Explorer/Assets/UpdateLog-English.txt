@@ -2,14 +2,14 @@
 
 #####UI update
 
->######The UI of "Secure Area" has received minor improvements
+>#####The UI of "Secure Area" has received minor improvements
 
 #####Bug Fixes
 
->######Fixed an issue that opening or closing the "Integration with system components" related functions multiple times may lead to failure
+>#####Fixed an issue that opening or closing the "Integration with system components" related functions multiple times may lead to failure
 
->######Fixed an issue where some SLE files for versions 1.5.0 and below may not be decrypted correctly
+>#####Fixed an issue where some SLE files for versions 1.5.0 and below may not be decrypted correctly
 
->######Fixed an issue where the built-in viewer might fail to preview some SLE files
+>#####Fixed an issue where the built-in viewer might fail to preview some SLE files
 
->######Fixed an issue that the storage location of the "Security Area" cannot be changed if there are no encrypted files
+>#####Fixed an issue that the storage location of the "Security Area" cannot be changed if there are no encrypted files
