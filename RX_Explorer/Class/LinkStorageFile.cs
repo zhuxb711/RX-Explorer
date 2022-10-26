@@ -45,7 +45,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        return await Exclusive.Controller.LaunchUWPFromPfnAsync(LinkTargetPath);
+                        return await Exclusive.Controller.LaunchFromPackageFamilyNameAsync(LinkTargetPath);
                     }
                 }
             }

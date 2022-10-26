@@ -1,6 +1,5 @@
 ﻿using SharedLibrary;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -9,7 +8,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 using Vanara.PInvoke;
-using Vanara.Windows.Shell;
 
 namespace MonitorTrustProcess
 {
@@ -67,104 +65,19 @@ namespace MonitorTrustProcess
 
         public static bool LaunchApplicationFromAppUserModelId(string AppUserModelId, params string[] Arguments)
         {
-            try
+            Guid CLSID_ApplicationActivationManager = new Guid("45BA127D-10A8-46EA-8AB7-56EA9078943C");
+            Guid IID_IApplicationActivationManager = new Guid("2E941141-7F97-4756-BA1D-9DECDE894A3D");
+
+            if (Ole32.CoCreateInstance(CLSID_ApplicationActivationManager, null, Ole32.CLSCTX.CLSCTX_LOCAL_SERVER, IID_IApplicationActivationManager, out object ppv).Succeeded)
             {
-                Shell32.IApplicationActivationManager Manager = (Shell32.IApplicationActivationManager)new Shell32.ApplicationActivationManager();
+                Shell32.IApplicationActivationManager Manager = (Shell32.IApplicationActivationManager)ppv;
 
-                IEnumerable<string> AvailableArguments = Arguments.Where((Item) => !string.IsNullOrEmpty(Item));
+                Manager.ActivateApplication(AppUserModelId, string.Join(' ', Arguments.Where((Item) => !string.IsNullOrEmpty(Item)).Select((Path) => $"\"{Path}\"")), Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
 
-                if (AvailableArguments.Any())
+                if (ProcessId > 0)
                 {
-                    List<Exception> ExceptionList = new List<Exception>();
-
-                    if (AvailableArguments.All((Item) => File.Exists(Item) || Directory.Exists(Item)))
-                    {
-                        IEnumerable<ShellItem> SItemList = AvailableArguments.Select((Item) => new ShellItem(Item));
-
-                        try
-                        {
-                            using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
-                            {
-                                try
-                                {
-                                    Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "open", out uint ProcessId);
-
-                                    if (ProcessId > 0)
-                                    {
-                                        return true;
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    ExceptionList.Add(ex);
-                                }
-
-                                try
-                                {
-                                    Manager.ActivateForProtocol(AppUserModelId, ItemArray.IShellItemArray, out uint ProcessId);
-
-                                    if (ProcessId > 0)
-                                    {
-                                        return true;
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    ExceptionList.Add(ex);
-                                }
-                            }
-
-                            try
-                            {
-                                Manager.ActivateApplication(AppUserModelId, string.Join(' ', AvailableArguments.Select((Path) => $"\"{Path}\"")), Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
-
-                                if (ProcessId > 0)
-                                {
-                                    return true;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                ExceptionList.Add(ex);
-                            }
-                        }
-                        finally
-                        {
-                            SItemList.ForEach((Item) => Item.Dispose());
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            Manager.ActivateApplication(AppUserModelId, string.Join(' ', AvailableArguments.Select((Item) => $"\"{Item}\"")), Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
-
-                            if (ProcessId > 0)
-                            {
-                                return true;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            ExceptionList.Add(ex);
-                        }
-                    }
-
-                    throw new AggregateException(ExceptionList);
+                    return true;
                 }
-                else
-                {
-                    Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
-
-                    if (ProcessId > 0)
-                    {
-                        return true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not launch the application from AUMID");
             }
 
             return false;

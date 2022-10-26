@@ -17,65 +17,20 @@ namespace RX_Explorer
                 AppInstanceIdContainer.ClearAll();
             }
 
-            switch (AppInstance.GetActivatedEventArgs())
+            if (AppInstance.GetActivatedEventArgs() is ToastNotificationActivatedEventArgs ToastActivate)
             {
-                case ToastNotificationActivatedEventArgs ToastActivate:
-                    {
-                        switch (ToastActivate.Argument)
+                switch (ToastActivate.Argument)
+                {
+                    case "RecoveryRestartTips":
+                    case "EnterBackgroundTips":
                         {
-                            case "RecoveryRestartTips":
-                            case "EnterBackgroundTips":
-                                {
-                                    while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId))
-                                    {
-                                        if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
-                                        {
-                                            if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
-                                            {
-                                                TargetInstance.RedirectActivationTo();
-                                            }
-
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
-                                        }
-                                    }
-
-                                    break;
-                                }
-                            case "Restart":
-                                {
-                                    AppInstanceIdContainer.RegisterId(AppInstance.FindOrRegisterInstanceForKey(Guid.NewGuid().ToString()).Key);
-                                    Application.Start((_) => new App());
-                                    break;
-                                }
-                        }
-
-                        break;
-                    }
-                case CommandLineActivatedEventArgs CmdActivate:
-                    {
-                        if (SettingPage.IsAlwaysLaunchNewProcessEnabled || string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
-                        {
-                            AppInstanceIdContainer.RegisterId(AppInstance.FindOrRegisterInstanceForKey(Guid.NewGuid().ToString()).Key);
-                            Application.Start((_) => new App());
-                        }
-                        else
-                        {
-                            do
+                            while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId))
                             {
                                 if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
                                 {
                                     if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
                                     {
                                         TargetInstance.RedirectActivationTo();
-                                    }
-                                    else
-                                    {
-                                        AppInstanceIdContainer.RegisterId(AppInstance.FindOrRegisterInstanceForKey(Guid.NewGuid().ToString()).Key);
-                                        Application.Start((_) => new App());
                                     }
 
                                     break;
@@ -85,17 +40,49 @@ namespace RX_Explorer
                                     AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
                                 }
                             }
-                            while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
-                        }
 
-                        break;
-                    }
-                default:
+                            break;
+                        }
+                    case "Restart":
+                        {
+                            AppInstanceIdContainer.RegisterId(AppInstance.FindOrRegisterInstanceForKey(Guid.NewGuid().ToString()).Key);
+                            Application.Start((_) => new App());
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                if (SettingPage.IsAlwaysLaunchNewProcessEnabled || string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
+                {
+                    AppInstanceIdContainer.RegisterId(AppInstance.FindOrRegisterInstanceForKey(Guid.NewGuid().ToString()).Key);
+                    Application.Start((_) => new App());
+                }
+                else
+                {
+                    do
                     {
-                        AppInstanceIdContainer.RegisterId(AppInstance.FindOrRegisterInstanceForKey(Guid.NewGuid().ToString()).Key);
-                        Application.Start((_) => new App());
-                        break;
+                        if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
+                        {
+                            if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
+                            {
+                                TargetInstance.RedirectActivationTo();
+                            }
+                            else
+                            {
+                                AppInstanceIdContainer.RegisterId(AppInstance.FindOrRegisterInstanceForKey(Guid.NewGuid().ToString()).Key);
+                                Application.Start((_) => new App());
+                            }
+
+                            break;
+                        }
+                        else
+                        {
+                            AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
+                        }
                     }
+                    while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
+                }
             }
         }
     }

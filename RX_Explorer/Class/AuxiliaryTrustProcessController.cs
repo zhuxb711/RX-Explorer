@@ -1259,7 +1259,7 @@ namespace RX_Explorer.Class
             return new List<string>(0);
         }
 
-        public async Task<bool> LaunchUWPFromAUMIDAsync(string AppUserModelId, params string[] PathArray)
+        public async Task<bool> LaunchFromAppModelIdAsync(string AppUserModelId, params string[] PathArray)
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.LaunchUWP,
                                                                                   ("AppUserModelId", AppUserModelId),
@@ -1271,13 +1271,13 @@ namespace RX_Explorer.Class
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
-                LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPFromAUMIDAsync)}, message: {ErrorMessage}");
+                LogTracer.Log($"An unexpected error was threw in {nameof(LaunchFromAppModelIdAsync)}, message: {ErrorMessage}");
             }
 
             return false;
         }
 
-        public async Task<bool> LaunchUWPFromPfnAsync(string PackageFamilyName, params string[] PathArray)
+        public async Task<bool> LaunchFromPackageFamilyNameAsync(string PackageFamilyName, params string[] PathArray)
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.LaunchUWP,
                                                                                   ("PackageFamilyName", PackageFamilyName),
@@ -1289,7 +1289,7 @@ namespace RX_Explorer.Class
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
-                LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPFromPfnAsync)}, message: {ErrorMessage}");
+                LogTracer.Log($"An unexpected error was threw in {nameof(LaunchFromPackageFamilyNameAsync)}, message: {ErrorMessage}");
             }
 
             return false;

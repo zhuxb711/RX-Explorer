@@ -1448,7 +1448,7 @@ namespace RX_Explorer.View
                             {
                                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                                 {
-                                    if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(Item.Protocol))
+                                    if (!await Exclusive.Controller.LaunchFromPackageFamilyNameAsync(Item.Protocol))
                                     {
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {

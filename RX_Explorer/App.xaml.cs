@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
+﻿using CommandLine;
+using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.Notifications;
 using RX_Explorer.Class;
 using RX_Explorer.View;
@@ -211,145 +212,120 @@ namespace RX_Explorer
                     FontFamilyController.Initialize();
                     SystemInformation.Instance.TrackAppUse(args);
 
+                    Parser ArguementParser = new Parser((With) =>
+                    {
+                        With.AutoHelp = true;
+                        With.CaseInsensitiveEnumValues = true;
+                        With.IgnoreUnknownArguments = true;
+                        With.CaseSensitive = true;
+                    });
+
                     switch (args)
                     {
-                        case LaunchActivatedEventArgs LaunchArgs:
+                        case LaunchActivatedEventArgs:
+                        case CommandLineActivatedEventArgs:
                             {
-                                IEnumerable<string> ActualStartupArguments = Regex.Matches(LaunchArgs.Arguments, @"[\""].+?[\""]|[^ ]+")
-                                                                                  .Skip(1)
-                                                                                  .Select((Match) => Match.Value.Trim('"').TrimEnd('\\'))
-                                                                                  .Where((Value) => !string.IsNullOrWhiteSpace(Value))
-                                                                                  .ToArray();
-
-                                IEnumerable<string[]> OpenPathListOnEachTab = Enumerable.Empty<string[]>();
-
-                                if (ActualStartupArguments.Any())
+                                IEnumerable<string> Arguments = args switch
                                 {
-                                    if (ActualStartupArguments.FirstOrDefault().StartsWith("/Recovery", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        switch (ActualStartupArguments.FirstOrDefault().Split(':').LastOrDefault())
-                                        {
-                                            case "Crash":
-                                                {
-                                                    ToastContentBuilder Builder = new ToastContentBuilder()
-                                                                                  .SetToastScenario(ToastScenario.Reminder)
-                                                                                  .AddToastActivationInfo("RecoveryRestartTips", ToastActivationType.Foreground)
-                                                                                  .AddText(Globalization.GetString("Toast_Restart_Common_Text_1"))
-                                                                                  .AddText(Globalization.GetString("Toast_Restart_Crash_Text"))
-                                                                                  .AddText(Globalization.GetString("Toast_Restart_Common_Text_2"));
+                                    LaunchActivatedEventArgs LaunchArgs => Regex.Matches(LaunchArgs.Arguments, @"[\""].+?[\""]|[^ ]+").Select((Match) => Match.Value.Trim('"').TrimEnd('\\')),
+                                    CommandLineActivatedEventArgs CmdArgs => Regex.Matches(CmdArgs.Operation.Arguments, @"[\""].+?[\""]|[^ ]+").Skip(1).Select((Match) => Match.Value.Trim('"').TrimEnd('\\')).Select((Path) => Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path),
+                                    _ => throw new NotSupportedException()
+                                };
 
-                                                    ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml())
-                                                    {
-                                                        Tag = "RecoveryRestartTips",
-                                                        Priority = ToastNotificationPriority.Default
-                                                    });
+                                await ArguementParser.ParseArguments<LaunchArguementOptions>(Arguments)
+                                                     .WithNotParsed((ErrorList) =>
+                                                     {
+                                                         if (ErrorList.All(e => e.Tag is not ErrorType.HelpRequestedError and not ErrorType.VersionRequestedError))
+                                                         {
+                                                             LogTracer.Log($"Startup arguments parsing failed, reason: {string.Join('|', ErrorList.Select((Error) => Enum.GetName(typeof(ErrorType), Error)))}");
+                                                         }
 
-                                                    break;
-                                                }
-                                            case "Freeze":
-                                                {
-                                                    ToastContentBuilder Builder = new ToastContentBuilder()
-                                                                                  .SetToastScenario(ToastScenario.Reminder)
-                                                                                  .AddToastActivationInfo("RecoveryRestartTips", ToastActivationType.Foreground)
-                                                                                  .AddText(Globalization.GetString("Toast_Restart_Common_Text_1"))
-                                                                                  .AddText(Globalization.GetString("Toast_Restart_Hang_Text"))
-                                                                                  .AddText(Globalization.GetString("Toast_Restart_Common_Text_2"));
+                                                         Window.Current.Content = new ExtendedSplash(args.SplashScreen);
+                                                     })
+                                                     .WithParsedAsync(async (Options) =>
+                                                     {
+                                                         IEnumerable<string[]> OpenPathListOnEachTab = Enumerable.Empty<string[]>();
 
-                                                    ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml())
-                                                    {
-                                                        Tag = "RecoveryRestartTips",
-                                                        Priority = ToastNotificationPriority.Default
-                                                    });
+                                                         switch (Options.RecoveryReason)
+                                                         {
+                                                             case RecoveryReason.Crash when !string.IsNullOrEmpty(Options.RecoveryData):
+                                                                 {
+                                                                     ToastContentBuilder Builder = new ToastContentBuilder()
+                                                                                                       .SetToastScenario(ToastScenario.Reminder)
+                                                                                                       .AddToastActivationInfo("RecoveryRestartTips", ToastActivationType.Foreground)
+                                                                                                       .AddText(Globalization.GetString("Toast_Restart_Common_Text_1"))
+                                                                                                       .AddText(Globalization.GetString("Toast_Restart_Crash_Text"))
+                                                                                                       .AddText(Globalization.GetString("Toast_Restart_Common_Text_2"));
 
-                                                    break;
-                                                }
-                                        }
+                                                                     ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml())
+                                                                     {
+                                                                         Tag = "RecoveryRestartTips",
+                                                                         Priority = ToastNotificationPriority.Default
+                                                                     });
 
-                                        string Base64String = ActualStartupArguments.LastOrDefault();
+                                                                     OpenPathListOnEachTab = JsonSerializer.Deserialize<IEnumerable<string[]>>(Encoding.UTF8.GetString(Convert.FromBase64String(Options.RecoveryData)));
 
-                                        if (!string.IsNullOrEmpty(Base64String))
-                                        {
-                                            OpenPathListOnEachTab = JsonSerializer.Deserialize<IEnumerable<string[]>>(Encoding.UTF8.GetString(Convert.FromBase64String(Base64String)));
-                                        }
-                                    }
+                                                                     break;
+                                                                 }
+                                                             case RecoveryReason.Freeze when !string.IsNullOrEmpty(Options.RecoveryData):
+                                                                 {
+                                                                     ToastContentBuilder Builder = new ToastContentBuilder()
+                                                                                                       .SetToastScenario(ToastScenario.Reminder)
+                                                                                                       .AddToastActivationInfo("RecoveryRestartTips", ToastActivationType.Foreground)
+                                                                                                       .AddText(Globalization.GetString("Toast_Restart_Common_Text_1"))
+                                                                                                       .AddText(Globalization.GetString("Toast_Restart_Hang_Text"))
+                                                                                                       .AddText(Globalization.GetString("Toast_Restart_Common_Text_2"));
 
-                                    if (!OpenPathListOnEachTab.Any())
-                                    {
-                                        OpenPathListOnEachTab = ActualStartupArguments.Select((Path) => new string[] { Path });
-                                    }
-                                }
+                                                                     ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml())
+                                                                     {
+                                                                         Tag = "RecoveryRestartTips",
+                                                                         Priority = ToastNotificationPriority.Default
+                                                                     });
 
-                                if (Window.Current.Content is Frame Frame)
-                                {
-                                    if (Frame.Content is MainPage Main && Main.NavFrame.Content is TabViewContainer TabContainer)
-                                    {
-                                        if (OpenPathListOnEachTab.Any())
-                                        {
-                                            await TabContainer.CreateNewTabAsync(OpenPathListOnEachTab);
-                                        }
-                                        else
-                                        {
-                                            await TabContainer.CreateNewTabAsync();
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    if (OpenPathListOnEachTab.Any())
-                                    {
-                                        Window.Current.Content = new ExtendedSplash(LaunchArgs.SplashScreen, OpenPathListOnEachTab.ToList());
-                                    }
-                                    else
-                                    {
-                                        await LaunchWithStartupMode(LaunchArgs);
-                                    }
-                                }
+                                                                     OpenPathListOnEachTab = JsonSerializer.Deserialize<IEnumerable<string[]>>(Encoding.UTF8.GetString(Convert.FromBase64String(Options.RecoveryData)));
 
-                                break;
-                            }
-                        case CommandLineActivatedEventArgs CmdArgs:
-                            {
-                                IEnumerable<string> ActualStartupArguments = Regex.Matches(CmdArgs.Operation.Arguments, @"[\""].+?[\""]|[^ ]+")
-                                                                                  .Skip(1)
-                                                                                  .Select((Match) => Match.Value.Trim('"').TrimEnd('\\'))
-                                                                                  .Where((Value) => !string.IsNullOrWhiteSpace(Value))
-                                                                                  .ToArray();
+                                                                     break;
+                                                                 }
+                                                             case RecoveryReason.Restart when !string.IsNullOrEmpty(Options.RecoveryData):
+                                                                 {
+                                                                     OpenPathListOnEachTab = JsonSerializer.Deserialize<IEnumerable<string[]>>(Encoding.UTF8.GetString(Convert.FromBase64String(Options.RecoveryData)));
 
-                                IEnumerable<string[]> OpenPathListOnEachTab = Enumerable.Empty<string[]>();
+                                                                     break;
+                                                                 }
+                                                             default:
+                                                                 {
+                                                                     OpenPathListOnEachTab = Options.PathList.Where((Value) => !string.IsNullOrWhiteSpace(Value)).SkipWhile((Value) => Regex.IsMatch(Value, @"^::\{[A-Za-z0-9-]{36}\}$")).Select((Path) => new string[] { Path });
+                                                                     
+                                                                     break;
+                                                                 }
+                                                         }
 
-                                if (ActualStartupArguments.Any())
-                                {
-                                    if (ActualStartupArguments.All((Path) => !Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase)))
-                                    {
-                                        OpenPathListOnEachTab = ActualStartupArguments.Select((Path) => new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path });
-                                    }
-                                }
-
-                                if (Window.Current.Content is Frame Frame)
-                                {
-                                    if (Frame.Content is MainPage Main && Main.NavFrame.Content is TabViewContainer TabContainer)
-                                    {
-                                        if (OpenPathListOnEachTab.Any())
-                                        {
-                                            await TabContainer.CreateNewTabAsync(OpenPathListOnEachTab);
-                                        }
-                                        else
-                                        {
-                                            await TabContainer.CreateNewTabAsync();
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    if (OpenPathListOnEachTab.Any())
-                                    {
-                                        Window.Current.Content = new ExtendedSplash(CmdArgs.SplashScreen, OpenPathListOnEachTab.ToList());
-                                    }
-                                    else
-                                    {
-                                        await LaunchWithStartupMode(CmdArgs);
-                                    }
-                                }
+                                                         if (Window.Current.Content is Frame Frame)
+                                                         {
+                                                             if (Frame.Content is MainPage Main && Main.NavFrame.Content is TabViewContainer TabContainer)
+                                                             {
+                                                                 if (OpenPathListOnEachTab.Any())
+                                                                 {
+                                                                     await TabContainer.CreateNewTabAsync(OpenPathListOnEachTab);
+                                                                 }
+                                                                 else
+                                                                 {
+                                                                     await TabContainer.CreateNewTabAsync();
+                                                                 }
+                                                             }
+                                                         }
+                                                         else
+                                                         {
+                                                             if (OpenPathListOnEachTab.Any())
+                                                             {
+                                                                 Window.Current.Content = new ExtendedSplash(args.SplashScreen, OpenPathListOnEachTab.ToList());
+                                                             }
+                                                             else
+                                                             {
+                                                                 await LaunchWithStartupMode(args);
+                                                             }
+                                                         }
+                                                     });
 
                                 break;
                             }
@@ -376,7 +352,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{args.GetType().Name} startup failed. Switching to normal startup mode");
+                LogTracer.Log(ex, "Switching to normal startup mode for unknown exception was threw");
                 Window.Current.Content = new ExtendedSplash(args.SplashScreen);
             }
             finally
