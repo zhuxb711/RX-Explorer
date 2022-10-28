@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.Data.Sqlite;
 using RX_Explorer.View;
 using SharedLibrary;
 using System;
@@ -292,17 +293,14 @@ namespace RX_Explorer.Class
             return Result;
         }
 
-        public TerminalProfile GetTerminalProfileByName(string Name)
+        public TerminalProfile GetTerminalProfile(string Name, string Path)
         {
-            if (string.IsNullOrEmpty(Name))
+            if (!string.IsNullOrEmpty(Path))
             {
-                return null;
-            }
-            else
-            {
-                using SqliteCommand Command = new SqliteCommand("Select * From TerminalProfile Where Name = @Name", Connection);
+                using SqliteCommand Command = new SqliteCommand("Select * From TerminalProfile Where Name = @Name And Path = @Path Limit 0,1", Connection);
 
                 Command.Parameters.AddWithValue("@Name", Name);
+                Command.Parameters.AddWithValue("@Path", Path);
 
                 using SqliteDataReader Reader = Command.ExecuteReader();
 
@@ -310,14 +308,12 @@ namespace RX_Explorer.Class
                 {
                     return new TerminalProfile(Reader[0].ToString(), Reader[1].ToString(), Reader[2].ToString(), Convert.ToBoolean(Reader[3]));
                 }
-                else
-                {
-                    return null;
-                }
             }
+
+            return null;
         }
 
-        public void DeleteTerminalProfile(TerminalProfile Profile)
+        public bool DeleteTerminalProfile(TerminalProfile Profile)
         {
             if (Profile == null)
             {
@@ -327,7 +323,7 @@ namespace RX_Explorer.Class
             using (SqliteCommand Command = new SqliteCommand("Delete From TerminalProfile Where Name = @Name", Connection))
             {
                 Command.Parameters.AddWithValue("@Name", Profile.Name);
-                Command.ExecuteNonQuery();
+                return Command.ExecuteNonQuery() > 0;
             }
         }
 

@@ -1,7 +1,6 @@
 ﻿using FluentFTP;
 using System;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,9 +31,9 @@ namespace RX_Explorer.Class
             return BaseStream.Read(buffer, offset, count);
         }
 
-        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            return BaseStream.ReadAsync(buffer, offset, count, cancellationToken);
+            return await BaseStream.ReadAsync(buffer, offset, count, cancellationToken);
         }
 
         public override long Seek(long offset, SeekOrigin origin)
@@ -56,22 +55,35 @@ namespace RX_Explorer.Class
         {
             BaseStream.Dispose();
 
-            using (CancellationTokenSource Cancellation = new CancellationTokenSource(15000))
+            Task.Run(() =>
             {
-                try
+                using (CancellationTokenSource Cancellation = new CancellationTokenSource(3000))
                 {
-                    ((Task<FtpReply>)typeof(AsyncFtpClient).GetMethod("GetReplyAsyncInternal",
-                                                                      BindingFlags.Instance | BindingFlags.NonPublic,
-                                                                      Type.DefaultBinder,
-                                                                      new Type[] { typeof(CancellationToken), typeof(string), typeof(bool) },
-                                                                      Array.Empty<ParameterModifier>())
-                                                           .Invoke(Client, new object[] { Cancellation.Token, null, true })).Wait(Cancellation.Token);
+                    try
+                    {
+                        while (true)
+                        {
+                            Task<FtpReply> ReplyTask = Client.GetReply(Cancellation.Token);
+
+                            if (Task.WaitAny(Task.Delay(3000), ReplyTask) > 0)
+                            {
+                                FtpReply Reply = ReplyTask.Result;
+
+                                if (Reply.Success && (ReplyTask.Result.Message?.Contains("NOOP")).GetValueOrDefault())
+                                {
+                                    continue;
+                                }
+                            }
+
+                            break;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        //No need to handle this exception
+                    }
                 }
-                catch (Exception)
-                {
-                    //No need to handle this exception
-                }
-            }
+            });
 
             base.Dispose(disposing);
         }

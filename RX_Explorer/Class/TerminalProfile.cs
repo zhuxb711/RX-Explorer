@@ -66,7 +66,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return left.Name == right.Name;
+                    return left.Name == right.Name && left.Path == right.Path;
                 }
             }
         }
@@ -85,7 +85,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return left.Name != right.Name;
+                    return left.Name != right.Name || left.Path != right.Path;
                 }
             }
         }

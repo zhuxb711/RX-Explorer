@@ -22,26 +22,31 @@ namespace RX_Explorer.Class
 
         public override long Position { get; set; }
 
-        public override void Flush()
-        {
-            TempStream.Flush();
-        }
-
         public override int Read(byte[] buffer, int offset, int count)
         {
-            MakeSurePosition(Position + count);
+            MakeSurePositionReachable(Position + count);
 
             int TempBytesRead = TempStream.Read(buffer, offset, count);
-            Position += TempBytesRead;
+
+            if (TempBytesRead > 0)
+            {
+                Position += TempBytesRead;
+            }
+
             return TempBytesRead;
         }
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            await MakeSurePositionAsync(Position + count, cancellationToken);
+            await MakeSurePositionReachable(Position + count, cancellationToken);
 
             int TempBytesRead = await TempStream.ReadAsync(buffer, offset, count, cancellationToken);
-            Position += TempBytesRead;
+
+            if (TempBytesRead > 0)
+            {
+                Position += TempBytesRead;
+            }
+
             return TempBytesRead;
         }
 
@@ -51,57 +56,47 @@ namespace RX_Explorer.Class
             {
                 case SeekOrigin.Begin:
                     {
-                        if (offset >= Length)
-                        {
-                            throw new ArgumentOutOfRangeException();
-                        }
-
-                        return Position = offset;
+                        Position = offset;
+                        break;
                     }
                 case SeekOrigin.Current:
                     {
-                        long ActualPosition = Position + offset;
-
-                        if (ActualPosition >= Length)
-                        {
-                            throw new ArgumentOutOfRangeException();
-                        }
-
-                        return Position = ActualPosition;
+                        Position += offset;
+                        break;
                     }
                 case SeekOrigin.End:
                     {
-                        if (offset > 0)
-                        {
-                            throw new ArgumentOutOfRangeException();
-                        }
-
-                        return Position = Length - 1 + offset;
-                    }
-                default:
-                    {
-                        throw new ArgumentException();
+                        Position = Length + offset;
+                        break;
                     }
             }
+
+            return Position;
         }
 
         public override void SetLength(long value)
         {
-            throw new NotSupportedException();
+            TempStream.SetLength(value);
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            MakeSurePosition(Position + count);
+            MakeSurePositionReachable(Position + count);
+            TempStream.Seek(Position, SeekOrigin.Begin);
             TempStream.Write(buffer, offset, count);
             Position += count;
         }
 
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            await MakeSurePositionAsync(Position + count, cancellationToken);
-            await TempStream.WriteAsync(buffer, offset, count);
+            await MakeSurePositionReachable(Position + count, cancellationToken);
+            await TempStream.WriteAsync(buffer, offset, count, cancellationToken);
             Position += count;
+        }
+
+        public override void Flush()
+        {
+            TempStream.Flush();
         }
 
         protected override void Dispose(bool disposing)
@@ -119,40 +114,58 @@ namespace RX_Explorer.Class
             }
         }
 
-        private void MakeSurePosition(long Position)
+        private void MakeSurePositionReachable(long Position)
         {
-            while (Math.Min(Position, Length) > TempStream.Length)
+            long RequestPosition = Math.Min(Position, Length);
+
+            if (RequestPosition > TempStream.Length)
             {
-                byte[] TempBuffer = new byte[4096];
+                TempStream.Seek(0, SeekOrigin.End);
 
-                int SequentialBytesRead = SequentialStream.Read(TempBuffer, 0, TempBuffer.Length);
-
-                if (SequentialBytesRead > 0)
+                do
                 {
-                    TempStream.Seek(0, SeekOrigin.End);
+                    byte[] TempBuffer = new byte[4096];
+
+                    int SequentialBytesRead = SequentialStream.Read(TempBuffer, 0, TempBuffer.Length);
+
+                    if (SequentialBytesRead == 0)
+                    {
+                        break;
+                    }
+
                     TempStream.Write(TempBuffer, 0, SequentialBytesRead);
                 }
+                while (RequestPosition > TempStream.Length);
             }
 
-            TempStream.Seek(Position, SeekOrigin.Begin);
+            TempStream.Seek(this.Position, SeekOrigin.Begin);
         }
 
-        private async Task MakeSurePositionAsync(long Position, CancellationToken CancelToken)
+        private async Task MakeSurePositionReachable(long Position, CancellationToken CancelToken = default)
         {
-            while (Math.Min(Position, Length) > TempStream.Length)
+            long RequestPosition = Math.Min(Position, Length);
+
+            if (RequestPosition > TempStream.Length)
             {
-                byte[] TempBuffer = new byte[4096];
+                TempStream.Seek(0, SeekOrigin.End);
 
-                int SequentialBytesRead = await SequentialStream.ReadAsync(TempBuffer, 0, TempBuffer.Length, CancelToken);
-
-                if (SequentialBytesRead > 0)
+                do
                 {
-                    TempStream.Seek(0, SeekOrigin.End);
-                    await TempStream.WriteAsync(TempBuffer, 0, TempBuffer.Length, CancelToken);
+                    byte[] TempBuffer = new byte[4096];
+
+                    int SequentialBytesRead = await SequentialStream.ReadAsync(TempBuffer, 0, TempBuffer.Length, CancelToken);
+
+                    if (SequentialBytesRead == 0)
+                    {
+                        break;
+                    }
+
+                    await TempStream.WriteAsync(TempBuffer, 0, SequentialBytesRead, CancelToken);
                 }
+                while (RequestPosition > TempStream.Length);
             }
 
-            TempStream.Seek(Position, SeekOrigin.Begin);
+            TempStream.Seek(this.Position, SeekOrigin.Begin);
         }
 
         ~SequentialVirtualRandomAccessStream()

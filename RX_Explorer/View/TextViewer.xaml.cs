@@ -181,24 +181,22 @@ namespace RX_Explorer.View
 
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
+            TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(true);
+
             try
             {
                 if (await FileSystemStorageItemBase.CreateNewAsync(TextFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile File)
                 {
                     using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Write))
+                    using (StreamWriter Writer = new StreamWriter(Stream, SaveEncoding))
                     {
-                        Stream.SetLength(0);
-
-                        using (StreamWriter Writer = new StreamWriter(Stream, SaveEncoding))
-                        {
-                            await Writer.WriteAsync(EditText.Text.Replace("\r", Environment.NewLine));
-                            await Writer.FlushAsync();
-                        }
+                        await Writer.WriteAsync(EditText.Text.Replace("\r", Environment.NewLine));
+                        await Writer.FlushAsync();
                     }
                 }
                 else
                 {
-                    throw new FileNotFoundException();
+                    throw new UnauthorizedAccessException();
                 }
             }
             catch (Exception ex)
@@ -216,10 +214,7 @@ namespace RX_Explorer.View
             }
             finally
             {
-                if (Frame.CanGoBack)
-                {
-                    Frame.GoBack();
-                }
+                TabViewContainer.Current.CurrentTabRenderer?.SetLoadingTipsStatus(false);
             }
         }
 

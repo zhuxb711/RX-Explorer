@@ -6771,7 +6771,7 @@ namespace RX_Explorer.View
 
             try
             {
-                if (SQLite.Current.GetTerminalProfileByName(SettingPage.DefaultTerminalName) is TerminalProfile Profile)
+                if (SettingPage.DefaultTerminalProfile is TerminalProfile Profile)
                 {
                     using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                     {

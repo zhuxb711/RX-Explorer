@@ -501,20 +501,34 @@ namespace RX_Explorer.View
             set => ApplicationData.Current.LocalSettings.Values["IntegrateWithWindowsExplorerContextMenu"] = value;
         }
 
-        public static string DefaultTerminalName
+        public static TerminalProfile DefaultTerminalProfile
         {
             get
             {
-                if (ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] is string Terminal)
+                if (ApplicationData.Current.LocalSettings.Values["DefaultTerminalPath"] is string TerminalPath)
                 {
-                    return Terminal;
+                    JsonElement Terminal = JsonSerializer.Deserialize<JsonElement>(TerminalPath);
+
+                    if (Terminal.TryGetProperty("Name", out JsonElement NameElement) && Terminal.TryGetProperty("Path", out JsonElement PathElement))
+                    {
+                        if (SQLite.Current.GetTerminalProfile(NameElement.GetString(), PathElement.GetString()) is TerminalProfile Profile)
+                        {
+                            return Profile;
+                        }
+                    }
                 }
-                else
+                else if (SQLite.Current.GetTerminalProfile("Windows Terminal", "wt.exe") is TerminalProfile WTProfile)
                 {
-                    return SQLite.Current.GetAllTerminalProfile().FirstOrDefault()?.Name ?? string.Empty;
+                    return WTProfile;
                 }
+                else if (SQLite.Current.GetAllTerminalProfile().FirstOrDefault() is TerminalProfile DefaultProfile)
+                {
+                    return DefaultProfile;
+                }
+
+                return null;
             }
-            set => ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = value;
+            set => ApplicationData.Current.LocalSettings.Values["DefaultTerminalPath"] = JsonSerializer.Serialize(new { value.Name, value.Path });
         }
 
         public static bool IsPreventAcrylicFallbackEnabled
@@ -1702,13 +1716,16 @@ namespace RX_Explorer.View
                     _ => 2
                 };
 
-                if (TerminalList.FirstOrDefault((Profile) => Profile.Name == DefaultTerminalName) is TerminalProfile Profile)
+                if (TerminalList.Count > 0)
                 {
-                    DefaultTerminal.SelectedItem = Profile;
-                }
-                else if (TerminalList.Count > 0)
-                {
-                    DefaultTerminal.SelectedIndex = 0;
+                    if (TerminalList.FirstOrDefault((Profile) => Profile == DefaultTerminalProfile) is TerminalProfile Profile)
+                    {
+                        DefaultTerminal.SelectedItem = Profile;
+                    }
+                    else
+                    {
+                        DefaultTerminal.SelectedIndex = 0;
+                    }
                 }
 
                 if (ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsInterceptedWinE)
@@ -2307,7 +2324,7 @@ namespace RX_Explorer.View
         {
             if (DefaultTerminal.SelectedItem is TerminalProfile Profile)
             {
-                DefaultTerminalName = Convert.ToString(Profile.Name);
+                DefaultTerminalProfile = Profile;
                 ApplicationData.Current.SignalDataChanged();
             }
         }
@@ -4103,9 +4120,8 @@ namespace RX_Explorer.View
                 {
                     TerminalList.Remove(Profile);
 
-                    if (SQLite.Current.GetTerminalProfileByName(Profile.Name) != null)
+                    if (SQLite.Current.DeleteTerminalProfile(Profile))
                     {
-                        SQLite.Current.DeleteTerminalProfile(Profile);
                         SholdRaiseDataChangedEvent = true;
                     }
                 }

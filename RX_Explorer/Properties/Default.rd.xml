@@ -23,7 +23,6 @@
 -->
 		<Assembly Name="*Application*" Dynamic="Required All" />
 		<Type Name="ICSharpCode.SharpZipLib.Zip.ZipOutputStream" Activate="Required All" />
-		<Type Name="FluentFTP.AsyncFtpClient" Dynamic="Required All" />
 		
 		<!-- 在此处添加应用程序特定的运行时指令。-->
 	</Application>

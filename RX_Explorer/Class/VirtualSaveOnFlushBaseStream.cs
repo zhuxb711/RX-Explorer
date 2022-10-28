@@ -38,7 +38,7 @@ namespace RX_Explorer.Class
             {
                 using (await FlushLocker.LockAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    await BaseStream.FlushAsync().ConfigureAwait(false);
+                    await BaseStream.FlushAsync(cancellationToken).ConfigureAwait(false);
                     await FlushCoreAsync(cancellationToken).ConfigureAwait(false);
                 }
             }
