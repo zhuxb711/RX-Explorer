@@ -1467,7 +1467,8 @@ namespace RX_Explorer.View
         private async void SearchResultList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!SettingPage.IsOpened
-                && e.AddedItems.SingleOrDefault() is FileSystemStorageItemBase Item)
+                && SearchResultList.SelectedItems.Count == 1
+                && SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
             {
                 try
                 {

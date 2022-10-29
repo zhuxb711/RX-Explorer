@@ -403,13 +403,7 @@ namespace RX_Explorer.View
                             {
                                 args.Handled = true;
 
-                                if (CurrentTabRenderer?.RendererFrame is Frame BaseFrame)
-                                {
-                                    if (BaseFrame.CanGoBack)
-                                    {
-                                        BaseFrame.GoBack();
-                                    }
-                                }
+                                bool ShouldSuppressNavigateBack = false;
 
                                 if (SettingPage.IsQuicklookEnabled)
                                 {
@@ -417,7 +411,7 @@ namespace RX_Explorer.View
                                     {
                                         if (await Exclusive.Controller.CheckQuicklookWindowVisibleAsync())
                                         {
-                                            await Exclusive.Controller.CloseQuicklookWindowAsync();
+                                            ShouldSuppressNavigateBack = await Exclusive.Controller.CloseQuicklookWindowAsync();
                                         }
                                     }
                                 }
@@ -427,7 +421,18 @@ namespace RX_Explorer.View
                                     {
                                         if (await Exclusive.Controller.CheckSeerWindowVisibleAsync())
                                         {
-                                            await Exclusive.Controller.CloseSeerWindowAsync();
+                                            ShouldSuppressNavigateBack = await Exclusive.Controller.CloseSeerWindowAsync();
+                                        }
+                                    }
+                                }
+
+                                if (!ShouldSuppressNavigateBack)
+                                {
+                                    if (CurrentTabRenderer?.RendererFrame is Frame BaseFrame)
+                                    {
+                                        if (BaseFrame.CanGoBack)
+                                        {
+                                            BaseFrame.GoBack();
                                         }
                                     }
                                 }
