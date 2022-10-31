@@ -22,6 +22,11 @@ namespace AuxiliaryTrustProcess.Class
 {
     public static class Helper
     {
+        public static bool IsTopMostWindow(HWND WindowHandle)
+        {
+            return ((User32.WindowStylesEx)User32.GetWindowLong(WindowHandle, User32.WindowLongFlags.GWL_EXSTYLE)).HasFlag(User32.WindowStylesEx.WS_EX_TOPMOST);
+        }
+
         public static string GetActualNamedPipeFromUwpApplication(string PipeId, string AppContainerName = null, int ProcessId = 0)
         {
             if (ProcessId > 0)
@@ -369,7 +374,7 @@ namespace AuxiliaryTrustProcess.Class
             return default;
         }
 
-        public static IEnumerable<HWND> GetCurrentWindowsHandle()
+        public static IEnumerable<HWND> GetCurrentWindowsHandles()
         {
             HWND Handle = HWND.NULL;
 

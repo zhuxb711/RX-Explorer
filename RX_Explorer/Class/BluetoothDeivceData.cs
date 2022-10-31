@@ -26,7 +26,7 @@ namespace RX_Explorer.Class
         private BluetoothPanelMode panelMode;
         private readonly StorageFile SharedFile;
         private TaskCompletionSource<bool> PairConfirmaion;
-        private TaskCompletionSource<bool> OperationAbort;
+        private CancellationTokenSource OperationAbortCancellation;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public BitmapImage DeviceThumbnail { get; }
@@ -130,9 +130,9 @@ namespace RX_Explorer.Class
 
         public void AbortClick(object sender, RoutedEventArgs args)
         {
-            if (Interlocked.Exchange(ref OperationAbort, null) is TaskCompletionSource<bool> Completion)
+            if (Interlocked.Exchange(ref OperationAbortCancellation, null) is CancellationTokenSource Cancellation)
             {
-                Completion.SetResult(true);
+                Cancellation.Cancel();
             }
         }
 
@@ -204,88 +204,81 @@ namespace RX_Explorer.Class
                     PanelMode = BluetoothPanelMode.TransferMode;
                     InfoText = Globalization.GetString("BluetoothUI_Tips_Text_8");
 
-                    string FailureReason = null;
-                    IReadOnlyList<BluetoothDevice> PairedDevice = null;
+                    ObexService Service = ObexService.GetDefaultForBluetoothDevice(await GetCurrentBluetoothDeviceAsync(await SearchPairedBluetoothDeviceAsync()));
 
-                    void BTService_SearchForPairedDevicesSucceeded(object sender, SearchForPairedDevicesSucceededEventArgs e)
+                    TaskCompletionSource<bool> SuccessCompleteSource = new TaskCompletionSource<bool>();
+
+                    using (CancellationTokenSource LocalCancellation = new CancellationTokenSource())
                     {
-                        FailureReason = string.Empty;
-                        PairedDevice = e.PairedDevices;
-                    }
-
-                    void BTService_SearchForPairedDevicesFailed(object sender, SearchForPairedDevicesFailedEventArgs e)
-                    {
-                        FailureReason = Enum.GetName(typeof(SearchForDeviceFailureReasons), e.FailureReason);
-                    }
-
-                    BluetoothService BTService = BluetoothService.GetDefault();
-                    BTService.SearchForPairedDevicesSucceeded += BTService_SearchForPairedDevicesSucceeded;
-                    BTService.SearchForPairedDevicesFailed += BTService_SearchForPairedDevicesFailed;
-
-                    await BTService.SearchForPairedDevicesAsync();
-
-                    if (string.IsNullOrEmpty(FailureReason))
-                    {
-                        if (await GetCurrentBluetoothDeviceAsync(PairedDevice) is BluetoothDevice TargetDevice)
+                        if (Interlocked.Exchange(ref OperationAbortCancellation, LocalCancellation) is CancellationTokenSource PreviousCancellation)
                         {
-                            TaskCompletionSource<bool> WaitCompleteSource = new TaskCompletionSource<bool>();
-                            TaskCompletionSource<bool> AbortOperationSource = new TaskCompletionSource<bool>();
+                            PreviousCancellation.Cancel();
+                        }
 
-                            Interlocked.Exchange(ref OperationAbort, AbortOperationSource);
-
-                            ObexService Service = ObexService.GetDefaultForBluetoothDevice(TargetDevice);
-
-                            Service.DataTransferFailed += async (s, e) =>
+                        try
+                        {
+                            using (CancellationTokenRegistration Registration = LocalCancellation.Token.Register(() =>
                             {
-                                WaitCompleteSource.SetResult(false);
-                                await HandleBluetoothEvent(BluetoothEventKind.TransferFailure);
-                            };
-                            Service.DataTransferProgressed += async (s, e) =>
+                                SuccessCompleteSource.TrySetCanceled(LocalCancellation.Token);
+                            }))
                             {
-                                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                Service.DataTransferFailed += async (s, e) =>
                                 {
-                                    ProgressValue = Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(e.TransferInPercentage * 100))));
-                                });
-                            };
-                            Service.DataTransferSucceeded += async (s, e) =>
-                            {
-                                WaitCompleteSource.SetResult(true);
-                                await HandleBluetoothEvent(BluetoothEventKind.TransferSuccess);
-                            };
-                            Service.ConnectionFailed += async (s, e) =>
-                            {
-                                WaitCompleteSource.SetResult(false);
-                                await HandleBluetoothEvent(BluetoothEventKind.ConnectionFailure);
-                            };
-                            Service.Aborted += async (s, e) =>
-                            {
-                                WaitCompleteSource.SetException(new OperationCanceledException());
-                                await HandleBluetoothEvent(BluetoothEventKind.Aborted);
-                            };
-                            Service.DeviceConnected += async (s, e) =>
-                            {
-                                await HandleBluetoothEvent(BluetoothEventKind.Connected);
-                                await Service.SendFileAsync(SharedFile);
-                            };
+                                    if (SuccessCompleteSource.TrySetResult(false))
+                                    {
+                                        await HandleBluetoothEvent(BluetoothEventKind.TransferFailure);
+                                    }
+                                };
+                                Service.DataTransferProgressed += async (s, e) =>
+                                {
+                                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                    {
+                                        ProgressValue = Math.Min(100, Math.Max(0, Convert.ToInt32(Math.Ceiling(e.TransferInPercentage * 100))));
+                                    });
+                                };
+                                Service.DataTransferSucceeded += async (s, e) =>
+                                {
+                                    if (SuccessCompleteSource.TrySetResult(true))
+                                    {
+                                        await HandleBluetoothEvent(BluetoothEventKind.TransferSuccess);
+                                    }
+                                };
+                                Service.ConnectionFailed += async (s, e) =>
+                                {
+                                    if (SuccessCompleteSource.TrySetResult(false))
+                                    {
+                                        await HandleBluetoothEvent(BluetoothEventKind.ConnectionFailure);
+                                    }
+                                };
+                                Service.Aborted += async (s, e) =>
+                                {
+                                    if (SuccessCompleteSource.TrySetCanceled(LocalCancellation.Token))
+                                    {
+                                        await HandleBluetoothEvent(BluetoothEventKind.Aborted);
+                                    }
+                                };
+                                Service.DeviceConnected += async (s, e) =>
+                                {
+                                    await HandleBluetoothEvent(BluetoothEventKind.Connected);
+                                    await Service.SendFileAsync(SharedFile);
+                                };
 
-                            await Service.ConnectAsync();
+                                await Service.ConnectAsync();
 
-                            if (await Task.WhenAny(WaitCompleteSource.Task, AbortOperationSource.Task) == AbortOperationSource.Task)
-                            {
-                                await Service.AbortAsync();
-                                return false;
+                                try
+                                {
+                                    return await SuccessCompleteSource.Task;
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    await Service.AbortAsync();
+                                }
                             }
-
-                            return await WaitCompleteSource.Task;
                         }
-                        else
+                        finally
                         {
-                            throw new Exception(Globalization.GetString("BluetoothUI_Tips_Text_2"));
+                            Interlocked.Exchange(ref OperationAbortCancellation, null);
                         }
-                    }
-                    else
-                    {
-                        throw new Exception(FailureReason);
                     }
                 }
                 else
@@ -308,28 +301,69 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        private async Task<IReadOnlyList<BluetoothDevice>> SearchPairedBluetoothDeviceAsync()
+        {
+            string FailureReason = null;
+            IReadOnlyList<BluetoothDevice> PairedDevice = null;
+
+            void BTService_SearchForPairedDevicesSucceeded(object sender, SearchForPairedDevicesSucceededEventArgs e)
+            {
+                PairedDevice = e.PairedDevices;
+            }
+
+            void BTService_SearchForPairedDevicesFailed(object sender, SearchForPairedDevicesFailedEventArgs e)
+            {
+                FailureReason = Enum.GetName(typeof(SearchForDeviceFailureReasons), e.FailureReason);
+            }
+
+            BluetoothService BTService = BluetoothService.GetDefault();
+
+            try
+            {
+                BTService.SearchForPairedDevicesSucceeded += BTService_SearchForPairedDevicesSucceeded;
+                BTService.SearchForPairedDevicesFailed += BTService_SearchForPairedDevicesFailed;
+
+                await BTService.SearchForPairedDevicesAsync();
+
+                if (!string.IsNullOrEmpty(FailureReason))
+                {
+                    throw new Exception(FailureReason);
+                }
+
+                return PairedDevice ?? Array.Empty<BluetoothDevice>();
+            }
+            finally
+            {
+                BTService.SearchForPairedDevicesSucceeded -= BTService_SearchForPairedDevicesSucceeded;
+                BTService.SearchForPairedDevicesFailed -= BTService_SearchForPairedDevicesFailed;
+            }
+        }
+
         private async Task<BluetoothDevice> GetCurrentBluetoothDeviceAsync(IReadOnlyList<BluetoothDevice> AvailableDevice)
         {
-            using (Windows.Devices.Bluetooth.BluetoothDevice Device = await Windows.Devices.Bluetooth.BluetoothDevice.FromIdAsync(Id))
+            if (AvailableDevice.Count > 0)
             {
-                RfcommDeviceServicesResult PushServices = await Device.GetRfcommServicesForIdAsync(RfcommServiceId.ObexObjectPush);
-
-                if (PushServices.Services.Any())
+                using (Windows.Devices.Bluetooth.BluetoothDevice Device = await Windows.Devices.Bluetooth.BluetoothDevice.FromIdAsync(Id))
                 {
-                    string CanonicalName = PushServices.Services.Select((Service) => Service.ConnectionHostName?.CanonicalName).Where((Name) => !string.IsNullOrEmpty(Name)).FirstOrDefault();
+                    RfcommDeviceServicesResult PushServices = await Device.GetRfcommServicesForIdAsync(RfcommServiceId.ObexObjectPush);
 
-                    if (AvailableDevice.FirstOrDefault((Device) => Device.DeviceHost.CanonicalName == CanonicalName) is BluetoothDevice TargetDevice)
+                    if (PushServices.Services.Any())
                     {
-                        return TargetDevice;
+                        string CanonicalName = PushServices.Services.Select((Service) => Service.ConnectionHostName?.CanonicalName).Where((Name) => !string.IsNullOrEmpty(Name)).FirstOrDefault();
+
+                        if (AvailableDevice.FirstOrDefault((Device) => Device.DeviceHost.CanonicalName == CanonicalName) is BluetoothDevice TargetDevice)
+                        {
+                            return TargetDevice;
+                        }
                     }
-                }
-                else
-                {
-                    throw new NotSupportedException(Globalization.GetString("BluetoothUI_Tips_Text_3"));
+                    else
+                    {
+                        throw new NotSupportedException(Globalization.GetString("BluetoothUI_Tips_Text_3"));
+                    }
                 }
             }
 
-            return null;
+            throw new Exception(Globalization.GetString("BluetoothUI_Tips_Text_2"));
         }
 
         private async Task HandleBluetoothEvent(BluetoothEventKind Kind)
@@ -442,11 +476,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        private BluetoothDeivceData(DeviceInformation DeviceInfo, StorageFile SharedFile, BitmapImage DeviceThumbnail)
+        private BluetoothDeivceData(DeviceInformation DeviceInfo, StorageFile SharedFile, BitmapImage DeviceThumbnail) : this(DeviceInfo, SharedFile)
         {
-            this.DeviceInfo = DeviceInfo;
             this.DeviceThumbnail = DeviceThumbnail;
-            this.SharedFile = SharedFile;
         }
 
         private BluetoothDeivceData(DeviceInformation DeviceInfo, StorageFile SharedFile)

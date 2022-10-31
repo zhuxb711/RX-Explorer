@@ -2,8 +2,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Windows.Devices.Bluetooth;
-using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Devices.Enumeration;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -25,7 +23,7 @@ namespace RX_Explorer.Dialog
             this.ShareFile = ShareFile;
 
             BluetoothDeviceCollection = new ObservableCollection<BluetoothDeivceData>();
-            BluetoothWatcher = DeviceInformation.CreateWatcher("System.Devices.Aep.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\"", 
+            BluetoothWatcher = DeviceInformation.CreateWatcher("System.Devices.Aep.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\"",
                                                                new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" },
                                                                DeviceInformationKind.AssociationEndpoint);
 

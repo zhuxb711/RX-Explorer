@@ -4391,45 +4391,12 @@ namespace AuxiliaryTrustProcess
                                     {
                                         try
                                         {
-                                            ShowWindowCommand WindowCommand;
-
-                                            if (ExecuteCreateNoWindow)
-                                            {
-                                                WindowCommand = ShowWindowCommand.SW_HIDE;
-                                            }
-                                            else
-                                            {
-                                                switch (Enum.Parse<ProcessWindowStyle>(ExecuteWindowStyle))
-                                                {
-                                                    case ProcessWindowStyle.Hidden:
-                                                        {
-                                                            WindowCommand = ShowWindowCommand.SW_HIDE;
-                                                            break;
-                                                        }
-                                                    case ProcessWindowStyle.Minimized:
-                                                        {
-                                                            WindowCommand = ShowWindowCommand.SW_SHOWMINIMIZED;
-                                                            break;
-                                                        }
-                                                    case ProcessWindowStyle.Maximized:
-                                                        {
-                                                            WindowCommand = ShowWindowCommand.SW_SHOWMAXIMIZED;
-                                                            break;
-                                                        }
-                                                    default:
-                                                        {
-                                                            WindowCommand = ShowWindowCommand.SW_NORMAL;
-                                                            break;
-                                                        }
-                                                }
-                                            }
-
-                                            bool CouldBeRunAsAdmin = Regex.IsMatch(Path.GetExtension(ExecutePath), @"\.(exe|bat|msi|msc|cmd)$", RegexOptions.IgnoreCase);
+                                            IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandles().ToArray();
 
                                             Shell32.SHELLEXECUTEINFO ExecuteInfo = new Shell32.SHELLEXECUTEINFO
                                             {
                                                 hwnd = HWND.NULL,
-                                                lpVerb = CouldBeRunAsAdmin && ExecuteAuthority == "Administrator" ? "runas" : null,
+                                                lpVerb = Regex.IsMatch(Path.GetExtension(ExecutePath), @"\.(exe|bat|msi|msc|cmd)$", RegexOptions.IgnoreCase) && ExecuteAuthority == "Administrator" ? "runas" : null,
                                                 cbSize = Marshal.SizeOf<Shell32.SHELLEXECUTEINFO>(),
                                                 lpFile = ExecutePath,
                                                 lpParameters = string.IsNullOrWhiteSpace(ExecuteParameter) ? null : ExecuteParameter,
@@ -4439,7 +4406,15 @@ namespace AuxiliaryTrustProcess
                                                         | Shell32.ShellExecuteMaskFlags.SEE_MASK_DOENVSUBST
                                                         | Shell32.ShellExecuteMaskFlags.SEE_MASK_NOASYNC
                                                         | Shell32.ShellExecuteMaskFlags.SEE_MASK_NOCLOSEPROCESS,
-                                                nShellExecuteShow = WindowCommand,
+                                                nShellExecuteShow = ExecuteCreateNoWindow
+                                                                        ? ShowWindowCommand.SW_HIDE
+                                                                        : Enum.Parse<ProcessWindowStyle>(ExecuteWindowStyle) switch
+                                                                        {
+                                                                            ProcessWindowStyle.Hidden => ShowWindowCommand.SW_HIDE,
+                                                                            ProcessWindowStyle.Minimized => ShowWindowCommand.SW_SHOWMINIMIZED,
+                                                                            ProcessWindowStyle.Maximized => ShowWindowCommand.SW_SHOWMAXIMIZED,
+                                                                            _ => ShowWindowCommand.SW_NORMAL
+                                                                        },
                                             };
 
                                             if (Shell32.ShellExecuteEx(ref ExecuteInfo))
@@ -4452,11 +4427,18 @@ namespace AuxiliaryTrustProcess
 
                                                         if (Information.HasValue)
                                                         {
-                                                            IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle().ToArray();
-
                                                             using (Process OpenedProcess = Process.GetProcessById(Information.Value.UniqueProcessId.ToInt32()))
                                                             {
-                                                                SetWindowsZPosition(OpenedProcess, WindowsBeforeStartup);
+                                                                if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation Info)
+                                                                {
+                                                                    if (Info.IsValidInfomation)
+                                                                    {
+                                                                        if (!Helper.IsTopMostWindow(Info.ApplicationFrameWindowHandle))
+                                                                        {
+                                                                            SetWindowsZPosition(OpenedProcess, WindowsBeforeStartup);
+                                                                        }
+                                                                    }
+                                                                }
 
                                                                 if (ShouldWaitForExit)
                                                                 {
@@ -4487,7 +4469,13 @@ namespace AuxiliaryTrustProcess
                                                 Kernel32.STARTUPINFO SInfo = new Kernel32.STARTUPINFO
                                                 {
                                                     cb = Convert.ToUInt32(Marshal.SizeOf<Kernel32.STARTUPINFO>()),
-                                                    ShowWindowCommand = WindowCommand,
+                                                    ShowWindowCommand = ExecuteCreateNoWindow ? ShowWindowCommand.SW_HIDE : Enum.Parse<ProcessWindowStyle>(ExecuteWindowStyle) switch
+                                                    {
+                                                        ProcessWindowStyle.Hidden => ShowWindowCommand.SW_HIDE,
+                                                        ProcessWindowStyle.Minimized => ShowWindowCommand.SW_SHOWMINIMIZED,
+                                                        ProcessWindowStyle.Maximized => ShowWindowCommand.SW_SHOWMAXIMIZED,
+                                                        _ => ShowWindowCommand.SW_NORMAL
+                                                    },
                                                     dwFlags = Kernel32.STARTF.STARTF_USESHOWWINDOW,
                                                 };
 
@@ -4501,11 +4489,18 @@ namespace AuxiliaryTrustProcess
                                                 {
                                                     try
                                                     {
-                                                        IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle().ToArray();
-
                                                         using (Process OpenedProcess = Process.GetProcessById(Convert.ToInt32(PInfo.dwProcessId)))
                                                         {
-                                                            SetWindowsZPosition(OpenedProcess, WindowsBeforeStartup);
+                                                            if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation Info)
+                                                            {
+                                                                if (Info.IsValidInfomation)
+                                                                {
+                                                                    if (!Helper.IsTopMostWindow(Info.ApplicationFrameWindowHandle))
+                                                                    {
+                                                                        SetWindowsZPosition(OpenedProcess, WindowsBeforeStartup);
+                                                                    }
+                                                                }
+                                                            }
 
                                                             if (ShouldWaitForExit)
                                                             {
@@ -4730,7 +4725,7 @@ namespace AuxiliaryTrustProcess
         {
             static void SetWindowsPosFallback(IEnumerable<HWND> WindowsBeforeStartup)
             {
-                foreach (HWND Handle in Helper.GetCurrentWindowsHandle().Except(WindowsBeforeStartup))
+                foreach (HWND Handle in Helper.GetCurrentWindowsHandles().Except(WindowsBeforeStartup))
                 {
                     User32.SetWindowPos(Handle, User32.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
                     User32.SetWindowPos(Handle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);

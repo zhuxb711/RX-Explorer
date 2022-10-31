@@ -3257,17 +3257,18 @@ namespace RX_Explorer.View
 
         private async void ImportConfiguration_Click(object sender, RoutedEventArgs e)
         {
-            FileOpenPicker Picker = new FileOpenPicker
+            try
             {
-                ViewMode = PickerViewMode.List,
-                SuggestedStartLocation = PickerLocationId.ComputerFolder
-            };
 
-            Picker.FileTypeFilter.Add(".json");
+                FileOpenPicker Picker = new FileOpenPicker
+                {
+                    ViewMode = PickerViewMode.List,
+                    SuggestedStartLocation = PickerLocationId.ComputerFolder
+                };
 
-            if (await Picker.PickSingleFileAsync() is StorageFile ImportFile)
-            {
-                try
+                Picker.FileTypeFilter.Add(".json");
+
+                if (await Picker.PickSingleFileAsync() is StorageFile ImportFile)
                 {
                     string JsonContent = await FileIO.ReadTextAsync(ImportFile, UnicodeEncoding.Utf16LE);
 
@@ -3504,20 +3505,21 @@ namespace RX_Explorer.View
                             }.ShowAsync();
                         }
                     }
+
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(ImportConfiguration_Click)} threw an unexpected exception");
+
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    LogTracer.Log(ex, "Import configuration function threw an exception");
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_ImportConfigurationFailed_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
 
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_ImportConfigurationFailed_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync();
-                }
+                await Dialog.ShowAsync();
             }
         }
 
@@ -4693,10 +4695,17 @@ namespace RX_Explorer.View
 
         private async void AdvancePanel_Loaded(object sender, RoutedEventArgs e)
         {
-            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+            try
             {
-                EnableSeer.IsEnabled = await Exclusive.Controller.CheckSeerAvailableAsync();
-                EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckQuicklookAvailableAsync();
+                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                {
+                    EnableSeer.IsEnabled = await Exclusive.Controller.CheckSeerAvailableAsync();
+                    EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckQuicklookAvailableAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not determine the availability of Seer and Quicklook");
             }
         }
 

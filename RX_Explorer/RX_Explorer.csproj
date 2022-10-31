@@ -440,7 +440,6 @@
   <ItemGroup>
     <Content Include="Assets\AddImage_Dark.png" />
     <Content Include="Assets\AddImage_Light.png" />
-    <Content Include="Assets\AppCenterSecret.txt" />
     <Content Include="Assets\AQSGuide_cn_s.txt" />
     <Content Include="Assets\AQSGuide_cn_t.txt" />
     <Content Include="Assets\AQSGuide_de.txt" />

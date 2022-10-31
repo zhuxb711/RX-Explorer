@@ -111,10 +111,11 @@ namespace RX_Explorer.Dialog
             }
             else
             {
-                using (await TextChangeLock.LockAsync(Cancellation.Token))
+                try
                 {
-                    try
+                    using (await TextChangeLock.LockAsync(Cancellation.Token))
                     {
+
                         DesireNameMap.Clear();
                         PreviewArea.Visibility = Windows.UI.Xaml.Visibility.Visible;
 
@@ -168,10 +169,10 @@ namespace RX_Explorer.Dialog
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"An exception was threw in {nameof(RenameText_TextChanged)}");
-                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(RenameText_TextChanged)}");
                 }
             }
         }

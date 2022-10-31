@@ -38,7 +38,7 @@ namespace AuxiliaryTrustProcess.Class
 
         public bool CheckWindowVisible()
         {
-            foreach (HWND WindowHandle in Helper.GetCurrentWindowsHandle())
+            foreach (HWND WindowHandle in Helper.GetCurrentWindowsHandles())
             {
                 StringBuilder Builder = new StringBuilder(256);
 
