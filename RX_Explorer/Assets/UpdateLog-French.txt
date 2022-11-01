@@ -1,15 +1,19 @@
-﻿###Quoi de neuf dans la version 8.0.2.0
-
-#####Mise à jour de l'interface utilisateur
-
->#####L'interface utilisateur de "Secure Area" a reçu des améliorations mineures
+﻿###Quoi de neuf dans la version 8.0.4.0
 
 #####Corrections de bogues
 
->#####Résolution d'un problème où l'ouverture ou la fermeture répétée des fonctions liées à "l'intégration avec les composants du système" peut entraîner un échec
+>#####Résolution d'un problème pouvant rendre invalide le paramètre "Toujours au premier plan" lors de l'ouverture de fichiers .exe
 
->#####Correction d'un problème où certains fichiers SLE pour les versions 1.5.0 et inférieures peuvent ne pas être déchiffrés correctement
+>#####Correction d'un problème où les interruptions de transfert ou la connexion refusée dans certains cas pouvaient ne pas être détectées lors du partage de fichiers via Bluetooth
 
->#####Correction d'un problème où la visionneuse intégrée pouvait ne pas prévisualiser certains fichiers SLE
+>#####Correction d'un problème où la sélection multiple de fichiers dans les résultats de recherche pouvait provoquer un plantage
 
->#####Résolution d'un problème empêchant de modifier l'emplacement de stockage de la "zone de sécurité" s'il n'y a pas de fichiers cryptés
+>#####Correction d'un problème où appuyer sur la touche Échap ne fermait pas d'abord les fenêtres des programmes de prévisualisation tels que Quicklook et Seer
+
+>#####Correction d'un problème où les fichiers FTP ne pouvaient pas être ouverts avec la visionneuse intégrée
+
+>#####Correction d'un problème où les fichiers FTP ne pouvaient pas être copiés ou déplacés
+
+>#####Correction d'un problème où le terminal Windows n'était pas automatiquement sélectionné comme terminal par défaut lorsqu'il se présentait
+
+>#####Correction d'autres problèmes pouvant provoquer des plantages

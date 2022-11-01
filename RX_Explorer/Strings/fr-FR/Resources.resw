@@ -765,10 +765,10 @@
     <value>Transmettre</value>
   </data>
   <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
-    <value>Transfert terminé</value>
+    <value>Transfert de fichier annulé par l'utilisateur</value>
   </data>
   <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
-    <value>Transmission terminée</value>
+    <value>Transfert de fichier terminé avec succès</value>
   </data>
   <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Opération de recadrage a été annulée</value>
@@ -3737,5 +3737,8 @@ Les noms non valides incluent
   </data>
   <data name="SAWelcomeDialogStorageLocationBrowse.Content" xml:space="preserve">
     <value>Feuilleter</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_5" xml:space="preserve">
+    <value>Le périphérique cible est déconnecté et le fichier ne peut pas être transféré</value>
   </data>
 </root>

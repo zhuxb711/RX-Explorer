@@ -1067,12 +1067,12 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Transmitiendo</target>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Status_2" translate="yes" xml:space="preserve">
-          <source>Transmission terminated</source>
-          <target state="translated">Transmisión terminada</target>
+          <source>File transfer cancelled by user</source>
+          <target state="translated">Transferencia de archivos cancelada por el usuario</target>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Status_3" translate="yes" xml:space="preserve">
-          <source>Transmission completed</source>
-          <target state="translated">Transmisión completada</target>
+          <source>File transfer completed successfully</source>
+          <target state="translated">Transferencia de archivos completada con éxito</target>
         </trans-unit>
         <trans-unit id="Crop_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
           <source>Cropping task has been cancelled</source>
@@ -4967,6 +4967,10 @@ Las denominaciones no válidas son:
         <trans-unit id="SAWelcomeDialogStorageLocationBrowse.Content" translate="yes" xml:space="preserve">
           <source>Browse</source>
           <target state="translated">Navegar</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Status_5" translate="yes" xml:space="preserve">
+          <source>The target device is disconnected and the file cannot be transferred</source>
+          <target state="translated">El dispositivo de destino está desconectado y el archivo no se puede transferir</target>
         </trans-unit>
       </group>
     </body>

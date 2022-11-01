@@ -808,10 +808,10 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Übertragen</value>
   </data>
   <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
-    <value>Übertragung beendet</value>
+    <value>Dateiübertragung vom Benutzer abgebrochen</value>
   </data>
   <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
-    <value>Übertragung abgeschlossen</value>
+    <value>Dateiübertragung erfolgreich abgeschlossen</value>
   </data>
   <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Zuschneideaufgabe wurde abgebrochen</value>
@@ -3739,5 +3739,8 @@ Inkorrekte Namen sind
   </data>
   <data name="SAWelcomeDialogStorageLocationBrowse.Content" xml:space="preserve">
     <value>Durchsuche</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_5" xml:space="preserve">
+    <value>Das Zielgerät ist getrennt und die Datei kann nicht übertragen werden</value>
   </data>
 </root>

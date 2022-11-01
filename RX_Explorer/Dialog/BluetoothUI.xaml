@@ -55,7 +55,8 @@
                               CornerRadius="8">
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroup>
-                                    <VisualState x:Name="ProgressBarState">
+                                    <VisualState x:Name="ProgressBarNormalState" />
+                                    <VisualState x:Name="ProgressBarIndeterminateState">
                                         <VisualState.StateTriggers>
                                             <Triggers:IsEqualStateTrigger Value="{x:Bind ProgressValue,Mode=OneWay}"
                                                                           To="0" />
@@ -63,6 +64,21 @@
                                         <VisualState.Setters>
                                             <Setter Target="ProgressBarControl.IsIndeterminate"
                                                     Value="True" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup>
+                                    <VisualState x:Name="ButtonNormalState" />
+                                    <VisualState x:Name="ButtonDisabledState">
+                                        <VisualState.StateTriggers>
+                                            <Triggers:IsEqualStateTrigger Value="{x:Bind PanelMode,Mode=OneWay}"
+                                                                          To="TransferMode" />
+                                        </VisualState.StateTriggers>
+                                        <VisualState.Setters>
+                                            <Setter Target="SendFileButton.IsEnabled"
+                                                    Value="False" />
+                                            <Setter Target="UnpairButton.IsEnabled"
+                                                    Value="False" />
                                         </VisualState.Setters>
                                     </VisualState>
                                 </VisualStateGroup>

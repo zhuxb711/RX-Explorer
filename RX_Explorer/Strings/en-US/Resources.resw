@@ -931,10 +931,16 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Transmitting</value>
   </data>
   <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
-    <value>Transmission terminated</value>
+    <value>File transfer cancelled by user</value>
   </data>
   <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
-    <value>Transmission completed</value>
+    <value>File transfer completed successfully</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_4" xml:space="preserve">
+    <value>Unable to connect to target device</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_5" xml:space="preserve">
+    <value>The target device is disconnected and the file cannot be transferred</value>
   </data>
   <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Cropping task has been cancelled</value>
@@ -3604,9 +3610,6 @@ Invalid names include
   </data>
   <data name="BluetoothUnPairButtonText" xml:space="preserve">
     <value>Unpair</value>
-  </data>
-  <data name="Bluetooth_Transfer_Status_4" xml:space="preserve">
-    <value>Unable to connect to target device</value>
   </data>
   <data name="BluetoothUI_Tips_Text_7" xml:space="preserve">
     <value>Unable to unpair the device</value>

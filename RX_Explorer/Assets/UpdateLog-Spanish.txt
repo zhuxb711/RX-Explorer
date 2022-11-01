@@ -1,15 +1,19 @@
-﻿###Novedades de la versión 8.0.2.0
-
-#####Actualización de la interfaz de usuario
-
->#####La interfaz de usuario de "Área segura" ha recibido mejoras menores
+﻿###Novedades de la versión 8.0.4.0
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el que abrir o cerrar las funciones relacionadas con la "Integración con los componentes del sistema" varias veces podía provocar un error
+>#####Se solucionó un problema que podía hacer que la configuración "Siempre visible" no fuera válida al abrir archivos .exe
 
->#####Se solucionó un problema por el cual algunos archivos SLE para las versiones 1.5.0 y anteriores no se descifraban correctamente
+>#####Se solucionó un problema por el cual las interrupciones de transferencia o la conexión rechazada en algunos casos podrían no detectarse al compartir archivos a través de Bluetooth
 
->#####Se solucionó un problema por el cual el visor incorporado podría fallar al obtener una vista previa de algunos archivos SLE
+>#####Se solucionó un problema por el cual la selección múltiple de archivos en los resultados de búsqueda podía causar un bloqueo
 
->#####Se solucionó el problema de que la ubicación de almacenamiento del "Área de seguridad" no se puede cambiar si no hay archivos cifrados
+>#####Se solucionó un problema por el cual al presionar la tecla Esc no se cerraban primero las ventanas de los programas de vista previa como Quicklook y Seer
+
+>#####Se solucionó un problema por el cual los archivos FTP no se podían abrir con el visor incorporado
+
+>#####Se solucionó un problema por el cual los archivos FTP no se podían copiar ni mover
+
+>#####Se solucionó un problema por el cual Windows Terminal no se seleccionaba automáticamente como el terminal predeterminado cuando se presenta
+
+>#####Se corrigieron algunos otros problemas que podrían causar fallas

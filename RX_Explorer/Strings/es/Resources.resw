@@ -808,10 +808,10 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Transmitiendo</value>
   </data>
   <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
-    <value>Transmisión terminada</value>
+    <value>Transferencia de archivos cancelada por el usuario</value>
   </data>
   <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
-    <value>Transmisión completada</value>
+    <value>Transferencia de archivos completada con éxito</value>
   </data>
   <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Se ha cancelado la tarea de recorte.</value>
@@ -3739,5 +3739,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="SAWelcomeDialogStorageLocationBrowse.Content" xml:space="preserve">
     <value>Navegar</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_5" xml:space="preserve">
+    <value>El dispositivo de destino está desconectado y el archivo no se puede transferir</value>
   </data>
 </root>

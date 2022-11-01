@@ -114,7 +114,7 @@ namespace RX_Explorer.View
                 {
                     Task TrustProcessInitializeTask = Task.WhenAll(AuxiliaryTrustProcessController.InitializeAsync(), MonitorTrustProcessController.InitializeAsync());
 
-                    if (await Task.WhenAny(TrustProcessInitializeTask, Task.Delay(2000)) != TrustProcessInitializeTask)
+                    if (await Task.WhenAny(TrustProcessInitializeTask, Task.Delay(3000)) != TrustProcessInitializeTask)
                     {
                         LoadingText.Text = Globalization.GetString("ExtendedSplashLoadingFullTrustText");
                         LoadingArea.Visibility = Visibility.Visible;
@@ -130,7 +130,7 @@ namespace RX_Explorer.View
 
                     if (BackgroundController.Current.CurrentType == BackgroundBrushType.BingPicture)
                     {
-                        if (await Task.WhenAny(BackgroundInitializeTask, Task.Delay(1000)) != BackgroundInitializeTask)
+                        if (await Task.WhenAny(BackgroundInitializeTask, Task.Delay(2000)) != BackgroundInitializeTask)
                         {
                             LoadingText.Text = Globalization.GetString("ExtendedSplashLoadingBingText");
                             LoadingArea.Visibility = Visibility.Visible;

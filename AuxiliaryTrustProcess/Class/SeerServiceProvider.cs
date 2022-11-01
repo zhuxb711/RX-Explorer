@@ -156,54 +156,52 @@ namespace AuxiliaryTrustProcess.Class
 
                     if (Window.DangerousGetHandle().CheckIfValidPtr())
                     {
-                        if (CheckWindowVisible())
+                        IntPtr PathPtr = Marshal.StringToHGlobalUni(Path);
+
+                        try
                         {
-                            IntPtr PathPtr = Marshal.StringToHGlobalUni(Path);
+                            NativeWin32Struct.COPYDATASTRUCT ToggleData = new NativeWin32Struct.COPYDATASTRUCT
+                            {
+                                dwData = new UIntPtr(ToggleCommand),
+                                lpData = PathPtr,
+                                cbData = (Path.Length + 1) * 2
+                            };
+
+                            IntPtr ToggleStructPtr = Marshal.AllocHGlobal(Marshal.SizeOf<NativeWin32Struct.COPYDATASTRUCT>());
 
                             try
                             {
-                                NativeWin32Struct.COPYDATASTRUCT ToggleData = new NativeWin32Struct.COPYDATASTRUCT
-                                {
-                                    dwData = new UIntPtr(ToggleCommand),
-                                    lpData = PathPtr,
-                                    cbData = (Path.Length + 1) * 2
-                                };
-
-                                IntPtr ToggleStructPtr = Marshal.AllocHGlobal(Marshal.SizeOf<NativeWin32Struct.COPYDATASTRUCT>());
+                                Marshal.StructureToPtr(ToggleData, ToggleStructPtr, false);
 
                                 try
                                 {
-                                    Marshal.StructureToPtr(ToggleData, ToggleStructPtr, false);
+                                    IntPtr Result = IntPtr.Zero;
 
-                                    try
+                                    if (User32.SendMessageTimeout(Window, (uint)User32.WindowMessage.WM_COPYDATA, IntPtr.Zero, ToggleStructPtr, User32.SMTO.SMTO_ABORTIFHUNG, Timeout, ref Result) != IntPtr.Zero)
                                     {
-                                        IntPtr Result = IntPtr.Zero;
-
-                                        if (User32.SendMessageTimeout(Window, (uint)User32.WindowMessage.WM_COPYDATA, IntPtr.Zero, ToggleStructPtr, User32.SMTO.SMTO_ABORTIFHUNG, Timeout, ref Result) != IntPtr.Zero)
-                                        {
-                                            return true;
-                                        }
-                                        else
-                                        {
-                                            LogTracer.Log($"Could not send Switch command to Seer because it timeout after {Timeout}");
-                                        }
+                                        return true;
                                     }
-                                    finally
+                                    else
                                     {
-                                        Marshal.DestroyStructure<NativeWin32Struct.COPYDATASTRUCT>(ToggleStructPtr);
+                                        LogTracer.Log($"Could not send Switch command to Seer because it timeout after {Timeout}");
                                     }
                                 }
                                 finally
                                 {
-                                    Marshal.FreeHGlobal(ToggleStructPtr);
+                                    Marshal.DestroyStructure<NativeWin32Struct.COPYDATASTRUCT>(ToggleStructPtr);
                                 }
                             }
                             finally
                             {
-                                Marshal.FreeHGlobal(PathPtr);
+                                Marshal.FreeHGlobal(ToggleStructPtr);
                             }
                         }
+                        finally
+                        {
+                            Marshal.FreeHGlobal(PathPtr);
+                        }
                     }
+
                 }
                 catch (Exception ex)
                 {

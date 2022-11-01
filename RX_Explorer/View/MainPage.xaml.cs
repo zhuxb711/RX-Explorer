@@ -114,7 +114,6 @@ namespace RX_Explorer.View
             }
 
             Loaded += MainPage_Loaded;
-            Loaded += MainPage_Loaded1;
             Window.Current.Activated += MainPage_Activated;
             Application.Current.EnteredBackground += Current_EnteredBackground;
             Application.Current.LeavingBackground += Current_LeavingBackground;
@@ -323,36 +322,6 @@ namespace RX_Explorer.View
             if (e.WindowActivationState != CoreWindowActivationState.Deactivated)
             {
                 AppInstanceIdContainer.SetCurrentIdAsLastActivateId();
-            }
-        }
-
-        private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
-        {
-            await SpecialPath.InitializeAsync();
-
-            if (SQLite.Current.GetAllTerminalProfile().All((Profile) => !Path.GetFileName(Profile.Path).Equals("wt.exe", StringComparison.OrdinalIgnoreCase)))
-            {
-                switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
-                {
-                    case LaunchQuerySupportStatus.Available:
-                    case LaunchQuerySupportStatus.NotSupported:
-                        {
-                            SQLite.Current.SetTerminalProfile(new TerminalProfile("Windows Terminal", "wt.exe", "/d [CurrentLocation]", true));
-                            break;
-                        }
-                }
-            }
-
-            IReadOnlyDictionary<string, Task<bool>> LabelItemExistenceMapping = new Dictionary<string, Task<bool>>(Enum.GetValues(typeof(LabelKind)).Cast<LabelKind>()
-                                                                                                                                                    .Where((Kind) => Kind != LabelKind.None)
-                                                                                                                                                    .SelectMany((Kind) => SQLite.Current.GetPathListFromLabelKind(Kind))
-                                                                                                                                                    .Select((Path) => new KeyValuePair<string, Task<bool>>(Path, FileSystemStorageItemBase.CheckExistsAsync(Path))));
-
-            await Task.WhenAll(LabelItemExistenceMapping.Values);
-
-            foreach (string NoExistPath in LabelItemExistenceMapping.Where((Item) => !Item.Value.Result).Select((Item) => Item.Key))
-            {
-                SQLite.Current.DeleteLabelKindByPath(NoExistPath);
             }
         }
 
@@ -675,12 +644,25 @@ namespace RX_Explorer.View
 
                 ApplicationData.Current.DataChanged += Current_DataChanged;
 
+                if (SQLite.Current.GetAllTerminalProfile().All((Profile) => !Path.GetFileName(Profile.Path).StartsWith("wt.exe", StringComparison.OrdinalIgnoreCase)))
+                {
+                    switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
+                    {
+                        case LaunchQuerySupportStatus.Available:
+                        case LaunchQuerySupportStatus.NotSupported:
+                            {
+                                SQLite.Current.SetTerminalProfile(new TerminalProfile("Windows Terminal", "wt.exe", "/d [CurrentLocation]", true));
+                                break;
+                            }
+                    }
+                }
+
+                await Task.WhenAll(RegisterBackgroundTaskAsync(), CheckUpdateIfExistAsync(), CleanUpNotExistsLabelItemAsync(), SpecialPath.InitializeAsync(), Settings.InitializeAsync());
+
                 if (SystemInformation.Instance.IsAppUpdated || SystemInformation.Instance.IsFirstRun)
                 {
                     await new WhatIsNew().ShowAsync();
                 }
-
-                await Task.WhenAll(RegisterBackgroundTaskAsync(), CheckUpdateIfExistAsync(), Settings.InitializeAsync());
 
                 if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
@@ -731,6 +713,22 @@ namespace RX_Explorer.View
                     InfoTipController.Current.Hide(InfoTipType.UpdateAvailable);
                 }
             }
+        }
+
+        private async Task CleanUpNotExistsLabelItemAsync()
+        {
+            IReadOnlyList<string> AllLabelItemPath = Enum.GetValues(typeof(LabelKind))
+                                                         .Cast<LabelKind>()
+                                                         .Where((Kind) => Kind != LabelKind.None)
+                                                         .SelectMany((Kind) => SQLite.Current.GetPathListFromLabelKind(Kind))
+                                                         .ToArray();
+
+            IReadOnlyList<string> ExistsLabelItemPath = await FileSystemStorageItemBase.OpenInBatchAsync(AllLabelItemPath)
+                                                                                       .OfType<FileSystemStorageItemBase>()
+                                                                                       .Select((Item) => Item.Path)
+                                                                                       .ToArrayAsync();
+
+            SQLite.Current.DeleteLabelKindByPathList(AllLabelItemPath.Except(ExistsLabelItemPath));
         }
 
         private async Task RegisterBackgroundTaskAsync()

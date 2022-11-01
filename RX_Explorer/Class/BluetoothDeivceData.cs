@@ -222,6 +222,16 @@ namespace RX_Explorer.Class
                                 SuccessCompleteSource.TrySetCanceled(LocalCancellation.Token);
                             }))
                             {
+                                Service.Disconnected += async (s, e) =>
+                                {
+                                    if (ProgressValue < 100)
+                                    {
+                                        if (SuccessCompleteSource.TrySetResult(true))
+                                        {
+                                            await HandleBluetoothEvent(BluetoothEventKind.TransferFailure);
+                                        }
+                                    }
+                                };
                                 Service.DataTransferFailed += async (s, e) =>
                                 {
                                     if (SuccessCompleteSource.TrySetResult(false))
@@ -272,6 +282,7 @@ namespace RX_Explorer.Class
                                 catch (OperationCanceledException)
                                 {
                                     await Service.AbortAsync();
+                                    await HandleBluetoothEvent(BluetoothEventKind.Aborted);
                                 }
                             }
                         }
@@ -373,15 +384,21 @@ namespace RX_Explorer.Class
                 switch (Kind)
                 {
                     case BluetoothEventKind.Aborted:
-                    case BluetoothEventKind.TransferFailure:
                         {
                             PanelMode = BluetoothPanelMode.TextMode;
                             InfoText = Globalization.GetString("Bluetooth_Transfer_Status_2");
                             break;
                         }
+                    case BluetoothEventKind.TransferFailure:
+                        {
+                            PanelMode = BluetoothPanelMode.TextMode;
+                            InfoText = Globalization.GetString("Bluetooth_Transfer_Status_5");
+                            break;
+                        }
                     case BluetoothEventKind.Connected:
                         {
                             ProgressValue = 0;
+                            PanelMode = BluetoothPanelMode.TransferMode;
                             InfoText = Globalization.GetString("Bluetooth_Transfer_Status_1");
                             break;
                         }

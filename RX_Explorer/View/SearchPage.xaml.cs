@@ -1476,7 +1476,7 @@ namespace RX_Explorer.View
                     {
                         using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                         {
-                            if (await Exclusive.Controller.CheckQuicklookAvailableAsync())
+                            if (await Exclusive.Controller.CheckQuicklookWindowVisibleAsync())
                             {
                                 if (!string.IsNullOrEmpty(Item.Path))
                                 {
@@ -1489,7 +1489,7 @@ namespace RX_Explorer.View
                     {
                         using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                         {
-                            if (await Exclusive.Controller.CheckSeerAvailableAsync())
+                            if (await Exclusive.Controller.CheckSeerWindowVisibleAsync())
                             {
                                 if (!string.IsNullOrEmpty(Item.Path))
                                 {

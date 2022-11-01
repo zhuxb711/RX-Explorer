@@ -293,14 +293,22 @@ namespace RX_Explorer.Class
             return Result;
         }
 
-        public TerminalProfile GetTerminalProfile(string Name, string Path)
+        public TerminalProfile GetTerminalProfile(string Name, string Path = null)
         {
-            if (!string.IsNullOrEmpty(Path))
+            if (!string.IsNullOrEmpty(Name))
             {
-                using SqliteCommand Command = new SqliteCommand("Select * From TerminalProfile Where Name = @Name And Path = @Path Limit 0,1", Connection);
+                using SqliteCommand Command = new SqliteCommand("Select * From TerminalProfile Where Name = @Name And Path Like @Path Limit 0,1", Connection);
 
                 Command.Parameters.AddWithValue("@Name", Name);
-                Command.Parameters.AddWithValue("@Path", Path);
+
+                if (string.IsNullOrEmpty(Path))
+                {
+                    Command.Parameters.AddWithValue("@Path", "%%");
+                }
+                else
+                {
+                    Command.Parameters.AddWithValue("@Path", Path);
+                }
 
                 using SqliteDataReader Reader = Command.ExecuteReader();
 
@@ -548,10 +556,31 @@ namespace RX_Explorer.Class
 
         public void DeleteLabelKindByPath(string Path)
         {
-            using (SqliteCommand Command = new SqliteCommand("Delete From PathTagMapping Where Path = @Path", Connection))
+            if (!string.IsNullOrEmpty(Path))
             {
-                Command.Parameters.AddWithValue("@Path", Path);
-                Command.ExecuteNonQuery();
+                using (SqliteCommand Command = new SqliteCommand("Delete From PathTagMapping Where Path = @Path", Connection))
+                {
+                    Command.Parameters.AddWithValue("@Path", Path);
+                    Command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void DeleteLabelKindByPathList(IEnumerable<string> PathList)
+        {
+            if (PathList.Any())
+            {
+                using SqliteTransaction Transaction = Connection.BeginTransaction();
+                using SqliteCommand Command = new SqliteCommand("Delete From PathTagMapping Where Path = @Path", Connection, Transaction);
+
+                foreach (string Path in PathList)
+                {
+                    Command.Parameters.Clear();
+                    Command.Parameters.AddWithValue("@Path", Path);
+                    Command.ExecuteNonQuery();
+                }
+
+                Transaction.Commit();
             }
         }
 
@@ -659,10 +688,12 @@ namespace RX_Explorer.Class
 
         public void SetLibraryPathRecord(LibraryType Type, string Path)
         {
-            using SqliteCommand Command = new SqliteCommand("Insert Or Replace Into Library Values (@Path,@Type)", Connection);
-            Command.Parameters.AddWithValue("@Path", Path);
-            Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
-            Command.ExecuteNonQuery();
+            using SqliteCommand Command = new SqliteCommand("Insert Or Replace Into Library Values (@Path, @Type)", Connection);
+            {
+                Command.Parameters.AddWithValue("@Path", Path);
+                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
+                Command.ExecuteNonQuery();
+            }
         }
 
         /// <summary>
@@ -748,20 +779,18 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public void DeleteQuickStartItem(QuickStartItem Item)
         {
-            if (Item != null)
-            {
-                using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And Protocal = @Protocol And FullPath = @FullPath And Type=@Type", Connection))
-                {
-                    Command.Parameters.AddWithValue("@Name", Item.DisplayName);
-                    Command.Parameters.AddWithValue("@Protocol", Item.Protocol);
-                    Command.Parameters.AddWithValue("@FullPath", Item.IconPath);
-                    Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Item.Type));
-                    Command.ExecuteNonQuery();
-                }
-            }
-            else
+            if (Item == null)
             {
                 throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
+            }
+
+            using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And Protocal = @Protocol And FullPath = @FullPath And Type=@Type", Connection))
+            {
+                Command.Parameters.AddWithValue("@Name", Item.DisplayName);
+                Command.Parameters.AddWithValue("@Protocol", Item.Protocol);
+                Command.Parameters.AddWithValue("@FullPath", Item.IconPath);
+                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Item.Type));
+                Command.ExecuteNonQuery();
             }
         }
 

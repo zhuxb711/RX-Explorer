@@ -774,10 +774,10 @@
     <value>傳送中</value>
   </data>
   <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
-    <value>傳輸停止</value>
+    <value>用戶取消文件傳輸</value>
   </data>
   <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
-    <value>傳輸完成</value>
+    <value>成功完成文件传输</value>
   </data>
   <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
     <value>壓縮任務已取消</value>
@@ -3737,5 +3737,8 @@
   </data>
   <data name="SAWelcomeDialogStorageLocationBrowse.Content" xml:space="preserve">
     <value>瀏覽</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_5" xml:space="preserve">
+    <value>目標設備已斷開連接，無法傳輸文件</value>
   </data>
 </root>

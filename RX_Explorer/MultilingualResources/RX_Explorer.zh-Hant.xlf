@@ -1022,12 +1022,12 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">傳送中</target>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Status_2" translate="yes" xml:space="preserve">
-          <source>Transmission terminated</source>
-          <target state="translated">傳輸停止</target>
+          <source>File transfer cancelled by user</source>
+          <target state="translated">用戶取消文件傳輸</target>
         </trans-unit>
         <trans-unit id="Bluetooth_Transfer_Status_3" translate="yes" xml:space="preserve">
-          <source>Transmission completed</source>
-          <target state="translated">傳輸完成</target>
+          <source>File transfer completed successfully</source>
+          <target state="translated">成功完成文件传输</target>
         </trans-unit>
         <trans-unit id="Crop_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
           <source>Cropping task has been cancelled</source>
@@ -4967,6 +4967,10 @@ Invalid names include
         <trans-unit id="SAWelcomeDialogStorageLocationBrowse.Content" translate="yes" xml:space="preserve">
           <source>Browse</source>
           <target state="translated">瀏覽</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Status_5" translate="yes" xml:space="preserve">
+          <source>The target device is disconnected and the file cannot be transferred</source>
+          <target state="translated">目標設備已斷開連接，無法傳輸文件</target>
         </trans-unit>
       </group>
     </body>

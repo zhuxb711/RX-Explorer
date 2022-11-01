@@ -517,7 +517,7 @@ namespace RX_Explorer.View
                         }
                     }
                 }
-                else if (SQLite.Current.GetTerminalProfile("Windows Terminal", "wt.exe") is TerminalProfile WTProfile)
+                else if (SQLite.Current.GetTerminalProfile("Windows Terminal") is TerminalProfile WTProfile)
                 {
                     return WTProfile;
                 }

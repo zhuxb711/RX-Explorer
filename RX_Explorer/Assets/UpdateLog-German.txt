@@ -1,15 +1,19 @@
-﻿###Was ist neu in Ver.8.0.2.0
-
-#####UI-Update
-
->#####Die Benutzeroberfläche von "Sicherer Bereich" wurde geringfügig verbessert
+﻿###Was ist neu in Ver.8.0.4.0
 
 #####Fehlerbehebung
 
->#####Es wurde ein Problem behoben, bei dem das mehrmalige Öffnen oder Schließen der „Integration mit Systemkomponenten“-bezogenen Funktionen zu einem Fehler führen konnte
+>#####Ein Problem wurde behoben, durch das die Einstellung „Immer im Vordergrund“ beim Öffnen von .exe-Dateien ungültig werden konnte
 
->#####Es wurde ein Problem behoben, bei dem einige SLE-Dateien für die Versionen 1.5.0 und niedriger möglicherweise nicht korrekt entschlüsselt werden
+>#####Es wurde ein Problem behoben, bei dem Übertragungsunterbrechungen oder Verbindungsverweigerungen in einigen Fällen möglicherweise nicht erkannt wurden, wenn Dateien über Bluetooth geteilt wurden
 
->#####Es wurde ein Problem behoben, bei dem der integrierte Viewer einige SLE-Dateien möglicherweise nicht in der Vorschau anzeigen konnte
+>#####Problem behoben, bei dem die Mehrfachauswahl von Dateien in den Suchergebnissen zu einem Absturz führen konnte
 
->#####Es wurde ein Problem behoben, bei dem der Speicherort des "Sicherheitsbereichs" nicht geändert werden konnte, wenn keine verschlüsselten Dateien vorhanden waren
+>#####Es wurde ein Problem behoben, bei dem das Drücken der Esc-Taste nicht zuerst die Fenster von Vorschauprogrammen wie Quicklook und Seer schloss
+
+>#####Problem behoben, bei dem FTP-Dateien nicht mit dem integrierten Viewer geöffnet werden konnten
+
+>#####Problem behoben, bei dem FTP-Dateien nicht kopiert oder verschoben werden konnten
+
+>#####Es wurde ein Problem behoben, bei dem das Windows-Terminal beim Anzeigen nicht automatisch als Standardterminal ausgewählt wurde
+
+>#####Einige andere Probleme behoben, die zu Abstürzen führen konnten
