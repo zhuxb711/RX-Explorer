@@ -5,6 +5,7 @@ F5|Aucun|Actualiser
 Enter|Sélectionner un seul fichier ou dossier|Utiliser le programme associé pour ouvrir le fichier ou entrer dans le dossier
 Back|Aucun|Naviguer vers le dossier précédent
 Space|Quicklook est en cours d'exécution et un fichier ou un dossier a été sélectionné|Utilisez Quicklook pour afficher les informations associées
+Esc|Aucun|Fermer la fenêtre de prévisualisation ou quitter la visionneuse intégrée
 Delete|Sélectionner n'importe quel fichier ou dossier|Supprimer le fichier
 Ctrl + L|Aucun|Activer la barre d'adresse
 Ctrl + V|Aucun|Coller
@@ -19,6 +20,8 @@ Ctrl + Q|Sélectionner un seul dossier|Ouvrir le dossier spécifié dans une nou
 Ctrl + B|Aucun|Si un seul dossier est sélectionné, le dossier spécifié sera ouvert dans une nouvelle fenêtre fractionnée verticale. Dans d'autres cas, le dossier actuel sera ouvert dans une nouvelle fenêtre fractionnée verticale
 Ctrl + E|Aucun|Vider la corbeille
 Ctrl + R|Sélectionner n'importe quel fichier ou dossier|Restaurer tous les éléments sélectionnés dans la corbeille
+Ctrl + W|Aucun|Fermer l'onglet actuel
+Ctrl + U|Sélectionner un lecteur chiffré par Bitlocker|Déverrouiller le lecteur chiffré
 Ctrl + Mouse Wheel|aucun|changer le mode d'affichage du fichier
 Ctrl + Double-Clic|Sélectionner n'importe quel dossier|Ouvrir le dossier spécifié dans un nouvel onglet
 Ctrl + Tab|Plusieurs onglets ont été ouverts|Changer les onglets sur la droite
@@ -29,6 +32,7 @@ Shift + T|Aucun|Démarrer le terminal correspondant selon la configuration dans 
 Alt + Left|Aucun|Naviguer vers le dossier précédent
 Alt + Right|Aucun|Naviguer vers le dossier suivant
 Alt + Enter|Sélectionner un seul fichier ou dossier|Lancer la fenêtre des propriétés
+Alt + Double Click|Sélectionner un seul fichier ou dossier|Lancer la fenêtre des propriétés
 Ctrl + Shift + N|Aucun|Créer un nouveau dossier
 Ctrl + Shift + C|Aucun|Copier le chemin de l'élément sélectionné. Si aucun élément n'est sélectionné, copiez le chemin du dossier courant
 Ctrl + Shift + Tab|Se abrieron varias pestañas|Cambiar a la pestaña de la izquierda

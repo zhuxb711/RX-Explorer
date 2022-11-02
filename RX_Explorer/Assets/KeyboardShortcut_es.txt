@@ -5,13 +5,14 @@ F5|Ninguno|Actualizar
 Enter|Seleccionar solo un archivo o carpeta|Usar el programa asociado para abrir el archivo o entrar en la carpeta
 Back|Ninguno|Navegar a la carpeta anterior
 Space|Quicklook se está ejecutando y se ha seleccionado cualquier archivo o carpeta|Use Quicklook para ver información relacionada
-Delete|Seleccione cualquier archivo o carpeta|Eliminar archivo
+Esc|Ninguno|Cerrar la ventana de vista previa o salir del visor incorporado
+Delete|Seleccione cualquier archivo o carpeta|Eliminar archivo o carpeta
 Ctrl + L|Ninguno|Activar la barra de direcciones
 Ctrl + V|Ninguno|Pegar
 Ctrl + A|Ninguno|Seleccionar todos los archivos y carpetas
-Ctrl + C|Seleccionar cualquier archivo o carpeta|Copiar archivo
-Ctrl + X|Seleccionar cualquier archivo o carpeta|Cortar archivo
-Ctrl + D|Seleccionar cualquier archivo o carpeta|Eliminar archivo
+Ctrl + C|Seleccionar cualquier archivo o carpeta|Copiar archivo o carpeta
+Ctrl + X|Seleccionar cualquier archivo o carpeta|Mover archivo o carpeta
+Ctrl + D|Seleccionar cualquier archivo o carpeta|Eliminar archivo o carpeta
 Ctrl + F|Ninguno|Activar el cuadro de búsqueda
 Ctrl + Z|El registro correspondiente existe|Deshacer la operación anterior
 Ctrl + T|Deseleccionar o solo seleccionar una carpeta|Abrir la carpeta especificada en una nueva pestaña. Si no se selecciona ninguna carpeta, solo se creará una nueva pestaña
@@ -19,6 +20,8 @@ Ctrl + Q|Seleccionar solo una carpeta|Abrir la carpeta especificada en una nueva
 Ctrl + B|Ninguno|Si solo se selecciona una carpeta, la carpeta especificada se abrirá en una nueva ventana dividida verticalmente. En otros casos, la carpeta actual se abrirá en una nueva ventana dividida verticalmente
 Ctrl + E|Ninguno|Vaciar la papelera de reciclaje
 Ctrl + R|Seleccionar cualquier archivo o carpeta|Restaurar todos los elementos seleccionados en la papelera de reciclaje
+Ctrl + W|Ninguno|Cerrar pestaña actual
+Ctrl + U|Seleccione una unidad que haya sido encriptada por Bitlocker|Desbloquee la unidad encriptada
 Ctrl + Rueda del mouse|ninguno|cambiar el modo de visualización del archivo
 Ctrl + Doble clic|Seleccionar cualquier carpeta|Abrir la carpeta especificada en una nueva pestaña
 Ctrl + Tab|Se abrieron varias pestañas|Cambiar pestañas a la derecha
@@ -29,6 +32,7 @@ Shift + T|Ninguno|Inicie el terminal correspondiente de acuerdo con la configura
 Alt + Izquierda|Ninguno|Navegar a la carpeta anterior
 Alt + Derecha|Ninguno|Navegar a la siguiente carpeta
 Alt + Enter|Seleccionar solo un archivo o carpeta|Iniciar la ventana de propiedades
+Alt + Doble clic|Seleccionar solo un archivo o carpeta|Iniciar la ventana de propiedades
 Ctrl + Shift + N|Ninguno|Crear nueva carpeta
 Ctrl + Shift + C|Ninguno|Copiar la ruta del elemento seleccionado. Si no se selecciona ningún elemento, copie la ruta de la carpeta actual
 Ctrl + Shift + Tab|Se abrieron varias pestañas|Cambiar a la pestaña de la izquierda

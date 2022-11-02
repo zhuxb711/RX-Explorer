@@ -5,13 +5,14 @@ F5|None|Refresh
 Enter|Select only one file or folder|Use the associated program to open the file or enter the folder
 Back|None|Navigate to the previous folder
 Space|Quicklook is running and any file or folder has been selected|Use Quicklook to view related information
-Delete|Select any file or folder|Delete file
+Esc|None|Close the previewer window or exit the built-in viewer
+Delete|Select any file or folder|Supprimer un fichier ou un dossier
 Ctrl + L|None|Activate the address bar
 Ctrl + V|None|Paste
 Ctrl + A|None|Select all files and folders
-Ctrl + C|Select any file or folder|Copy file
-Ctrl + X|Select any file or folder|Cut file
-Ctrl + D|Select any file or folder|Delete file
+Ctrl + C|Select any file or folder|Copier un fichier ou un dossier
+Ctrl + X|Select any file or folder|Déplacer un fichier ou un dossier
+Ctrl + D|Select any file or folder|Supprimer un fichier ou un dossier
 Ctrl + F|None|Activate the search box
 Ctrl + Z|The corresponding record exists|Undo the previous operation
 Ctrl + T|Unselect or only select a folder|Open the specified folder in a new tab. If no folder is selected, only a new tab page will be created
@@ -19,6 +20,8 @@ Ctrl + Q|Select only one folder|Open the specified folder in a new window
 Ctrl + B|None|If only one folder is selected, the specified folder will be opened in a new vertical split window. In other cases, the current folder will be opened in a new vertical split window
 Ctrl + E|None|Empty the recycle bin
 Ctrl + R|Select any file or folder|Restore all items selected in recycle bin
+Ctrl + W|None|Close current tab
+Ctrl + U|Select a drive that has been encrypted by Bitlocker|Unlock the encrypted drive
 Ctrl + Mouse Wheel|None|Change file display mode
 Ctrl + Double Click|Select any folder|Open the specified folder in a new tab
 Ctrl + Tab|Multiple tabs were opened|Switch tabs on the right
@@ -29,6 +32,7 @@ Shift + T|None|Start the corresponding terminal according to the configuration i
 Alt + Left|None|Navigate to the previous folder
 Alt + Right|None|Navigate to the next folder
 Alt + Enter|Select only one file or folder|Launch the properties window
+Alt + Double Click|Select only one file or folder|Launch the properties window
 Ctrl + Shift + N|None|Create new folder
 Ctrl + Shift + C|None|Copy the path of the selected item. If no item is selected, copy the path of the current folder
 Ctrl + Shift + Tab|Multiple tabs were opened|Switch to the tab on the left
