@@ -2340,7 +2340,7 @@ namespace RX_Explorer.View
                     LoadingText.Text = Globalization.GetString("Progress_Tip_Exporting");
                     LoadingControl.IsLoading = true;
 
-                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), CreateType.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder SecureFolder)
+                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), CreateType.Folder, CreateOption.Skip) is FileSystemStorageFolder SecureFolder)
                     {
                         try
                         {
@@ -2349,7 +2349,7 @@ namespace RX_Explorer.View
                                 using (Stream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read))
                                 using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, new UTF8Encoding(false), KeyGenerator.GetMD5WithLength(SecureAreaUnlockPassword, 16)))
                                 {
-                                    if (await Dialog.ExportFolder.CreateNewSubItemAsync(SLEStream.Header.Core.Version >= SLEVersion.SLE110 ? SLEStream.Header.Core.FileName : $"{Path.GetFileNameWithoutExtension(Item.Name)}{SLEStream.Header.Core.FileName}", CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
+                                    if (await Dialog.ExportFolder.CreateNewSubItemAsync(SLEStream.Header.Core.Version >= SLEVersion.SLE110 ? SLEStream.Header.Core.FileName : $"{Path.GetFileNameWithoutExtension(Item.Name)}{SLEStream.Header.Core.FileName}", CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile DecryptedFile)
                                     {
                                         using (Stream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write))
                                         {

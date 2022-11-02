@@ -241,24 +241,16 @@ namespace RX_Explorer.Class
                                 {
                                     if (await GetStorageItemAsync() is StorageFolder Folder)
                                     {
-                                        switch (Option)
+                                        StorageFile NewFile = await Folder.CreateFileAsync(Name, Option switch
                                         {
-                                            case CreateOption.GenerateUniqueName:
-                                                {
-                                                    StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.GenerateUniqueName);
-                                                    return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
-                                                }
-                                            case CreateOption.OpenIfExist:
-                                                {
-                                                    StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.OpenIfExists);
-                                                    return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
-                                                }
-                                            case CreateOption.ReplaceExisting:
-                                                {
-                                                    StorageFile NewFile = await Folder.CreateFileAsync(Name, CreationCollisionOption.ReplaceExisting);
-                                                    return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
-                                                }
-                                        }
+                                            CreateOption.None => CreationCollisionOption.FailIfExists,
+                                            CreateOption.RenameOnCollision => CreationCollisionOption.GenerateUniqueName,
+                                            CreateOption.Skip => CreationCollisionOption.OpenIfExists,
+                                            CreateOption.OverrideOnCollision => CreationCollisionOption.ReplaceExisting,
+                                            _=>throw new NotSupportedException()
+                                        });
+
+                                        return new FileSystemStorageFile(await NewFile.GetNativeFileDataAsync());
                                     }
 
                                     throw;
@@ -301,28 +293,16 @@ namespace RX_Explorer.Class
 
                                 if (await GetStorageItemAsync() is StorageFolder Folder)
                                 {
-                                    switch (Option)
+                                    StorageFolder NewFolder = await Folder.CreateFolderAsync(Name, Option switch
                                     {
-                                        case CreateOption.GenerateUniqueName:
-                                            {
-                                                StorageFolder NewFolder = await Folder.CreateFolderAsync(Name, CreationCollisionOption.GenerateUniqueName);
-                                                return new FileSystemStorageFolder(await NewFolder.GetNativeFileDataAsync());
-                                            }
-                                        case CreateOption.OpenIfExist:
-                                            {
-                                                StorageFolder NewFolder = await Folder.CreateFolderAsync(Name, CreationCollisionOption.OpenIfExists);
-                                                return new FileSystemStorageFolder(await NewFolder.GetNativeFileDataAsync());
-                                            }
-                                        case CreateOption.ReplaceExisting:
-                                            {
-                                                StorageFolder NewFolder = await Folder.CreateFolderAsync(Name, CreationCollisionOption.ReplaceExisting);
-                                                return new FileSystemStorageFolder(await NewFolder.GetNativeFileDataAsync());
-                                            }
-                                        default:
-                                            {
-                                                break;
-                                            }
-                                    }
+                                        CreateOption.None => CreationCollisionOption.FailIfExists,
+                                        CreateOption.RenameOnCollision => CreationCollisionOption.GenerateUniqueName,
+                                        CreateOption.Skip => CreationCollisionOption.OpenIfExists,
+                                        CreateOption.OverrideOnCollision => CreationCollisionOption.ReplaceExisting,
+                                        _ => throw new NotSupportedException()
+                                    });
+
+                                    return new FileSystemStorageFolder(await NewFolder.GetNativeFileDataAsync());
                                 }
                             }
                             catch (Exception)

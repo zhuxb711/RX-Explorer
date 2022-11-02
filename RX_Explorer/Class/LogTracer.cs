@@ -275,7 +275,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), CreateType.File, CreateOption.OpenIfExist).Result is FileSystemStorageFile LogFile)
+                if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), CreateType.File, CreateOption.Skip).Result is FileSystemStorageFile LogFile)
                 {
                     using (Stream LogStream = LogFile.GetStreamFromFileAsync(AccessMode.Write).Result)
                     using (StreamWriter Writer = new StreamWriter(LogStream, Encoding.Unicode, 1024, true))

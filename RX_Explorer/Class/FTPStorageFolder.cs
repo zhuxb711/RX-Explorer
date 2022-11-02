@@ -148,7 +148,7 @@ namespace RX_Explorer.Class
                 {
                     switch (Option)
                     {
-                        case CreateOption.OpenIfExist:
+                        case CreateOption.Skip:
                             {
                                 if (!await ClientController.RunCommandAsync((Client) => Client.DirectoryExists(TargetPath)))
                                 {
@@ -165,7 +165,7 @@ namespace RX_Explorer.Class
 
                                 break;
                             }
-                        case CreateOption.GenerateUniqueName:
+                        case CreateOption.RenameOnCollision:
                             {
                                 string UniquePath = await ClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetPath, CreateType.Folder));
 
@@ -179,7 +179,7 @@ namespace RX_Explorer.Class
 
                                 break;
                             }
-                        case CreateOption.ReplaceExisting:
+                        case CreateOption.OverrideOnCollision:
                             {
                                 await ClientController.RunCommandAsync((Client) => Client.DeleteDirectory(TargetPath, FtpListOption.Recursive));
 
@@ -199,7 +199,7 @@ namespace RX_Explorer.Class
                 {
                     switch (Option)
                     {
-                        case CreateOption.OpenIfExist:
+                        case CreateOption.Skip:
                             {
                                 if (await ClientController.RunCommandAsync((Client) => Client.UploadBytes(Array.Empty<byte>(), TargetPath, FtpRemoteExists.Skip)) != FtpStatus.Failed)
                                 {
@@ -211,7 +211,7 @@ namespace RX_Explorer.Class
 
                                 break;
                             }
-                        case CreateOption.GenerateUniqueName:
+                        case CreateOption.RenameOnCollision:
                             {
                                 string UniquePath = await ClientController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetPath, CreateType.File));
 
@@ -225,7 +225,7 @@ namespace RX_Explorer.Class
 
                                 break;
                             }
-                        case CreateOption.ReplaceExisting:
+                        case CreateOption.OverrideOnCollision:
                             {
                                 if (await ClientController.RunCommandAsync((Client) => Client.UploadBytes(Array.Empty<byte>(), TargetPath, FtpRemoteExists.Overwrite)) == FtpStatus.Success)
                                 {
@@ -444,7 +444,7 @@ namespace RX_Explorer.Class
                     {
                         case CollisionOptions.OverrideOnCollision:
                             {
-                                if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.ReplaceExisting) is FileSystemStorageFolder NewFolder)
+                                if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.OverrideOnCollision) is FileSystemStorageFolder NewFolder)
                                 {
                                     using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
                                     {
@@ -456,7 +456,7 @@ namespace RX_Explorer.Class
                                                     {
                                                         string SubFolderPath = System.IO.Path.Combine(NewFolder.Path, System.IO.Path.GetRelativePath(Path, Folder.Path));
 
-                                                        if (await CreateNewAsync(SubFolderPath, CreateType.Folder, CreateOption.ReplaceExisting) is not FileSystemStorageFolder)
+                                                        if (await CreateNewAsync(SubFolderPath, CreateType.Folder, CreateOption.OverrideOnCollision) is not FileSystemStorageFolder)
                                                         {
                                                             throw new UnauthorizedAccessException(SubFolderPath);
                                                         }
@@ -471,7 +471,7 @@ namespace RX_Explorer.Class
                                                                                       ? string.Empty
                                                                                       : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
-                                                            if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                                            if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.OverrideOnCollision) is FileSystemStorageFile NewFile)
                                                             {
                                                                 using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                                                 {
@@ -504,7 +504,7 @@ namespace RX_Explorer.Class
                             }
                         case CollisionOptions.RenameOnCollision:
                             {
-                                if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder NewFolder)
+                                if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.RenameOnCollision) is FileSystemStorageFolder NewFolder)
                                 {
                                     using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
                                     {
@@ -516,7 +516,7 @@ namespace RX_Explorer.Class
                                                     {
                                                         string SubFolderPath = System.IO.Path.Combine(NewFolder.Path, System.IO.Path.GetRelativePath(Path, Folder.Path));
 
-                                                        if (await CreateNewAsync(SubFolderPath, CreateType.Folder, CreateOption.ReplaceExisting) is not FileSystemStorageFolder)
+                                                        if (await CreateNewAsync(SubFolderPath, CreateType.Folder, CreateOption.OverrideOnCollision) is not FileSystemStorageFolder)
                                                         {
                                                             throw new UnauthorizedAccessException(SubFolderPath);
                                                         }
@@ -531,7 +531,7 @@ namespace RX_Explorer.Class
                                                                                       ? string.Empty
                                                                                       : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
-                                                            if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                                            if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.OverrideOnCollision) is FileSystemStorageFile NewFile)
                                                             {
                                                                 using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                                                 {
@@ -566,7 +566,7 @@ namespace RX_Explorer.Class
                             {
                                 if (!await CheckExistsAsync(TargetPath))
                                 {
-                                    if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.ReplaceExisting) is FileSystemStorageFolder NewFolder)
+                                    if (await CreateNewAsync(TargetPath, CreateType.Folder, CreateOption.OverrideOnCollision) is FileSystemStorageFolder NewFolder)
                                     {
                                         using (FtpClientController AuxiliaryReadController = await FtpClientController.DuplicateClientControllerAsync(ClientController))
                                         {
@@ -578,7 +578,7 @@ namespace RX_Explorer.Class
                                                         {
                                                             string SubFolderPath = System.IO.Path.Combine(NewFolder.Path, System.IO.Path.GetRelativePath(Path, Folder.Path));
 
-                                                            if (await CreateNewAsync(SubFolderPath, CreateType.Folder, CreateOption.ReplaceExisting) is not FileSystemStorageFolder)
+                                                            if (await CreateNewAsync(SubFolderPath, CreateType.Folder, CreateOption.OverrideOnCollision) is not FileSystemStorageFolder)
                                                             {
                                                                 throw new UnauthorizedAccessException(SubFolderPath);
                                                             }
@@ -593,7 +593,7 @@ namespace RX_Explorer.Class
                                                                                           ? string.Empty
                                                                                           : System.IO.Path.GetRelativePath(Path, System.IO.Path.GetDirectoryName(File.Path));
 
-                                                                if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                                                if (await CreateNewAsync(System.IO.Path.Combine(NewFolder.Path, RelativePath, File.Name), CreateType.File, CreateOption.OverrideOnCollision) is FileSystemStorageFile NewFile)
                                                                 {
                                                                     using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                                                     {

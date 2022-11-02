@@ -1205,6 +1205,17 @@ namespace AuxiliaryTrustProcess
                                                 {
                                                     switch (Option)
                                                     {
+                                                        case CollisionOptions.None:
+                                                            {
+                                                                string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
+
+                                                                if (Device.FileExists(TargetPath))
+                                                                {
+                                                                    throw new Exception($"{TargetPath} is already exists");
+                                                                }
+
+                                                                break;
+                                                            }
                                                         case CollisionOptions.Skip:
                                                             {
                                                                 string TargetPath = $"{PathAnalysis.RelativePath}\\{Name}";
@@ -3450,7 +3461,6 @@ namespace AuxiliaryTrustProcess
                                 string DestinationPath = CommandValue["DestinationPath"];
 
                                 CollisionOptions Option = Enum.Parse<CollisionOptions>(CommandValue["CollisionOptions"]);
-
                                 IReadOnlyDictionary<string, string> SourcePathMapping = JsonSerializer.Deserialize<IReadOnlyDictionary<string, string>>(SourcePathJson);
 
                                 try
@@ -3476,32 +3486,58 @@ namespace AuxiliaryTrustProcess
 
                                                     if (SourceDevice.FileExists(SourceRelativePair.Key))
                                                     {
-                                                        using (FileStream Stream = File.Create(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")), 4096, FileOptions.DeleteOnClose | FileOptions.RandomAccess))
+                                                        string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, string.IsNullOrEmpty(SourceRelativePair.Value) ? Path.GetFileName(SourceRelativePair.Key) : SourceRelativePair.Value);
+
+                                                        switch (Option)
                                                         {
-                                                            SourceDevice.DownloadFile(SourceRelativePair.Key, Stream, Cancellation.Token, (s, e) =>
+                                                            case CollisionOptions.None:
+                                                                {
+                                                                    if (DestinationDevice.FileExists(TargetPath))
+                                                                    {
+                                                                        throw new Exception($"{TargetPath} is already exists");
+                                                                    }
+
+                                                                    break;
+                                                                }
+                                                            case CollisionOptions.RenameOnCollision:
+                                                                {
+                                                                    if (DestinationDevice.FileExists(TargetPath))
+                                                                    {
+                                                                        TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.File);
+                                                                    }
+
+                                                                    break;
+                                                                }
+                                                            case CollisionOptions.OverrideOnCollision:
+                                                                {
+                                                                    if (DestinationDevice.FileExists(TargetPath))
+                                                                    {
+                                                                        DestinationDevice.DeleteFile(TargetPath);
+                                                                    }
+
+                                                                    break;
+                                                                }
+                                                            case CollisionOptions.Skip:
+                                                                {
+                                                                    if (DestinationDevice.FileExists(TargetPath))
+                                                                    {
+                                                                        continue;
+                                                                    }
+
+                                                                    break;
+                                                                }
+                                                        }
+
+                                                        using (FileStream TempStream = File.Create(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")), 4096, FileOptions.DeleteOnClose))
+                                                        {
+                                                            SourceDevice.DownloadFile(SourceRelativePair.Key, TempStream, Cancellation.Token, (s, e) =>
                                                             {
                                                                 PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                             });
 
-                                                            string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, string.IsNullOrEmpty(SourceRelativePair.Value) ? Path.GetFileName(SourceRelativePair.Key) : SourceRelativePair.Value);
+                                                            TempStream.Seek(0, SeekOrigin.Begin);
 
-                                                            switch (Option)
-                                                            {
-                                                                case CollisionOptions.RenameOnCollision:
-                                                                    {
-                                                                        TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.File);
-                                                                        break;
-                                                                    }
-                                                                case CollisionOptions.OverrideOnCollision:
-                                                                    {
-                                                                        DestinationDevice.DeleteFile(TargetPath);
-                                                                        break;
-                                                                    }
-                                                            }
-
-                                                            Stream.Seek(0, SeekOrigin.Begin);
-
-                                                            DestinationDevice.UploadFile(Stream, TargetPath, Cancellation.Token, (s, e) =>
+                                                            DestinationDevice.UploadFile(TempStream, TargetPath, Cancellation.Token, (s, e) =>
                                                             {
                                                                 PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (EachTaskStep / 2) + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                             });
@@ -3509,30 +3545,56 @@ namespace AuxiliaryTrustProcess
                                                     }
                                                     else if (SourceDevice.DirectoryExists(SourceRelativePair.Key))
                                                     {
-                                                        DirectoryInfo NewDirectory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")));
-
-                                                        SourceDevice.DownloadFolder(SourceRelativePair.Key, NewDirectory.FullName, Cancellation.Token, (s, e) =>
-                                                        {
-                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 200 * EachTaskStep))));
-                                                        });
-
                                                         string TargetPath = Path.Combine(DestinationPathAnalysis.RelativePath, string.IsNullOrEmpty(SourceRelativePair.Value) ? Path.GetFileName(SourceRelativePair.Key) : SourceRelativePair.Value);
 
                                                         switch (Option)
                                                         {
+                                                            case CollisionOptions.None:
+                                                                {
+                                                                    if (DestinationDevice.DirectoryExists(TargetPath))
+                                                                    {
+                                                                        throw new Exception($"{TargetPath} is already exists");
+                                                                    }
+
+                                                                    break;
+                                                                }
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.Folder);
+                                                                    if (DestinationDevice.DirectoryExists(TargetPath))
+                                                                    {
+                                                                        TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.Folder);
+                                                                    }
+
                                                                     break;
                                                                 }
                                                             case CollisionOptions.OverrideOnCollision:
                                                                 {
-                                                                    DestinationDevice.DeleteDirectory(TargetPath, true);
+                                                                    if (DestinationDevice.DirectoryExists(TargetPath))
+                                                                    {
+                                                                        DestinationDevice.DeleteDirectory(TargetPath, true);
+                                                                    }
+
+                                                                    break;
+                                                                }
+                                                            case CollisionOptions.Skip:
+                                                                {
+                                                                    if (DestinationDevice.DirectoryExists(TargetPath))
+                                                                    {
+                                                                        continue;
+                                                                    }
+
                                                                     break;
                                                                 }
                                                         }
 
-                                                        DestinationDevice.UploadFolder(NewDirectory.FullName, TargetPath, Cancellation.Token, (s, e) =>
+                                                        string TempDirectoryPath = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"))).FullName;
+
+                                                        SourceDevice.DownloadFolder(SourceRelativePair.Key, TempDirectoryPath, Cancellation.Token, (s, e) =>
+                                                        {
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 200 * EachTaskStep))));
+                                                        });
+
+                                                        DestinationDevice.UploadFolder(TempDirectoryPath, TargetPath, Cancellation.Token, (s, e) =>
                                                         {
                                                             PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (EachTaskStep / 2) + (e.ProgressPercentage / 200 * EachTaskStep))));
                                                         });
@@ -3574,14 +3636,40 @@ namespace AuxiliaryTrustProcess
 
                                                         switch (Option)
                                                         {
+                                                            case CollisionOptions.None:
+                                                                {
+                                                                    if (DestinationDevice.FileExists(TargetPath))
+                                                                    {
+                                                                        throw new Exception($"{TargetPath} is already exists");
+                                                                    }
+
+                                                                    break;
+                                                                }
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.File);
+                                                                    if (DestinationDevice.FileExists(TargetPath))
+                                                                    {
+                                                                        TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.File);
+                                                                    }
+
                                                                     break;
                                                                 }
                                                             case CollisionOptions.OverrideOnCollision:
                                                                 {
-                                                                    DestinationDevice.DeleteFile(TargetPath);
+                                                                    if (DestinationDevice.FileExists(TargetPath))
+                                                                    {
+                                                                        DestinationDevice.DeleteFile(TargetPath);
+                                                                    }
+
+                                                                    break;
+                                                                }
+                                                            case CollisionOptions.Skip:
+                                                                {
+                                                                    if (DestinationDevice.FileExists(TargetPath))
+                                                                    {
+                                                                        continue;
+                                                                    }
+
                                                                     break;
                                                                 }
                                                         }
@@ -3597,14 +3685,40 @@ namespace AuxiliaryTrustProcess
 
                                                         switch (Option)
                                                         {
+                                                            case CollisionOptions.None:
+                                                                {
+                                                                    if (DestinationDevice.DirectoryExists(TargetPath))
+                                                                    {
+                                                                        throw new Exception($"{TargetPath} is already exists");
+                                                                    }
+
+                                                                    break;
+                                                                }
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.Folder);
+                                                                    if (DestinationDevice.DirectoryExists(TargetPath))
+                                                                    {
+                                                                        TargetPath = Helper.MTPGenerateUniquePath(DestinationDevice, TargetPath, CreateType.Folder);
+                                                                    }
+
                                                                     break;
                                                                 }
                                                             case CollisionOptions.OverrideOnCollision:
                                                                 {
-                                                                    DestinationDevice.DeleteDirectory(TargetPath, true);
+                                                                    if (DestinationDevice.DirectoryExists(TargetPath))
+                                                                    {
+                                                                        DestinationDevice.DeleteDirectory(TargetPath, true);
+                                                                    }
+
+                                                                    break;
+                                                                }
+                                                            case CollisionOptions.Skip:
+                                                                {
+                                                                    if (DestinationDevice.DirectoryExists(TargetPath))
+                                                                    {
+                                                                        continue;
+                                                                    }
+
                                                                     break;
                                                                 }
                                                         }
@@ -3653,37 +3767,48 @@ namespace AuxiliaryTrustProcess
 
                                                         switch (Option)
                                                         {
+                                                            case CollisionOptions.None:
+                                                                {
+                                                                    if (File.Exists(TargetPath))
+                                                                    {
+                                                                        throw new Exception($"{TargetPath} is already exists");
+                                                                    }
+
+                                                                    break;
+                                                                }
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFile(SourceRelativePair.Key, Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File), Cancellation.Token, (s, e) =>
+                                                                    if (File.Exists(TargetPath))
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
-                                                                    });
+                                                                        TargetPath = Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File);
+                                                                    }
 
                                                                     break;
                                                                 }
                                                             case CollisionOptions.OverrideOnCollision:
                                                                 {
-                                                                    using (FileStream Stream = File.Open(TargetPath, FileMode.Truncate))
+                                                                    if (File.Exists(TargetPath))
                                                                     {
-                                                                        SourceDevice.DownloadFile(SourceRelativePair.Key, Stream, Cancellation.Token, (s, e) =>
-                                                                        {
-                                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
-                                                                        });
+                                                                        File.Delete(TargetPath);
                                                                     }
 
                                                                     break;
                                                                 }
-                                                            default:
+                                                            case CollisionOptions.Skip:
                                                                 {
-                                                                    SourceDevice.DownloadFile(SourceRelativePair.Key, TargetPath, Cancellation.Token, (s, e) =>
+                                                                    if (File.Exists(TargetPath))
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
-                                                                    });
+                                                                        continue;
+                                                                    }
 
                                                                     break;
                                                                 }
                                                         }
+
+                                                        SourceDevice.DownloadFile(SourceRelativePair.Key, TargetPath, Cancellation.Token, (s, e) =>
+                                                        {
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
+                                                        });
                                                     }
                                                     else if (SourceDevice.DirectoryExists(SourceRelativePair.Key))
                                                     {
@@ -3691,36 +3816,48 @@ namespace AuxiliaryTrustProcess
 
                                                         switch (Option)
                                                         {
+                                                            case CollisionOptions.None:
+                                                                {
+                                                                    if (Directory.Exists(TargetPath))
+                                                                    {
+                                                                        throw new Exception($"{TargetPath} is already exists");
+                                                                    }
+
+                                                                    break;
+                                                                }
                                                             case CollisionOptions.RenameOnCollision:
                                                                 {
-                                                                    SourceDevice.DownloadFolder(SourceRelativePair.Key, Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.Folder), Cancellation.Token, (s, e) =>
+                                                                    if (Directory.Exists(TargetPath))
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
-                                                                    });
+                                                                        TargetPath = Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.Folder);
+                                                                    }
 
                                                                     break;
                                                                 }
                                                             case CollisionOptions.OverrideOnCollision:
                                                                 {
-                                                                    Directory.Delete(SourceRelativePair.Key, true);
-
-                                                                    SourceDevice.DownloadFolder(SourceRelativePair.Key, TargetPath, Cancellation.Token, (s, e) =>
+                                                                    if (Directory.Exists(TargetPath))
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
-                                                                    });
+                                                                        Directory.Delete(TargetPath, true);
+                                                                    }
 
                                                                     break;
                                                                 }
-                                                            default:
+                                                            case CollisionOptions.Skip:
                                                                 {
-                                                                    SourceDevice.DownloadFolder(SourceRelativePair.Key, TargetPath, Cancellation.Token, (s, e) =>
+                                                                    if (Directory.Exists(TargetPath))
                                                                     {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
-                                                                    });
+                                                                        continue;
+                                                                    }
 
                                                                     break;
                                                                 }
                                                         }
+
+                                                        SourceDevice.DownloadFolder(SourceRelativePair.Key, TargetPath, Cancellation.Token, (s, e) =>
+                                                        {
+                                                            PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling(CurrentPosition + (e.ProgressPercentage / 100 * EachTaskStep))));
+                                                        });
                                                     }
 
                                                     CurrentPosition += EachTaskStep;
@@ -3832,8 +3969,7 @@ namespace AuxiliaryTrustProcess
                                 string DestinationPath = CommandValue["DestinationPath"];
 
                                 CollisionOptions Option = Enum.Parse<CollisionOptions>(CommandValue["CollisionOptions"]);
-
-                                Dictionary<string, string> SourcePathList = JsonSerializer.Deserialize<Dictionary<string, string>>(SourcePathJson);
+                                IReadOnlyDictionary<string, string> SourcePathList = JsonSerializer.Deserialize<IReadOnlyDictionary<string, string>>(SourcePathJson);
 
                                 try
                                 {
@@ -3948,7 +4084,7 @@ namespace AuxiliaryTrustProcess
                                             if (SourcePathList.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                             {
                                                 double CurrentPosition = 0;
-                                                double EachTaskStep = 100d / SourcePathList.Keys.Count;
+                                                double EachTaskStep = 100d / SourcePathList.Keys.Count();
 
                                                 foreach (string SourcePath in SourcePathList.Keys)
                                                 {

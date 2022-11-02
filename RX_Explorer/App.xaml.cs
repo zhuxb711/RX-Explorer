@@ -212,6 +212,11 @@ namespace RX_Explorer
                     FontFamilyController.Initialize();
                     SystemInformation.Instance.TrackAppUse(args);
 
+                    if (AppInstance.GetInstances().Count == 1)
+                    {
+                        TaskBarController.SetBadge(0);
+                    }
+
                     Parser ArguementParser = new Parser((With) =>
                     {
                         With.AutoHelp = true;
@@ -295,7 +300,7 @@ namespace RX_Explorer
                                                              default:
                                                                  {
                                                                      OpenPathListOnEachTab = Options.PathList.Where((Value) => !string.IsNullOrWhiteSpace(Value)).SkipWhile((Value) => Regex.IsMatch(Value, @"^::\{[A-Za-z0-9-]{36}\}$")).Select((Path) => new string[] { Path });
-                                                                     
+
                                                                      break;
                                                                  }
                                                          }

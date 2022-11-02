@@ -682,9 +682,10 @@ namespace RX_Explorer.Class
                                                                                   ("Type", Enum.GetName(typeof(CreateType), ItemTypes)),
                                                                                   ("Option", Option switch
                                                                                   {
-                                                                                      CreateOption.ReplaceExisting => Enum.GetName(typeof(CollisionOptions), CollisionOptions.OverrideOnCollision),
-                                                                                      CreateOption.OpenIfExist => Enum.GetName(typeof(CollisionOptions), CollisionOptions.Skip),
-                                                                                      CreateOption.GenerateUniqueName => Enum.GetName(typeof(CollisionOptions), CollisionOptions.RenameOnCollision),
+                                                                                      CreateOption.None => Enum.GetName(typeof(CollisionOptions), CollisionOptions.None),
+                                                                                      CreateOption.OverrideOnCollision => Enum.GetName(typeof(CollisionOptions), CollisionOptions.OverrideOnCollision),
+                                                                                      CreateOption.Skip => Enum.GetName(typeof(CollisionOptions), CollisionOptions.Skip),
+                                                                                      CreateOption.RenameOnCollision => Enum.GetName(typeof(CollisionOptions), CollisionOptions.RenameOnCollision),
                                                                                       _ => throw new NotSupportedException()
                                                                                   }));
 

@@ -481,7 +481,7 @@ namespace RX_Explorer.Class
 
                 switch (Option)
                 {
-                    case CreateOption.GenerateUniqueName:
+                    case CreateOption.RenameOnCollision:
                         {
                             string UniquePath = GenerateUniquePath(Path, CreateType.Folder);
 
@@ -493,7 +493,7 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    case CreateOption.OpenIfExist:
+                    case CreateOption.Skip:
                         {
                             if (CheckItemTypeFromPath(Path) == StorageItemTypes.Folder || CreateDirectoryFromApp(Path, IntPtr.Zero))
                             {
@@ -503,7 +503,7 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    case CreateOption.ReplaceExisting:
+                    case CreateOption.OverrideOnCollision:
                         {
                             if (CheckItemTypeFromPath(Path) == StorageItemTypes.Folder && DeleteFromPath(Path))
                             {
@@ -557,7 +557,25 @@ namespace RX_Explorer.Class
             {
                 switch (Option)
                 {
-                    case CreateOption.GenerateUniqueName:
+                    case CreateOption.None:
+                        {
+                            if (CheckExists(Path))
+                            {
+                                throw new Exception($"{Path} is already exists");
+                            }
+
+                            using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
+                            {
+                                if (!Handle.IsInvalid)
+                                {
+                                    NewFilePath = Path;
+                                    return true;
+                                }
+                            }
+
+                            break;
+                        }
+                    case CreateOption.RenameOnCollision:
                         {
                             if (CheckExists(Path))
                             {
@@ -586,7 +604,7 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    case CreateOption.OpenIfExist:
+                    case CreateOption.Skip:
                         {
                             using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Open_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                             {
@@ -599,7 +617,7 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    case CreateOption.ReplaceExisting:
+                    case CreateOption.OverrideOnCollision:
                         {
                             using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                             {

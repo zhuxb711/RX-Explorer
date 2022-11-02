@@ -206,19 +206,24 @@ namespace RX_Explorer.Class
                     {
                         using (FtpClientController AuxiliaryWriteController = await FtpClientController.DuplicateClientControllerAsync(TargetClientController))
                         {
+                            string TargetRelatedPath = TargetAnalysis.RelatedPath;
+
                             switch (Option)
                             {
-                                case CollisionOptions.OverrideOnCollision:
+                                case CollisionOptions.None:
                                     {
-                                        if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetAnalysis.RelatedPath, CancelToken)))
+                                        if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetRelatedPath, CancelToken)))
                                         {
-                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFile(TargetAnalysis.RelatedPath, CancelToken));
+                                            throw new Exception($"{TargetAnalysis.Path} is already exists");
                                         }
 
-                                        using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
+                                        break;
+                                    }
+                                case CollisionOptions.OverrideOnCollision:
+                                    {
+                                        if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetRelatedPath, CancelToken)))
                                         {
-                                            await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
+                                            await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DeleteFile(TargetRelatedPath, CancelToken));
                                         }
 
                                         break;
@@ -226,29 +231,24 @@ namespace RX_Explorer.Class
 
                                 case CollisionOptions.RenameOnCollision:
                                     {
-                                        string UniquePath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetAnalysis.RelatedPath, CreateType.File));
-
-                                        using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                        using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(UniquePath, FtpDataType.Binary, CancelToken)))
-                                        {
-                                            await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
-                                        }
-
+                                        TargetRelatedPath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetRelatedPath, CreateType.File));
                                         break;
                                     }
                                 case CollisionOptions.Skip:
                                     {
-                                        if (!await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetAnalysis.RelatedPath, CancelToken)))
+                                        if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.FileExists(TargetRelatedPath, CancelToken)))
                                         {
-                                            using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                            using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetAnalysis.RelatedPath, FtpDataType.Binary, CancelToken)))
-                                            {
-                                                await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
-                                            }
+                                            return;
                                         }
 
                                         break;
                                     }
+                            }
+
+                            using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            using (Stream TargetStream = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GetFtpFileStreamForWriteAsync(TargetRelatedPath, FtpDataType.Binary, CancelToken)))
+                            {
+                                await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                             }
                         }
                     }
@@ -259,13 +259,24 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    string TargetFilePath = System.IO.Path.Combine(DirectoryPath, Name);
-
                     switch (Option)
                     {
+                        case CollisionOptions.None:
+                            {
+                                if (await CreateNewAsync(TargetPath, CreateType.File, CreateOption.None) is FileSystemStorageFile NewFile)
+                                {
+                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
+                                    using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                                    {
+                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
+                                    }
+                                }
+
+                                break;
+                            }
                         case CollisionOptions.OverrideOnCollision:
                             {
-                                if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                if (await CreateNewAsync(TargetPath, CreateType.File, CreateOption.OverrideOnCollision) is FileSystemStorageFile NewFile)
                                 {
                                     using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                     using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
@@ -278,7 +289,7 @@ namespace RX_Explorer.Class
                             }
                         case CollisionOptions.RenameOnCollision:
                             {
-                                if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
+                                if (await CreateNewAsync(TargetPath, CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile NewFile)
                                 {
                                     using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                     using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
@@ -291,15 +302,12 @@ namespace RX_Explorer.Class
                             }
                         case CollisionOptions.Skip:
                             {
-                                if (!await CheckExistsAsync(TargetFilePath))
+                                if (await CreateNewAsync(TargetPath, CreateType.File, CreateOption.Skip) is FileSystemStorageFile NewFile)
                                 {
-                                    if (await CreateNewAsync(TargetFilePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile NewFile)
+                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
+                                    using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                                     {
-                                        using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
-                                        using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                        {
-                                            await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
-                                        }
+                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
                                     }
                                 }
 
@@ -330,6 +338,20 @@ namespace RX_Explorer.Class
                         {
                             switch (Option)
                             {
+                                case CollisionOptions.None:
+                                    {
+                                        if (await ClientController.RunCommandAsync((Client) => Client.FileExists(TargetAnalysis.RelatedPath, CancelToken)))
+                                        {
+                                            throw new Exception($"{TargetAnalysis.Path} is already exists");
+                                        }
+
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveFile(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.NoCheck, CancelToken)))
+                                        {
+                                            throw new Exception($"Could not move the file from: {Path} to: {TargetPath} on the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
+                                        }
+
+                                        break;
+                                    }
                                 case CollisionOptions.OverrideOnCollision:
                                     {
                                         if (!await ClientController.RunCommandAsync((Client) => Client.MoveFile(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Overwrite, CancelToken)))
@@ -352,9 +374,12 @@ namespace RX_Explorer.Class
                                     }
                                 case CollisionOptions.Skip:
                                     {
-                                        if (!await ClientController.RunCommandAsync((Client) => Client.MoveFile(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.Skip, CancelToken)))
+                                        if (!await ClientController.RunCommandAsync((Client) => Client.FileExists(TargetAnalysis.RelatedPath, CancelToken)))
                                         {
-                                            throw new Exception($"Could not move the file from: {Path} to: {TargetPath} on the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
+                                            if (!await ClientController.RunCommandAsync((Client) => Client.MoveFile(RelatedPath, TargetAnalysis.RelatedPath, FtpRemoteExists.NoCheck, CancelToken)))
+                                            {
+                                                throw new Exception($"Could not move the file from: {Path} to: {TargetPath} on the ftp server: {ClientController.ServerHost}:{ClientController.ServerPort}");
+                                            }
                                         }
 
                                         break;

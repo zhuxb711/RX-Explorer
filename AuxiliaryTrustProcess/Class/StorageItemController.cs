@@ -485,11 +485,6 @@ namespace AuxiliaryTrustProcess.Class
         {
             try
             {
-                if (!Directory.Exists(DestinationPath))
-                {
-                    Directory.CreateDirectory(DestinationPath);
-                }
-
                 ShellFileOperations.OperationFlags Flags = ShellFileOperations.OperationFlags.AddUndoRecord
                                                            | ShellFileOperations.OperationFlags.NoConfirmMkDir
                                                            | ShellFileOperations.OperationFlags.Silent
@@ -500,22 +495,32 @@ namespace AuxiliaryTrustProcess.Class
 
                 switch (Option)
                 {
+                    case CollisionOptions.None:
+                    case CollisionOptions.OverrideOnCollision:
+                        {
+                            Flags |= ShellFileOperations.OperationFlags.NoConfirmation;
+                            break;
+                        }
                     case CollisionOptions.RenameOnCollision:
                         {
                             Flags |= ShellFileOperations.OperationFlags.RenameOnCollision;
                             Flags |= ShellFileOperations.OperationFlags.PreserveFileExtensions;
                             break;
                         }
-                    case CollisionOptions.OverrideOnCollision:
+                    case CollisionOptions.Skip:
                         {
-                            Flags |= ShellFileOperations.OperationFlags.NoConfirmation;
-                            break;
+                            return true;
                         }
+                }
+
+                if (!Directory.Exists(DestinationPath))
+                {
+                    Directory.CreateDirectory(DestinationPath);
                 }
 
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options = Flags
+                    Options = Flags,
                 })
                 {
                     if (Progress != null)
@@ -550,6 +555,8 @@ namespace AuxiliaryTrustProcess.Class
                         {
                             throw new OperationCanceledException();
                         }
+
+                        return true;
                     }
                     finally
                     {
@@ -569,8 +576,6 @@ namespace AuxiliaryTrustProcess.Class
                         }
                     }
                 }
-
-                return true;
             }
             catch (Exception ex)
             {
@@ -589,11 +594,6 @@ namespace AuxiliaryTrustProcess.Class
         {
             try
             {
-                if (!Directory.Exists(DestinationPath))
-                {
-                    Directory.CreateDirectory(DestinationPath);
-                }
-
                 ShellFileOperations.OperationFlags Flags = ShellFileOperations.OperationFlags.AddUndoRecord
                                                            | ShellFileOperations.OperationFlags.NoConfirmMkDir
                                                            | ShellFileOperations.OperationFlags.Silent
@@ -604,17 +604,27 @@ namespace AuxiliaryTrustProcess.Class
 
                 switch (Option)
                 {
+                    case CollisionOptions.None:
+                    case CollisionOptions.OverrideOnCollision:
+                        {
+                            Flags |= ShellFileOperations.OperationFlags.NoConfirmation;
+                            break;
+                        }
                     case CollisionOptions.RenameOnCollision:
                         {
                             Flags |= ShellFileOperations.OperationFlags.RenameOnCollision;
                             Flags |= ShellFileOperations.OperationFlags.PreserveFileExtensions;
                             break;
                         }
-                    case CollisionOptions.OverrideOnCollision:
+                    case CollisionOptions.Skip:
                         {
-                            Flags |= ShellFileOperations.OperationFlags.NoConfirmation;
-                            break;
+                            return true;
                         }
+                }
+
+                if (!Directory.Exists(DestinationPath))
+                {
+                    Directory.CreateDirectory(DestinationPath);
                 }
 
                 using (ShellFileOperations Operation = new ShellFileOperations

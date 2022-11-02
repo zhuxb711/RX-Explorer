@@ -278,9 +278,10 @@ namespace RX_Explorer.Class
 
     public enum CreateOption
     {
-        OpenIfExist,
-        GenerateUniqueName,
-        ReplaceExisting
+        None,
+        Skip,
+        RenameOnCollision,
+        OverrideOnCollision
     }
 
     public enum SearchCategory

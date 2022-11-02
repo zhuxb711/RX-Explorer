@@ -77,7 +77,7 @@ namespace RX_Explorer.Class
                     {
                         using (Stream DownloadStream = await DownloadBingPictureAsync(DownloadPath))
                         {
-                            if (await FileSystemStorageItemBase.CreateNewAsync(PicturePath, CreateType.File, CreateOption.ReplaceExisting) is FileSystemStorageFile PictureFile)
+                            if (await FileSystemStorageItemBase.CreateNewAsync(PicturePath, CreateType.File, CreateOption.OverrideOnCollision) is FileSystemStorageFile PictureFile)
                             {
                                 using (Stream PictureFileStream = await PictureFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                 {

@@ -439,7 +439,7 @@ namespace RX_Explorer.View
                                 {
                                     PhotoStream.Seek(0, SeekOrigin.Begin);
 
-                                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"{Guid.NewGuid():N}{Item.PhotoFile.Type.ToLower()}"), CreateType.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
+                                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"{Guid.NewGuid():N}{Item.PhotoFile.Type.ToLower()}"), CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile TempFile)
                                     {
                                         try
                                         {
