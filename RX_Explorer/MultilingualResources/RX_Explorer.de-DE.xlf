@@ -3802,10 +3802,6 @@ Inkorrekte Namen sind
           <source>Save a copy</source>
           <target state="translated">Speichere eine Kopie</target>
         </trans-unit>
-        <trans-unit id="NameCollision_MoreOption" translate="yes" xml:space="preserve">
-          <source>More options</source>
-          <target state="translated">Mehr Optionen</target>
-        </trans-unit>
         <trans-unit id="NameCollision_Override" translate="yes" xml:space="preserve">
           <source>Override files</source>
           <target state="translated">Dateien überschreiben</target>
@@ -4971,6 +4967,10 @@ Inkorrekte Namen sind
         <trans-unit id="Bluetooth_Transfer_Status_5" translate="yes" xml:space="preserve">
           <source>The target device is disconnected and the file cannot be transferred</source>
           <target state="translated">Das Zielgerät ist getrennt und die Datei kann nicht übertragen werden</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Skip" translate="yes" xml:space="preserve">
+          <source>Skip</source>
+          <target state="translated">Hüpfen</target>
         </trans-unit>
       </group>
     </body>

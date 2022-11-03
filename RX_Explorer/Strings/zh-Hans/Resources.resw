@@ -2863,9 +2863,6 @@
   <data name="NameCollision_Rename" xml:space="preserve">
     <value>保存副本</value>
   </data>
-  <data name="NameCollision_MoreOption" xml:space="preserve">
-    <value>更多选项</value>
-  </data>
   <data name="NameCollision_Override" xml:space="preserve">
     <value>覆盖文件</value>
   </data>
@@ -3740,5 +3737,8 @@
   </data>
   <data name="Bluetooth_Transfer_Status_5" xml:space="preserve">
     <value>目标设备已断开连接，无法传输文件</value>
+  </data>
+  <data name="NameCollision_Skip" xml:space="preserve">
+    <value>跳过</value>
   </data>
 </root>

@@ -4652,7 +4652,7 @@ namespace RX_Explorer.View
 
                                             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                             {
-                                                if (await CurrentFolder.CreateNewSubItemAsync($"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}", CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageItemBase Item)
+                                                if (await CurrentFolder.CreateNewSubItemAsync($"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}", CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageItemBase Item)
                                                 {
                                                     if (await Item.GetStorageItemAsync() is StorageFile DestinationFile)
                                                     {
@@ -4958,7 +4958,7 @@ namespace RX_Explorer.View
 
             if (await FileSystemStorageItemBase.CheckExistsAsync(CurrentFolder.Path))
             {
-                if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreateType.Folder, CreateOption.RenameOnCollision) is FileSystemStorageItemBase NewFolder)
+                if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreateType.Folder, CollisionOptions.RenameOnCollision) is FileSystemStorageItemBase NewFolder)
                 {
                     if (CurrentFolder is INotWin32StorageFolder)
                     {
@@ -5548,7 +5548,7 @@ namespace RX_Explorer.View
 
                             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
-                                if (await CurrentFolder.CreateNewSubItemAsync($"{CoreItem.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile NewFile)
+                                if (await CurrentFolder.CreateNewSubItemAsync($"{CoreItem.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile NewFile)
                                 {
                                     if (await NewFile.GetStorageItemAsync() is StorageFile ExportFile)
                                     {
@@ -5621,7 +5621,7 @@ namespace RX_Explorer.View
 
                         if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
-                            if (await CurrentFolder.CreateNewSubItemAsync($"{CoreItem.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile NewFile)
+                            if (await CurrentFolder.CreateNewSubItemAsync($"{CoreItem.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile NewFile)
                             {
                                 if (await NewFile.GetStorageItemAsync() is StorageFile ExportFile)
                                 {
@@ -5793,7 +5793,7 @@ namespace RX_Explorer.View
                             }
                         default:
                             {
-                                if (await CurrentFolder.CreateNewSubItemAsync(NewFileName, CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile File)
+                                if (await CurrentFolder.CreateNewSubItemAsync(NewFileName, CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile File)
                                 {
                                     NewFile = File;
                                 }
@@ -7374,7 +7374,7 @@ namespace RX_Explorer.View
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        FileSystemStorageFolder TargetFolder = await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(Dialog.ExtractLocation, File.Name.Split(".")[0]), CreateType.Folder, CreateOption.RenameOnCollision) as FileSystemStorageFolder;
+                        FileSystemStorageFolder TargetFolder = await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(Dialog.ExtractLocation, File.Name.Split(".")[0]), CreateType.Folder, CollisionOptions.RenameOnCollision) as FileSystemStorageFolder;
 
                         if (TargetFolder == null)
                         {

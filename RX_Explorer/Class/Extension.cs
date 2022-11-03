@@ -169,7 +169,7 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, File.Name), CreateType.File, CreateOption.OverrideOnCollision) is FileSystemStorageFile TempFile)
+                                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, File.Name), CreateType.File, CollisionOptions.OverrideOnCollision) is FileSystemStorageFile TempFile)
                                 {
                                     using (Stream IncomeFileStream = await File.OpenStreamForReadAsync())
                                     using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.Write))

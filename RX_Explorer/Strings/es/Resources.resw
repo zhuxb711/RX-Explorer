@@ -2865,9 +2865,6 @@ Las denominaciones no válidas son:
   <data name="NameCollision_Rename" xml:space="preserve">
     <value>Guardar una copia</value>
   </data>
-  <data name="NameCollision_MoreOption" xml:space="preserve">
-    <value>Mas opciones</value>
-  </data>
   <data name="NameCollision_Override" xml:space="preserve">
     <value>Anular archivos</value>
   </data>
@@ -3742,5 +3739,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="Bluetooth_Transfer_Status_5" xml:space="preserve">
     <value>El dispositivo de destino está desconectado y el archivo no se puede transferir</value>
+  </data>
+  <data name="NameCollision_Skip" xml:space="preserve">
+    <value>Saltarse</value>
   </data>
 </root>

@@ -3802,10 +3802,6 @@ Invalid names include
           <source>Save a copy</source>
           <target state="translated">保存副本</target>
         </trans-unit>
-        <trans-unit id="NameCollision_MoreOption" translate="yes" xml:space="preserve">
-          <source>More options</source>
-          <target state="translated">更多选项</target>
-        </trans-unit>
         <trans-unit id="NameCollision_Override" translate="yes" xml:space="preserve">
           <source>Override files</source>
           <target state="translated">覆盖文件</target>
@@ -4971,6 +4967,10 @@ Invalid names include
         <trans-unit id="Bluetooth_Transfer_Status_5" translate="yes" xml:space="preserve">
           <source>The target device is disconnected and the file cannot be transferred</source>
           <target state="translated">目标设备已断开连接，无法传输文件</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Skip" translate="yes" xml:space="preserve">
+          <source>Skip</source>
+          <target state="translated">跳过</target>
         </trans-unit>
       </group>
     </body>

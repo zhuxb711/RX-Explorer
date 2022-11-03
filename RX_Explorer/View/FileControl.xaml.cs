@@ -1349,7 +1349,7 @@ namespace RX_Explorer.View
             {
                 if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder CurrentFolder)
                 {
-                    if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreateType.Folder, CreateOption.RenameOnCollision) is FileSystemStorageFolder Folder)
+                    if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreateType.Folder, CollisionOptions.RenameOnCollision) is FileSystemStorageFolder Folder)
                     {
                         OperationRecorder.Current.Push(new string[] { $"{Folder.Path}||New" });
                     }

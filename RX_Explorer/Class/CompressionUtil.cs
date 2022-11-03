@@ -80,7 +80,7 @@ namespace RX_Explorer.Class
                                                 CancellationToken CancelToken = default,
                                                 ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile NewFile)
             {
                 using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                 {
@@ -291,7 +291,7 @@ namespace RX_Explorer.Class
         {
             if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath) is FileSystemStorageFile OriginFile)
             {
-                if (await FileSystemStorageItemBase.CreateNewAsync(GZipFilePath, CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile GZipFile)
+                if (await FileSystemStorageItemBase.CreateNewAsync(GZipFilePath, CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile GZipFile)
                 {
                     await CreateGzipAsync(OriginFile, GZipFile, Level, CancelToken, ProgressHandler);
                 }
@@ -370,7 +370,7 @@ namespace RX_Explorer.Class
         {
             if (await FileSystemStorageItemBase.OpenAsync(GZipFilePath) is FileSystemStorageFile GZipFile)
             {
-                if (await FileSystemStorageItemBase.CreateNewAsync(ExtractFilePath, CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile ExtractFile)
+                if (await FileSystemStorageItemBase.CreateNewAsync(ExtractFilePath, CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile ExtractFile)
                 {
                     await ExtractGZipAsync(GZipFile, ExtractFile, CancelToken, ProgressHandler);
                 }
@@ -441,7 +441,7 @@ namespace RX_Explorer.Class
         {
             if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath) is FileSystemStorageFile OriginFile)
             {
-                if (await FileSystemStorageItemBase.CreateNewAsync(NewBZipFilePath, CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile NewBZipFile)
+                if (await FileSystemStorageItemBase.CreateNewAsync(NewBZipFilePath, CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile NewBZipFile)
                 {
                     await CreateBZip2Async(OriginFile, NewBZipFile, CancelToken, ProgressHandler);
                 }
@@ -513,7 +513,7 @@ namespace RX_Explorer.Class
         {
             if (await FileSystemStorageItemBase.OpenAsync(BZipFilePath) is FileSystemStorageFile File)
             {
-                if (await FileSystemStorageItemBase.CreateNewAsync(ExtractFilePath, CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile NewFile)
+                if (await FileSystemStorageItemBase.CreateNewAsync(ExtractFilePath, CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile NewFile)
                 {
                     await ExtractBZip2Async(File, NewFile, CancelToken, ProgressHandler);
                 }
@@ -636,7 +636,7 @@ namespace RX_Explorer.Class
                                                 CancellationToken CancelToken = default,
                                                 ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile NewFile)
             {
                 using (Stream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                 {
@@ -1072,7 +1072,7 @@ namespace RX_Explorer.Class
 
             if (CompressedItemName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) && !CompressedItemName.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase))
             {
-                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(DestFolder.Path, Path.GetFileNameWithoutExtension(CompressedItemName)), CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile ExtractFile)
+                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(DestFolder.Path, Path.GetFileNameWithoutExtension(CompressedItemName)), CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile ExtractFile)
                 {
                     using (Stream ExtractFileStream = await ExtractFile.GetStreamFromFileAsync(AccessMode.Write))
                     {
@@ -1082,7 +1082,7 @@ namespace RX_Explorer.Class
             }
             else if (CompressedItemName.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase) && !CompressedItemName.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase))
             {
-                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(DestFolder.Path, Path.GetFileNameWithoutExtension(CompressedItemName)), CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile ExtractFile)
+                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(DestFolder.Path, Path.GetFileNameWithoutExtension(CompressedItemName)), CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile ExtractFile)
                 {
                     using (Stream ExtractFileStream = await ExtractFile.GetStreamFromFileAsync(AccessMode.Write))
                     {
@@ -1147,7 +1147,7 @@ namespace RX_Explorer.Class
 
                             string DestFileName = Path.Combine(LastFolder, PathList.LastOrDefault() ?? Path.GetFileNameWithoutExtension(CompressedItemName));
 
-                            if (await FileSystemStorageItemBase.CreateNewAsync(DestFileName, CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile NewFile)
+                            if (await FileSystemStorageItemBase.CreateNewAsync(DestFileName, CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile NewFile)
                             {
                                 using (Stream OutputStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                 using (EntryStream EntryStream = Reader.OpenEntryStream())
@@ -1309,7 +1309,7 @@ namespace RX_Explorer.Class
 
                                 string DestFileName = Path.Combine(LastFolder, PathList.LastOrDefault() ?? Path.GetFileNameWithoutExtension(File.Name));
 
-                                if (await FileSystemStorageItemBase.CreateNewAsync(DestFileName, CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile NewFile)
+                                if (await FileSystemStorageItemBase.CreateNewAsync(DestFileName, CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile NewFile)
                                 {
                                     using (Stream OutputStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                     using (EntryStream EntryStream = Reader.OpenEntryStream())
@@ -1338,7 +1338,7 @@ namespace RX_Explorer.Class
             {
                 case FileSystemStorageFile:
                     {
-                        if (await FileSystemStorageItemBase.CreateNewAsync(Path, CreateType.Folder, CreateOption.RenameOnCollision) is FileSystemStorageFolder NewFolder)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(Path, CreateType.Folder, CollisionOptions.RenameOnCollision) is FileSystemStorageFolder NewFolder)
                         {
                             return NewFolder;
                         }
@@ -1351,7 +1351,7 @@ namespace RX_Explorer.Class
                     }
                 default:
                     {
-                        if (await FileSystemStorageItemBase.CreateNewAsync(Path, CreateType.Folder, CreateOption.OverrideOnCollision) is FileSystemStorageFolder NewFolder)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(Path, CreateType.Folder, CollisionOptions.OverrideOnCollision) is FileSystemStorageFolder NewFolder)
                         {
                             return NewFolder;
                         }

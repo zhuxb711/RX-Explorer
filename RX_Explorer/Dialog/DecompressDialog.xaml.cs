@@ -75,7 +75,7 @@ namespace RX_Explorer.Dialog
                         }
                     default:
                         {
-                            if (await FileSystemStorageItemBase.CreateNewAsync(ExtractLocation, CreateType.Folder, CreateOption.Skip) is not FileSystemStorageFolder)
+                            if (await FileSystemStorageItemBase.CreateNewAsync(ExtractLocation, CreateType.Folder, CollisionOptions.Skip) is not FileSystemStorageFolder)
                             {
                                 args.Cancel = true;
                             }

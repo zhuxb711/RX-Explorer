@@ -276,14 +276,6 @@ namespace RX_Explorer.Class
         Huge = 8
     }
 
-    public enum CreateOption
-    {
-        None,
-        Skip,
-        RenameOnCollision,
-        OverrideOnCollision
-    }
-
     public enum SearchCategory
     {
         BuiltInEngine,

@@ -223,7 +223,7 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    CollisionOptions Option = CollisionOptions.Skip;
+                                    CollisionOptions Option = CollisionOptions.None;
 
                                     if (CModel.CopyFrom.All((Item) => Path.GetDirectoryName(Item).Equals(CModel.CopyTo, StringComparison.OrdinalIgnoreCase)))
                                     {
@@ -247,6 +247,11 @@ namespace RX_Explorer.Class
                                             case 1:
                                                 {
                                                     Option = CollisionOptions.RenameOnCollision;
+                                                    break;
+                                                }
+                                            case 2:
+                                                {
+                                                    Option = CollisionOptions.Skip;
                                                     break;
                                                 }
                                         }
@@ -308,7 +313,7 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    CollisionOptions Option = CollisionOptions.Skip;
+                                    CollisionOptions Option = CollisionOptions.None;
 
                                     if (MModel.MoveFrom.Select((SourcePath) => Path.Combine(MModel.MoveTo, Path.GetFileName(SourcePath)))
                                                        .Any((DestPath) => FileSystemStorageItemBase.CheckExistsAsync(DestPath).Result))
@@ -328,6 +333,11 @@ namespace RX_Explorer.Class
                                             case 1:
                                                 {
                                                     Option = CollisionOptions.RenameOnCollision;
+                                                    break;
+                                                }
+                                            case 2:
+                                                {
+                                                    Option = CollisionOptions.Skip;
                                                     break;
                                                 }
                                         }

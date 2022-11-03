@@ -226,6 +226,11 @@ namespace AuxiliaryTrustProcess.Class
         {
             try
             {
+                if (Helper.CheckIfPathIsNetworkPath(Path))
+                {
+                    return true;
+                }
+
                 using (WindowsIdentity CurrentUser = WindowsIdentity.GetCurrent())
                 {
                     WindowsPrincipal CurrentPrincipal = new WindowsPrincipal(CurrentUser);

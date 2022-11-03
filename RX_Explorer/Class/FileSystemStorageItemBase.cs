@@ -437,7 +437,7 @@ namespace RX_Explorer.Class
             return new FileStream(Handle, FileAccess.ReadWrite, 4096, true);
         }
 
-        public static async Task<FileSystemStorageItemBase> CreateNewAsync(string Path, CreateType ItemType, CreateOption Option)
+        public static async Task<FileSystemStorageItemBase> CreateNewAsync(string Path, CreateType ItemType, CollisionOptions Option = CollisionOptions.None)
         {
             try
             {
@@ -473,7 +473,7 @@ namespace RX_Explorer.Class
                         {
                             switch (Option)
                             {
-                                case CreateOption.None:
+                                case CollisionOptions.None:
                                     {
                                         if (await Controller.RunCommandAsync((Client) => Client.DirectoryExists(Analysis.RelatedPath)))
                                         {
@@ -490,7 +490,7 @@ namespace RX_Explorer.Class
 
                                         break;
                                     }
-                                case CreateOption.Skip:
+                                case CollisionOptions.Skip:
                                     {
                                         if (!await Controller.RunCommandAsync((Client) => Client.DirectoryExists(Analysis.RelatedPath)))
                                         {
@@ -504,7 +504,7 @@ namespace RX_Explorer.Class
 
                                         break;
                                     }
-                                case CreateOption.RenameOnCollision:
+                                case CollisionOptions.RenameOnCollision:
                                     {
                                         string UniquePath = Analysis.RelatedPath;
 
@@ -523,7 +523,7 @@ namespace RX_Explorer.Class
 
                                         break;
                                     }
-                                case CreateOption.OverrideOnCollision:
+                                case CollisionOptions.OverrideOnCollision:
                                     {
                                         if (await Controller.RunCommandAsync((Client) => Client.DirectoryExists(Analysis.RelatedPath)))
                                         {
@@ -546,16 +546,24 @@ namespace RX_Explorer.Class
                         {
                             switch (Option)
                             {
-                                case CreateOption.None:
+                                case CollisionOptions.None:
                                     {
                                         if (await Controller.RunCommandAsync((Client) => Client.FileExists(Analysis.RelatedPath)))
                                         {
                                             throw new Exception($"{Analysis.Path} is already exists");
                                         }
 
+                                        if (await Controller.RunCommandAsync((Client) => Client.UploadBytes(Array.Empty<byte>(), Analysis.RelatedPath, FtpRemoteExists.NoCheck)) == FtpStatus.Success)
+                                        {
+                                            if (await Controller.RunCommandAsync((Client) => Client.GetObjectInfo(Analysis.RelatedPath, true)) is FtpListItem Item)
+                                            {
+                                                return new FtpStorageFile(Controller, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), Item.Name)), Item));
+                                            }
+                                        }
+
                                         break;
                                     }
-                                case CreateOption.Skip:
+                                case CollisionOptions.Skip:
                                     {
                                         if (await Controller.RunCommandAsync((Client) => Client.UploadBytes(Array.Empty<byte>(), Analysis.RelatedPath, FtpRemoteExists.Skip)) != FtpStatus.Failed)
                                         {
@@ -567,7 +575,7 @@ namespace RX_Explorer.Class
 
                                         break;
                                     }
-                                case CreateOption.RenameOnCollision:
+                                case CollisionOptions.RenameOnCollision:
                                     {
                                         string UniquePath = Analysis.RelatedPath;
 
@@ -586,7 +594,7 @@ namespace RX_Explorer.Class
 
                                         break;
                                     }
-                                case CreateOption.OverrideOnCollision:
+                                case CollisionOptions.OverrideOnCollision:
                                     {
                                         if (await Controller.RunCommandAsync((Client) => Client.UploadBytes(Array.Empty<byte>(), Analysis.RelatedPath, FtpRemoteExists.Overwrite)) == FtpStatus.Success)
                                         {
@@ -632,10 +640,10 @@ namespace RX_Explorer.Class
 
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), Option switch
                                             {
-                                                CreateOption.None => CreationCollisionOption.FailIfExists,
-                                                CreateOption.RenameOnCollision => CreationCollisionOption.GenerateUniqueName,
-                                                CreateOption.Skip => CreationCollisionOption.OpenIfExists,
-                                                CreateOption.OverrideOnCollision => CreationCollisionOption.ReplaceExisting,
+                                                CollisionOptions.None => CreationCollisionOption.FailIfExists,
+                                                CollisionOptions.RenameOnCollision => CreationCollisionOption.GenerateUniqueName,
+                                                CollisionOptions.Skip => CreationCollisionOption.OpenIfExists,
+                                                CollisionOptions.OverrideOnCollision => CreationCollisionOption.ReplaceExisting,
                                                 _ => throw new NotSupportedException()
                                             });
 
@@ -692,10 +700,10 @@ namespace RX_Explorer.Class
 
                                         StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), Option switch
                                         {
-                                            CreateOption.None => CreationCollisionOption.FailIfExists,
-                                            CreateOption.RenameOnCollision => CreationCollisionOption.GenerateUniqueName,
-                                            CreateOption.Skip => CreationCollisionOption.OpenIfExists,
-                                            CreateOption.OverrideOnCollision => CreationCollisionOption.ReplaceExisting,
+                                            CollisionOptions.None => CreationCollisionOption.FailIfExists,
+                                            CollisionOptions.RenameOnCollision => CreationCollisionOption.GenerateUniqueName,
+                                            CollisionOptions.Skip => CreationCollisionOption.OpenIfExists,
+                                            CollisionOptions.OverrideOnCollision => CreationCollisionOption.ReplaceExisting,
                                             _ => throw new NotSupportedException()
                                         });
 

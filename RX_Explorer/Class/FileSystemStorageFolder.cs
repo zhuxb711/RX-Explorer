@@ -213,7 +213,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, CreateType ItemType, CreateOption Option)
+        public virtual async Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, CreateType ItemType, CollisionOptions Option = CollisionOptions.None)
         {
             string SubItemPath = System.IO.Path.Combine(Path, Name);
 
@@ -243,10 +243,10 @@ namespace RX_Explorer.Class
                                     {
                                         StorageFile NewFile = await Folder.CreateFileAsync(Name, Option switch
                                         {
-                                            CreateOption.None => CreationCollisionOption.FailIfExists,
-                                            CreateOption.RenameOnCollision => CreationCollisionOption.GenerateUniqueName,
-                                            CreateOption.Skip => CreationCollisionOption.OpenIfExists,
-                                            CreateOption.OverrideOnCollision => CreationCollisionOption.ReplaceExisting,
+                                            CollisionOptions.None => CreationCollisionOption.FailIfExists,
+                                            CollisionOptions.RenameOnCollision => CreationCollisionOption.GenerateUniqueName,
+                                            CollisionOptions.Skip => CreationCollisionOption.OpenIfExists,
+                                            CollisionOptions.OverrideOnCollision => CreationCollisionOption.ReplaceExisting,
                                             _=>throw new NotSupportedException()
                                         });
 
@@ -295,10 +295,10 @@ namespace RX_Explorer.Class
                                 {
                                     StorageFolder NewFolder = await Folder.CreateFolderAsync(Name, Option switch
                                     {
-                                        CreateOption.None => CreationCollisionOption.FailIfExists,
-                                        CreateOption.RenameOnCollision => CreationCollisionOption.GenerateUniqueName,
-                                        CreateOption.Skip => CreationCollisionOption.OpenIfExists,
-                                        CreateOption.OverrideOnCollision => CreationCollisionOption.ReplaceExisting,
+                                        CollisionOptions.None => CreationCollisionOption.FailIfExists,
+                                        CollisionOptions.RenameOnCollision => CreationCollisionOption.GenerateUniqueName,
+                                        CollisionOptions.Skip => CreationCollisionOption.OpenIfExists,
+                                        CollisionOptions.OverrideOnCollision => CreationCollisionOption.ReplaceExisting,
                                         _ => throw new NotSupportedException()
                                     });
 

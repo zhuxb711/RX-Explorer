@@ -2863,9 +2863,6 @@ Les noms non valides incluent
   <data name="NameCollision_Rename" xml:space="preserve">
     <value>Sauvegarder une copie</value>
   </data>
-  <data name="NameCollision_MoreOption" xml:space="preserve">
-    <value>Plus d'options</value>
-  </data>
   <data name="NameCollision_Override" xml:space="preserve">
     <value>Remplacer les fichiers</value>
   </data>
@@ -3740,5 +3737,8 @@ Les noms non valides incluent
   </data>
   <data name="Bluetooth_Transfer_Status_5" xml:space="preserve">
     <value>Le périphérique cible est déconnecté et le fichier ne peut pas être transféré</value>
+  </data>
+  <data name="NameCollision_Skip" xml:space="preserve">
+    <value>Sautiller</value>
   </data>
 </root>

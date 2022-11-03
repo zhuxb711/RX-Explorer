@@ -674,20 +674,13 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public async Task<MTPFileData> MTPCreateSubItemAsync(string Path, string Name, CreateType ItemTypes, CreateOption Option)
+        public async Task<MTPFileData> MTPCreateSubItemAsync(string Path, string Name, CreateType ItemTypes, CollisionOptions Option = default)
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.MTPCreateSubItem,
                                                                                   ("Path", Path),
                                                                                   ("Name", Name),
                                                                                   ("Type", Enum.GetName(typeof(CreateType), ItemTypes)),
-                                                                                  ("Option", Option switch
-                                                                                  {
-                                                                                      CreateOption.None => Enum.GetName(typeof(CollisionOptions), CollisionOptions.None),
-                                                                                      CreateOption.OverrideOnCollision => Enum.GetName(typeof(CollisionOptions), CollisionOptions.OverrideOnCollision),
-                                                                                      CreateOption.Skip => Enum.GetName(typeof(CollisionOptions), CollisionOptions.Skip),
-                                                                                      CreateOption.RenameOnCollision => Enum.GetName(typeof(CollisionOptions), CollisionOptions.RenameOnCollision),
-                                                                                      _ => throw new NotSupportedException()
-                                                                                  }));
+                                                                                  ("Option", Enum.GetName(typeof(CollisionOptions), Option)));
 
 
             if (Response.TryGetValue("Success", out string RawText))

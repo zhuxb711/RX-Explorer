@@ -3802,10 +3802,6 @@ Las denominaciones no válidas son:
           <source>Save a copy</source>
           <target state="translated">Guardar una copia</target>
         </trans-unit>
-        <trans-unit id="NameCollision_MoreOption" translate="yes" xml:space="preserve">
-          <source>More options</source>
-          <target state="translated">Mas opciones</target>
-        </trans-unit>
         <trans-unit id="NameCollision_Override" translate="yes" xml:space="preserve">
           <source>Override files</source>
           <target state="translated">Anular archivos</target>
@@ -4971,6 +4967,10 @@ Las denominaciones no válidas son:
         <trans-unit id="Bluetooth_Transfer_Status_5" translate="yes" xml:space="preserve">
           <source>The target device is disconnected and the file cannot be transferred</source>
           <target state="translated">El dispositivo de destino está desconectado y el archivo no se puede transferir</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Skip" translate="yes" xml:space="preserve">
+          <source>Skip</source>
+          <target state="translated">Saltarse</target>
         </trans-unit>
       </group>
     </body>

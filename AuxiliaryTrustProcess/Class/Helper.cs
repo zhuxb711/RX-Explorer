@@ -22,6 +22,68 @@ namespace AuxiliaryTrustProcess.Class
 {
     public static class Helper
     {
+        public static bool CheckIfPathIsNetworkPath(string Path)
+        {
+            if (!ShlwApi.PathIsUNC(Path))
+            {
+                return ShlwApi.PathIsNetworkPath(Path);
+            }
+
+            return true;
+        }
+
+        public static IReadOnlyDictionary<string,string> MapUncToDrivePath(IReadOnlyList<string> PathList)
+        {
+            Dictionary<string, string> MapResult = new Dictionary<string, string>(PathList.Count);
+
+            foreach (string Path in PathList)
+            {
+                uint BufferSize = 128;
+
+                IntPtr BufferPtr = Marshal.AllocHGlobal((int)BufferSize);
+
+                try
+                {
+                    Win32Error Error = Mpr.WNetGetUniversalName(Path, Mpr.INFO_LEVEL.UNIVERSAL_NAME_INFO_LEVEL, BufferPtr, ref BufferSize);
+
+                    if (Error.Succeeded)
+                    {
+                        MapResult.Add(Path, Marshal.PtrToStructure<Mpr.UNIVERSAL_NAME_INFO>(BufferPtr).lpUniversalName.TrimEnd('\\'));
+                    }
+                    else if (Error == Win32Error.ERROR_MORE_DATA)
+                    {
+                        IntPtr NewBufferPtr = Marshal.AllocHGlobal((int)BufferSize);
+
+                        try
+                        {
+                            if (Mpr.WNetGetUniversalName(Path, Mpr.INFO_LEVEL.UNIVERSAL_NAME_INFO_LEVEL, NewBufferPtr, ref BufferSize).Succeeded)
+                            {
+                                MapResult.Add(Path, Marshal.PtrToStructure<Mpr.UNIVERSAL_NAME_INFO>(NewBufferPtr).lpUniversalName.TrimEnd('\\'));
+                            }
+                            else
+                            {
+                                MapResult.Add(Path, Path);
+                            }
+                        }
+                        finally
+                        {
+                            Marshal.FreeHGlobal(NewBufferPtr);
+                        }
+                    }
+                    else
+                    {
+                        MapResult.Add(Path, Path);
+                    }
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(BufferPtr);
+                }
+            }
+
+            return MapResult;
+        }
+
         public static bool IsTopMostWindow(HWND WindowHandle)
         {
             return ((User32.WindowStylesEx)User32.GetWindowLong(WindowHandle, User32.WindowLongFlags.GWL_EXSTYLE)).HasFlag(User32.WindowStylesEx.WS_EX_TOPMOST);

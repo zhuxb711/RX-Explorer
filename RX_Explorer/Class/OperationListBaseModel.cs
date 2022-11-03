@@ -142,7 +142,7 @@ namespace RX_Explorer.Class
 
                             ActionButton1Content = Globalization.GetString("NameCollision_Override");
                             ActionButton2Content = Globalization.GetString("NameCollision_Rename");
-                            ActionButton3Content = Globalization.GetString("NameCollision_MoreOption");
+                            ActionButton3Content = Globalization.GetString("NameCollision_Skip");
 
                             RemoveButtonVisibility = Visibility.Collapsed;
                             SpeedAndTimeVisibility = Visibility.Collapsed;

@@ -334,7 +334,7 @@ namespace RX_Explorer.View
             SelectionExtension = new ListViewBaseSelectionExtension(SecureGridView, DrawRectangle);
 
         Retry:
-            if (await FileSystemStorageItemBase.CreateNewAsync(SettingPage.SecureAreaStorageLocation, CreateType.Folder, CreateOption.Skip) is FileSystemStorageFolder SecureFolder)
+            if (await FileSystemStorageItemBase.CreateNewAsync(SettingPage.SecureAreaStorageLocation, CreateType.Folder, CollisionOptions.Skip) is FileSystemStorageFolder SecureFolder)
             {
                 try
                 {
@@ -420,7 +420,7 @@ namespace RX_Explorer.View
                 {
                     CancelToken.ThrowIfCancellationRequested();
 
-                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(SettingPage.SecureAreaStorageLocation, $"{Path.GetRandomFileName()}.sle"), CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile EncryptedFile)
+                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(SettingPage.SecureAreaStorageLocation, $"{Path.GetRandomFileName()}.sle"), CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile EncryptedFile)
                     {
                         try
                         {
@@ -524,7 +524,7 @@ namespace RX_Explorer.View
                         {
                             case SLEOriginType.File:
                                 {
-                                    if (await ExportFolder.CreateNewSubItemAsync(SLEStream.Header.Core.Version >= SLEVersion.SLE110 ? SLEStream.Header.Core.FileName : $"{Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{SLEStream.Header.Core.FileName}", CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile DecryptedFile)
+                                    if (await ExportFolder.CreateNewSubItemAsync(SLEStream.Header.Core.Version >= SLEVersion.SLE110 ? SLEStream.Header.Core.FileName : $"{Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{SLEStream.Header.Core.FileName}", CreateType.File, CollisionOptions.RenameOnCollision) is FileSystemStorageFile DecryptedFile)
                                     {
                                         try
                                         {

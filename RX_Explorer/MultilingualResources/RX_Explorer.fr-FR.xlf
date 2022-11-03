@@ -3802,10 +3802,6 @@ Les noms non valides incluent
           <source>Save a copy</source>
           <target state="translated">Sauvegarder une copie</target>
         </trans-unit>
-        <trans-unit id="NameCollision_MoreOption" translate="yes" xml:space="preserve">
-          <source>More options</source>
-          <target state="translated">Plus d'options</target>
-        </trans-unit>
         <trans-unit id="NameCollision_Override" translate="yes" xml:space="preserve">
           <source>Override files</source>
           <target state="translated">Remplacer les fichiers</target>
@@ -4971,6 +4967,10 @@ Les noms non valides incluent
         <trans-unit id="Bluetooth_Transfer_Status_5" translate="yes" xml:space="preserve">
           <source>The target device is disconnected and the file cannot be transferred</source>
           <target state="translated">Le périphérique cible est déconnecté et le fichier ne peut pas être transféré</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Skip" translate="yes" xml:space="preserve">
+          <source>Skip</source>
+          <target state="translated">Sautiller</target>
         </trans-unit>
       </group>
     </body>

@@ -461,7 +461,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static bool CreateDirectoryFromPath(string Path, CreateOption Option, out string NewFolderPath)
+        public static bool CreateDirectoryFromPath(string Path, CollisionOptions Option, out string NewFolderPath)
         {
             NewFolderPath = string.Empty;
 
@@ -481,7 +481,22 @@ namespace RX_Explorer.Class
 
                 switch (Option)
                 {
-                    case CreateOption.RenameOnCollision:
+                    case CollisionOptions.None:
+                        {
+                            if (CheckItemTypeFromPath(Path) == StorageItemTypes.Folder)
+                            {
+                                throw new Exception($"{Path} is already exists");
+                            }
+
+                            if (CreateDirectoryFromApp(Path, IntPtr.Zero))
+                            {
+                                NewFolderPath = Path;
+                                return true;
+                            }
+
+                            break;
+                        }
+                    case CollisionOptions.RenameOnCollision:
                         {
                             string UniquePath = GenerateUniquePath(Path, CreateType.Folder);
 
@@ -493,7 +508,7 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    case CreateOption.Skip:
+                    case CollisionOptions.Skip:
                         {
                             if (CheckItemTypeFromPath(Path) == StorageItemTypes.Folder || CreateDirectoryFromApp(Path, IntPtr.Zero))
                             {
@@ -503,7 +518,7 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    case CreateOption.OverrideOnCollision:
+                    case CollisionOptions.OverrideOnCollision:
                         {
                             if (CheckItemTypeFromPath(Path) == StorageItemTypes.Folder && DeleteFromPath(Path))
                             {
@@ -549,7 +564,7 @@ namespace RX_Explorer.Class
                                      IntPtr.Zero);
         }
 
-        public static bool CreateFileFromPath(string Path, CreateOption Option, out string NewFilePath)
+        public static bool CreateFileFromPath(string Path, CollisionOptions Option, out string NewFilePath)
         {
             NewFilePath = string.Empty;
 
@@ -557,7 +572,7 @@ namespace RX_Explorer.Class
             {
                 switch (Option)
                 {
-                    case CreateOption.None:
+                    case CollisionOptions.None:
                         {
                             if (CheckExists(Path))
                             {
@@ -575,7 +590,7 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    case CreateOption.RenameOnCollision:
+                    case CollisionOptions.RenameOnCollision:
                         {
                             if (CheckExists(Path))
                             {
@@ -604,7 +619,7 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    case CreateOption.Skip:
+                    case CollisionOptions.Skip:
                         {
                             using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Open_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                             {
@@ -617,7 +632,7 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    case CreateOption.OverrideOnCollision:
+                    case CollisionOptions.OverrideOnCollision:
                         {
                             using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                             {

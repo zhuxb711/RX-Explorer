@@ -185,7 +185,7 @@ namespace RX_Explorer.View
 
             try
             {
-                if (await FileSystemStorageItemBase.CreateNewAsync(TextFilePath, CreateType.File, CreateOption.OverrideOnCollision) is FileSystemStorageFile File)
+                if (await FileSystemStorageItemBase.CreateNewAsync(TextFilePath, CreateType.File, CollisionOptions.OverrideOnCollision) is FileSystemStorageFile File)
                 {
                     using (Stream Stream = await File.GetStreamFromFileAsync(AccessMode.Write))
                     using (StreamWriter Writer = new StreamWriter(Stream, SaveEncoding))

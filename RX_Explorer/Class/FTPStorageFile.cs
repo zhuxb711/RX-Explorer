@@ -259,60 +259,13 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    switch (Option)
+                    if (await CreateNewAsync(TargetPath, CreateType.File, Option) is FileSystemStorageFile NewFile)
                     {
-                        case CollisionOptions.None:
-                            {
-                                if (await CreateNewAsync(TargetPath, CreateType.File, CreateOption.None) is FileSystemStorageFile NewFile)
-                                {
-                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
-                                    using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                    {
-                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case CollisionOptions.OverrideOnCollision:
-                            {
-                                if (await CreateNewAsync(TargetPath, CreateType.File, CreateOption.OverrideOnCollision) is FileSystemStorageFile NewFile)
-                                {
-                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
-                                    using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                    {
-                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case CollisionOptions.RenameOnCollision:
-                            {
-                                if (await CreateNewAsync(TargetPath, CreateType.File, CreateOption.RenameOnCollision) is FileSystemStorageFile NewFile)
-                                {
-                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
-                                    using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                    {
-                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case CollisionOptions.Skip:
-                            {
-                                if (await CreateNewAsync(TargetPath, CreateType.File, CreateOption.Skip) is FileSystemStorageFile NewFile)
-                                {
-                                    using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
-                                    using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
-                                    {
-                                        await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
-                                    }
-                                }
-
-                                break;
-                            }
+                        using (Stream TargetStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
+                        using (Stream OriginStream = await GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                        {
+                            await OriginStream.CopyToAsync(TargetStream, OriginStream.Length, CancelToken, ProgressHandler);
+                        }
                     }
                 }
             }
