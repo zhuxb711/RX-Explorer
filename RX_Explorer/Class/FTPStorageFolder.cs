@@ -259,7 +259,7 @@ namespace RX_Explorer.Class
             {
                 string TargetPath = System.IO.Path.Combine(DirectoryPath, Name);
 
-                if (Regex.IsMatch(DirectoryPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(DirectoryPath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                 {
                     FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(TargetPath);
 
@@ -517,7 +517,7 @@ namespace RX_Explorer.Class
             {
                 string TargetPath = System.IO.Path.Combine(DirectoryPath, Name);
 
-                if (Regex.IsMatch(DirectoryPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(DirectoryPath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
                 {
                     FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(TargetPath);
 

@@ -256,7 +256,7 @@ namespace RX_Explorer.Class
 
         public override async Task CopyAsync(string DirectoryPath, string NewName = null, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (Regex.IsMatch(DirectoryPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+            if (Regex.IsMatch(DirectoryPath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
             {
                 FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(System.IO.Path.Combine(DirectoryPath, Name));
 
@@ -321,7 +321,7 @@ namespace RX_Explorer.Class
 
         public override async Task MoveAsync(string DirectoryPath, string NewName = null, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (Regex.IsMatch(DirectoryPath, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+            if (Regex.IsMatch(DirectoryPath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
             {
                 FtpPathAnalysis TargetAnalysis = new FtpPathAnalysis(System.IO.Path.Combine(DirectoryPath, Name));
 

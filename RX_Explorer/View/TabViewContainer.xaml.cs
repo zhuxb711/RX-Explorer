@@ -15,6 +15,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
@@ -178,8 +179,8 @@ namespace RX_Explorer.View
                     {
                         await Task.Delay(800).ContinueWith((_) =>
                         {
-                            TaskListProgress.Visibility = Visibility.Collapsed;
                             TaskBarController.SetBadge(0);
+                            TaskListProgress.Visibility = Visibility.Collapsed;
                         }, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                     else
@@ -191,7 +192,15 @@ namespace RX_Explorer.View
                         if (TaskListBadge.Value != CurrentTaskNumber)
                         {
                             TaskListBadge.Value = CurrentTaskNumber;
-                            TaskBarController.SetBadge(Convert.ToUInt32(CurrentTaskNumber));
+
+                            if (AppInstance.GetInstances().Count > 1)
+                            {
+                                TaskBarController.SetBadge(0);
+                            }
+                            else
+                            {
+                                TaskBarController.SetBadge(Convert.ToUInt32(CurrentTaskNumber));
+                            }
                         }
                     }
                 });

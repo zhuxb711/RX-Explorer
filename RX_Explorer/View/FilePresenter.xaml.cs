@@ -6464,6 +6464,7 @@ namespace RX_Explorer.View
                                     string ToolTip = await Exclusive.Controller.GetTooltipTextAsync(Item.Path, Token);
 
                                     if (!string.IsNullOrWhiteSpace(ToolTip)
+                                        && !QueueContentDialog.IsRunningOrWaiting
                                         && !Token.IsCancellationRequested
                                         && !Container.ShouldNotAcceptShortcutKeyInput
                                         && !FileFlyout.IsOpen
@@ -7870,7 +7871,7 @@ namespace RX_Explorer.View
 
                 Flyout.Items.Add(SendDocumentItem);
 
-                if (!Regex.IsMatch(CurrentFolder.Path, @"^(ftp(s)?:\\{1,2}$)|(ftp(s)?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
+                if (!Regex.IsMatch(CurrentFolder.Path, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
                 {
                     MenuFlyoutItem SendLinkItem = new MenuFlyoutItem
                     {

@@ -1,19 +1,15 @@
-﻿###What's new in Ver.8.0.4.0
+﻿###What's new in Ver.8.0.5.0
+
+#####UI update
+
+>#####Option buttons will now have higher contrast when there are file name conflicts
 
 #####Bug Fixes
 
->#####Fixed an issue that may make "Always on Top" setting invalid when opening .exe files
+>#####Fixed the problem that the Ftp server path with the specified port could not be accessed correctly
 
->#####Fixed an issue where transfer interruptions or connection refused in some cases might not be detected when sharing files via Bluetooth
+>#####Fixed an issue where operates mapped network drives or UNC paths require unnecessary privileges elevation and eventually cause the task to fail
 
->#####Fixed an issue where multiple selection of files in search results could cause a crash
+>#####Fixed the problem that temporary files may be left in the system temporary directory after operating the files in the MTP device
 
->#####Fixed an issue where pressing the Esc key would not first close the windows of preview programs such as Quicklook and Seer
-
->#####Fixed an issue where Ftp files could not be opened with the built-in viewer
-
->#####Fixed an issue where Ftp files could not be copied or moved
-
->#####Fixed an issue where Windows Terminal was not automatically selected as the default terminal when it presents
-
->#####Fixed some other issues that could cause crashes
+>#####Fixed an issue where some keyboard shortcuts was missing in Keyboard Shortcuts Guidance

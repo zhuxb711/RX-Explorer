@@ -719,7 +719,11 @@ namespace RX_Explorer.View
                                 {
                                     string Tooltip = await Exclusive.Controller.GetTooltipTextAsync(Item.Path, Token);
 
-                                    if (!MixCommandFlyout.IsOpen && !SingleCommandFlyout.IsOpen && !Token.IsCancellationRequested && !string.IsNullOrWhiteSpace(Tooltip))
+                                    if (!MixCommandFlyout.IsOpen 
+                                        && !SingleCommandFlyout.IsOpen 
+                                        && !Token.IsCancellationRequested 
+                                        && !string.IsNullOrWhiteSpace(Tooltip)
+                                        && !QueueContentDialog.IsRunningOrWaiting)
                                     {
                                         TooltipFlyout.Hide();
                                         TooltipFlyoutText.Text = Tooltip;

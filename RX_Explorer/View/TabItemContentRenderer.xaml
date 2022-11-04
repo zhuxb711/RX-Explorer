@@ -199,7 +199,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0"
-                                            Style="{ThemeResource ButtonRevealStyle}"
+                                            HorizontalAlignment="Stretch"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                             Click="{x:Bind ActionButton1}"
                                             Visibility="{x:Bind ActionButton1Visibility,Mode=OneWay}">
@@ -213,7 +213,7 @@
                                         </TextBlock>
                                     </Button>
                                     <Button Grid.Column="1"
-                                            Style="{ThemeResource ButtonRevealStyle}"
+                                            HorizontalAlignment="Stretch"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                             Click="{x:Bind ActionButton2}"
                                             Visibility="{x:Bind ActionButton2Visibility,Mode=OneWay}"
@@ -228,7 +228,7 @@
                                         </TextBlock>
                                     </Button>
                                     <Button Grid.Column="2"
-                                            Style="{ThemeResource ButtonRevealStyle}"
+                                            HorizontalAlignment="Stretch"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                             Click="{x:Bind ActionButton3}"
                                             Visibility="{x:Bind ActionButton3Visibility,Mode=OneWay}">

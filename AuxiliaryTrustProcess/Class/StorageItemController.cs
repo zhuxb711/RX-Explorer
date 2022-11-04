@@ -353,6 +353,7 @@ namespace AuxiliaryTrustProcess.Class
                               | ShellFileOperations.OperationFlags.NoErrorUI
                               | ShellFileOperations.OperationFlags.EarlyFailure
                               | ShellFileOperations.OperationFlags.ShowElevationPrompt
+                              | ShellFileOperations.OperationFlags.NoConfirmation
                 })
                 {
                     if (PostRenameEvent != null)
@@ -496,14 +497,20 @@ namespace AuxiliaryTrustProcess.Class
                                                            | ShellFileOperations.OperationFlags.RequireElevation
                                                            | ShellFileOperations.OperationFlags.NoErrorUI
                                                            | ShellFileOperations.OperationFlags.EarlyFailure
-                                                           | ShellFileOperations.OperationFlags.ShowElevationPrompt;
+                                                           | ShellFileOperations.OperationFlags.NoConfirmation;
 
                 switch (Option)
                 {
                     case CollisionOptions.None:
-                    case CollisionOptions.OverrideOnCollision:
                         {
-                            Flags |= ShellFileOperations.OperationFlags.NoConfirmation;
+                            foreach (string TargetPath in SourcePathMapping.Select((Map) => Path.Combine(DestinationPath, string.IsNullOrEmpty(Map.Value) ? Path.GetFileName(Map.Key) : Map.Value)))
+                            {
+                                if (File.Exists(TargetPath) || Directory.Exists(TargetPath))
+                                {
+                                    throw new Exception($"{TargetPath} is already exists");
+                                }
+                            }
+
                             break;
                         }
                     case CollisionOptions.RenameOnCollision:
@@ -545,12 +552,12 @@ namespace AuxiliaryTrustProcess.Class
 
                     try
                     {
-                        foreach (KeyValuePair<string, string> Source in SourcePathMapping)
+                        foreach (KeyValuePair<string, string> Mapping in SourcePathMapping)
                         {
-                            using (ShellItem SourceItem = new ShellItem(Source.Key))
+                            using (ShellItem SourceItem = new ShellItem(Mapping.Key))
                             using (ShellFolder DestItem = new ShellFolder(DestinationPath))
                             {
-                                Operation.QueueCopyOperation(SourceItem, DestItem, string.IsNullOrEmpty(Source.Value) ? null : Source.Value);
+                                Operation.QueueCopyOperation(SourceItem, DestItem, string.IsNullOrEmpty(Mapping.Value) ? null : Mapping.Value);
                             }
                         }
 
@@ -605,14 +612,21 @@ namespace AuxiliaryTrustProcess.Class
                                                            | ShellFileOperations.OperationFlags.RequireElevation
                                                            | ShellFileOperations.OperationFlags.NoErrorUI
                                                            | ShellFileOperations.OperationFlags.EarlyFailure
-                                                           | ShellFileOperations.OperationFlags.ShowElevationPrompt;
+                                                           | ShellFileOperations.OperationFlags.ShowElevationPrompt
+                                                           | ShellFileOperations.OperationFlags.NoConfirmation;
 
                 switch (Option)
                 {
                     case CollisionOptions.None:
-                    case CollisionOptions.OverrideOnCollision:
                         {
-                            Flags |= ShellFileOperations.OperationFlags.NoConfirmation;
+                            foreach (string TargetPath in SourcePathMapping.Select((Map) => Path.Combine(DestinationPath, string.IsNullOrEmpty(Map.Value) ? Path.GetFileName(Map.Key) : Map.Value)))
+                            {
+                                if (File.Exists(TargetPath) || Directory.Exists(TargetPath))
+                                {
+                                    throw new Exception($"{TargetPath} is already exists");
+                                }
+                            }
+
                             break;
                         }
                     case CollisionOptions.RenameOnCollision:
@@ -654,12 +668,12 @@ namespace AuxiliaryTrustProcess.Class
 
                     try
                     {
-                        foreach (KeyValuePair<string, string> Source in SourcePathMapping)
+                        foreach (KeyValuePair<string, string> Mapping in SourcePathMapping)
                         {
-                            using (ShellItem SourceItem = new ShellItem(Source.Key))
+                            using (ShellItem SourceItem = new ShellItem(Mapping.Key))
                             using (ShellFolder DestItem = new ShellFolder(DestinationPath))
                             {
-                                Operation.QueueMoveOperation(SourceItem, DestItem, string.IsNullOrEmpty(Source.Value) ? null : Source.Value);
+                                Operation.QueueMoveOperation(SourceItem, DestItem, string.IsNullOrEmpty(Mapping.Value) ? null : Mapping.Value);
                             }
                         }
 

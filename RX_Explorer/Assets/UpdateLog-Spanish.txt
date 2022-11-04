@@ -1,19 +1,15 @@
-﻿###Novedades de la versión 8.0.4.0
+﻿###Novedades de la versión 8.0.5.0
+
+#####Actualización de la interfaz de usuario
+
+>#####Los botones de opción ahora tendrán mayor contraste cuando haya conflictos de nombre de archivo
 
 #####Corrección de errores
 
->#####Se solucionó un problema que podía hacer que la configuración "Siempre visible" no fuera válida al abrir archivos .exe
+>#####Se solucionó el problema de que no se podía acceder correctamente a la ruta del servidor Ftp con el puerto especificado
 
->#####Se solucionó un problema por el cual las interrupciones de transferencia o la conexión rechazada en algunos casos podrían no detectarse al compartir archivos a través de Bluetooth
+>#####Se solucionó un problema en el que las unidades de red mapeadas o las rutas UNC requieren una elevación de privilegios innecesaria y eventualmente hacen que la tarea falle
 
->#####Se solucionó un problema por el cual la selección múltiple de archivos en los resultados de búsqueda podía causar un bloqueo
+>#####Se solucionó el problema de que los archivos temporales pueden quedar en el directorio temporal del sistema después de operar los archivos en el dispositivo MTP
 
->#####Se solucionó un problema por el cual al presionar la tecla Esc no se cerraban primero las ventanas de los programas de vista previa como Quicklook y Seer
-
->#####Se solucionó un problema por el cual los archivos FTP no se podían abrir con el visor incorporado
-
->#####Se solucionó un problema por el cual los archivos FTP no se podían copiar ni mover
-
->#####Se solucionó un problema por el cual Windows Terminal no se seleccionaba automáticamente como el terminal predeterminado cuando se presenta
-
->#####Se corrigieron algunos otros problemas que podrían causar fallas
+>#####Se solucionó un problema por el que faltaban algunos métodos abreviados de teclado en la Guía de métodos abreviados de teclado
