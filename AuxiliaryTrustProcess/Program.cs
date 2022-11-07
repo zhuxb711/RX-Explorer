@@ -2183,7 +2183,7 @@ namespace AuxiliaryTrustProcess
 
                                 string Arguments = null;
 
-                                if ((Package.Arguments?.Length).GetValueOrDefault() > 0)
+                                if ((Package.Arguments?.Any()).GetValueOrDefault())
                                 {
                                     Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(' ') ? $"\"{Para.Trim('\"')}\"" : Para));
                                 }
@@ -2470,9 +2470,9 @@ namespace AuxiliaryTrustProcess
                                     {
                                         string Arguments = null;
 
-                                        if ((Package.Arguments?.Length).GetValueOrDefault() > 0)
+                                        if ((Package.Arguments?.Any()).GetValueOrDefault())
                                         {
-                                            Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(" ") ? $"\"{Para.Trim('\"')}\"" : Para));
+                                            Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(' ') ? $"\"{Para.Trim('\"')}\"" : Para));
                                         }
 
                                         using (ShellLink Link = new ShellLink(Package.LinkPath))
@@ -2721,7 +2721,7 @@ namespace AuxiliaryTrustProcess
                                                 HotKey = Macros.LOBYTE(Link.HotKey),
                                                 NeedRunAsAdmin = Link.RunAsAdministrator,
                                                 Comment = Link.Description,
-                                                Arguments = Regex.Matches(Link.Arguments, "[^ \"]+|\"[^\"]*\"").Cast<Match>().Select((Mat) => Mat.Value).ToArray()
+                                                Arguments = Regex.Matches(Link.Arguments, "[^ \"]+|\"[^\"]*\"").Cast<Match>().Select((Mat) => Mat.Value)
                                             };
 
                                             if (string.IsNullOrEmpty(Link.TargetPath))

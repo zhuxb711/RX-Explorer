@@ -1,10 +1,11 @@
 ﻿using RX_Explorer.Class;
 using System;
+using System.ComponentModel;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Interface
 {
-    public interface IStorageItemPropertiesBase
+    public interface IStorageItemBaseProperties: INotifyPropertyChanged
     {
         public string Name { get; }
 

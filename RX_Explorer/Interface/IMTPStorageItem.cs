@@ -2,7 +2,7 @@
 
 namespace RX_Explorer.Interface
 {
-    public interface IMTPStorageItem : IUnsupportedStorageItem<MTPFileData>
+    public interface IMTPStorageItem : IUnsupportedStorageItem<MTPFileData>, IStorageItemBaseProperties, IStorageItemOperation
     {
 
     }

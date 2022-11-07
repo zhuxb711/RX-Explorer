@@ -86,7 +86,7 @@ namespace RX_Explorer.View
         {
             SearchResult.Clear();
 
-            foreach (FileSystemStorageItemBase Item in await SortCollectionGenerator.GetSortedCollectionAsync(e.FilterCollection, STarget, SDirection))
+            foreach (FileSystemStorageItemBase Item in await SortedCollectionGenerator.GetSortedCollectionAsync(e.FilterCollection, STarget, SDirection, SortStyle.UseFileSystemStyle))
             {
                 SearchResult.Add(Item);
             }
@@ -316,21 +316,9 @@ namespace RX_Explorer.View
                                 {
                                     await SignalControl.TrapOnSignalAsync();
 
-                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection);
+                                    SearchResult.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection, SortStyle.UseFileSystemStyle), Item);
 
-                                    if (Index >= 0)
-                                    {
-                                        if (Index <= SearchResult.Count)
-                                        {
-                                            SearchResult.Insert(Index, Item);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        SearchResult.Add(Item);
-                                    }
-
-                                    if (SearchResult.Count % 50 == 0)
+                                    if (SearchResult.Count % 25 == 0)
                                     {
                                         await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
                                     }
@@ -354,18 +342,9 @@ namespace RX_Explorer.View
                                 {
                                     await SignalControl.TrapOnSignalAsync();
 
-                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection);
+                                    SearchResult.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection, SortStyle.UseFileSystemStyle), Item);
 
-                                    if (Index >= 0)
-                                    {
-                                        SearchResult.Insert(Index, Item);
-                                    }
-                                    else
-                                    {
-                                        SearchResult.Add(Item);
-                                    }
-
-                                    if (SearchResult.Count % 50 == 0)
+                                    if (SearchResult.Count % 25 == 0)
                                     {
                                         await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
                                     }
@@ -976,11 +955,7 @@ namespace RX_Explorer.View
                             }
 
                             ListViewDetailHeader.Indicator.SetIndicatorStatus(STarget, SDirection);
-
-                            IReadOnlyList<FileSystemStorageItemBase> SortResult = (await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult, STarget, SDirection)).ToList();
-
-                            SearchResult.Clear();
-                            SearchResult.AddRange(SortResult);
+                            SearchResult.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(SearchResult.DuplicateAndClear(), STarget, SDirection, SortStyle.UseFileSystemStyle));
                         }
                     });
                 }

@@ -9,6 +9,7 @@
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
       xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
+      xmlns:Interface="using:RX_Explorer.Interface"
       mc:Ignorable="d"
       Background="Transparent"
       NavigationCacheMode="Required">
@@ -217,7 +218,7 @@
                                 HorizontalContentAlignment="Stretch"
                                 AllowFocusOnInteraction="False"
                                 Grid.Column="4"
-                                Name="ListHeaderModifiedTime"
+                                Name="ListHeaderRecycleDate"
                                 Click="ListHeader_Click"
                                 Style="{StaticResource ListHeaderButtonStyle}">
                             <RelativePanel>
@@ -313,7 +314,7 @@
                     </Grid>
                 </ListView.Header>
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
+                    <DataTemplate x:DataType="Interface:IRecycleStorageItem">
                         <Grid Background="Transparent"
                               Padding="{Binding ElementName=PageRoot,Path=DataContext.LineHeightOffset}">
                             <Grid.ColumnDefinitions>
@@ -357,26 +358,26 @@
                             </Grid>
                             <TextBlock VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
-                                       Text="{Binding OriginPath,Mode=OneTime}"
+                                       Text="{x:Bind OriginPath}"
                                        Name="OriginPathLabel"
                                        Grid.Column="2"
                                        Padding="10,0,0,0"
                                        TextTrimming="CharacterEllipsis">
                                 <ToolTipService.ToolTip>
-                                    <ToolTip Content="{Binding OriginPath,Mode=OneTime}"
+                                    <ToolTip Content="{x:Bind OriginPath}"
                                              Visibility="{Binding ElementName=OriginPathLabel,Path=IsTextTrimmed}" />
                                 </ToolTipService.ToolTip>
                             </TextBlock>
                             <TextBlock VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
-                                       x:Name="DeleteTimeLabel"
-                                       Text="{Binding DeleteTime,Mode=OneTime,Converter={StaticResource DateTimeConverter}}"
+                                       x:Name="RecycleDateLabel"
+                                       Text="{x:Bind RecycleDate,Converter={StaticResource DateTimeConverter}}"
                                        Grid.Column="4"
                                        Padding="10,0,0,0"
                                        TextTrimming="CharacterEllipsis">
                                 <ToolTipService.ToolTip>
-                                    <ToolTip Content="{Binding DeleteTime,Mode=OneTime,Converter={StaticResource DateTimeConverter}}"
-                                             Visibility="{Binding ElementName=DeleteTimeLabel,Path=IsTextTrimmed}" />
+                                    <ToolTip Content="{x:Bind RecycleDate,Converter={StaticResource DateTimeConverter}}"
+                                             Visibility="{Binding ElementName=RecycleDateLabel,Path=IsTextTrimmed}" />
                                 </ToolTipService.ToolTip>
                             </TextBlock>
                             <TextBlock VerticalAlignment="Center"
@@ -391,7 +392,6 @@
                                        Padding="10,0,0,0"
                                        Name="SizeLabel"
                                        Text="{x:Bind Size,Mode=OneWay,Converter={StaticResource SizeConverter}}"
-                                       Visibility="{Binding Mode=OneTime,Converter={StaticResource SizeVisibilityConverter}}"
                                        x:Phase="1"
                                        TextTrimming="CharacterEllipsis"
                                        Grid.Column="8">

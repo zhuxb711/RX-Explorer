@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -605,8 +604,6 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    CompressionUtil.SetEncoding(Encoding.UTF8);
-
                                     using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.CreateExtendedExecutionAsync().Result)
                                     {
                                         switch (CModel.Type)
@@ -713,11 +710,9 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    CompressionUtil.SetEncoding(DModel.Encoding);
-
                                     using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.CreateExtendedExecutionAsync().Result)
                                     {
-                                        CompressionUtil.ExtractAsync(DModel.DecompressionFrom, DModel.DecompressionTo, DModel.ShouldCreateFolder, CancelToken, (s, e) =>
+                                        CompressionUtil.ExtractAsync(DModel.DecompressionFrom, DModel.DecompressionTo, DModel.ShouldCreateFolder, DModel.Encoding, CancelToken, (s, e) =>
                                         {
                                             Task.WaitAll(CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {

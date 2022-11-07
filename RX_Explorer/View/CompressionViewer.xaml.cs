@@ -404,10 +404,9 @@ namespace RX_Explorer.View
             AddressBox.Text = string.Empty;
             GoParentFolder.IsEnabled = false;
 
-            if (ZipObj is IDisposable DisObj)
+            if (ZipObj is IDisposable Disposable)
             {
-                DisObj.Dispose();
-                ZipObj = null;
+                Disposable.Dispose();
             }
         }
 
@@ -468,14 +467,7 @@ namespace RX_Explorer.View
                     try
                     {
                         ZipFile = File;
-                        ZipObj = new ZipFile(CompressedStream)
-                        {
-                            StringCodec = new StringCodec
-                            {
-                                ForceZipLegacyEncoding = true,
-                                CodePage = Encoding.CodePage
-                            }
-                        };
+                        ZipObj = new ZipFile(CompressedStream, false, StringCodec.FromEncoding(Encoding));
 
                         await Task.WhenAll(DisplayItemsInEntryAsync(string.Empty), Task.Delay(500));
                     }

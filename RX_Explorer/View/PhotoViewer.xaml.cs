@@ -112,7 +112,7 @@ namespace RX_Explorer.View
 
                             PathConfiguration Config = SQLite.Current.GetPathConfiguration(BaseFolder.Path);
 
-                            IEnumerable<FileSystemStorageFile> SortedResult = await SortCollectionGenerator.GetSortedCollectionAsync(SearchResult, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                            IEnumerable<FileSystemStorageFile> SortedResult = await SortedCollectionGenerator.GetSortedCollectionAsync(SearchResult, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle);
 
                             PhotoCollection.AddRange(SortedResult.Select((Item, Index) =>
                             {

@@ -2,6 +2,7 @@
 using CSharpFunctionalExtensions;
 using Microsoft.Win32.SafeHandles;
 using Nito.AsyncEx;
+using RX_Explorer.Interface;
 using SharedLibrary;
 using System;
 using System.Collections.Concurrent;
@@ -1870,7 +1871,7 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<IReadOnlyList<FileSystemStorageItemBase>> GetRecycleBinItemsAsync()
+        public async Task<IReadOnlyList<IRecycleStorageItem>> GetRecycleBinItemsAsync()
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetRecycleBinItems);
 
@@ -1878,7 +1879,7 @@ namespace RX_Explorer.Class
             {
                 IReadOnlyList<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<IReadOnlyList<Dictionary<string, string>>>(Result);
 
-                List<FileSystemStorageItemBase> ItemResult = new List<FileSystemStorageItemBase>(JsonList.Count);
+                List<IRecycleStorageItem> ItemResult = new List<IRecycleStorageItem>(JsonList.Count);
 
                 foreach (Dictionary<string, string> PropertyDic in JsonList)
                 {
@@ -1893,7 +1894,7 @@ namespace RX_Explorer.Class
                                 case "Folder":
                                     {
                                         StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(PropertyDic["ActualPath"]);
-                                        ItemResult.Add(new RecycleStorageFolder(await Folder.GetNativeFileDataAsync(), PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                                        ItemResult.Add(new RecycleStorageFolder(await Folder.GetNativeFileDataAsync(), PropertyDic["OriginPath"], Convert.ToUInt64(PropertyDic["Size"]), DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
                                         break;
                                     }
                                 case "File":
@@ -1907,7 +1908,7 @@ namespace RX_Explorer.Class
                         else
                         {
                             ItemResult.Add(PropertyDic["StorageType"] == "Folder"
-                                                    ? new RecycleStorageFolder(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
+                                                    ? new RecycleStorageFolder(Data, PropertyDic["OriginPath"], Convert.ToUInt64(PropertyDic["Size"]), DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
                                                     : new RecycleStorageFile(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
 
                         }
@@ -1925,7 +1926,7 @@ namespace RX_Explorer.Class
                 LogTracer.Log($"An unexpected error was threw in {nameof(GetRecycleBinItemsAsync)}, message: {ErrorMessage}");
             }
 
-            return new List<FileSystemStorageItemBase>(0);
+            return new List<IRecycleStorageItem>(0);
         }
 
         public async Task<bool> TryUnlockFileAsync(string Path, bool ForceClose = false)
@@ -2262,8 +2263,7 @@ namespace RX_Explorer.Class
             {
                 return Convert.ToBoolean(Result);
             }
-            else
-            if (Response.TryGetValue("Error", out string ErrorMessage))
+            else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
                 LogTracer.Log($"An unexpected error was threw in {nameof(RestoreItemInRecycleBinAsync)}, message: {ErrorMessage}");
             }

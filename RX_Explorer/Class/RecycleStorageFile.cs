@@ -16,7 +16,7 @@ namespace RX_Explorer.Class
     {
         public string OriginPath { get; }
 
-        public DateTimeOffset DeleteTime { get; }
+        public DateTimeOffset RecycleDate { get; }
 
         public override string Name => System.IO.Path.GetFileName(OriginPath);
 
@@ -126,19 +126,20 @@ namespace RX_Explorer.Class
 
         public override async Task DeleteAsync(bool PermanentDelete, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+            if (!PermanentDelete)
             {
-                if (!await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path))
-                {
-                    throw new Exception();
-                }
+                throw new NotSupportedException("Recycled item do not support non-permanent deletion");
             }
+
+            await DeleteAsync();
         }
 
-        public RecycleStorageFile(NativeFileData Data, string OriginPath, DateTimeOffset DeleteTime) : base(Data)
+        public async Task<bool> DeleteAsync()
         {
-            this.OriginPath = OriginPath;
-            this.DeleteTime = DeleteTime.ToLocalTime();
+            using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+            {
+                return await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path);
+            }
         }
 
         public async Task<bool> RestoreAsync()
@@ -147,6 +148,12 @@ namespace RX_Explorer.Class
             {
                 return await Exclusive.Controller.RestoreItemInRecycleBinAsync(OriginPath);
             }
+        }
+
+        public RecycleStorageFile(NativeFileData Data, string OriginPath, DateTimeOffset RecycleDate) : base(Data)
+        {
+            this.OriginPath = OriginPath;
+            this.RecycleDate = RecycleDate.ToLocalTime();
         }
     }
 }

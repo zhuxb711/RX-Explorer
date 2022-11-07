@@ -103,6 +103,7 @@ namespace RX_Explorer.Class
         Rename_Action_NewName = 5
     }
 
+    [Flags]
     public enum UWP_HANDLE_ACCESS_OPTIONS : uint
     {
         NONE = 0,
@@ -111,6 +112,7 @@ namespace RX_Explorer.Class
         DELETE = 0x10000
     }
 
+    [Flags]
     public enum UWP_HANDLE_OPTIONS : uint
     {
         NONE = 0,
@@ -123,6 +125,7 @@ namespace RX_Explorer.Class
         WRITE_THROUGH = 0x80000000
     }
 
+    [Flags]
     public enum UWP_HANDLE_SHARING_OPTIONS : uint
     {
         SHARE_NONE = 0,
@@ -290,10 +293,10 @@ namespace RX_Explorer.Class
 
     public enum LoadMode
     {
-        None = 0,
-        OnlyFile = 1,
-        All = 2,
-        Unknown = 4
+        None,
+        OnlyFile,
+        All,
+        Unknown
     }
 
     public enum SearchEngineFlyoutMode
@@ -305,257 +308,135 @@ namespace RX_Explorer.Class
 
     public enum ThumbnailStatus
     {
-        Normal = 0,
-        HalfOpacity = 1
+        Normal,
+        HalfOpacity
     }
 
     public enum GroupDirection
     {
-        Ascending = 0,
-        Descending = 1
+        Ascending,
+        Descending
     }
 
     public enum GroupTarget
     {
-        None = 0,
-        Name = 1,
-        Type = 2,
-        ModifiedTime = 4,
-        Size = 8
+        None,
+        Name,
+        Type,
+        ModifiedTime,
+        Size
     }
 
     public enum SortDirection
     {
-        Ascending = 0,
-        Descending = 1
+        Ascending,
+        Descending
     }
 
     public enum SortTarget
     {
-        Name = 0,
-        Type = 1,
-        ModifiedTime = 2,
-        Size = 4,
-        OriginPath = 8,
-        Path = 16
+        Name,
+        Type,
+        ModifiedTime,
+        Size,
+        OriginPath,
+        RecycleDate,
+        Path
+    }
+
+    public enum SortStyle
+    {
+        None,
+        UseFileSystemStyle
     }
 
     public enum CompressionSortTarget
     {
-        Name = 0,
-        Type = 1,
-        ModifiedTime = 2,
-        Size = 4,
-        CompressedSize = 8,
-        CompressionRate = 16
+        Name,
+        Type,
+        ModifiedTime,
+        Size,
+        CompressedSize,
+        CompressionRate
     }
 
     public enum CompressionType
     {
-        Zip = 0,
-        Tar = 1,
-        Gzip = 2,
-        BZip2 = 4
+        Zip,
+        Tar,
+        Gzip,
+        BZip2
     }
 
-    /// <summary>
-    /// 压缩等级枚举
-    /// </summary>
     public enum CompressionLevel
     {
-        /// <summary>
-        /// 未指定
-        /// </summary>
-        Undefine = -1,
-
-        /// <summary>
-        /// 最大
-        /// </summary>
         Max = 9,
-
-        /// <summary>
-        /// 标准
-        /// </summary>
         Standard = 4,
-
-        /// <summary>
-        /// 仅打包
-        /// </summary>
         PackageOnly = 0
     }
 
-    /// <summary>
-    /// 图片滤镜类型
-    /// </summary>
     public enum FilterType
     {
-        /// <summary>
-        /// 原图
-        /// </summary>
-        Origin = 0,
-        /// <summary>
-        /// 反色滤镜
-        /// </summary>
-        Invert = 1,
-        /// <summary>
-        /// 灰度滤镜
-        /// </summary>
-        Gray = 2,
-        /// <summary>
-        /// 二值化滤镜
-        /// </summary>
-        Threshold = 4,
-        /// <summary>
-        /// 素描滤镜
-        /// </summary>
-        Sketch = 8,
-        /// <summary>
-        /// 高斯模糊滤镜
-        /// </summary>
-        GaussianBlur = 16,
-        /// <summary>
-        /// 怀旧滤镜
-        /// </summary>
-        Sepia = 32,
-        /// <summary>
-        /// 马赛克滤镜
-        /// </summary>
-        Mosaic = 64,
-        /// <summary>
-        /// 油画滤镜
-        /// </summary>
-        OilPainting = 128
+        Origin,
+        Invert,
+        Gray,
+        Threshold,
+        Sketch,
+        GaussianBlur,
+        Sepia,
+        Mosaic,
+        OilPainting
     }
 
-    /// <summary>
-    /// 提供对快速启动项状态或类型的枚举
-    /// </summary>
     public enum QuickStartType
     {
-        /// <summary>
-        /// 应用区域的快速启动项
-        /// </summary>
-        Application = 1,
-        /// <summary>
-        /// 网站区域的快速启动项
-        /// </summary>
-        WebSite = 2,
-
-        AddButton = 4
+        Application,
+        WebSite,
+        AddButton
     }
 
-    /// <summary>
-    /// Windows Hello授权状态
-    /// </summary>
     public enum AuthenticatorState
     {
-        /// <summary>
-        /// 注册成功
-        /// </summary>
-        RegisterSuccess = 0,
-        /// <summary>
-        /// 用户取消
-        /// </summary>
-        UserCanceled = 1,
-        /// <summary>
-        /// 凭据丢失
-        /// </summary>
-        CredentialNotFound = 2,
-        /// <summary>
-        /// 未知错误
-        /// </summary>
-        UnknownError = 4,
-        /// <summary>
-        /// 系统不支持Windows Hello
-        /// </summary>
-        WindowsHelloUnsupport = 8,
-        /// <summary>
-        /// 授权通过
-        /// </summary>
-        VerifyPassed = 16,
-        /// <summary>
-        /// 授权失败
-        /// </summary>
-        VerifyFailed = 32,
-        /// <summary>
-        /// 用户未注册
-        /// </summary>
-        UserNotRegistered = 64
+        RegisterSuccess,
+        UserCanceled,
+        CredentialNotFound,
+        UnknownError,
+        WindowsHelloUnsupport,
+        VerifyPassed,
+        VerifyFailed,
+        UserNotRegistered
     }
 
-    /// <summary>
-    /// 语言枚举
-    /// </summary>
     public enum LanguageEnum
     {
-        /// <summary>
-        /// 界面使用简体中文
-        /// </summary>
-        Chinese_Simplified = 1,
-        /// <summary>
-        /// 界面使用英文
-        /// </summary>
-        English = 2,
-        /// <summary>
-        /// 界面使用法语
-        /// </summary>
-        French = 4,
-        /// <summary>
-        /// 界面使用繁体中文
-        /// </summary>
-        Chinese_Traditional = 8,
-
-        Spanish = 16,
-
-        German = 32
+        Chinese_Simplified,
+        English,
+        French,
+        Chinese_Traditional,
+        Spanish,
+        German
     }
 
-    /// <summary>
-    /// 背景图片类型的枚举
-    /// </summary>
     public enum BackgroundBrushType
     {
-        /// <summary>
-        /// 使用亚克力背景
-        /// </summary>
-        DefaultAcrylic = 0,
-
-        /// <summary>
-        /// 使用亚克力背景
-        /// </summary>
-        CustomAcrylic = 1,
-
-        /// <summary>
-        /// 使用图片背景
-        /// </summary>
-        Picture = 2,
-
-        /// <summary>
-        /// 使用纯色背景
-        /// </summary>
-        SolidColor = 4,
-
-        /// <summary>
-        /// 使用Bing图片作为背景
-        /// </summary>
-        BingPicture = 8,
-
-        Mica = 16
+        DefaultAcrylic,
+        CustomAcrylic,
+        Picture,
+        SolidColor,
+        BingPicture,
+        Mica
     }
 
-    /// <summary>
-    /// 指定文件夹和库是自带还是用户固定
-    /// </summary>
     public enum LibraryType
     {
-        Downloads = 0,
-        Desktop = 1,
-        Videos = 2,
-        Pictures = 4,
-        Document = 8,
-        Music = 16,
-        OneDrive = 32,
-        UserCustom = 64
+        Downloads,
+        Desktop,
+        Videos,
+        Pictures,
+        Document,
+        Music,
+        OneDrive,
+        UserCustom
     }
 
     [Flags]

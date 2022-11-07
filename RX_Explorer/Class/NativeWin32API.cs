@@ -992,7 +992,7 @@ namespace RX_Explorer.Class
             {
                 int StructSize = Marshal.SizeOf<FILE_BASIC_INFO>();
 
-                IntPtr StructPtr = Marshal.AllocCoTaskMem(StructSize);
+                IntPtr StructPtr = Marshal.AllocHGlobal(StructSize);
 
                 try
                 {
@@ -1023,7 +1023,7 @@ namespace RX_Explorer.Class
                 }
                 finally
                 {
-                    Marshal.FreeCoTaskMem(StructPtr);
+                    Marshal.FreeHGlobal(StructPtr);
                 }
             }
             else
@@ -1036,7 +1036,7 @@ namespace RX_Explorer.Class
         {
             int CompressionInfoStructSize = Marshal.SizeOf<FILE_COMPRESSION_INFO>();
 
-            IntPtr CompressionInfoStructPtr = Marshal.AllocCoTaskMem(CompressionInfoStructSize);
+            IntPtr CompressionInfoStructPtr = Marshal.AllocHGlobal(CompressionInfoStructSize);
 
             try
             {
@@ -1052,7 +1052,7 @@ namespace RX_Explorer.Class
                     {
                         int StandardStructSize = Marshal.SizeOf<FILE_STANDARD_INFO>();
 
-                        IntPtr StandardInfoStructPtr = Marshal.AllocCoTaskMem(StandardStructSize);
+                        IntPtr StandardInfoStructPtr = Marshal.AllocHGlobal(StandardStructSize);
 
                         try
                         {
@@ -1064,7 +1064,7 @@ namespace RX_Explorer.Class
                         }
                         finally
                         {
-                            Marshal.FreeCoTaskMem(StandardInfoStructPtr);
+                            Marshal.FreeHGlobal(StandardInfoStructPtr);
                         }
                     }
                 }
@@ -1075,7 +1075,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                Marshal.FreeCoTaskMem(CompressionInfoStructPtr);
+                Marshal.FreeHGlobal(CompressionInfoStructPtr);
             }
 
             return 0;

@@ -1,7 +1,10 @@
 ﻿using RX_Explorer.Interface;
 using SharedLibrary;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -13,25 +16,25 @@ namespace RX_Explorer.Class
 {
     public class LinkStorageFile : FileSystemStorageFile, ILinkStorageFile
     {
-        public ShellLinkType LinkType { get; private set; }
-
         public string LinkTargetPath => (RawData?.LinkTargetPath) ?? Globalization.GetString("UnknownText");
 
-        public string[] Arguments => (RawData?.Arguments) ?? Array.Empty<string>();
-
-        public bool NeedRunAsAdmin => (RawData?.NeedRunAsAdmin).GetValueOrDefault();
+        public IEnumerable<string> Arguments => (RawData?.Arguments) ?? Enumerable.Empty<string>();
 
         public override string DisplayType => Globalization.GetString("Link_Admin_DisplayType");
 
-        protected LinkFileData RawData { get; set; }
-
         public string WorkDirectory => (RawData?.WorkDirectory) ?? string.Empty;
+
+        public byte HotKey => (RawData?.HotKey).GetValueOrDefault();
+
+        public bool NeedRunAsAdmin => (RawData?.NeedRunAsAdmin).GetValueOrDefault();
 
         public string Comment => (RawData?.Comment) ?? string.Empty;
 
+        public ShellLinkType LinkType { get; private set; }
+
         public WindowState WindowState => (RawData?.WindowState).GetValueOrDefault();
 
-        public byte HotKey => (RawData?.HotKey).GetValueOrDefault();
+        protected LinkFileData RawData { get; set; }
 
         public async Task<bool> LaunchAsync()
         {
@@ -41,7 +44,7 @@ namespace RX_Explorer.Class
                 {
                     if (LinkType == ShellLinkType.Normal)
                     {
-                        return await Exclusive.Controller.RunAsync(LinkTargetPath, WorkDirectory, WindowState, NeedRunAsAdmin, false, false, Arguments);
+                        return await Exclusive.Controller.RunAsync(LinkTargetPath, WorkDirectory, WindowState, NeedRunAsAdmin, false, false, Arguments.ToArray());
                     }
                     else
                     {

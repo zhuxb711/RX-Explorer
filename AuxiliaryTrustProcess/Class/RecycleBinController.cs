@@ -35,12 +35,12 @@ namespace AuxiliaryTrustProcess.Class
                         }
                         else
                         {
-                            PropertyDic.Add("DeleteTime", default(FILETIME).ToInt64().ToString());
+                            throw new Exception();
                         }
                     }
-                    catch
+                    catch (Exception)
                     {
-                        PropertyDic.Add("DeleteTime", default(FILETIME).ToInt64().ToString());
+                        PropertyDic.Add("DeleteTime", Convert.ToString(default(FILETIME).ToInt64()));
                     }
 
                     if (File.Exists(Item.FileSystemPath))
@@ -62,6 +62,23 @@ namespace AuxiliaryTrustProcess.Class
                     {
                         PropertyDic.Add("OriginPath", Item.Name);
                         PropertyDic.Add("StorageType", "Folder");
+
+                        try
+                        {
+                            if (Item.IShellItem is Shell32.IShellItem2 Shell2)
+                            {
+                                PropertyDic.Add("Size", Convert.ToString(Shell2.GetUInt64(Ole32.PROPERTYKEY.System.Size)));
+                            }
+                            else
+                            {
+                                throw new Exception();
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            PropertyDic.Add("Size", "0");
+                        }
+
                         RecycleItemList.Add(PropertyDic);
                     }
                 }
@@ -183,7 +200,7 @@ namespace AuxiliaryTrustProcess.Class
                 }
                 else
                 {
-                    return false;
+                    throw new FileNotFoundException(Path);
                 }
 
                 string ExtraInfoFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
@@ -198,8 +215,9 @@ namespace AuxiliaryTrustProcess.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(Delete)}");
-                return false;
             }
+
+            return false;
         }
 
         private static IReadOnlyDictionary<string, ShellItem> GetAllPathItemMapping()

@@ -246,7 +246,7 @@ namespace RX_Explorer.View
 
             Application.Current.Suspending += Current_Suspending;
             Application.Current.Resuming += Current_Resuming;
-            SortCollectionGenerator.SortConfigChanged += Current_SortConfigChanged;
+            SortedCollectionGenerator.SortConfigChanged += Current_SortConfigChanged;
             GroupCollectionGenerator.GroupStateChanged += GroupCollectionGenerator_GroupStateChanged;
             LayoutModeController.ViewModeChanged += Current_ViewModeChanged;
         }
@@ -2256,20 +2256,7 @@ namespace RX_Explorer.View
                                                 if (FileCollection.Any())
                                                 {
                                                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
-                                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                    if (Index >= 0)
-                                                    {
-                                                        if (Index <= FileCollection.Count)
-                                                        {
-                                                            FileCollection.Insert(Index, NewItem);
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        FileCollection.Add(NewItem);
-                                                    }
+                                                    FileCollection.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), NewItem);
                                                 }
                                                 else
                                                 {
@@ -2305,12 +2292,12 @@ namespace RX_Explorer.View
                                                 {
                                                     if ((NewItem.IsHiddenItem && SettingPage.IsDisplayHiddenItemsEnabled) || !NewItem.IsHiddenItem)
                                                     {
-                                                        if (FileCollection.Any())
+                                                        if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                         {
-                                                            if (NewItem is FileSystemStorageFolder
-                                                                && FileCollection.OfType<FileSystemStorageFile>().FirstOrDefault((Item) => Path.GetFileNameWithoutExtension(Item.Name) == NewItem.Name) is FileSystemStorageFile RelatedFile)
+                                                            if (FileCollection.Any())
                                                             {
-                                                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                                if (NewItem is FileSystemStorageFolder
+                                                                    && FileCollection.OfType<FileSystemStorageFile>().FirstOrDefault((Item) => Path.GetFileNameWithoutExtension(Item.Name) == NewItem.Name) is FileSystemStorageFile RelatedFile)
                                                                 {
                                                                     int Index = FileCollection.IndexOf(RelatedFile) + 1;
 
@@ -2319,32 +2306,16 @@ namespace RX_Explorer.View
                                                                         FileCollection.Insert(Index, NewItem);
                                                                     }
                                                                 }
+                                                                else
+                                                                {
+                                                                    PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+                                                                    FileCollection.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), NewItem);
+                                                                }
                                                             }
                                                             else
                                                             {
-                                                                PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
-                                                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                                {
-                                                                    if (Index >= 0)
-                                                                    {
-                                                                        if (Index <= FileCollection.Count)
-                                                                        {
-                                                                            FileCollection.Insert(Index, NewItem);
-                                                                        }
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        FileCollection.Add(NewItem);
-                                                                    }
-                                                                }
+                                                                FileCollection.Add(NewItem);
                                                             }
-                                                        }
-                                                        else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                        {
-                                                            FileCollection.Add(NewItem);
                                                         }
 
                                                         if (FileCollection.Contains(NewItem) && NewItem is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
@@ -2411,8 +2382,6 @@ namespace RX_Explorer.View
                                     {
                                         if (await FileSystemStorageItemBase.OpenAsync(ModifiedArgs.Path) is FileSystemStorageFile ModifiedItem)
                                         {
-                                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
                                             if (FileCollection.FirstOrDefault((Item) => Item.Path.Equals(ModifiedArgs.Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OldItem)
                                             {
                                                 if (ModifiedItem.GetType() == OldItem.GetType())
@@ -2428,32 +2397,22 @@ namespace RX_Explorer.View
                                                         {
                                                             if (GroupCollection.FirstOrDefault((Group) => Group.Contains(OldItem)) is FileSystemStorageGroupItem CurrentGroup)
                                                             {
+                                                                PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
                                                                 if (await GroupCollectionGenerator.SearchGroupBelongingAsync(ModifiedItem, Config.GroupTarget.GetValueOrDefault()) != CurrentGroup.Key)
                                                                 {
                                                                     FileCollection.Remove(OldItem);
 
-                                                                    if (FileCollection.Any())
+                                                                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                                     {
-                                                                        int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                                        if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                                        if (FileCollection.Any())
                                                                         {
-                                                                            if (Index >= 0)
-                                                                            {
-                                                                                if (Index <= FileCollection.Count)
-                                                                                {
-                                                                                    FileCollection.Insert(Index, ModifiedItem);
-                                                                                }
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                FileCollection.Add(ModifiedItem);
-                                                                            }
+                                                                            FileCollection.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), ModifiedItem);
                                                                         }
-                                                                    }
-                                                                    else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                                    {
-                                                                        FileCollection.Add(ModifiedItem);
+                                                                        else
+                                                                        {
+                                                                            FileCollection.Add(ModifiedItem);
+                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -2473,28 +2432,17 @@ namespace RX_Explorer.View
                                                     {
                                                         if (!ModifiedItem.IsHiddenItem || (ModifiedItem.IsHiddenItem && SettingPage.IsDisplayHiddenItemsEnabled))
                                                         {
-                                                            if (FileCollection.Any())
+                                                            if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                             {
-                                                                int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                                if (FileCollection.Any())
                                                                 {
-                                                                    if (Index >= 0)
-                                                                    {
-                                                                        if (Index <= FileCollection.Count)
-                                                                        {
-                                                                            FileCollection.Insert(Index, ModifiedItem);
-                                                                        }
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        FileCollection.Add(ModifiedItem);
-                                                                    }
+                                                                    PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+                                                                    FileCollection.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), ModifiedItem);
                                                                 }
-                                                            }
-                                                            else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                            {
-                                                                FileCollection.Add(ModifiedItem);
+                                                                else
+                                                                {
+                                                                    FileCollection.Add(ModifiedItem);
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -2502,28 +2450,17 @@ namespace RX_Explorer.View
                                             }
                                             else if (!ModifiedItem.IsHiddenItem)
                                             {
-                                                if (FileCollection.Any())
+                                                if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                    if (FileCollection.Any())
                                                     {
-                                                        if (Index >= 0)
-                                                        {
-                                                            if (Index <= FileCollection.Count)
-                                                            {
-                                                                FileCollection.Insert(Index, ModifiedItem);
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            FileCollection.Add(ModifiedItem);
-                                                        }
+                                                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+                                                        FileCollection.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), ModifiedItem);
                                                     }
-                                                }
-                                                else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    FileCollection.Add(ModifiedItem);
+                                                    else
+                                                    {
+                                                        FileCollection.Add(ModifiedItem);
+                                                    }
                                                 }
                                             }
                                         }
@@ -2546,30 +2483,17 @@ namespace RX_Explorer.View
                                                         FileCollection.Remove(ExistItem);
                                                     }
 
-                                                    if (FileCollection.Any())
+                                                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
                                                     {
-                                                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
-                                                        int Index = await SortCollectionGenerator.SearchInsertLocationAsync(FileCollection, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                        if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
+                                                        if (FileCollection.Any())
                                                         {
-                                                            if (Index >= 0)
-                                                            {
-                                                                if (Index <= FileCollection.Count)
-                                                                {
-                                                                    FileCollection.Insert(Index, Item);
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                FileCollection.Add(Item);
-                                                            }
+                                                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+                                                            FileCollection.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(FileCollection, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), Item);
                                                         }
-                                                    }
-                                                    else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                    {
-                                                        FileCollection.Add(Item);
+                                                        else
+                                                        {
+                                                            FileCollection.Add(Item);
+                                                        }
                                                     }
 
                                                     if (FileCollection.Contains(Item) && Item is FileSystemStorageFolder && !SettingPage.IsDetachTreeViewAndPresenter)
@@ -2645,7 +2569,7 @@ namespace RX_Explorer.View
 
                     foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(FileCollection, args.Target, args.Direction))
                     {
-                        GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
+                        GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle)));
                     }
 
                     IsGroupedEnabled = true;
@@ -2936,25 +2860,11 @@ namespace RX_Explorer.View
                     {
                         foreach (FileSystemStorageGroupItem GroupItem in GroupCollection)
                         {
-                            IReadOnlyList<FileSystemStorageItemBase> SortedGroupItem = new List<FileSystemStorageItemBase>(await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, args.Target, args.Direction));
-
-                            GroupItem.Clear();
-
-                            foreach (FileSystemStorageItemBase Item in SortedGroupItem)
-                            {
-                                GroupItem.Add(Item);
-                            }
+                            GroupItem.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem.DuplicateAndClear(), args.Target, args.Direction, SortStyle.UseFileSystemStyle));
                         }
                     }
 
-                    IReadOnlyList<FileSystemStorageItemBase> SortResult = new List<FileSystemStorageItemBase>(await SortCollectionGenerator.GetSortedCollectionAsync(FileCollection, args.Target, args.Direction));
-
-                    FileCollection.Clear();
-
-                    foreach (FileSystemStorageItemBase Item in SortResult)
-                    {
-                        FileCollection.Add(Item);
-                    }
+                    FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(FileCollection.DuplicateAndClear(), args.Target, args.Direction, SortStyle.UseFileSystemStyle));
                 }
             }
             catch (Exception ex)
@@ -3081,7 +2991,7 @@ namespace RX_Explorer.View
                             {
                                 foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
                                 {
-                                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
+                                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle)));
                                 }
 
                                 IsGroupedEnabled = true;
@@ -3091,7 +3001,7 @@ namespace RX_Explorer.View
                                 IsGroupedEnabled = false;
                             }
 
-                            FileCollection.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
+                            FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle));
                         }
                     }
                 }
@@ -3318,8 +3228,7 @@ namespace RX_Explorer.View
         {
             if (IsGroupedEnabled
                 && (e.NewItems?.OfType<FileSystemStorageItemBase>()
-                    ?? Enumerable.Empty<FileSystemStorageItemBase>()).Concat((e.OldItems?.OfType<FileSystemStorageItemBase>()
-                                                                              ?? Enumerable.Empty<FileSystemStorageItemBase>()))
+                    ?? Enumerable.Empty<FileSystemStorageItemBase>()).Concat(e.OldItems?.OfType<FileSystemStorageItemBase>() ?? Enumerable.Empty<FileSystemStorageItemBase>())
                                                                      .All((Item) => (CurrentFolder?.Path.Equals(Path.GetDirectoryName(Item.Path), StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
             {
                 using (await CollectionChangeLock.LockAsync())
@@ -3338,25 +3247,11 @@ namespace RX_Explorer.View
 
                                         if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
                                         {
-                                            int Index = await SortCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                            if (Index >= 0)
-                                            {
-                                                GroupItem.Insert(Index, Item);
-                                            }
-                                            else
-                                            {
-                                                GroupItem.Add(Item);
-                                            }
+                                            GroupItem.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), Item);
                                         }
                                         else
                                         {
-                                            int Index = Array.IndexOf(GroupCollection.Select((Group) => Group.Key).Append(Key).OrderByFastStringSortAlgorithm((Key) => Key, SortDirection.Ascending).ToArray(), Key);
-
-                                            if (Index >= 0)
-                                            {
-                                                GroupCollection.Insert(Index, new FileSystemStorageGroupItem(Key, new FileSystemStorageItemBase[] { Item }));
-                                            }
+                                            GroupCollection.Insert(Array.IndexOf(GroupCollection.Select((Group) => Group.Key).Append(Key).OrderByFastStringSortAlgorithm((Key) => Key, SortDirection.Ascending).ToArray(), Key), new FileSystemStorageGroupItem(Key, new FileSystemStorageItemBase[] { Item }));
                                         }
                                     }
 
@@ -3394,16 +3289,7 @@ namespace RX_Explorer.View
 
                                         if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
                                         {
-                                            int Index = await SortCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                            if (Index >= 0)
-                                            {
-                                                GroupItem.Insert(Index, Item);
-                                            }
-                                            else
-                                            {
-                                                GroupItem.Add(Item);
-                                            }
+                                            GroupItem.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), Item);
                                         }
                                     }
 
@@ -5696,16 +5582,16 @@ namespace RX_Explorer.View
                 {
                     if (Config.SortDirection == SortDirection.Ascending)
                     {
-                        await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Descending);
+                        await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Descending);
                     }
                     else
                     {
-                        await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Ascending);
+                        await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Ascending);
                     }
                 }
                 else
                 {
-                    await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Ascending);
+                    await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Ascending);
                 }
             }
         }
@@ -7049,37 +6935,37 @@ namespace RX_Explorer.View
         private async void OrderByName_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Name);
+            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Name);
         }
 
         private async void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.ModifiedTime);
+            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.ModifiedTime);
         }
 
         private async void OrderByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Type);
+            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Type);
         }
 
         private async void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Size);
+            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Size);
         }
 
         private async void SortDesc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, Direction: SortDirection.Descending);
+            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, Direction: SortDirection.Descending);
         }
 
         private async void SortAsc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, Direction: SortDirection.Ascending);
+            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, Direction: SortDirection.Ascending);
         }
 
         private void SortMenuFlyout_Opening(object sender, object e)
@@ -7295,7 +7181,7 @@ namespace RX_Explorer.View
             {
                 foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(args.FilterCollection, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
                 {
-                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
+                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle)));
                 }
             }
 
@@ -8629,7 +8515,7 @@ namespace RX_Explorer.View
             AreaWatcher.FileChanged -= DirectoryWatcher_FileChanged;
             Application.Current.Suspending -= Current_Suspending;
             Application.Current.Resuming -= Current_Resuming;
-            SortCollectionGenerator.SortConfigChanged -= Current_SortConfigChanged;
+            SortedCollectionGenerator.SortConfigChanged -= Current_SortConfigChanged;
             GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
             LayoutModeController.ViewModeChanged -= Current_ViewModeChanged;
 

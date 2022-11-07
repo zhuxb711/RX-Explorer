@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    internal class FtpStorageFile : FileSystemStorageFile, IFtpStorageItem, INotWin32StorageItem, INotWin32StorageFile
+    internal class FtpStorageFile : FileSystemStorageFile, IFtpStorageItem, INotWin32StorageFile
     {
         private string InnerDisplayType;
         private readonly FtpFileData Data;

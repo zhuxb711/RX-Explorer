@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 
@@ -27,7 +28,7 @@ namespace RX_Explorer.Dialog
         /// <summary>
         /// 获取压缩等级
         /// </summary>
-        public CompressionLevel Level { get; private set; } = CompressionLevel.Undefine;
+        public CompressionLevel Level { get; private set; }
 
         public CompressionAlgorithm Algorithm { get; private set; } = CompressionAlgorithm.None;
 
@@ -178,13 +179,14 @@ namespace RX_Explorer.Dialog
                             }
                         }
 
-                        Type = CompressionType.Zip;
-                        CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                        CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Visible;
                         CAlgorithm.Items.Clear();
-                        CAlgorithm.Items.Add(CompressionAlgorithm.Deflated.ToString());
-                        CAlgorithm.Items.Add(CompressionAlgorithm.None.ToString());
+                        CAlgorithm.Items.Add(Enum.GetName(typeof(CompressionAlgorithm), CompressionAlgorithm.Deflated));
+                        CAlgorithm.Items.Add(Enum.GetName(typeof(CompressionAlgorithm), CompressionAlgorithm.None));
                         CAlgorithm.SelectedIndex = 0;
+
+                        Type = CompressionType.Zip;
+                        CAlgorithm.Visibility = Visibility.Visible;
+                        CompressLevel.Visibility = Visibility.Visible;
 
                         break;
                     }
@@ -235,14 +237,15 @@ namespace RX_Explorer.Dialog
                             }
                         }
 
-                        Type = CompressionType.Tar;
-                        CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                        CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Visible;
                         CAlgorithm.Items.Clear();
-                        CAlgorithm.Items.Add(CompressionAlgorithm.GZip.ToString());
-                        CAlgorithm.Items.Add(CompressionAlgorithm.BZip2.ToString());
-                        CAlgorithm.Items.Add(CompressionAlgorithm.None.ToString());
+                        CAlgorithm.Items.Add(Enum.GetName(typeof(CompressionAlgorithm), CompressionAlgorithm.GZip));
+                        CAlgorithm.Items.Add(Enum.GetName(typeof(CompressionAlgorithm), CompressionAlgorithm.BZip2));
+                        CAlgorithm.Items.Add(Enum.GetName(typeof(CompressionAlgorithm), CompressionAlgorithm.None));
                         CAlgorithm.SelectedIndex = 0;
+
+                        Type = CompressionType.Tar;
+                        CAlgorithm.Visibility = Visibility.Visible;
+                        CompressLevel.Visibility = Visibility.Collapsed;
 
                         break;
                     }
@@ -279,8 +282,8 @@ namespace RX_Explorer.Dialog
                         }
 
                         Type = CompressionType.Gzip;
-                        CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                        CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                        CAlgorithm.Visibility = Visibility.Collapsed;
+                        CompressLevel.Visibility = Visibility.Visible;
 
                         break;
                     }
@@ -317,8 +320,8 @@ namespace RX_Explorer.Dialog
                         }
 
                         Type = CompressionType.BZip2;
-                        CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                        CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                        CAlgorithm.Visibility = Visibility.Collapsed;
+                        CompressLevel.Visibility = Visibility.Collapsed;
 
                         break;
                     }
@@ -329,12 +332,12 @@ namespace RX_Explorer.Dialog
         {
             if (CAlgorithm.SelectedIndex >= 0)
             {
-                Algorithm = Enum.Parse<CompressionAlgorithm>(CAlgorithm.SelectedItem.ToString());
+                Algorithm = Enum.Parse<CompressionAlgorithm>(Convert.ToString(CAlgorithm.SelectedItem));
 
                 if (CType.SelectedIndex > 0)
                 {
                     CompressLevel.IsEnabled = true;
-                    CompressLevel.Visibility = Algorithm == CompressionAlgorithm.GZip ? Windows.UI.Xaml.Visibility.Visible : Windows.UI.Xaml.Visibility.Collapsed;
+                    CompressLevel.Visibility = Algorithm == CompressionAlgorithm.GZip ? Visibility.Visible : Visibility.Collapsed;
 
                     if (FName.Text.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase))
                     {
@@ -353,17 +356,17 @@ namespace RX_Explorer.Dialog
                 {
                     if (Algorithm == CompressionAlgorithm.None)
                     {
-                        CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                        CompressLevel.Visibility = Visibility.Collapsed;
                     }
                     else
                     {
-                        CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                        CompressLevel.Visibility = Visibility.Visible;
                     }
                 }
             }
         }
 
-        private void FName_GotFocus(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        private void FName_GotFocus(object sender, RoutedEventArgs e)
         {
             switch (CType.SelectedIndex)
             {

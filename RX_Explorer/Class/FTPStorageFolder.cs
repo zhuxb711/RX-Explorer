@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FtpStorageFolder : FileSystemStorageFolder, IFtpStorageItem, INotWin32StorageItem, INotWin32StorageFolder
+    public class FtpStorageFolder : FileSystemStorageFolder, IFtpStorageItem, INotWin32StorageFolder
     {
         private readonly FtpFileData Data;
         private readonly FtpClientController ClientController;

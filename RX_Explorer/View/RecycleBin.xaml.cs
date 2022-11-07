@@ -128,7 +128,7 @@ namespace RX_Explorer.View
         }
 
         private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.RecycleBin);
-        private readonly ObservableCollection<FileSystemStorageItemBase> FileCollection = new ObservableCollection<FileSystemStorageItemBase>();
+        private readonly ObservableCollection<IRecycleStorageItem> FileCollection = new ObservableCollection<IRecycleStorageItem>();
 
         private ListViewBaseSelectionExtension SelectionExtension;
 
@@ -203,7 +203,7 @@ namespace RX_Explorer.View
             {
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    FileCollection.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending));
+                    FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending, SortStyle.None));
                 }
 
                 if (FileCollection.Count == 0)
@@ -469,7 +469,7 @@ namespace RX_Explorer.View
                 {
                     "ListHeaderName" => SortTarget.Name,
                     "ListHeaderOriginLocation" => SortTarget.OriginPath,
-                    "ListHeaderModifiedTime" => SortTarget.ModifiedTime,
+                    "ListHeaderRecycleDate" => SortTarget.RecycleDate,
                     "ListHeaderType" => SortTarget.Type,
                     "ListHeaderSize" => SortTarget.Size,
                     _ => SortTarget.Name
@@ -485,14 +485,7 @@ namespace RX_Explorer.View
                     CurrentSortDirection = SortDirection.Ascending;
                 }
 
-                IReadOnlyList<FileSystemStorageItemBase> SortResult = new List<FileSystemStorageItemBase>(await SortCollectionGenerator.GetSortedCollectionAsync(FileCollection, CurrentSortTarget, CurrentSortDirection));
-
-                FileCollection.Clear();
-
-                foreach (FileSystemStorageItemBase Item in SortResult)
-                {
-                    FileCollection.Add(Item);
-                }
+                FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(FileCollection.DuplicateAndClear(), CurrentSortTarget, CurrentSortDirection, SortStyle.None));
             }
         }
 
@@ -507,7 +500,9 @@ namespace RX_Explorer.View
 
         private async void PermanentDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (ListViewControl.SelectedItems.Count > 0)
+            IReadOnlyList<IRecycleStorageItem> SelectedItems = ListViewControl.SelectedItems.Cast<IRecycleStorageItem>().ToArray();
+
+            if (SelectedItems.Count > 0)
             {
                 ControlLoading(true, Globalization.GetString("RecycleBinDeleteText"));
 
@@ -523,18 +518,16 @@ namespace RX_Explorer.View
                 {
                     Queue<string> ErrorList = new Queue<string>();
 
-                    foreach (FileSystemStorageItemBase Item in ListViewControl.SelectedItems.ToList())
+                    foreach (IRecycleStorageItem Item in SelectedItems)
                     {
-                        try
+                        if (await Item.DeleteAsync())
                         {
-                            await Item.DeleteAsync(true);
+                            FileCollection.Remove(Item);
                         }
-                        catch (Exception)
+                        else
                         {
                             ErrorList.Enqueue(Item.Name);
                         }
-
-                        FileCollection.Remove(Item);
                     }
 
                     if (ErrorList.Count > 0)
@@ -545,7 +538,8 @@ namespace RX_Explorer.View
                             Content = $"{Globalization.GetString("QueueDialog_RecycleBinDeleteError_Content")} {Environment.NewLine}{string.Join(Environment.NewLine, ErrorList)}",
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = Dialog.ShowAsync();
+
+                        await Dialog.ShowAsync();
                     }
                 }
 
@@ -609,25 +603,15 @@ namespace RX_Explorer.View
 
         private async void RestoreRecycle_Click(object sender, RoutedEventArgs e)
         {
-            if (ListViewControl.SelectedItems.Count > 0)
+            IReadOnlyList<IRecycleStorageItem> SelectedItems = ListViewControl.SelectedItems.Cast<IRecycleStorageItem>().ToArray();
+
+            if (SelectedItems.Count > 0)
             {
                 ControlLoading(true, Globalization.GetString("RecycleBinRestoreText"));
 
                 Queue<string> ErrorList = new Queue<string>();
 
-                foreach (RecycleStorageFile Item in ListViewControl.SelectedItems.OfType<RecycleStorageFile>().ToList())
-                {
-                    if (await Item.RestoreAsync())
-                    {
-                        FileCollection.Remove(Item);
-                    }
-                    else
-                    {
-                        ErrorList.Enqueue(Item.Name);
-                    }
-                }
-
-                foreach (RecycleStorageFolder Item in ListViewControl.SelectedItems.OfType<RecycleStorageFolder>().ToList())
+                foreach (IRecycleStorageItem Item in SelectedItems.Cast<IRecycleStorageItem>())
                 {
                     if (await Item.RestoreAsync())
                     {
@@ -647,7 +631,8 @@ namespace RX_Explorer.View
                         Content = $"{Globalization.GetString("QueueDialog_RecycleBinRestoreError_Content")} {Environment.NewLine}{string.Join(Environment.NewLine, ErrorList)}",
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = Dialog.ShowAsync();
+
+                    await Dialog.ShowAsync();
                 }
 
                 ControlLoading(false);
@@ -682,21 +667,18 @@ namespace RX_Explorer.View
             {
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    foreach (FileSystemStorageItemBase Item in await SortCollectionGenerator.GetSortedCollectionAsync(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending))
-                    {
-                        FileCollection.Add(Item);
-                    }
+                    FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending, SortStyle.None));
                 }
 
-                if (FileCollection.Count == 0)
-                {
-                    HasFile.Visibility = Visibility.Visible;
-                    ClearRecycleBin.IsEnabled = false;
-                }
-                else
+                if (FileCollection.Count > 0)
                 {
                     HasFile.Visibility = Visibility.Collapsed;
                     ClearRecycleBin.IsEnabled = true;
+                }
+                else
+                {
+                    HasFile.Visibility = Visibility.Visible;
+                    ClearRecycleBin.IsEnabled = false;
                 }
             }
             catch (Exception ex)

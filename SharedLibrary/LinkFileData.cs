@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SharedLibrary
 {
@@ -8,7 +9,7 @@ namespace SharedLibrary
 
         public string LinkTargetPath { get; set; }
 
-        public string[] Arguments { get; set; }
+        public IEnumerable<string> Arguments { get; set; }
 
         public string Comment { get; set; }
 

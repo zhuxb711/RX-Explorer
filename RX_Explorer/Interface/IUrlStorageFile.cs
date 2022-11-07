@@ -1,9 +1,8 @@
 ﻿using SharedLibrary;
-using System;
 
 namespace RX_Explorer.Interface
 {
-    public interface IUrlStorageFile : IUnsupportedStorageItem<UrlFileData>, IIndirectLaunchStorageItem
+    public interface IUrlStorageFile : IUnsupportedStorageItem<UrlFileData>, IIndirectLaunchStorageItem, IStorageItemBaseProperties, IStorageItemOperation
     {
         public string UrlTargetPath { get; }
     }

@@ -24,7 +24,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对设备中的存储对象的描述
     /// </summary>
-    public abstract class FileSystemStorageItemBase : IStorageItemPropertiesBase, INotifyPropertyChanged, IStorageItemOperation, IEquatable<FileSystemStorageItemBase>
+    public abstract class FileSystemStorageItemBase : IStorageItemBaseProperties, IStorageItemOperation, IEquatable<FileSystemStorageItemBase>
     {
         public event PropertyChangedEventHandler PropertyChanged;
         private int IsContentLoaded;

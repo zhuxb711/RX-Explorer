@@ -3,7 +3,6 @@ using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
@@ -11,7 +10,7 @@ namespace RX_Explorer.Class
     {
         public string OriginPath { get; }
 
-        public DateTimeOffset DeleteTime { get; }
+        public DateTimeOffset RecycleDate { get; }
 
         public override string Name
         {
@@ -29,21 +28,24 @@ namespace RX_Explorer.Class
             }
         }
 
+        public override ulong Size { get; protected set; }
+
         public override async Task DeleteAsync(bool PermanentDelete, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            if (!PermanentDelete)
+            {
+                throw new NotSupportedException("Recycled item do not support non-permanent deletion");
+            }
+
+            await DeleteAsync();
+        }
+
+        public async Task<bool> DeleteAsync()
         {
             using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {
-                if (!await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path))
-                {
-                    throw new Exception();
-                }
+                return await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path);
             }
-        }
-
-        public RecycleStorageFolder(NativeFileData Data, string OriginPath, DateTimeOffset DeleteTime) : base(Data)
-        {
-            this.OriginPath = OriginPath;
-            this.DeleteTime = DeleteTime.ToLocalTime();
         }
 
         public async Task<bool> RestoreAsync()
@@ -52,6 +54,13 @@ namespace RX_Explorer.Class
             {
                 return await Exclusive.Controller.RestoreItemInRecycleBinAsync(OriginPath);
             }
+        }
+
+        public RecycleStorageFolder(NativeFileData Data, string OriginPath, ulong Size, DateTimeOffset RecycleDate) : base(Data)
+        {
+            this.OriginPath = OriginPath;
+            this.RecycleDate = RecycleDate.ToLocalTime();
+            this.Size = Size;
         }
     }
 }

@@ -564,7 +564,7 @@ namespace RX_Explorer.View
                                 }
                             case SLEOriginType.Folder:
                                 {
-                                    await CompressionUtil.ExtractAsync(SLEStream, SLEStream.Header.Core.FileName, ExportFolder.Path, false, CancelToken, async (s, e) =>
+                                    await CompressionUtil.ExtractAsync(SLEStream, SLEStream.Header.Core.FileName, ExportFolder.Path, false, CancelToken: CancelToken, ProgressHandler: async (s, e) =>
                                     {
                                         if (TotalSize > 0)
                                         {

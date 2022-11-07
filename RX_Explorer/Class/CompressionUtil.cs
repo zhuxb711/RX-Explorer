@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.ExtendedProperties;
-using ICSharpCode.SharpZipLib.BZip2;
+﻿using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using ICSharpCode.SharpZipLib.Zip;
@@ -11,7 +10,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +18,6 @@ namespace RX_Explorer.Class
 {
     public static class CompressionUtil
     {
-        private static Encoding EncodingSetting = Encoding.UTF8;
         private delegate void ByteReadChangedEventHandler(ulong ByteRead);
 
         public static async Task CreateZipAsync(IEnumerable<string> StorageItemsPath,
@@ -100,11 +97,6 @@ namespace RX_Explorer.Class
                                                 CancellationToken CancelToken = default,
                                                 ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (Level == CompressionLevel.Undefine)
-            {
-                throw new ArgumentException("Undefine is not allowed in this function", nameof(Level));
-            }
-
             if (Algorithm == CompressionAlgorithm.GZip)
             {
                 throw new ArgumentException("GZip is not allowed in this function", nameof(Algorithm));
@@ -146,13 +138,7 @@ namespace RX_Explorer.Class
             {
                 OutputStream.Seek(0, SeekOrigin.Begin);
 
-                StringCodec Codec = new StringCodec
-                {
-                    ForceZipLegacyEncoding = true,
-                    CodePage = EncodingSetting.CodePage
-                };
-
-                using (ZipOutputStream ZipStream = (ZipOutputStream)typeof(ZipOutputStream).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, Type.DefaultBinder, new Type[] { typeof(Stream), typeof(StringCodec) }, Array.Empty<ParameterModifier>()).Invoke(new object[] { OutputStream, Codec }))
+                using (ZipOutputStream ZipStream = new ZipOutputStream(OutputStream, StringCodec.FromEncoding(Encoding.UTF8)))
                 {
                     ZipStream.SetLevel((int)Level);
                     ZipStream.UseZip64 = UseZip64.Dynamic;
@@ -325,11 +311,6 @@ namespace RX_Explorer.Class
                                                  CancellationToken CancelToken = default,
                                                  ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (Level == CompressionLevel.Undefine)
-            {
-                throw new ArgumentException("Undefine is not allowed in this function", nameof(Level));
-            }
-
             if (OriginFileStream == null)
             {
                 throw new ArgumentNullException(nameof(OriginFileStream), "Argument could not be null");
@@ -718,7 +699,7 @@ namespace RX_Explorer.Class
             if (TotalSize > 0)
             {
                 using (BZip2OutputStream OutputBZip2Stream = new BZip2OutputStream(OutputStream))
-                using (TarOutputStream OutputTarStream = new TarOutputStream(OutputBZip2Stream, EncodingSetting))
+                using (TarOutputStream OutputTarStream = new TarOutputStream(OutputBZip2Stream, Encoding.UTF8))
                 {
                     OutputBZip2Stream.IsStreamOwner = false;
                     OutputTarStream.IsStreamOwner = false;
@@ -781,11 +762,6 @@ namespace RX_Explorer.Class
                                                      CancellationToken CancelToken = default,
                                                      ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (Level == CompressionLevel.Undefine)
-            {
-                throw new ArgumentException("Undefine is not allowed in this function", nameof(Level));
-            }
-
             ulong TotalSize = 0;
             ulong CurrentPosition = 0;
 
@@ -811,7 +787,7 @@ namespace RX_Explorer.Class
             if (TotalSize > 0)
             {
                 using (GZipOutputStream OutputGzipStream = new GZipOutputStream(OutputStream))
-                using (TarOutputStream OutputTarStream = new TarOutputStream(OutputGzipStream, EncodingSetting))
+                using (TarOutputStream OutputTarStream = new TarOutputStream(OutputGzipStream, Encoding.UTF8))
                 {
                     OutputGzipStream.SetLevel((int)Level);
                     OutputGzipStream.IsStreamOwner = false;
@@ -898,7 +874,7 @@ namespace RX_Explorer.Class
 
             if (TotalSize > 0)
             {
-                using (TarOutputStream OutputTarStream = new TarOutputStream(OutputStream, EncodingSetting))
+                using (TarOutputStream OutputTarStream = new TarOutputStream(OutputStream, Encoding.UTF8))
                 {
                     OutputTarStream.IsStreamOwner = false;
 
@@ -1019,12 +995,13 @@ namespace RX_Explorer.Class
         public static async Task ExtractAsync(string CompressedItem,
                                               string ExtractDestFolderPath,
                                               bool CreateindividualFolder = true,
+                                              Encoding Encoding = null,
                                               CancellationToken CancelToken = default,
                                               ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.OpenAsync(CompressedItem) is FileSystemStorageFile File)
             {
-                await ExtractAsync(new FileSystemStorageFile[] { File }, ExtractDestFolderPath, CreateindividualFolder, CancelToken, ProgressHandler);
+                await ExtractAsync(new FileSystemStorageFile[] { File }, ExtractDestFolderPath, CreateindividualFolder, Encoding, CancelToken, ProgressHandler);
             }
             else
             {
@@ -1036,6 +1013,7 @@ namespace RX_Explorer.Class
                                               string CompressedItemName,
                                               string ExtractDestFolderPath,
                                               bool CreateindividualFolder = true,
+                                              Encoding Encoding = null,
                                               CancellationToken CancelToken = default,
                                               ProgressChangedEventHandler ProgressHandler = null)
         {
@@ -1099,7 +1077,7 @@ namespace RX_Explorer.Class
                     LookForHeader = true,
                     ArchiveEncoding = new ArchiveEncoding
                     {
-                        Default = EncodingSetting
+                        Default = Encoding ?? Encoding.UTF8
                     }
                 };
 
@@ -1174,15 +1152,17 @@ namespace RX_Explorer.Class
         public static Task ExtractAsync(FileSystemStorageFile CompressedItem,
                                         string ExtractDestFolderPath,
                                         bool CreateindividualFolder = true,
+                                        Encoding Encoding = null,
                                         CancellationToken CancelToken = default,
                                         ProgressChangedEventHandler ProgressHandler = null)
         {
-            return ExtractAsync(new FileSystemStorageFile[] { CompressedItem }, ExtractDestFolderPath, CreateindividualFolder, CancelToken, ProgressHandler);
+            return ExtractAsync(new FileSystemStorageFile[] { CompressedItem }, ExtractDestFolderPath, CreateindividualFolder, Encoding, CancelToken, ProgressHandler);
         }
 
         public static async Task ExtractAsync(IEnumerable<string> CompressedItems,
                                               string ExtractDestFolderPath,
                                               bool CreateindividualFolder = true,
+                                              Encoding Encoding = null,
                                               CancellationToken CancelToken = default,
                                               ProgressChangedEventHandler ProgressHandler = null)
         {
@@ -1200,12 +1180,13 @@ namespace RX_Explorer.Class
                 }
             }
 
-            await ExtractAsync(TransformList, ExtractDestFolderPath, CreateindividualFolder, CancelToken, ProgressHandler);
+            await ExtractAsync(TransformList, ExtractDestFolderPath, CreateindividualFolder, Encoding, CancelToken, ProgressHandler);
         }
 
         public static async Task ExtractAsync(IEnumerable<FileSystemStorageFile> CompressedItems,
                                               string ExtractDestFolderPath,
                                               bool CreateindividualFolder = true,
+                                              Encoding Encoding = null,
                                               CancellationToken CancelToken = default,
                                               ProgressChangedEventHandler ProgressHandler = null)
         {
@@ -1260,7 +1241,7 @@ namespace RX_Explorer.Class
                         LookForHeader = true,
                         ArchiveEncoding = new ArchiveEncoding
                         {
-                            Default = EncodingSetting
+                            Default = Encoding ?? Encoding.UTF8
                         }
                     };
 
@@ -1361,11 +1342,6 @@ namespace RX_Explorer.Class
             }
 
             throw new UnauthorizedAccessException("Could not create folder");
-        }
-
-        public static void SetEncoding(Encoding Encoding)
-        {
-            EncodingSetting = Encoding;
         }
     }
 }

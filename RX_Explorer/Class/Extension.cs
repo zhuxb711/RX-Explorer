@@ -43,6 +43,18 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
+        public static IReadOnlyList<T> DuplicateAndClear<T>(this ICollection<T> Source)
+        {
+            try
+            {
+                return Source.ToArray();
+            }
+            finally
+            {
+                Source.Clear();
+            }
+        }
+
         public static async Task<Stream> GetFtpFileStreamForWriteAsync(this AsyncFtpClient Client, string Path, FtpDataType DataType, CancellationToken CancelToken = default)
         {
             return new FtpSafeWriteStream(Client, await Client.OpenWrite(Path, DataType, false, CancelToken));

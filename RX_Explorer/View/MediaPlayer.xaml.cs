@@ -225,7 +225,7 @@ namespace RX_Explorer.View
 
                                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(BaseFolder.Path);
 
-                                    foreach (FileSystemStorageFile MediaFile in await SortCollectionGenerator.GetSortedCollectionAsync(FileList, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()))
+                                    foreach (FileSystemStorageFile MediaFile in await SortedCollectionGenerator.GetSortedCollectionAsync(FileList, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle))
                                     {
                                         MediaBinder Binder = new MediaBinder
                                         {
@@ -297,7 +297,7 @@ namespace RX_Explorer.View
 
                                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(BaseFolder.Path);
 
-                                    foreach (FileSystemStorageFile MediaFile in await SortCollectionGenerator.GetSortedCollectionAsync(FileList, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()))
+                                    foreach (FileSystemStorageFile MediaFile in await SortedCollectionGenerator.GetSortedCollectionAsync(FileList, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle))
                                     {
                                         MediaBinder Binder = new MediaBinder
                                         {

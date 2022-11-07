@@ -2087,7 +2087,7 @@ namespace RX_Explorer.View
 
                             if (ChildItems.Count > 0)
                             {
-                                AddressExtensionList.AddRange(await SortCollectionGenerator.GetSortedCollectionAsync(ChildItems.Cast<FileSystemStorageFolder>(), SortTarget.Name, SortDirection.Ascending));
+                                AddressExtensionList.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(ChildItems.Cast<FileSystemStorageFolder>(), SortTarget.Name, SortDirection.Ascending, SortStyle.UseFileSystemStyle));
                             }
                         }
 
