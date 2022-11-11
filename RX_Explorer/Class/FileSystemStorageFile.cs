@@ -30,6 +30,8 @@ namespace RX_Explorer.Class
                                                                                         ? new Uri("ms-appx:///Assets/SingleItem_White.png")
                                                                                         : new Uri("ms-appx:///Assets/SingleItem_Black.png"));
 
+        public override bool IsDirectory => false;
+
         public FileSystemStorageFile(NativeFileData Data) : base(Data)
         {
 

@@ -14,7 +14,7 @@ namespace RX_Explorer.Class
         {
             if (IsCompleted)
             {
-                return new DisposeNotification();
+                return DisposeNotification.Empty;
             }
             else
             {

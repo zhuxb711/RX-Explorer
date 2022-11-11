@@ -544,7 +544,11 @@ namespace RX_Explorer.View
                     return false;
                 }
             }
-            set => ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = value;
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = value;
+                BackgroundController.Current.IsCompositionAcrylicBackgroundEnabled = value;
+            }
         }
 
         public static bool IsContextMenuExtensionEnabled
@@ -1386,7 +1390,7 @@ namespace RX_Explorer.View
                     NavigationViewLayoutArea.Visibility = Visibility.Collapsed;
                 }
 
-                ApplicationData.Current.DataChanged += Current_DataChanged;
+                ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
 
                 if (PictureList.Count == 0)
                 {
@@ -2938,7 +2942,7 @@ namespace RX_Explorer.View
                 SolidColor_Black.IsChecked = false;
                 SolidColor_FollowSystem.IsChecked = false;
 
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: BackgroundController.SolidColor_WhiteTheme);
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: BackgroundController.Current.WhiteThemeColor);
             }
             catch (Exception ex)
             {
@@ -2957,7 +2961,7 @@ namespace RX_Explorer.View
                 SolidColor_White.IsChecked = false;
                 SolidColor_FollowSystem.IsChecked = false;
 
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: BackgroundController.SolidColor_BlackTheme);
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: BackgroundController.Current.BlackThemeColor);
             }
             catch (Exception ex)
             {
@@ -3226,7 +3230,6 @@ namespace RX_Explorer.View
             try
             {
                 IsPreventAcrylicFallbackEnabled = true;
-                BackgroundController.Current.IsCompositionAcrylicBackgroundEnabled = true;
             }
             catch (Exception ex)
             {
@@ -3243,7 +3246,6 @@ namespace RX_Explorer.View
             try
             {
                 IsPreventAcrylicFallbackEnabled = false;
-                BackgroundController.Current.IsCompositionAcrylicBackgroundEnabled = false;
             }
             catch (Exception ex)
             {

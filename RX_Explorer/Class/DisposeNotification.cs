@@ -1,4 +1,5 @@
 ﻿using System;
+using static RX_Explorer.Class.AuxiliaryTrustProcessController;
 
 namespace RX_Explorer.Class
 {
@@ -6,20 +7,31 @@ namespace RX_Explorer.Class
     {
         private readonly Action ActionOnDispose;
 
+        public static DisposeNotification Empty { get; } = new DisposeNotification();
+
         public DisposeNotification(Action ActionOnDispose)
         {
             this.ActionOnDispose = ActionOnDispose;
         }
 
-        public DisposeNotification()
+        private DisposeNotification()
         {
 
         }
 
         public void Dispose()
         {
-            ActionOnDispose?.Invoke();
+            if (Execution.CheckAlreadyExecuted(this))
+            {
+                throw new ObjectDisposedException(nameof(DisposeNotification));
+            }
+
             GC.SuppressFinalize(this);
+
+            Execution.ExecuteOnce(this, () =>
+            {
+                ActionOnDispose?.Invoke();
+            });
         }
 
         ~DisposeNotification()

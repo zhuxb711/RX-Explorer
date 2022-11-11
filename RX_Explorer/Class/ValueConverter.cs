@@ -10,6 +10,76 @@ using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
+    public sealed class NullableConverter : IValueConverter
+    {
+        public static object ConvertTo(object Object, Type TargetType)
+        {
+            if (Object is null)
+            {
+                return TargetType.IsValueType ? Activator.CreateInstance(TargetType) : null;
+            }
+
+            Type SourceType = Object.GetType();
+
+            if (SourceType.IsValueType && !SourceType.IsPrimitive)
+            {
+                object Default = Activator.CreateInstance(SourceType);
+
+                if (Object.Equals(Default))
+                {
+                    return null;
+                }
+            }
+
+            if (TargetType.IsGenericType)
+            {
+                if (TargetType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    return System.Convert.ChangeType(Object, Nullable.GetUnderlyingType(TargetType));
+                }
+                else
+                {
+                    throw new InvalidCastException($"Invalid cast from type \"{SourceType.FullName}\" to type \"{TargetType.FullName}\"");
+                }
+            }
+            else
+            {
+                return System.Convert.ChangeType(Object, TargetType);
+            }
+        }
+
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            return ConvertTo(value, targetType);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            return ConvertTo(value, targetType);
+        }
+    }
+
+    public sealed class DateTimePickerMaxDateNullableConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is DateTimeOffset Time)
+            {
+                if (Time != default)
+                {
+                    return value;
+                }
+            }
+
+            return DateTimeOffset.MaxValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public sealed class ThumbnailStatusConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)

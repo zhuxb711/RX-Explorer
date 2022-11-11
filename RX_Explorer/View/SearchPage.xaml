@@ -9,11 +9,15 @@
       xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
       xmlns:System="using:System"
       xmlns:Custom="using:RX_Explorer.CustomControl"
+      xmlns:IO="using:System.IO"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:Trigger="using:Microsoft.Toolkit.Uwp.UI.Triggers"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
     <Page.Resources>
+        <Cls:NullableConverter x:Key="NullableConverter" />
+        <Cls:DateTimePickerMaxDateNullableConverter x:Key="DateTimePickerMaxDateNullableConverter" />
         <Cls:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
         <Cls:TagToVisibilityConverter x:Key="TagToVisibilityConverter" />
         <Cls:SizeDescriptionConverter x:Key="SizeConverter" />
@@ -23,7 +27,7 @@
         <Cls:TagToColorConverter x:Key="TagToColorConverter" />
         <Cls:TagToLabelConverter x:Key="TagToLabelConverter" />
         <Cls:NameExtensionsConverter x:Name="NameExtensionsConverter"
-                                     ItemsSource="{x:Bind SearchResult}"/>
+                                     ItemsSource="{x:Bind SearchResult}" />
 
         <Flyout x:Name="TooltipFlyout"
                 ShouldConstrainToRootBounds="False">
@@ -66,7 +70,7 @@
             <AppBarButton Icon="Rename"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Rename')}"
                           x:Name="Rename"
-                          Click="Rename_Click"/>
+                          Click="Rename_Click" />
             <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
                           Name="MultiSelect"
                           Click="MultiSelect_Click">
@@ -232,7 +236,7 @@
             <RowDefinition Height="35" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        
+
         <StackPanel Padding="10,0"
                     VerticalAlignment="Center">
             <TextBlock Text="搜索结果"
@@ -246,7 +250,7 @@
 
         <Grid Grid.Row="1"
               x:Name="PageRoot"
-              DataContext="{x:Bind Cls:ViewHeightOffsetSaver.Current}">
+              DataContext="{x:Bind Cls:ViewHeightOffsetWapper.Current}">
             <Grid x:Name="ListViewPanelRoot"
                   DataContext="{x:Bind ColumnWidthSaver}">
                 <ListView Name="SearchResultList"
@@ -264,13 +268,12 @@
                           ItemClick="SearchResultList_ItemClick"
                           Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                           ItemsSource="{x:Bind SearchResult}"
-                          Style="{StaticResource ListViewStyleWithFixedHeader}"
-                          Header="{x:Bind ListViewDetailHeader}">
+                          Style="{StaticResource ListViewStyleWithFixedHeader}">
                     <ListView.Resources>
                         <x:Double x:Key="ListViewItemMinHeight">0</x:Double>
                     </ListView.Resources>
-                    <ListView.HeaderTemplate>
-                        <DataTemplate x:DataType="Cls:ListViewHeaderController">
+                    <ListView.Header>
+                        <UserControl>
                             <Grid Height="35"
                                   Background="{ThemeResource ElementCustomAcrylicBrush}"
                                   Windows11Present:Padding="12,0"
@@ -292,6 +295,138 @@
                                     <SolidColorBrush x:Key="SystemControlSplitterPressed"
                                                      Color="Transparent" />
                                 </Grid.Resources>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup>
+                                        <VisualState x:Name="NameSortIndicatorVisibleState">
+                                            <VisualState.StateTriggers>
+                                                <Trigger:IsEqualStateTrigger Value="{x:Bind ListViewHeaderSortIndicator.Target,Mode=OneWay}"
+                                                                             To="Name" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="NameSortIndicator.Visibility"
+                                                        Value="Visible" />
+                                                <Setter Target="PathSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="ModifiedSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="TypeSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="SizeSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="PathSortIndicatorVisibleState">
+                                            <VisualState.StateTriggers>
+                                                <Trigger:IsEqualStateTrigger Value="{x:Bind ListViewHeaderSortIndicator.Target,Mode=OneWay}"
+                                                                             To="Path" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="NameSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="PathSortIndicator.Visibility"
+                                                        Value="Visible" />
+                                                <Setter Target="ModifiedSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="TypeSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="SizeSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="ModifiedSortIndicatorVisibleState">
+                                            <VisualState.StateTriggers>
+                                                <Trigger:IsEqualStateTrigger Value="{x:Bind ListViewHeaderSortIndicator.Target,Mode=OneWay}"
+                                                                             To="ModifiedTime" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="NameSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="PathSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="ModifiedSortIndicator.Visibility"
+                                                        Value="Visible" />
+                                                <Setter Target="TypeSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="SizeSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="TypeSortIndicatorVisibleState">
+                                            <VisualState.StateTriggers>
+                                                <Trigger:IsEqualStateTrigger Value="{x:Bind ListViewHeaderSortIndicator.Target,Mode=OneWay}"
+                                                                             To="Type" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="NameSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="PathSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="ModifiedSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="TypeSortIndicator.Visibility"
+                                                        Value="Visible" />
+                                                <Setter Target="SizeSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="SizeSortIndicatorVisibleState">
+                                            <VisualState.StateTriggers>
+                                                <Trigger:IsEqualStateTrigger Value="{x:Bind ListViewHeaderSortIndicator.Target,Mode=OneWay}"
+                                                                             To="Size" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="NameSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="PathSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="ModifiedSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="TypeSortIndicator.Visibility"
+                                                        Value="Collapsed" />
+                                                <Setter Target="SizeSortIndicator.Visibility"
+                                                        Value="Visible" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                    <VisualStateGroup>
+                                        <VisualState x:Name="SortIndicatorUpState">
+                                            <VisualState.StateTriggers>
+                                                <Trigger:IsEqualStateTrigger Value="{x:Bind ListViewHeaderSortIndicator.Direction,Mode=OneWay}"
+                                                                             To="Ascending" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="NameSortIndicatorIcon.Glyph"
+                                                        Value="&#xF0AD;" />
+                                                <Setter Target="PathSortIndicatorIcon.Glyph"
+                                                        Value="&#xF0AD;" />
+                                                <Setter Target="ModifiedSortIndicatorIcon.Glyph"
+                                                        Value="&#xF0AD;" />
+                                                <Setter Target="TypeSortIndicatorIcon.Glyph"
+                                                        Value="&#xF0AD;" />
+                                                <Setter Target="SizeSortIndicatorIcon.Glyph"
+                                                        Value="&#xF0AD;" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="SortIndicatorDownState">
+                                            <VisualState.StateTriggers>
+                                                <Trigger:IsEqualStateTrigger Value="{x:Bind ListViewHeaderSortIndicator.Direction,Mode=OneWay}"
+                                                                             To="Descending" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="NameSortIndicatorIcon.Glyph"
+                                                        Value="&#xF0AE;" />
+                                                <Setter Target="PathSortIndicatorIcon.Glyph"
+                                                        Value="&#xF0AE;" />
+                                                <Setter Target="ModifiedSortIndicatorIcon.Glyph"
+                                                        Value="&#xF0AE;" />
+                                                <Setter Target="TypeSortIndicatorIcon.Glyph"
+                                                        Value="&#xF0AE;" />
+                                                <Setter Target="SizeSortIndicatorIcon.Glyph"
+                                                        Value="&#xF0AE;" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
                                 <RelativePanel Grid.Column="0"
                                                VerticalAlignment="Stretch"
                                                HorizontalAlignment="Stretch"
@@ -311,16 +446,17 @@
                                             <TextBlock Text="名称"
                                                        x:Uid="SearchName"
                                                        TextTrimming="CharacterEllipsis"
-                                                       RelativePanel.LeftOf="SortIndicator1"
+                                                       RelativePanel.LeftOf="NameSortIndicator"
                                                        RelativePanel.AlignLeftWithPanel="True"
                                                        RelativePanel.AlignVerticalCenterWithPanel="True" />
                                             <Viewbox RelativePanel.AlignRightWithPanel="True"
                                                      RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                     x:Name="SortIndicator1"
+                                                     x:Name="NameSortIndicator"
                                                      Height="12"
                                                      Width="12"
-                                                     Child="{x:Bind Indicator.NameIndicatorIcon,Mode=OneWay}"
-                                                     Visibility="{x:Bind Indicator.NameIndicatorVisibility,Mode=OneWay}" />
+                                                     Margin="10,0,0,0">
+                                                <FontIcon x:Name="NameSortIndicatorIcon" />
+                                            </Viewbox>
                                         </RelativePanel>
                                     </Button>
                                     <Button Height="35"
@@ -350,51 +486,51 @@
                                                     </Style>
                                                 </Flyout.FlyoutPresenterStyle>
                                                 <StackPanel MinWidth="230">
-                                                    <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.ColorFilterCheckBox1,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                           Glyph="&#xF127;"
-                                                                          Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground1,Mode=OneWay}" />
+                                                                          Foreground="{x:Bind ListViewHeaderFilter.ColorFilterCheckBoxForeground1,Mode=OneWay}" />
                                                             </Viewbox>
                                                             <TextBlock Margin="10,0,0,0"
-                                                                       Text="{x:Bind Filter.ColorFilterCheckBoxContent1,Mode=OneWay}" />
+                                                                       Text="{x:Bind ListViewHeaderFilter.ColorFilterCheckBoxContent1,Mode=OneWay}" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.ColorFilterCheckBox2,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                           Glyph="&#xF127;"
-                                                                          Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground2,Mode=OneWay}" />
+                                                                          Foreground="{x:Bind ListViewHeaderFilter.ColorFilterCheckBoxForeground2,Mode=OneWay}" />
                                                             </Viewbox>
                                                             <TextBlock Margin="10,0,0,0"
-                                                                       Text="{x:Bind Filter.ColorFilterCheckBoxContent2,Mode=OneWay}" />
+                                                                       Text="{x:Bind ListViewHeaderFilter.ColorFilterCheckBoxContent2,Mode=OneWay}" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.ColorFilterCheckBox3,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                           Glyph="&#xF127;"
-                                                                          Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground3,Mode=OneWay}" />
+                                                                          Foreground="{x:Bind ListViewHeaderFilter.ColorFilterCheckBoxForeground3,Mode=OneWay}" />
                                                             </Viewbox>
                                                             <TextBlock Margin="10,0,0,0"
-                                                                       Text="{x:Bind Filter.ColorFilterCheckBoxContent3,Mode=OneWay}" />
+                                                                       Text="{x:Bind ListViewHeaderFilter.ColorFilterCheckBoxContent3,Mode=OneWay}" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.ColorFilterCheckBox4,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                           Glyph="&#xF127;"
-                                                                          Foreground="{x:Bind Filter.ColorFilterCheckBoxForeground4,Mode=OneWay}" />
+                                                                          Foreground="{x:Bind ListViewHeaderFilter.ColorFilterCheckBoxForeground4,Mode=OneWay}" />
                                                             </Viewbox>
                                                             <TextBlock Margin="10,0,0,0"
-                                                                       Text="{x:Bind Filter.ColorFilterCheckBoxContent4,Mode=OneWay}" />
+                                                                       Text="{x:Bind ListViewHeaderFilter.ColorFilterCheckBoxContent4,Mode=OneWay}" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox1,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.NameFilterCheckBox1,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -404,7 +540,7 @@
                                                                        Text="A - G" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox2,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.NameFilterCheckBox2,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -414,7 +550,7 @@
                                                                        Text="H - N" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox3,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.NameFilterCheckBox3,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -424,7 +560,7 @@
                                                                        Text="O - T" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox4,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.NameFilterCheckBox4,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -434,7 +570,7 @@
                                                                        Text="U - Z" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox5,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.NameFilterCheckBox5,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -445,7 +581,7 @@
                                                                        x:Uid="NameFilterCheckBox5Text" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox6,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.NameFilterCheckBox6,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -457,7 +593,7 @@
                                                                      IsSpellCheckEnabled="False"
                                                                      PlaceholderText="请输入正则表达式"
                                                                      x:Uid="NameFilterCheckBox6Text"
-                                                                     Text="{x:Bind Filter.RegexExpression,Mode=TwoWay}" />
+                                                                     Text="{x:Bind ListViewHeaderFilter.RegexExpression,Mode=TwoWay}" />
                                                         </StackPanel>
                                                     </CheckBox>
                                                 </StackPanel>
@@ -496,16 +632,17 @@
                                         <TextBlock Text="路径"
                                                    x:Uid="SearchPath"
                                                    TextTrimming="CharacterEllipsis"
-                                                   RelativePanel.LeftOf="SortIndicator2"
+                                                   RelativePanel.LeftOf="PathSortIndicator"
                                                    RelativePanel.AlignLeftWithPanel="True"
                                                    RelativePanel.AlignVerticalCenterWithPanel="True" />
                                         <Viewbox RelativePanel.AlignRightWithPanel="True"
                                                  RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                 x:Name="SortIndicator2"
+                                                 x:Name="PathSortIndicator"
                                                  Height="12"
                                                  Width="12"
-                                                 Child="{x:Bind Indicator.PathIndicatorIcon,Mode=OneWay}"
-                                                 Visibility="{x:Bind Indicator.PathIndicatorVisibility,Mode=OneWay}" />
+                                                 Margin="10,0,0,0">
+                                            <FontIcon x:Name="PathSortIndicatorIcon" />
+                                        </Viewbox>
                                     </RelativePanel>
                                 </Button>
                                 <Border HorizontalAlignment="Center"
@@ -543,16 +680,17 @@
                                             <TextBlock Text="修改日期"
                                                        x:Uid="SearchModified"
                                                        TextTrimming="CharacterEllipsis"
-                                                       RelativePanel.LeftOf="SortIndicator3"
+                                                       RelativePanel.LeftOf="ModifiedSortIndicator"
                                                        RelativePanel.AlignLeftWithPanel="True"
                                                        RelativePanel.AlignVerticalCenterWithPanel="True" />
                                             <Viewbox RelativePanel.AlignRightWithPanel="True"
                                                      RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                     x:Name="SortIndicator3"
+                                                     x:Name="ModifiedSortIndicator"
                                                      Height="12"
                                                      Width="12"
-                                                     Child="{x:Bind Indicator.ModifiedTimeIndicatorIcon,Mode=OneWay}"
-                                                     Visibility="{x:Bind Indicator.ModifiedTimeIndicatorVisibility,Mode=OneWay}" />
+                                                     Margin="10,0,0,0">
+                                                <FontIcon x:Name="ModifiedSortIndicatorIcon" />
+                                            </Viewbox>
                                         </RelativePanel>
                                     </Button>
                                     <Button Height="35"
@@ -582,7 +720,7 @@
                                                     </Style>
                                                 </Flyout.FlyoutPresenterStyle>
                                                 <StackPanel MinWidth="230">
-                                                    <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox1,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.ModTimeFilterCheckBox1,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -592,20 +730,20 @@
                                                                 <CalendarDatePicker Header="起始日期:"
                                                                                     Width="180"
                                                                                     x:Uid="ModTimeFilterFromDate"
-                                                                                    Date="{x:Bind Filter.FromDate,Mode=TwoWay}"
-                                                                                    MaxDate="{x:Bind Filter.FromDateMax,Mode=OneWay}"
+                                                                                    Date="{x:Bind ListViewHeaderFilter.FromDate,Mode=TwoWay,Converter={StaticResource NullableConverter}}"
+                                                                                    MaxDate="{x:Bind ListViewHeaderFilter.ToDate,Mode=OneWay,Converter={StaticResource DateTimePickerMaxDateNullableConverter}}"
                                                                                     x:Name="ModTimeFilterFromDatePicker" />
                                                                 <CalendarDatePicker Header="结束日期:"
                                                                                     Width="180"
                                                                                     x:Uid="ModTimeFilterToDate"
                                                                                     Margin="0,5,0,0"
-                                                                                    Date="{x:Bind Filter.ToDate,Mode=TwoWay}"
+                                                                                    Date="{x:Bind ListViewHeaderFilter.ToDate,Mode=TwoWay,Converter={StaticResource NullableConverter}}"
                                                                                     MaxDate="{x:Bind System:DateTimeOffset.Now}"
                                                                                     x:Name="ModTimeFilterToDatePicker" />
                                                             </StackPanel>
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox2,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.ModTimeFilterCheckBox2,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -616,7 +754,7 @@
                                                                        x:Uid="ModTimeFilterCheckBox2Text" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox3,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.ModTimeFilterCheckBox3,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -627,7 +765,7 @@
                                                                        x:Uid="ModTimeFilterCheckBox3Text" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox4,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.ModTimeFilterCheckBox4,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -678,16 +816,17 @@
                                             <TextBlock Text="类型"
                                                        x:Uid="SearchType"
                                                        TextTrimming="CharacterEllipsis"
-                                                       RelativePanel.LeftOf="SortIndicator4"
+                                                       RelativePanel.LeftOf="TypeSortIndicator"
                                                        RelativePanel.AlignLeftWithPanel="True"
                                                        RelativePanel.AlignVerticalCenterWithPanel="True" />
                                             <Viewbox RelativePanel.AlignRightWithPanel="True"
                                                      RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                     x:Name="SortIndicator4"
+                                                     x:Name="TypeSortIndicator"
                                                      Height="12"
                                                      Width="12"
-                                                     Child="{x:Bind Indicator.TypeIndicatorIcon,Mode=OneWay}"
-                                                     Visibility="{x:Bind Indicator.TypeIndicatorVisibility,Mode=OneWay}" />
+                                                     Margin="10,0,0,0">
+                                                <FontIcon x:Name="TypeSortIndicatorIcon" />
+                                            </Viewbox>
                                         </RelativePanel>
                                     </Button>
                                     <Button Height="35"
@@ -721,7 +860,7 @@
                                                               VerticalScrollBarVisibility="Auto"
                                                               MaxHeight="350"
                                                               MinWidth="200"
-                                                              Content="{x:Bind Filter.TypeCheckBoxPanel,Mode=OneWay}" />
+                                                              Content="{x:Bind ListViewHeaderFilter.TypeCheckBoxPanel,Mode=OneWay}" />
                                             </Flyout>
                                         </Button.Flyout>
                                     </Button>
@@ -761,16 +900,17 @@
                                             <TextBlock Text="大小"
                                                        x:Uid="SearchSize"
                                                        TextTrimming="CharacterEllipsis"
-                                                       RelativePanel.LeftOf="SortIndicator5"
+                                                       RelativePanel.LeftOf="SizeSortIndicator"
                                                        RelativePanel.AlignLeftWithPanel="True"
                                                        RelativePanel.AlignVerticalCenterWithPanel="True" />
                                             <Viewbox RelativePanel.AlignRightWithPanel="True"
                                                      RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                     x:Name="SortIndicator5"
+                                                     x:Name="SizeSortIndicator"
                                                      Height="12"
                                                      Width="12"
-                                                     Child="{x:Bind Indicator.SizeIndicatorIcon,Mode=OneWay}"
-                                                     Visibility="{x:Bind Indicator.SizeIndicatorVisibility,Mode=OneWay}" />
+                                                     Margin="10,0,0,0">
+                                                <FontIcon x:Name="SizeSortIndicatorIcon" />
+                                            </Viewbox>
                                         </RelativePanel>
                                     </Button>
                                     <Button Height="35"
@@ -800,7 +940,7 @@
                                                     </Style>
                                                 </Flyout.FlyoutPresenterStyle>
                                                 <StackPanel MinWidth="200">
-                                                    <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox1,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.SizeFilterCheckBox1,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -811,7 +951,7 @@
                                                                        x:Uid="SizeFilterCheckBox1Text" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox2,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.SizeFilterCheckBox2,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -822,7 +962,7 @@
                                                                        x:Uid="SizeFilterCheckBox2Text" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox3,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.SizeFilterCheckBox3,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -833,7 +973,7 @@
                                                                        x:Uid="SizeFilterCheckBox3Text" />
                                                         </StackPanel>
                                                     </CheckBox>
-                                                    <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox4,Mode=TwoWay}">
+                                                    <CheckBox IsChecked="{x:Bind ListViewHeaderFilter.SizeFilterCheckBox4,Mode=TwoWay,Converter={StaticResource NullableConverter}}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Viewbox Height="15">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -850,8 +990,8 @@
                                     </Button>
                                 </RelativePanel>
                             </Grid>
-                        </DataTemplate>
-                    </ListView.HeaderTemplate>
+                        </UserControl>
+                    </ListView.Header>
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                             <Grid Background="Transparent"
@@ -926,13 +1066,13 @@
                                 </Grid>
                                 <TextBlock VerticalAlignment="Center"
                                            HorizontalAlignment="Left"
-                                           Text="{x:Bind Path}"
+                                           Text="{x:Bind IO:Path.GetDirectoryName(Path)}"
                                            Name="PathLabel"
                                            Padding="10,0,0,0"
                                            TextTrimming="CharacterEllipsis"
                                            Grid.Column="2">
                                     <ToolTipService.ToolTip>
-                                        <ToolTip Content="x:Bind Path}"
+                                        <ToolTip Content="{x:Bind IO:Path.GetDirectoryName(Path)}"
                                                  Visibility="{Binding ElementName=PathLabel,Path=IsTextTrimmed}" />
                                     </ToolTipService.ToolTip>
                                 </TextBlock>

@@ -1,17 +1,23 @@
-﻿using Microsoft.Toolkit.Deferred;
-using RX_Explorer.Interface;
+﻿using RX_Explorer.Interface;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Walterlv.WeakEvents;
 
 namespace RX_Explorer.Class
 {
     public static class SortedCollectionGenerator
     {
-        public static event EventHandler<SortStateChangedEventArgs> SortConfigChanged;
+        private static readonly WeakEvent<SortStateChangedEventArgs> WeakSortConfigChanged = new WeakEvent<SortStateChangedEventArgs>();
+        public static event EventHandler<SortStateChangedEventArgs> SortConfigChanged
+        {
+            add => WeakSortConfigChanged.Add(value, value.Invoke);
+            remove => WeakSortConfigChanged.Remove(value);
+        }
 
-        public static async Task SaveSortConfigOnPathAsync(string Path, SortTarget? Target = null, SortDirection? Direction = null)
+        public static void SaveSortConfigOnPath(string Path, SortTarget? Target = null, SortDirection? Direction = null)
         {
             if (Target is SortTarget.OriginPath or SortTarget.Path)
             {
@@ -26,11 +32,7 @@ namespace RX_Explorer.Class
             if (CurrentConfig.SortTarget != LocalTarget || CurrentConfig.SortDirection != LocalDirection)
             {
                 SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, LocalTarget, LocalDirection));
-
-                if (SortConfigChanged != null)
-                {
-                    await SortConfigChanged.InvokeAsync(null, new SortStateChangedEventArgs(Path, LocalTarget, LocalDirection));
-                }
+                WeakSortConfigChanged.Invoke(null, new SortStateChangedEventArgs(Path, LocalTarget, LocalDirection));
             }
         }
 
@@ -44,49 +46,15 @@ namespace RX_Explorer.Class
                         {
                             case SortTarget.Name:
                                 {
-                                    return await InputCollection.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                    {
-                                        if (PreviousTask.Exception is not null)
-                                        {
-                                            return InputCollection.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                        }
-
-                                        return PreviousTask.Result;
-                                    });
+                                    return await InputCollection.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction);
                                 }
                             case SortTarget.Type:
                                 {
                                     IEnumerable<T> SortResult = Enumerable.Empty<T>();
 
-                                    if (Direction == SortDirection.Ascending)
+                                    foreach (IGrouping<string, T> Group in await InputCollection.GroupBy((Item) => Item.DisplayType).OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
                                     {
-                                        foreach (IGrouping<string, T> Group in InputCollection.OrderBy((Item) => Item.Type).GroupBy((Item) => Item.Type))
-                                        {
-                                            SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                            {
-                                                if (PreviousTask.Exception is not null)
-                                                {
-                                                    return Group.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                                }
-
-                                                return PreviousTask.Result;
-                                            }));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        foreach (IGrouping<string, T> Group in InputCollection.OrderByDescending((Item) => Item.Type).GroupBy((Item) => Item.Type))
-                                        {
-                                            SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                            {
-                                                if (PreviousTask.Exception is not null)
-                                                {
-                                                    return Group.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                                }
-
-                                                return PreviousTask.Result;
-                                            }));
-                                        }
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
                                     }
 
                                     return SortResult;
@@ -105,13 +73,25 @@ namespace RX_Explorer.Class
                                 }
                             case SortTarget.Path:
                                 {
-                                    return InputCollection.OrderByFastStringSortAlgorithm((Item) => Item.Path, Direction);
+                                    IEnumerable<T> SortResult = Enumerable.Empty<T>();
+
+                                    foreach (IGrouping<string, T> Group in await InputCollection.GroupBy((Item) => Path.GetDirectoryName(Item.Path)).OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
+                                    {
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending));
+                                    }
+
+                                    return SortResult;
                                 }
                             case SortTarget.OriginPath when InputCollection.All((Item) => Item is IRecycleStorageItem):
                                 {
-                                    return InputCollection.Cast<IRecycleStorageItem>()
-                                                          .OrderByFastStringSortAlgorithm((Item) => Item.OriginPath, Direction)
-                                                          .Cast<T>();
+                                    IEnumerable<IRecycleStorageItem> SortResult = Enumerable.Empty<IRecycleStorageItem>();
+
+                                    foreach (IGrouping<string, IRecycleStorageItem> Group in await InputCollection.Cast<IRecycleStorageItem>().GroupBy((Item) => Path.GetDirectoryName(Item.OriginPath)).OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
+                                    {
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending));
+                                    }
+
+                                    return SortResult.Cast<T>();
                                 }
                             case SortTarget.RecycleDate when InputCollection.All((Item) => Item is IRecycleStorageItem):
                                 {
@@ -123,38 +103,41 @@ namespace RX_Explorer.Class
                                                                          .OrderByDescending((Item) => Item.RecycleDate)
                                                                          .Cast<T>();
                                 }
+                            case SortTarget.CompressedSize when InputCollection.All((Item) => Item is ICompressionItem):
+                                {
+                                    return Direction == SortDirection.Ascending
+                                                        ? InputCollection.Cast<ICompressionItem>()
+                                                                         .OrderBy((Item) => Item.CompressedSize)
+                                                                         .Cast<T>()
+                                                        : InputCollection.Cast<ICompressionItem>()
+                                                                         .OrderByDescending((Item) => Item.CompressedSize)
+                                                                         .Cast<T>();
+                                }
+                            case SortTarget.CompressionRate when InputCollection.All((Item) => Item is ICompressionItem):
+                                {
+                                    return Direction == SortDirection.Ascending
+                                                        ? InputCollection.Cast<ICompressionItem>()
+                                                                         .OrderBy((Item) => Item.CompressionRate)
+                                                                         .Cast<T>()
+                                                        : InputCollection.Cast<ICompressionItem>()
+                                                                         .OrderByDescending((Item) => Item.CompressionRate)
+                                                                         .Cast<T>();
+                                }
                         }
 
                         break;
                     }
                 case SortStyle.UseFileSystemStyle:
                     {
-                        IEnumerable<T> FolderList = InputCollection.Where((It) => It is FileSystemStorageFolder);
-                        IEnumerable<T> FileList = InputCollection.Where((It) => It is FileSystemStorageFile);
+                        IEnumerable<T> FolderList = InputCollection.Where((Item) => Item.IsDirectory);
+                        IEnumerable<T> FileList = InputCollection.Where((Item) => !Item.IsDirectory);
 
                         switch (Target)
                         {
                             case SortTarget.Name:
                                 {
-                                    IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                    {
-                                        if (PreviousTask.Exception is not null)
-                                        {
-                                            return FolderList.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                        }
-
-                                        return PreviousTask.Result;
-                                    });
-
-                                    IEnumerable<T> SortedFileList = await FileList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                    {
-                                        if (PreviousTask.Exception is not null)
-                                        {
-                                            return FileList.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                        }
-
-                                        return PreviousTask.Result;
-                                    });
+                                    IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction);
+                                    IEnumerable<T> SortedFileList = await FileList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction);
 
                                     return Direction == SortDirection.Ascending
                                                         ? SortedFolderList.Concat(SortedFileList)
@@ -164,39 +147,13 @@ namespace RX_Explorer.Class
                                 {
                                     IEnumerable<T> SortResult = Enumerable.Empty<T>();
 
-                                    if (Direction == SortDirection.Ascending)
-                                    {
-                                        foreach (IGrouping<string, T> Group in FolderList.OrderBy((Item) => Item.Type)
-                                                                                         .Concat(FileList.OrderBy((Item) => Item.Type))
-                                                                                         .GroupBy((Item) => Item.Type))
-                                        {
-                                            SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                            {
-                                                if (PreviousTask.Exception is not null)
-                                                {
-                                                    return Group.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                                }
+                                    foreach (IGrouping<string, T> Group in (await FolderList.GroupBy((Item) => Item.DisplayType)
+                                                                                            .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
+                                                                                            .Concat(await FileList.GroupBy((Item) => Item.DisplayType)
+                                                                                                                  .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction)))
 
-                                                return PreviousTask.Result;
-                                            }));
-                                        }
-                                    }
-                                    else
                                     {
-                                        foreach (IGrouping<string, T> Group in FolderList.OrderByDescending((Item) => Item.Type)
-                                                                                         .Concat(FileList.OrderByDescending((Item) => Item.Type))
-                                                                                         .GroupBy((Item) => Item.Type))
-                                        {
-                                            SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                            {
-                                                if (PreviousTask.Exception is not null)
-                                                {
-                                                    return Group.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                                }
-
-                                                return PreviousTask.Result;
-                                            }));
-                                        }
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
                                     }
 
                                     return SortResult;
@@ -211,15 +168,7 @@ namespace RX_Explorer.Class
                                 }
                             case SortTarget.Size:
                                 {
-                                    IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending).ContinueWith((PreviousTask) =>
-                                    {
-                                        if (PreviousTask.Exception is not null)
-                                        {
-                                            return FolderList.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                        }
-
-                                        return PreviousTask.Result;
-                                    });
+                                    IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending);
 
                                     return Direction == SortDirection.Ascending
                                                         ? SortedFolderList.Concat(FileList.OrderBy((Item) => Item.Size))
@@ -227,19 +176,33 @@ namespace RX_Explorer.Class
                                 }
                             case SortTarget.Path:
                                 {
-                                    IEnumerable<T> SortedFolderList = FolderList.OrderByFastStringSortAlgorithm((Item) => Item.Path, Direction);
-                                    IEnumerable<T> SortedFileList = FileList.OrderByFastStringSortAlgorithm((Item) => Item.Path, Direction);
+                                    IEnumerable<T> SortResult = Enumerable.Empty<T>();
 
-                                    return Direction == SortDirection.Ascending
-                                                        ? SortedFolderList.Concat(SortedFileList)
-                                                        : SortedFileList.Concat(SortedFolderList);
+                                    foreach (IGrouping<string, T> Group in (await FolderList.GroupBy((Item) => Path.GetDirectoryName(Item.Path))
+                                                                                            .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
+                                                                                            .Concat(await FileList.GroupBy((Item) => Path.GetDirectoryName(Item.Path))
+                                                                                                                  .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction)))
+                                    {
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending));
+                                    }
+
+                                    return SortResult;
                                 }
                             case SortTarget.OriginPath when InputCollection.All((Item) => Item is IRecycleStorageItem):
                                 {
-                                    return FolderList.Cast<IRecycleStorageItem>()
-                                                     .OrderByFastStringSortAlgorithm((Item) => Item.OriginPath, Direction)
-                                                     .Concat(FileList.Cast<IRecycleStorageItem>().OrderByFastStringSortAlgorithm((Item) => Item.OriginPath, Direction))
-                                                     .Cast<T>();
+                                    IEnumerable<IRecycleStorageItem> SortResult = Enumerable.Empty<IRecycleStorageItem>();
+
+                                    foreach (IGrouping<string, IRecycleStorageItem> Group in (await FolderList.Cast<IRecycleStorageItem>()
+                                                                                                              .GroupBy((Item) => Path.GetDirectoryName(Item.OriginPath))
+                                                                                                              .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
+                                                                                                              .Concat(await FileList.Cast<IRecycleStorageItem>()
+                                                                                                                                    .GroupBy((Item) => Path.GetDirectoryName(Item.OriginPath))
+                                                                                                                                    .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction)))
+                                    {
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending));
+                                    }
+
+                                    return SortResult.Cast<T>();
                                 }
                             case SortTarget.RecycleDate when InputCollection.All((Item) => Item is IRecycleStorageItem):
                                 {
@@ -252,6 +215,32 @@ namespace RX_Explorer.Class
                                                                     .OrderByDescending((Item) => Item.RecycleDate)
                                                                     .Concat(FolderList.Cast<IRecycleStorageItem>().OrderByDescending((Item) => Item.RecycleDate))
                                                                     .Cast<T>();
+                                }
+                            case SortTarget.CompressedSize when InputCollection.All((Item) => Item is ICompressionItem):
+                                {
+                                    IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending);
+
+                                    return Direction == SortDirection.Ascending
+                                                        ? SortedFolderList.Concat(FileList.Cast<ICompressionItem>()
+                                                                                          .OrderBy((Item) => Item.CompressedSize)
+                                                                                          .Cast<T>())
+                                                        : FileList.Cast<ICompressionItem>()
+                                                                  .OrderByDescending((Item) => Item.CompressedSize)
+                                                                  .Cast<T>()
+                                                                  .Concat(SortedFolderList);
+                                }
+                            case SortTarget.CompressionRate when InputCollection.All((Item) => Item is ICompressionItem):
+                                {
+                                    IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending);
+
+                                    return Direction == SortDirection.Ascending
+                                                        ? SortedFolderList.Concat(FileList.Cast<ICompressionItem>()
+                                                                                          .OrderBy((Item) => Item.CompressionRate)
+                                                                                          .Cast<T>())
+                                                        : FileList.Cast<ICompressionItem>()
+                                                                  .OrderByDescending((Item) => Item.CompressionRate)
+                                                                  .Cast<T>()
+                                                                  .Concat(SortedFolderList);
                                 }
                         }
 
@@ -283,55 +272,28 @@ namespace RX_Explorer.Class
                             case SortTarget.Name:
                                 {
                                     IEnumerable<T> Collection = InputCollection.Append(SearchTarget);
-                                    IEnumerable<T> SortedFilteredCollection = await Collection.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                    {
-                                        if (PreviousTask.Exception is not null)
-                                        {
-                                            return Collection.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                        }
-
-                                        return PreviousTask.Result;
-                                    });
+                                    IEnumerable<T> SortedFilteredCollection = await Collection.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction);
 
                                     return SortedFilteredCollection.Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
                                 }
                             case SortTarget.Path:
                                 {
-                                    return InputCollection.Append(SearchTarget).OrderByFastStringSortAlgorithm((Item) => Item.Path, Direction).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+                                    IEnumerable<T> SortResult = Enumerable.Empty<T>();
+
+                                    foreach (IGrouping<string, T> Group in await InputCollection.Append(SearchTarget).GroupBy((Item) => Path.GetDirectoryName(Item.Path)).OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
+                                    {
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending));
+                                    }
+
+                                    return SortResult.Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
                                 }
                             case SortTarget.Type:
                                 {
                                     IEnumerable<T> SortResult = Enumerable.Empty<T>();
 
-                                    if (Direction == SortDirection.Ascending)
+                                    foreach (IGrouping<string, T> Group in await InputCollection.Append(SearchTarget).GroupBy((Item) => Item.DisplayType).OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
                                     {
-                                        foreach (IGrouping<string, T> Group in InputCollection.Append(SearchTarget).OrderBy((Item) => Item.Type).GroupBy((Item) => Item.Type))
-                                        {
-                                            SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                            {
-                                                if (PreviousTask.Exception is not null)
-                                                {
-                                                    return Group.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                                }
-
-                                                return PreviousTask.Result;
-                                            }));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        foreach (IGrouping<string, T> Group in InputCollection.Append(SearchTarget).OrderByDescending((Item) => Item.Type).GroupBy((Item) => Item.Type))
-                                        {
-                                            SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                            {
-                                                if (PreviousTask.Exception is not null)
-                                                {
-                                                    return Group.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                                }
-
-                                                return PreviousTask.Result;
-                                            }));
-                                        }
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
                                     }
 
                                     return SortResult.Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
@@ -360,7 +322,14 @@ namespace RX_Explorer.Class
                                 }
                             case SortTarget.OriginPath when InputCollection.Append(SearchTarget).All((Item) => Item is IRecycleStorageItem):
                                 {
-                                    return InputCollection.Append(SearchTarget).Cast<IRecycleStorageItem>().OrderByFastStringSortAlgorithm((Item) => Item.OriginPath, Direction).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+                                    IEnumerable<IRecycleStorageItem> SortResult = Enumerable.Empty<IRecycleStorageItem>();
+
+                                    foreach (IGrouping<string, IRecycleStorageItem> Group in await InputCollection.Append(SearchTarget).Cast<IRecycleStorageItem>().GroupBy((Item) => Path.GetDirectoryName(Item.OriginPath)).OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
+                                    {
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending));
+                                    }
+
+                                    return SortResult.Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
                                 }
                             case SortTarget.RecycleDate when InputCollection.Append(SearchTarget).All((Item) => Item is IRecycleStorageItem):
                                 {
@@ -373,6 +342,28 @@ namespace RX_Explorer.Class
                                         return InputCollection.Append(SearchTarget).Cast<IRecycleStorageItem>().OrderByDescending((Item) => Item.RecycleDate).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
                                     }
                                 }
+                            case SortTarget.CompressedSize when InputCollection.Append(SearchTarget).All((Item) => Item is ICompressionItem):
+                                {
+                                    if (Direction == SortDirection.Ascending)
+                                    {
+                                        return InputCollection.Append(SearchTarget).Cast<ICompressionItem>().OrderBy((Item) => Item.CompressedSize).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+                                    }
+                                    else
+                                    {
+                                        return InputCollection.Append(SearchTarget).Cast<ICompressionItem>().OrderByDescending((Item) => Item.CompressedSize).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+                                    }
+                                }
+                            case SortTarget.CompressionRate when InputCollection.Append(SearchTarget).All((Item) => Item is ICompressionItem):
+                                {
+                                    if (Direction == SortDirection.Ascending)
+                                    {
+                                        return InputCollection.Append(SearchTarget).Cast<ICompressionItem>().OrderBy((Item) => Item.CompressionRate).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+                                    }
+                                    else
+                                    {
+                                        return InputCollection.Append(SearchTarget).Cast<ICompressionItem>().OrderByDescending((Item) => Item.CompressionRate).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+                                    }
+                                }
                         }
 
                         break;
@@ -381,17 +372,13 @@ namespace RX_Explorer.Class
                     {
                         IEnumerable<T> FilteredCollection = null;
 
-                        if (SearchTarget is FileSystemStorageFile)
+                        if (SearchTarget.IsDirectory)
                         {
-                            FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFile);
-                        }
-                        else if (SearchTarget is FileSystemStorageFolder)
-                        {
-                            FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFolder);
+                            FilteredCollection = InputCollection.Where((Item) => Item.IsDirectory);
                         }
                         else
                         {
-                            return -1;
+                            FilteredCollection = InputCollection.Where((Item) => !Item.IsDirectory);
                         }
 
                         switch (Target)
@@ -399,30 +386,22 @@ namespace RX_Explorer.Class
                             case SortTarget.Name:
                                 {
                                     IEnumerable<T> Collection = FilteredCollection.Append(SearchTarget);
-                                    IEnumerable<T> SortedFilteredCollection = await Collection.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                    {
-                                        if (PreviousTask.Exception is not null)
-                                        {
-                                            return Collection.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                        }
-
-                                        return PreviousTask.Result;
-                                    });
+                                    IEnumerable<T> SortedFilteredCollection = await Collection.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction);
 
                                     int Index = SortedFilteredCollection.Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
 
                                     if (Direction == SortDirection.Ascending)
                                     {
-                                        if (SearchTarget is FileSystemStorageFile)
+                                        if (!SearchTarget.IsDirectory)
                                         {
-                                            Index += InputCollection.Count((Item) => Item is FileSystemStorageFolder);
+                                            Index += InputCollection.Count((Item) => Item.IsDirectory);
                                         }
                                     }
                                     else
                                     {
-                                        if (SearchTarget is FileSystemStorageFolder)
+                                        if (SearchTarget.IsDirectory)
                                         {
-                                            Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
+                                            Index += InputCollection.Count((Item) => !Item.IsDirectory);
                                         }
                                     }
 
@@ -430,65 +409,34 @@ namespace RX_Explorer.Class
                                 }
                             case SortTarget.Path:
                                 {
-                                    int Index = FilteredCollection.Append(SearchTarget).OrderByFastStringSortAlgorithm((Item) => Item.Path, Direction).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+                                    IEnumerable<T> SortResult = Enumerable.Empty<T>();
+                                    IEnumerable<T> InputCollectionCopy = InputCollection.Append(SearchTarget);
 
-                                    if (Direction == SortDirection.Ascending)
+                                    foreach (IGrouping<string, T> Group in (await InputCollectionCopy.Where((Item) => Item.IsDirectory)
+                                                                                                     .GroupBy((Item) => Path.GetDirectoryName(Item.Path))
+                                                                                                     .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
+                                                                                                     .Concat(await InputCollectionCopy.Where((Item) => !Item.IsDirectory)
+                                                                                                                                      .GroupBy((Item) => Path.GetDirectoryName(Item.Path))
+                                                                                                                                      .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction)))
                                     {
-                                        if (SearchTarget is FileSystemStorageFile)
-                                        {
-                                            Index += InputCollection.Count((Item) => Item is FileSystemStorageFolder);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (SearchTarget is FileSystemStorageFolder)
-                                        {
-                                            Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
-                                        }
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending));
                                     }
 
-                                    return Index;
+                                    return SortResult.Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
                                 }
                             case SortTarget.Type:
                                 {
                                     IEnumerable<T> SortResult = Enumerable.Empty<T>();
                                     IEnumerable<T> InputCollectionCopy = InputCollection.Append(SearchTarget);
 
-                                    if (Direction == SortDirection.Ascending)
+                                    foreach (IGrouping<string, T> Group in (await InputCollectionCopy.Where((Item) => Item.IsDirectory)
+                                                                                                     .GroupBy((Item) => Item.DisplayType)
+                                                                                                     .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
+                                                                                                     .Concat(await InputCollectionCopy.Where((Item) => !Item.IsDirectory)
+                                                                                                                                      .GroupBy((Item) => Item.DisplayType)
+                                                                                                                                      .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction)))
                                     {
-                                        foreach (IGrouping<string, T> Group in InputCollectionCopy.Where((Item) => Item is FileSystemStorageFolder)
-                                                                                                  .OrderBy((Item) => Item.Type)
-                                                                                                  .Concat(InputCollectionCopy.Where((Item) => Item is FileSystemStorageFile).OrderBy((Item) => Item.Type))
-                                                                                                  .GroupBy((Item) => Item.Type))
-                                        {
-                                            SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                            {
-                                                if (PreviousTask.Exception is not null)
-                                                {
-                                                    return Group.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                                }
-
-                                                return PreviousTask.Result;
-                                            }));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        foreach (IGrouping<string, T> Group in InputCollectionCopy.Where((Item) => Item is FileSystemStorageFolder)
-                                                                                                  .OrderByDescending((Item) => Item.Type)
-                                                                                                  .Concat(InputCollectionCopy.Where((Item) => Item is FileSystemStorageFile).OrderByDescending((Item) => Item.Type))
-                                                                                                  .GroupBy((Item) => Item.Type))
-                                        {
-                                            SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                            {
-                                                if (PreviousTask.Exception is not null)
-                                                {
-                                                    return Group.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                                }
-
-                                                return PreviousTask.Result;
-                                            }));
-                                        }
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction));
                                     }
 
                                     return SortResult.Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
@@ -499,9 +447,9 @@ namespace RX_Explorer.Class
                                     {
                                         int Index = FilteredCollection.Append(SearchTarget).OrderBy((Item) => Item.ModifiedTime).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
 
-                                        if (SearchTarget is FileSystemStorageFile)
+                                        if (!SearchTarget.IsDirectory)
                                         {
-                                            Index += InputCollection.Count((Item) => Item is FileSystemStorageFolder);
+                                            Index += InputCollection.Count((Item) => Item.IsDirectory);
                                         }
 
                                         return Index;
@@ -510,9 +458,9 @@ namespace RX_Explorer.Class
                                     {
                                         int Index = FilteredCollection.Append(SearchTarget).OrderByDescending((Item) => Item.ModifiedTime).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
 
-                                        if (SearchTarget is FileSystemStorageFolder)
+                                        if (SearchTarget.IsDirectory)
                                         {
-                                            Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
+                                            Index += InputCollection.Count((Item) => !Item.IsDirectory);
                                         }
 
                                         return Index;
@@ -520,24 +468,16 @@ namespace RX_Explorer.Class
                                 }
                             case SortTarget.Size:
                                 {
-                                    if (SearchTarget is FileSystemStorageFolder)
+                                    if (SearchTarget.IsDirectory)
                                     {
                                         IEnumerable<T> Collection = FilteredCollection.Append(SearchTarget);
-                                        IEnumerable<T> SortedFilteredCollection = await Collection.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending).ContinueWith((PreviousTask) =>
-                                        {
-                                            if (PreviousTask.Exception is not null)
-                                            {
-                                                return Collection.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                            }
-
-                                            return PreviousTask.Result;
-                                        });
+                                        IEnumerable<T> SortedFilteredCollection = await Collection.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending);
 
                                         int Index = SortedFilteredCollection.Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
 
                                         if (Direction == SortDirection.Descending)
                                         {
-                                            Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
+                                            Index += InputCollection.Count((Item) => !Item.IsDirectory);
                                         }
 
                                         return Index;
@@ -546,7 +486,7 @@ namespace RX_Explorer.Class
                                     {
                                         if (Direction == SortDirection.Ascending)
                                         {
-                                            return FilteredCollection.Append(SearchTarget).OrderBy((Item) => Item.Size).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder);
+                                            return FilteredCollection.Append(SearchTarget).OrderBy((Item) => Item.Size).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index + InputCollection.Count((Item) => Item.IsDirectory);
                                         }
                                         else
                                         {
@@ -556,24 +496,22 @@ namespace RX_Explorer.Class
                                 }
                             case SortTarget.OriginPath when InputCollection.Append(SearchTarget).All((Item) => Item is IRecycleStorageItem):
                                 {
-                                    int Index = FilteredCollection.Cast<IRecycleStorageItem>().Append((IRecycleStorageItem)SearchTarget).OrderByFastStringSortAlgorithm((Item) => Item.OriginPath, Direction).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+                                    IEnumerable<IRecycleStorageItem> SortResult = Enumerable.Empty<IRecycleStorageItem>();
+                                    IEnumerable<T> InputCollectionCopy = InputCollection.Append(SearchTarget);
 
-                                    if (Direction == SortDirection.Ascending)
+                                    foreach (IGrouping<string, IRecycleStorageItem> Group in (await InputCollectionCopy.Where((Item) => Item.IsDirectory)
+                                                                                                                       .Cast<IRecycleStorageItem>()
+                                                                                                                       .GroupBy((Item) => Path.GetDirectoryName(Item.OriginPath))
+                                                                                                                       .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction))
+                                                                                                                       .Concat(await InputCollectionCopy.Where((Item) => !Item.IsDirectory)
+                                                                                                                                                        .Cast<IRecycleStorageItem>()
+                                                                                                                                                        .GroupBy((Item) => Path.GetDirectoryName(Item.OriginPath))
+                                                                                                                                                        .OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Key, Direction)))
                                     {
-                                        if (SearchTarget is FileSystemStorageFile)
-                                        {
-                                            Index += InputCollection.Count((Item) => Item is FileSystemStorageFolder);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (SearchTarget is FileSystemStorageFolder)
-                                        {
-                                            Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
-                                        }
+                                        SortResult = SortResult.Concat(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending));
                                     }
 
-                                    return Index;
+                                    return SortResult.Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
                                 }
                             case SortTarget.RecycleDate when InputCollection.Append(SearchTarget).All((Item) => Item is IRecycleStorageItem):
                                 {
@@ -581,9 +519,9 @@ namespace RX_Explorer.Class
                                     {
                                         int Index = FilteredCollection.Cast<IRecycleStorageItem>().Append((IRecycleStorageItem)SearchTarget).OrderBy((Item) => Item.RecycleDate).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
 
-                                        if (SearchTarget is FileSystemStorageFile)
+                                        if (!SearchTarget.IsDirectory)
                                         {
-                                            Index += InputCollection.Count((Item) => Item is FileSystemStorageFolder);
+                                            Index += InputCollection.Count((Item) => Item.IsDirectory);
                                         }
 
                                         return Index;
@@ -592,12 +530,68 @@ namespace RX_Explorer.Class
                                     {
                                         int Index = FilteredCollection.Cast<IRecycleStorageItem>().Append((IRecycleStorageItem)SearchTarget).OrderByDescending((Item) => Item.RecycleDate).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
 
-                                        if (SearchTarget is FileSystemStorageFolder)
+                                        if (SearchTarget.IsDirectory)
                                         {
-                                            Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
+                                            Index += InputCollection.Count((Item) => !Item.IsDirectory);
                                         }
 
                                         return Index;
+                                    }
+                                }
+                            case SortTarget.CompressedSize when InputCollection.Append(SearchTarget).All((Item) => Item is ICompressionItem):
+                                {
+                                    if (SearchTarget.IsDirectory)
+                                    {
+                                        IEnumerable<T> Collection = FilteredCollection.Append(SearchTarget);
+                                        IEnumerable<T> SortedFilteredCollection = await Collection.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending);
+
+                                        int Index = SortedFilteredCollection.Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+
+                                        if (Direction == SortDirection.Descending)
+                                        {
+                                            Index += InputCollection.Count((Item) => !Item.IsDirectory);
+                                        }
+
+                                        return Index;
+                                    }
+                                    else
+                                    {
+                                        if (Direction == SortDirection.Ascending)
+                                        {
+                                            return FilteredCollection.Append(SearchTarget).Cast<ICompressionItem>().OrderBy((Item) => Item.CompressedSize).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index + InputCollection.Count((Item) => Item.IsDirectory);
+                                        }
+                                        else
+                                        {
+                                            return FilteredCollection.Append(SearchTarget).Cast<ICompressionItem>().OrderByDescending((Item) => Item.CompressedSize).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+                                        }
+                                    }
+                                }
+                            case SortTarget.CompressionRate when InputCollection.Append(SearchTarget).All((Item) => Item is ICompressionItem):
+                                {
+                                    if (SearchTarget.IsDirectory)
+                                    {
+                                        IEnumerable<T> Collection = FilteredCollection.Append(SearchTarget);
+                                        IEnumerable<T> SortedFilteredCollection = await Collection.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending);
+
+                                        int Index = SortedFilteredCollection.Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+
+                                        if (Direction == SortDirection.Descending)
+                                        {
+                                            Index += InputCollection.Count((Item) => !Item.IsDirectory);
+                                        }
+
+                                        return Index;
+                                    }
+                                    else
+                                    {
+                                        if (Direction == SortDirection.Ascending)
+                                        {
+                                            return FilteredCollection.Append(SearchTarget).Cast<ICompressionItem>().OrderBy((Item) => Item.CompressionRate).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index + InputCollection.Count((Item) => Item.IsDirectory);
+                                        }
+                                        else
+                                        {
+                                            return FilteredCollection.Append(SearchTarget).Cast<ICompressionItem>().OrderByDescending((Item) => Item.CompressionRate).Select((Item, Index) => (Index, Item)).First((Value) => Value.Item.Equals(SearchTarget)).Index;
+                                        }
                                     }
                                 }
                         }

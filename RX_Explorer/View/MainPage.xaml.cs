@@ -642,7 +642,7 @@ namespace RX_Explorer.View
                     });
                 }
 
-                ApplicationData.Current.DataChanged += Current_DataChanged;
+                ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
 
                 if (SQLite.Current.GetAllTerminalProfile().All((Profile) => !Path.GetFileName(Profile.Path).StartsWith("wt.exe", StringComparison.OrdinalIgnoreCase)))
                 {
@@ -1299,24 +1299,35 @@ namespace RX_Explorer.View
 
         private async void Watcher_Updated(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            try
             {
-                if (BluetoothAudioDeivceList.Items.OfType<BluetoothAudioDeviceData>().FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothAudioDeviceData Device)
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    Device.Update(args);
-                }
-            });
+                    if (BluetoothAudioDeivceList.Items.OfType<BluetoothAudioDeviceData>().FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothAudioDeviceData Device)
+                    {
+                        Device.Update(args);
+                    }
+                });
+            }
+            catch (Exception)
+            {
+                //No need to handle this exception
+            }
         }
 
         private async void Watcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
-                using (BluetoothAudioDeviceData Device = BluetoothAudioDeivceList.Items.OfType<BluetoothAudioDeviceData>().FirstOrDefault((Device) => Device.Id == args.Id))
+                if (BluetoothAudioDeivceList.Items.OfType<BluetoothAudioDeviceData>().FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothAudioDeviceData Device)
                 {
-                    if (Device != null)
+                    try
                     {
                         BluetoothAudioDeivceList.Items.Remove(Device);
+                    }
+                    finally
+                    {
+                        Device.Dispose();
                     }
                 }
             });
@@ -1336,7 +1347,7 @@ namespace RX_Explorer.View
                         }
                         else
                         {
-                            BluetoothAudioDeivceList.Items.Add(new BluetoothAudioDeviceData(args, await Helper.CreateBitmapImageAsync(ThumbnailStream)));
+                            BluetoothAudioDeivceList.Items.Add(new BluetoothAudioDeviceData(await Helper.CreateBitmapImageAsync(ThumbnailStream), args));
                         }
                     }
                 }

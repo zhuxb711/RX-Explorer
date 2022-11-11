@@ -8,9 +8,8 @@ namespace RX_Explorer.Class
 {
     public sealed class SequentialVirtualRandomAccessStream : Stream
     {
-        private bool IsDisposed;
-        private readonly Stream SequentialStream;
         private readonly Stream TempStream;
+        private readonly Stream SequentialStream;
 
         public override bool CanRead => true;
 
@@ -101,17 +100,20 @@ namespace RX_Explorer.Class
 
         protected override void Dispose(bool disposing)
         {
-            if (!IsDisposed)
+            if (Execution.CheckAlreadyExecuted(this))
             {
-                IsDisposed = true;
+                throw new ObjectDisposedException(nameof(SequentialVirtualRandomAccessStream));
+            }
 
-                GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
 
+            Execution.ExecuteOnce(this, () =>
+            {
                 TempStream.Dispose();
                 SequentialStream.Dispose();
+            });
 
-                base.Dispose(disposing);
-            }
+            base.Dispose(disposing);
         }
 
         private void MakeSurePositionReachable(long Position)

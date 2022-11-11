@@ -1,7 +1,6 @@
-﻿using RX_Explorer.View;
+﻿using PropertyChanged;
+using RX_Explorer.View;
 using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -9,20 +8,19 @@ using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
 {
-    public sealed class ViewHeightOffsetSaver : INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class ViewHeightOffsetWapper
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private static ViewHeightOffsetSaver Instance;
+        private static ViewHeightOffsetWapper Instance;
         private static readonly object Locker = new object();
 
-        public static ViewHeightOffsetSaver Current
+        public static ViewHeightOffsetWapper Current
         {
             get
             {
                 lock (Locker)
                 {
-                    return Instance ??= new ViewHeightOffsetSaver();
+                    return Instance ??= new ViewHeightOffsetWapper();
                 }
             }
         }
@@ -44,16 +42,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        private ViewHeightOffsetSaver()
+        private ViewHeightOffsetWapper()
         {
-            ApplicationData.Current.DataChanged += Current_DataChanged;
+            ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
             try
             {
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
                     OnPropertyChanged(nameof(LineHeightOffset));
                 });
@@ -62,11 +60,6 @@ namespace RX_Explorer.Class
             {
                 //No need to handle this exception
             }
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Toolkit.Deferred;
-using SharedLibrary;
 using System;
 using System.IO;
 using System.Text;
@@ -126,12 +125,20 @@ namespace RX_Explorer.Class
 
         public override void Dispose()
         {
-            if (!IsDisposed)
+            if (Execution.CheckAlreadyExecuted(this))
             {
-                base.Dispose();
+                throw new ObjectDisposedException(nameof(NamedPipeReadController));
+            }
+
+            GC.SuppressFinalize(this);
+
+            Execution.ExecuteOnce(this, () =>
+            {
                 Cancellation.Dispose();
                 Cancellation = null;
-            }
+            });
+
+            base.Dispose();
         }
 
         ~NamedPipeReadController()

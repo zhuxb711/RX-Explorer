@@ -2336,11 +2336,16 @@ namespace RX_Explorer.Class
 
         public void Dispose()
         {
-            if (!IsDisposed)
+            if (Execution.CheckAlreadyExecuted(this))
+            {
+                throw new ObjectDisposedException(nameof(AuxiliaryTrustProcessController));
+            }
+
+            GC.SuppressFinalize(this);
+
+            Execution.ExecuteOnce(this, () =>
             {
                 IsDisposed = true;
-
-                GC.SuppressFinalize(this);
 
                 try
                 {
@@ -2372,7 +2377,7 @@ namespace RX_Explorer.Class
                 {
                     AllControllerCollection.Remove(this);
                 }
-            }
+            });
         }
 
         ~AuxiliaryTrustProcessController()
@@ -2455,8 +2460,17 @@ namespace RX_Explorer.Class
 
             public void Dispose()
             {
-                Exclusive?.Dispose();
+                if (Execution.CheckAlreadyExecuted(this))
+                {
+                    throw new ObjectDisposedException(nameof(LazyExclusive));
+                }
+
                 GC.SuppressFinalize(this);
+
+                Execution.ExecuteOnce(this, () =>
+                {
+                    Exclusive?.Dispose();
+                });
             }
 
             ~LazyExclusive()
@@ -2471,8 +2485,6 @@ namespace RX_Explorer.Class
 
             private readonly ExtendedExecutionController ExtExecution;
 
-            private bool IsDisposed;
-
             public static async Task<Exclusive> CreateAsync(AuxiliaryTrustProcessController Controller)
             {
                 return new Exclusive(Controller, await ExtendedExecutionController.CreateExtendedExecutionAsync());
@@ -2486,15 +2498,18 @@ namespace RX_Explorer.Class
 
             public void Dispose()
             {
-                if (!IsDisposed)
+                if (Execution.CheckAlreadyExecuted(this))
                 {
-                    IsDisposed = true;
+                    throw new ObjectDisposedException(nameof(Exclusive));
+                }
 
-                    GC.SuppressFinalize(this);
+                GC.SuppressFinalize(this);
 
+                Execution.ExecuteOnce(this, () =>
+                {
                     ExtExecution?.Dispose();
                     AvailableControllerCollection.Add(Controller);
-                }
+                });
             }
 
             ~Exclusive()

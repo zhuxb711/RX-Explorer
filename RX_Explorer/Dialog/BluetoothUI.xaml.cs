@@ -74,7 +74,7 @@ namespace RX_Explorer.Dialog
             {
                 if (BluetoothDeviceCollection.FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothDeivceData Device)
                 {
-                    Device.UpdateBasicInformation(args);
+                    Device.Update(args);
                 }
             });
         }

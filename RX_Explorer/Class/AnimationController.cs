@@ -1,6 +1,6 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using PropertyChanged;
+using System;
+using Walterlv.WeakEvents;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -9,8 +9,14 @@ using Windows.UI.Xaml.Media.Animation;
 
 namespace RX_Explorer.Class
 {
-    public sealed class AnimationController : INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class AnimationController
     {
+        private readonly WeakEvent<bool> WeakAnimationStateChanged = new WeakEvent<bool>();
+        private static AnimationController Instance;
+        private static readonly object Locker = new object();
+
+        [DependsOn(nameof(IsEnableAnimation))]
         public TransitionCollection DeviceAndLibraryTransitions
         {
             get
@@ -33,6 +39,7 @@ namespace RX_Explorer.Class
             }
         }
 
+        [DependsOn(nameof(IsEnableAnimation))]
         public TransitionCollection QuickStartTransitions
         {
             get
@@ -55,6 +62,7 @@ namespace RX_Explorer.Class
             }
         }
 
+        [DependsOn(nameof(IsEnableAnimation))]
         public TransitionCollection AddDeleteTransitions
         {
             get
@@ -73,6 +81,7 @@ namespace RX_Explorer.Class
             }
         }
 
+        [DependsOn(nameof(IsEnableAnimation))]
         public TransitionCollection ContentTransitions
         {
             get
@@ -91,7 +100,7 @@ namespace RX_Explorer.Class
             }
         }
 
-
+        [DependsOn(nameof(IsEnableAnimation))]
         public TransitionCollection RepositionTransitions
         {
             get
@@ -110,6 +119,7 @@ namespace RX_Explorer.Class
             }
         }
 
+        [DependsOn(nameof(IsEnableAnimation))]
         public TransitionCollection PaneTopTransitions
         {
             get
@@ -131,91 +141,51 @@ namespace RX_Explorer.Class
             }
         }
 
-        public event EventHandler<bool> AnimationStateChanged;
-
         public bool IsEnableAnimation
         {
             get
             {
-                return isEnableAnimation;
+                if (ApplicationData.Current.LocalSettings.Values["EnableAnimation"] is bool Enabled)
+                {
+                    return Enabled;
+                }
+
+                return true;
             }
             set
             {
-                if (value != isEnableAnimation)
-                {
-                    isEnableAnimation = value;
-
-                    OnPropertyChanged(nameof(IsEnableAnimation));
-                    OnPropertyChanged(nameof(DeviceAndLibraryTransitions));
-                    OnPropertyChanged(nameof(QuickStartTransitions));
-                    OnPropertyChanged(nameof(AddDeleteTransitions));
-                    OnPropertyChanged(nameof(PaneTopTransitions));
-                    OnPropertyChanged(nameof(RepositionTransitions));
-                    OnPropertyChanged(nameof(ContentTransitions));
-
-                    ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = value;
-                    ApplicationData.Current.SignalDataChanged();
-
-                    AnimationStateChanged?.Invoke(this, value);
-                }
+                ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = value;
+                ApplicationData.Current.SignalDataChanged();
+                WeakAnimationStateChanged.Invoke(this, value);
             }
         }
 
+        [DependsOn(nameof(IsEnableAnimation))]
         public bool IsDisableStartupAnimation
         {
-            get
-            {
-                return isDisableStartupAnimation || !isEnableAnimation;
-            }
+            get => IsEnableAnimation && Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"]);
             set
             {
-                if (value != isDisableStartupAnimation)
-                {
-                    isDisableStartupAnimation = value;
-
-                    OnPropertyChanged();
-
-                    ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] = value;
-                    ApplicationData.Current.SignalDataChanged();
-                }
+                ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] = value;
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 
+        [DependsOn(nameof(IsEnableAnimation))]
         public bool IsDisableSelectionAnimation
         {
-            get
-            {
-                return isDisableSelectionAnimation || !isEnableAnimation;
-            }
+            get => IsEnableAnimation && Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"]);
             set
             {
-                if (value != isDisableSelectionAnimation)
-                {
-                    isDisableSelectionAnimation = value;
-
-                    OnPropertyChanged();
-
-                    ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"] = value;
-                    ApplicationData.Current.SignalDataChanged();
-                }
+                ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"] = value;
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 
-        private bool isEnableAnimation;
-
-        private bool isDisableStartupAnimation;
-
-        private bool isDisableSelectionAnimation;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private static AnimationController Instance;
-
-        private static readonly object Locker = new object();
-
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        public event EventHandler<bool> AnimationStateChanged
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+            add => WeakAnimationStateChanged.Add(value, value.Invoke);
+            remove => WeakAnimationStateChanged.Remove(value);
         }
 
         public static AnimationController Current
@@ -231,48 +201,18 @@ namespace RX_Explorer.Class
 
         private AnimationController()
         {
-            ApplicationData.Current.DataChanged += Current_DataChanged;
-
-            if (ApplicationData.Current.LocalSettings.Values["EnableAnimation"] is bool Enable)
-            {
-                isEnableAnimation = Enable;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = true;
-                isEnableAnimation = true;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] is bool DisableStartupAnimation)
-            {
-                isDisableStartupAnimation = DisableStartupAnimation;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] = false;
-                isDisableStartupAnimation = false;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"] is bool DisableSelectionAnimation)
-            {
-                isDisableSelectionAnimation = DisableSelectionAnimation;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"] = false;
-                isDisableSelectionAnimation = false;
-            }
+            ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
             try
             {
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    IsEnableAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["EnableAnimation"]);
-                    IsDisableStartupAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"]);
-                    IsDisableSelectionAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"]);
+                    OnPropertyChanged(nameof(IsEnableAnimation));
+                    OnPropertyChanged(nameof(IsDisableStartupAnimation));
+                    OnPropertyChanged(nameof(IsDisableSelectionAnimation));
                 });
             }
             catch (Exception)

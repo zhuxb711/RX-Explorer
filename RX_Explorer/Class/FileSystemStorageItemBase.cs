@@ -1,5 +1,6 @@
 ﻿using FluentFTP;
 using Microsoft.Win32.SafeHandles;
+using PropertyChanged;
 using RX_Explorer.Interface;
 using RX_Explorer.View;
 using SharedLibrary;
@@ -21,20 +22,18 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    /// <summary>
-    /// 提供对设备中的存储对象的描述
-    /// </summary>
-    public abstract class FileSystemStorageItemBase : IStorageItemBaseProperties, IStorageItemOperation, IEquatable<FileSystemStorageItemBase>
+    [AddINotifyPropertyChangedInterface]
+    public abstract partial class FileSystemStorageItemBase : IStorageItemBaseProperties, IStorageItemOperation, IEquatable<FileSystemStorageItemBase>
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        private int IsContentLoaded;
         private ThumbnailStatus thumbnailStatus;
         private RefSharedRegion<AuxiliaryTrustProcessController.Exclusive> ControllerSharedRef;
 
         public string Path { get; protected set; }
 
+        [DependsOn(nameof(Path))]
         public virtual string Name => System.IO.Path.GetFileName(Path) ?? string.Empty;
 
+        [DependsOn(nameof(Path))]
         public virtual string Type => System.IO.Path.GetExtension(Path)?.ToUpper() ?? string.Empty;
 
         public abstract string DisplayName { get; }
@@ -53,13 +52,15 @@ namespace RX_Explorer.Class
 
         public virtual BitmapImage ThumbnailOverlay { get; protected set; }
 
+        public abstract bool IsDirectory { get; }
+
         public virtual bool IsReadOnly { get; protected set; }
 
         public virtual bool IsSystemItem { get; protected set; }
 
         public virtual bool IsHiddenItem { get; protected set; }
 
-        public virtual SyncStatus SyncStatus { get; protected set; }
+        public SyncStatus SyncStatus { get; protected set; }
 
         protected IStorageItem StorageItem { get; private set; }
 
@@ -67,6 +68,7 @@ namespace RX_Explorer.Class
 
         protected virtual bool ShouldGenerateThumbnail => (this is FileSystemStorageFile && SettingPage.ContentLoadMode == LoadMode.OnlyFile) || SettingPage.ContentLoadMode == LoadMode.All;
 
+        [DependsOn(nameof(Path))]
         public LabelKind Label
         {
             get => SQLite.Current.GetLabelKindFromPath(Path);
@@ -80,11 +82,10 @@ namespace RX_Explorer.Class
                 {
                     SQLite.Current.SetLabelKindByPath(Path, value);
                 }
-
-                OnPropertyChanged();
             }
         }
 
+        [DependsOn(nameof(IsHiddenItem))]
         public ThumbnailStatus ThumbnailStatus
         {
             get
@@ -98,10 +99,9 @@ namespace RX_Explorer.Class
             }
             set
             {
-                if (!IsHiddenItem && thumbnailStatus != value)
+                if (!IsHiddenItem)
                 {
                     thumbnailStatus = value;
-                    OnPropertyChanged();
                 }
             }
         }
@@ -873,17 +873,13 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log(ex, $"An exception was threw in {nameof(SetThumbnailModeAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
                     }
-                    finally
-                    {
-                        OnPropertyChanged(nameof(Thumbnail));
-                    }
                 }
             }
         }
 
-        public async Task LoadAsync(CancellationToken CancelToken = default)
+        public Task LoadAsync(CancellationToken CancelToken = default)
         {
-            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
+            return Execution.ExecuteOnceAsync(this, async () =>
             {
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                 {
@@ -919,24 +915,14 @@ namespace RX_Explorer.Class
                     {
                         OnPropertyChanged(nameof(Name));
                         OnPropertyChanged(nameof(DisplayName));
-                        OnPropertyChanged(nameof(ModifiedTime));
-                        OnPropertyChanged(nameof(LastAccessTime));
-                        OnPropertyChanged(nameof(ThumbnailOverlay));
-                        OnPropertyChanged(nameof(SyncStatus));
-
-                        if (ShouldGenerateThumbnail)
-                        {
-                            OnPropertyChanged(nameof(Thumbnail));
-                        }
 
                         if (this is FileSystemStorageFile)
                         {
-                            OnPropertyChanged(nameof(Size));
                             OnPropertyChanged(nameof(DisplayType));
                         }
                     }
                 });
-            }
+            });
         }
 
         public async Task RefreshAsync()
@@ -960,22 +946,6 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Could not refresh the {GetType().FullName}, path: {Path}");
-            }
-            finally
-            {
-                if (this is FileSystemStorageFile)
-                {
-                    OnPropertyChanged(nameof(Size));
-                }
-
-                if (ShouldGenerateThumbnail)
-                {
-                    OnPropertyChanged(nameof(Thumbnail));
-                }
-
-                OnPropertyChanged(nameof(ThumbnailStatus));
-                OnPropertyChanged(nameof(ModifiedTime));
-                OnPropertyChanged(nameof(LastAccessTime));
             }
         }
 
@@ -1228,11 +1198,6 @@ namespace RX_Explorer.Class
             this.Path = Path;
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-        }
-
         protected void SetBulkAccessSharedController(RefSharedRegion<AuxiliaryTrustProcessController.Exclusive> SharedRef)
         {
             if (Interlocked.Exchange(ref ControllerSharedRef, SharedRef) is RefSharedRegion<AuxiliaryTrustProcessController.Exclusive> PreviousRef)
@@ -1418,7 +1383,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
+                    return left.Equals(right);
                 }
             }
         }
@@ -1437,7 +1402,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return !left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
+                    return !left.Equals(right);
                 }
             }
         }

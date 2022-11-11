@@ -43,6 +43,25 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> Source, Action<T> Action)
+        {
+            if (Source == null)
+            {
+                throw new ArgumentNullException(nameof(Source));
+            }
+            if (Action == null)
+            {
+                throw new ArgumentNullException(nameof(Action));
+            }
+
+            foreach (T Item in Source.ToArray())
+            {
+                Action(Item);
+            }
+
+            return Source;
+        }
+
         public static IReadOnlyList<T> DuplicateAndClear<T>(this ICollection<T> Source)
         {
             try
@@ -323,7 +342,7 @@ namespace RX_Explorer.Class
 
         public static void AddRange<T>(this ICollection<T> Collection, IEnumerable<T> InputCollection)
         {
-            foreach (T Item in InputCollection)
+            foreach (T Item in InputCollection.ToArray())
             {
                 Collection.Add(Item);
             }
@@ -331,7 +350,7 @@ namespace RX_Explorer.Class
 
         public static void RemoveRange<T>(this ICollection<T> Collection, IEnumerable<T> InputCollection)
         {
-            foreach (T Item in InputCollection)
+            foreach (T Item in InputCollection.ToArray())
             {
                 Collection.Remove(Item);
             }
@@ -968,11 +987,20 @@ namespace RX_Explorer.Class
 
         public static async Task<IEnumerable<T>> OrderByNaturalStringSortAlgorithmAsync<T>(this IEnumerable<T> Input, Func<T, string> StringSelector, SortDirection Direction)
         {
-            if (Input.Any())
+            IReadOnlyList<T> InputGenerated = Input.ToArray();
+
+            if (InputGenerated.Count > 1)
             {
-                using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                try
                 {
-                    return await Exclusive.Controller.OrderByNaturalStringSortAlgorithmAsync(Input, StringSelector, Direction);
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
+                    {
+                        return await Exclusive.Controller.OrderByNaturalStringSortAlgorithmAsync(InputGenerated, StringSelector, Direction);
+                    }
+                }
+                catch (Exception)
+                {
+                    return InputGenerated.OrderByFastStringSortAlgorithm(StringSelector, Direction);
                 }
             }
 
@@ -981,15 +1009,17 @@ namespace RX_Explorer.Class
 
         public static IEnumerable<T> OrderByFastStringSortAlgorithm<T>(this IEnumerable<T> Input, Func<T, string> StringSelector, SortDirection Direction)
         {
-            if (Input.Any())
+            IReadOnlyList<T> InputGenerated = Input.ToArray();
+
+            if (InputGenerated.Count > 1)
             {
                 if (Direction == SortDirection.Ascending)
                 {
-                    return Input.OrderBy((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
+                    return InputGenerated.OrderBy((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
                 }
                 else
                 {
-                    return Input.OrderByDescending((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
+                    return InputGenerated.OrderByDescending((Item) => StringSelector(Item) ?? string.Empty, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort)));
                 }
             }
 

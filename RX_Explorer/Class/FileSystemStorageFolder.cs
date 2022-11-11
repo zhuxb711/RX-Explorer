@@ -30,6 +30,8 @@ namespace RX_Explorer.Class
 
         public override bool IsReadOnly => false;
 
+        public override bool IsDirectory => true;
+
         public override ulong Size => 0;
 
         public override BitmapImage Thumbnail => base.Thumbnail ??= new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)

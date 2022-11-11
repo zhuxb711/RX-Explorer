@@ -1,10 +1,8 @@
-﻿using RX_Explorer.View;
+﻿using PropertyChanged;
+using RX_Explorer.View;
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Portable;
 using Windows.Storage;
@@ -13,9 +11,10 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public sealed class TreeViewNodeContent : INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class TreeViewNodeContent
     {
-        public static TreeViewNodeContent QuickAccessNode { get; }
+        private readonly FileSystemStorageFolder InnerFolder;
 
         public string Path { get; }
 
@@ -23,31 +22,9 @@ namespace RX_Explorer.Class
 
         public string DisplayName { get; private set; }
 
-        public BitmapImage Thumbnail
-        {
-            get
-            {
-                if (Path == "QuickAccessPath")
-                {
-                    return new BitmapImage(new Uri("ms-appx:///Assets/Favourite.png"));
-                }
-                else
-                {
-                    return thumbnail;
-                }
-            }
-            private set
-            {
-                thumbnail = value;
-            }
-        }
+        public BitmapImage Thumbnail { get; private set; }
 
-        private int IsContentLoaded;
-        private BitmapImage thumbnail;
-        private readonly FileSystemStorageFolder InnerFolder;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
+        public static TreeViewNodeContent QuickAccessNode { get; }
 
         public async static Task<TreeViewNodeContent> CreateAsync(string Path)
         {
@@ -71,11 +48,15 @@ namespace RX_Explorer.Class
 
         public async Task LoadAsync(bool ForceUpdate = false)
         {
-            if (ForceUpdate || Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
+            async Task LoadCoreAsync()
             {
-                try
+                if (this == QuickAccessNode)
                 {
-                    if (InnerFolder != null)
+                    Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/Favourite.png"));
+                }
+                else if (InnerFolder != null)
+                {
+                    try
                     {
                         if ((System.IO.Path.GetPathRoot(InnerFolder.Path)?.Equals(InnerFolder.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
                         {
@@ -119,22 +100,21 @@ namespace RX_Explorer.Class
                             DisplayName = InnerFolder.DisplayName;
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"Could not load the TreeViewNodeContent on path: {Path}");
-                }
-                finally
-                {
-                    OnPropertyChanged(nameof(Thumbnail));
-                    OnPropertyChanged(nameof(DisplayName));
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Could not load the TreeViewNodeContent on path: {Path}");
+                    }
                 }
             }
-        }
 
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+            if (ForceUpdate)
+            {
+                await LoadCoreAsync();
+            }
+            else
+            {
+                await Execution.ExecuteOnceAsync(this, LoadCoreAsync);
+            }
         }
 
         private TreeViewNodeContent(FileSystemStorageFolder InnerFolder) : this(InnerFolder.Path, InnerFolder.DisplayName)

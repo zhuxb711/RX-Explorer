@@ -20,6 +20,8 @@ namespace RX_Explorer.Class
 
         public override string DisplayType => string.IsNullOrEmpty(InnerDisplayType) ? Type : InnerDisplayType;
 
+        public override bool IsDirectory => false;
+
         protected override async Task LoadCoreAsync()
         {
             using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())

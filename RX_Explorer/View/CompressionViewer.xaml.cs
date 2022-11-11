@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Toolkit.Uwp.UI.Controls;
+using PropertyChanged;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using SharedLibrary;
@@ -29,38 +30,25 @@ using Windows.UI.Xaml.Navigation;
 
 namespace RX_Explorer.View
 {
-    public sealed partial class CompressionViewer : Page, INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class CompressionViewer : Page
     {
         private readonly ObservableCollection<CompressionItemBase> EntryList = new ObservableCollection<CompressionItemBase>();
         private readonly ObservableCollection<string> AutoSuggestList = new ObservableCollection<string>();
         private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Compression);
+        private readonly SortIndicatorController ListViewHeaderSortIndicator = new SortIndicatorController();
 
         private ListViewBaseSelectionExtension SelectionExtension;
         private readonly PointerEventHandler PointerPressedEventHandler;
 
+        private string currentPath;
         private ZipFile ZipObj;
         private FileSystemStorageFile ZipFile;
         private CancellationTokenSource DelayDragCancellation;
         private CancellationTokenSource TaskCancellation;
         private CancellationTokenSource InitCancellation;
+        public bool IsReadonlyMode { get; private set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private bool isReadonlyMode;
-        public bool IsReadonlyMode
-        {
-            get
-            {
-                return isReadonlyMode;
-            }
-            private set
-            {
-                isReadonlyMode = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsReadonlyMode)));
-            }
-        }
-
-        private string currentPath;
         private string CurrentPath
         {
             get
@@ -81,131 +69,6 @@ namespace RX_Explorer.View
                 }
 
                 AddressBox.Text = currentPath;
-            }
-        }
-
-        private CompressionSortTarget currentSortTarget;
-        private CompressionSortTarget CurrentSortTarget
-        {
-            get
-            {
-                return currentSortTarget;
-            }
-            set
-            {
-                switch (value)
-                {
-                    case CompressionSortTarget.Name:
-                        {
-                            NameSortIndicator.Visibility = Visibility.Visible;
-                            ModifiedTimeSortIndicator.Visibility = Visibility.Collapsed;
-                            TypeSortIndicator.Visibility = Visibility.Collapsed;
-                            SizeSortIndicator.Visibility = Visibility.Collapsed;
-                            CompressedSizeSortIndicator.Visibility = Visibility.Collapsed;
-                            CompressionRateSortIndicator.Visibility = Visibility.Collapsed;
-                            break;
-                        }
-                    case CompressionSortTarget.Type:
-                        {
-                            NameSortIndicator.Visibility = Visibility.Collapsed;
-                            ModifiedTimeSortIndicator.Visibility = Visibility.Collapsed;
-                            TypeSortIndicator.Visibility = Visibility.Visible;
-                            SizeSortIndicator.Visibility = Visibility.Collapsed;
-                            CompressedSizeSortIndicator.Visibility = Visibility.Collapsed;
-                            CompressionRateSortIndicator.Visibility = Visibility.Collapsed;
-                            break;
-                        }
-                    case CompressionSortTarget.ModifiedTime:
-                        {
-                            NameSortIndicator.Visibility = Visibility.Collapsed;
-                            ModifiedTimeSortIndicator.Visibility = Visibility.Visible;
-                            TypeSortIndicator.Visibility = Visibility.Collapsed;
-                            SizeSortIndicator.Visibility = Visibility.Collapsed;
-                            CompressedSizeSortIndicator.Visibility = Visibility.Collapsed;
-                            CompressionRateSortIndicator.Visibility = Visibility.Collapsed;
-                            break;
-                        }
-                    case CompressionSortTarget.Size:
-                        {
-                            NameSortIndicator.Visibility = Visibility.Collapsed;
-                            ModifiedTimeSortIndicator.Visibility = Visibility.Collapsed;
-                            TypeSortIndicator.Visibility = Visibility.Collapsed;
-                            SizeSortIndicator.Visibility = Visibility.Visible;
-                            CompressedSizeSortIndicator.Visibility = Visibility.Collapsed;
-                            CompressionRateSortIndicator.Visibility = Visibility.Collapsed;
-                            break;
-                        }
-                    case CompressionSortTarget.CompressedSize:
-                        {
-                            NameSortIndicator.Visibility = Visibility.Collapsed;
-                            ModifiedTimeSortIndicator.Visibility = Visibility.Collapsed;
-                            TypeSortIndicator.Visibility = Visibility.Collapsed;
-                            SizeSortIndicator.Visibility = Visibility.Collapsed;
-                            CompressedSizeSortIndicator.Visibility = Visibility.Visible;
-                            CompressionRateSortIndicator.Visibility = Visibility.Collapsed;
-                            break;
-                        }
-                    case CompressionSortTarget.CompressionRate:
-                        {
-                            NameSortIndicator.Visibility = Visibility.Collapsed;
-                            ModifiedTimeSortIndicator.Visibility = Visibility.Collapsed;
-                            TypeSortIndicator.Visibility = Visibility.Collapsed;
-                            SizeSortIndicator.Visibility = Visibility.Collapsed;
-                            CompressedSizeSortIndicator.Visibility = Visibility.Collapsed;
-                            CompressionRateSortIndicator.Visibility = Visibility.Visible;
-                            break;
-                        }
-                }
-
-                currentSortTarget = value;
-            }
-        }
-
-        private SortDirection sortDirection;
-
-        private SortDirection CurrentSortDirection
-        {
-            get
-            {
-                return sortDirection;
-            }
-            set
-            {
-                switch (CurrentSortTarget)
-                {
-                    case CompressionSortTarget.Name:
-                        {
-                            NameSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
-                            break;
-                        }
-                    case CompressionSortTarget.Type:
-                        {
-                            TypeSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
-                            break;
-                        }
-                    case CompressionSortTarget.ModifiedTime:
-                        {
-                            ModifiedTimeSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
-                            break;
-                        }
-                    case CompressionSortTarget.Size:
-                        {
-                            SizeSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
-                            break;
-                        }
-                    case CompressionSortTarget.CompressedSize:
-                        {
-                            CompressedSizeSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
-                            break;
-                        }
-                    case CompressionSortTarget.CompressionRate:
-                        {
-                            CompressionRateSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
-                            break;
-                        }
-                }
-
-                sortDirection = value;
             }
         }
 
@@ -416,8 +279,8 @@ namespace RX_Explorer.View
 
             try
             {
-                CurrentSortTarget = CompressionSortTarget.Name;
-                CurrentSortDirection = SortDirection.Ascending;
+                ListViewHeaderSortIndicator.Target = SortTarget.Name;
+                ListViewHeaderSortIndicator.Direction = SortDirection.Ascending;
 
                 Stream CompressedStream = null;
 
@@ -606,7 +469,7 @@ namespace RX_Explorer.View
                 }
             }
 
-            EntryList.AddRange(await GetSortedCollectionAsync(Result, CurrentSortTarget, CurrentSortDirection));
+            EntryList.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(Result, ListViewHeaderSortIndicator.Target, ListViewHeaderSortIndicator.Direction, SortStyle.UseFileSystemStyle));
 
             if (EntryList.Count > 0)
             {
@@ -618,176 +481,32 @@ namespace RX_Explorer.View
             }
         }
 
-        public async Task<IEnumerable<T>> GetSortedCollectionAsync<T>(IEnumerable<T> InputCollection, CompressionSortTarget Target, SortDirection Direction) where T : CompressionItemBase
-        {
-            IEnumerable<T> FolderList = InputCollection.Where((It) => It is CompressionFolder);
-            IEnumerable<T> FileList = InputCollection.Where((It) => It is CompressionFile);
-
-            switch (Target)
-            {
-                case CompressionSortTarget.Name:
-                    {
-                        IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                        {
-                            if (PreviousTask.Exception is Exception)
-                            {
-                                return FolderList.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                            }
-
-                            return PreviousTask.Result;
-                        });
-
-                        IEnumerable<T> SortedFileList = await FileList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                        {
-                            if (PreviousTask.Exception is Exception)
-                            {
-                                return FileList.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                            }
-
-                            return PreviousTask.Result;
-                        });
-
-                        return Direction == SortDirection.Ascending
-                                            ? SortedFolderList.Concat(SortedFileList)
-                                            : SortedFileList.Concat(SortedFolderList);
-                    }
-                case CompressionSortTarget.Type:
-                    {
-                        List<T> SortResult = new List<T>();
-
-                        if (Direction == SortDirection.Ascending)
-                        {
-                            foreach (IGrouping<string, T> Group in FolderList.OrderBy((Item) => Item.Type)
-                                                                             .Concat(FileList.OrderBy((Item) => Item.Type))
-                                                                             .GroupBy((Item) => Item.Type))
-                            {
-                                SortResult.AddRange(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                {
-                                    if (PreviousTask.Exception is Exception)
-                                    {
-                                        return Group.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                    }
-
-                                    return PreviousTask.Result;
-                                }));
-                            }
-                        }
-                        else
-                        {
-                            foreach (IGrouping<string, T> Group in FolderList.OrderByDescending((Item) => Item.Type)
-                                                                             .Concat(FileList.OrderByDescending((Item) => Item.Type))
-                                                                             .GroupBy((Item) => Item.Type))
-                            {
-                                SortResult.AddRange(await Group.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, Direction).ContinueWith((PreviousTask) =>
-                                {
-                                    if (PreviousTask.Exception is Exception)
-                                    {
-                                        return Group.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                                    }
-
-                                    return PreviousTask.Result;
-                                }));
-                            }
-                        }
-
-                        return SortResult;
-                    }
-                case CompressionSortTarget.ModifiedTime:
-                    {
-                        return Direction == SortDirection.Ascending
-                                            ? FolderList.OrderBy((Item) => Item.ModifiedTime)
-                                                        .Concat(FileList.OrderBy((Item) => Item.ModifiedTime))
-                                            : FileList.OrderByDescending((Item) => Item.ModifiedTime)
-                                                      .Concat(FolderList.OrderByDescending((Item) => Item.ModifiedTime));
-                    }
-                case CompressionSortTarget.Size:
-                    {
-                        IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending).ContinueWith((PreviousTask) =>
-                        {
-                            if (PreviousTask.Exception is Exception)
-                            {
-                                return FolderList.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                            }
-
-                            return PreviousTask.Result;
-                        });
-
-                        return Direction == SortDirection.Ascending
-                                            ? SortedFolderList.Concat(FileList.OrderBy((Item) => Item.Size))
-                                            : FileList.OrderByDescending((Item) => Item.Size).Concat(SortedFolderList);
-                    }
-                case CompressionSortTarget.CompressedSize:
-                    {
-                        IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending).ContinueWith((PreviousTask) =>
-                        {
-                            if (PreviousTask.Exception is Exception)
-                            {
-                                return FolderList.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                            }
-
-                            return PreviousTask.Result;
-                        });
-
-                        return Direction == SortDirection.Ascending
-                                            ? SortedFolderList.Concat(FileList.OrderBy((Item) => Item.CompressedSize))
-                                            : FileList.OrderByDescending((Item) => Item.CompressedSize).Concat(SortedFolderList);
-                    }
-                case CompressionSortTarget.CompressionRate:
-                    {
-                        IEnumerable<T> SortedFolderList = await FolderList.OrderByNaturalStringSortAlgorithmAsync((Item) => Item.Name, SortDirection.Ascending).ContinueWith((PreviousTask) =>
-                        {
-                            if (PreviousTask.Exception is Exception)
-                            {
-                                return FolderList.OrderByFastStringSortAlgorithm((Item) => Item.Name, Direction);
-                            }
-
-                            return PreviousTask.Result;
-                        });
-
-                        return Direction == SortDirection.Ascending
-                                            ? SortedFolderList.Concat(FileList.OrderBy((Item) => Item.CompressionRate))
-                                            : FileList.OrderByDescending((Item) => Item.CompressionRate).Concat(SortedFolderList);
-                    }
-                default:
-                    {
-                        return null;
-                    }
-            }
-        }
-
         private async void ListHeader_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button Btn)
             {
-                CompressionSortTarget Target = Btn.Name switch
+                SortTarget Target = Btn.Name switch
                 {
-                    "ListHeaderName" => CompressionSortTarget.Name,
-                    "ListHeaderCompressedSize" => CompressionSortTarget.CompressedSize,
-                    "ListHeaderCompressionRate" => CompressionSortTarget.CompressionRate,
-                    "ListHeaderModifiedTime" => CompressionSortTarget.ModifiedTime,
-                    "ListHeaderType" => CompressionSortTarget.Type,
-                    "ListHeaderSize" => CompressionSortTarget.Size,
-                    _ => CompressionSortTarget.Name
+                    "ListHeaderName" => SortTarget.Name,
+                    "ListHeaderCompressedSize" => SortTarget.CompressedSize,
+                    "ListHeaderCompressionRate" => SortTarget.CompressionRate,
+                    "ListHeaderModifiedTime" => SortTarget.ModifiedTime,
+                    "ListHeaderType" => SortTarget.Type,
+                    "ListHeaderSize" => SortTarget.Size,
+                    _ => SortTarget.Name
                 };
 
-                if (CurrentSortTarget == Target)
+                if (ListViewHeaderSortIndicator.Target == Target)
                 {
-                    CurrentSortDirection = CurrentSortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
+                    ListViewHeaderSortIndicator.Direction = ListViewHeaderSortIndicator.Direction == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
                 }
                 else
                 {
-                    CurrentSortTarget = Target;
-                    CurrentSortDirection = SortDirection.Ascending;
+                    ListViewHeaderSortIndicator.Target = Target;
+                    ListViewHeaderSortIndicator.Direction = SortDirection.Ascending;
                 }
 
-                CompressionItemBase[] SortResult = (await GetSortedCollectionAsync(EntryList, CurrentSortTarget, CurrentSortDirection)).ToArray();
-
-                EntryList.Clear();
-
-                foreach (CompressionItemBase Item in SortResult)
-                {
-                    EntryList.Add(Item);
-                }
+                EntryList.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(EntryList.DuplicateAndClear(), ListViewHeaderSortIndicator.Target, ListViewHeaderSortIndicator.Direction, SortStyle.UseFileSystemStyle));
             }
         }
 

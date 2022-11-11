@@ -144,16 +144,20 @@ namespace RX_Explorer.Class
         /// </summary>
         public void Dispose()
         {
-            if (!IsDisposed)
+            if (Execution.CheckAlreadyExecuted(this))
+            {
+                throw new ObjectDisposedException(nameof(WiFiShareProvider));
+            }
+
+            GC.SuppressFinalize(this);
+
+            Execution.ExecuteOnce(this, () =>
             {
                 IsDisposed = true;
-
                 Listener.Stop();
                 Listener.Abort();
                 Listener.Close();
-
-                GC.SuppressFinalize(this);
-            }
+            });
         }
 
         ~WiFiShareProvider()

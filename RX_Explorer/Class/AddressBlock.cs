@@ -1,34 +1,23 @@
-﻿using RX_Explorer.Interface;
+﻿using PropertyChanged;
+using RX_Explorer.Interface;
 using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
-    public sealed class AddressBlock : INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class AddressBlock
     {
         public string Path { get; }
 
         public string DisplayName { get; private set; }
 
-        public AddressBlockType BlockType { get; private set; }
+        public AddressBlockType BlockType { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private int IsContentLoaded;
-
-        public void SetBlockType(AddressBlockType BlockType)
+        public Task LoadAsync()
         {
-            this.BlockType = BlockType;
-            OnPropertyChanged(nameof(this.BlockType));
-        }
-
-        public async Task LoadAsync()
-        {
-            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
+            return Execution.ExecuteOnceAsync(this, async () =>
             {
                 try
                 {
@@ -52,11 +41,7 @@ namespace RX_Explorer.Class
                 {
                     LogTracer.Log(ex, $"Could not load the AddressBlock on path: {Path}");
                 }
-                finally
-                {
-                    OnPropertyChanged(nameof(DisplayName));
-                }
-            }
+            });
         }
 
         public AddressBlock(string Path, string DisplayName = null)
@@ -68,11 +53,6 @@ namespace RX_Explorer.Class
             {
                 this.DisplayName = Path;
             }
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
     }
 }

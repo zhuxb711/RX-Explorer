@@ -129,7 +129,7 @@
                                 <CompositeTransform x:Name="ScaleTransform" />
                             </Image.RenderTransform>
                         </Image>
-                        <TextBlock Visibility="{x:Bind IsErrorInLoading,Mode=OneWay}"
+                        <TextBlock Visibility="{x:Bind DidErrorThrewOnLoading,Mode=OneWay}"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Center"
                                    Text="无法加载此图片"

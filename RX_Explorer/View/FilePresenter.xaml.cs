@@ -85,7 +85,8 @@ namespace RX_Explorer.View
         private readonly AsyncLock CollectionChangeLock = new AsyncLock();
         private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Presenter);
         private readonly ObservableCollection<FileSystemStorageGroupItem> GroupCollection = new ObservableCollection<FileSystemStorageGroupItem>();
-        private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
+        private readonly FilterController ListViewHeaderFilter = new FilterController();
+        private readonly SortIndicatorController ListViewHeaderSortIndicator = new SortIndicatorController();
 
         public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; } = new ObservableCollection<FileSystemStorageItemBase>();
 
@@ -149,11 +150,11 @@ namespace RX_Explorer.View
                     {
                         if (value is LabelCollectionVirtualFolder)
                         {
-                            ListViewDetailHeader.Filter.IsLabelSelectionEnabled = false;
+                            ListViewHeaderFilter.IsLabelSelectionEnabled = false;
                         }
                         else
                         {
-                            ListViewDetailHeader.Filter.IsLabelSelectionEnabled = true;
+                            ListViewHeaderFilter.IsLabelSelectionEnabled = true;
                         }
 
                         PathConfiguration Config = SQLite.Current.GetPathConfiguration(value.Path);
@@ -224,8 +225,7 @@ namespace RX_Explorer.View
             this.Container = Container;
 
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
-
-            ListViewDetailHeader.Filter.RefreshListRequested += Filter_RefreshListRequested;
+            ListViewHeaderFilter.RefreshListRequested += Filter_RefreshListRequested;
 
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
             PointerReleasedEventHandler = new PointerEventHandler(ViewControl_PointerReleased);
@@ -2522,7 +2522,7 @@ namespace RX_Explorer.View
                                     }
                             }
 
-                            await ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection);
+                            await ListViewHeaderFilter.SetDataSourceAsync(FileCollection);
                         }
                     }
                     finally
@@ -2848,13 +2848,12 @@ namespace RX_Explorer.View
 
         private async void Current_SortConfigChanged(object sender, SortStateChangedEventArgs args)
         {
-            EventDeferral Deferral = args.GetDeferral();
-
             try
             {
                 if (args.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
                 {
-                    ListViewDetailHeader.Indicator.SetIndicatorStatus(args.Target, args.Direction);
+                    ListViewHeaderSortIndicator.Target = args.Target;
+                    ListViewHeaderSortIndicator.Direction = args.Direction;
 
                     if (IsGroupedEnabled)
                     {
@@ -2870,10 +2869,6 @@ namespace RX_Explorer.View
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not apply changes on sort config was changed");
-            }
-            finally
-            {
-                Deferral.Complete();
             }
         }
 
@@ -3025,12 +3020,13 @@ namespace RX_Explorer.View
                 CancelToken.ThrowIfCancellationRequested();
 
                 StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                ListViewHeaderSortIndicator.Target = Config.SortTarget.GetValueOrDefault();
+                ListViewHeaderSortIndicator.Direction = Config.SortDirection.GetValueOrDefault();
 
                 await Task.WhenAll(new List<Task>(3)
                 {
                     SetExtraInformationOnCurrentFolderAsync(),
-                    ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection),
+                    ListViewHeaderFilter.SetDataSourceAsync(FileCollection),
                     MonitorTrustProcessController.SetRecoveryDataAsync(JsonSerializer.Serialize(TabViewContainer.Current.OpenedPathList))
                 });
             }
@@ -5563,7 +5559,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void ListHeader_Click(object sender, RoutedEventArgs e)
+        private void ListHeader_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button Btn)
             {
@@ -5582,16 +5578,16 @@ namespace RX_Explorer.View
                 {
                     if (Config.SortDirection == SortDirection.Ascending)
                     {
-                        await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Descending);
+                        SortedCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, STarget, SortDirection.Descending);
                     }
                     else
                     {
-                        await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Ascending);
+                        SortedCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, STarget, SortDirection.Ascending);
                     }
                 }
                 else
                 {
-                    await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, STarget, SortDirection.Ascending);
+                    SortedCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, STarget, SortDirection.Ascending);
                 }
             }
         }
@@ -6932,40 +6928,40 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void OrderByName_Click(object sender, RoutedEventArgs e)
+        private void OrderByName_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Name);
+            SortedCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Name);
         }
 
-        private async void OrderByTime_Click(object sender, RoutedEventArgs e)
+        private void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.ModifiedTime);
+            SortedCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.ModifiedTime);
         }
 
-        private async void OrderByType_Click(object sender, RoutedEventArgs e)
+        private void OrderByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Type);
+            SortedCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Type);
         }
 
-        private async void OrderBySize_Click(object sender, RoutedEventArgs e)
+        private void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, SortTarget.Size);
+            SortedCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Size);
         }
 
-        private async void SortDesc_Click(object sender, RoutedEventArgs e)
+        private void SortDesc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, Direction: SortDirection.Descending);
+            SortedCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, Direction: SortDirection.Descending);
         }
 
-        private async void SortAsc_Click(object sender, RoutedEventArgs e)
+        private void SortAsc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            await SortedCollectionGenerator.SaveSortConfigOnPathAsync(CurrentFolder.Path, Direction: SortDirection.Ascending);
+            SortedCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, Direction: SortDirection.Ascending);
         }
 
         private void SortMenuFlyout_Opening(object sender, object e)
@@ -8504,41 +8500,56 @@ namespace RX_Explorer.View
 
         public void Dispose()
         {
-            FileCollection.Clear();
-            GroupCollection.Clear();
-            BackNavigationStack.Clear();
-            ForwardNavigationStack.Clear();
+            if (Execution.CheckAlreadyExecuted(this))
+            {
+                throw new ObjectDisposedException(nameof(FilePresenter));
+            }
 
-            FileCollection.CollectionChanged -= FileCollection_CollectionChanged;
-            ListViewDetailHeader.Filter.RefreshListRequested -= Filter_RefreshListRequested;
-            RootFolderControl.EnterActionRequested -= RootFolderControl_EnterActionRequested;
-            AreaWatcher.FileChanged -= DirectoryWatcher_FileChanged;
-            Application.Current.Suspending -= Current_Suspending;
-            Application.Current.Resuming -= Current_Resuming;
-            SortedCollectionGenerator.SortConfigChanged -= Current_SortConfigChanged;
-            GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
-            LayoutModeController.ViewModeChanged -= Current_ViewModeChanged;
+            GC.SuppressFinalize(this);
 
-            AreaWatcher.Dispose();
-            WiFiProvider?.Dispose();
-            SelectionExtension?.Dispose();
-            DelayRenameCancellation?.Dispose();
-            DelayEnterCancellation?.Dispose();
-            DelaySelectionCancellation?.Dispose();
-            DelayTooltipCancellation?.Dispose();
-            DelayDragCancellation?.Dispose();
-            ContextMenuCancellation?.Dispose();
-            DisplayItemsCancellation?.Dispose();
+            Execution.ExecuteOnce(this, () =>
+            {
+                FileCollection.Clear();
+                GroupCollection.Clear();
+                BackNavigationStack.Clear();
+                ForwardNavigationStack.Clear();
 
-            WiFiProvider = null;
-            SelectionExtension = null;
-            DelayRenameCancellation = null;
-            DelayEnterCancellation = null;
-            DelaySelectionCancellation = null;
-            DelayTooltipCancellation = null;
-            DelayDragCancellation = null;
-            ContextMenuCancellation = null;
-            DisplayItemsCancellation = null;
+                FileCollection.CollectionChanged -= FileCollection_CollectionChanged;
+                ListViewHeaderFilter.RefreshListRequested -= Filter_RefreshListRequested;
+                RootFolderControl.EnterActionRequested -= RootFolderControl_EnterActionRequested;
+                AreaWatcher.FileChanged -= DirectoryWatcher_FileChanged;
+                Application.Current.Suspending -= Current_Suspending;
+                Application.Current.Resuming -= Current_Resuming;
+                SortedCollectionGenerator.SortConfigChanged -= Current_SortConfigChanged;
+                GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
+                LayoutModeController.ViewModeChanged -= Current_ViewModeChanged;
+
+                AreaWatcher.Dispose();
+                WiFiProvider?.Dispose();
+                SelectionExtension?.Dispose();
+                DelayRenameCancellation?.Dispose();
+                DelayEnterCancellation?.Dispose();
+                DelaySelectionCancellation?.Dispose();
+                DelayTooltipCancellation?.Dispose();
+                DelayDragCancellation?.Dispose();
+                ContextMenuCancellation?.Dispose();
+                DisplayItemsCancellation?.Dispose();
+
+                WiFiProvider = null;
+                SelectionExtension = null;
+                DelayRenameCancellation = null;
+                DelayEnterCancellation = null;
+                DelaySelectionCancellation = null;
+                DelayTooltipCancellation = null;
+                DelayDragCancellation = null;
+                ContextMenuCancellation = null;
+                DisplayItemsCancellation = null;
+            });
+        }
+
+        ~FilePresenter()
+        {
+            Dispose();
         }
     }
 }

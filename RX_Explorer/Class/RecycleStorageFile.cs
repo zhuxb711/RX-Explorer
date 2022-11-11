@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -30,7 +32,7 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
-            if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
+            if (Regex.IsMatch(Name, @".+\.(lnk|url)$", RegexOptions.IgnoreCase))
             {
                 if (GetBulkAccessSharedController(out var ControllerRef))
                 {
@@ -53,7 +55,7 @@ namespace RX_Explorer.Class
 
         protected override async Task<IStorageItem> GetStorageItemCoreAsync()
         {
-            if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
+            if (Regex.IsMatch(Name, @".+\.(lnk|url)$", RegexOptions.IgnoreCase))
             {
                 try
                 {
@@ -90,38 +92,75 @@ namespace RX_Explorer.Class
                 {
                     LogTracer.Log(ex, $"Could not get the storage item for the file: {Path}");
                 }
+            }
 
-                return null;
-            }
-            else
-            {
-                return await base.GetStorageItemCoreAsync();
-            }
+            return await base.GetStorageItemCoreAsync();
         }
 
-        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
+        protected async override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            if (Regex.IsMatch(Name, @"\.(lnk|url)$", RegexOptions.IgnoreCase))
+            if (Regex.IsMatch(Name, @".+\.(lnk|url)$", RegexOptions.IgnoreCase))
             {
                 if (GetBulkAccessSharedController(out var ControllerRef))
                 {
                     using (ControllerRef)
                     {
-                        return await ControllerRef.Value.Controller.GetThumbnailAsync(Type);
+                        LinkFileData Data = await ControllerRef.Value.Controller.GetLinkDataAsync(Path);
+
+                        if ((Data?.IconData.Length).GetValueOrDefault() > 0)
+                        {
+                            return await Helper.CreateBitmapImageAsync(Data.IconData);
+                        }
                     }
                 }
                 else
                 {
-                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
                     {
-                        return await Exclusive.Controller.GetThumbnailAsync(Type);
+                        LinkFileData Data = await Exclusive.Controller.GetLinkDataAsync(Path);
+
+                        if ((Data?.IconData.Length).GetValueOrDefault() > 0)
+                        {
+                            return await Helper.CreateBitmapImageAsync(Data.IconData);
+                        }
                     }
                 }
             }
-            else
+
+            return await base.GetThumbnailCoreAsync(Mode, ForceUpdate);
+        }
+
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
+        {
+            if (Regex.IsMatch(Name, @".+\.(lnk|url)$", RegexOptions.IgnoreCase))
             {
-                return await base.GetThumbnailRawStreamCoreAsync(Mode, ForceUpdate);
+                if (GetBulkAccessSharedController(out var ControllerRef))
+                {
+                    using (ControllerRef)
+                    {
+                        LinkFileData Data = await ControllerRef.Value.Controller.GetLinkDataAsync(Path);
+
+                        if ((Data?.IconData.Length).GetValueOrDefault() > 0)
+                        {
+                            return await Helper.CreateRandomAccessStreamAsync(Data.IconData);
+                        }
+                    }
+                }
+                else
+                {
+                    using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.Low))
+                    {
+                        LinkFileData Data = await Exclusive.Controller.GetLinkDataAsync(Path);
+
+                        if ((Data?.IconData.Length).GetValueOrDefault() > 0)
+                        {
+                            return await Helper.CreateRandomAccessStreamAsync(Data.IconData);
+                        }
+                    }
+                }
             }
+
+            return await base.GetThumbnailRawStreamCoreAsync(Mode, ForceUpdate);
         }
 
         public override async Task DeleteAsync(bool PermanentDelete, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)

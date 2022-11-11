@@ -23,117 +23,12 @@ namespace RX_Explorer.View
 {
     public sealed partial class RecycleBin : Page
     {
-        private SortTarget currentSortTarget;
-        private SortTarget CurrentSortTarget
-        {
-            get
-            {
-                return currentSortTarget;
-            }
-            set
-            {
-                switch (value)
-                {
-                    case SortTarget.Name:
-                        {
-                            NameSortIndicator.Visibility = Visibility.Visible;
-                            OriginPathSortIndicator.Visibility = Visibility.Collapsed;
-                            DeleteDateSortIndicator.Visibility = Visibility.Collapsed;
-                            TypeSortIndicator.Visibility = Visibility.Collapsed;
-                            SizeSortIndicator.Visibility = Visibility.Collapsed;
-                            break;
-                        }
-                    case SortTarget.Type:
-                        {
-                            NameSortIndicator.Visibility = Visibility.Collapsed;
-                            OriginPathSortIndicator.Visibility = Visibility.Collapsed;
-                            DeleteDateSortIndicator.Visibility = Visibility.Collapsed;
-                            TypeSortIndicator.Visibility = Visibility.Visible;
-                            SizeSortIndicator.Visibility = Visibility.Collapsed;
-                            break;
-                        }
-                    case SortTarget.ModifiedTime:
-                        {
-                            NameSortIndicator.Visibility = Visibility.Collapsed;
-                            OriginPathSortIndicator.Visibility = Visibility.Collapsed;
-                            DeleteDateSortIndicator.Visibility = Visibility.Visible;
-                            TypeSortIndicator.Visibility = Visibility.Collapsed;
-                            SizeSortIndicator.Visibility = Visibility.Collapsed;
-                            break;
-                        }
-                    case SortTarget.Size:
-                        {
-                            NameSortIndicator.Visibility = Visibility.Collapsed;
-                            OriginPathSortIndicator.Visibility = Visibility.Collapsed;
-                            DeleteDateSortIndicator.Visibility = Visibility.Collapsed;
-                            TypeSortIndicator.Visibility = Visibility.Collapsed;
-                            SizeSortIndicator.Visibility = Visibility.Visible;
-                            break;
-                        }
-                    case SortTarget.OriginPath:
-                        {
-                            NameSortIndicator.Visibility = Visibility.Collapsed;
-                            OriginPathSortIndicator.Visibility = Visibility.Visible;
-                            DeleteDateSortIndicator.Visibility = Visibility.Collapsed;
-                            TypeSortIndicator.Visibility = Visibility.Collapsed;
-                            SizeSortIndicator.Visibility = Visibility.Collapsed;
-                            break;
-                        }
-                }
-
-                currentSortTarget = value;
-            }
-        }
-
-        private SortDirection sortDirection;
-        private SortDirection CurrentSortDirection
-        {
-            get
-            {
-                return sortDirection;
-            }
-            set
-            {
-                switch (CurrentSortTarget)
-                {
-                    case SortTarget.Name:
-                        {
-                            NameSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
-                            break;
-                        }
-                    case SortTarget.Type:
-                        {
-                            TypeSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
-                            break;
-                        }
-                    case SortTarget.ModifiedTime:
-                        {
-                            DeleteDateSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
-                            break;
-                        }
-                    case SortTarget.Size:
-                        {
-                            SizeSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
-                            break;
-                        }
-                    case SortTarget.OriginPath:
-                        {
-                            OriginPathSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
-                            break;
-                        }
-                }
-
-                sortDirection = value;
-            }
-        }
-
+        private readonly PointerEventHandler PointerPressedHandler;
         private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.RecycleBin);
         private readonly ObservableCollection<IRecycleStorageItem> FileCollection = new ObservableCollection<IRecycleStorageItem>();
+        private readonly SortIndicatorController ListViewHeaderSortIndicator = new SortIndicatorController();
 
         private ListViewBaseSelectionExtension SelectionExtension;
-
-        private readonly PointerEventHandler PointerPressedHandler;
-
         private CancellationTokenSource DelaySelectionCancellation;
 
         public RecycleBin()
@@ -194,8 +89,8 @@ namespace RX_Explorer.View
         {
             ListViewControl.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
             SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
-            CurrentSortTarget = SortTarget.Name;
-            CurrentSortDirection = SortDirection.Ascending;
+            ListViewHeaderSortIndicator.Target = SortTarget.Name;
+            ListViewHeaderSortIndicator.Direction = SortDirection.Ascending;
 
             ControlLoading(true, Globalization.GetString("Progress_Tip_Loading"));
 
@@ -375,89 +270,12 @@ namespace RX_Explorer.View
             }
         }
 
-        private void ListViewControl_Holding(object sender, HoldingRoutedEventArgs e)
-        {
-            if (e.HoldingState == HoldingState.Started)
-            {
-                if (!SettingPage.IsDoubleClickEnabled)
-                {
-                    DelaySelectionCancellation?.Cancel();
-                }
-
-                if (e.OriginalSource is ListViewItemPresenter)
-                {
-                    ListViewControl.SelectedItem = null;
-                    ListViewControl.ContextFlyout = EmptyFlyout;
-                }
-                else
-                {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
-                    {
-                        ListViewControl.ContextFlyout = SelectFlyout;
-                        ListViewControl.SelectedItem = Item;
-                    }
-                    else
-                    {
-                        ListViewControl.SelectedItem = null;
-                        ListViewControl.ContextFlyout = EmptyFlyout;
-                    }
-                }
-            }
-        }
-
         private async void ListViewControl_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             if (ListViewControl.SelectedItem is FileSystemStorageItemBase Item)
             {
                 PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Item);
                 await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-            }
-        }
-
-        private void ListViewControl_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
-            {
-                if (!SettingPage.IsDoubleClickEnabled)
-                {
-                    DelaySelectionCancellation?.Cancel();
-                }
-
-                if (e.OriginalSource is FrameworkElement Element)
-                {
-                    if (Element.DataContext is IRecycleStorageItem Context)
-                    {
-                        if (ListViewControl.SelectedItems.Count > 1 && ListViewControl.SelectedItems.Contains(Context))
-                        {
-                            ListViewControl.ContextFlyout = SelectFlyout;
-                        }
-                        else
-                        {
-                            if (ListViewControl.SelectedItem as IRecycleStorageItem == Context)
-                            {
-                                ListViewControl.ContextFlyout = SelectFlyout;
-                            }
-                            else
-                            {
-                                if (e.OriginalSource is TextBlock)
-                                {
-                                    ListViewControl.SelectedItem = Context;
-                                    ListViewControl.ContextFlyout = SelectFlyout;
-                                }
-                                else
-                                {
-                                    ListViewControl.SelectedItem = null;
-                                    ListViewControl.ContextFlyout = EmptyFlyout;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ListViewControl.SelectedItem = null;
-                        ListViewControl.ContextFlyout = EmptyFlyout;
-                    }
-                }
             }
         }
 
@@ -475,17 +293,17 @@ namespace RX_Explorer.View
                     _ => SortTarget.Name
                 };
 
-                if (CurrentSortTarget == Target)
+                if (ListViewHeaderSortIndicator.Target == Target)
                 {
-                    CurrentSortDirection = CurrentSortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
+                    ListViewHeaderSortIndicator.Direction = ListViewHeaderSortIndicator.Direction == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
                 }
                 else
                 {
-                    CurrentSortTarget = Target;
-                    CurrentSortDirection = SortDirection.Ascending;
+                    ListViewHeaderSortIndicator.Target = Target;
+                    ListViewHeaderSortIndicator.Direction = SortDirection.Ascending;
                 }
 
-                FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(FileCollection.DuplicateAndClear(), CurrentSortTarget, CurrentSortDirection, SortStyle.None));
+                FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(FileCollection.DuplicateAndClear(), ListViewHeaderSortIndicator.Target, ListViewHeaderSortIndicator.Direction, Target == SortTarget.Type ? SortStyle.UseFileSystemStyle : SortStyle.None));
             }
         }
 
@@ -696,6 +514,93 @@ namespace RX_Explorer.View
             else
             {
                 PropertyButton.IsEnabled = true;
+            }
+        }
+
+        private void ListViewControl_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        {
+            args.Handled = true;
+
+            if (args.TryGetPosition(sender, out Point Position))
+            {
+                if ((args.OriginalSource as FrameworkElement)?.DataContext is IRecycleStorageItem Context)
+                {
+                    if (!SettingPage.IsDoubleClickEnabled)
+                    {
+                        DelaySelectionCancellation?.Cancel();
+                    }
+
+                    if (ListViewControl.SelectedItems.Count > 1 && ListViewControl.SelectedItems.Contains(Context))
+                    {
+                        SelectFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
+                        {
+                            Position = Position,
+                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                            ShowMode = FlyoutShowMode.Standard
+                        });
+                    }
+                    else
+                    {
+                        if (ListViewControl.SelectedItem == Context)
+                        {
+                            SelectFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
+                            {
+                                Position = Position,
+                                Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                ShowMode = FlyoutShowMode.Standard
+                            });
+                        }
+                        else
+                        {
+                            if (args.OriginalSource is TextBlock)
+                            {
+                                ListViewControl.SelectedItem = Context;
+
+                                SelectFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
+                                {
+                                    Position = Position,
+                                    Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                    ShowMode = FlyoutShowMode.Standard
+                                });
+                            }
+                            else
+                            {
+                                ListViewControl.SelectedItem = null;
+
+                                EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
+                                {
+                                    Position = Position,
+                                    Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                    ShowMode = FlyoutShowMode.Standard
+                                });
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    ListViewControl.SelectedItem = null;
+
+                    EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
+                    {
+                        Position = Position,
+                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                        ShowMode = FlyoutShowMode.Standard
+                    });
+                }
+            }
+        }
+
+        private void ListViewControl_ContextCanceled(UIElement sender, RoutedEventArgs args)
+        {
+            try
+            {
+                SelectFlyout.Hide();
+                EmptyFlyout.Hide();
+            }
+            catch (Exception)
+            {
+                // No need to handle this exception
             }
         }
     }

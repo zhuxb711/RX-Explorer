@@ -26,12 +26,18 @@ namespace RX_Explorer.Class
 
         public virtual void Dispose()
         {
-            if (!IsDisposed)
+            if (Execution.CheckAlreadyExecuted(this))
+            {
+                throw new ObjectDisposedException(nameof(NamedPipeControllerBase));
+            }
+
+            GC.SuppressFinalize(this);
+
+            Execution.ExecuteOnce(this, () =>
             {
                 IsDisposed = true;
                 PipeStream?.Dispose();
-                GC.SuppressFinalize(this);
-            }
+            });
         }
 
         ~NamedPipeControllerBase()

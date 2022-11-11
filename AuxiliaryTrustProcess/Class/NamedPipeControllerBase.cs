@@ -24,11 +24,12 @@ namespace AuxiliaryTrustProcess.Class
 
         public virtual void Dispose()
         {
+            GC.SuppressFinalize(this);
+
             if (!IsDisposed)
             {
                 IsDisposed = true;
                 PipeStream?.Dispose();
-                GC.SuppressFinalize(this);
             }
         }
 

@@ -1,10 +1,9 @@
 ﻿using Bluetooth.Core.Services;
 using Bluetooth.Services.Obex;
+using PropertyChanged;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -19,29 +18,18 @@ using BluetoothDevice = Bluetooth.Core.Services.BluetoothDevice;
 
 namespace RX_Explorer.Class
 {
-    public sealed class BluetoothDeivceData : INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class BluetoothDeivceData
     {
-        private string infoText;
-        private double progressValue;
-        private BluetoothPanelMode panelMode;
         private readonly StorageFile SharedFile;
         private TaskCompletionSource<bool> PairConfirmaion;
         private CancellationTokenSource OperationAbortCancellation;
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public BitmapImage DeviceThumbnail { get; }
 
         public DeviceInformation DeviceInfo { get; }
 
-        public string InfoText
-        {
-            get => infoText;
-            private set
-            {
-                infoText = value;
-                OnPropertyChanged();
-            }
-        }
+        public string InfoText { get; private set; }
 
         public string Name => string.IsNullOrWhiteSpace(DeviceInfo.Name) ? Globalization.GetString("UnknownText") : DeviceInfo.Name;
 
@@ -64,26 +52,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public BluetoothPanelMode PanelMode
-        {
-            get => panelMode;
-            private set
-            {
-                panelMode = value;
-                InfoText = string.Empty;
-                OnPropertyChanged();
-            }
-        }
+        public BluetoothPanelMode PanelMode { get; private set; }
 
-        public double ProgressValue
-        {
-            get => progressValue;
-            private set
-            {
-                progressValue = value;
-                OnPropertyChanged();
-            }
-        }
+        public double ProgressValue { get; private set; }
 
         public static async Task<BluetoothDeivceData> CreateAsync(DeviceInformation DeviceInfo, StorageFile SharedFile)
         {
@@ -100,13 +71,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void UpdateBasicInformation(DeviceInformationUpdate DeviceInfoUpdate = null)
+        public void Update(DeviceInformationUpdate Update)
         {
-            if (DeviceInfoUpdate != null)
-            {
-                DeviceInfo.Update(DeviceInfoUpdate);
-            }
-
+            DeviceInfo.Update(Update);
             OnPropertyChanged(nameof(Name));
             OnPropertyChanged(nameof(IsPaired));
             OnPropertyChanged(nameof(DevicePairingStatus));
@@ -150,7 +117,9 @@ namespace RX_Explorer.Class
 
                     if (PairResult.Status == DevicePairingResultStatus.Paired)
                     {
-                        UpdateBasicInformation();
+                        OnPropertyChanged(nameof(Name));
+                        OnPropertyChanged(nameof(IsPaired));
+                        OnPropertyChanged(nameof(DevicePairingStatus));
                     }
                     else
                     {
@@ -186,13 +155,17 @@ namespace RX_Explorer.Class
             if (UnPairResult.Status == DeviceUnpairingResultStatus.Unpaired || UnPairResult.Status == DeviceUnpairingResultStatus.AlreadyUnpaired)
             {
                 PanelMode = BluetoothPanelMode.None;
-                UpdateBasicInformation();
+                InfoText = string.Empty;
             }
             else
             {
                 PanelMode = BluetoothPanelMode.TextMode;
                 InfoText = Globalization.GetString("BluetoothUI_Tips_Text_7");
             }
+
+            OnPropertyChanged(nameof(Name));
+            OnPropertyChanged(nameof(IsPaired));
+            OnPropertyChanged(nameof(DevicePairingStatus));
         }
 
         public async Task<bool> SendFileAsync()
@@ -303,7 +276,11 @@ namespace RX_Explorer.Class
 
                 PanelMode = BluetoothPanelMode.TextMode;
 
-                if (!string.IsNullOrEmpty(ex.Message))
+                if (string.IsNullOrEmpty(ex.Message))
+                {
+                    InfoText = string.Empty;
+                }
+                else
                 {
                     InfoText = string.Join(" ", ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries));
                 }
@@ -419,11 +396,6 @@ namespace RX_Explorer.Class
             });
         }
 
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-        }
-
         private async void CustomPairInfo_PairingRequested(DeviceInformationCustomPairing sender, DevicePairingRequestedEventArgs args)
         {
             Deferral PairDeferral = args.GetDeferral();
@@ -487,6 +459,7 @@ namespace RX_Explorer.Class
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     PanelMode = BluetoothPanelMode.None;
+                    InfoText = string.Empty;
                 });
 
                 PairDeferral.Complete();

@@ -86,14 +86,22 @@ namespace RX_Explorer.Class
 
         public override void Dispose()
         {
-            if (!IsDisposed)
+            if (Execution.CheckAlreadyExecuted(this))
             {
-                base.Dispose();
+                throw new ObjectDisposedException(nameof(NamedPipeWriteController));
+            }
+
+            GC.SuppressFinalize(this);
+
+            Execution.ExecuteOnce(this, () =>
+            {
                 MessageCollection.CompleteAdding();
                 MessageCollection.Dispose();
                 Cancellation?.Dispose();
                 Cancellation = null;
-            }
+            });
+
+            base.Dispose();
         }
 
         public override async Task<bool> WaitForConnectionAsync(int TimeoutMilliseconds)

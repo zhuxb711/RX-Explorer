@@ -1,11 +1,10 @@
-﻿using RX_Explorer.Class;
-using System;
+﻿using System;
 using System.ComponentModel;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Interface
 {
-    public interface IStorageItemBaseProperties: INotifyPropertyChanged
+    public interface IStorageItemBaseProperties : INotifyPropertyChanged
     {
         public string Name { get; }
 
@@ -18,6 +17,8 @@ namespace RX_Explorer.Interface
         public string Path { get; }
 
         public ulong Size { get; }
+
+        public bool IsDirectory { get; }
 
         public bool IsReadOnly { get; }
 

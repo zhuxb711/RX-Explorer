@@ -2,7 +2,7 @@
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>11.0</LangVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{02D26683-3BD6-4B30-8457-62CD714B0ADF}</ProjectGuid>
@@ -33,6 +33,10 @@
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Use64BitCompiler>true</Use64BitCompiler>
+    <PropertyChangedAnalyzerConfiguration>
+      <IsCodeGeneratorDisabled>false</IsCodeGeneratorDisabled>
+      <EventInvokerName>OnPropertyChanged</EventInvokerName>
+    </PropertyChangedAnalyzerConfiguration>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM64'">
     <DebugSymbols>true</DebugSymbols>
@@ -102,6 +106,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Class\AddressBlock.cs" />
+    <Compile Include="Class\ApplicationDataChangedWeakEventRelay.cs" />
+    <Compile Include="Class\Execution.cs" />
     <Compile Include="Class\ExtendedDataFormats.cs" />
     <Compile Include="Class\FtpClientController.cs" />
     <Compile Include="Class\FtpClientManager.cs" />
@@ -122,7 +128,7 @@
     <Compile Include="Class\SecureAreaFileModel.cs" />
     <Compile Include="Class\SequentialVirtualRandomAccessStream.cs" />
     <Compile Include="Class\TextEncodingModel.cs" />
-    <Compile Include="Class\ViewHeightOffsetSaver.cs" />
+    <Compile Include="Class\ViewHeightOffsetWapper.cs" />
     <Compile Include="Class\MonitorTrustProcessController.cs" />
     <Compile Include="Class\MTPDriveData.cs" />
     <Compile Include="Class\MTPFileSaveOnFlushStream.cs" />
@@ -250,6 +256,7 @@
     <Compile Include="Dialog\SecureAreaChangeLocationDialog.xaml.cs">
       <DependentUpon>SecureAreaChangeLocationDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Interface\ICompressionItem.cs" />
     <Compile Include="Interface\IFtpStorageItem.cs" />
     <Compile Include="Interface\IMTPStorageItem.cs" />
     <Compile Include="Interface\INotWin32StorageFile.cs" />
@@ -274,7 +281,6 @@
     <Compile Include="Class\JumpListController.cs" />
     <Compile Include="Class\StartupModeController.cs" />
     <Compile Include="Class\ListViewBaseSelectionExtension.cs" />
-    <Compile Include="Class\ListViewHeaderController.cs" />
     <Compile Include="Class\MSStoreHelper.cs" />
     <Compile Include="Class\OperationRecorder.cs" />
     <Compile Include="Class\PathConfiguration.cs" />
@@ -816,13 +822,13 @@
       <Version>2.18.0</Version>
     </PackageReference>
     <PackageReference Include="FluentFTP">
-      <Version>42.0.0</Version>
+      <Version>42.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AppCenter.Crashes">
       <Version>4.5.3</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>6.0.10</Version>
+      <Version>7.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.14</Version>
@@ -851,6 +857,10 @@
     <PackageReference Include="Nito.AsyncEx">
       <Version>5.1.2</Version>
     </PackageReference>
+    <PackageReference Include="PropertyChanged.Fody">
+      <Version>4.1.0</Version>
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="SharpCompress">
       <Version>0.32.2</Version>
     </PackageReference>
@@ -871,6 +881,9 @@
     </PackageReference>
     <PackageReference Include="TagLib.Portable">
       <Version>1.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="Walterlv.WeakEvents">
+      <Version>7.3.2</Version>
     </PackageReference>
     <PackageReference Include="ZXing.Net">
       <Version>0.16.8</Version>

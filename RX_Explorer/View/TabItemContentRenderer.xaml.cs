@@ -88,7 +88,7 @@ namespace RX_Explorer.View
             {
                 if (CurrentPresenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
                 {
-                    TreeViewColumnWidthSaver.Current.SetTreeViewVisibility(Visibility);
+                    TreeViewColumnWidthSaver.Current.TreeViewVisibility = Visibility;
 
                     if (Visibility == Visibility.Visible)
                     {
@@ -367,8 +367,17 @@ namespace RX_Explorer.View
 
         public void Dispose()
         {
+            if (Execution.CheckAlreadyExecuted(this))
+            {
+                throw new ObjectDisposedException(nameof(TabItemContentRenderer));
+            }
+
             GC.SuppressFinalize(this);
-            BaseControl?.Dispose();
+
+            Execution.ExecuteOnce(this, () =>
+            {
+                BaseControl?.Dispose();
+            });
         }
 
         private void BaseFrame_Navigating(object sender, NavigatingCancelEventArgs e)

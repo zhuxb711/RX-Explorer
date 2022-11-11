@@ -1,15 +1,15 @@
-﻿###What's new in Ver.8.0.5.0
+﻿###What's new in Ver.8.0.6.0
+
+###⚠Warning: Uwp version will suspend updates and stay maintenance only, RX-Exploerer will be migrated to WinAppSdk
 
 #####UI update
 
->#####Option buttons will now have higher contrast when there are file name conflicts
+>######Folders in the Recycle Bin now show their size
 
 #####Bug Fixes
 
->#####Fixed the problem that the Ftp server path with the specified port could not be accessed correctly
+>######Fixed the problem that the shortcut file in the recycle bin could not display the thumbnail correctly
 
->#####Fixed an issue where operates mapped network drives or UNC paths require unnecessary privileges elevation and eventually cause the task to fail
+>######Fixed an issue where the recycle time of the recycle bin might be incorrect
 
->#####Fixed the problem that temporary files may be left in the system temporary directory after operating the files in the MTP device
-
->#####Fixed an issue where some keyboard shortcuts was missing in Keyboard Shortcuts Guidance
+>######Fixed some issues related to file name sorting

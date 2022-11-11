@@ -493,7 +493,7 @@ namespace RX_Explorer.View
                         {
                             foreach (AddressBlock Block in AddressButtonList.Skip(1))
                             {
-                                Block.SetBlockType(AddressBlockType.Gray);
+                                Block.BlockType = AddressBlockType.Gray;
                             }
                         }
                         else
@@ -529,14 +529,14 @@ namespace RX_Explorer.View
 
                                 for (int i = LastPathSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                 {
-                                    AddressButtonList[AddressButtonList.Count - 1 - i].SetBlockType(AddressBlockType.Gray);
+                                    AddressButtonList[AddressButtonList.Count - 1 - i].BlockType = AddressBlockType.Gray;
                                 }
                             }
                             else if (Path.StartsWith(LastGrayPath, StringComparison.OrdinalIgnoreCase))
                             {
                                 foreach (AddressBlock GrayBlock in AddressButtonList.Where((Block) => Block.BlockType == AddressBlockType.Gray))
                                 {
-                                    GrayBlock.SetBlockType(AddressBlockType.Normal);
+                                    GrayBlock.BlockType = AddressBlockType.Normal;
                                 }
                             }
                             else if (LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
@@ -569,7 +569,7 @@ namespace RX_Explorer.View
 
                                     for (int i = LastGrayPathSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                     {
-                                        AddressButtonList[AddressButtonList.Count - 1 - i].SetBlockType(AddressBlockType.Gray);
+                                        AddressButtonList[AddressButtonList.Count - 1 - i].BlockType = AddressBlockType.Gray;
                                     }
                                 }
                                 else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
@@ -602,7 +602,7 @@ namespace RX_Explorer.View
                                     {
                                         if (AddressButtonList.FirstOrDefault((Block) => Block.BlockType == AddressBlockType.Gray) is AddressBlock GrayBlock)
                                         {
-                                            GrayBlock.SetBlockType(AddressBlockType.Normal);
+                                            GrayBlock.BlockType = AddressBlockType.Normal;
                                         }
                                     }
                                 }
@@ -610,7 +610,7 @@ namespace RX_Explorer.View
                                 {
                                     foreach (AddressBlock GrayBlock in AddressButtonList.Skip(1).Take(CurrentSplit.Length))
                                     {
-                                        GrayBlock.SetBlockType(AddressBlockType.Normal);
+                                        GrayBlock.BlockType = AddressBlockType.Normal;
                                     }
                                 }
                             }
@@ -935,6 +935,22 @@ namespace RX_Explorer.View
         {
             try
             {
+                for (int i = 0; i < 10; i++)
+                {
+                    if (FolderTree.IsLoaded)
+                    {
+                        if (FolderTree.FindChildOfType<TreeViewList>() is TreeViewList InnerList)
+                        {
+                            InnerList.ContainerContentChanging += TList_ContainerContentChanging;
+                            ScrollViewer.SetVerticalScrollBarVisibility(InnerList, ScrollBarVisibility.Hidden);
+                            TreeViewColumnWidthSaver.Current.TreeViewVisibility = SettingPage.IsDetachTreeViewAndPresenter ? Visibility.Collapsed : Visibility.Visible;
+                            break;
+                        }
+                    }
+
+                    await Task.Delay(300);
+                }
+
                 if (FolderTree.RootNodes.All((Node) => Node.Content != TreeViewNodeContent.QuickAccessNode))
                 {
                     FolderTree.RootNodes.Add(new TreeViewNode
@@ -3655,58 +3671,56 @@ namespace RX_Explorer.View
             }
         }
 
-        private void FolderTree_Loaded(object sender, RoutedEventArgs e)
-        {
-            FolderTree.Loaded -= FolderTree_Loaded;
-
-            TreeViewColumnWidthSaver.Current.SetTreeViewVisibility(SettingPage.IsDetachTreeViewAndPresenter ? Visibility.Collapsed : Visibility.Visible);
-
-            if (FolderTree.FindChildOfType<TreeViewList>() is TreeViewList TList)
-            {
-                TList.ContainerContentChanging += TList_ContainerContentChanging;
-                ScrollViewer.SetVerticalScrollBarVisibility(TList, ScrollBarVisibility.Hidden);
-            }
-        }
-
         public void Dispose()
         {
-            AddressButtonList.Clear();
-
-            FolderTree.RootNodes.Clear();
-
-            foreach (FilePresenter Presenter in BladeViewer.Items.Cast<BladeItem>().Select((Blade) => Blade.Content).Cast<FilePresenter>())
+            if (Execution.CheckAlreadyExecuted(this))
             {
-                Presenter.Dispose();
+                throw new ObjectDisposedException(nameof(FileControl));
             }
 
-            BladeViewer.Items.Clear();
+            GC.SuppressFinalize(this);
 
-            CommonAccessCollection.DriveChanged -= CommonAccessCollection_DriveChanged;
-            CommonAccessCollection.LibraryChanged -= CommonAccessCollection_LibraryChanged;
+            Execution.ExecuteOnce(this, () =>
+            {
+                AddressButtonList.Clear();
 
-            AddressBox.RemoveHandler(RightTappedEvent, AddressBoxRightTapEventHandler);
-            GoBackRecord.RemoveHandler(PointerPressedEvent, GoBackButtonPressedHandler);
-            GoBackRecord.RemoveHandler(PointerReleasedEvent, GoBackButtonReleasedHandler);
-            GoForwardRecord.RemoveHandler(PointerPressedEvent, GoForwardButtonPressedHandler);
-            GoForwardRecord.RemoveHandler(PointerReleasedEvent, GoForwardButtonReleasedHandler);
+                FolderTree.RootNodes.Clear();
 
-            GoBackRecord.IsEnabled = false;
-            GoForwardRecord.IsEnabled = false;
-            GoParentFolder.IsEnabled = false;
+                BladeViewer.Items.Cast<BladeItem>().Select((Blade) => Blade.Content).Cast<FilePresenter>().ForEach((Presenter) => Presenter.Dispose());
+                BladeViewer.Items.Clear();
 
-            DelayEnterCancel?.Dispose();
-            DelayGoBackHoldCancel?.Dispose();
-            DelayGoForwardHoldCancel?.Dispose();
-            ContextMenuCancellation?.Dispose();
-            AddressExtensionCancellation?.Dispose();
-            ExpandTreeViewCancellation?.Dispose();
+                CommonAccessCollection.DriveChanged -= CommonAccessCollection_DriveChanged;
+                CommonAccessCollection.LibraryChanged -= CommonAccessCollection_LibraryChanged;
 
-            DelayEnterCancel = null;
-            DelayGoBackHoldCancel = null;
-            DelayGoForwardHoldCancel = null;
-            ContextMenuCancellation = null;
-            AddressExtensionCancellation = null;
-            ExpandTreeViewCancellation = null;
+                AddressBox.RemoveHandler(RightTappedEvent, AddressBoxRightTapEventHandler);
+                GoBackRecord.RemoveHandler(PointerPressedEvent, GoBackButtonPressedHandler);
+                GoBackRecord.RemoveHandler(PointerReleasedEvent, GoBackButtonReleasedHandler);
+                GoForwardRecord.RemoveHandler(PointerPressedEvent, GoForwardButtonPressedHandler);
+                GoForwardRecord.RemoveHandler(PointerReleasedEvent, GoForwardButtonReleasedHandler);
+
+                GoBackRecord.IsEnabled = false;
+                GoForwardRecord.IsEnabled = false;
+                GoParentFolder.IsEnabled = false;
+
+                DelayEnterCancel?.Dispose();
+                DelayGoBackHoldCancel?.Dispose();
+                DelayGoForwardHoldCancel?.Dispose();
+                ContextMenuCancellation?.Dispose();
+                AddressExtensionCancellation?.Dispose();
+                ExpandTreeViewCancellation?.Dispose();
+
+                DelayEnterCancel = null;
+                DelayGoBackHoldCancel = null;
+                DelayGoForwardHoldCancel = null;
+                ContextMenuCancellation = null;
+                AddressExtensionCancellation = null;
+                ExpandTreeViewCancellation = null;
+            });
+        }
+
+        ~FileControl()
+        {
+            Dispose();
         }
     }
 }

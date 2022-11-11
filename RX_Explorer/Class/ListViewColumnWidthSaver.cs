@@ -1,6 +1,5 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using PropertyChanged;
+using System;
 using System.Text.Json;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -9,123 +8,16 @@ using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
 {
-    public sealed class ListViewColumnWidthSaver : INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class ListViewColumnWidthSaver
     {
-        private readonly string ResourceKey;
-        private ColumnWidthData InnerData;
+        private ColumnWidthData Cache;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public ListViewLocation Location { get; }
 
-        private ColumnWidthData Data
+        private string Resource
         {
-            get => InnerData;
-            set
-            {
-                InnerData = value;
-                ApplicationData.Current.LocalSettings.Values[ResourceKey] = JsonSerializer.Serialize(value);
-                ApplicationData.Current.SignalDataChanged();
-            }
-        }
-
-        public GridLength NameColumnWidth
-        {
-            get
-            {
-                return new GridLength(Data.NameColumnWidth, GridUnitType.Star);
-            }
-            set
-            {
-                Data = new ColumnWidthData(value.Value, Data.ModifiedColumnWidth, Data.TypeColumnWidth, Data.SizeColumnWidth, Data.OriginPathColumnWidth, Data.PathColumnWidth, Data.CompressedSizeColumnWidth, Data.CompressRateColumnWidth);
-            }
-        }
-
-        public GridLength ModifiedColumnWidth
-        {
-            get
-            {
-                return new GridLength(Data.ModifiedColumnWidth, GridUnitType.Star);
-            }
-            set
-            {
-                Data = new ColumnWidthData(Data.NameColumnWidth, value.Value, Data.TypeColumnWidth, Data.SizeColumnWidth, Data.OriginPathColumnWidth, Data.PathColumnWidth, Data.CompressedSizeColumnWidth, Data.CompressRateColumnWidth);
-            }
-        }
-
-        public GridLength TypeColumnWidth
-        {
-            get
-            {
-                return new GridLength(Data.TypeColumnWidth, GridUnitType.Star);
-            }
-            set
-            {
-                Data = new ColumnWidthData(Data.NameColumnWidth, Data.ModifiedColumnWidth, value.Value, Data.SizeColumnWidth, Data.OriginPathColumnWidth, Data.PathColumnWidth, Data.CompressedSizeColumnWidth, Data.CompressRateColumnWidth);
-            }
-        }
-
-        public GridLength SizeColumnWidth
-        {
-            get
-            {
-                return new GridLength(Data.SizeColumnWidth, GridUnitType.Star);
-            }
-            set
-            {
-                Data = new ColumnWidthData(Data.NameColumnWidth, Data.ModifiedColumnWidth, Data.TypeColumnWidth, value.Value, Data.OriginPathColumnWidth, Data.PathColumnWidth, Data.CompressedSizeColumnWidth, Data.CompressRateColumnWidth);
-            }
-        }
-
-        public GridLength OriginPathColumnWidth
-        {
-            get
-            {
-                return new GridLength(Data.OriginPathColumnWidth, GridUnitType.Star);
-            }
-            set
-            {
-                Data = new ColumnWidthData(Data.NameColumnWidth, Data.ModifiedColumnWidth, Data.TypeColumnWidth, Data.SizeColumnWidth, value.Value, Data.PathColumnWidth, Data.CompressedSizeColumnWidth, Data.CompressRateColumnWidth);
-            }
-        }
-
-        public GridLength PathColumnWidth
-        {
-            get
-            {
-                return new GridLength(Data.PathColumnWidth, GridUnitType.Star);
-            }
-            set
-            {
-                Data = new ColumnWidthData(Data.NameColumnWidth, Data.ModifiedColumnWidth, Data.TypeColumnWidth, Data.SizeColumnWidth, Data.OriginPathColumnWidth, value.Value, Data.CompressedSizeColumnWidth, Data.CompressRateColumnWidth);
-            }
-        }
-
-        public GridLength CompressedSizeColumnWidth
-        {
-            get
-            {
-                return new GridLength(Data.CompressedSizeColumnWidth, GridUnitType.Star);
-            }
-            set
-            {
-                Data = new ColumnWidthData(Data.NameColumnWidth, Data.ModifiedColumnWidth, Data.TypeColumnWidth, Data.SizeColumnWidth, Data.OriginPathColumnWidth, Data.PathColumnWidth, value.Value, Data.CompressRateColumnWidth);
-            }
-        }
-
-        public GridLength CompressRateColumnWidth
-        {
-            get
-            {
-                return new GridLength(Data.CompressRateColumnWidth, GridUnitType.Star);
-            }
-            set
-            {
-                Data = new ColumnWidthData(Data.NameColumnWidth, Data.ModifiedColumnWidth, Data.TypeColumnWidth, Data.SizeColumnWidth, Data.OriginPathColumnWidth, Data.PathColumnWidth, Data.CompressedSizeColumnWidth, value.Value);
-            }
-        }
-
-        public ListViewColumnWidthSaver(ListViewLocation Location)
-        {
-            ResourceKey = Location switch
+            get => Location switch
             {
                 ListViewLocation.Presenter => "PresenterListViewColumnWidthData",
                 ListViewLocation.RecycleBin => "RecycleBinListViewColumnWidthData",
@@ -133,10 +25,146 @@ namespace RX_Explorer.Class
                 ListViewLocation.Compression => "CompressionListViewColumnWidthData",
                 _ => throw new ArgumentException()
             };
+        }
 
-            if (ApplicationData.Current.LocalSettings.Values[ResourceKey] is string RawString)
+        private ColumnWidthData InnerData
+        {
+            get => Cache;
+            set
             {
-                InnerData = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
+                Cache = value;
+                ApplicationData.Current.LocalSettings.Values[Resource] = JsonSerializer.Serialize(value);
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        [DependsOn(nameof(InnerData))]
+        public GridLength NameColumnWidth
+        {
+            get
+            {
+                return new GridLength(InnerData.NameColumnWidth, GridUnitType.Star);
+            }
+            set
+            {
+                ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
+                NewData.NameColumnWidth = value.Value;
+                InnerData = NewData;
+            }
+        }
+
+        [DependsOn(nameof(InnerData))]
+        public GridLength ModifiedColumnWidth
+        {
+            get
+            {
+                return new GridLength(InnerData.ModifiedColumnWidth, GridUnitType.Star);
+            }
+            set
+            {
+                ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
+                NewData.ModifiedColumnWidth = value.Value;
+                InnerData = NewData;
+            }
+        }
+
+        [DependsOn(nameof(InnerData))]
+        public GridLength TypeColumnWidth
+        {
+            get
+            {
+                return new GridLength(InnerData.TypeColumnWidth, GridUnitType.Star);
+            }
+            set
+            {
+                ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
+                NewData.TypeColumnWidth = value.Value;
+                InnerData = NewData;
+            }
+        }
+
+        [DependsOn(nameof(InnerData))]
+        public GridLength SizeColumnWidth
+        {
+            get
+            {
+                return new GridLength(InnerData.SizeColumnWidth, GridUnitType.Star);
+            }
+            set
+            {
+                ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
+                NewData.SizeColumnWidth = value.Value;
+                InnerData = NewData;
+            }
+        }
+
+        [DependsOn(nameof(InnerData))]
+        public GridLength OriginPathColumnWidth
+        {
+            get
+            {
+                return new GridLength(InnerData.OriginPathColumnWidth, GridUnitType.Star);
+            }
+            set
+            {
+                ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
+                NewData.OriginPathColumnWidth = value.Value;
+                InnerData = NewData;
+            }
+        }
+
+        [DependsOn(nameof(InnerData))]
+        public GridLength PathColumnWidth
+        {
+            get
+            {
+                return new GridLength(InnerData.PathColumnWidth, GridUnitType.Star);
+            }
+            set
+            {
+                ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
+                NewData.PathColumnWidth = value.Value;
+                InnerData = NewData;
+            }
+        }
+
+        [DependsOn(nameof(InnerData))]
+        public GridLength CompressedSizeColumnWidth
+        {
+            get
+            {
+                return new GridLength(InnerData.CompressedSizeColumnWidth, GridUnitType.Star);
+            }
+            set
+            {
+                ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
+                NewData.CompressedSizeColumnWidth = value.Value;
+                InnerData = NewData;
+            }
+        }
+
+        [DependsOn(nameof(InnerData))]
+        public GridLength CompressRateColumnWidth
+        {
+            get
+            {
+                return new GridLength(InnerData.CompressRateColumnWidth, GridUnitType.Star);
+            }
+            set
+            {
+                ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
+                NewData.CompressRateColumnWidth = value.Value;
+                InnerData = NewData;
+            }
+        }
+
+        public ListViewColumnWidthSaver(ListViewLocation Location)
+        {
+            this.Location = Location;
+
+            if (ApplicationData.Current.LocalSettings.Values[Resource] is string RawString)
+            {
+                Cache = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
             }
             else
             {
@@ -144,49 +172,88 @@ namespace RX_Explorer.Class
                 {
                     case ListViewLocation.Presenter:
                         {
-                            InnerData = new ColumnWidthData(6, 2.5, 2, 1.5, 0, 0, 0, 0);
+                            Cache = new ColumnWidthData
+                            {
+                                NameColumnWidth = 6,
+                                ModifiedColumnWidth = 2.5,
+                                TypeColumnWidth = 2,
+                                SizeColumnWidth = 1.5,
+                                OriginPathColumnWidth = 0,
+                                PathColumnWidth = 0,
+                                CompressedSizeColumnWidth = 0,
+                                CompressRateColumnWidth = 0
+                            };
+
                             break;
                         }
                     case ListViewLocation.RecycleBin:
                         {
-                            InnerData = new ColumnWidthData(4, 2, 2, 1.5, 3, 0, 0, 0);
+                            Cache = new ColumnWidthData
+                            {
+                                NameColumnWidth = 4,
+                                ModifiedColumnWidth = 2,
+                                TypeColumnWidth = 2,
+                                SizeColumnWidth = 1.5,
+                                OriginPathColumnWidth = 3,
+                                PathColumnWidth = 0,
+                                CompressedSizeColumnWidth = 0,
+                                CompressRateColumnWidth = 0
+                            };
+
                             break;
                         }
                     case ListViewLocation.Search:
                         {
-                            InnerData = new ColumnWidthData(4, 2, 1.5, 1, 0, 3, 0, 0);
+                            Cache = new ColumnWidthData
+                            {
+                                NameColumnWidth = 4,
+                                ModifiedColumnWidth = 2,
+                                TypeColumnWidth = 1.5,
+                                SizeColumnWidth = 1,
+                                OriginPathColumnWidth = 0,
+                                PathColumnWidth = 3,
+                                CompressedSizeColumnWidth = 0,
+                                CompressRateColumnWidth = 0
+                            };
+
                             break;
                         }
                     case ListViewLocation.Compression:
                         {
-                            InnerData = new ColumnWidthData(5, 2.5, 2, 1, 0, 0, 1, 1);
+                            Cache = new ColumnWidthData
+                            {
+                                NameColumnWidth = 5,
+                                ModifiedColumnWidth = 2.5,
+                                TypeColumnWidth = 2,
+                                SizeColumnWidth = 1,
+                                OriginPathColumnWidth = 0,
+                                PathColumnWidth = 0,
+                                CompressedSizeColumnWidth = 1,
+                                CompressRateColumnWidth = 1
+                            };
+
                             break;
+                        }
+                    default:
+                        {
+                            throw new NotSupportedException();
                         }
                 }
             }
 
-            ApplicationData.Current.DataChanged += Current_DataChanged;
+            ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
             try
             {
-                if (ApplicationData.Current.LocalSettings.Values[ResourceKey] is string RawString)
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    InnerData = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
-                }
-
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    OnPropertyChanged(nameof(NameColumnWidth));
-                    OnPropertyChanged(nameof(ModifiedColumnWidth));
-                    OnPropertyChanged(nameof(TypeColumnWidth));
-                    OnPropertyChanged(nameof(SizeColumnWidth));
-                    OnPropertyChanged(nameof(OriginPathColumnWidth));
-                    OnPropertyChanged(nameof(PathColumnWidth));
-                    OnPropertyChanged(nameof(CompressedSizeColumnWidth));
-                    OnPropertyChanged(nameof(CompressRateColumnWidth));
+                    if (ApplicationData.Current.LocalSettings.Values[Resource] is string RawString)
+                    {
+                        InnerData = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
+                    }
                 });
             }
             catch (Exception)
@@ -195,39 +262,106 @@ namespace RX_Explorer.Class
             }
         }
 
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        private class ColumnWidthData : ICloneable, IEquatable<ColumnWidthData>
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-        }
+            public double NameColumnWidth { get; set; }
 
-        private class ColumnWidthData
-        {
-            public double NameColumnWidth { get; }
+            public double ModifiedColumnWidth { get; set; }
 
-            public double ModifiedColumnWidth { get; }
+            public double TypeColumnWidth { get; set; }
 
-            public double TypeColumnWidth { get; }
+            public double SizeColumnWidth { get; set; }
 
-            public double SizeColumnWidth { get; }
+            public double OriginPathColumnWidth { get; set; }
 
-            public double OriginPathColumnWidth { get; }
+            public double PathColumnWidth { get; set; }
 
-            public double PathColumnWidth { get; }
+            public double CompressedSizeColumnWidth { get; set; }
 
-            public double CompressedSizeColumnWidth { get; }
+            public double CompressRateColumnWidth { get; set; }
 
-            public double CompressRateColumnWidth { get; }
-
-            public ColumnWidthData(double NameColumnWidth, double ModifiedColumnWidth, double TypeColumnWidth, double SizeColumnWidth, double OriginPathColumnWidth, double PathColumnWidth, double CompressedSizeColumnWidth, double CompressRateColumnWidth)
+            public object Clone()
             {
-                this.NameColumnWidth = NameColumnWidth;
-                this.ModifiedColumnWidth = ModifiedColumnWidth;
-                this.TypeColumnWidth = TypeColumnWidth;
-                this.SizeColumnWidth = SizeColumnWidth;
-                this.OriginPathColumnWidth = OriginPathColumnWidth;
-                this.PathColumnWidth = PathColumnWidth;
-                this.CompressedSizeColumnWidth = CompressedSizeColumnWidth;
-                this.CompressRateColumnWidth = CompressRateColumnWidth;
+                return MemberwiseClone();
+            }
+
+            public bool Equals(ColumnWidthData other)
+            {
+                if (other == null)
+                {
+                    return false;
+                }
+
+                if (ReferenceEquals(this, other))
+                {
+                    return true;
+                }
+                else
+                {
+                    return other.NameColumnWidth == NameColumnWidth
+                           && other.ModifiedColumnWidth == ModifiedColumnWidth
+                           && other.TypeColumnWidth == TypeColumnWidth
+                           && other.SizeColumnWidth == SizeColumnWidth
+                           && other.OriginPathColumnWidth == OriginPathColumnWidth
+                           && other.PathColumnWidth == PathColumnWidth
+                           && other.CompressedSizeColumnWidth == CompressedSizeColumnWidth
+                           && other.CompressRateColumnWidth == CompressRateColumnWidth;
+                }
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is ColumnWidthData Item && Equals(Item);
+            }
+
+            public override int GetHashCode()
+            {
+                return NameColumnWidth.GetHashCode()
+                       ^ ModifiedColumnWidth.GetHashCode()
+                       ^ TypeColumnWidth.GetHashCode()
+                       ^ SizeColumnWidth.GetHashCode()
+                       ^ OriginPathColumnWidth.GetHashCode()
+                       ^ PathColumnWidth.GetHashCode()
+                       ^ CompressedSizeColumnWidth.GetHashCode()
+                       ^ CompressRateColumnWidth.GetHashCode();
+            }
+
+            public static bool operator ==(ColumnWidthData left, ColumnWidthData right)
+            {
+                if (left is null)
+                {
+                    return right is null;
+                }
+                else
+                {
+                    if (right is null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return left.Equals(right);
+                    }
+                }
+            }
+
+            public static bool operator !=(ColumnWidthData left, ColumnWidthData right)
+            {
+                if (left is null)
+                {
+                    return right is not null;
+                }
+                else
+                {
+                    if (right is null)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return !left.Equals(right);
+                    }
+                }
             }
         }
     }

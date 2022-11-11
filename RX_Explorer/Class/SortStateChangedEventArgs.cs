@@ -2,7 +2,7 @@
 
 namespace RX_Explorer.Class
 {
-    public sealed class SortStateChangedEventArgs : DeferredEventArgs
+    public sealed class SortStateChangedEventArgs
     {
         public SortTarget Target { get; }
 

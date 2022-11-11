@@ -1,7 +1,5 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading;
+﻿using PropertyChanged;
+using System;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -9,7 +7,8 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public sealed class NavigationRecordDisplay : INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class NavigationRecordDisplay
     {
         public string Path { get; }
 
@@ -17,13 +16,9 @@ namespace RX_Explorer.Class
 
         public BitmapImage Thumbnail { get; private set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private int IsContentLoaded;
-
-        public async Task LoadAsync()
+        public Task LoadAsync()
         {
-            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
+            return Execution.ExecuteOnceAsync(this, async () =>
             {
                 try
                 {
@@ -53,7 +48,7 @@ namespace RX_Explorer.Class
                     OnPropertyChanged(nameof(Thumbnail));
                     OnPropertyChanged(nameof(DisplayName));
                 }
-            }
+            });
         }
 
         public NavigationRecordDisplay(string Path)
@@ -73,11 +68,6 @@ namespace RX_Explorer.Class
                     DisplayName = Path;
                 }
             }
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
     }
 }

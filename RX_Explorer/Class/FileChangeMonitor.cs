@@ -196,8 +196,17 @@ namespace RX_Explorer.Class
 
         public void Dispose()
         {
-            CancelMonitorCore(true);
+            if (Execution.CheckAlreadyExecuted(this))
+            {
+                throw new ObjectDisposedException(nameof(FileChangeMonitor));
+            }
+
             GC.SuppressFinalize(this);
+
+            Execution.ExecuteOnce(this, () =>
+            {
+                CancelMonitorCore(true);
+            });
         }
 
         ~FileChangeMonitor()
@@ -241,10 +250,18 @@ namespace RX_Explorer.Class
 
             public void Dispose()
             {
-                Registration.Dispose();
-                Handle.Dispose();
+                if (Execution.CheckAlreadyExecuted(this))
+                {
+                    throw new ObjectDisposedException(nameof(FileChangeMonitorInternalData));
+                }
 
                 GC.SuppressFinalize(this);
+
+                Execution.ExecuteOnce(this, () =>
+                {
+                    Registration.Dispose();
+                    Handle.Dispose();
+                });
             }
 
             ~FileChangeMonitorInternalData()

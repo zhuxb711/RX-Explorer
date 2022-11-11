@@ -37,7 +37,7 @@
                 <Image HorizontalAlignment="Center"
                        Height="40"
                        Width="40"
-                       Source="{x:Bind Image,Mode=OneWay}"
+                       Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Stretch="Uniform" />
                 <TextBlock Width="75"
                            FontSize="12"
@@ -55,7 +55,7 @@
                 <Image HorizontalAlignment="Center"
                        Height="50"
                        Width="50"
-                       Source="{x:Bind Image,Mode=OneWay}"
+                       Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Stretch="Uniform" />
             </StackPanel>
         </DataTemplate>

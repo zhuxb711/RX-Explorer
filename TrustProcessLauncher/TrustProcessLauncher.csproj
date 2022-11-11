@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net6.0-windows</TargetFramework>
+		<TargetFramework>net7.0-windows</TargetFramework>
 		<OutputType>WinExe</OutputType>
 		<LangVersion>9.0</LangVersion>
 		<Platforms>x64;ARM64</Platforms>
@@ -12,6 +12,7 @@
 		<PublishSingleFile>true</PublishSingleFile>
 		<TieredCompilation>true</TieredCompilation>
 		<PublishTrimmed>true</PublishTrimmed>
+		<TieredPGO>true</TieredPGO>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>

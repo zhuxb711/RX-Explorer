@@ -37,9 +37,6 @@ namespace RX_Explorer.View
 {
     public sealed partial class SearchPage : Page
     {
-        private SortTarget STarget;
-        private SortDirection SDirection;
-
         private string LastPressString;
         private bool BlockKeyboardShortCutInput;
         private DateTimeOffset LastPressTime;
@@ -53,17 +50,18 @@ namespace RX_Explorer.View
         private ListViewBaseSelectionExtension SelectionExtension;
         private readonly PointerEventHandler PointerPressedEventHandler;
         private readonly PointerEventHandler PointerReleasedEventHandler;
-        private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
         private readonly ObservableCollection<FileSystemStorageItemBase> SearchResult = new ObservableCollection<FileSystemStorageItemBase>();
         private readonly SignalContext SignalControl = new SignalContext();
         private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Search);
         private readonly InterlockedNoReentryExecution HeaderClickExecution = new InterlockedNoReentryExecution();
+        private readonly FilterController ListViewHeaderFilter = new FilterController();
+        private readonly SortIndicatorController ListViewHeaderSortIndicator = new SortIndicatorController();
 
         public SearchPage()
         {
             InitializeComponent();
 
-            ListViewDetailHeader.Filter.RefreshListRequested += Filter_RefreshListRequested;
+            ListViewHeaderFilter.RefreshListRequested += Filter_RefreshListRequested;
 
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
             PointerReleasedEventHandler = new PointerEventHandler(ViewControl_PointerReleased);
@@ -86,7 +84,7 @@ namespace RX_Explorer.View
         {
             SearchResult.Clear();
 
-            foreach (FileSystemStorageItemBase Item in await SortedCollectionGenerator.GetSortedCollectionAsync(e.FilterCollection, STarget, SDirection, SortStyle.UseFileSystemStyle))
+            foreach (FileSystemStorageItemBase Item in await SortedCollectionGenerator.GetSortedCollectionAsync(e.FilterCollection, ListViewHeaderSortIndicator.Target, ListViewHeaderSortIndicator.Direction, SortStyle.None))
             {
                 SearchResult.Add(Item);
             }
@@ -283,8 +281,8 @@ namespace RX_Explorer.View
 
         private async Task SearchAsync(SearchOptions Options, CancellationToken CancelToken)
         {
-            STarget = SortTarget.Name;
-            SDirection = SortDirection.Ascending;
+            ListViewHeaderSortIndicator.Target = SortTarget.Name;
+            ListViewHeaderSortIndicator.Direction = SortDirection.Ascending;
             HasItem.Visibility = Visibility.Collapsed;
 
             if (SettingPage.IsSearchHistoryEnabled)
@@ -316,11 +314,11 @@ namespace RX_Explorer.View
                                 {
                                     await SignalControl.TrapOnSignalAsync();
 
-                                    SearchResult.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection, SortStyle.UseFileSystemStyle), Item);
+                                    SearchResult.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, ListViewHeaderSortIndicator.Target, ListViewHeaderSortIndicator.Direction, SortStyle.None), Item);
 
                                     if (SearchResult.Count % 25 == 0)
                                     {
-                                        await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
+                                        await ListViewHeaderFilter.SetDataSourceAsync(SearchResult);
                                     }
                                 }
 
@@ -342,11 +340,11 @@ namespace RX_Explorer.View
                                 {
                                     await SignalControl.TrapOnSignalAsync();
 
-                                    SearchResult.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, STarget, SDirection, SortStyle.UseFileSystemStyle), Item);
+                                    SearchResult.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(SearchResult, Item, ListViewHeaderSortIndicator.Target, ListViewHeaderSortIndicator.Direction, SortStyle.None), Item);
 
                                     if (SearchResult.Count % 25 == 0)
                                     {
-                                        await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
+                                        await ListViewHeaderFilter.SetDataSourceAsync(SearchResult);
                                     }
                                 }
 
@@ -364,7 +362,7 @@ namespace RX_Explorer.View
                     HasItem.Visibility = Visibility.Visible;
                 }
 
-                await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
+                await ListViewHeaderFilter.SetDataSourceAsync(SearchResult);
             }
             catch (Exception ex)
             {
@@ -944,18 +942,17 @@ namespace RX_Explorer.View
                                 _ => throw new NotSupportedException()
                             };
 
-                            if (STarget == CTarget)
+                            if (ListViewHeaderSortIndicator.Target == CTarget)
                             {
-                                SDirection = SDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
+                                ListViewHeaderSortIndicator.Direction = ListViewHeaderSortIndicator.Direction == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
                             }
                             else
                             {
-                                STarget = CTarget;
-                                SDirection = SortDirection.Ascending;
+                                ListViewHeaderSortIndicator.Target = CTarget;
+                                ListViewHeaderSortIndicator.Direction = SortDirection.Ascending;
                             }
 
-                            ListViewDetailHeader.Indicator.SetIndicatorStatus(STarget, SDirection);
-                            SearchResult.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(SearchResult.DuplicateAndClear(), STarget, SDirection, SortStyle.UseFileSystemStyle));
+                            SearchResult.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(SearchResult.DuplicateAndClear(), ListViewHeaderSortIndicator.Target, ListViewHeaderSortIndicator.Direction, SortStyle.None));
                         }
                     });
                 }

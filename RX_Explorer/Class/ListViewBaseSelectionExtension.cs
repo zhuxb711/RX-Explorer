@@ -14,7 +14,6 @@ namespace RX_Explorer.Class
 {
     public sealed class ListViewBaseSelectionExtension : IDisposable
     {
-        private bool IsDisposed;
         private ListViewBase View;
         private Rectangle RectangleInCanvas;
         private Point AbsStartPoint;
@@ -328,12 +327,15 @@ namespace RX_Explorer.Class
 
         public void Dispose()
         {
-            if (!IsDisposed)
+            if (Execution.CheckAlreadyExecuted(this))
             {
-                IsDisposed = true;
+                throw new ObjectDisposedException(nameof(ListViewBaseSelectionExtension));
+            }
 
-                GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
 
+            Execution.ExecuteOnce(this, () =>
+            {
                 View.RemoveHandler(UIElement.PointerPressedEvent, PointerPressedHandler);
                 View.RemoveHandler(UIElement.PointerReleasedEvent, PointerReleasedHandler);
                 View.RemoveHandler(UIElement.PointerCaptureLostEvent, PointerCaptureLostHandler);
@@ -351,7 +353,7 @@ namespace RX_Explorer.Class
                 RectangleInCanvas = null;
                 InnerScrollView = null;
                 InnerScrollBar = null;
-            }
+            });
         }
 
         ~ListViewBaseSelectionExtension()

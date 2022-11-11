@@ -1,15 +1,15 @@
-﻿###Was ist neu in Ver.8.0.5.0
+﻿###Was ist neu in Ver.8.0.6.0
+
+###⚠Warnung: Die UWP-Version setzt Updates aus und bleibt nur Wartung, RX-Exploerer wird zu WinAppSdk migriert
 
 #####UI-Update
 
->#####Optionsschaltflächen haben jetzt einen höheren Kontrast, wenn es Dateinamenskonflikte gibt
+>#####Ordner im Papierkorb zeigen jetzt ihre Größe an
 
 #####Fehlerbehebung
 
->#####Problem behoben, dass auf den FTP-Serverpfad mit dem angegebenen Port nicht korrekt zugegriffen werden konnte
+>#####Das Problem, dass die Verknüpfungsdatei im Papierkorb das Miniaturbild nicht korrekt anzeigen konnte, wurde behoben
 
->#####Es wurde ein Problem behoben, bei dem das Ausführen von zugeordneten Netzlaufwerken oder UNC-Pfads unnötige Rechteerhöhungen erfordert und schließlich dazu führt, dass die Aufgabe fehlschlägt
+>#####Es wurde ein Problem behoben, bei dem die Recyclingzeit des Papierkorbs möglicherweise falsch war
 
->#####Das Problem, dass temporäre Dateien im temporären Verzeichnis des Systems verbleiben können, nachdem die Dateien auf dem MTP-Gerät bearbeitet wurden, wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem einige Tastaturkürzel in der Anleitung für Tastaturkürzel fehlten
+>#####Einige Probleme im Zusammenhang mit der Sortierung von Dateinamen wurden behoben

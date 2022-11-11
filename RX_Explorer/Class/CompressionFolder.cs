@@ -15,9 +15,11 @@ namespace RX_Explorer.Class
 
         public override string DisplayType => Type;
 
-        public override long Size => 0;
+        public override ulong Size => 0;
 
         public override long CompressedSize => 0;
+
+        public override bool IsDirectory => true;
 
         protected override Task LoadCoreAsync()
         {

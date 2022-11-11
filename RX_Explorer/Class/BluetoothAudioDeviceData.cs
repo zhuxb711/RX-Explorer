@@ -1,167 +1,115 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using PropertyChanged;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Walterlv.WeakEvents;
 using Windows.Devices.Enumeration;
 using Windows.Media.Audio;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public sealed class BluetoothAudioDeviceData : INotifyPropertyChanged, IDisposable
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class BluetoothAudioDeviceData : IDisposable
     {
-        private readonly DeviceInformation DeviceInfo;
+        private static readonly WeakEvent<bool> WeakConnectionStatusChanged = new WeakEvent<bool>();
+        private static event EventHandler<bool> ConnectionStatusChanged
+        {
+            add => WeakConnectionStatusChanged.Add(value, value.Invoke);
+            remove => WeakConnectionStatusChanged.Remove(value);
+        }
 
         private AudioPlaybackConnection AudioConnection;
 
-        private static event EventHandler<bool> ConnectionStatusChanged;
+        private DeviceInformation DeviceInfo { get; }
 
         public BitmapImage Glyph { get; }
 
-        public string Name
-        {
-            get
-            {
-                return string.IsNullOrWhiteSpace(DeviceInfo.Name) ? Globalization.GetString("UnknownText") : DeviceInfo.Name;
-            }
-        }
+        public string Name => string.IsNullOrWhiteSpace(DeviceInfo.Name) ? Globalization.GetString("UnknownText") : DeviceInfo.Name;
 
         public string Status { get; private set; }
 
-        public string Id
-        {
-            get
-            {
-                return DeviceInfo.Id;
-            }
-        }
+        public string Id => DeviceInfo.Id;
 
         public string ActionButtonText { get; private set; }
 
-        public bool ActionButtonEnabled { get; private set; } = true;
+        public bool ActionButtonEnabled { get; private set; }
 
+        [OnChangedMethod(nameof(OnIsConnectedChanged))]
         public bool IsConnected { get; private set; }
 
         public async Task ConnectAsync()
         {
             try
             {
-                if (AudioConnection != null)
-                {
-                    AudioConnection.Dispose();
-                    AudioConnection = null;
-                }
-
-                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
                 ActionButtonEnabled = false;
+                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
                 Status = Globalization.GetString("BluetoothAudio_Status_2");
 
-                OnPropertyChanged(nameof(ActionButtonEnabled));
-                OnPropertyChanged(nameof(ActionButtonText));
-                OnPropertyChanged(nameof(Status));
-
-                ConnectionStatusChanged?.Invoke(this, true);
-
-                AudioConnection = AudioPlaybackConnection.TryCreateFromId(Id);
-
-                if (AudioConnection != null)
+                if (Interlocked.Exchange(ref AudioConnection, AudioPlaybackConnection.TryCreateFromId(Id)) is AudioPlaybackConnection OldConnection)
                 {
-                    await AudioConnection.StartAsync();
+                    OldConnection.Dispose();
+                }
 
-                    AudioPlaybackConnectionOpenResult Result = await AudioConnection.OpenAsync();
+                IsConnected = false;
 
-                    switch (Result.Status)
+                try
+                {
+                    if (AudioConnection != null)
                     {
-                        case AudioPlaybackConnectionOpenResultStatus.Success:
-                            {
-                                IsConnected = true;
+                        await AudioConnection.StartAsync();
 
-                                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_2");
-                                Status = Globalization.GetString("BluetoothAudio_Status_3");
-                                ActionButtonEnabled = true;
+                        AudioPlaybackConnectionOpenResult Result = await AudioConnection.OpenAsync();
 
-                                OnPropertyChanged(nameof(ActionButtonEnabled));
-                                OnPropertyChanged(nameof(ActionButtonText));
-                                OnPropertyChanged(nameof(Status));
-
-                                break;
-                            }
-                        case AudioPlaybackConnectionOpenResultStatus.RequestTimedOut:
-                            {
-                                IsConnected = false;
-
-                                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
-                                Status = Globalization.GetString("BluetoothAudio_Status_4");
-                                ActionButtonEnabled = true;
-
-                                OnPropertyChanged(nameof(ActionButtonEnabled));
-                                OnPropertyChanged(nameof(ActionButtonText));
-                                OnPropertyChanged(nameof(Status));
-
-                                ConnectionStatusChanged?.Invoke(this, false);
-
-                                LogTracer.Log("Connect to AudioPlayback failed for time out");
-
-                                break;
-                            }
-                        case AudioPlaybackConnectionOpenResultStatus.DeniedBySystem:
-                            {
-                                IsConnected = false;
-
-                                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
-                                Status = Globalization.GetString("BluetoothAudio_Status_5");
-                                ActionButtonEnabled = true;
-
-                                OnPropertyChanged(nameof(ActionButtonEnabled));
-                                OnPropertyChanged(nameof(ActionButtonText));
-                                OnPropertyChanged(nameof(Status));
-
-                                ConnectionStatusChanged?.Invoke(this, false);
-
-                                LogTracer.Log("Connect to AudioPlayback failed for being denied by system");
-
-                                break;
-                            }
-                        case AudioPlaybackConnectionOpenResultStatus.UnknownFailure:
-                            {
-                                IsConnected = false;
-
-                                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
-                                Status = Globalization.GetString("BluetoothAudio_Status_6");
-                                ActionButtonEnabled = true;
-
-                                OnPropertyChanged(nameof(ActionButtonEnabled));
-                                OnPropertyChanged(nameof(ActionButtonText));
-                                OnPropertyChanged(nameof(Status));
-
-                                ConnectionStatusChanged?.Invoke(this, false);
-
-                                if (Result.ExtendedError != null)
+                        switch (Result.Status)
+                        {
+                            case AudioPlaybackConnectionOpenResultStatus.Success:
                                 {
-                                    LogTracer.Log(Result.ExtendedError, "Connect to AudioPlayback failed for unknown reason");
-                                }
-                                else
-                                {
-                                    LogTracer.Log("Connect to AudioPlayback failed for unknown reason");
-                                }
+                                    IsConnected = true;
+                                    ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_2");
+                                    Status = Globalization.GetString("BluetoothAudio_Status_3");
 
-                                break;
-                            }
+                                    break;
+                                }
+                            case AudioPlaybackConnectionOpenResultStatus.RequestTimedOut:
+                                {
+                                    Status = Globalization.GetString("BluetoothAudio_Status_4");
+                                    LogTracer.Log("Connect to AudioPlayback failed for time out");
+
+                                    break;
+                                }
+                            case AudioPlaybackConnectionOpenResultStatus.DeniedBySystem:
+                                {
+                                    Status = Globalization.GetString("BluetoothAudio_Status_5");
+                                    LogTracer.Log("Connect to AudioPlayback failed for being denied by system");
+
+                                    break;
+                                }
+                            case AudioPlaybackConnectionOpenResultStatus.UnknownFailure:
+                                {
+                                    Status = Globalization.GetString("BluetoothAudio_Status_6");
+
+                                    if (Result.ExtendedError != null)
+                                    {
+                                        LogTracer.Log(Result.ExtendedError, "Connect to AudioPlayback failed for unknown reason");
+                                    }
+                                    else
+                                    {
+                                        LogTracer.Log("Connect to AudioPlayback failed for unknown reason");
+                                    }
+
+                                    break;
+                                }
+                        }
+                    }
+                    else
+                    {
+                        Status = Globalization.GetString("BluetoothAudio_Status_7");
                     }
                 }
-                else
+                finally
                 {
-                    IsConnected = false;
-
-                    ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
-                    Status = Globalization.GetString("BluetoothAudio_Status_7");
                     ActionButtonEnabled = true;
-
-                    OnPropertyChanged(nameof(ActionButtonEnabled));
-                    OnPropertyChanged(nameof(ActionButtonText));
-                    OnPropertyChanged(nameof(Status));
-
-                    ConnectionStatusChanged?.Invoke(this, false);
                 }
             }
             catch (Exception ex)
@@ -173,95 +121,77 @@ namespace RX_Explorer.Class
                 ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
                 Status = Globalization.GetString("BluetoothAudio_Status_7");
                 ActionButtonEnabled = true;
-
-                OnPropertyChanged(nameof(ActionButtonEnabled));
-                OnPropertyChanged(nameof(ActionButtonText));
-                OnPropertyChanged(nameof(Status));
-
-                ConnectionStatusChanged?.Invoke(this, false);
             }
+        }
+
+        public void Update(DeviceInformationUpdate Update)
+        {
+            DeviceInfo.Update(Update);
+            OnPropertyChanged(nameof(Name));
+            OnPropertyChanged(nameof(Id));
         }
 
         public void Disconnect()
         {
-            if (AudioConnection != null)
+            if (Interlocked.Exchange(ref AudioConnection, null) is AudioPlaybackConnection OldConnection)
             {
-                AudioConnection.Dispose();
-                AudioConnection = null;
+                OldConnection.Dispose();
             }
 
             IsConnected = false;
-
             ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
             ActionButtonEnabled = true;
             Status = Globalization.GetString("BluetoothAudio_Status_1");
-
-            OnPropertyChanged(nameof(ActionButtonEnabled));
-            OnPropertyChanged(nameof(ActionButtonText));
-            OnPropertyChanged(nameof(Status));
-
-            ConnectionStatusChanged?.Invoke(this, false);
         }
 
-        public void Update(DeviceInformationUpdate DeviceInfoUpdate)
-        {
-            DeviceInfo.Update(DeviceInfoUpdate);
-            OnPropertyChanged(nameof(Name));
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public BluetoothAudioDeviceData(DeviceInformation DeviceInfo) : this(DeviceInfo, null)
+        public BluetoothAudioDeviceData(DeviceInformation DeviceInfo) : this(null, DeviceInfo)
         {
 
         }
 
-        public BluetoothAudioDeviceData(DeviceInformation DeviceInfo, BitmapImage Glyph)
+        public BluetoothAudioDeviceData(BitmapImage Glyph, DeviceInformation DeviceInfo)
         {
             this.Glyph = Glyph;
             this.DeviceInfo = DeviceInfo;
 
             Status = Globalization.GetString("BluetoothAudio_Status_1");
             ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
+            ActionButtonEnabled = true;
 
             ConnectionStatusChanged += StatusChanged;
+        }
+
+        private void OnIsConnectedChanged()
+        {
+            WeakConnectionStatusChanged?.Invoke(this, IsConnected);
         }
 
         private void StatusChanged(object sender, bool IsConnected)
         {
             if (sender != this)
             {
-                if (IsConnected)
-                {
-                    ActionButtonEnabled = false;
-                    OnPropertyChanged(nameof(ActionButtonEnabled));
-                }
-                else
-                {
-                    ActionButtonEnabled = true;
-                    OnPropertyChanged(nameof(ActionButtonEnabled));
-                }
+                ActionButtonEnabled = !IsConnected;
             }
         }
 
         public void Dispose()
         {
-            GC.SuppressFinalize(this);
-
-            IsConnected = false;
-
-            if (AudioConnection != null)
+            if (Execution.CheckAlreadyExecuted(this))
             {
-                AudioConnection.Dispose();
-                AudioConnection = null;
+                throw new ObjectDisposedException(nameof(BluetoothAudioDeviceData));
             }
 
-            ConnectionStatusChanged -= StatusChanged;
+            GC.SuppressFinalize(this);
+
+            Execution.ExecuteOnce(this, () =>
+            {
+                IsConnected = false;
+
+                AudioConnection?.Dispose();
+                AudioConnection = null;
+
+                ConnectionStatusChanged -= StatusChanged;
+            });
         }
 
         ~BluetoothAudioDeviceData()

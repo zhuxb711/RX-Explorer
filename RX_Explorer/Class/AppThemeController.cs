@@ -1,6 +1,6 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using PropertyChanged;
+using System;
+using Walterlv.WeakEvents;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI;
@@ -10,47 +10,48 @@ using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
 {
-    /// <summary>
-    /// 提供对字体颜色的切换功能
-    /// </summary>
-    public sealed class AppThemeController : INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class AppThemeController
     {
-        /// <summary>
-        /// 指示当前应用的主题色
-        /// </summary>
+        private static AppThemeController Instance;
+        private static readonly UISettings Settings = new UISettings();
+        private static readonly object Locker = new object();
+
+        private readonly WeakEvent<ElementTheme> WeakThemeChanged = new WeakEvent<ElementTheme>();
+
         public ElementTheme Theme
         {
             get
             {
-                return theme;
+                if (ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] is string Mode)
+                {
+                    if (Enum.TryParse(Mode, out ElementTheme Result))
+                    {
+                        return Result;
+                    }
+                }
+
+                return ElementTheme.Dark;
             }
             set
             {
-                if (value != theme)
-                {
-                    theme = value;
-
-                    ThemeChanged?.Invoke(null, value);
-
-                    OnPropertyChanged();
-
-                    ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), value);
-                    ApplicationData.Current.SignalDataChanged();
-                }
+                ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), value);
+                ApplicationData.Current.SignalDataChanged();
+                WeakThemeChanged.Invoke(this, Theme);
             }
         }
 
-        private ElementTheme theme;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public event EventHandler<ElementTheme> ThemeChanged;
-
-        private readonly UISettings UIS;
-
-        private static AppThemeController Instance;
-
-        private static readonly object Locker = new object();
+        public event EventHandler<ElementTheme> ThemeChanged
+        {
+            add
+            {
+                WeakThemeChanged.Add(value, value.Invoke);
+            }
+            remove
+            {
+                WeakThemeChanged.Remove(value);
+            }
+        }
 
         public static AppThemeController Current
         {
@@ -65,7 +66,7 @@ namespace RX_Explorer.Class
 
         public void SyncAndSetSystemTheme()
         {
-            if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
+            if (Settings.GetColorValue(UIColorType.Background) == Colors.White)
             {
                 Theme = ElementTheme.Light;
             }
@@ -75,29 +76,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        /// <summary>
-        /// 初始化AppThemeController对象
-        /// </summary>
         private AppThemeController()
         {
-            UIS = new UISettings();
-
-            ApplicationData.Current.DataChanged += Current_DataChanged;
-
-            if (ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] is string Mode)
-            {
-                Theme = Enum.Parse<ElementTheme>(Mode);
-            }
-            else
-            {
-                Theme = ElementTheme.Dark;
-                ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = "Dark";
-            }
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+            ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)
@@ -106,7 +87,7 @@ namespace RX_Explorer.Class
             {
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    Theme = Enum.Parse<ElementTheme>(Convert.ToString(ApplicationData.Current.LocalSettings.Values["AppFontColorMode"]));
+                    OnPropertyChanged(nameof(Theme));
                 });
             }
             catch (Exception)

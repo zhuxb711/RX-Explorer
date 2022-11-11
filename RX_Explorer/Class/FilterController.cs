@@ -1,13 +1,13 @@
 ﻿using Nito.AsyncEx;
+using PropertyChanged;
 using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Walterlv.WeakEvents;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -17,8 +17,10 @@ using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
-    public sealed class FilterController : INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class FilterController
     {
+        private int AllowRaiseRefreshEvent = 1;
         private NameFilterCondition NameCondition;
         private ModTimeFilterCondition ModTimeCondition;
         private SizeFilterCondition SizeCondition;
@@ -29,534 +31,80 @@ namespace RX_Explorer.Class
         private readonly List<FileSystemStorageItemBase> OriginCopy = new List<FileSystemStorageItemBase>();
         private readonly Dictionary<string, string> DisplayTypeList = new Dictionary<string, string>();
         private readonly AsyncLock SourceChangeLock = new AsyncLock();
+        private readonly WeakEvent<RefreshRequestedEventArgs> WeakRefreshListRequested = new WeakEvent<RefreshRequestedEventArgs>();
 
-        private DateTimeOffset? fromDate;
-        private DateTimeOffset fromDateMax = DateTimeOffset.Now;
-        private DateTimeOffset? toDate;
-        private string regexExpression;
-
-        private bool nameFilterCheckBox1;
-        private bool nameFilterCheckBox2;
-        private bool nameFilterCheckBox3;
-        private bool nameFilterCheckBox4;
-        private bool nameFilterCheckBox5;
-        private bool nameFilterCheckBox6;
-        private bool modFilterCheckBox1;
-        private bool modFilterCheckBox2;
-        private bool modFilterCheckBox3;
-        private bool modFilterCheckBox4;
-        private bool sizeFilterCheckBox1;
-        private bool sizeFilterCheckBox2;
-        private bool sizeFilterCheckBox3;
-        private bool sizeFilterCheckBox4;
-        private bool colorFilterCheckBox1;
-        private bool colorFilterCheckBox2;
-        private bool colorFilterCheckBox3;
-        private bool colorFilterCheckBox4;
-        private bool isLabelSelectionEnabled = true;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public event EventHandler<RefreshRequestedEventArgs> RefreshListRequested;
-
-        public bool IsLabelSelectionEnabled
+        public event EventHandler<RefreshRequestedEventArgs> RefreshListRequested
         {
-            get
-            {
-                return isLabelSelectionEnabled;
-            }
-            set
-            {
-                if (isLabelSelectionEnabled != value)
-                {
-                    isLabelSelectionEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
+            add => WeakRefreshListRequested.Add(value, value.Invoke);
+            remove => WeakRefreshListRequested.Remove(value);
         }
 
-        public bool? NameFilterCheckBox1
-        {
-            get
-            {
-                return nameFilterCheckBox1;
-            }
-            set
-            {
-                if (nameFilterCheckBox1 != value.GetValueOrDefault())
-                {
-                    nameFilterCheckBox1 = value.GetValueOrDefault();
+        public bool IsLabelSelectionEnabled { get; set; }
 
-                    if (nameFilterCheckBox1)
-                    {
-                        AddNameCondition(NameFilterCondition.From_A_To_G);
-                        NameFilterCheckBox6 = false;
-                    }
-                    else
-                    {
-                        RemoveNameCondition(NameFilterCondition.From_A_To_G);
-                    }
+        public bool AnyConditionApplied => NameCondition != NameFilterCondition.None || ColorCondition != ColorFilterCondition.None || ModTimeCondition != ModTimeFilterCondition.None || SizeCondition != SizeFilterCondition.None || TypeFilter.Count > 0;
 
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
+        [OnChangedMethod(nameof(OnNameFilterCheckBox1Changed))]
+        public bool NameFilterCheckBox1 { get; set; }
 
-        public bool? NameFilterCheckBox2
-        {
-            get
-            {
-                return nameFilterCheckBox2;
-            }
-            set
-            {
-                if (nameFilterCheckBox2 != value.GetValueOrDefault())
-                {
-                    nameFilterCheckBox2 = value.GetValueOrDefault();
+        [OnChangedMethod(nameof(OnNameFilterCheckBox2Changed))]
+        public bool NameFilterCheckBox2 { get; set; }
 
-                    if (nameFilterCheckBox2)
-                    {
-                        AddNameCondition(NameFilterCondition.From_H_To_N);
-                        NameFilterCheckBox6 = false;
-                    }
-                    else
-                    {
-                        RemoveNameCondition(NameFilterCondition.From_H_To_N);
-                    }
+        [OnChangedMethod(nameof(OnNameFilterCheckBox3Changed))]
+        public bool NameFilterCheckBox3 { get; set; }
 
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
+        [OnChangedMethod(nameof(OnNameFilterCheckBox4Changed))]
+        public bool NameFilterCheckBox4 { get; set; }
 
+        [OnChangedMethod(nameof(OnNameFilterCheckBox5Changed))]
+        public bool NameFilterCheckBox5 { get; set; }
 
-        public bool? NameFilterCheckBox3
-        {
-            get
-            {
-                return nameFilterCheckBox3;
-            }
-            set
-            {
-                if (nameFilterCheckBox3 != value.GetValueOrDefault())
-                {
-                    nameFilterCheckBox3 = value.GetValueOrDefault();
+        [OnChangedMethod(nameof(OnNameFilterCheckBox6Changed))]
+        public bool NameFilterCheckBox6 { get; set; }
 
-                    if (nameFilterCheckBox3)
-                    {
-                        AddNameCondition(NameFilterCondition.From_O_To_T);
-                        NameFilterCheckBox6 = false;
-                    }
-                    else
-                    {
-                        RemoveNameCondition(NameFilterCondition.From_O_To_T);
-                    }
+        [OnChangedMethod(nameof(OnRegexExpressionChanged))]
+        public string RegexExpression { get; set; }
 
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
+        [OnChangedMethod(nameof(OnModTimeFilterCheckBox1Changed))]
+        public bool ModTimeFilterCheckBox1 { get; set; }
 
+        [OnChangedMethod(nameof(OnModTimeFilterCheckBox2Changed))]
+        public bool ModTimeFilterCheckBox2 { get; set; }
 
-        public bool? NameFilterCheckBox4
-        {
-            get
-            {
-                return nameFilterCheckBox4;
-            }
-            set
-            {
-                if (nameFilterCheckBox4 != value.GetValueOrDefault())
-                {
-                    nameFilterCheckBox4 = value.GetValueOrDefault();
+        [OnChangedMethod(nameof(OnModTimeFilterCheckBox3Changed))]
+        public bool ModTimeFilterCheckBox3 { get; set; }
 
-                    if (nameFilterCheckBox4)
-                    {
-                        AddNameCondition(NameFilterCondition.From_U_To_Z);
-                        NameFilterCheckBox6 = false;
-                    }
-                    else
-                    {
-                        RemoveNameCondition(NameFilterCondition.From_U_To_Z);
-                    }
+        [OnChangedMethod(nameof(OnModTimeFilterCheckBox4Changed))]
+        public bool ModTimeFilterCheckBox4 { get; set; }
 
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
+        [OnChangedMethod(nameof(OnSizeFilterCheckBox1Changed))]
+        public bool SizeFilterCheckBox1 { get; set; }
 
-        public bool? NameFilterCheckBox5
-        {
-            get
-            {
-                return nameFilterCheckBox5;
-            }
-            set
-            {
-                if (nameFilterCheckBox5 != value.GetValueOrDefault())
-                {
-                    nameFilterCheckBox5 = value.GetValueOrDefault();
+        [OnChangedMethod(nameof(OnSizeFilterCheckBox2Changed))]
+        public bool SizeFilterCheckBox2 { get; set; }
 
-                    if (nameFilterCheckBox5)
-                    {
-                        AddNameCondition(NameFilterCondition.Other);
-                        NameFilterCheckBox6 = false;
-                    }
-                    else
-                    {
-                        RemoveNameCondition(NameFilterCondition.Other);
-                    }
+        [OnChangedMethod(nameof(OnSizeFilterCheckBox3Changed))]
+        public bool SizeFilterCheckBox3 { get; set; }
 
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
+        [OnChangedMethod(nameof(OnSizeFilterCheckBox4Changed))]
+        public bool SizeFilterCheckBox4 { get; set; }
 
-        public bool? NameFilterCheckBox6
-        {
-            get
-            {
-                return nameFilterCheckBox6;
-            }
-            set
-            {
-                if (nameFilterCheckBox6 != value.GetValueOrDefault())
-                {
-                    nameFilterCheckBox6 = value.GetValueOrDefault();
+        [OnChangedMethod(nameof(OnColorFilterCheckBox1Changed))]
+        public bool ColorFilterCheckBox1 { get; set; }
 
-                    if (nameFilterCheckBox6)
-                    {
-                        AddNameCondition(NameFilterCondition.Regex);
-                        NameFilterCheckBox1 = false;
-                        NameFilterCheckBox2 = false;
-                        NameFilterCheckBox3 = false;
-                        NameFilterCheckBox4 = false;
-                        NameFilterCheckBox5 = false;
-                    }
-                    else
-                    {
-                        RemoveNameCondition(NameFilterCondition.Regex);
-                    }
+        [OnChangedMethod(nameof(OnColorFilterCheckBox2Changed))]
+        public bool ColorFilterCheckBox2 { get; set; }
 
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
+        [OnChangedMethod(nameof(OnColorFilterCheckBox3Changed))]
+        public bool ColorFilterCheckBox3 { get; set; }
 
-        public string RegexExpression
-        {
-            get
-            {
-                return regexExpression;
-            }
-            set
-            {
-                regexExpression = value;
+        [OnChangedMethod(nameof(OnColorFilterCheckBox4Changed))]
+        public bool ColorFilterCheckBox4 { get; set; }
 
-                OnPropertyChanged();
+        [OnChangedMethod(nameof(OnFromDateChanged))]
+        public DateTimeOffset FromDate { get; set; }
 
-                if (NameFilterCheckBox6.GetValueOrDefault())
-                {
-                    RaiseRefreshEvent();
-                }
-            }
-        }
-
-        public bool? ModTimeFilterCheckBox1
-        {
-            get
-            {
-                return modFilterCheckBox1;
-            }
-            set
-            {
-                if (modFilterCheckBox1 != value.GetValueOrDefault())
-                {
-                    modFilterCheckBox1 = value.GetValueOrDefault();
-
-                    if (modFilterCheckBox1)
-                    {
-                        if (FromDate != null || ToDate != null)
-                        {
-                            AddModTimeCondition(ModTimeFilterCondition.Range, FromDate.GetValueOrDefault(), ToDate ?? DateTimeOffset.Now);
-                            RaiseRefreshEvent();
-                        }
-                    }
-                    else
-                    {
-                        RemoveModTimeCondition(ModTimeFilterCondition.Range);
-                        RaiseRefreshEvent();
-                    }
-
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool? ModTimeFilterCheckBox2
-        {
-            get
-            {
-                return modFilterCheckBox2;
-            }
-            set
-            {
-                if (modFilterCheckBox2 != value.GetValueOrDefault())
-                {
-                    modFilterCheckBox2 = value.GetValueOrDefault();
-
-                    if (modFilterCheckBox2)
-                    {
-                        AddModTimeCondition(ModTimeFilterCondition.One_Month_Ago);
-                    }
-                    else
-                    {
-                        RemoveModTimeCondition(ModTimeFilterCondition.One_Month_Ago);
-                    }
-
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
-
-        public bool? ModTimeFilterCheckBox3
-        {
-            get
-            {
-                return modFilterCheckBox3;
-            }
-            set
-            {
-                if (modFilterCheckBox3 != value.GetValueOrDefault())
-                {
-                    modFilterCheckBox3 = value.GetValueOrDefault();
-
-                    if (modFilterCheckBox3)
-                    {
-                        AddModTimeCondition(ModTimeFilterCondition.Three_Month_Ago);
-                    }
-                    else
-                    {
-                        RemoveModTimeCondition(ModTimeFilterCondition.Three_Month_Ago);
-                    }
-
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
-
-        public bool? ModTimeFilterCheckBox4
-        {
-            get
-            {
-                return modFilterCheckBox4;
-            }
-            set
-            {
-                if (modFilterCheckBox4 != value.GetValueOrDefault())
-                {
-                    modFilterCheckBox4 = value.GetValueOrDefault();
-
-                    if (modFilterCheckBox4)
-                    {
-                        AddModTimeCondition(ModTimeFilterCondition.Long_Ago);
-                    }
-                    else
-                    {
-                        RemoveModTimeCondition(ModTimeFilterCondition.Long_Ago);
-                    }
-
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
-
-        public bool? SizeFilterCheckBox1
-        {
-            get
-            {
-                return sizeFilterCheckBox1;
-            }
-            set
-            {
-                if (sizeFilterCheckBox1 != value.GetValueOrDefault())
-                {
-                    sizeFilterCheckBox1 = value.GetValueOrDefault();
-
-                    if (sizeFilterCheckBox1)
-                    {
-                        AddSizeCondition(SizeFilterCondition.Smaller);
-                    }
-                    else
-                    {
-                        RemoveSizeCondition(SizeFilterCondition.Smaller);
-                    }
-
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
-
-        public bool? SizeFilterCheckBox2
-        {
-            get
-            {
-                return sizeFilterCheckBox2;
-            }
-            set
-            {
-                if (sizeFilterCheckBox2 != value.GetValueOrDefault())
-                {
-                    sizeFilterCheckBox2 = value.GetValueOrDefault();
-
-                    if (sizeFilterCheckBox2)
-                    {
-                        AddSizeCondition(SizeFilterCondition.Medium);
-                    }
-                    else
-                    {
-                        RemoveSizeCondition(SizeFilterCondition.Medium);
-                    }
-
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
-
-        public bool? SizeFilterCheckBox3
-        {
-            get
-            {
-                return sizeFilterCheckBox3;
-            }
-            set
-            {
-                if (sizeFilterCheckBox3 != value.GetValueOrDefault())
-                {
-                    sizeFilterCheckBox3 = value.GetValueOrDefault();
-
-                    if (sizeFilterCheckBox3)
-                    {
-                        AddSizeCondition(SizeFilterCondition.Larger);
-                    }
-                    else
-                    {
-                        RemoveSizeCondition(SizeFilterCondition.Larger);
-                    }
-
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
-
-        public bool? SizeFilterCheckBox4
-        {
-            get
-            {
-                return sizeFilterCheckBox4;
-            }
-            set
-            {
-                if (sizeFilterCheckBox4 != value.GetValueOrDefault())
-                {
-                    sizeFilterCheckBox4 = value.GetValueOrDefault();
-
-                    if (sizeFilterCheckBox4)
-                    {
-                        AddSizeCondition(SizeFilterCondition.Huge);
-                    }
-                    else
-                    {
-                        RemoveSizeCondition(SizeFilterCondition.Huge);
-                    }
-
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
-
-        public DateTimeOffset? FromDate
-        {
-            get
-            {
-                return fromDate;
-            }
-            set
-            {
-                if (fromDate != value)
-                {
-                    fromDate = value;
-
-                    AddModTimeCondition(ModTimeFilterCondition.Range, value.GetValueOrDefault(), ToDate ?? DateTimeOffset.Now);
-
-                    OnPropertyChanged();
-
-                    if (ModTimeFilterCheckBox1.GetValueOrDefault())
-                    {
-                        RaiseRefreshEvent();
-                    }
-                }
-            }
-        }
-
-        public DateTimeOffset? ToDate
-        {
-            get
-            {
-                return toDate;
-            }
-            set
-            {
-                if (toDate != value)
-                {
-                    toDate = value;
-
-                    if (FromDate != null)
-                    {
-                        FromDate = value;
-                    }
-
-                    FromDateMax = value ?? DateTimeOffset.Now;
-
-                    AddModTimeCondition(ModTimeFilterCondition.Range, FromDate.GetValueOrDefault(), value.GetValueOrDefault());
-
-                    OnPropertyChanged();
-
-                    if (ModTimeFilterCheckBox1.GetValueOrDefault())
-                    {
-                        RaiseRefreshEvent();
-                    }
-                }
-            }
-        }
-
-        public DateTimeOffset FromDateMax
-        {
-            get
-            {
-                return fromDateMax;
-            }
-            set
-            {
-                if (fromDateMax != value)
-                {
-                    fromDateMax = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [OnChangedMethod(nameof(OnToDateChanged))]
+        public DateTimeOffset ToDate { get; set; }
 
         public StackPanel TypeCheckBoxPanel
         {
@@ -597,8 +145,20 @@ namespace RX_Explorer.Class
                         Padding = new Thickness(8, 0, 8, 0)
                     };
 
-                    Box.Checked += FilterCheckBox_Checked;
-                    Box.Unchecked += FilterCheckBox_Unchecked;
+                    Box.Checked += (s, e) =>
+                    {
+                        if (s is CheckBox Box && Box.Tag is string Extension)
+                        {
+                            AddTypeCondition(Extension);
+                        }
+                    };
+                    Box.Unchecked += (s, e) =>
+                    {
+                        if (s is CheckBox Box && Box.Tag is string Extension)
+                        {
+                            RemoveTypeCondition(Extension);
+                        }
+                    };
 
                     Panel.Children.Add(Box);
                 }
@@ -607,137 +167,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public bool AnyConditionApplied
-        {
-            get
-            {
-                return NameCondition != NameFilterCondition.None || ColorCondition != ColorFilterCondition.None || ModTimeCondition != ModTimeFilterCondition.None || SizeCondition != SizeFilterCondition.None || TypeFilter.Count > 0;
-            }
-        }
+        public string ColorFilterCheckBoxContent1 => SettingPage.PredefineLabelText1;
 
-        private void FilterCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (sender is CheckBox Box && Box.Tag is string Extension)
-            {
-                AddTypeCondition(Extension);
-            }
-        }
+        public string ColorFilterCheckBoxContent2 => SettingPage.PredefineLabelText2;
 
-        private void FilterCheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (sender is CheckBox Box && Box.Tag is string Extension)
-            {
-                RemoveTypeCondition(Extension);
-            }
-        }
+        public string ColorFilterCheckBoxContent3 => SettingPage.PredefineLabelText3;
 
-        public bool? ColorFilterCheckBox1
-        {
-            get
-            {
-                return colorFilterCheckBox1;
-            }
-            set
-            {
-                if (colorFilterCheckBox1 != value.GetValueOrDefault())
-                {
-                    colorFilterCheckBox1 = value.GetValueOrDefault();
-
-                    if (colorFilterCheckBox1)
-                    {
-                        AddColorCondition(ColorFilterCondition.PredefineLabel1);
-                    }
-                    else
-                    {
-                        RemoveColorCondition(ColorFilterCondition.PredefineLabel1);
-                    }
-
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
-
-        public bool? ColorFilterCheckBox2
-        {
-            get
-            {
-                return colorFilterCheckBox2;
-            }
-            set
-            {
-                if (colorFilterCheckBox2 != value.GetValueOrDefault())
-                {
-                    colorFilterCheckBox2 = value.GetValueOrDefault();
-
-                    if (colorFilterCheckBox2)
-                    {
-                        AddColorCondition(ColorFilterCondition.PredefineLabel2);
-                    }
-                    else
-                    {
-                        RemoveColorCondition(ColorFilterCondition.PredefineLabel2);
-                    }
-
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
-
-        public bool? ColorFilterCheckBox3
-        {
-            get
-            {
-                return colorFilterCheckBox3;
-            }
-            set
-            {
-                if (colorFilterCheckBox3 != value.GetValueOrDefault())
-                {
-                    colorFilterCheckBox3 = value.GetValueOrDefault();
-
-                    if (colorFilterCheckBox3)
-                    {
-                        AddColorCondition(ColorFilterCondition.PredefineLabel3);
-                    }
-                    else
-                    {
-                        RemoveColorCondition(ColorFilterCondition.PredefineLabel3);
-                    }
-
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
-
-        public bool? ColorFilterCheckBox4
-        {
-            get
-            {
-                return colorFilterCheckBox4;
-            }
-            set
-            {
-                if (colorFilterCheckBox4 != value.GetValueOrDefault())
-                {
-                    colorFilterCheckBox4 = value.GetValueOrDefault();
-
-                    if (colorFilterCheckBox4)
-                    {
-                        AddColorCondition(ColorFilterCondition.PredefineLabel4);
-                    }
-                    else
-                    {
-                        RemoveColorCondition(ColorFilterCondition.PredefineLabel4);
-                    }
-
-                    OnPropertyChanged();
-                    RaiseRefreshEvent();
-                }
-            }
-        }
+        public string ColorFilterCheckBoxContent4 => SettingPage.PredefineLabelText4;
 
         public SolidColorBrush ColorFilterCheckBoxForeground1 => new SolidColorBrush(SettingPage.PredefineLabelForeground1);
 
@@ -746,14 +182,6 @@ namespace RX_Explorer.Class
         public SolidColorBrush ColorFilterCheckBoxForeground3 => new SolidColorBrush(SettingPage.PredefineLabelForeground3);
 
         public SolidColorBrush ColorFilterCheckBoxForeground4 => new SolidColorBrush(SettingPage.PredefineLabelForeground4);
-
-        public string ColorFilterCheckBoxContent1 => SettingPage.PredefineLabelText1;
-
-        public string ColorFilterCheckBoxContent2 => SettingPage.PredefineLabelText2;
-
-        public string ColorFilterCheckBoxContent3 => SettingPage.PredefineLabelText3;
-
-        public string ColorFilterCheckBoxContent4 => SettingPage.PredefineLabelText4;
 
         public async Task SetDataSourceAsync(IEnumerable<FileSystemStorageItemBase> DataSource)
         {
@@ -791,7 +219,7 @@ namespace RX_Explorer.Class
                 DisplayTypeList.Clear();
                 DisplayTypeList.AddRange(LocalDisplayTypeList);
 
-                ResetAllSettings();
+                ResetAllFilters();
             }
         }
 
@@ -800,62 +228,398 @@ namespace RX_Explorer.Class
             return new List<FileSystemStorageItemBase>(OriginCopy);
         }
 
-        private void RaiseRefreshEvent()
+        private void OnNameFilterCheckBox1Changed()
         {
-            if (AnyConditionApplied)
+            if (NameFilterCheckBox1)
             {
-                RefreshListRequested?.Invoke(this, new RefreshRequestedEventArgs(GetFilterCollection()));
+                AddNameCondition(NameFilterCondition.From_A_To_G);
+
+                using (SuppressRaiseRefreshEvent())
+                {
+                    NameFilterCheckBox6 = false;
+                }
             }
             else
             {
-                RefreshListRequested?.Invoke(this, new RefreshRequestedEventArgs(OriginCopy));
+                RemoveNameCondition(NameFilterCondition.From_A_To_G);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnNameFilterCheckBox2Changed()
+        {
+            if (NameFilterCheckBox2)
+            {
+                AddNameCondition(NameFilterCondition.From_H_To_N);
+
+                using (SuppressRaiseRefreshEvent())
+                {
+                    NameFilterCheckBox6 = false;
+                }
+            }
+            else
+            {
+                RemoveNameCondition(NameFilterCondition.From_H_To_N);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnNameFilterCheckBox3Changed()
+        {
+            if (NameFilterCheckBox3)
+            {
+                AddNameCondition(NameFilterCondition.From_O_To_T);
+
+                using (SuppressRaiseRefreshEvent())
+                {
+                    NameFilterCheckBox6 = false;
+                }
+            }
+            else
+            {
+                RemoveNameCondition(NameFilterCondition.From_O_To_T);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnNameFilterCheckBox4Changed()
+        {
+            if (NameFilterCheckBox4)
+            {
+                AddNameCondition(NameFilterCondition.From_U_To_Z);
+
+                using (SuppressRaiseRefreshEvent())
+                {
+                    NameFilterCheckBox6 = false;
+                }
+            }
+            else
+            {
+                RemoveNameCondition(NameFilterCondition.From_U_To_Z);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnNameFilterCheckBox5Changed()
+        {
+            if (NameFilterCheckBox5)
+            {
+                AddNameCondition(NameFilterCondition.Other);
+
+                using (SuppressRaiseRefreshEvent())
+                {
+                    NameFilterCheckBox6 = false;
+                }
+            }
+            else
+            {
+                RemoveNameCondition(NameFilterCondition.Other);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnNameFilterCheckBox6Changed()
+        {
+            if (NameFilterCheckBox6)
+            {
+                AddNameCondition(NameFilterCondition.Regex);
+
+                using (SuppressRaiseRefreshEvent())
+                {
+                    NameFilterCheckBox1 = false;
+                    NameFilterCheckBox2 = false;
+                    NameFilterCheckBox3 = false;
+                    NameFilterCheckBox4 = false;
+                    NameFilterCheckBox5 = false;
+                }
+            }
+            else
+            {
+                RemoveNameCondition(NameFilterCondition.Regex);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnRegexExpressionChanged()
+        {
+            if (NameFilterCheckBox6)
+            {
+                RaiseRefreshEvent();
             }
         }
 
-        private void ResetAllSettings()
+        private void OnModTimeFilterCheckBox1Changed()
         {
-            nameFilterCheckBox1 = false;
-            nameFilterCheckBox2 = false;
-            nameFilterCheckBox3 = false;
-            nameFilterCheckBox4 = false;
-            nameFilterCheckBox5 = false;
-            nameFilterCheckBox6 = false;
-            regexExpression = string.Empty;
+            if (FromDate == default && ToDate == default)
+            {
+                return;
+            }
 
-            modFilterCheckBox1 = false;
-            modFilterCheckBox2 = false;
-            modFilterCheckBox3 = false;
-            modFilterCheckBox4 = false;
+            if (ModTimeFilterCheckBox1)
+            {
+                AddModTimeCondition(ModTimeFilterCondition.Range, FromDate, ToDate == default ? DateTimeOffset.Now : ToDate);
+            }
+            else
+            {
+                RemoveModTimeCondition(ModTimeFilterCondition.Range);
+            }
 
-            sizeFilterCheckBox1 = false;
-            sizeFilterCheckBox2 = false;
-            sizeFilterCheckBox3 = false;
-            sizeFilterCheckBox4 = false;
+            RaiseRefreshEvent();
+        }
+
+        private void OnModTimeFilterCheckBox2Changed()
+        {
+            if (ModTimeFilterCheckBox2)
+            {
+                AddModTimeCondition(ModTimeFilterCondition.One_Month_Ago);
+            }
+            else
+            {
+                RemoveModTimeCondition(ModTimeFilterCondition.One_Month_Ago);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnModTimeFilterCheckBox3Changed()
+        {
+            if (ModTimeFilterCheckBox3)
+            {
+                AddModTimeCondition(ModTimeFilterCondition.Three_Month_Ago);
+            }
+            else
+            {
+                RemoveModTimeCondition(ModTimeFilterCondition.Three_Month_Ago);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnModTimeFilterCheckBox4Changed()
+        {
+            if (ModTimeFilterCheckBox4)
+            {
+                AddModTimeCondition(ModTimeFilterCondition.Long_Ago);
+            }
+            else
+            {
+                RemoveModTimeCondition(ModTimeFilterCondition.Long_Ago);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnSizeFilterCheckBox1Changed()
+        {
+            if (SizeFilterCheckBox1)
+            {
+                AddSizeCondition(SizeFilterCondition.Smaller);
+            }
+            else
+            {
+                RemoveSizeCondition(SizeFilterCondition.Smaller);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnSizeFilterCheckBox2Changed()
+        {
+            if (SizeFilterCheckBox2)
+            {
+                AddSizeCondition(SizeFilterCondition.Medium);
+            }
+            else
+            {
+                RemoveSizeCondition(SizeFilterCondition.Medium);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnSizeFilterCheckBox3Changed()
+        {
+            if (SizeFilterCheckBox3)
+            {
+                AddSizeCondition(SizeFilterCondition.Larger);
+            }
+            else
+            {
+                RemoveSizeCondition(SizeFilterCondition.Larger);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnSizeFilterCheckBox4Changed()
+        {
+            if (SizeFilterCheckBox4)
+            {
+                AddSizeCondition(SizeFilterCondition.Huge);
+            }
+            else
+            {
+                RemoveSizeCondition(SizeFilterCondition.Huge);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnFromDateChanged()
+        {
+            AddModTimeCondition(ModTimeFilterCondition.Range, FromDate, ToDate == default ? DateTimeOffset.Now : ToDate);
+
+            if (ModTimeFilterCheckBox1)
+            {
+                RaiseRefreshEvent();
+            }
+        }
+
+        private void OnToDateChanged()
+        {
+            if (FromDate > ToDate)
+            {
+                if (ModTimeFilterCheckBox1)
+                {
+                    using (SuppressRaiseRefreshEvent())
+                    {
+                        FromDate = ToDate;
+                    }
+                }
+                else
+                {
+                    FromDate = ToDate;
+                }
+            }
+
+            AddModTimeCondition(ModTimeFilterCondition.Range, FromDate, ToDate);
+
+            if (ModTimeFilterCheckBox1)
+            {
+                RaiseRefreshEvent();
+            }
+        }
+
+        private void OnColorFilterCheckBox1Changed()
+        {
+            if (ColorFilterCheckBox1)
+            {
+                AddColorCondition(ColorFilterCondition.PredefineLabel1);
+            }
+            else
+            {
+                RemoveColorCondition(ColorFilterCondition.PredefineLabel1);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnColorFilterCheckBox2Changed()
+        {
+            if (ColorFilterCheckBox2)
+            {
+                AddColorCondition(ColorFilterCondition.PredefineLabel2);
+            }
+            else
+            {
+                RemoveColorCondition(ColorFilterCondition.PredefineLabel2);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnColorFilterCheckBox3Changed()
+        {
+            if (ColorFilterCheckBox3)
+            {
+                AddColorCondition(ColorFilterCondition.PredefineLabel3);
+            }
+            else
+            {
+                RemoveColorCondition(ColorFilterCondition.PredefineLabel3);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+        private void OnColorFilterCheckBox4Changed()
+        {
+            if (ColorFilterCheckBox4)
+            {
+                AddColorCondition(ColorFilterCondition.PredefineLabel4);
+            }
+            else
+            {
+                RemoveColorCondition(ColorFilterCondition.PredefineLabel4);
+            }
+
+            RaiseRefreshEvent();
+        }
+
+
+        private IDisposable SuppressRaiseRefreshEvent()
+        {
+            if (Interlocked.CompareExchange(ref AllowRaiseRefreshEvent, 0, 1) > 0)
+            {
+                return new DisposeNotification(() =>
+                {
+                    Interlocked.Exchange(ref AllowRaiseRefreshEvent, 1);
+                });
+            }
+            else
+            {
+                return DisposeNotification.Empty;
+            }
+        }
+
+        private void RaiseRefreshEvent()
+        {
+            if (Volatile.Read(ref AllowRaiseRefreshEvent) > 0)
+            {
+                if (AnyConditionApplied)
+                {
+                    WeakRefreshListRequested.Invoke(this, new RefreshRequestedEventArgs(GetFilterCollection()));
+                }
+                else
+                {
+                    WeakRefreshListRequested.Invoke(this, new RefreshRequestedEventArgs(OriginCopy));
+                }
+            }
+        }
+
+        private void ResetAllFilters()
+        {
+            NameFilterCheckBox1 = false;
+            NameFilterCheckBox2 = false;
+            NameFilterCheckBox3 = false;
+            NameFilterCheckBox4 = false;
+            NameFilterCheckBox5 = false;
+            NameFilterCheckBox6 = false;
+            RegexExpression = string.Empty;
+
+            ModTimeFilterCheckBox1 = false;
+            ModTimeFilterCheckBox2 = false;
+            ModTimeFilterCheckBox3 = false;
+            ModTimeFilterCheckBox4 = false;
+
+            SizeFilterCheckBox1 = false;
+            SizeFilterCheckBox2 = false;
+            SizeFilterCheckBox3 = false;
+            SizeFilterCheckBox4 = false;
 
             TypeFilter.Clear();
             NameCondition = NameFilterCondition.None;
             ModTimeCondition = ModTimeFilterCondition.None;
             SizeCondition = SizeFilterCondition.None;
-            fromDate = null;
-            toDate = null;
+            FromDate = default;
+            ToDate = default;
 
-            OnPropertyChanged(nameof(NameFilterCheckBox1));
-            OnPropertyChanged(nameof(NameFilterCheckBox2));
-            OnPropertyChanged(nameof(NameFilterCheckBox3));
-            OnPropertyChanged(nameof(NameFilterCheckBox4));
-            OnPropertyChanged(nameof(NameFilterCheckBox5));
-            OnPropertyChanged(nameof(NameFilterCheckBox6));
-            OnPropertyChanged(nameof(RegexExpression));
-            OnPropertyChanged(nameof(ModTimeFilterCheckBox1));
-            OnPropertyChanged(nameof(ModTimeFilterCheckBox2));
-            OnPropertyChanged(nameof(ModTimeFilterCheckBox3));
-            OnPropertyChanged(nameof(ModTimeFilterCheckBox4));
-            OnPropertyChanged(nameof(FromDate));
-            OnPropertyChanged(nameof(ToDate));
-            OnPropertyChanged(nameof(SizeFilterCheckBox1));
-            OnPropertyChanged(nameof(SizeFilterCheckBox2));
-            OnPropertyChanged(nameof(SizeFilterCheckBox3));
-            OnPropertyChanged(nameof(SizeFilterCheckBox4));
             OnPropertyChanged(nameof(TypeCheckBoxPanel));
         }
 
@@ -933,11 +697,6 @@ namespace RX_Explorer.Class
             {
                 SizeCondition ^= Condition;
             }
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         public IEnumerable<FileSystemStorageItemBase> GetFilterCollection()
@@ -1146,23 +905,23 @@ namespace RX_Explorer.Class
 
         public FilterController()
         {
-            ApplicationData.Current.DataChanged += Current_DataChanged;
+            ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
             try
             {
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground1));
-                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground2));
-                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground3));
-                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground4));
                     OnPropertyChanged(nameof(ColorFilterCheckBoxContent1));
                     OnPropertyChanged(nameof(ColorFilterCheckBoxContent2));
                     OnPropertyChanged(nameof(ColorFilterCheckBoxContent3));
                     OnPropertyChanged(nameof(ColorFilterCheckBoxContent4));
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground1));
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground2));
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground3));
+                    OnPropertyChanged(nameof(ColorFilterCheckBoxForeground4));
                 });
             }
             catch (Exception)

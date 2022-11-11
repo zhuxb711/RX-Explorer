@@ -1,6 +1,5 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using PropertyChanged;
+using System;
 using System.Text.Json;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -9,25 +8,25 @@ using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
 {
-    public sealed class TreeViewColumnWidthSaver : INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class TreeViewColumnWidthSaver
     {
-        private ColumnWidthData InnerData;
+        private ColumnWidthData Cache;
         private readonly static object Locker = new object();
         private static TreeViewColumnWidthSaver Instance;
-        private Visibility TreeViewVisibility;
 
-        private ColumnWidthData Data
+        public Visibility TreeViewVisibility { get; set; }
+
+        private ColumnWidthData InnerData
         {
-            get => InnerData;
+            get => Cache;
             set
             {
-                InnerData = value;
+                Cache = value;
                 ApplicationData.Current.LocalSettings.Values["TreeViewColumnWidthData"] = JsonSerializer.Serialize(value);
                 ApplicationData.Current.SignalDataChanged();
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public static TreeViewColumnWidthSaver Current
         {
@@ -40,13 +39,14 @@ namespace RX_Explorer.Class
             }
         }
 
+        [DependsOn(nameof(TreeViewVisibility), nameof(InnerData))]
         public GridLength TreeViewColumnWidth
         {
             get
             {
                 if (TreeViewVisibility == Visibility.Visible)
                 {
-                    return new GridLength(Data.TreeViewColumnWidth, GridUnitType.Star);
+                    return new GridLength(InnerData.TreeViewColumnWidth, GridUnitType.Star);
                 }
                 else
                 {
@@ -57,11 +57,14 @@ namespace RX_Explorer.Class
             {
                 if (TreeViewVisibility == Visibility.Visible)
                 {
-                    Data = new ColumnWidthData(value.Value, Data.BladeViewColumnWidth);
+                    ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
+                    NewData.BladeViewColumnWidth = value.Value;
+                    InnerData = NewData;
                 }
             }
         }
 
+        [DependsOn(nameof(TreeViewVisibility))]
         public GridLength SpliterColumnWidth
         {
             get
@@ -77,13 +80,14 @@ namespace RX_Explorer.Class
             }
         }
 
+        [DependsOn(nameof(TreeViewVisibility), nameof(InnerData))]
         public GridLength BladeViewColumnWidth
         {
             get
             {
                 if (TreeViewVisibility == Visibility.Visible)
                 {
-                    return new GridLength(Data.BladeViewColumnWidth, GridUnitType.Star);
+                    return new GridLength(InnerData.BladeViewColumnWidth, GridUnitType.Star);
                 }
                 else
                 {
@@ -94,46 +98,41 @@ namespace RX_Explorer.Class
             {
                 if (TreeViewVisibility == Visibility.Visible)
                 {
-                    Data = new ColumnWidthData(Data.TreeViewColumnWidth, value.Value);
+                    ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
+                    NewData.TreeViewColumnWidth = value.Value;
+                    InnerData = NewData;
                 }
             }
-        }
-
-        public void SetTreeViewVisibility(Visibility Visibility)
-        {
-            TreeViewVisibility = Visibility;
-            OnPropertyChanged(nameof(TreeViewColumnWidth));
-            OnPropertyChanged(nameof(BladeViewColumnWidth));
-            OnPropertyChanged(nameof(SpliterColumnWidth));
         }
 
         private TreeViewColumnWidthSaver()
         {
             if (ApplicationData.Current.LocalSettings.Values["TreeViewColumnWidthData"] is string RawString)
             {
-                InnerData = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
+                Cache = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
             }
             else
             {
-                InnerData = new ColumnWidthData(1, 3);
+                Cache = new ColumnWidthData
+                {
+                    TreeViewColumnWidth = 1,
+                    BladeViewColumnWidth = 3
+                };
             }
 
-            ApplicationData.Current.DataChanged += Current_DataChanged;
+            ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
             try
             {
-                if (ApplicationData.Current.LocalSettings.Values["TreeViewColumnWidthData"] is string RawString)
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    InnerData = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
-                }
-
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    OnPropertyChanged(nameof(TreeViewColumnWidth));
-                    OnPropertyChanged(nameof(BladeViewColumnWidth));
+                    if (ApplicationData.Current.LocalSettings.Values["TreeViewColumnWidthData"] is string RawString)
+                    {
+                        InnerData = JsonSerializer.Deserialize<ColumnWidthData>(RawString);
+                    }
                 });
             }
             catch (Exception)
@@ -142,21 +141,80 @@ namespace RX_Explorer.Class
             }
         }
 
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        private class ColumnWidthData : ICloneable, IEquatable<ColumnWidthData>
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-        }
+            public double TreeViewColumnWidth { get; set; }
 
-        private class ColumnWidthData
-        {
-            public double TreeViewColumnWidth { get; }
+            public double BladeViewColumnWidth { get; set; }
 
-            public double BladeViewColumnWidth { get; }
-
-            public ColumnWidthData(double TreeViewColumnWidth, double BladeViewColumnWidth)
+            public object Clone()
             {
-                this.TreeViewColumnWidth = TreeViewColumnWidth;
-                this.BladeViewColumnWidth = BladeViewColumnWidth;
+                return MemberwiseClone();
+            }
+
+            public bool Equals(ColumnWidthData other)
+            {
+                if (other == null)
+                {
+                    return false;
+                }
+
+                if (ReferenceEquals(this, other))
+                {
+                    return true;
+                }
+                else
+                {
+                    return other.TreeViewColumnWidth == TreeViewColumnWidth && other.BladeViewColumnWidth == BladeViewColumnWidth;
+                }
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is ColumnWidthData Item && Equals(Item);
+            }
+
+            public override int GetHashCode()
+            {
+                return TreeViewColumnWidth.GetHashCode() ^ BladeViewColumnWidth.GetHashCode();
+            }
+
+            public static bool operator ==(ColumnWidthData left, ColumnWidthData right)
+            {
+                if (left is null)
+                {
+                    return right is null;
+                }
+                else
+                {
+                    if (right is null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return left.Equals(right);
+                    }
+                }
+            }
+
+            public static bool operator !=(ColumnWidthData left, ColumnWidthData right)
+            {
+                if (left is null)
+                {
+                    return right is not null;
+                }
+                else
+                {
+                    if (right is null)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return !left.Equals(right);
+                    }
+                }
             }
         }
     }

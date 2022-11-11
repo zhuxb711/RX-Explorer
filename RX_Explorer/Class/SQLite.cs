@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using RX_Explorer.View;
 using SharedLibrary;
 using System;
@@ -16,7 +15,6 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class SQLite : IDisposable
     {
-        private bool IsDisposed;
         private static readonly object Locker = new object();
         private static volatile SQLite SQL;
         private readonly SqliteConnection Connection;
@@ -1022,15 +1020,18 @@ namespace RX_Explorer.Class
         /// </summary>
         public void Dispose()
         {
-            if (!IsDisposed)
+            if (Execution.CheckAlreadyExecuted(this))
             {
-                IsDisposed = true;
+                throw new ObjectDisposedException(nameof(SQLite));
+            }
 
+            GC.SuppressFinalize(this);
+
+            Execution.ExecuteOnce(this, () =>
+            {
                 Connection.Dispose();
                 SQL = null;
-
-                GC.SuppressFinalize(this);
-            }
+            });
         }
 
         ~SQLite()

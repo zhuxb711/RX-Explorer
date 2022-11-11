@@ -2,7 +2,6 @@
 using Nito.AsyncEx;
 using System;
 using System.Collections.Concurrent;
-using System.Net;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading;
@@ -155,17 +154,22 @@ namespace RX_Explorer.Class
 
         public void Dispose()
         {
-            if (!IsDisposed)
+            if (Execution.CheckAlreadyExecuted(this))
+            {
+                throw new ObjectDisposedException(nameof(FtpClientController));
+            }
+
+            GC.SuppressFinalize(this);
+
+            Execution.ExecuteOnce(this, () =>
             {
                 IsDisposed = true;
-
-                GC.SuppressFinalize(this);
 
                 TaskCollection.CompleteAdding();
                 TaskCollection.Dispose();
 
                 Client.Dispose();
-            }
+            });
         }
 
         public static async Task<FtpClientController> MakeSureConnectionAndCloseOnceFailedAsync(FtpClientController Controller, CancellationToken CancelToken = default)

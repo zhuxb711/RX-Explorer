@@ -201,8 +201,7 @@
                                     <Button Grid.Column="0"
                                             HorizontalAlignment="Stretch"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                            Click="{x:Bind ActionButton1}"
-                                            Visibility="{x:Bind ActionButton1Visibility,Mode=OneWay}">
+                                            Click="{x:Bind ActionButton1}">
                                         <TextBlock x:Name="ActionButtonLabel1"
                                                    TextTrimming="CharacterEllipsis"
                                                    Text="{x:Bind ActionButton1Content,Mode=OneWay}">
@@ -216,7 +215,6 @@
                                             HorizontalAlignment="Stretch"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                             Click="{x:Bind ActionButton2}"
-                                            Visibility="{x:Bind ActionButton2Visibility,Mode=OneWay}"
                                             Margin="5,0">
                                         <TextBlock x:Name="ActionButtonLabel2"
                                                    TextTrimming="CharacterEllipsis"
@@ -230,8 +228,7 @@
                                     <Button Grid.Column="2"
                                             HorizontalAlignment="Stretch"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                            Click="{x:Bind ActionButton3}"
-                                            Visibility="{x:Bind ActionButton3Visibility,Mode=OneWay}">
+                                            Click="{x:Bind ActionButton3}">
                                         <TextBlock x:Name="ActionButtonLabel3"
                                                    TextTrimming="CharacterEllipsis"
                                                    Text="{x:Bind ActionButton3Content,Mode=OneWay}">

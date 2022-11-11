@@ -1,12 +1,10 @@
-﻿using RX_Explorer.Interface;
+﻿using PropertyChanged;
+using RX_Explorer.Interface;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
@@ -18,10 +16,8 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    /// <summary>
-    /// 提供驱动器的界面支持
-    /// </summary>
-    public abstract class DriveDataBase : INotifyPropertyChanged, IDriveData, IEquatable<DriveDataBase>
+    [AddINotifyPropertyChangedInterface]
+    public abstract partial class DriveDataBase : IDriveData, IEquatable<DriveDataBase>
     {
         private static readonly Uri SystemDriveIconUri = new Uri("ms-appx:///Assets/SystemDrive.ico");
         private static readonly Uri SystemDriveUnLockedIconUri = new Uri("ms-appx:///Assets/SystemDriveUnLocked.ico");
@@ -30,15 +26,11 @@ namespace RX_Explorer.Class
         private static readonly Uri NormalDriveUnLockedIconUri = new Uri("ms-appx:///Assets/NormalDriveUnLocked.ico");
         private static readonly Uri NetworkDriveIconUri = new Uri("ms-appx:///Assets/NetworkDrive.ico");
 
-        /// <summary>
-        /// 驱动器缩略图
-        /// </summary>
         public BitmapImage Thumbnail { get; private set; }
 
-        /// <summary>
-        /// 驱动器对象
-        /// </summary>
         public FileSystemStorageFolder DriveFolder { get; }
+
+        public DriveType DriveType { get; private set; }
 
         public virtual string Name
         {
@@ -57,36 +49,35 @@ namespace RX_Explorer.Class
             }
         }
 
-        /// <summary>
-        /// 驱动器名称
-        /// </summary>
         public virtual string DisplayName => (DriveFolder?.DisplayName) ?? string.Empty;
 
         public virtual string Path => (DriveFolder?.Path) ?? string.Empty;
 
-        public virtual string FileSystem { get; } = Globalization.GetString("UnknownText");
+        public virtual string FileSystem { get; }
 
-        /// <summary>
-        /// 容量百分比
-        /// </summary>
+        public virtual ulong TotalByte { get; }
+
+        public virtual ulong FreeByte { get; }
+
+        public ulong UsedByte => TotalByte - FreeByte;
+
+        public string DeviceId { get; }
+
+        public string DriveSpaceDescription => $"{FreeSpace} {Globalization.GetString("Disk_Capacity_Description")} {Capacity}";
+
         public double Percent
         {
             get
             {
-                if (TotalByte != 0)
+                if (TotalByte > 0)
                 {
                     return 1 - FreeByte / Convert.ToDouble(TotalByte);
                 }
-                else
-                {
-                    return 0;
-                }
+
+                return 0;
             }
         }
 
-        /// <summary>
-        /// 总容量的描述
-        /// </summary>
         public string Capacity
         {
             get
@@ -102,9 +93,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        /// <summary>
-        /// 可用空间的描述
-        /// </summary>
         public string FreeSpace
         {
             get
@@ -135,27 +123,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        /// <summary>
-        /// 总字节数
-        /// </summary>
-        public virtual ulong TotalByte { get; }
-
-        /// <summary>
-        /// 空闲字节数
-        /// </summary>
-        public virtual ulong FreeByte { get; }
-
-        public ulong UsedByte => TotalByte - FreeByte;
-
-        /// <summary>
-        /// 存储空间描述
-        /// </summary>
-        public string DriveSpaceDescription => $"{FreeSpace} {Globalization.GetString("Disk_Capacity_Description")} {Capacity}";
-
-        public DriveType DriveType { get; private set; }
-
-        public string DeviceId { get; }
-
         /*
                  * | System.Volume.      | Control Panel                    | manage-bde conversion     | manage-bde     | Get-BitlockerVolume          | Get-BitlockerVolume |
                  * | BitLockerProtection |                                  |                           | protection     | VolumeStatus                 | ProtectionStatus    |
@@ -177,11 +144,7 @@ namespace RX_Explorer.Class
                  * We could use Powershell command: Get-BitLockerVolume -MountPoint C: | Select -ExpandProperty LockStatus -------------->Locked / Unlocked
                  * But powershell might speed too much time to load. So we would not use it
         */
-        public int BitlockerStatusCode { get; } = -1;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private int IsContentLoaded;
+        public int BitlockerStatusCode { get; }
 
         public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, DeviceInformation DeviceInfo)
         {
@@ -296,26 +259,16 @@ namespace RX_Explorer.Class
 
         public async Task LoadAsync()
         {
-            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
+            try
             {
-                try
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
                 {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Low, async () =>
-                    {
-                        await Task.WhenAll(LoadCoreAsync(), GetThumbnailAsync());
-                    });
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"Could not load the DriveDataBase on path: {Path}");
-                }
-                finally
-                {
-                    OnPropertyChanged(nameof(Thumbnail));
-                    OnPropertyChanged(nameof(DisplayName));
-                    OnPropertyChanged(nameof(Percent));
-                    OnPropertyChanged(nameof(DriveSpaceDescription));
-                }
+                    await Execution.ExecuteOnceAsync(this, () => Task.WhenAll(LoadCoreAsync(), GetThumbnailAsync()));
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not load the DriveDataBase on path: {Path}");
             }
         }
 
@@ -387,11 +340,6 @@ namespace RX_Explorer.Class
             }
 
             return Thumbnail;
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         public bool Equals(DriveDataBase other)
@@ -510,10 +458,18 @@ namespace RX_Explorer.Class
                 {
                     FileSystem = FileSystemRaw;
                 }
+                else
+                {
+                    FileSystem = Globalization.GetString("UnknownText");
+                }
 
                 if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out string BitlockerStateCodeRaw) && !string.IsNullOrEmpty(BitlockerStateCodeRaw))
                 {
                     BitlockerStatusCode = Convert.ToInt32(BitlockerStateCodeRaw);
+                }
+                else
+                {
+                    BitlockerStatusCode = -1;
                 }
             }
         }

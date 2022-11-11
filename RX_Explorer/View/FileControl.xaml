@@ -633,7 +633,6 @@
                            IsDoubleTapEnabled="True"
                            IsRightTapEnabled="True"
                            AllowFocusOnInteraction="False"
-                           Loaded="FolderTree_Loaded"
                            ContextRequested="FolderTree_ContextRequested"
                            DoubleTapped="FolderTree_DoubleTapped">
                 <muxc:TreeView.ItemContainerStyle>

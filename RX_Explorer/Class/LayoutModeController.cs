@@ -1,46 +1,20 @@
-﻿using System;
+﻿using PropertyChanged;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using Walterlv.WeakEvents;
 
 namespace RX_Explorer.Class
 {
-    public sealed class LayoutModeController : IDisposable, INotifyPropertyChanged
+    [AddINotifyPropertyChangedInterface]
+    public sealed partial class LayoutModeController
     {
-        private int viewModeIndex;
-        public int ViewModeIndex
-        {
-            get
-            {
-                return viewModeIndex;
-            }
-            set
-            {
-                viewModeIndex = value;
-                ViewModeChanged?.Invoke(this, new LayoutModeChangedEventArgs(CurrentPath, value));
+        public bool IsEnabled { get; set; }
 
-                OnPropertyChanged();
-            }
-        }
+        [DoNotCheckEquality]
+        [OnChangedMethod(nameof(OnViewModeIndexChanged))]
+        public int ViewModeIndex { get; set; }
 
         public string CurrentPath { get; set; }
-
-        private bool isEnabled;
-        public bool IsEnabled
-        {
-            get
-            {
-                return isEnabled;
-            }
-            set
-            {
-                if (isEnabled != value)
-                {
-                    isEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
         public static IReadOnlyList<LayoutModeModel> ItemsSource { get; } = new List<LayoutModeModel>
         {
@@ -52,40 +26,33 @@ namespace RX_Explorer.Class
             new LayoutModeModel(Globalization.GetString("FileControl_ItemDisplayMode_Small_Icon"),"\uE80A")
         };
 
-        public static event EventHandler<LayoutModeChangedEventArgs> ViewModeChanged;
-        public event PropertyChangedEventHandler PropertyChanged;
+        public static event EventHandler<LayoutModeChangedEventArgs> ViewModeChanged
+        {
+            add => WeakViewModeChanged.Add(value, value.Invoke);
+            remove => WeakViewModeChanged.Remove(value);
+        }
+
+        private static readonly WeakEvent<LayoutModeChangedEventArgs> WeakViewModeChanged = new WeakEvent<LayoutModeChangedEventArgs>();
 
         public LayoutModeController()
         {
             ViewModeChanged += ViewModeController_ViewModeChanged;
         }
 
+        private void OnViewModeIndexChanged()
+        {
+            WeakViewModeChanged.Invoke(this, new LayoutModeChangedEventArgs(CurrentPath, ViewModeIndex));
+        }
+
         private void ViewModeController_ViewModeChanged(object sender, LayoutModeChangedEventArgs e)
         {
-            if (sender is LayoutModeController Controller && Controller != this)
+            if (sender != this)
             {
                 if ((e.Path?.Equals(CurrentPath, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
                 {
-                    viewModeIndex = e.Index;
-                    OnPropertyChanged(nameof(ViewModeIndex));
+                    ViewModeIndex = e.Index;
                 }
             }
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-        }
-
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            ViewModeChanged -= ViewModeController_ViewModeChanged;
-        }
-
-        ~LayoutModeController()
-        {
-            Dispose();
         }
     }
 }

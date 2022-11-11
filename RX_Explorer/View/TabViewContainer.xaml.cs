@@ -186,21 +186,15 @@ namespace RX_Explorer.View
                     else
                     {
                         TaskListProgress.Visibility = Visibility.Visible;
+                        TaskListBadge.Value = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
 
-                        int CurrentTaskNumber = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
-
-                        if (TaskListBadge.Value != CurrentTaskNumber)
+                        if (AppInstance.GetInstances().Count > 1)
                         {
-                            TaskListBadge.Value = CurrentTaskNumber;
-
-                            if (AppInstance.GetInstances().Count > 1)
-                            {
-                                TaskBarController.SetBadge(0);
-                            }
-                            else
-                            {
-                                TaskBarController.SetBadge(Convert.ToUInt32(CurrentTaskNumber));
-                            }
+                            TaskBarController.SetBadge(0);
+                        }
+                        else
+                        {
+                            TaskBarController.SetBadge(Convert.ToUInt32(TaskListBadge.Value));
                         }
                     }
                 });

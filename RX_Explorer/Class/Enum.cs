@@ -341,23 +341,15 @@ namespace RX_Explorer.Class
         Size,
         OriginPath,
         RecycleDate,
-        Path
+        Path,
+        CompressedSize,
+        CompressionRate
     }
 
     public enum SortStyle
     {
         None,
         UseFileSystemStyle
-    }
-
-    public enum CompressionSortTarget
-    {
-        Name,
-        Type,
-        ModifiedTime,
-        Size,
-        CompressedSize,
-        CompressionRate
     }
 
     public enum CompressionType

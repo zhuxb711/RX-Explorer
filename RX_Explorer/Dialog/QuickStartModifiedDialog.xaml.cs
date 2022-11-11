@@ -44,7 +44,7 @@ namespace RX_Explorer.Dialog
                         GetImageAutomatic.Visibility = Visibility.Visible;
                         PickLogo.Visibility = Visibility.Collapsed;
                         PickApp.Visibility = Visibility.Visible;
-                        Icon.Source = Item.Image;
+                        Icon.Source = Item.Thumbnail;
                         DisplayName.Text = Item.DisplayName;
                         Protocol.Text = Item.Protocol.ToString();
                         QuickItem = Item;
@@ -56,7 +56,7 @@ namespace RX_Explorer.Dialog
                         GetImageAutomatic.Visibility = Visibility.Visible;
                         PickLogo.Visibility = Visibility.Visible;
                         PickApp.Visibility = Visibility.Collapsed;
-                        Icon.Source = Item.Image;
+                        Icon.Source = Item.Thumbnail;
                         DisplayName.Text = Item.DisplayName;
                         Protocol.Text = Item.Protocol.ToString();
                         QuickItem = Item;
