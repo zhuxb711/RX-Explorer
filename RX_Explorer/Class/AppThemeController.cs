@@ -1,6 +1,5 @@
 ﻿using PropertyChanged;
 using System;
-using Walterlv.WeakEvents;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI;
@@ -17,7 +16,7 @@ namespace RX_Explorer.Class
         private static readonly UISettings Settings = new UISettings();
         private static readonly object Locker = new object();
 
-        private readonly WeakEvent<ElementTheme> WeakThemeChanged = new WeakEvent<ElementTheme>();
+        public event EventHandler<ElementTheme> ThemeChanged;
 
         public ElementTheme Theme
         {
@@ -37,19 +36,7 @@ namespace RX_Explorer.Class
             {
                 ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), value);
                 ApplicationData.Current.SignalDataChanged();
-                WeakThemeChanged.Invoke(this, Theme);
-            }
-        }
-
-        public event EventHandler<ElementTheme> ThemeChanged
-        {
-            add
-            {
-                WeakThemeChanged.Add(value, value.Invoke);
-            }
-            remove
-            {
-                WeakThemeChanged.Remove(value);
+                ThemeChanged?.Invoke(this, Theme);
             }
         }
 
@@ -78,7 +65,7 @@ namespace RX_Explorer.Class
 
         private AppThemeController()
         {
-            ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
+            ApplicationData.Current.DataChanged += Current_DataChanged;
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)

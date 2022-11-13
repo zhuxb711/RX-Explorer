@@ -1,15 +1,7 @@
-﻿###Quoi de neuf dans la version 8.0.6.0
+﻿###Quoi de neuf dans la version 8.0.7.0
 
 ###⚠Attention : la version Uwp suspendra les mises à jour et restera uniquement en maintenance, RX-Exploerer sera migré vers WinAppSdk
 
-#####Mise à jour de l'interface utilisateur
-
->#####Les dossiers de la corbeille affichent désormais leur taille
-
 #####Corrections de bogues
 
->#####Correction du problème selon lequel le fichier de raccourci dans la corbeille ne pouvait pas afficher correctement la vignette
-
->#####Correction d'un problème où le temps de recyclage de la corbeille pouvait être incorrect
-
->#####Correction de certains problèmes liés au tri des noms de fichiers
+>#####Correction du problème qui prenait trop de temps pour démarrer l'application

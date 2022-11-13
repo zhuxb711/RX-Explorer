@@ -106,7 +106,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Class\AddressBlock.cs" />
-    <Compile Include="Class\ApplicationDataChangedWeakEventRelay.cs" />
     <Compile Include="Class\Execution.cs" />
     <Compile Include="Class\ExtendedDataFormats.cs" />
     <Compile Include="Class\FtpClientController.cs" />
@@ -881,9 +880,6 @@
     </PackageReference>
     <PackageReference Include="TagLib.Portable">
       <Version>1.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="Walterlv.WeakEvents">
-      <Version>7.3.2</Version>
     </PackageReference>
     <PackageReference Include="ZXing.Net">
       <Version>0.16.8</Version>

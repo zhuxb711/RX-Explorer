@@ -1390,7 +1390,7 @@ namespace RX_Explorer.View
                     NavigationViewLayoutArea.Visibility = Visibility.Collapsed;
                 }
 
-                ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
+                ApplicationData.Current.DataChanged += Current_DataChanged;
 
                 if (PictureList.Count == 0)
                 {

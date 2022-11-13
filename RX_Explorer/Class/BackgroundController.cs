@@ -6,7 +6,6 @@ using SharedLibrary;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Walterlv.WeakEvents;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -30,17 +29,12 @@ namespace RX_Explorer.Class
 
         private UIElement CompositionAcrylicPresenter;
         private CompositionEffectBrush CompositionAcrylicBrush;
-        private readonly WeakEvent<BackgroundBrushType> WeakBackgroundTypeChanged = new WeakEvent<BackgroundBrushType>();
+
+        public event EventHandler<BackgroundBrushType> BackgroundTypeChanged;
 
         public Color WhiteThemeColor { get; } = Colors.White;
 
         public Color BlackThemeColor { get; } = "#1E1E1E".ToColor();
-
-        public event EventHandler<BackgroundBrushType> BackgroundTypeChanged
-        {
-            add => WeakBackgroundTypeChanged.Add(value, value.Invoke);
-            remove => WeakBackgroundTypeChanged.Remove(value);
-        }
 
         private ImageBrush BingPictureBursh { get; set; }
 
@@ -271,7 +265,7 @@ namespace RX_Explorer.Class
             }
 
             Settings.ColorValuesChanged += Settings_ColorValuesChanged;
-            ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
+            ApplicationData.Current.DataChanged += Current_DataChanged;
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)
@@ -549,7 +543,7 @@ namespace RX_Explorer.Class
                         }
                 }
 
-                WeakBackgroundTypeChanged.Invoke(this, Type);
+                BackgroundTypeChanged.Invoke(this, Type);
             }
             catch (Exception ex)
             {

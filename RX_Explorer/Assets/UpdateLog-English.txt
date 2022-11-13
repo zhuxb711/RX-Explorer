@@ -1,15 +1,7 @@
-﻿###What's new in Ver.8.0.6.0
+﻿###What's new in Ver.8.0.7.0
 
 ###⚠Warning: Uwp version will suspend updates and stay maintenance only, RX-Exploerer will be migrated to WinAppSdk
 
-#####UI update
-
->######Folders in the Recycle Bin now show their size
-
 #####Bug Fixes
 
->######Fixed the problem that the shortcut file in the recycle bin could not display the thumbnail correctly
-
->######Fixed an issue where the recycle time of the recycle bin might be incorrect
-
->######Fixed some issues related to file name sorting
+>#####Fixed the issue that taking too long to start the application

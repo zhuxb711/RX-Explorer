@@ -2,7 +2,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Walterlv.WeakEvents;
 using Windows.Devices.Enumeration;
 using Windows.Media.Audio;
 using Windows.UI.Xaml.Media.Imaging;
@@ -12,14 +11,8 @@ namespace RX_Explorer.Class
     [AddINotifyPropertyChangedInterface]
     public sealed partial class BluetoothAudioDeviceData : IDisposable
     {
-        private static readonly WeakEvent<bool> WeakConnectionStatusChanged = new WeakEvent<bool>();
-        private static event EventHandler<bool> ConnectionStatusChanged
-        {
-            add => WeakConnectionStatusChanged.Add(value, value.Invoke);
-            remove => WeakConnectionStatusChanged.Remove(value);
-        }
-
         private AudioPlaybackConnection AudioConnection;
+        private static event EventHandler<bool> ConnectionStatusChanged;
 
         private DeviceInformation DeviceInfo { get; }
 
@@ -163,7 +156,7 @@ namespace RX_Explorer.Class
 
         private void OnIsConnectedChanged()
         {
-            WeakConnectionStatusChanged?.Invoke(this, IsConnected);
+            ConnectionStatusChanged?.Invoke(this, IsConnected);
         }
 
         private void StatusChanged(object sender, bool IsConnected)

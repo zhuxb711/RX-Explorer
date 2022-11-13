@@ -1,15 +1,7 @@
-﻿###Was ist neu in Ver.8.0.6.0
+﻿###Was ist neu in Ver.8.0.7.0
 
 ###⚠Warnung: Die UWP-Version setzt Updates aus und bleibt nur Wartung, RX-Exploerer wird zu WinAppSdk migriert
 
-#####UI-Update
-
->#####Ordner im Papierkorb zeigen jetzt ihre Größe an
-
 #####Fehlerbehebung
 
->#####Das Problem, dass die Verknüpfungsdatei im Papierkorb das Miniaturbild nicht korrekt anzeigen konnte, wurde behoben
-
->#####Es wurde ein Problem behoben, bei dem die Recyclingzeit des Papierkorbs möglicherweise falsch war
-
->#####Einige Probleme im Zusammenhang mit der Sortierung von Dateinamen wurden behoben
+>#####Das Problem, dass das Starten der Anwendung zu lange dauerte, wurde behoben

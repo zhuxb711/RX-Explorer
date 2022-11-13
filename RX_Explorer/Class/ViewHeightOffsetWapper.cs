@@ -44,7 +44,7 @@ namespace RX_Explorer.Class
 
         private ViewHeightOffsetWapper()
         {
-            ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
+            ApplicationData.Current.DataChanged += Current_DataChanged;
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)

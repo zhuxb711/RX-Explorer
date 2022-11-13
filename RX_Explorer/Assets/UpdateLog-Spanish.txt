@@ -1,15 +1,7 @@
-﻿###Novedades de la versión 8.0.6.0
+﻿###Novedades de la versión 8.0.7.0
 
 ###⚠Advertencia: la versión Uwp suspenderá las actualizaciones y permanecerá solo en mantenimiento, RX-Exploerer se migrará a WinAppSdk
 
-#####Actualización de la interfaz de usuario
-
->#####Las carpetas en la papelera de reciclaje ahora muestran su tamaño
-
 #####Corrección de errores
 
->#####Se solucionó el problema de que el archivo de acceso directo en la papelera de reciclaje no podía mostrar la miniatura correctamente
-
->#####Se solucionó un problema por el cual el tiempo de reciclaje de la papelera de reciclaje podría ser incorrecto
-
->#####Se corrigieron algunos problemas relacionados con la clasificación de nombres de archivos
+>#####Se solucionó el problema de que tardaba demasiado en iniciar la aplicación

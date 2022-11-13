@@ -4,18 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Walterlv.WeakEvents;
 
 namespace RX_Explorer.Class
 {
     public static class SortedCollectionGenerator
     {
-        private static readonly WeakEvent<SortStateChangedEventArgs> WeakSortConfigChanged = new WeakEvent<SortStateChangedEventArgs>();
-        public static event EventHandler<SortStateChangedEventArgs> SortConfigChanged
-        {
-            add => WeakSortConfigChanged.Add(value, value.Invoke);
-            remove => WeakSortConfigChanged.Remove(value);
-        }
+        public static event EventHandler<SortStateChangedEventArgs> SortConfigChanged;
 
         public static void SaveSortConfigOnPath(string Path, SortTarget? Target = null, SortDirection? Direction = null)
         {
@@ -32,7 +26,7 @@ namespace RX_Explorer.Class
             if (CurrentConfig.SortTarget != LocalTarget || CurrentConfig.SortDirection != LocalDirection)
             {
                 SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, LocalTarget, LocalDirection));
-                WeakSortConfigChanged.Invoke(null, new SortStateChangedEventArgs(Path, LocalTarget, LocalDirection));
+                SortConfigChanged?.Invoke(null, new SortStateChangedEventArgs(Path, LocalTarget, LocalDirection));
             }
         }
 

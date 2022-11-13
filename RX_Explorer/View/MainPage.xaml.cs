@@ -642,7 +642,7 @@ namespace RX_Explorer.View
                     });
                 }
 
-                ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
+                ApplicationData.Current.DataChanged += Current_DataChanged;
 
                 if (SQLite.Current.GetAllTerminalProfile().All((Profile) => !Path.GetFileName(Profile.Path).StartsWith("wt.exe", StringComparison.OrdinalIgnoreCase)))
                 {

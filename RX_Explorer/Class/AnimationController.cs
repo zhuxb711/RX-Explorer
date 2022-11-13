@@ -1,6 +1,5 @@
 ﻿using PropertyChanged;
 using System;
-using Walterlv.WeakEvents;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -12,9 +11,10 @@ namespace RX_Explorer.Class
     [AddINotifyPropertyChangedInterface]
     public sealed partial class AnimationController
     {
-        private readonly WeakEvent<bool> WeakAnimationStateChanged = new WeakEvent<bool>();
         private static AnimationController Instance;
         private static readonly object Locker = new object();
+
+        public event EventHandler<bool> AnimationStateChanged;
 
         [DependsOn(nameof(IsEnableAnimation))]
         public TransitionCollection DeviceAndLibraryTransitions
@@ -156,7 +156,7 @@ namespace RX_Explorer.Class
             {
                 ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = value;
                 ApplicationData.Current.SignalDataChanged();
-                WeakAnimationStateChanged.Invoke(this, value);
+                AnimationStateChanged?.Invoke(this, value);
             }
         }
 
@@ -182,12 +182,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public event EventHandler<bool> AnimationStateChanged
-        {
-            add => WeakAnimationStateChanged.Add(value, value.Invoke);
-            remove => WeakAnimationStateChanged.Remove(value);
-        }
-
         public static AnimationController Current
         {
             get
@@ -201,7 +195,7 @@ namespace RX_Explorer.Class
 
         private AnimationController()
         {
-            ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
+            ApplicationData.Current.DataChanged += Current_DataChanged;
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)

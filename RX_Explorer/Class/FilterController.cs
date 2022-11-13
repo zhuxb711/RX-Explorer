@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Walterlv.WeakEvents;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -31,13 +30,8 @@ namespace RX_Explorer.Class
         private readonly List<FileSystemStorageItemBase> OriginCopy = new List<FileSystemStorageItemBase>();
         private readonly Dictionary<string, string> DisplayTypeList = new Dictionary<string, string>();
         private readonly AsyncLock SourceChangeLock = new AsyncLock();
-        private readonly WeakEvent<RefreshRequestedEventArgs> WeakRefreshListRequested = new WeakEvent<RefreshRequestedEventArgs>();
 
-        public event EventHandler<RefreshRequestedEventArgs> RefreshListRequested
-        {
-            add => WeakRefreshListRequested.Add(value, value.Invoke);
-            remove => WeakRefreshListRequested.Remove(value);
-        }
+        public event EventHandler<RefreshRequestedEventArgs> RefreshListRequested;
 
         public bool IsLabelSelectionEnabled { get; set; }
 
@@ -584,11 +578,11 @@ namespace RX_Explorer.Class
             {
                 if (AnyConditionApplied)
                 {
-                    WeakRefreshListRequested.Invoke(this, new RefreshRequestedEventArgs(GetFilterCollection()));
+                    RefreshListRequested?.Invoke(this, new RefreshRequestedEventArgs(GetFilterCollection()));
                 }
                 else
                 {
-                    WeakRefreshListRequested.Invoke(this, new RefreshRequestedEventArgs(OriginCopy));
+                    RefreshListRequested?.Invoke(this, new RefreshRequestedEventArgs(OriginCopy));
                 }
             }
         }
@@ -905,7 +899,7 @@ namespace RX_Explorer.Class
 
         public FilterController()
         {
-            ApplicationDataChangedWeakEventRelay.Create(ApplicationData.Current).DataChanged += Current_DataChanged;
+            ApplicationData.Current.DataChanged += Current_DataChanged;
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)
