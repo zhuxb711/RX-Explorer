@@ -1,7 +1,9 @@
-﻿###Novedades de la versión 8.0.7.0
+﻿###Novedades de la versión 8.0.8.0
 
 ###⚠Advertencia: la versión Uwp suspenderá las actualizaciones y permanecerá solo en mantenimiento, RX-Exploerer se migrará a WinAppSdk
 
 #####Corrección de errores
 
->#####Se solucionó el problema de que tardaba demasiado en iniciar la aplicación
+>#####Se solucionó el problema de que el panel de navegación no se podía cambiar de tamaño
+
+>#####Se corrigieron algunos otros problemas que podrían causar fallas

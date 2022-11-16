@@ -1,7 +1,9 @@
-﻿###Was ist neu in Ver.8.0.7.0
+﻿###Was ist neu in Ver.8.0.8.0
 
 ###⚠Warnung: Die UWP-Version setzt Updates aus und bleibt nur Wartung, RX-Exploerer wird zu WinAppSdk migriert
 
 #####Fehlerbehebung
 
->#####Das Problem, dass das Starten der Anwendung zu lange dauerte, wurde behoben
+>#####Das Problem, dass die Größe des Navigationsbereichs nicht geändert werden konnte, wurde behoben
+
+>#####Einige andere Probleme behoben, die zu Abstürzen führen konnten

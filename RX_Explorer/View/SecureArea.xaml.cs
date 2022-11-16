@@ -689,7 +689,7 @@ namespace RX_Explorer.View
                 {
                     PointerPoint PointerInfo = e.GetCurrentPoint(null);
 
-                    if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
+                    if (Element.FindParentOfType<SelectorItem>() != null)
                     {
                         if (SecureGridView.SelectionMode != ListViewSelectionMode.Multiple)
                         {

@@ -58,7 +58,7 @@ namespace RX_Explorer.Class
                 if (TreeViewVisibility == Visibility.Visible)
                 {
                     ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
-                    NewData.BladeViewColumnWidth = value.Value;
+                    NewData.TreeViewColumnWidth = value.Value;
                     InnerData = NewData;
                 }
             }
@@ -99,7 +99,7 @@ namespace RX_Explorer.Class
                 if (TreeViewVisibility == Visibility.Visible)
                 {
                     ColumnWidthData NewData = (ColumnWidthData)InnerData.Clone();
-                    NewData.TreeViewColumnWidth = value.Value;
+                    NewData.BladeViewColumnWidth = value.Value;
                     InnerData = NewData;
                 }
             }

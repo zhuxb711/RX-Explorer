@@ -1,7 +1,9 @@
-﻿###What's new in Ver.8.0.7.0
+﻿###What's new in Ver.8.0.8.0
 
 ###⚠Warning: Uwp version will suspend updates and stay maintenance only, RX-Exploerer will be migrated to WinAppSdk
 
 #####Bug Fixes
 
->#####Fixed the issue that taking too long to start the application
+>#####Fixed the problem that the navigation panel could not be resized
+
+>#####Fixed some other issues that could cause crashes
