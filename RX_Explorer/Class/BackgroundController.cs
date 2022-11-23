@@ -5,6 +5,7 @@ using RX_Explorer.View;
 using SharedLibrary;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -57,6 +58,16 @@ namespace RX_Explorer.Class
             {
                 if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacityValue"] is double Opacity)
                 {
+                    if (CustomAcrylicBackgroundBrush != null)
+                    {
+                        double CurrentValue = Convert.ToDouble(CustomAcrylicBackgroundBrush.GetValue(AcrylicBrush.TintOpacityProperty));
+
+                        if (CurrentValue != 1 - Opacity)
+                        {
+                            CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - Opacity);
+                        }
+                    }
+
                     return Opacity;
                 }
 
@@ -76,6 +87,35 @@ namespace RX_Explorer.Class
             {
                 if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosityValue"] is double Luminosity)
                 {
+                    if (CustomAcrylicBackgroundBrush != null)
+                    {
+                        double CurrentValue = Convert.ToDouble(CustomAcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
+
+                        if (CurrentValue != 1 - Luminosity)
+                        {
+                            CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - Luminosity);
+                        }
+                    }
+
+                    if (CompositionAcrylicBrush != null)
+                    {
+                        if (CompositionAcrylicBrush.Properties.TryGetScalar("Mix.Source1Amount", out float Source1AmountValue) == CompositionGetValueStatus.Succeeded)
+                        {
+                            if (Source1AmountValue != Luminosity)
+                            {
+                                CompositionAcrylicBrush.Properties.InsertScalar("Mix.Source1Amount", Convert.ToSingle(Luminosity));
+                            }
+                        }
+
+                        if (CompositionAcrylicBrush.Properties.TryGetScalar("Mix.Source2Amount", out float Source2AmountValue) == CompositionGetValueStatus.Succeeded)
+                        {
+                            if (Source2AmountValue != Luminosity)
+                            {
+                                CompositionAcrylicBrush.Properties.InsertScalar("Mix.Source2Amount", Convert.ToSingle(Luminosity));
+                            }
+                        }
+                    }
+
                     return Luminosity;
                 }
 
@@ -95,9 +135,30 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color)
+                if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string ColorHex)
                 {
-                    return Color.ToColor();
+                    if (CustomAcrylicBackgroundBrush != null)
+                    {
+                        string CurrentValue = ((Color)CustomAcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty)).ToHex();
+
+                        if (CurrentValue != ColorHex)
+                        {
+                            CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintColorProperty, ColorHex.ToColor());
+                        }
+                    }
+
+                    if (CompositionAcrylicBrush != null)
+                    {
+                        if (CompositionAcrylicBrush.Properties.TryGetColor("Tint.Color", out Color TintColor) == CompositionGetValueStatus.Succeeded)
+                        {
+                            if (TintColor.ToHex() != ColorHex)
+                            {
+                                CompositionAcrylicBrush.Properties.InsertColor("Tint.Color", ColorHex.ToColor());
+                            }
+                        }
+                    }
+
+                    return ColorHex.ToColor();
                 }
 
                 return Colors.SlateGray;
@@ -214,7 +275,10 @@ namespace RX_Explorer.Class
 
         private void OnIsCompositionAcrylicBackgroundEnabledChanged()
         {
-            CompositionAcrylicBrush?.Dispose();
+            if (Interlocked.Exchange(ref CompositionAcrylicBrush, null) is CompositionEffectBrush Brush)
+            {
+                Brush.Dispose();
+            }
 
             if (IsCompositionAcrylicBackgroundEnabled)
             {

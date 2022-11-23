@@ -50,7 +50,7 @@ namespace RX_Explorer.CustomControl
 
                 if (Args.NewValue is string NewText)
                 {
-                    int StartIndex = Instance.Text.IndexOf(Instance.HightLightText, StringComparison.OrdinalIgnoreCase);
+                    int StartIndex = NewText.IndexOf(Instance.HightLightText, StringComparison.OrdinalIgnoreCase);
 
                     if (StartIndex >= 0)
                     {

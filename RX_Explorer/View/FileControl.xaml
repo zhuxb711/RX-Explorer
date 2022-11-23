@@ -668,12 +668,6 @@
                     </DataTemplate>
                 </muxc:TreeView.ItemTemplate>
             </muxc:TreeView>
-            <Border HorizontalAlignment="Center"
-                    VerticalAlignment="Stretch"
-                    Grid.Column="1"
-                    Width="1.5"
-                    Margin="0,2"
-                    Background="{ThemeResource SystemControlBackgroundBaseMediumRevealBorderBrush}" />
             <controls:GridSplitter Background="Transparent"
                                    MinWidth="0"
                                    Grid.Column="1"
@@ -696,6 +690,13 @@
                     <StackPanel />
                 </controls:GridSplitter.Element>
             </controls:GridSplitter>
+            <Border Grid.Column="1"
+                    Width="1.5"
+                    Margin="0,2"
+                    Background="Gray"
+                    IsHitTestVisible="False"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Stretch" />
         </Grid>
     </Grid>
 </Page>

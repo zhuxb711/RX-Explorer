@@ -1,9 +1,15 @@
-﻿###Novedades de la versión 8.0.8.0
+﻿###Novedades de la versión 8.0.9.0
 
-###⚠Advertencia: la versión Uwp suspenderá las actualizaciones y permanecerá solo en mantenimiento, RX-Exploerer se migrará a WinAppSdk
+###⚠Advertencia: la versión Uwp suspenderá las actualizaciones de funciones y entrará en estado de solo mantenimiento, RX-Explorer se migrará al marco WinAppSdk
+
+>###WinAppSdk es un marco alternativo para Uwp. Actualmente, RX-Explorer se está refactorizando y migrando a WinAppSdk. La fecha específica de lanzamiento está por determinar.
+
+>###Después de lanzar la versión de WinAppSdk, la versión de Uwp aún se conservará en Microsoft Store, y todos los usuarios comprados pueden activar directamente la versión de WinAppSdk
+
+#####Actualización de la interfaz de usuario
+
+>#####Se mejoró el diseño de la interfaz de usuario de la página de inicio
 
 #####Corrección de errores
 
->#####Se solucionó el problema de que el panel de navegación no se podía cambiar de tamaño
-
->#####Se corrigieron algunos otros problemas que podrían causar fallas
+>#####Se corrigió un bloqueo cuando se habilitaban ciertos efectos acrílicos

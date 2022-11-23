@@ -1,9 +1,15 @@
-﻿###Was ist neu in Ver.8.0.8.0
+﻿###Was ist neu in Ver.8.0.9.0
 
-###⚠Warnung: Die UWP-Version setzt Updates aus und bleibt nur Wartung, RX-Exploerer wird zu WinAppSdk migriert
+###⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird zum WinAppSdk-Framework migriert
+
+>###WinAppSdk ist ein alternatives Framework für Uwp. RX-Explorer wird derzeit umgestaltet und auf WinAppSdk migriert. Der konkrete Einführungstermin ist noch festzulegen
+
+>###Nach dem Start der WinAppSdk-Version bleibt die Uwp-Version weiterhin im Microsoft Store erhalten, und alle gekauften Benutzer können die WinAppSdk-Version direkt aktivieren
+
+#####UI-Update
+
+>#####Das UI-Design der Homepage wurde verbessert
 
 #####Fehlerbehebung
 
->#####Das Problem, dass die Größe des Navigationsbereichs nicht geändert werden konnte, wurde behoben
-
->#####Einige andere Probleme behoben, die zu Abstürzen führen konnten
+>#####Absturz behoben, wenn bestimmte Acryleffekte aktiviert waren

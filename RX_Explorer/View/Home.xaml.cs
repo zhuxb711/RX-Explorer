@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -29,6 +30,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
+using Expander = Microsoft.UI.Xaml.Controls.Expander;
 using ProgressBar = Microsoft.UI.Xaml.Controls.ProgressBar;
 using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 
@@ -1299,16 +1301,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private void LibraryExpander_Collapsed(object sender, EventArgs e)
-        {
-            LibraryGrid.SelectedIndex = -1;
-        }
-
-        private void DeviceExpander_Collapsed(object sender, EventArgs e)
-        {
-            DriveGrid.SelectedIndex = -1;
-        }
-
         private async void EjectButton_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
@@ -1451,16 +1443,6 @@ namespace RX_Explorer.View
             {
                 await OpenTargetDriveAsync(Drive);
             }
-        }
-
-        private async void LibraryExpander_Expanded(object sender, EventArgs e)
-        {
-            await CommonAccessCollection.LoadLibraryFoldersAsync();
-        }
-
-        private async void DeviceExpander_Expanded(object sender, EventArgs e)
-        {
-            await CommonAccessCollection.LoadDriveAsync();
         }
 
         private async void Copy_Click(object sender, RoutedEventArgs e)
@@ -2045,6 +2027,41 @@ namespace RX_Explorer.View
         private void DriveGrid_ContextCanceled(UIElement sender, RoutedEventArgs args)
         {
             CloseAllFlyout();
+        }
+
+        private async void LibraryExpander_Expanding(Expander sender, ExpanderExpandingEventArgs args)
+        {
+            await CommonAccessCollection.LoadLibraryFoldersAsync();
+        }
+
+        private async void DeviceExpander_Expanding(Expander sender, ExpanderExpandingEventArgs args)
+        {
+            await CommonAccessCollection.LoadDriveAsync();
+        }
+
+        private void DeviceExpander_Collapsed(Expander sender, ExpanderCollapsedEventArgs args)
+        {
+            DriveGrid.SelectedIndex = -1;
+        }
+
+        private void LibraryExpander_Collapsed(Expander sender, ExpanderCollapsedEventArgs args)
+        {
+            LibraryGrid.SelectedIndex = -1;
+        }
+
+        private void GridSplitter_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            ((GridSplitter)sender).ReleasePointerCaptures();
+        }
+
+        private void GridSplitter_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            ((GridSplitter)sender).CapturePointer(e.Pointer);
+        }
+
+        private void Splitter_PointerCanceled(object sender, PointerRoutedEventArgs e)
+        {
+            ((GridSplitter)sender).ReleasePointerCaptures();
         }
     }
 }

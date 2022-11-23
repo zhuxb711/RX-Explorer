@@ -71,7 +71,7 @@ namespace RX_Explorer.Class
             {
                 if (TreeViewVisibility == Visibility.Visible)
                 {
-                    return new GridLength(8, GridUnitType.Pixel);
+                    return new GridLength(5, GridUnitType.Pixel);
                 }
                 else
                 {

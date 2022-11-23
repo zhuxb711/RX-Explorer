@@ -1169,7 +1169,6 @@ namespace RX_Explorer.View
         private long ColorPickerChangeRegisterToken2;
         private long ColorPickerChangeRegisterToken3;
         private long ColorPickerChangeRegisterToken4;
-        private long ColorPickerChangeRegisterToken5;
         private bool RefreshTreeViewAndPresenterOnClose;
 
         private readonly AsyncLock SyncLocker = new AsyncLock();
@@ -1625,11 +1624,10 @@ namespace RX_Explorer.View
                 DisplayLabelFolderInQuickAccessNode.Checked -= DisplayLabelFolderInQuickAccessNode_Checked;
                 DisplayLabelFolderInQuickAccessNode.Unchecked -= DisplayLabelFolderInQuickAccessNode_Unchecked;
 
-                AcrylicColorPicker.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken1);
-                PredefineTagColorPicker1.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken2);
-                PredefineTagColorPicker2.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken3);
-                PredefineTagColorPicker3.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken4);
-                PredefineTagColorPicker4.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken5);
+                PredefineTagColorPicker1.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken1);
+                PredefineTagColorPicker2.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken2);
+                PredefineTagColorPicker3.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken3);
+                PredefineTagColorPicker4.UnregisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, ColorPickerChangeRegisterToken4);
 
                 LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
 
@@ -1861,11 +1859,10 @@ namespace RX_Explorer.View
                 DisplayLabelFolderInQuickAccessNode.Checked += DisplayLabelFolderInQuickAccessNode_Checked;
                 DisplayLabelFolderInQuickAccessNode.Unchecked += DisplayLabelFolderInQuickAccessNode_Unchecked;
 
-                ColorPickerChangeRegisterToken1 = AcrylicColorPicker.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnAcrylicColorPicker1SelectedColorChanged));
-                ColorPickerChangeRegisterToken2 = PredefineTagColorPicker1.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker1SelectedColorChanged));
-                ColorPickerChangeRegisterToken3 = PredefineTagColorPicker2.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker2SelectedColorChanged));
-                ColorPickerChangeRegisterToken4 = PredefineTagColorPicker3.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker3SelectedColorChanged));
-                ColorPickerChangeRegisterToken5 = PredefineTagColorPicker4.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker4SelectedColorChanged));
+                ColorPickerChangeRegisterToken1 = PredefineTagColorPicker1.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker1SelectedColorChanged));
+                ColorPickerChangeRegisterToken2 = PredefineTagColorPicker2.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker2SelectedColorChanged));
+                ColorPickerChangeRegisterToken3 = PredefineTagColorPicker3.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker3SelectedColorChanged));
+                ColorPickerChangeRegisterToken4 = PredefineTagColorPicker4.RegisterPropertyChangedCallback(ColorPickerButton.SelectedColorProperty, new DependencyPropertyChangedCallback(OnPredefineTagColorPicker4SelectedColorChanged));
             }
         }
 
@@ -2054,11 +2051,6 @@ namespace RX_Explorer.View
             {
                 ApplicationData.Current.SignalDataChanged();
             }
-        }
-
-        private void OnAcrylicColorPicker1SelectedColorChanged(DependencyObject sender, DependencyProperty dp)
-        {
-            ApplicationData.Current.SignalDataChanged();
         }
 
         private void OnPredefineTagColorPicker1SelectedColorChanged(DependencyObject sender, DependencyProperty dp)
