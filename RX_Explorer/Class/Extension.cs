@@ -43,6 +43,30 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
+        public static IEnumerable<T> PadRight<T>(this IEnumerable<T> Source, T Element, int Length)
+        {
+            int CurrentCount = Source.Count();
+
+            if (CurrentCount >= Length)
+            {
+                return Source;
+            }
+
+            return Source.Concat(Enumerable.Repeat(Element, Length - CurrentCount));
+        }
+
+        public static IEnumerable<T> PadLeft<T>(this IEnumerable<T> Source, T Element, int Length)
+        {
+            int CurrentCount = Source.Count();
+
+            if (CurrentCount >= Length)
+            {
+                return Source;
+            }
+
+            return Enumerable.Repeat(Element, Length - CurrentCount).Concat(Source);
+        }
+
         public static IEnumerable<T> ForEach<T>(this IEnumerable<T> Source, Action<T> Action)
         {
             if (Source == null)

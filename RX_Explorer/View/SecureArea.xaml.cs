@@ -620,7 +620,7 @@ namespace RX_Explorer.View
 
                     try
                     {
-                        await ImportStorageItemsAsync(await FileSystemStorageItemBase.OpenInBatchAsync(PathList).ToArrayAsync(), SLEVersion.SLE200, Cancellation.Token);
+                        await ImportStorageItemsAsync(await FileSystemStorageItemBase.OpenInBatchAsync(PathList).ToArrayAsync(), SLEVersion.SLE210, Cancellation.Token);
                     }
                     catch (OperationCanceledException)
                     {
@@ -1211,7 +1211,7 @@ namespace RX_Explorer.View
 
                     try
                     {
-                        await ImportStorageItemsAsync((await Task.WhenAll(PickedFiles.Select((Item) => Item.GetNativeFileDataAsync()))).Select((Item) => new FileSystemStorageFile(Item)), SLEVersion.SLE200, Cancellation.Token);
+                        await ImportStorageItemsAsync((await Task.WhenAll(PickedFiles.Select((Item) => Item.GetNativeFileDataAsync()))).Select((Item) => new FileSystemStorageFile(Item)), SLEVersion.SLE210, Cancellation.Token);
                     }
                     catch (OperationCanceledException)
                     {
@@ -1255,7 +1255,7 @@ namespace RX_Explorer.View
 
                 try
                 {
-                    await ImportStorageItemsAsync(new FileSystemStorageFolder[] { new FileSystemStorageFolder(await Folder.GetNativeFileDataAsync()) }, SLEVersion.SLE200, Cancellation.Token);
+                    await ImportStorageItemsAsync(new FileSystemStorageFolder[] { new FileSystemStorageFolder(await Folder.GetNativeFileDataAsync()) }, SLEVersion.SLE210, Cancellation.Token);
                 }
                 catch (OperationCanceledException)
                 {

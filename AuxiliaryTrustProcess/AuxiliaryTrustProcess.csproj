@@ -39,12 +39,10 @@
 		<PackageReference Include="Vanara.PInvoke.CfgMgr32">
 			<Version>3.4.11</Version>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.Mpr">
-			<Version>3.4.11</Version>
-		</PackageReference>
 		<PackageReference Include="Vanara.PInvoke.Msi">
 			<Version>3.4.11</Version>
 		</PackageReference>
+		<PackageReference Include="Vanara.PInvoke.NetApi32" Version="3.4.11" />
 		<PackageReference Include="Vanara.PInvoke.NtDll">
 			<Version>3.4.11</Version>
 		</PackageReference>

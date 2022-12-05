@@ -1820,9 +1820,9 @@ namespace AuxiliaryTrustProcess
 
                                 break;
                             }
-                        case AuxiliaryTrustProcessCommandType.MapToUNCPath:
+                        case AuxiliaryTrustProcessCommandType.MapToUncPath:
                             {
-                                Value.Add("Success", JsonSerializer.Serialize(Helper.MapUncToDrivePath(JsonSerializer.Deserialize<IReadOnlyList<string>>(CommandValue["PathList"]))));
+                                Value.Add("Success", JsonSerializer.Serialize(Helper.MapUncPathToDrivePath(Convert.ToString(CommandValue["UncPath"]))));
 
                                 break;
                             }

@@ -1,15 +1,21 @@
-﻿###Novedades de la versión 8.0.9.0
+﻿###Novedades de la versión 8.1.0.0
 
-###⚠Advertencia: la versión Uwp suspenderá las actualizaciones de funciones y entrará en estado de solo mantenimiento, RX-Explorer se migrará al marco WinAppSdk
+####⚠Advertencia: la versión Uwp suspenderá las actualizaciones de funciones y entrará en estado de solo mantenimiento, RX-Explorer se migrará al marco WinAppSdk
 
->###WinAppSdk es un marco alternativo para Uwp. Actualmente, RX-Explorer se está refactorizando y migrando a WinAppSdk. La fecha específica de lanzamiento está por determinar.
+>####WinAppSdk es un marco alternativo para Uwp. Actualmente, RX-Explorer se está refactorizando y migrando a WinAppSdk. La fecha específica de lanzamiento está por determinar.
 
->###Después de lanzar la versión de WinAppSdk, la versión de Uwp aún se conservará en Microsoft Store, y todos los usuarios comprados pueden activar directamente la versión de WinAppSdk
-
-#####Actualización de la interfaz de usuario
-
->#####Se mejoró el diseño de la interfaz de usuario de la página de inicio
+>####Después de lanzar la versión de WinAppSdk, la versión de Uwp aún se conservará en Microsoft Store, y todos los usuarios comprados pueden activar directamente la versión de WinAppSdk
 
 #####Corrección de errores
 
->#####Se corrigió un bloqueo cuando se habilitaban ciertos efectos acrílicos
+>#####Se solucionó el problema de que la ubicación de almacenamiento de archivos predeterminada del Área segura no se puede usar para la inicialización
+
+>#####Se solucionó el problema de que el registro de actualización puede demorarse mucho tiempo antes de aparecer
+
+>#####Se solucionó el problema de que la indicación de acceso directo de algunos elementos del menú contextual era incorrecta
+
+#####Otras mejoras
+
+>#####Otras mejoras menores y componentes de terceros actualizados
+
+>#####Se actualizó el archivo de Área Segura a la versión 2.1.0 y se elimina la aleatoriedad incontrolable para solucionar el problema de que no se puede descifrar después de cambiar de computadora (solo válido para archivos recién encriptados)

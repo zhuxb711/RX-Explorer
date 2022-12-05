@@ -292,13 +292,23 @@ namespace RX_Explorer.Class
             Header.WriteHeader(BaseFileStream);
             Transform = CreateAesEncryptor(Header.Core.Version, EncryptionKey, (int)Header.Core.KeySize);
 
-            if (Version >= SLEVersion.SLE150)
+            switch (Version)
             {
-                Counter = new EasClientDeviceInformation().Id.ToByteArray().Take(8).Concat(Enumerable.Repeat<byte>(0, 8)).ToArray();
-            }
-            else
-            {
-                TransformStream = new CryptoStream(BaseFileStream, Transform, CryptoStreamMode.Write);
+                case >= SLEVersion.SLE210:
+                    {
+                        Counter = Encoding.ASCII.GetBytes(EncryptionKey).TakeLast(8).PadRight<byte>(0, 16).ToArray();
+                        break;
+                    }
+                case >= SLEVersion.SLE150:
+                    {
+                        Counter = new EasClientDeviceInformation().Id.ToByteArray().Take(8).Concat(Enumerable.Repeat<byte>(0, 8)).ToArray();
+                        break;
+                    }
+                default:
+                    {
+                        TransformStream = new CryptoStream(BaseFileStream, Transform, CryptoStreamMode.Write);
+                        break;
+                    }
             }
 
             WritePasswordCheckPoint();

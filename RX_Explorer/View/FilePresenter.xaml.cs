@@ -1963,12 +1963,6 @@ namespace RX_Explorer.View
                 },
                 Width = 320
             };
-            ExpandToCurrentFolderButton.KeyboardAccelerators.Add(new KeyboardAccelerator
-            {
-                Modifiers = VirtualKeyModifiers.Shift,
-                Key = VirtualKey.E,
-                IsEnabled = false
-            });
             ExpandToCurrentFolderButton.Click += ExpandToCurrentFolder_Click;
             ToolTipService.SetToolTip(ExpandToCurrentFolderButton, Globalization.GetString("Operate_Text_RevealCurrentFolder"));
 
@@ -2913,12 +2907,10 @@ namespace RX_Explorer.View
                         //Use drive path could get more benefit from loading speed and directory monitor
                         if (Folder.Path.StartsWith(@"\\"))
                         {
-                            IEnumerable<DriveDataBase> NetworkDrives = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network);
+                            string RemappedPath = await UncPath.MapUncToDrivePath(Folder.Path);
 
-                            if (NetworkDrives.Any())
+                            if (!string.IsNullOrEmpty(RemappedPath))
                             {
-                                string RemappedPath = await UncPath.MapUncToDrivePath(NetworkDrives.Select((Drive) => Drive.Path), Folder.Path);
-
                                 if (await FileSystemStorageItemBase.OpenAsync(RemappedPath) is FileSystemStorageFolder RemappedFolder)
                                 {
                                     Folder = RemappedFolder;

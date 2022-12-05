@@ -171,7 +171,8 @@ namespace RX_Explorer.Class
         SLE100 = 100,
         SLE110 = 110,
         SLE150 = 150,
-        SLE200 = 200
+        SLE200 = 200,
+        SLE210 = 210
     }
 
     public enum SLEKeySize

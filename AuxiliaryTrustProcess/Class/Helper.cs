@@ -32,56 +32,31 @@ namespace AuxiliaryTrustProcess.Class
             return true;
         }
 
-        public static IReadOnlyDictionary<string,string> MapUncToDrivePath(IReadOnlyList<string> PathList)
+        public static string MapUncPathToDrivePath(string UncPath)
         {
-            Dictionary<string, string> MapResult = new Dictionary<string, string>(PathList.Count);
-
-            foreach (string Path in PathList)
+            if (ShlwApi.PathIsUNC(UncPath))
             {
-                uint BufferSize = 128;
-
-                IntPtr BufferPtr = Marshal.AllocHGlobal((int)BufferSize);
-
                 try
                 {
-                    Win32Error Error = Mpr.WNetGetUniversalName(Path, Mpr.INFO_LEVEL.UNIVERSAL_NAME_INFO_LEVEL, BufferPtr, ref BufferSize);
+                    NetApi32.SHARE_INFO_502 ShareInfo = NetApi32.NetShareGetInfo<NetApi32.SHARE_INFO_502>(null, UncPath, 502);
 
-                    if (Error.Succeeded)
+                    if (!ShareInfo.shi502_security_descriptor.IsValidSecurityDescriptor())
                     {
-                        MapResult.Add(Path, Marshal.PtrToStructure<Mpr.UNIVERSAL_NAME_INFO>(BufferPtr).lpUniversalName.TrimEnd('\\'));
+                        LogTracer.Log($"{UncPath} is do not have an valid \"Security Descripto\" when convert to drive path");
                     }
-                    else if (Error == Win32Error.ERROR_MORE_DATA)
-                    {
-                        IntPtr NewBufferPtr = Marshal.AllocHGlobal((int)BufferSize);
 
-                        try
-                        {
-                            if (Mpr.WNetGetUniversalName(Path, Mpr.INFO_LEVEL.UNIVERSAL_NAME_INFO_LEVEL, NewBufferPtr, ref BufferSize).Succeeded)
-                            {
-                                MapResult.Add(Path, Marshal.PtrToStructure<Mpr.UNIVERSAL_NAME_INFO>(NewBufferPtr).lpUniversalName.TrimEnd('\\'));
-                            }
-                            else
-                            {
-                                MapResult.Add(Path, Path);
-                            }
-                        }
-                        finally
-                        {
-                            Marshal.FreeHGlobal(NewBufferPtr);
-                        }
-                    }
-                    else
+                    if (!string.IsNullOrEmpty(ShareInfo.shi502_path))
                     {
-                        MapResult.Add(Path, Path);
+                        return ShareInfo.shi502_path;
                     }
                 }
-                finally
+                catch (Exception)
                 {
-                    Marshal.FreeHGlobal(BufferPtr);
+                    //No need to handle this exception
                 }
             }
 
-            return MapResult;
+            return string.Empty;
         }
 
         public static bool IsTopMostWindow(HWND WindowHandle)

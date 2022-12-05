@@ -1022,20 +1022,20 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<IReadOnlyDictionary<string, string>> MapToUNCPathAsync(IEnumerable<string> PathList)
+        public async Task<string> MapUncToDrivePathAsync(string UncPath)
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.MapToUNCPath, ("PathList", JsonSerializer.Serialize(PathList)));
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.MapToUncPath, ("UncPath", UncPath));
 
             if (Response.TryGetValue("Success", out string MapString))
             {
-                return JsonSerializer.Deserialize<IReadOnlyDictionary<string, string>>(MapString);
+                return JsonSerializer.Deserialize<string>(MapString);
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
-                LogTracer.Log($"An unexpected error was threw in {nameof(MapToUNCPathAsync)}, message: {ErrorMessage}");
+                LogTracer.Log($"An unexpected error was threw in {nameof(MapUncToDrivePathAsync)}, message: {ErrorMessage}");
             }
 
-            return new Dictionary<string, string>(0);
+            return string.Empty;
         }
 
         public async Task<SafeFileHandle> GetNativeHandleAsync(string Path, AccessMode Access, OptimizeOption Option)

@@ -31,6 +31,7 @@
                       Visibility="{x:Bind LoadingTip.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}">
             <control:MarkdownTextBlock x:Name="MarkDown"
                                        Header5FontSize="14"
+                                       Header4Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
                                        Header3Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
                                        Background="Transparent"
                                        LinkClicked="MarkDown_LinkClicked"

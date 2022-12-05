@@ -1,6 +1,8 @@
 ﻿using RX_Explorer.Class;
 using RX_Explorer.View;
+using SharedLibrary;
 using System;
+using System.IO;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Controls;
@@ -63,18 +65,16 @@ namespace RX_Explorer.Dialog
                     args.Cancel = true;
                     PasswordErrorTip.IsOpen = true;
                 }
-                else if (!await FileSystemStorageItemBase.CheckExistsAsync(Location.Text))
+                else if (await FileSystemStorageItemBase.CreateNewAsync(Location.Text, CreateType.Folder, CollisionOptions.Skip) is FileSystemStorageFolder Folder)
                 {
-                    args.Cancel = true;
-                    EmptyTip.Target = Location;
-                    EmptyTip.IsOpen = true;
-                }
-                else
-                {
-                    StorageLocation = Location.Text;
+                    StorageLocation = Folder.Path;
                     Password = PrimaryPassword.Password;
                     IsEnableWindowsHello = UseWinHel.IsChecked.GetValueOrDefault();
                     EncryptionKeySize = SecureLevel.SelectedIndex == 0 ? SLEKeySize.AES128 : SLEKeySize.AES256;
+                }
+                else
+                {
+                    throw new IOException($"Could not specific {Location.Text} for Secure Area");
                 }
             }
             catch (Exception ex)

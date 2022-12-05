@@ -657,12 +657,12 @@ namespace RX_Explorer.View
                     }
                 }
 
-                await Task.WhenAll(RegisterBackgroundTaskAsync(), CheckUpdateIfExistAsync(), CleanUpNotExistsLabelItemAsync(), SpecialPath.InitializeAsync(), Settings.InitializeAsync());
-
                 if (SystemInformation.Instance.IsAppUpdated || SystemInformation.Instance.IsFirstRun)
                 {
                     await new WhatIsNew().ShowAsync();
                 }
+
+                await Task.WhenAll(RegisterBackgroundTaskAsync(), CheckUpdateIfExistAsync(), CleanUpNotExistsLabelItemAsync(), SpecialPath.InitializeAsync(), Settings.InitializeAsync());
 
                 if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {

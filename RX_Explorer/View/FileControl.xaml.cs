@@ -2812,7 +2812,7 @@ namespace RX_Explorer.View
                     double BladeHeight = BladeViewer.ActualHeight;
                     double BladeWidth = (BladeViewer.ActualWidth - BladeViewer.Items.Cast<BladeItem>().Where((Item) => !Item.IsExpanded).Sum((Item) => Item.ActualWidth)) / Math.Min(BladeViewer.Items.Cast<BladeItem>().Where((Item) => Item.IsExpanded).Count(), SettingPage.VerticalSplitViewLimitation);
 
-                    foreach (BladeItem Item in BladeViewer.Items)
+                    foreach (BladeItem Item in BladeViewer.Items.Cast<BladeItem>())
                     {
                         Item.Height = BladeHeight;
 

@@ -147,7 +147,7 @@
         GetTooltipText,
         GetVariablePathList,
         GetDirectoryMonitorHandle,
-        MapToUNCPath,
+        MapToUncPath,
         SetTaskBarProgress,
         GetProperties,
         MTPGetItem,

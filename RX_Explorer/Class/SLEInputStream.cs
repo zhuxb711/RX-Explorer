@@ -293,13 +293,23 @@ namespace RX_Explorer.Class
             Header = SLEHeader.GetHeader(BaseFileStream, HeaderEncoding);
             Transform = CreateAesDecryptor(Header.Core.Version, DecryptionKey, (int)Header.Core.KeySize);
 
-            if (Header.Core.Version >= SLEVersion.SLE150)
+            switch (Header.Core.Version)
             {
-                Counter = new EasClientDeviceInformation().Id.ToByteArray().Take(8).Concat(Enumerable.Repeat<byte>(0, 8)).ToArray();
-            }
-            else
-            {
-                TransformStream = new CryptoStream(BaseFileStream, Transform, CryptoStreamMode.Read);
+                case >= SLEVersion.SLE210:
+                    {
+                        Counter = Encoding.ASCII.GetBytes(DecryptionKey).TakeLast(8).PadRight<byte>(0, 16).ToArray();
+                        break;
+                    }
+                case >= SLEVersion.SLE150:
+                    {
+                        Counter = new EasClientDeviceInformation().Id.ToByteArray().Take(8).Concat(Enumerable.Repeat<byte>(0, 8)).ToArray();
+                        break;
+                    }
+                default:
+                    {
+                        TransformStream = new CryptoStream(BaseFileStream, Transform, CryptoStreamMode.Read);
+                        break;
+                    }
             }
 
             if (!VerifyPasswordCheckPoint())

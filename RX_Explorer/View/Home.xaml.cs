@@ -1079,16 +1079,20 @@ namespace RX_Explorer.View
                             }
                             else if (Library.Path.StartsWith(@"\\"))
                             {
-                                IReadOnlyList<DriveDataBase> NetworkDriveList = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network).ToList();
+                                IReadOnlyList<DriveDataBase> NetworkDriveList = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network).ToArray();
 
                                 if (NetworkDriveList.Count > 0)
                                 {
-                                    string RemappedPath = await UncPath.MapUncToDrivePath(NetworkDriveList.Select((Drive) => Drive.Path), Library.Path);
+                                    string RemappedPath = await UncPath.MapUncToDrivePath(Library.Path);
 
-                                    if (NetworkDriveList.FirstOrDefault((Drive) => Drive.Path.Equals(RemappedPath, StringComparison.OrdinalIgnoreCase)) is DriveDataBase NetworkDrive)
+                                    if (!string.IsNullOrEmpty(RemappedPath))
                                     {
-                                        PropertiesWindowBase NewNetworkDriveWindow = await PropertiesWindowBase.CreateAsync(NetworkDrive);
-                                        await NewNetworkDriveWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                                        if (NetworkDriveList.FirstOrDefault((Drive) => Drive.Path.Equals(RemappedPath, StringComparison.OrdinalIgnoreCase)) is DriveDataBase NetworkDrive)
+                                        {
+                                            PropertiesWindowBase NewNetworkDriveWindow = await PropertiesWindowBase.CreateAsync(NetworkDrive);
+                                            await NewNetworkDriveWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                                            return;
+                                        }
                                     }
                                 }
                             }
@@ -1187,11 +1191,11 @@ namespace RX_Explorer.View
                     }
                     else if (Library.Path.StartsWith(@"\\"))
                     {
-                        IReadOnlyList<DriveDataBase> NetworkDriveList = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network).ToList();
+                        IReadOnlyList<DriveDataBase> NetworkDriveList = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network).ToArray();
 
                         if (NetworkDriveList.Count > 0)
                         {
-                            string RemappedPath = await UncPath.MapUncToDrivePath(NetworkDriveList.Select((Drive) => Drive.Path), Library.Path);
+                            string RemappedPath = await UncPath.MapUncToDrivePath(Library.Path);
 
                             if (NetworkDriveList.FirstOrDefault((Drive) => Drive.Path.Equals(RemappedPath, StringComparison.OrdinalIgnoreCase)) is DriveDataBase NetworkDrive)
                             {
