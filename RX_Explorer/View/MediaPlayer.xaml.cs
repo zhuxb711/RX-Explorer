@@ -105,16 +105,19 @@ namespace RX_Explorer.View
                 MaxPlayedItemsToKeepOpen = 0
             };
 
+            PlaybackList.CurrentItemChanged += PlaybackList_CurrentItemChanged;
+
             try
             {
                 if (TargetMediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    using (Stream Stream = await TargetMediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                    using (SLEInputStream MediaStream = new SLEInputStream(Stream, new UTF8Encoding(false), KeyGenerator.GetMD5WithLength(SettingPage.SecureAreaUnlockPassword, 16)))
+                    using (Stream Stream = await TargetMediaFile.GetStreamFromFileAsync(AccessMode.Read))
                     {
-                        if (MediaStream.Header.Core.Version >= SLEVersion.SLE150)
+                        SLEHeader Header = SLEHeader.GetHeader(Stream);
+
+                        if (Header.Core.Version >= SLEVersion.SLE150)
                         {
-                            switch (Path.GetExtension(MediaStream.Header.Core.FileName).ToLower())
+                            switch (Path.GetExtension(Header.Core.FileName).ToLower())
                             {
                                 case ".mp3":
                                 case ".flac":
@@ -127,32 +130,14 @@ namespace RX_Explorer.View
                                         };
                                         Binder.Binding += Binder_Binding;
 
-                                        MediaPlaybackItem Item = new MediaPlaybackItem(MediaSource.CreateFromMediaBinder(Binder));
+                                        MediaSource Source = MediaSource.CreateFromMediaBinder(Binder);
+                                        Source.CustomProperties.Add("RawPath", TargetMediaFile.Path);
+
+                                        MediaPlaybackItem Item = new MediaPlaybackItem(Source);
 
                                         MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                                         Props.Type = MediaPlaybackType.Music;
-                                        Props.MusicProperties.Title = MediaStream.Header.Core.FileName;
-
-                                        try
-                                        {
-                                            byte[] CoverData = GetMusicCoverFromStream(MediaStream.Header.Core.FileName, MediaStream);
-
-                                            if (CoverData.Length > 0)
-                                            {
-                                                Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await Helper.CreateRandomAccessStreamAsync(CoverData));
-                                            }
-                                            else
-                                            {
-                                                Props.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/LockFile.png"));
-                                            }
-
-                                            Props.MusicProperties.AlbumArtist = GetArtistFromStream(MediaStream.Header.Core.FileName, MediaStream);
-                                        }
-                                        catch (Exception)
-                                        {
-                                            //No need to handle this exception
-                                        }
-
+                                        Props.MusicProperties.Title = Header.Core.FileName;
                                         Item.ApplyDisplayProperties(Props);
 
                                         PlaybackList.Items.Add(Item);
@@ -170,12 +155,15 @@ namespace RX_Explorer.View
                                         };
                                         Binder.Binding += Binder_Binding;
 
-                                        MediaPlaybackItem Item = new MediaPlaybackItem(MediaSource.CreateFromMediaBinder(Binder));
+                                        MediaSource Source = MediaSource.CreateFromMediaBinder(Binder);
+                                        Source.CustomProperties.Add("RawPath", TargetMediaFile.Path);
+
+                                        MediaPlaybackItem Item = new MediaPlaybackItem(Source);
 
                                         MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                                         Props.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/LockFile.png"));
                                         Props.Type = MediaPlaybackType.Video;
-                                        Props.VideoProperties.Title = MediaStream.Header.Core.FileName;
+                                        Props.VideoProperties.Title = Header.Core.FileName;
 
                                         Item.ApplyDisplayProperties(Props);
 
@@ -195,10 +183,9 @@ namespace RX_Explorer.View
                         }
                     }
                 }
-                else
+                else if (TargetMediaFile is not INotWin32StorageItem)
                 {
-                    if (TargetMediaFile is not INotWin32StorageItem
-                        && await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(TargetMediaFile.Path)) is FileSystemStorageFolder BaseFolder)
+                    if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(TargetMediaFile.Path)) is FileSystemStorageFolder BaseFolder)
                     {
                         switch (TargetMediaFile.Type.ToLower())
                         {
@@ -209,19 +196,12 @@ namespace RX_Explorer.View
                                 {
                                     IReadOnlyList<FileSystemStorageFile> FileList = await BaseFolder.GetChildItemsAsync(CancelToken: CancelToken, Filter: BasicFilters.File, AdvanceFilter: (ItemPath) =>
                                     {
-                                        switch (Path.GetExtension(ItemPath).ToLower())
+                                        return Path.GetExtension(ItemPath).ToLower() switch
                                         {
-                                            case ".mp3":
-                                            case ".flac":
-                                            case ".wma":
-                                            case ".m4a":
-                                                {
-                                                    return true;
-                                                }
-                                        }
-
-                                        return false;
-                                    }).Cast<FileSystemStorageFile>().ToListAsync();
+                                            ".mp3" or ".flac" or ".wma" or ".m4a" => true,
+                                            _ => false
+                                        };
+                                    }).Cast<FileSystemStorageFile>().ToArrayAsync();
 
                                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(BaseFolder.Path);
 
@@ -233,35 +213,14 @@ namespace RX_Explorer.View
                                         };
                                         Binder.Binding += Binder_Binding;
 
-                                        MediaPlaybackItem Item = new MediaPlaybackItem(MediaSource.CreateFromMediaBinder(Binder));
+                                        MediaSource Source = MediaSource.CreateFromMediaBinder(Binder);
+                                        Source.CustomProperties.Add("RawPath", MediaFile.Path);
+
+                                        MediaPlaybackItem Item = new MediaPlaybackItem(Source);
 
                                         MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                                         Props.Type = MediaPlaybackType.Music;
                                         Props.MusicProperties.Title = MediaFile.Name;
-
-                                        try
-                                        {
-                                            using (Stream MediaStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                                            {
-                                                byte[] CoverData = GetMusicCoverFromStream(MediaFile.Name, MediaStream);
-
-                                                if (CoverData.Length > 0)
-                                                {
-                                                    Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await Helper.CreateRandomAccessStreamAsync(CoverData));
-                                                }
-                                                else
-                                                {
-                                                    Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await MediaFile.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
-                                                }
-
-                                                Props.MusicProperties.AlbumArtist = GetArtistFromStream(MediaFile.Name, MediaStream);
-                                            }
-                                        }
-                                        catch (Exception)
-                                        {
-                                            //No need to handle this exception
-                                        }
-
                                         Item.ApplyDisplayProperties(Props);
 
                                         PlaybackList.Items.Add(Item);
@@ -281,19 +240,12 @@ namespace RX_Explorer.View
                                 {
                                     IReadOnlyList<FileSystemStorageFile> FileList = await BaseFolder.GetChildItemsAsync(CancelToken: CancelToken, Filter: BasicFilters.File, AdvanceFilter: (ItemPath) =>
                                     {
-                                        switch (Path.GetExtension(ItemPath).ToLower())
+                                        return Path.GetExtension(ItemPath).ToLower() switch
                                         {
-                                            case ".mkv":
-                                            case ".wmv":
-                                            case ".mp4":
-                                            case ".mov":
-                                                {
-                                                    return true;
-                                                }
-                                        }
-
-                                        return false;
-                                    }).Cast<FileSystemStorageFile>().ToListAsync();
+                                            ".mkv" or ".wmv" or ".mp4" or ".mov" => true,
+                                            _ => false
+                                        };
+                                    }).Cast<FileSystemStorageFile>().ToArrayAsync();
 
                                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(BaseFolder.Path);
 
@@ -305,21 +257,14 @@ namespace RX_Explorer.View
                                         };
                                         Binder.Binding += Binder_Binding;
 
-                                        MediaPlaybackItem Item = new MediaPlaybackItem(MediaSource.CreateFromMediaBinder(Binder));
+                                        MediaSource Source = MediaSource.CreateFromMediaBinder(Binder);
+                                        Source.CustomProperties.Add("RawPath", MediaFile.Path);
+
+                                        MediaPlaybackItem Item = new MediaPlaybackItem(Source);
 
                                         MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                                         Props.Type = MediaPlaybackType.Video;
                                         Props.VideoProperties.Title = MediaFile.Name;
-
-                                        try
-                                        {
-                                            Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await MediaFile.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
-                                        }
-                                        catch (Exception)
-                                        {
-                                            //No need to handle this exception
-                                        }
-
                                         Item.ApplyDisplayProperties(Props);
 
                                         PlaybackList.Items.Add(Item);
@@ -349,35 +294,14 @@ namespace RX_Explorer.View
                                     };
                                     Binder.Binding += Binder_Binding;
 
-                                    MediaPlaybackItem Item = new MediaPlaybackItem(MediaSource.CreateFromMediaBinder(Binder));
+                                    MediaSource Source = MediaSource.CreateFromMediaBinder(Binder);
+                                    Source.CustomProperties.Add("RawPath", TargetMediaFile.Path);
+
+                                    MediaPlaybackItem Item = new MediaPlaybackItem(Source);
 
                                     MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                                     Props.Type = MediaPlaybackType.Music;
                                     Props.MusicProperties.Title = TargetMediaFile.Name;
-
-                                    try
-                                    {
-                                        using (Stream MediaStream = await TargetMediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
-                                        {
-                                            byte[] CoverData = GetMusicCoverFromStream(TargetMediaFile.Name, MediaStream);
-
-                                            if (CoverData.Length > 0)
-                                            {
-                                                Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await Helper.CreateRandomAccessStreamAsync(CoverData));
-                                            }
-                                            else
-                                            {
-                                                Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await TargetMediaFile.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
-                                            }
-
-                                            Props.MusicProperties.AlbumArtist = GetArtistFromStream(TargetMediaFile.Name, MediaStream);
-                                        }
-                                    }
-                                    catch (Exception)
-                                    {
-                                        //No need to handle this exception
-                                    }
-
                                     Item.ApplyDisplayProperties(Props);
 
                                     PlaybackList.Items.Add(Item);
@@ -395,21 +319,14 @@ namespace RX_Explorer.View
                                     };
                                     Binder.Binding += Binder_Binding;
 
-                                    MediaPlaybackItem Item = new MediaPlaybackItem(MediaSource.CreateFromMediaBinder(Binder));
+                                    MediaSource Source = MediaSource.CreateFromMediaBinder(Binder);
+                                    Source.CustomProperties.Add("RawPath", TargetMediaFile.Path);
+
+                                    MediaPlaybackItem Item = new MediaPlaybackItem(Source);
 
                                     MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                                     Props.Type = MediaPlaybackType.Video;
                                     Props.VideoProperties.Title = TargetMediaFile.Name;
-
-                                    try
-                                    {
-                                        Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await TargetMediaFile.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
-                                    }
-                                    catch (Exception)
-                                    {
-                                        //No need to handle this exception
-                                    }
-
                                     Item.ApplyDisplayProperties(Props);
 
                                     PlaybackList.Items.Add(Item);
@@ -422,15 +339,138 @@ namespace RX_Explorer.View
             }
             catch (OperationCanceledException)
             {
-                foreach (MediaSource Source in PlaybackList.Items.Select((Item) => Item.Source))
-                {
-                    Source.Dispose();
-                }
-
+                PlaybackList.Items.Select((Item) => Item.Source).ForEach((Source) => Source.Dispose());
                 throw;
             }
 
             return PlaybackList;
+        }
+
+        private async void PlaybackList_CurrentItemChanged(MediaPlaybackList sender, CurrentMediaPlaybackItemChangedEventArgs args)
+        {
+            if (args.NewItem is MediaPlaybackItem Item)
+            {
+                if (Item.Source.CustomProperties.TryGetValue("RawPath", out object RawPath))
+                {
+                    string Path = Convert.ToString(RawPath);
+
+                    if (!string.IsNullOrEmpty(Path))
+                    {
+                        if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFile MediaFile)
+                        {
+                            MediaItemDisplayProperties Props = Item.GetDisplayProperties();
+
+                            try
+                            {
+                                using (Stream MediaRawStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read))
+                                {
+                                    if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        using (SLEInputStream MediaStream = new SLEInputStream(MediaRawStream, new UTF8Encoding(false), KeyGenerator.GetMD5WithLength(SettingPage.SecureAreaUnlockPassword, 16)))
+                                        {
+                                            switch (System.IO.Path.GetExtension(MediaStream.Header.Core.FileName).ToLower())
+                                            {
+                                                case ".mp3":
+                                                case ".flac":
+                                                case ".wma":
+                                                case ".m4a":
+                                                    {
+                                                        byte[] CoverData = GetMusicCoverFromStream(MediaStream.Header.Core.FileName, MediaStream);
+
+                                                        if (CoverData.Length > 0)
+                                                        {
+                                                            Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await Helper.CreateRandomAccessStreamAsync(CoverData));
+
+                                                            await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
+                                                            {
+                                                                MusicCover.Source = await Helper.CreateBitmapImageAsync(CoverData);
+                                                            });
+                                                        }
+                                                        else
+                                                        {
+                                                            Props.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/LockFile.png"));
+
+                                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                                            {
+                                                                MusicCover.Source = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
+                                                            });
+                                                        }
+
+                                                        Props.MusicProperties.AlbumArtist = GetArtistFromStream(MediaStream.Header.Core.FileName, MediaStream);
+
+                                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                                        {
+                                                            MusicName.Text = MediaStream.Header.Core.FileName;
+                                                        });
+
+                                                        break;
+                                                    }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        switch (MediaFile.Type.ToLower())
+                                        {
+                                            case ".mp3":
+                                            case ".flac":
+                                            case ".wma":
+                                            case ".m4a":
+                                                {
+                                                    byte[] CoverData = GetMusicCoverFromStream(MediaFile.Name, MediaRawStream);
+
+                                                    if (CoverData.Length > 0)
+                                                    {
+                                                        Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await Helper.CreateRandomAccessStreamAsync(CoverData));
+
+                                                        await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
+                                                        {
+                                                            MusicCover.Source = await Helper.CreateBitmapImageAsync(CoverData);
+                                                        });
+                                                    }
+                                                    else
+                                                    {
+                                                        Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await MediaFile.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
+
+                                                        await Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
+                                                        {
+                                                            MusicCover.Source = await MediaFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
+                                                        });
+                                                    }
+
+                                                    Props.MusicProperties.AlbumArtist = GetArtistFromStream(MediaFile.Name, MediaRawStream);
+
+                                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                                    {
+                                                        MusicName.Text = MediaFile.Name;
+                                                    });
+
+                                                    break;
+                                                }
+                                            case ".mkv":
+                                            case ".wmv":
+                                            case ".mp4":
+                                            case ".mov":
+                                                {
+                                                    Props.Thumbnail = RandomAccessStreamReference.CreateFromStream(await MediaFile.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem));
+                                                    break;
+                                                }
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                //No need to handle this exception
+                            }
+                            finally
+                            {
+                                Item.ApplyDisplayProperties(Props);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private async void Binder_Binding(MediaBinder sender, MediaBindingEventArgs args)
@@ -448,43 +488,6 @@ namespace RX_Explorer.View
                         if (MediaStream.Header.Core.Version >= SLEVersion.SLE150)
                         {
                             args.SetStream(MediaStream.AsRandomAccessStream(), MIMEMapping[Path.GetExtension(MediaStream.Header.Core.FileName).ToLower()]);
-
-                            try
-                            {
-                                switch (Path.GetExtension(MediaStream.Header.Core.FileName).ToLower())
-                                {
-                                    case ".mp3":
-                                    case ".flac":
-                                    case ".wma":
-                                    case ".m4a":
-                                        {
-                                            using (SLEInputStream MediaInfoStream = new SLEInputStream(await MediaFile.GetStreamFromFileAsync(AccessMode.Read), new UTF8Encoding(false), KeyGenerator.GetMD5WithLength(SettingPage.SecureAreaUnlockPassword, 16)))
-                                            {
-                                                byte[] CoverData = GetMusicCoverFromStream(MediaInfoStream.Header.Core.FileName, MediaInfoStream);
-
-                                                await CoreApplication.MainView.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
-                                                {
-                                                    MusicName.Text = MediaInfoStream.Header.Core.FileName;
-
-                                                    if (CoverData.Length > 0)
-                                                    {
-                                                        MusicCover.Source = await Helper.CreateBitmapImageAsync(CoverData);
-                                                    }
-                                                    else
-                                                    {
-                                                        MusicCover.Source = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
-                                                    }
-                                                });
-                                            }
-
-                                            break;
-                                        }
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                //No need to handle this exception
-                            }
                         }
                         else
                         {
@@ -501,43 +504,6 @@ namespace RX_Explorer.View
                         else
                         {
                             args.SetStream((await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess)).AsRandomAccessStream(), MIMEMapping[MediaFile.Type.ToLower()]);
-                        }
-
-                        try
-                        {
-                            switch (MediaFile.Type.ToLower())
-                            {
-                                case ".mp3":
-                                case ".flac":
-                                case ".wma":
-                                case ".m4a":
-                                    {
-                                        await CoreApplication.MainView.Dispatcher.RunAndWaitAsyncTask(CoreDispatcherPriority.Normal, async () =>
-                                        {
-                                            MusicName.Text = MediaFile.Name;
-
-                                            using (Stream FileStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read))
-                                            {
-                                                byte[] CoverData = GetMusicCoverFromStream(MediaFile.Name, FileStream);
-
-                                                if (CoverData.Length > 0)
-                                                {
-                                                    MusicCover.Source = await Helper.CreateBitmapImageAsync(CoverData);
-                                                }
-                                                else
-                                                {
-                                                    MusicCover.Source = await MediaFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
-                                                }
-                                            }
-                                        });
-
-                                        break;
-                                    }
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            //No need to handle this exception
                         }
                     }
                 }
