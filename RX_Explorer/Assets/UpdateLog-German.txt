@@ -1,4 +1,4 @@
-﻿###Was ist neu in Ver.8.1.0.0
+﻿###Was ist neu in Ver.8.1.1.0
 
 ####⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird zum WinAppSdk-Framework migriert
 
@@ -8,14 +8,4 @@
 
 #####Fehlerbehebung
 
->#####Das Problem, dass der Standardspeicherort für Dateien des sicheren Bereichs nicht für die Initialisierung verwendet werden kann, wurde behoben
-
->#####Das Problem, dass das Aktualisierungsprotokoll möglicherweise lange verzögert wird, bevor es angezeigt wird, wurde behoben
-
->#####Das Problem, dass die Verknüpfungsanzeige einiger Kontextmenüelemente falsch war, wurde behoben
-
-#####Weitere Verbesserungen
-
->#####Weitere kleinere Verbesserungen und aktualisierte Komponenten von Drittanbietern
-
->#####Die Datei von Secure Area wurde auf Version 2.1.0 aktualisiert und die unkontrollierbare Zufälligkeit wurde beseitigt, um das Problem zu lösen, dass sie nach einem Computerwechsel nicht mehr entschlüsselt werden kann (gilt nur für neu verschlüsselte Dateien).
+>#####Es wurde ein Problem behoben, bei dem der integrierte Medienbetrachter zu lange zum Starten brauchte

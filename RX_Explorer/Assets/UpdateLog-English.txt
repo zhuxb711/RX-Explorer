@@ -1,4 +1,4 @@
-﻿###What's new in Ver.8.1.0.0
+﻿###What's new in Ver.8.1.1.0
 
 ####⚠Warning: Uwp version will suspend feature updates and enter maintenance-only state, RX-Explorer will be migrated to WinAppSdk framework
 
@@ -8,14 +8,4 @@
 
 #####Bug Fixes
 
->#####Fixed the problem that the default file storage location of the Secure Area cannot be used for initialization
-
->#####Fixed the problem that the update log may be delayed for a long time before popping up
-
->#####Fixed the problem that the shortcut indication of some context menu items was incorrect
-
-#####Other Improvements
-
->#####Other minor improvements and updated third-party components
-
->#####Upgraded the file of Secure Area to version 2.1.0 and the uncontrollable randomness is eliminated to solve the problem that it cannot be decrypted after changing the computer (only valid for newly encrypted files)
+>#####Fixed an issue where the built-in media viewer could take too long to startup

@@ -1,4 +1,4 @@
-﻿###Novedades de la versión 8.1.0.0
+﻿###Novedades de la versión 8.1.1.0
 
 ####⚠Advertencia: la versión Uwp suspenderá las actualizaciones de funciones y entrará en estado de solo mantenimiento, RX-Explorer se migrará al marco WinAppSdk
 
@@ -8,14 +8,4 @@
 
 #####Corrección de errores
 
->#####Se solucionó el problema de que la ubicación de almacenamiento de archivos predeterminada del Área segura no se puede usar para la inicialización
-
->#####Se solucionó el problema de que el registro de actualización puede demorarse mucho tiempo antes de aparecer
-
->#####Se solucionó el problema de que la indicación de acceso directo de algunos elementos del menú contextual era incorrecta
-
-#####Otras mejoras
-
->#####Otras mejoras menores y componentes de terceros actualizados
-
->#####Se actualizó el archivo de Área Segura a la versión 2.1.0 y se elimina la aleatoriedad incontrolable para solucionar el problema de que no se puede descifrar después de cambiar de computadora (solo válido para archivos recién encriptados)
+>#####Se solucionó un problema por el que el visor de medios integrado podía tardar demasiado en iniciarse

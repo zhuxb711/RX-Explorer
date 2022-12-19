@@ -1,4 +1,4 @@
-﻿###Quoi de neuf dans la version 8.1.0.0
+﻿###Quoi de neuf dans la version 8.1.1.0
 
 ####⚠Avertissement : la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
@@ -8,14 +8,4 @@
 
 #####Corrections de bogues
 
->#####Correction du problème selon lequel l'emplacement de stockage de fichiers par défaut de la zone sécurisée ne peut pas être utilisé pour l'initialisation
-
->#####Correction du problème que le journal de mise à jour peut être retardé pendant une longue période avant d'apparaître
-
->#####Correction du problème selon lequel l'indication de raccourci de certains éléments du menu contextuel était incorrecte
-
-#####Autres améliorations
-
->#####Autres améliorations mineures et composants tiers mis à jour
-
->#####Mise à niveau du fichier de Secure Area vers la version 2.1.0 et le caractère aléatoire incontrôlable est éliminé pour résoudre le problème qu'il ne peut pas être déchiffré après avoir changé d'ordinateur (valable uniquement pour les fichiers nouvellement cryptés)
+>#####Correction d'un problème où la visionneuse multimédia intégrée pouvait prendre trop de temps à démarrer
