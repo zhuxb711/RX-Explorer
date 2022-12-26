@@ -1507,7 +1507,7 @@ namespace RX_Explorer.View
                     new string[]{ Lib.Path }
                 }));
 
-                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
+                await Launcher.LaunchUriAsync(new Uri($"rx-explorer-uwp:{StartupArgument}"));
             }
             else if (DriveGrid.SelectedItem is DriveDataBase Drive)
             {
@@ -1516,7 +1516,7 @@ namespace RX_Explorer.View
                     new string[]{ Drive.Path }
                 }));
 
-                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
+                await Launcher.LaunchUriAsync(new Uri($"rx-explorer-uwp:{StartupArgument}"));
             }
         }
 
@@ -1899,7 +1899,7 @@ namespace RX_Explorer.View
                         try
                         {
                             await PrepareContextMenuAsync(LibraryFlyout);
-                            await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid,
+                            await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(sender,
                                                                                               Position,
                                                                                               ContextMenuCancellation.Token,
                                                                                               Context.Path);
@@ -1915,7 +1915,7 @@ namespace RX_Explorer.View
                 {
                     LibraryGrid.SelectedIndex = -1;
 
-                    LibraryEmptyFlyout.ShowAt(LibraryGrid, new FlyoutShowOptions
+                    LibraryEmptyFlyout.ShowAt(sender, new FlyoutShowOptions
                     {
                         Position = Position,
                         Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
@@ -1956,7 +1956,7 @@ namespace RX_Explorer.View
                                     try
                                     {
                                         await PrepareContextMenuAsync(BitlockerDriveFlyout);
-                                        await BitlockerDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                        await BitlockerDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(sender,
                                                                                                                  Position,
                                                                                                                  ContextMenuCancellation.Token,
                                                                                                                  Context.Path);
@@ -1977,7 +1977,7 @@ namespace RX_Explorer.View
                                     try
                                     {
                                         await PrepareContextMenuAsync(PortableDriveFlyout);
-                                        await PortableDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                        await PortableDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(sender,
                                                                                                                 Position,
                                                                                                                 ContextMenuCancellation.Token,
                                                                                                                 Context.Path);
@@ -1998,7 +1998,7 @@ namespace RX_Explorer.View
                                     try
                                     {
                                         await PrepareContextMenuAsync(NormalDriveFlyout);
-                                        await NormalDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                        await NormalDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(sender,
                                                                                                               Position,
                                                                                                               ContextMenuCancellation.Token,
                                                                                                               Context.Path);
@@ -2018,7 +2018,7 @@ namespace RX_Explorer.View
                 {
                     DriveGrid.SelectedIndex = -1;
 
-                    DriveEmptyFlyout.ShowAt(DriveGrid, new FlyoutShowOptions
+                    DriveEmptyFlyout.ShowAt(sender, new FlyoutShowOptions
                     {
                         Position = Position,
                         Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,

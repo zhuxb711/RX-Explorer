@@ -1,4 +1,4 @@
-﻿###Quoi de neuf dans la version 8.1.1.0
+﻿###Quoi de neuf dans la version 8.1.2.0
 
 ####⚠Avertissement : la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
@@ -8,4 +8,6 @@
 
 #####Corrections de bogues
 
->#####Correction d'un problème où la visionneuse multimédia intégrée pouvait prendre trop de temps à démarrer
+>#####Résolution du problème selon lequel parfois le périphérique USB ne peut pas être éjecté correctement
+
+>#####Résolution du problème selon lequel il peut être difficile d'afficher le menu correspondant lors d'un clic droit sur la zone vide de "Dossiers et bibliothèques" et "Périphériques et lecteurs"

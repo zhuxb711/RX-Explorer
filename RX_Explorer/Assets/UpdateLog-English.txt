@@ -1,4 +1,4 @@
-﻿###What's new in Ver.8.1.1.0
+﻿###What's new in Ver.8.1.2.0
 
 ####⚠Warning: Uwp version will suspend feature updates and enter maintenance-only state, RX-Explorer will be migrated to WinAppSdk framework
 
@@ -8,4 +8,6 @@
 
 #####Bug Fixes
 
->#####Fixed an issue where the built-in media viewer could take too long to startup
+>#####Fixed the problem that sometimes the USB device may not be ejected correctly
+
+>#####Fixed the problem that it may be difficult to pop up the corresponding menu when right-clicking the blank area of "Folders and Libraries" and "Devices and Drives"

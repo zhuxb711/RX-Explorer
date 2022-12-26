@@ -1,4 +1,4 @@
-﻿###Was ist neu in Ver.8.1.1.0
+﻿###Was ist neu in Ver.8.1.2.0
 
 ####⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird zum WinAppSdk-Framework migriert
 
@@ -8,4 +8,6 @@
 
 #####Fehlerbehebung
 
->#####Es wurde ein Problem behoben, bei dem der integrierte Medienbetrachter zu lange zum Starten brauchte
+>#####Das Problem, dass das USB-Gerät manchmal nicht richtig ausgeworfen wird, wurde behoben
+
+>#####Das Problem, dass es schwierig sein kann, das entsprechende Menü aufzurufen, wenn mit der rechten Maustaste auf den leeren Bereich von „Ordner und Bibliotheken“ und „Geräte und Laufwerke“ geklickt wird, wurde behoben.

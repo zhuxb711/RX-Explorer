@@ -569,7 +569,7 @@ namespace RX_Explorer.Class
             });
         }
 
-        public static async Task ShowCommandBarFlyoutWithExtraContextMenuItems(this CommandBarFlyout Flyout, FrameworkElement RelatedTo, Point ShowAt, CancellationToken CancelToken, params string[] PathArray)
+        public static async Task ShowCommandBarFlyoutWithExtraContextMenuItems(this CommandBarFlyout Flyout, DependencyObject RelatedTo, Point ShowAt, CancellationToken CancelToken, params string[] PathArray)
         {
             if (RelatedTo == null)
             {

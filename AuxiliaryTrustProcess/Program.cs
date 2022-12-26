@@ -23,6 +23,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using UsbEject;
 using UtfUnknown;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -3342,7 +3343,25 @@ namespace AuxiliaryTrustProcess
                                 }
                                 else
                                 {
-                                    Value.Add("EjectResult", Convert.ToString(USBController.EjectDevice(Path)));
+                                    try
+                                    {
+                                        using (VolumeDeviceClass Volumes = new VolumeDeviceClass())
+                                        {
+                                            if (Volumes.Where((Vol) => Vol.IsUsb).FirstOrDefault((Vol) => Vol.LogicalDrive.Equals(Path.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) is Device UsbDevice)
+                                            {
+                                                UsbDevice.Eject(false);
+                                                Value.Add("EjectResult", Convert.ToString(true));
+                                            }
+                                            else
+                                            {
+                                                throw new FileNotFoundException();
+                                            }
+                                        }
+                                    }
+                                    catch (Exception)
+                                    {
+                                        Value.Add("EjectResult", Convert.ToString(false));
+                                    }
                                 }
 
                                 break;

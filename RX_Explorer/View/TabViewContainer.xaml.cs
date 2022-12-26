@@ -627,7 +627,7 @@ namespace RX_Explorer.View
                                                     }
                                                     else
                                                     {
-                                                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> { new string[] { Drive.Path } }))}"));
+                                                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer-uwp:{Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> { new string[] { Drive.Path } }))}"));
                                                     }
                                                 }
                                                 else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library)
@@ -647,7 +647,7 @@ namespace RX_Explorer.View
                                                     }
                                                     else
                                                     {
-                                                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> { new string[] { Library.Path } }))}"));
+                                                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer-uwp:{Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> { new string[] { Library.Path } }))}"));
                                                     }
                                                 }
 
@@ -1518,7 +1518,7 @@ namespace RX_Explorer.View
                                                .ToArray()
                         }));
 
-                        await Task.WhenAll(CleanUpAndRemoveTabItem(Tab), Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}")).AsTask());
+                        await Task.WhenAll(CleanUpAndRemoveTabItem(Tab), Launcher.LaunchUriAsync(new Uri($"rx-explorer-uwp:{StartupArgument}")).AsTask());
                     }
                 }
                 else if (ApplicationData.Current.LocalSettings.Values["TabItemDropTargetApplicationId"] is string TargetApplicationId)

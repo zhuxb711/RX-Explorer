@@ -1,4 +1,5 @@
-﻿using SharedLibrary;
+﻿using MediaDevices;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -317,19 +318,29 @@ namespace AuxiliaryTrustProcess.Class
         {
             try
             {
-                switch (Type)
+                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                if (!string.IsNullOrEmpty(DirectoryPath))
                 {
-                    case CreateType.File:
-                        {
-                            using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(Path, Kernel32.FileAccess.GENERIC_READ, FileShare.None, null, FileMode.CreateNew, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
+                    if (!Directory.Exists(DirectoryPath))
+                    {
+                        Directory.CreateDirectory(DirectoryPath);
+                    }
+
+                    switch (Type)
+                    {
+                        case CreateType.File:
                             {
-                                return !Handle.IsInvalid && !Handle.IsNull;
+                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(Path, Kernel32.FileAccess.GENERIC_READ, FileShare.None, null, FileMode.CreateNew, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
+                                {
+                                    return !Handle.IsInvalid && !Handle.IsNull;
+                                }
                             }
-                        }
-                    case CreateType.Folder:
-                        {
-                            return Kernel32.CreateDirectory(Path);
-                        }
+                        case CreateType.Folder:
+                            {
+                                return Kernel32.CreateDirectory(Path);
+                            }
+                    }
                 }
             }
             catch (Exception ex)
@@ -491,6 +502,8 @@ namespace AuxiliaryTrustProcess.Class
         {
             try
             {
+                Dictionary<string, string> ActuallSourcePathMapping = new Dictionary<string, string>(SourcePathMapping);
+
                 ShellFileOperations.OperationFlags Flags = ShellFileOperations.OperationFlags.AddUndoRecord
                                                            | ShellFileOperations.OperationFlags.NoConfirmMkDir
                                                            | ShellFileOperations.OperationFlags.Silent
@@ -521,8 +534,23 @@ namespace AuxiliaryTrustProcess.Class
                         }
                     case CollisionOptions.Skip:
                         {
-                            return true;
+                            foreach (KeyValuePair<string, string> Mapping in SourcePathMapping)
+                            {
+                                string TargetPath = Path.Combine(DestinationPath, string.IsNullOrEmpty(Mapping.Value) ? Path.GetFileName(Mapping.Key) : Mapping.Value);
+
+                                if (File.Exists(TargetPath) || Directory.Exists(TargetPath))
+                                {
+                                    ActuallSourcePathMapping.Remove(Mapping.Key);
+                                }
+                            }
+
+                            break;
                         }
+                }
+
+                if (ActuallSourcePathMapping.Count == 0)
+                {
+                    return true;
                 }
 
                 if (!Directory.Exists(DestinationPath))
@@ -552,7 +580,7 @@ namespace AuxiliaryTrustProcess.Class
 
                     try
                     {
-                        foreach (KeyValuePair<string, string> Mapping in SourcePathMapping)
+                        foreach (KeyValuePair<string, string> Mapping in ActuallSourcePathMapping)
                         {
                             using (ShellItem SourceItem = new ShellItem(Mapping.Key))
                             using (ShellFolder DestItem = new ShellFolder(DestinationPath))
@@ -606,6 +634,8 @@ namespace AuxiliaryTrustProcess.Class
         {
             try
             {
+                Dictionary<string, string> ActuallSourcePathMapping = new Dictionary<string, string>(SourcePathMapping);
+
                 ShellFileOperations.OperationFlags Flags = ShellFileOperations.OperationFlags.AddUndoRecord
                                                            | ShellFileOperations.OperationFlags.NoConfirmMkDir
                                                            | ShellFileOperations.OperationFlags.Silent
@@ -637,8 +667,23 @@ namespace AuxiliaryTrustProcess.Class
                         }
                     case CollisionOptions.Skip:
                         {
-                            return true;
+                            foreach (KeyValuePair<string, string> Mapping in SourcePathMapping)
+                            {
+                                string TargetPath = Path.Combine(DestinationPath, string.IsNullOrEmpty(Mapping.Value) ? Path.GetFileName(Mapping.Key) : Mapping.Value);
+
+                                if (File.Exists(TargetPath) || Directory.Exists(TargetPath))
+                                {
+                                    ActuallSourcePathMapping.Remove(Mapping.Key);
+                                }
+                            }
+
+                            break;
                         }
+                }
+
+                if (ActuallSourcePathMapping.Count == 0)
+                {
+                    return true;
                 }
 
                 if (!Directory.Exists(DestinationPath))
@@ -668,7 +713,7 @@ namespace AuxiliaryTrustProcess.Class
 
                     try
                     {
-                        foreach (KeyValuePair<string, string> Mapping in SourcePathMapping)
+                        foreach (KeyValuePair<string, string> Mapping in ActuallSourcePathMapping)
                         {
                             using (ShellItem SourceItem = new ShellItem(Mapping.Key))
                             using (ShellFolder DestItem = new ShellFolder(DestinationPath))

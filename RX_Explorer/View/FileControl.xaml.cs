@@ -2379,7 +2379,7 @@ namespace RX_Explorer.View
                         new string[]{ Content.Path }
                     }));
 
-                    await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
+                    await Launcher.LaunchUriAsync(new Uri($"rx-explorer-uwp:{StartupArgument}"));
                 }
                 else
                 {

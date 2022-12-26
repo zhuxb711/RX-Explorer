@@ -59,125 +59,128 @@
                 <RowDefinition Height="5" />
                 <RowDefinition Height="{x:Bind Cls:HomeRowHeightSaver.Current.DriveListRowHeight,Mode=TwoWay}" />
             </Grid.RowDefinitions>
-            <muxc:Expander x:Name="LibraryExpander"
-                           HorizontalAlignment="Stretch"
-                           VerticalAlignment="Top"
-                           Background="Transparent"
-                           IsExpanded="{x:Bind local:SettingPage.IsLibraryExpanderExpanded,Mode=TwoWay}"
-                           Expanding="LibraryExpander_Expanding"
-                           Collapsed="LibraryExpander_Collapsed"
-                           ExpandDirection="Down"
-                           HorizontalContentAlignment="Stretch"
-                           VerticalContentAlignment="Stretch">
-                <muxc:Expander.Resources>
-                    <Thickness x:Key="ExpanderChevronBorderThickness">0</Thickness>
-                    <Thickness x:Key="ExpanderContentDownBorderThickness">0</Thickness>
-                    <Thickness x:Key="ExpanderContentUpBorderThickness">0</Thickness>
-                    <Thickness x:Key="ExpanderHeaderBorderThickness">0</Thickness>
-                    <SolidColorBrush x:Key="ExpanderHeaderBackground"
-                                     Color="Transparent" />
-                    <SolidColorBrush x:Key="ExpanderHeaderBorderBrush"
-                                     Color="Transparent" />
-                    <SolidColorBrush x:Key="ExpanderHeaderBorderPointerOverBrush"
-                                     Color="Transparent" />
-                    <SolidColorBrush x:Key="ExpanderHeaderBorderPressedBrush"
-                                     Color="Transparent" />
-                    <SolidColorBrush x:Key="ExpanderContentBackground"
-                                     Color="Transparent" />
-                    <SolidColorBrush x:Key="ExpanderContentBorderBrush"
-                                     Color="Transparent" />
-                </muxc:Expander.Resources>
-                <muxc:Expander.Header>
-                    <RelativePanel>
-                        <TextBlock Text="文件夹和库"
-                                   x:Uid="LibraryExpander"
-                                   x:Name="LibraryExpanderLabel"
-                                   RelativePanel.AlignLeftWithPanel="True"
-                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
-                        <Border Background="Gray"
-                                Margin="15,0,0,0"
-                                Height="2"
-                                RelativePanel.RightOf="LibraryExpanderLabel"
-                                RelativePanel.AlignRightWithPanel="True"
-                                RelativePanel.AlignVerticalCenterWithPanel="True" />
-                    </RelativePanel>
-                </muxc:Expander.Header>
-                <GridView Name="LibraryGrid"
-                          ItemsSource="{x:Bind Cls:CommonAccessCollection.LibraryList}"
-                          x:FieldModifier="public"
-                          IsItemClickEnabled="True"
-                          IsDoubleTapEnabled="True"
-                          CanReorderItems="True"
-                          CanDragItems="True"
-                          AllowDrop="True"
-                          Padding="15,0"
-                          DragOver="LibraryGrid_DragOver"
-                          DragItemsCompleted="LibraryGrid_DragItemsCompleted"
-                          ItemClick="LibraryGrid_ItemClick"
-                          ContextRequested="LibraryGrid_ContextRequested"
-                          ContextCanceled="LibraryGrid_ContextCanceled"
-                          PointerPressed="LibraryGrid_PointerPressed"
-                          DoubleTapped="LibraryGrid_DoubleTapped"
-                          ContainerContentChanging="LibraryGrid_ContainerContentChanging"
-                          SelectionChanged="LibraryGrid_SelectionChanged"
-                          Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
-                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
-                    <GridView.ItemTemplate>
-                        <DataTemplate x:DataType="Cls:LibraryStorageFolder">
-                            <Grid Padding="5"
-                                  Width="250"
-                                  Background="Transparent">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="60" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Image VerticalAlignment="Center"
-                                       HorizontalAlignment="Center"
-                                       Stretch="Uniform"
-                                       Source="{x:Bind Thumbnail,Mode=OneWay}"
-                                       Height="55"
-                                       Width="55"
-                                       x:Phase="1" />
-                                <Image x:Name="ThumbnailOverlay"
-                                       Width="30"
-                                       Height="30"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Bottom"
-                                       x:Phase="1"
-                                       Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
-                                       Stretch="Uniform" />
-                                <StackPanel Orientation="Vertical"
-                                            Grid.Column="2"
-                                            VerticalAlignment="Top"
-                                            Margin="5,0,0,0">
-                                    <TextBlock Text="{x:Bind DisplayName,Mode=OneWay}"
-                                               Name="NameLabel"
-                                               HorizontalTextAlignment="Left"
-                                               HorizontalAlignment="Stretch"
-                                               TextTrimming="CharacterEllipsis">
+            <Grid Background="Transparent"
+                  ContextRequested="LibraryGrid_ContextRequested">
+                <muxc:Expander x:Name="LibraryExpander"
+                               HorizontalAlignment="Stretch"
+                               VerticalAlignment="Top"
+                               Background="Transparent"
+                               IsExpanded="{x:Bind local:SettingPage.IsLibraryExpanderExpanded,Mode=TwoWay}"
+                               Expanding="LibraryExpander_Expanding"
+                               Collapsed="LibraryExpander_Collapsed"
+                               ExpandDirection="Down"
+                               HorizontalContentAlignment="Stretch"
+                               VerticalContentAlignment="Stretch">
+                    <muxc:Expander.Resources>
+                        <Thickness x:Key="ExpanderChevronBorderThickness">0</Thickness>
+                        <Thickness x:Key="ExpanderContentDownBorderThickness">0</Thickness>
+                        <Thickness x:Key="ExpanderContentUpBorderThickness">0</Thickness>
+                        <Thickness x:Key="ExpanderHeaderBorderThickness">0</Thickness>
+                        <SolidColorBrush x:Key="ExpanderHeaderBackground"
+                                         Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderHeaderBorderBrush"
+                                         Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderHeaderBorderPointerOverBrush"
+                                         Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderHeaderBorderPressedBrush"
+                                         Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderContentBackground"
+                                         Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderContentBorderBrush"
+                                         Color="Transparent" />
+                    </muxc:Expander.Resources>
+                    <muxc:Expander.Header>
+                        <RelativePanel>
+                            <TextBlock Text="文件夹和库"
+                                       x:Uid="LibraryExpander"
+                                       x:Name="LibraryExpanderLabel"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Border Background="Gray"
+                                    Margin="15,0,0,0"
+                                    Height="2"
+                                    RelativePanel.RightOf="LibraryExpanderLabel"
+                                    RelativePanel.AlignRightWithPanel="True"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True" />
+                        </RelativePanel>
+                    </muxc:Expander.Header>
+                    <GridView Name="LibraryGrid"
+                              ItemsSource="{x:Bind Cls:CommonAccessCollection.LibraryList}"
+                              x:FieldModifier="public"
+                              IsItemClickEnabled="True"
+                              IsDoubleTapEnabled="True"
+                              CanReorderItems="True"
+                              CanDragItems="True"
+                              AllowDrop="True"
+                              Padding="15,0"
+                              DragOver="LibraryGrid_DragOver"
+                              DragItemsCompleted="LibraryGrid_DragItemsCompleted"
+                              ItemClick="LibraryGrid_ItemClick"
+                              ContextRequested="LibraryGrid_ContextRequested"
+                              ContextCanceled="LibraryGrid_ContextCanceled"
+                              PointerPressed="LibraryGrid_PointerPressed"
+                              DoubleTapped="LibraryGrid_DoubleTapped"
+                              ContainerContentChanging="LibraryGrid_ContainerContentChanging"
+                              SelectionChanged="LibraryGrid_SelectionChanged"
+                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
+                        <GridView.ItemTemplate>
+                            <DataTemplate x:DataType="Cls:LibraryStorageFolder">
+                                <Grid Padding="5"
+                                      Width="250"
+                                      Background="Transparent">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           Stretch="Uniform"
+                                           Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                           Height="55"
+                                           Width="55"
+                                           x:Phase="1" />
+                                    <Image x:Name="ThumbnailOverlay"
+                                           Width="30"
+                                           Height="30"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Bottom"
+                                           x:Phase="1"
+                                           Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
+                                           Stretch="Uniform" />
+                                    <StackPanel Orientation="Vertical"
+                                                Grid.Column="2"
+                                                VerticalAlignment="Top"
+                                                Margin="5,0,0,0">
+                                        <TextBlock Text="{x:Bind DisplayName,Mode=OneWay}"
+                                                   Name="NameLabel"
+                                                   HorizontalTextAlignment="Left"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextTrimming="CharacterEllipsis">
                                             <ToolTipService.ToolTip>
                                                 <ToolTip Content="{x:Bind DisplayName,Mode=OneWay}"
                                                          Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                             </ToolTipService.ToolTip>
-                                    </TextBlock>
-                                    <TextBlock Text="{x:Bind DisplayType}"
-                                               FontSize="12"
-                                               x:Phase="1"
-                                               HorizontalTextAlignment="Left"
-                                               TextTrimming="CharacterEllipsis"
-                                               HorizontalAlignment="Left" />
-                                </StackPanel>
-                            </Grid>
-                        </DataTemplate>
-                    </GridView.ItemTemplate>
-                    <GridView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Horizontal"
-                                           HorizontalAlignment="Stretch" />
-                        </ItemsPanelTemplate>
-                    </GridView.ItemsPanel>
-                </GridView>
-            </muxc:Expander>
+                                        </TextBlock>
+                                        <TextBlock Text="{x:Bind DisplayType}"
+                                                   FontSize="12"
+                                                   x:Phase="1"
+                                                   HorizontalTextAlignment="Left"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   HorizontalAlignment="Left" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal"
+                                               HorizontalAlignment="Stretch" />
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                    </GridView>
+                </muxc:Expander>
+            </Grid>
             <Controls:GridSplitter Background="Transparent"
                                    MinWidth="0"
                                    Grid.Row="1"
@@ -207,130 +210,134 @@
                     IsHitTestVisible="False"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center" />
-            <muxc:Expander x:Name="DeviceExpander"
-                           Grid.Row="2"
-                           Background="Transparent"
-                           HorizontalAlignment="Stretch"
-                           VerticalAlignment="Top"
-                           VerticalContentAlignment="Stretch"
-                           HorizontalContentAlignment="Stretch"
-                           IsExpanded="{x:Bind local:SettingPage.IsDeviceExpanderExpanded,Mode=TwoWay}"
-                           ExpandDirection="Down"
-                           Expanding="DeviceExpander_Expanding"
-                           Collapsed="DeviceExpander_Collapsed">
-                <muxc:Expander.Resources>
-                    <Thickness x:Key="ExpanderChevronBorderThickness">0</Thickness>
-                    <Thickness x:Key="ExpanderContentDownBorderThickness">0</Thickness>
-                    <Thickness x:Key="ExpanderContentUpBorderThickness">0</Thickness>
-                    <Thickness x:Key="ExpanderHeaderBorderThickness">0</Thickness>
-                    <SolidColorBrush x:Key="ExpanderHeaderBackground"
-                                     Color="Transparent" />
-                    <SolidColorBrush x:Key="ExpanderHeaderBorderBrush"
-                                     Color="Transparent" />
-                    <SolidColorBrush x:Key="ExpanderHeaderBorderPointerOverBrush"
-                                     Color="Transparent" />
-                    <SolidColorBrush x:Key="ExpanderHeaderBorderPressedBrush"
-                                     Color="Transparent" />
-                    <SolidColorBrush x:Key="ExpanderContentBackground"
-                                     Color="Transparent" />
-                    <SolidColorBrush x:Key="ExpanderContentBorderBrush"
-                                     Color="Transparent" />
-                </muxc:Expander.Resources>
-                <muxc:Expander.Header>
-                    <RelativePanel>
-                        <TextBlock Text="设备和驱动器"
-                                   x:Uid="DeviceExpander"
-                                   x:Name="DeviceExpanderLabel"
-                                   RelativePanel.AlignLeftWithPanel="True"
-                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
-                        <Border Background="Gray"
-                                Margin="15,0,0,0"
-                                Height="2"
-                                RelativePanel.RightOf="DeviceExpanderLabel"
-                                RelativePanel.AlignRightWithPanel="True"
-                                RelativePanel.AlignVerticalCenterWithPanel="True" />
-                    </RelativePanel>
-                </muxc:Expander.Header>
-                <GridView Name="DriveGrid"
-                          Padding="15,0"
-                          ItemsSource="{x:Bind Cls:CommonAccessCollection.DriveList}"
-                          x:FieldModifier="public"
-                          IsItemClickEnabled="True"
-                          IsDoubleTapEnabled="True"
-                          ItemClick="DriveGrid_ItemClick"
-                          ContextRequested="DriveGrid_ContextRequested"
-                          ContextCanceled="DriveGrid_ContextCanceled"
-                          ContainerContentChanging="DriveGrid_ContainerContentChanging"
-                          PointerPressed="DriveGrid_PointerPressed"
-                          DoubleTapped="DriveGrid_DoubleTapped"
-                          SelectionChanged="DriveGrid_SelectionChanged"
-                          Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
-                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
-                    <GridView.ItemTemplate>
-                        <DataTemplate x:DataType="Cls:DriveDataBase">
-                            <UserControl>
-                                <Grid Padding="5"
-                                      Width="250"
-                                      Background="Transparent">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <VisualStateManager.VisualStateGroups>
-                                        <VisualStateGroup>
-                                            <VisualState x:Name="NormalCapacityStatus" />
-                                            <VisualState x:Name="RedCapacityStatus">
-                                                <VisualState.StateTriggers>
-                                                    <Triggers:CompareStateTrigger Value="{x:Bind Percent,Mode=OneWay}"
-                                                                                  To="0.85"
-                                                                                  Comparison="GreaterThanOrEqual" />
-                                                </VisualState.StateTriggers>
-                                                <VisualState.Setters>
-                                                    <Setter Target="Pro.Foreground"
-                                                            Value="Red" />
-                                                </VisualState.Setters>
-                                            </VisualState>
-                                        </VisualStateGroup>
-                                    </VisualStateManager.VisualStateGroups>
-                                    <Image Height="50"
-                                           Width="50"
-                                           Source="{x:Bind Thumbnail,Mode=OneWay}"
-                                           Stretch="Uniform"
-                                           x:Phase="1" />
-                                    <StackPanel Orientation="Vertical"
-                                                Padding="5,0,0,0"
-                                                Grid.Column="1">
-                                        <TextBlock HorizontalAlignment="Left"
-                                                   Name="NameLabel"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Text="{x:Bind DisplayName,Mode=OneWay}">
+            <Grid Grid.Row="2"
+                  Background="Transparent"
+                  ContextRequested="DriveGrid_ContextRequested">
+                <muxc:Expander x:Name="DeviceExpander"
+                               Grid.Row="2"
+                               Background="Transparent"
+                               HorizontalAlignment="Stretch"
+                               VerticalAlignment="Top"
+                               VerticalContentAlignment="Stretch"
+                               HorizontalContentAlignment="Stretch"
+                               IsExpanded="{x:Bind local:SettingPage.IsDeviceExpanderExpanded,Mode=TwoWay}"
+                               ExpandDirection="Down"
+                               Expanding="DeviceExpander_Expanding"
+                               Collapsed="DeviceExpander_Collapsed">
+                    <muxc:Expander.Resources>
+                        <Thickness x:Key="ExpanderChevronBorderThickness">0</Thickness>
+                        <Thickness x:Key="ExpanderContentDownBorderThickness">0</Thickness>
+                        <Thickness x:Key="ExpanderContentUpBorderThickness">0</Thickness>
+                        <Thickness x:Key="ExpanderHeaderBorderThickness">0</Thickness>
+                        <SolidColorBrush x:Key="ExpanderHeaderBackground"
+                                         Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderHeaderBorderBrush"
+                                         Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderHeaderBorderPointerOverBrush"
+                                         Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderHeaderBorderPressedBrush"
+                                         Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderContentBackground"
+                                         Color="Transparent" />
+                        <SolidColorBrush x:Key="ExpanderContentBorderBrush"
+                                         Color="Transparent" />
+                    </muxc:Expander.Resources>
+                    <muxc:Expander.Header>
+                        <RelativePanel>
+                            <TextBlock Text="设备和驱动器"
+                                       x:Uid="DeviceExpander"
+                                       x:Name="DeviceExpanderLabel"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Border Background="Gray"
+                                    Margin="15,0,0,0"
+                                    Height="2"
+                                    RelativePanel.RightOf="DeviceExpanderLabel"
+                                    RelativePanel.AlignRightWithPanel="True"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True" />
+                        </RelativePanel>
+                    </muxc:Expander.Header>
+                    <GridView Name="DriveGrid"
+                              Padding="15,0"
+                              ItemsSource="{x:Bind Cls:CommonAccessCollection.DriveList}"
+                              x:FieldModifier="public"
+                              IsItemClickEnabled="True"
+                              IsDoubleTapEnabled="True"
+                              ItemClick="DriveGrid_ItemClick"
+                              ContextRequested="DriveGrid_ContextRequested"
+                              ContextCanceled="DriveGrid_ContextCanceled"
+                              ContainerContentChanging="DriveGrid_ContainerContentChanging"
+                              PointerPressed="DriveGrid_PointerPressed"
+                              DoubleTapped="DriveGrid_DoubleTapped"
+                              SelectionChanged="DriveGrid_SelectionChanged"
+                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
+                        <GridView.ItemTemplate>
+                            <DataTemplate x:DataType="Cls:DriveDataBase">
+                                <UserControl>
+                                    <Grid Padding="5"
+                                          Width="250"
+                                          Background="Transparent">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup>
+                                                <VisualState x:Name="NormalCapacityStatus" />
+                                                <VisualState x:Name="RedCapacityStatus">
+                                                    <VisualState.StateTriggers>
+                                                        <Triggers:CompareStateTrigger Value="{x:Bind Percent,Mode=OneWay}"
+                                                                                      To="0.85"
+                                                                                      Comparison="GreaterThanOrEqual" />
+                                                    </VisualState.StateTriggers>
+                                                    <VisualState.Setters>
+                                                        <Setter Target="Pro.Foreground"
+                                                                Value="Red" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+                                        <Image Height="50"
+                                               Width="50"
+                                               Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                               Stretch="Uniform"
+                                               x:Phase="1" />
+                                        <StackPanel Orientation="Vertical"
+                                                    Padding="5,0,0,0"
+                                                    Grid.Column="1">
+                                            <TextBlock HorizontalAlignment="Left"
+                                                       Name="NameLabel"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Text="{x:Bind DisplayName,Mode=OneWay}">
                                                 <ToolTipService.ToolTip>
                                                     <ToolTip Content="{x:Bind DisplayName,Mode=OneWay}"
                                                              Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed,Mode=OneWay}" />
                                                 </ToolTipService.ToolTip>
-                                        </TextBlock>
-                                        <muxc:ProgressBar x:Name="Pro"
-                                                          HorizontalAlignment="Stretch"
-                                                          Height="12"
-                                                          Maximum="1"
-                                                          Minimum="0" />
-                                        <TextBlock FontSize="13"
-                                                   HorizontalAlignment="Left"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Text="{x:Bind DriveSpaceDescription,Mode=OneWay}" />
-                                    </StackPanel>
-                                </Grid>
-                            </UserControl>
-                        </DataTemplate>
-                    </GridView.ItemTemplate>
-                    <GridView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Horizontal"
-                                           HorizontalAlignment="Stretch" />
-                        </ItemsPanelTemplate>
-                    </GridView.ItemsPanel>
-                </GridView>
-            </muxc:Expander>
+                                            </TextBlock>
+                                            <muxc:ProgressBar x:Name="Pro"
+                                                              HorizontalAlignment="Stretch"
+                                                              Height="12"
+                                                              Maximum="1"
+                                                              Minimum="0" />
+                                            <TextBlock FontSize="13"
+                                                       HorizontalAlignment="Left"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Text="{x:Bind DriveSpaceDescription,Mode=OneWay}" />
+                                        </StackPanel>
+                                    </Grid>
+                                </UserControl>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal"
+                                               HorizontalAlignment="Stretch" />
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                    </GridView>
+                </muxc:Expander>
+            </Grid>
         </Grid>
     </Grid>
 </Page>
