@@ -53,7 +53,7 @@ namespace RX_Explorer.Class
 
             if (!string.IsNullOrEmpty(SavedInfo))
             {
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<string>>(SavedInfo).Except(new string[] { CurrentId }));
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<string>>(SavedInfo).Except(new string[] { Id }));
             }
         }
 

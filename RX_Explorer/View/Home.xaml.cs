@@ -2052,20 +2052,5 @@ namespace RX_Explorer.View
         {
             LibraryGrid.SelectedIndex = -1;
         }
-
-        private void GridSplitter_PointerReleased(object sender, PointerRoutedEventArgs e)
-        {
-            ((GridSplitter)sender).ReleasePointerCaptures();
-        }
-
-        private void GridSplitter_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            ((GridSplitter)sender).CapturePointer(e.Pointer);
-        }
-
-        private void Splitter_PointerCanceled(object sender, PointerRoutedEventArgs e)
-        {
-            ((GridSplitter)sender).ReleasePointerCaptures();
-        }
     }
 }

@@ -118,7 +118,6 @@
     <Compile Include="Class\FtpStorageFile.cs" />
     <Compile Include="Class\FtpStorageFolder.cs" />
     <Compile Include="Class\Helper.cs" />
-    <Compile Include="Class\HomeRowHeightSaver.cs" />
     <Compile Include="Class\InterlockedNoReentryExecution.cs" />
     <Compile Include="Class\LabelCollectionVirtualFolder.cs" />
     <Compile Include="Class\LaunchArguementOptions.cs" />

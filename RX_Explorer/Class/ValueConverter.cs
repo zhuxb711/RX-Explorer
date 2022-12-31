@@ -10,6 +10,35 @@ using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
+    public sealed class MathDivideConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is double DoubleValue)
+            {
+                if (double.TryParse(System.Convert.ToString(parameter), out double Division))
+                {
+                    return DoubleValue / Division;
+                }
+            }
+
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            if (value is double DoubleValue)
+            {
+                if (double.TryParse(System.Convert.ToString(parameter), out double Division))
+                {
+                    return DoubleValue / Division;
+                }
+            }
+
+            return value;
+        }
+    }
+
     public sealed class NullableConverter : IValueConverter
     {
         public static object ConvertTo(object Object, Type TargetType)
