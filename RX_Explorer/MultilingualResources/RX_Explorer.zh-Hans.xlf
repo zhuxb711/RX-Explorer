@@ -43,8 +43,8 @@
           <target state="translated">删除</target>
         </trans-unit>
         <trans-unit id="AppDisplayName" translate="yes" xml:space="preserve">
-          <source>RX-Explorer</source>
-          <target state="translated">RX文件管理器</target>
+          <source>RX-Explorer (UWP)</source>
+          <target state="translated">RX文件管理器 (UWP)</target>
         </trans-unit>
         <trans-unit id="AppEdit.Label" translate="yes" xml:space="preserve">
           <source>Edit</source>

@@ -154,7 +154,6 @@ namespace RX_Explorer.Class
             Execution.ExecuteOnce(this, () =>
             {
                 IsDisposed = true;
-                Listener.Stop();
                 Listener.Abort();
                 Listener.Close();
             });

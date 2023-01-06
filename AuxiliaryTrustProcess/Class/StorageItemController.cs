@@ -1,5 +1,4 @@
-﻿using MediaDevices;
-using SharedLibrary;
+﻿using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

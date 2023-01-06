@@ -91,19 +91,30 @@ namespace RX_Explorer.Class
             return Stream;
         }
 
-        public static async Task<BitmapImage> CreateBitmapImageAsync(byte[] Data)
+        public static async Task<BitmapImage> CreateBitmapImageAsync(byte[] Data, int DecodePixelHeight = 0, int DecodePixelWidth = 0)
         {
             using (InMemoryRandomAccessStream Stream = await CreateRandomAccessStreamAsync(Data))
             {
-                return await CreateBitmapImageAsync(Stream);
+                return await CreateBitmapImageAsync(Stream, DecodePixelHeight, DecodePixelWidth);
             }
         }
 
-        public static async Task<BitmapImage> CreateBitmapImageAsync(IRandomAccessStream Stream)
+        public static async Task<BitmapImage> CreateBitmapImageAsync(IRandomAccessStream Stream, int DecodePixelHeight = 0, int DecodePixelWidth = 0)
         {
-            Stream.Seek(0);
             BitmapImage Bitmap = new BitmapImage();
-            await Bitmap.SetSourceAsync(Stream);
+
+            if (DecodePixelHeight > 0)
+            {
+                Bitmap.DecodePixelHeight = DecodePixelHeight;
+            }
+
+            if (DecodePixelWidth > 0)
+            {
+                Bitmap.DecodePixelWidth = DecodePixelWidth;
+            }
+
+            await Bitmap.SetSourceAsync(Stream).AsTask().ConfigureAwait(false);
+
             return Bitmap;
         }
 

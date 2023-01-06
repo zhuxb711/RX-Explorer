@@ -43,8 +43,8 @@
           <target state="translated">Supprimer</target>
         </trans-unit>
         <trans-unit id="AppDisplayName" translate="yes" xml:space="preserve">
-          <source>RX-Explorer</source>
-          <target state="translated">RX-Explorer</target>
+          <source>RX-Explorer (UWP)</source>
+          <target state="translated">RX-Explorer (UWP)</target>
         </trans-unit>
         <trans-unit id="AppEdit.Label" translate="yes" xml:space="preserve">
           <source>Edit</source>

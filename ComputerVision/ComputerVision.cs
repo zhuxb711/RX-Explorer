@@ -42,17 +42,6 @@ namespace ComputerVision
             }
         }
 
-        public static SoftwareBitmap ExtendImageBorder(SoftwareBitmap Input, Color Colors, int Top, int Left, int Right, int Bottom)
-        {
-            using (Mat InputMat = Input.SoftwareBitmapToMat())
-            using (Mat OutputMat = new Mat(InputMat.Rows, InputMat.Cols, MatType.CV_8UC4))
-            {
-                Cv2.CopyMakeBorder(InputMat, OutputMat, Top, Bottom, Left, Right, BorderTypes.Constant, new Scalar(Colors.B, Colors.G, Colors.R));
-
-                return OutputMat.MatToSoftwareBitmap();
-            }
-        }
-
         public static SoftwareBitmap RotateEffect(SoftwareBitmap Input, int Angle)
         {
             using (Mat InputMat = Input.SoftwareBitmapToMat())

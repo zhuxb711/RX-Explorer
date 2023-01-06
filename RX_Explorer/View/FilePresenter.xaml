@@ -81,8 +81,14 @@
                           Closing="QRTeachTip_Closing"
                           x:Name="QRTeachTip">
             <muxc:TeachingTip.HeroContent>
-                <Image Stretch="UniformToFill"
-                       Name="QRImage" />
+                <Grid Background="White">
+                    <Image Stretch="UniformToFill"
+                           Name="QRImage"
+                           Width="220"
+                           Height="220"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center" />
+                </Grid>
             </muxc:TeachingTip.HeroContent>
             <muxc:TeachingTip.Content>
                 <StackPanel HorizontalAlignment="Stretch">

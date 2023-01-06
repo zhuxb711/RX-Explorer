@@ -579,7 +579,7 @@ namespace AuxiliaryTrustProcess
                                         }
                                         finally
                                         {
-                                            RegistedHandle.Unregister(EventHandle);
+                                            RegistedHandle.Unregister(null);
                                         }
                                     }
                                     else
@@ -5030,9 +5030,10 @@ namespace AuxiliaryTrustProcess
         {
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {
-                string PipeName = $"FullTrustProcess_ElevatedPipe_{Guid.NewGuid()}";
-                string ProgressPipeName = $"FullTrustProcess_ElevatedPipe_{Guid.NewGuid()}";
-                string CancelSignalName = $"FullTrustProcess_ElevatedCancellation_{Guid.NewGuid()}";
+                string UniqueName = Guid.NewGuid().ToString("N");
+                string PipeName = $"FullTrustProcess_ElevatedPipe_{UniqueName}";
+                string ProgressPipeName = $"FullTrustProcess_ElevatedPipe_{UniqueName}";
+                string CancelSignalName = $"FullTrustProcess_ElevatedCancellation_{UniqueName}";
 
                 using (EventWaitHandle CancelEvent = new EventWaitHandle(false, EventResetMode.ManualReset, CancelSignalName))
                 using (NamedPipeServerStream MainPipeStream = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
@@ -5050,11 +5051,12 @@ namespace AuxiliaryTrustProcess
                 }))
                 {
                     Task GetProgressResultTask = Task.CompletedTask;
-                    Task<string> GetRawResultTask = Task.FromResult<string>(string.Empty);
+                    Task<string> GetRawResultTask = Task.FromResult(string.Empty);
 
                     try
                     {
-                        Task.WaitAll(MainPipeStream.WaitForConnectionAsync(CancelToken), ProgressPipeStream.WaitForConnectionAsync(CancelToken));
+                        Task.WaitAll(MainPipeStream.WaitForConnectionAsync(CancelToken), 
+                                     ProgressPipeStream.WaitForConnectionAsync(CancelToken));
 
                         MainWriter.WriteLine(Data.GetType().FullName);
                         MainWriter.WriteLine(CancelSignalName);

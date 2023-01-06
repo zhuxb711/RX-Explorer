@@ -40,7 +40,7 @@
     <value>删除</value>
   </data>
   <data name="AppDisplayName" xml:space="preserve">
-    <value>RX文件管理器</value>
+    <value>RX文件管理器 (UWP)</value>
   </data>
   <data name="AppEdit.Label" xml:space="preserve">
     <value>编辑</value>

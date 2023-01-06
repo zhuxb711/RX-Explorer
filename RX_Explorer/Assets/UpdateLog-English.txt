@@ -1,4 +1,4 @@
-﻿###What's new in Ver.8.1.2.0
+﻿###What's new in Ver.8.1.3.0
 
 ####⚠Warning: Uwp version will suspend feature updates and enter maintenance-only state, RX-Explorer will be migrated to WinAppSdk framework
 
@@ -6,8 +6,14 @@
 
 >####After the WinAppSdk version is launched, the Uwp version will still be retained in Microsoft Store, and all purchased users can directly activate the WinAppSdk version
 
+#####UI Update
+
+>#####Updated the animations for the "Folders and Libraries" and "Devices and Drives" areas
+
+#####Performance Improvements
+
+>#####Improved the performance of generating QR codes when using WiFi sharing
+
 #####Bug Fixes
 
->#####Fixed the problem that sometimes the USB device may not be ejected correctly
-
->#####Fixed the problem that it may be difficult to pop up the corresponding menu when right-clicking the blank area of "Folders and Libraries" and "Devices and Drives"
+>#####Fixed an issue that could cause severe performance degradation in some cases

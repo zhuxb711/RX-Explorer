@@ -1,6 +1,4 @@
-﻿using ConcurrentPriorityQueue.Core;
-using CSharpFunctionalExtensions;
-using Microsoft.Win32.SafeHandles;
+﻿using Microsoft.Win32.SafeHandles;
 using Nito.AsyncEx;
 using RX_Explorer.Interface;
 using SharedLibrary;
@@ -16,6 +14,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using ThirdParty.ConcurrentPriorityQueue;
 using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -45,7 +44,7 @@ namespace RX_Explorer.Class
 
         private static readonly SynchronizedCollection<AuxiliaryTrustProcessController> AllControllerCollection = new SynchronizedCollection<AuxiliaryTrustProcessController>();
         private static readonly BlockingCollection<AuxiliaryTrustProcessController> AvailableControllerCollection = new BlockingCollection<AuxiliaryTrustProcessController>();
-        private static readonly BlockingCollection<InternalExclusivePriorityQueueItem> ExclusivePriorityCollection = new ConcurrentPriorityQueue<InternalExclusivePriorityQueueItem, CustomPriority>().ToBlockingCollection();
+        private static readonly BlockingCollection<InternalExclusivePriorityQueueItem> ExclusivePriorityCollection = new BlockingCollection<InternalExclusivePriorityQueueItem>(new ConcurrentPriorityQueue<InternalExclusivePriorityQueueItem, CustomPriority>());
         private static readonly AsyncLock ResizeTaskLocker = new AsyncLock();
         private static readonly Thread DispatcherThread = new Thread(DispatcherCore)
         {

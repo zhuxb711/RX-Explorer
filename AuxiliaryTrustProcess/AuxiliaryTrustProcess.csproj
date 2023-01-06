@@ -4,14 +4,14 @@
 		<OutputType>WinExe</OutputType>
 		<LangVersion>latest</LangVersion>
 		<Platforms>x64;ARM64</Platforms>
-		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+		<RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<TieredPGO>true</TieredPGO>
+		<TieredCompilation>true</TieredCompilation>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
-		<TieredCompilation>true</TieredCompilation>
-		<TieredPGO>true</TieredPGO>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -60,6 +60,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
+		<ProjectReference Include="..\ThirdParty\ThirdParty.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Reference Include="MediaDevices">

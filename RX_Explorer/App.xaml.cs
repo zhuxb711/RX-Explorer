@@ -242,7 +242,7 @@ namespace RX_Explorer
                                                      {
                                                          if (ErrorList.All(e => e.Tag is not ErrorType.HelpRequestedError and not ErrorType.VersionRequestedError))
                                                          {
-                                                             LogTracer.Log($"Startup arguments parsing failed, reason: {string.Join('|', ErrorList.Select((Error) => Enum.GetName(typeof(ErrorType), Error)))}");
+                                                             LogTracer.Log($"Startup arguments parsing failed, reason: {string.Join('|', ErrorList.Select((Error) => Enum.GetName(typeof(ErrorType), Error.Tag)))}");
                                                          }
 
                                                          Window.Current.Content = new ExtendedSplash(args.SplashScreen);

@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Deferred;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using Nito.AsyncEx;
+using QRCoder;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
@@ -32,7 +33,6 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.System;
-using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Xaml;
@@ -43,9 +43,6 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
-using ZXing;
-using ZXing.QrCode;
-using ZXing.QrCode.Internal;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using RefreshRequestedEventArgs = RX_Explorer.Class.RefreshRequestedEventArgs;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
@@ -4650,25 +4647,11 @@ namespace RX_Explorer.View
                     WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
                     WiFiProvider.StartListenRequest();
 
-                    BarcodeWriter Writer = new BarcodeWriter
+                    using (QRCodeGenerator QRGenerator = new QRCodeGenerator())
+                    using (QRCodeData QRData = QRGenerator.CreateQrCode(WiFiProvider.CurrentUri, QRCodeGenerator.ECCLevel.Q))
+                    using (BitmapByteQRCode QRCode = new BitmapByteQRCode(QRData))
                     {
-                        Format = BarcodeFormat.QR_CODE,
-                        Options = new QrCodeEncodingOptions()
-                        {
-                            Width = 250,
-                            Height = 250,
-                            DisableECI = true,
-                            CharacterSet = "UTF-8",
-                            ErrorCorrection = ErrorCorrectionLevel.Q
-                        }
-                    };
-
-                    using (SoftwareBitmap PreTransImage = SoftwareBitmap.CreateCopyFromBuffer(Writer.Write(WiFiProvider.CurrentUri).PixelBuffer, BitmapPixelFormat.Bgra8, 250, 250))
-                    using (SoftwareBitmap TransferImage = ComputerVisionProvider.ExtendImageBorder(PreTransImage, Colors.White, 0, 75, 75, 0))
-                    {
-                        SoftwareBitmapSource Source = new SoftwareBitmapSource();
-                        QRImage.Source = Source;
-                        await Source.SetBitmapAsync(TransferImage);
+                        QRImage.Source = await Helper.CreateBitmapImageAsync(QRCode.GetGraphic(10), 220, 220);
                     }
 
                     QRText.Text = WiFiProvider.CurrentUri;
