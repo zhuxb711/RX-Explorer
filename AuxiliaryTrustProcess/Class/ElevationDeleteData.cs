@@ -7,9 +7,9 @@ namespace AuxiliaryTrustProcess.Class
     {
         public bool PermanentDelete { get; }
 
-        public IEnumerable<string> DeletePath { get; }
+        public IReadOnlyList<string> DeletePath { get; }
 
-        public ElevationDeleteData(IEnumerable<string> DeletePath, bool PermanentDelete)
+        public ElevationDeleteData(IReadOnlyList<string> DeletePath, bool PermanentDelete)
         {
             this.PermanentDelete = PermanentDelete;
             this.DeletePath = DeletePath;

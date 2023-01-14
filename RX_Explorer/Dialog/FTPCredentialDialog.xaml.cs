@@ -1,4 +1,5 @@
 ﻿using FluentFTP;
+using FluentFTP.Exceptions;
 using RX_Explorer.Class;
 using System;
 using System.Linq;

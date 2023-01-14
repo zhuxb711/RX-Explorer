@@ -1222,7 +1222,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                         using (CancellationTokenSource Cancellation = CancellationTokenSource.CreateLinkedTokenSource(OperationCancellation.Token))
                                         {
-                                            IReadOnlyList<FileSystemStorageItemBase> Result = Folder.GetChildItemsAsync(true, true, true, CancelToken: Cancellation.Token).ToEnumerable().ToList();
+                                            IReadOnlyList<FileSystemStorageItemBase> Result = Folder.GetChildItemsAsync(true, true, true, CancelToken: Cancellation.Token).ToEnumerable().ToArray();
 
                                             Interlocked.Add(ref TotalSize, Result.OfType<FileSystemStorageFile>().Sum((SubFile) => Convert.ToInt64(SubFile.Size)));
                                             Interlocked.Add(ref FileCount, Result.OfType<FileSystemStorageFile>().LongCount());

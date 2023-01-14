@@ -49,13 +49,24 @@ namespace RX_Explorer.Class
                         MinWidth = 150,
                         MaxWidth = 300,
                         FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
-                        Icon = new FontIcon
-                        {
-                            Glyph = "\uE2AC"
-                        }
                     };
 
                     ToolTipService.SetToolTip(Item, SubItem.Name);
+
+                    if (SubItem.IconData.Length > 0)
+                    {
+                        Item.Icon = new ImageIcon
+                        {
+                            Source = await Helper.CreateBitmapImageAsync(SubItem.IconData)
+                        };
+                    }
+                    else
+                    {
+                        Item.Icon = new FontIcon
+                        {
+                            Glyph = "\uE2AC"
+                        };
+                    }
 
                     Item.Items.AddRange(await GenerateSubMenuItemsAsync(SubItem.SubMenus, ClickHandler));
 

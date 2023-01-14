@@ -807,7 +807,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IReadOnlyList<OperationListBaseModel> Models = ListItemSource.Where((Model) => Model.Status is not (OperationStatus.Error or OperationStatus.Cancelled or OperationStatus.Completed)).ToList();
+                IReadOnlyList<OperationListBaseModel> Models = ListItemSource.Where((Model) => Model.Status is not (OperationStatus.Error or OperationStatus.Cancelled or OperationStatus.Completed)).ToArray();
 
                 if (Models.Count > 0)
                 {

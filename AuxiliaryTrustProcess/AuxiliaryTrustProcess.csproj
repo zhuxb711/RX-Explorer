@@ -34,6 +34,7 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="MediaDevices" Version="1.10.0" />
 		<PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
 		<PackageReference Include="UsbEject.NetCore" Version="1.0.4" />
 		<PackageReference Include="UTF.Unknown" Version="2.5.1" />

@@ -4199,7 +4199,7 @@ namespace RX_Explorer.View
                 }));
             }
 
-            return (await Task.WhenAll(ParallelTaskList)).OfType<BackgroundPicture>().ToList();
+            return (await Task.WhenAll(ParallelTaskList)).OfType<BackgroundPicture>().ToArray();
         }
 
         private async void NavigatePrivacyLink_Click(object sender, RoutedEventArgs e)

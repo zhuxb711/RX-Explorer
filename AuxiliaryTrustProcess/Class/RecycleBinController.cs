@@ -92,7 +92,7 @@ namespace AuxiliaryTrustProcess.Class
                 }
             });
 
-            return RecycleItemList.ToList();
+            return RecycleItemList.ToArray();
         }
 
         public static bool EmptyRecycleBin()

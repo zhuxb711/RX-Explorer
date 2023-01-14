@@ -1332,7 +1332,7 @@ namespace RX_Explorer.View
         {
             if (TabViewControl.SelectedItem is TabViewItem Item)
             {
-                IReadOnlyList<TabViewItem> ToBeRemoveList = TabCollection.ToList();
+                IReadOnlyList<TabViewItem> ToBeRemoveList = TabCollection.ToArray();
 
                 foreach (TabViewItem RemoveItem in ToBeRemoveList.Except(new TabViewItem[] { Item }))
                 {

@@ -84,7 +84,7 @@ namespace RX_Explorer.Class
                 {
                     return new FtpStorageFile(ClientController, new FtpFileData(new FtpPathAnalysis(System.IO.Path.Combine(Path, Item.Name)), Item));
                 }
-            }).ToList();
+            }).ToArray();
 
             foreach (FileSystemStorageItemBase Item in SubTransformedItems.Where((Item) => (AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true))
                                                                           .Where((Item) => (Item is FileSystemStorageFolder && Filter.HasFlag(BasicFilters.Folder)) || (Item is FileSystemStorageFile && Filter.HasFlag(BasicFilters.File))))
@@ -610,17 +610,15 @@ namespace RX_Explorer.Class
 
                     if (await AuxiliaryWriteController.RunCommandAsync((Client) => Client.DirectoryExists(TargetPath, CancelToken)))
                     {
-                        TargetPath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetPath, CreateType.File));
+                        TargetPath = await AuxiliaryWriteController.RunCommandAsync((Client) => Client.GenerateUniquePathAsync(TargetPath, CreateType.Folder));
                     }
 
                     await AuxiliaryWriteController.RunCommandAsync((Client) => Client.Rename(RelatedPath, TargetPath, CancelToken));
 
-                    return TargetPath;
+                    return System.IO.Path.GetFileName(TargetPath);
                 }
-                else
-                {
-                    throw new FileNotFoundException(Path);
-                }
+
+                throw new FileNotFoundException(Path);
             }
         }
 

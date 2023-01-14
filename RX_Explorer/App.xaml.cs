@@ -323,7 +323,7 @@ namespace RX_Explorer
                                                          {
                                                              if (OpenPathListOnEachTab.Any())
                                                              {
-                                                                 Window.Current.Content = new ExtendedSplash(args.SplashScreen, OpenPathListOnEachTab.ToList());
+                                                                 Window.Current.Content = new ExtendedSplash(args.SplashScreen, OpenPathListOnEachTab.ToArray());
                                                              }
                                                              else
                                                              {

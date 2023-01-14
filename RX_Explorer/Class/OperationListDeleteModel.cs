@@ -32,24 +32,27 @@ namespace RX_Explorer.Class
 
         public override bool CanBeCancelled => true;
 
-        protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
+        protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token = default)
         {
             ulong TotalSize = 0;
 
-            await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(DeleteFrom, Token))
+            if (IsPermanentDelete)
             {
-                switch (Item)
+                await foreach (FileSystemStorageItemBase Item in FileSystemStorageItemBase.OpenInBatchAsync(DeleteFrom, Token))
                 {
-                    case FileSystemStorageFolder Folder:
-                        {
-                            TotalSize += await Folder.GetFolderSizeAsync(Token);
-                            break;
-                        }
-                    case FileSystemStorageFile File:
-                        {
-                            TotalSize += File.Size;
-                            break;
-                        }
+                    switch (Item)
+                    {
+                        case FileSystemStorageFolder Folder:
+                            {
+                                TotalSize += await Folder.GetFolderSizeAsync(Token);
+                                break;
+                            }
+                        case FileSystemStorageFile File:
+                            {
+                                TotalSize += File.Size;
+                                break;
+                            }
+                    }
                 }
             }
 

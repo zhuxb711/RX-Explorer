@@ -4,6 +4,7 @@ using System.IO.Pipes;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vanara.PInvoke;
 
 namespace AuxiliaryTrustProcess.Class
 {
@@ -88,7 +89,7 @@ namespace AuxiliaryTrustProcess.Class
                 Priority = ThreadPriority.Normal,
                 IsBackground = true
             };
-            ProcessThread.SetApartmentState(ApartmentState.STA);
+            ProcessThread.TrySetApartmentState(ApartmentState.STA);
             ProcessThread.Start();
         }
     }

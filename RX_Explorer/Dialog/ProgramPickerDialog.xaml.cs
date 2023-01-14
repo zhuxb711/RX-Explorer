@@ -25,14 +25,14 @@ namespace RX_Explorer.Dialog
 
         public ProgramPickerItem UserPickedItem { get; private set; }
 
-        public ProgramPickerDialog(FileSystemStorageFile OpenFile, bool OpenFromPropertiesWindow = false)
+        public ProgramPickerDialog(FileSystemStorageFile OpenFile, bool OpenedByPropertyWindow = false)
         {
             InitializeComponent();
 
             this.OpenFile = OpenFile ?? throw new ArgumentNullException(nameof(OpenFile), "Parameter could not be null");
-            this.OpenedByPropertyWindow = OpenFromPropertiesWindow;
+            this.OpenedByPropertyWindow = OpenedByPropertyWindow;
 
-            if (OpenFromPropertiesWindow)
+            if (OpenedByPropertyWindow)
             {
                 UseAsAdmin.Visibility = Visibility.Collapsed;
             }

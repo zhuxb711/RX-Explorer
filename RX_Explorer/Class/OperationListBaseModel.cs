@@ -192,12 +192,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task PrepareSizeDataAsync(CancellationToken Token)
+        public async Task PrepareSizeDataAsync(CancellationToken Token = default)
         {
             Calculator = await PrepareSizeDataCoreAsync(Token);
         }
 
-        protected abstract Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token);
+        protected abstract Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token = default);
 
         public void UpdateProgress(int NewProgress)
         {

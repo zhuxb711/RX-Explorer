@@ -1542,7 +1542,7 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
+            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray();
 
             if (SelectedItemsCopy.Count > 0)
             {

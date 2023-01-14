@@ -327,7 +327,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return PathList.Distinct().ToList();
+            return PathList.Distinct().ToArray();
         }
 
         public static async Task SetStorageItemDataAsync(this DataPackage Package, params FileSystemStorageItemBase[] Collection)
@@ -847,7 +847,7 @@ namespace RX_Explorer.Class
                                     }
                                 }
 
-                                IReadOnlyList<AppBarButton> AvailableButton = Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).ToList();
+                                IReadOnlyList<AppBarButton> AvailableButton = Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).ToArray();
 
                                 int FirstSeparatorIndex = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.FirstOrDefault((Item) => Item is AppBarSeparator)) + 1;
                                 int FreeExtMenuItemCount = Math.Max(9 - AvailableButton.Count, 0);

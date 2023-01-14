@@ -944,7 +944,7 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                IReadOnlyList<string> ValidTableName = CurrentTableNames.Intersect(IncomingTableNames).ToList();
+                IReadOnlyList<string> ValidTableName = CurrentTableNames.Intersect(IncomingTableNames).ToArray();
 
                 Command.CommandText = string.Join(';', ValidTableName.Select((TableName) => $"Delete From {TableName}"));
                 Command.ExecuteNonQuery();

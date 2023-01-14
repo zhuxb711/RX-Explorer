@@ -38,7 +38,7 @@ namespace RX_Explorer.Class
 
         public override bool CanBeCancelled => true;
 
-        protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
+        protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token = default)
         {
             ulong TotalSize = 0;
 

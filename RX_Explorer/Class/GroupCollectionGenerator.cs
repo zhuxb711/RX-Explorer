@@ -175,7 +175,7 @@ namespace RX_Explorer.Class
                     {
                         using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                         {
-                            foreach (IGrouping<string, T> Group in InputCollection.GroupBy((Source) => Source.Type).OrderByFastStringSortAlgorithm((Group) => Group.Key, SortDirection.Ascending).ToList())
+                            foreach (IGrouping<string, T> Group in InputCollection.GroupBy((Source) => Source.Type).OrderByFastStringSortAlgorithm((Group) => Group.Key, SortDirection.Ascending).ToArray())
                             {
                                 Result.Add(new FileSystemStorageGroupItem(await Exclusive.Controller.GetFriendlyTypeNameAsync(Group.Key), Group));
                             }

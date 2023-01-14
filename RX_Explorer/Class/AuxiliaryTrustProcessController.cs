@@ -960,10 +960,10 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("Success", out string EncodingsString))
             {
-                return JsonSerializer.Deserialize<IEnumerable<int>>(EncodingsString).Select((CodePage) => Encoding.GetEncoding(CodePage))
+                return JsonSerializer.Deserialize<IEnumerable<int>>(EncodingsString).Select(Encoding.GetEncoding)
                                                                                     .Where((Encoding) => !string.IsNullOrWhiteSpace(Encoding.EncodingName))
                                                                                     .OrderByFastStringSortAlgorithm((Encoding) => Encoding.EncodingName, SortDirection.Ascending)
-                                                                                    .ToList();
+                                                                                    .ToArray();
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -1378,7 +1378,7 @@ namespace RX_Explorer.Class
 
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<ContextMenuPackage[]>(Result).OrderByFastStringSortAlgorithm((Item) => Item.Name, SortDirection.Ascending).Select((Item) => new ContextMenuItem(Item)).ToList();
+                    return JsonSerializer.Deserialize<ContextMenuPackage[]>(Result).OrderByFastStringSortAlgorithm((Item) => Item.Name, SortDirection.Ascending).Select((Item) => new ContextMenuItem(Item)).ToArray();
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {

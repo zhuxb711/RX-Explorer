@@ -28,32 +28,24 @@ namespace AuxiliaryTrustProcess.Class
                         {
                             return true;
                         }
-                        else
+                        else if (System.IO.Path.GetExtension(Path).Equals(".exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            if (System.IO.Path.GetExtension(Path).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                            foreach (Process Process in Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(Path)))
                             {
-                                Process[] RunningProcess = Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(Path));
-
                                 try
                                 {
-                                    if (RunningProcess.Length > 0)
+                                    using (Kernel32.SafeHPROCESS ProcessHandle = Kernel32.OpenProcess(new ACCESS_MASK(0x1000), false, Convert.ToUInt32(Process.Id)))
                                     {
-                                        foreach (Process Pro in RunningProcess)
+                                        if (!ProcessHandle.IsInvalid && !ProcessHandle.IsNull)
                                         {
-                                            using (Kernel32.SafeHPROCESS ProcessHandle = Kernel32.OpenProcess(new ACCESS_MASK(0x1000), false, Convert.ToUInt32(Pro.Id)))
-                                            {
-                                                if (!ProcessHandle.IsInvalid && !ProcessHandle.IsNull)
-                                                {
-                                                    uint Size = 260;
-                                                    StringBuilder ProcessImageName = new StringBuilder((int)Size);
+                                            uint Size = 260;
+                                            StringBuilder ProcessImageName = new StringBuilder((int)Size);
 
-                                                    if (Kernel32.QueryFullProcessImageName(ProcessHandle, 0, ProcessImageName, ref Size))
-                                                    {
-                                                        if (Path.Equals(ProcessImageName.ToString(), StringComparison.OrdinalIgnoreCase))
-                                                        {
-                                                            return true;
-                                                        }
-                                                    }
+                                            if (Kernel32.QueryFullProcessImageName(ProcessHandle, 0, ProcessImageName, ref Size))
+                                            {
+                                                if (Path.Equals(ProcessImageName.ToString(), StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    return true;
                                                 }
                                             }
                                         }
@@ -61,7 +53,7 @@ namespace AuxiliaryTrustProcess.Class
                                 }
                                 finally
                                 {
-                                    Array.ForEach(RunningProcess, (Pro) => Pro.Dispose());
+                                    Process.Dispose();
                                 }
                             }
                         }
@@ -74,7 +66,7 @@ namespace AuxiliaryTrustProcess.Class
             }
             else if (Directory.Exists(Path))
             {
-                return Directory.EnumerateFiles(Path, "*", SearchOption.AllDirectories).Any((SubFilePath) => CheckCaptured(SubFilePath));
+                return Directory.EnumerateFiles(Path, "*", SearchOption.AllDirectories).Any(CheckCaptured);
             }
 
             return false;

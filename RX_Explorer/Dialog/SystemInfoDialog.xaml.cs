@@ -282,7 +282,7 @@ namespace RX_Explorer.Dialog
 
             IReadOnlyList<NetworkInterface> Interfaces = NetworkInterface.GetAllNetworkInterfaces()
                                                                          .Where((Network) => Network.NetworkInterfaceType is NetworkInterfaceType.Ethernet or NetworkInterfaceType.Wireless80211)
-                                                                         .ToList();
+                                                                         .ToArray();
 
             for (int Index = 0; Index < Interfaces.Count; Index++)
             {

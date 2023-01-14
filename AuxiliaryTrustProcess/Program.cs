@@ -486,6 +486,7 @@ namespace AuxiliaryTrustProcess
                                                             {
                                                                 if (DeleteData.DeletePath.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                                                 {
+                                                                    int ProcessedCounter = 0;
                                                                     List<string> OperationRecordList = new List<string>();
 
                                                                     if (StorageItemController.Delete(DeleteData.DeletePath, DeleteData.PermanentDelete, (s, e) =>
@@ -499,6 +500,8 @@ namespace AuxiliaryTrustProcess
                                                                         }
                                                                     }, PostDeleteEvent: (se, arg) =>
                                                                     {
+                                                                        ProgressWriter.WriteLine((int)(++ProcessedCounter / DeleteData.DeletePath.Count * 100f));
+
                                                                         if (!DeleteData.PermanentDelete)
                                                                         {
                                                                             OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
@@ -618,6 +621,10 @@ namespace AuxiliaryTrustProcess
                     if (PipeCommunicationBaseController.WaitForConnectionAsync(10000).Result)
                     {
                         AliveCheckTimer.Start();
+
+                        //Warm up the context menu first to make sure we could get the correct menus
+                        ContextMenu.Current.GetContextMenuItems(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
+
                         ExitLocker.WaitOne();
                     }
                     else
@@ -3959,7 +3966,7 @@ namespace AuxiliaryTrustProcess
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
                                             && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
                                         {
-                                            IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToList();
+                                            IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToArray();
 
                                             if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                             {
@@ -4219,7 +4226,7 @@ namespace AuxiliaryTrustProcess
 
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
                                         {
-                                            IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToList();
+                                            IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToArray();
 
                                             if (SourceRelativePathArray.All((SourceRelativePath) => SourceDevice.FileExists(SourceRelativePath) || SourceDevice.DirectoryExists(SourceRelativePath)))
                                             {
@@ -4352,7 +4359,7 @@ namespace AuxiliaryTrustProcess
                                     {
                                         List<string> OperationRecordList = new List<string>(SourcePathList.Count);
 
-                                        if (SourcePathList.Keys.Any((Item) => StorageItemController.CheckCaptured(Item)))
+                                        if (SourcePathList.Keys.Any(StorageItemController.CheckCaptured))
                                         {
                                             Value.Add("Error_Capture", "One of these files was captured and could not be moved");
                                         }
@@ -4467,7 +4474,7 @@ namespace AuxiliaryTrustProcess
 
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice MTPDevice)
                                         {
-                                            IReadOnlyList<string> RelativePathArray = ExecutePathList.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToList();
+                                            IReadOnlyList<string> RelativePathArray = ExecutePathList.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToArray();
 
                                             if (RelativePathArray.All((RelativePath) => MTPDevice.FileExists(RelativePath) || MTPDevice.DirectoryExists(RelativePath)))
                                             {
@@ -4504,77 +4511,77 @@ namespace AuxiliaryTrustProcess
                                     }
                                     else if (ExecutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                     {
-                                        List<string> OperationRecordList = new List<string>(ExecutePathList.Count);
-
-                                        if (ExecutePathList.Any((Item) => StorageItemController.CheckCaptured(Item)))
+                                        if (ExecutePathList.Any(StorageItemController.CheckCaptured))
                                         {
                                             Value.Add("Error_Capture", "An error occurred while deleting the files");
                                         }
-                                        else
+                                        else if (ExecutePathList.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                         {
-                                            if (ExecutePathList.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
+                                            try
                                             {
-                                                try
+                                                int ProcessedCounter = 0;
+                                                List<string> OperationRecordList = new List<string>(ExecutePathList.Count);
+
+                                                if (StorageItemController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
                                                 {
-                                                    if (StorageItemController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
+                                                    if (Cancellation.Token.IsCancellationRequested)
                                                     {
-                                                        if (Cancellation.Token.IsCancellationRequested)
-                                                        {
-                                                            throw new COMException(null, HRESULT.E_ABORT);
-                                                        }
-
-                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                                    },
-                                                    PostDeleteEvent: (se, arg) =>
-                                                    {
-                                                        if (!PermanentDelete)
-                                                        {
-                                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
-                                                        }
-                                                    }))
-                                                    {
-                                                        if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
-                                                        {
-                                                            Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
-                                                        }
-                                                        else
-                                                        {
-                                                            Value.Add("Error_Capture", "An error occurred while deleting the folder");
-                                                        }
+                                                        throw new COMException(null, HRESULT.E_ABORT);
                                                     }
-                                                    else if (Marshal.GetLastWin32Error() == 5)
-                                                    {
-                                                        IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
-                                                        {
-                                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                                        }, Cancellation.Token);
 
-                                                        foreach (KeyValuePair<string, string> Result in ResultMap)
-                                                        {
-                                                            Value.Add(Result);
-                                                        }
+                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                },
+                                                PostDeleteEvent: (se, arg) =>
+                                                {
+                                                    PipeProgressWriterController?.SendData(Convert.ToString((int)(++ProcessedCounter / ExecutePathList.Count * 100f)));
+
+                                                    if (!PermanentDelete)
+                                                    {
+                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                                    }
+                                                }))
+                                                {
+                                                    if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                    {
+                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                                     }
                                                     else
                                                     {
-                                                        Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                                                        Value.Add("Error_Capture", "An error occurred while deleting the folder");
                                                     }
                                                 }
-                                                catch (COMException ex) when (ex.ErrorCode == HRESULT.E_ABORT)
+                                                else if (Marshal.GetLastWin32Error() == 5)
                                                 {
-                                                    throw new OperationCanceledException();
+                                                    IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
+                                                    {
+                                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                                    }, Cancellation.Token);
+
+                                                    foreach (KeyValuePair<string, string> Result in ResultMap)
+                                                    {
+                                                        Value.Add(Result);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Value.Add("Error_Failure", new Win32Exception(Marshal.GetLastWin32Error()).Message);
                                                 }
                                             }
-                                            else
+                                            catch (COMException ex) when (ex.ErrorCode == HRESULT.E_ABORT)
                                             {
-                                                IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
-                                                {
-                                                    PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                                }, Cancellation.Token);
+                                                throw new OperationCanceledException();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            IDictionary<string, string> ResultMap = CreateNewProcessAsElevatedAndWaitForResult(new ElevationDeleteData(ExecutePathList, PermanentDelete), (s, e) =>
+                                            {
+                                                PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                            }, Cancellation.Token);
 
-                                                foreach (KeyValuePair<string, string> Result in ResultMap)
-                                                {
-                                                    Value.Add(Result);
-                                                }
+                                            foreach (KeyValuePair<string, string> Result in ResultMap)
+                                            {
+                                                Value.Add(Result);
                                             }
                                         }
                                     }
@@ -4941,7 +4948,7 @@ namespace AuxiliaryTrustProcess
         {
             static void SetWindowsPosFallback(IEnumerable<HWND> WindowsBeforeStartup)
             {
-                foreach (HWND Handle in Helper.GetCurrentWindowsHandles().Except(WindowsBeforeStartup))
+                foreach (HWND Handle in Helper.GetCurrentWindowsHandles().Except(WindowsBeforeStartup).Reverse())
                 {
                     User32.SetWindowPos(Handle, User32.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
                     User32.SetWindowPos(Handle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
@@ -4958,66 +4965,77 @@ namespace AuxiliaryTrustProcess
 
                         for (int i = 0; i < 10 && !OtherProcess.HasExited; i++)
                         {
-                            OtherProcess.Refresh();
-
                             if (OtherProcess.MainWindowHandle.CheckIfValidPtr())
                             {
                                 MainWindowHandle = OtherProcess.MainWindowHandle;
                                 break;
                             }
-                            else
-                            {
-                                Thread.Sleep(500);
-                            }
+
+                            Thread.Sleep(500);
                         }
 
                         if (MainWindowHandle.CheckIfValidPtr())
                         {
-                            bool IsSuccess = true;
+                            HWND ForegroundWindow = User32.GetForegroundWindow();
 
-                            uint ExecuteThreadId = User32.GetWindowThreadProcessId(MainWindowHandle, out _);
-                            uint ForegroundThreadId = User32.GetWindowThreadProcessId(User32.GetForegroundWindow(), out _);
-                            uint CurrentThreadId = Kernel32.GetCurrentThreadId();
-
-                            if (ForegroundThreadId != ExecuteThreadId)
+                            if (MainWindowHandle == ForegroundWindow)
                             {
-                                User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, true);
-                                User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, true);
+                                return;
                             }
 
-                            IsSuccess &= User32.ShowWindow(MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
-                            IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
-                            IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
-                            IsSuccess &= User32.SetForegroundWindow(MainWindowHandle);
+                            uint CurrentThreadId = Kernel32.GetCurrentThreadId();
+                            uint ForegroundThreadId = User32.GetWindowThreadProcessId(ForegroundWindow, out _);
 
-                            if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation UwpInfo)
+                            if (User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, true))
                             {
-                                if (UwpInfo.IsValidInfomation)
+                                bool IsSuccess = true;
+
+                                try
                                 {
-                                    IsSuccess &= User32.SetWindowPos(UwpInfo.ApplicationFrameWindowHandle, MainWindowHandle, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
+                                    if (User32.IsIconic(MainWindowHandle))
+                                    {
+                                        IsSuccess &= User32.ShowWindow(MainWindowHandle, ShowWindowCommand.SW_RESTORE);
+                                    }
+
+                                    if (User32.SystemParametersInfo(User32.SPI.SPI_GETFOREGROUNDLOCKTIMEOUT, out uint LockTimeout))
+                                    {
+                                        try
+                                        {
+                                            IsSuccess &= User32.SystemParametersInfo<uint>(User32.SPI.SPI_SETFOREGROUNDLOCKTIMEOUT, 0, false, false);
+
+                                            if (User32.AllowSetForegroundWindow((uint)Environment.ProcessId))
+                                            {
+                                                IsSuccess &= User32.SetForegroundWindow(MainWindowHandle);
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            User32.SystemParametersInfo(User32.SPI.SPI_SETFOREGROUNDLOCKTIMEOUT, LockTimeout, false, false);
+                                        }
+                                    }
+
+                                    if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation UwpInfo)
+                                    {
+                                        if (UwpInfo.IsValidInfomation)
+                                        {
+                                            IsSuccess &= User32.SetWindowPos(UwpInfo.ApplicationFrameWindowHandle, MainWindowHandle, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
+                                        }
+                                    }
+                                }
+                                finally
+                                {
+                                    User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, false);
+                                }
+
+                                if (IsSuccess)
+                                {
+                                    return;
                                 }
                             }
-
-                            if (ForegroundThreadId != ExecuteThreadId)
-                            {
-                                User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, false);
-                                User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, false);
-                            }
-
-                            if (!IsSuccess)
-                            {
-                                SetWindowsPosFallback(WindowsBeforeStartup);
-                            }
-                        }
-                        else
-                        {
-                            SetWindowsPosFallback(WindowsBeforeStartup);
                         }
                     }
-                    else
-                    {
-                        SetWindowsPosFallback(WindowsBeforeStartup);
-                    }
+
+                    SetWindowsPosFallback(WindowsBeforeStartup);
                 }
                 catch (Exception ex)
                 {
@@ -5055,7 +5073,7 @@ namespace AuxiliaryTrustProcess
 
                     try
                     {
-                        Task.WaitAll(MainPipeStream.WaitForConnectionAsync(CancelToken), 
+                        Task.WaitAll(MainPipeStream.WaitForConnectionAsync(CancelToken),
                                      ProgressPipeStream.WaitForConnectionAsync(CancelToken));
 
                         MainWriter.WriteLine(Data.GetType().FullName);

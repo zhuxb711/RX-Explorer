@@ -39,7 +39,7 @@ namespace RX_Explorer.Dialog
                 throw new ArgumentException("Argument could not be empty", nameof(RenameItems));
             }
 
-            RenameFileList = RenameItems.ToList();
+            RenameFileList = RenameItems.ToArray();
             RenameText.Text = RenameFileList.First().Name;
         }
 

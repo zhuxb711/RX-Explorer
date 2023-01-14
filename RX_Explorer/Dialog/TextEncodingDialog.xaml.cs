@@ -55,7 +55,7 @@ namespace RX_Explorer.Dialog
                     {
                         TextEncodingModel NewModel = new TextEncodingModel(DetectedEncoding);
 
-                        int Index = AvailableEncodings.Select((Model) => Model.TextEncoding).Append(DetectedEncoding).OrderByFastStringSortAlgorithm((Encoding) => Encoding.EncodingName, SortDirection.Ascending).ToList().IndexOf(DetectedEncoding);
+                        int Index = Array.IndexOf(AvailableEncodings.Select((Model) => Model.TextEncoding).Append(DetectedEncoding).OrderByFastStringSortAlgorithm((Encoding) => Encoding.EncodingName, SortDirection.Ascending).ToArray(), DetectedEncoding);
 
                         if (Index >= 0 && Index <= AvailableEncodings.Count)
                         {
@@ -98,7 +98,7 @@ namespace RX_Explorer.Dialog
                 LogTracer.Log(ex, "Could not get all encodings, fallback to base encodings");
             }
 
-            return Encoding.GetEncodings().Select((Info) => Info.GetEncoding()).ToList();
+            return Encoding.GetEncodings().Select((Info) => Info.GetEncoding()).ToArray();
         }
 
         private async Task<Encoding> DetectEncodingFromFileAsync()

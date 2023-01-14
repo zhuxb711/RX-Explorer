@@ -28,7 +28,7 @@ namespace RX_Explorer.View
 
         public ExtendedSplash(SplashScreen Screen, string[] Parameter) : this(Screen)
         {
-            this.Parameter = Parameter.Select((Item) => new string[] { Item }).ToList();
+            this.Parameter = Parameter.Select((Item) => new string[] { Item }).ToArray();
         }
 
         public ExtendedSplash(SplashScreen Screen)

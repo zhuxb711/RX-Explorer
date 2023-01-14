@@ -809,7 +809,7 @@ namespace RX_Explorer.View
 
                     this.Renderer = Renderer;
 
-                    await InitializeAsync(Renderer.InitializePaths.Where((Path) => !string.IsNullOrWhiteSpace(Path)).ToList());
+                    await InitializeAsync(Renderer.InitializePaths.Where((Path) => !string.IsNullOrWhiteSpace(Path)).ToArray());
                 }
             }
             catch (Exception ex)

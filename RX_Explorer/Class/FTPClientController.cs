@@ -1,4 +1,5 @@
 ﻿using FluentFTP;
+using FluentFTP.Exceptions;
 using Nito.AsyncEx;
 using System;
 using System.Collections.Concurrent;

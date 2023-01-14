@@ -379,12 +379,10 @@ namespace RX_Explorer.Class
 
                     await AuxiliaryWriteController.RunCommandAsync((Client) => Client.Rename(RelatedPath, TargetPath, CancelToken));
 
-                    return TargetPath;
+                    return System.IO.Path.GetFileName(TargetPath);
                 }
-                else
-                {
-                    throw new FileNotFoundException(Path);
-                }
+
+                throw new FileNotFoundException(Path);
             }
         }
 

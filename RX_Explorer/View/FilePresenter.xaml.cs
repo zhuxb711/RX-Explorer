@@ -2190,7 +2190,7 @@ namespace RX_Explorer.View
 
             if (Array.TrueForAll(await Task.WhenAll(SelectedItems.Select((Item) => FileSystemStorageItemBase.CheckExistsAsync(Item.Path))), (IsExists) => IsExists))
             {
-                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(((IReadOnlyList<FileSystemStorageItemBase>)SelectedItems.ToList()).ToArray());
+                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(SelectedItems.ToArray());
                 await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
             }
         }
@@ -3773,13 +3773,13 @@ namespace RX_Explorer.View
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Any())
+            //We should take the path of what we want to delete first. Or we might delete some items incorrectly
+            IReadOnlyList<FileSystemStorageItemBase> DeleteItems = SelectedItems.ToArray();
+
+            if (DeleteItems.Count > 0)
             {
                 bool ExecuteDelete = false;
                 bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) | SettingPage.IsAvoidRecycleBinEnabled;
-
-                //We should take the path of what we want to delete first. Or we might delete some items incorrectly
-                IReadOnlyList<FileSystemStorageItemBase> DeleteItems = SelectedItems.ToList();
 
                 if (SettingPage.IsDoubleConfirmOnDeletionEnabled)
                 {
@@ -3887,17 +3887,17 @@ namespace RX_Explorer.View
             {
                 CloseAllFlyout();
 
-                if (SelectedItems.Any())
-                {
-                    IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems.ToList();
+                IReadOnlyList<FileSystemStorageItemBase> RenameItems = SelectedItems.ToArray();
 
-                    RenameDialog Dialog = new RenameDialog(SelectedItemsCopy);
+                if (RenameItems.Count > 0)
+                {
+                    RenameDialog Dialog = new RenameDialog(RenameItems);
 
                     if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
-                        if (SelectedItemsCopy.Count == 1)
+                        if (RenameItems.Count == 1)
                         {
-                            string ItemPath = SelectedItemsCopy.Single().Path;
+                            string ItemPath = RenameItems.Single().Path;
                             string OriginName = Path.GetFileName(ItemPath);
                             string NewName = Dialog.DesireNameMap[OriginName];
 
@@ -3982,7 +3982,7 @@ namespace RX_Explorer.View
                         }
                         else
                         {
-                            foreach (FileSystemStorageItemBase OriginItem in SelectedItemsCopy.Where((Item) => Dialog.DesireNameMap.TryGetValue(Item.Name, out string Value) && Item.Name != Value))
+                            foreach (FileSystemStorageItemBase OriginItem in RenameItems.Where((Item) => Dialog.DesireNameMap.TryGetValue(Item.Name, out string Value) && Item.Name != Value))
                             {
                                 OperationListRenameModel Model = new OperationListRenameModel(OriginItem.Path, Path.Combine(CurrentFolder.Path, Dialog.DesireNameMap[OriginItem.Name]));
 
@@ -4099,34 +4099,34 @@ namespace RX_Explorer.View
             {
                 DelayRenameCancellation?.Cancel();
 
-                IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems.ToList();
+                IReadOnlyList<FileSystemStorageItemBase> CurrentSelectedItems = SelectedItems.ToArray();
 
                 string[] StatusTipsSplit = StatusTips.Text.Split("  |  ", StringSplitOptions.RemoveEmptyEntries);
 
-                if (SelectedItemsCopy.Count > 0)
+                if (CurrentSelectedItems.Count > 0)
                 {
                     string SizeInfo = string.Empty;
 
-                    if (SelectedItemsCopy.All((Item) => Item is FileSystemStorageFile))
+                    if (CurrentSelectedItems.All((Item) => Item is FileSystemStorageFile))
                     {
-                        SizeInfo = Convert.ToUInt64(SelectedItemsCopy.Cast<FileSystemStorageFile>().Sum((Item) => Convert.ToInt64(Item.Size))).GetFileSizeDescription();
+                        SizeInfo = Convert.ToUInt64(CurrentSelectedItems.Cast<FileSystemStorageFile>().Sum((Item) => Convert.ToInt64(Item.Size))).GetFileSizeDescription();
                     }
 
                     if (StatusTipsSplit.Length > 0)
                     {
                         if (string.IsNullOrEmpty(SizeInfo))
                         {
-                            StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItemsCopy.Count.ToString())}";
+                            StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", CurrentSelectedItems.Count.ToString())}";
                         }
                         else
                         {
-                            StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItemsCopy.Count.ToString())}  |  {SizeInfo}";
+                            StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", CurrentSelectedItems.Count.ToString())}  |  {SizeInfo}";
                         }
                     }
 
-                    if (SelectedItemsCopy.Count == 1 && !SettingPage.IsOpened)
+                    if (CurrentSelectedItems.Count == 1 && !SettingPage.IsOpened)
                     {
-                        FileSystemStorageItemBase Item = SelectedItemsCopy.First();
+                        FileSystemStorageItemBase Item = CurrentSelectedItems.First();
 
                         if (SettingPage.IsQuicklookEnabled)
                         {
@@ -4156,12 +4156,9 @@ namespace RX_Explorer.View
                         }
                     }
                 }
-                else
+                else if (StatusTipsSplit.Length > 0)
                 {
-                    if (StatusTipsSplit.Length > 0)
-                    {
-                        StatusTips.Text = StatusTipsSplit[0];
-                    }
+                    StatusTips.Text = StatusTipsSplit[0];
                 }
             }
             catch (Exception ex)
@@ -5634,6 +5631,7 @@ namespace RX_Explorer.View
                                             {
                                                 LinkPath = Path.Combine(CurrentFolder.Path, NewFileName),
                                                 LinkTargetPath = Dialog.Path,
+                                                NeedRunAsAdmin = Dialog.RunAsAdmin,
                                                 WorkDirectory = Dialog.WorkDirectory,
                                                 WindowState = Dialog.WindowState,
                                                 HotKey = Dialog.HotKey,
@@ -6790,6 +6788,7 @@ namespace RX_Explorer.View
 
                         if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
                         {
+                            NameEditBox.Text = CurrentEditItem.Name;
                             return;
                         }
                     }
@@ -8172,9 +8171,9 @@ namespace RX_Explorer.View
             }
             else if (Flyout == FileFlyout)
             {
-                IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems.ToList();
+                IReadOnlyList<FileSystemStorageItemBase> CurrentSelectedItems = SelectedItems.ToArray();
 
-                if (SelectedItemsCopy.Count == 1)
+                if (CurrentSelectedItems.Count == 1)
                 {
                     if (Flyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Btn) => Btn.Name == "EditButton") is AppBarButton EditButton)
                     {
@@ -8270,7 +8269,7 @@ namespace RX_Explorer.View
 
                 if (Flyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Btn) => Btn.Name == "Decompression") is AppBarButton Decompression)
                 {
-                    if (SelectedItemsCopy.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                    if (CurrentSelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
                                                     || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
                                                     || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
                                                     || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)

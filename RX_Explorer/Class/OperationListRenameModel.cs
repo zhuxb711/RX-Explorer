@@ -18,7 +18,7 @@ namespace RX_Explorer.Class
 
         public override bool CanBeCancelled => false;
 
-        protected override Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
+        protected override Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token = default)
         {
             return Task.FromResult(new ProgressCalculator(0));
         }

@@ -11,7 +11,7 @@ namespace RX_Explorer.Class
 
         public override string FromDescription => string.Empty;
 
-        protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token)
+        protected override async Task<ProgressCalculator> PrepareSizeDataCoreAsync(CancellationToken Token = default)
         {
             using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
             {

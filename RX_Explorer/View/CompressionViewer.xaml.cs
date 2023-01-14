@@ -632,7 +632,7 @@ namespace RX_Explorer.View
 
         private async Task ExtractCore(string ExtractLocation, IEnumerable<CompressionItemBase> ItemList, CancellationToken Token = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            IReadOnlyList<ZipEntry> ExtractEntryList = ItemList.SelectMany((Item) => ZipObj.OfType<ZipEntry>().Where((Entry) => Entry.Name.StartsWith(Item.Path))).ToList();
+            IReadOnlyList<ZipEntry> ExtractEntryList = ItemList.SelectMany((Item) => ZipObj.OfType<ZipEntry>().Where((Entry) => Entry.Name.StartsWith(Item.Path))).ToArray();
 
             long TotalSize = ExtractEntryList.Sum((Entry) => Entry.Size);
             long CurrentPosition = 0;
@@ -844,7 +844,7 @@ namespace RX_Explorer.View
 
                     try
                     {
-                        IReadOnlyList<CompressionItemBase> DeleteList = ListViewControl.SelectedItems.Cast<CompressionItemBase>().ToList();
+                        IReadOnlyList<CompressionItemBase> DeleteList = ListViewControl.SelectedItems.Cast<CompressionItemBase>().ToArray();
 
                         await Task.Run(() =>
                         {

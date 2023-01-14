@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
@@ -437,30 +436,6 @@ namespace RX_Explorer.Class
             return new FileStream(Handle, Access, 4096, true);
         }
 
-        public static bool DeleteFromPath(string Path)
-        {
-            switch (CheckItemTypeFromPath(Path))
-            {
-                case StorageItemTypes.File:
-                    {
-                        return DeleteFileFromApp(Path);
-                    }
-                case StorageItemTypes.Folder:
-                    {
-                        if (GetStorageItems(Path).Select((Item) => Item.Path).All((Path) => DeleteFromPath(Path)))
-                        {
-                            return RemoveDirectoryFromApp(Path);
-                        }
-
-                        return false;
-                    }
-                default:
-                    {
-                        return true;
-                    }
-            }
-        }
-
         public static bool CreateDirectoryFromPath(string Path, CollisionOptions Option, out string NewFolderPath)
         {
             NewFolderPath = string.Empty;
@@ -510,23 +485,90 @@ namespace RX_Explorer.Class
                         }
                     case CollisionOptions.Skip:
                         {
-                            if (CheckItemTypeFromPath(Path) == StorageItemTypes.Folder || CreateDirectoryFromApp(Path, IntPtr.Zero))
-                            {
-                                NewFolderPath = Path;
-                                return true;
-                            }
-
-                            break;
-                        }
-                    case CollisionOptions.OverrideOnCollision:
-                        {
-                            if (CheckItemTypeFromPath(Path) == StorageItemTypes.Folder && DeleteFromPath(Path))
+                            if (CheckItemTypeFromPath(Path) != StorageItemTypes.Folder)
                             {
                                 if (CreateDirectoryFromApp(Path, IntPtr.Zero))
                                 {
                                     NewFolderPath = Path;
                                     return true;
                                 }
+                            }
+
+                            break;
+                        }
+                    case CollisionOptions.OverrideOnCollision:
+                        {
+                            if (CheckItemTypeFromPath(Path) == StorageItemTypes.Folder)
+                            {
+                                static IEnumerable<string> GetSubStorageItemPath(string FolderPath)
+                                {
+                                    if (string.IsNullOrWhiteSpace(FolderPath))
+                                    {
+                                        throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
+                                    }
+
+                                    IntPtr Handle = FindFirstFileExFromApp(System.IO.Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.Find_First_Ex_Large_Fetch);
+
+                                    try
+                                    {
+                                        if (Handle.CheckIfValidPtr())
+                                        {
+                                            do
+                                            {
+                                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                                {
+                                                    yield return System.IO.Path.Combine(FolderPath, Data.cFileName);
+                                                }
+                                            }
+                                            while (FindNextFile(Handle, out Data));
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        FindClose(Handle);
+                                    }
+                                }
+
+                                static bool RemoveDirectoryRecursive(string FolderPath)
+                                {
+                                    foreach (string Path in GetSubStorageItemPath(FolderPath))
+                                    {
+                                        switch (CheckItemTypeFromPath(Path))
+                                        {
+                                            case StorageItemTypes.File:
+                                                {
+                                                    if (!DeleteFileFromApp(Path))
+                                                    {
+                                                        return false;
+                                                    }
+
+                                                    break;
+                                                }
+                                            case StorageItemTypes.Folder:
+                                                {
+                                                    if (!RemoveDirectoryRecursive(Path))
+                                                    {
+                                                        return false;
+                                                    }
+
+                                                    break;
+                                                }
+                                        }
+                                    }
+
+                                    return RemoveDirectoryFromApp(FolderPath);
+                                }
+
+                                if (!RemoveDirectoryRecursive(Path))
+                                {
+                                    return false;
+                                }
+                            }
+
+                            if (CreateDirectoryFromApp(Path, IntPtr.Zero))
+                            {
+                                NewFolderPath = Path;
+                                return true;
                             }
 
                             break;
