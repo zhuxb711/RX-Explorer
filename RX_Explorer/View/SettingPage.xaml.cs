@@ -1207,7 +1207,7 @@ namespace RX_Explorer.View
             {
                 await InitializeAsync();
 
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                if (await MSStoreHelper.CheckPurchaseStatusAsync())
                 {
                     VerticalSplitViewLimitationArea.Visibility = Visibility.Visible;
                 }
@@ -1226,7 +1226,7 @@ namespace RX_Explorer.View
                     }
                 }
 
-                if (await MSStoreHelper.Current.CheckHasUpdateAsync())
+                if (await MSStoreHelper.CheckHasUpdateAsync())
                 {
                     VersionTip.Text = Globalization.GetString("UpdateAvailable");
                 }
@@ -3861,7 +3861,7 @@ namespace RX_Explorer.View
 
         private async void PurchaseApp_Click(object sender, RoutedEventArgs e)
         {
-            switch (await MSStoreHelper.Current.PurchaseAsync())
+            switch (await MSStoreHelper.PurchaseAsync())
             {
                 case StorePurchaseStatus.Succeeded:
                     {
@@ -3917,7 +3917,7 @@ namespace RX_Explorer.View
 
         private async void Update_Click(object sender, RoutedEventArgs e)
         {
-            if (await MSStoreHelper.Current.CheckHasUpdateAsync())
+            if (await MSStoreHelper.CheckHasUpdateAsync())
             {
                 await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
             }

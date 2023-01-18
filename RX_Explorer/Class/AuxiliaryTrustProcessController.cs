@@ -44,7 +44,7 @@ namespace RX_Explorer.Class
 
         private static readonly SynchronizedCollection<AuxiliaryTrustProcessController> AllControllerCollection = new SynchronizedCollection<AuxiliaryTrustProcessController>();
         private static readonly BlockingCollection<AuxiliaryTrustProcessController> AvailableControllerCollection = new BlockingCollection<AuxiliaryTrustProcessController>();
-        private static readonly BlockingCollection<InternalExclusivePriorityQueueItem> ExclusivePriorityCollection = new BlockingCollection<InternalExclusivePriorityQueueItem>(new ConcurrentPriorityQueue<InternalExclusivePriorityQueueItem, CustomPriority>());
+        private static readonly BlockingCollection<InternalExclusivePriorityQueueItem> ExclusivePriorityCollection = new BlockingCollection<InternalExclusivePriorityQueueItem>(new ConcurrentPriorityQueue<InternalExclusivePriorityQueueItem, PriorityWarpper>());
         private static readonly AsyncLock ResizeTaskLocker = new AsyncLock();
         private static readonly Thread DispatcherThread = new Thread(DispatcherCore)
         {
@@ -2401,38 +2401,43 @@ namespace RX_Explorer.Class
             }
         }
 
-        private sealed class InternalExclusivePriorityQueueItem : IHavePriority<CustomPriority>
+        private sealed class InternalExclusivePriorityQueueItem : IHavePriority<PriorityWarpper>
         {
             public CancellationToken CancelToken { get; }
 
-            public CustomPriority Priority { get; set; }
+            public PriorityWarpper Priority { get; set; }
 
             public TaskCompletionSource<Exclusive> TaskSource { get; } = new TaskCompletionSource<Exclusive>();
 
             public InternalExclusivePriorityQueueItem(CancellationToken CancelToken, PriorityLevel Priority)
             {
                 this.CancelToken = CancelToken;
-                this.Priority = new CustomPriority(Priority);
+                this.Priority = new PriorityWarpper(Priority);
             }
         }
 
-        private class CustomPriority : IEquatable<CustomPriority>, IComparable<CustomPriority>
+        private sealed class PriorityWarpper : IEquatable<PriorityWarpper>, IComparable<PriorityWarpper>
         {
             public PriorityLevel Priority { get; }
 
             public override int GetHashCode() => Priority.GetHashCode();
 
-            public bool Equals(CustomPriority other)
+            public bool Equals(PriorityWarpper other)
             {
                 return Priority.Equals(other.Priority);
             }
 
-            public int CompareTo(CustomPriority other)
+            public override bool Equals(object obj)
+            {
+                return obj is PriorityWarpper Priority && Equals(Priority);
+            }
+
+            public int CompareTo(PriorityWarpper other)
             {
                 return Priority.CompareTo(other.Priority);
             }
 
-            public CustomPriority(PriorityLevel Priority)
+            public PriorityWarpper(PriorityLevel Priority)
             {
                 this.Priority = Priority;
             }

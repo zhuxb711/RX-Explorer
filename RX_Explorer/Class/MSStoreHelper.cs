@@ -7,32 +7,19 @@ using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
-    public sealed class MSStoreHelper
+    public static class MSStoreHelper
     {
-        private static MSStoreHelper Instance;
-
-        private StoreContext Store;
-        private StoreAppLicense License;
-        private StoreProductResult ProductResult;
-        private Task PreLoadTask;
-        private Task<bool> CheckPurchaseStatusTask;
-        private Task<bool> CheckHasUpdate;
-        private Task<bool> CheckIfUpdateIsMandatory;
-        private IReadOnlyList<StorePackageUpdate> Updates;
+        private static StoreContext Store;
+        private static StoreAppLicense License;
+        private static StoreProductResult ProductResult;
+        private static Task PreLoadTask;
+        private static Task<bool> CheckPurchaseStatusTask;
+        private static Task<bool> CheckHasUpdate;
+        private static Task<bool> CheckIfUpdateIsMandatory;
+        private static IReadOnlyList<StorePackageUpdate> Updates;
         private static readonly object Locker = new object();
 
-        public static MSStoreHelper Current
-        {
-            get
-            {
-                lock (Locker)
-                {
-                    return Instance ??= new MSStoreHelper();
-                }
-            }
-        }
-
-        public Task<bool> CheckPurchaseStatusAsync()
+        public static Task<bool> CheckPurchaseStatusAsync()
         {
 #if DEBUG
             lock (Locker)
@@ -78,7 +65,7 @@ namespace RX_Explorer.Class
 #endif
         }
 
-        public Task<bool> CheckHasUpdateAsync()
+        public static Task<bool> CheckHasUpdateAsync()
         {
             lock (Locker)
             {
@@ -98,7 +85,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task<bool> CheckIfUpdateIsMandatoryAsync()
+        public static Task<bool> CheckIfUpdateIsMandatoryAsync()
         {
             lock (Locker)
             {
@@ -118,7 +105,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task<StorePurchaseStatus> PurchaseAsync()
+        public static Task<StorePurchaseStatus> PurchaseAsync()
         {
             return PreLoadStoreData().ContinueWith((_) =>
             {
@@ -158,7 +145,7 @@ namespace RX_Explorer.Class
             });
         }
 
-        public Task PreLoadStoreData()
+        public static Task PreLoadStoreData()
         {
             lock (Locker)
             {
@@ -189,12 +176,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private MSStoreHelper()
-        {
-
-        }
-
-        private async void Store_OfflineLicensesChanged(StoreContext sender, object args)
+        private static async void Store_OfflineLicensesChanged(StoreContext sender, object args)
         {
             try
             {

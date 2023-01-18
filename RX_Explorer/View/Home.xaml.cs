@@ -415,7 +415,7 @@ namespace RX_Explorer.View
         {
             if (sender is CommandBarFlyout Flyout)
             {
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                if (await MSStoreHelper.CheckPurchaseStatusAsync())
                 {
                     Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenInVerticalSplitView").Visibility = Visibility.Visible;
                 }
@@ -1868,7 +1868,7 @@ namespace RX_Explorer.View
                     }
                 }
 
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                if (await MSStoreHelper.CheckPurchaseStatusAsync())
                 {
                     Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenInVerticalSplitView").Visibility = Visibility.Visible;
                 }

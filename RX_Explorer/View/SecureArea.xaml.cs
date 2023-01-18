@@ -227,7 +227,7 @@ namespace RX_Explorer.View
                     {
                         ActivateLoading(true, false, Globalization.GetString("Progress_Tip_CheckingLicense"));
 
-                        if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                        if (await MSStoreHelper.CheckPurchaseStatusAsync())
                         {
                             await Task.Delay(500);
                         }
@@ -237,7 +237,7 @@ namespace RX_Explorer.View
 
                             if ((await IntroDialog.ShowAsync()) == ContentDialogResult.Primary)
                             {
-                                StorePurchaseStatus Status = await MSStoreHelper.Current.PurchaseAsync();
+                                StorePurchaseStatus Status = await MSStoreHelper.PurchaseAsync();
 
                                 if (Status == StorePurchaseStatus.AlreadyPurchased || Status == StorePurchaseStatus.Succeeded)
                                 {

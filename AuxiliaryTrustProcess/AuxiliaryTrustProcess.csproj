@@ -62,9 +62,4 @@
 	<ItemGroup>
 		<ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
 	</ItemGroup>
-	<ItemGroup>
-		<Reference Include="MediaDevices">
-			<HintPath>CustomLibraries\MediaDevices.dll</HintPath>
-		</Reference>
-	</ItemGroup>
 </Project>

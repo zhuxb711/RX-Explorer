@@ -68,8 +68,6 @@ namespace RX_Explorer.View
         private readonly PointerEventHandler GoForwardButtonPressedHandler;
         private readonly PointerEventHandler GoForwardButtonReleasedHandler;
 
-        private readonly Color AccentColor = (Color)Application.Current.Resources["SystemAccentColor"];
-
         private CancellationTokenSource DelayEnterCancel;
         private CancellationTokenSource DelayGoBackHoldCancel;
         private CancellationTokenSource DelayGoForwardHoldCancel;
@@ -97,7 +95,7 @@ namespace RX_Explorer.View
 
                         if (value != null)
                         {
-                            value.FocusIndicator.Background = new SolidColorBrush(AccentColor);
+                            value.FocusIndicator.Background = new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColor"]);
                         }
                     }
                     else
@@ -1458,7 +1456,7 @@ namespace RX_Explorer.View
                 {
                     SearchInEverythingEngine.IsEnabled = false;
                 }
-                else if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                else if (await MSStoreHelper.CheckPurchaseStatusAsync())
                 {
                     if (Package.Current.Id.Architecture is ProcessorArchitecture.X64 or ProcessorArchitecture.X86OnArm64)
                     {
@@ -3573,7 +3571,7 @@ namespace RX_Explorer.View
                     }
                 }
 
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                if (await MSStoreHelper.CheckPurchaseStatusAsync())
                 {
                     Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
                 }

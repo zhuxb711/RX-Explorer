@@ -123,7 +123,7 @@ namespace RX_Explorer.View
             AuxiliaryTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
             CoreApplication.MainView.CoreWindow.PointerPressed += MainPage_PointerPressed;
 
-            MSStoreHelper.Current.PreLoadStoreData();
+            MSStoreHelper.PreLoadStoreData();
             InfoTipController.Current.SetInfoTipPanel(BannerPanel);
 
             BackgroundController.Current.SetAcrylicEffectPresenter(CompositorAcrylicBackground);
@@ -664,7 +664,7 @@ namespace RX_Explorer.View
 
                 await Task.WhenAll(RegisterBackgroundTaskAsync(), CheckUpdateIfExistAsync(), CleanUpNotExistsLabelItemAsync(), SpecialPath.InitializeAsync(), Settings.InitializeAsync());
 
-                if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                if (!await MSStoreHelper.CheckPurchaseStatusAsync())
                 {
                     AppName.Text += $" ({Globalization.GetString("Trial_Version")})";
 
@@ -702,9 +702,9 @@ namespace RX_Explorer.View
 
         private async Task CheckUpdateIfExistAsync()
         {
-            if (await MSStoreHelper.Current.CheckHasUpdateAsync())
+            if (await MSStoreHelper.CheckHasUpdateAsync())
             {
-                if (await MSStoreHelper.Current.CheckIfUpdateIsMandatoryAsync())
+                if (await MSStoreHelper.CheckIfUpdateIsMandatoryAsync())
                 {
                     InfoTipController.Current.Show(InfoTipType.MandatoryUpdateAvailable);
                 }
@@ -938,13 +938,13 @@ namespace RX_Explorer.View
 
                 if (UTCTime > DiscountStartTime && UTCTime < DiscountEndTime)
                 {
-                    if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                    if (!await MSStoreHelper.CheckPurchaseStatusAsync())
                     {
                         DiscountTip.ActionButtonClick += async (s, e) =>
                         {
                             s.IsOpen = false;
 
-                            switch (await MSStoreHelper.Current.PurchaseAsync())
+                            switch (await MSStoreHelper.PurchaseAsync())
                             {
                                 case StorePurchaseStatus.Succeeded:
                                     {
@@ -1015,7 +1015,7 @@ namespace RX_Explorer.View
             {
                 s.IsOpen = false;
 
-                switch (await MSStoreHelper.Current.PurchaseAsync())
+                switch (await MSStoreHelper.PurchaseAsync())
                 {
                     case StorePurchaseStatus.Succeeded:
                         {

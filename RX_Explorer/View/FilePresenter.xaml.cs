@@ -2780,7 +2780,7 @@ namespace RX_Explorer.View
                             {
                                 args.Handled = true;
 
-                                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                                if (await MSStoreHelper.CheckPurchaseStatusAsync())
                                 {
                                     IEnumerable<FileSystemStorageFolder> FolderItems = SelectedItems.OfType<FileSystemStorageFolder>();
 
@@ -7530,7 +7530,7 @@ namespace RX_Explorer.View
                         case FileSystemStorageFolder Folder:
                             {
                                 if (SettingPage.IsAlwaysOpenInNewTabEnabled
-                                    || !await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                                    || !await MSStoreHelper.CheckPurchaseStatusAsync())
                                 {
                                     await TabViewContainer.Current.CreateNewTabAsync(Folder.Path);
                                 }
@@ -8144,7 +8144,7 @@ namespace RX_Explorer.View
                     }
                 }
 
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                if (await MSStoreHelper.CheckPurchaseStatusAsync())
                 {
                     Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
                 }

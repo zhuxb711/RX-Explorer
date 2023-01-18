@@ -576,7 +576,7 @@ namespace RX_Explorer.View
                                                     }
                                                     else
                                                     {
-                                                        if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                                                        if (await MSStoreHelper.CheckPurchaseStatusAsync())
                                                         {
                                                             await Control.CreateNewBladeAsync(Drive.DriveFolder);
                                                         }
@@ -599,7 +599,7 @@ namespace RX_Explorer.View
                                                     }
                                                     else
                                                     {
-                                                        if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                                                        if (await MSStoreHelper.CheckPurchaseStatusAsync())
                                                         {
                                                             await Control.CreateNewBladeAsync(Library);
                                                         }
@@ -1364,7 +1364,7 @@ namespace RX_Explorer.View
 
         private async void VerticalSplitViewButton_Click(object sender, RoutedEventArgs e)
         {
-            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+            if (await MSStoreHelper.CheckPurchaseStatusAsync())
             {
                 if (CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
                 {
@@ -1384,7 +1384,7 @@ namespace RX_Explorer.View
         {
             sender.IsOpen = false;
 
-            switch (await MSStoreHelper.Current.PurchaseAsync())
+            switch (await MSStoreHelper.PurchaseAsync())
             {
                 case StorePurchaseStatus.Succeeded:
                     {
