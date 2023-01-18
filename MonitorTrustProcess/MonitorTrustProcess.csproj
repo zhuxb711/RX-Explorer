@@ -6,14 +6,12 @@
 		<Platforms>x64;ARM64</Platforms>
 		<RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<TieredPGO>true</TieredPGO>
-		<TieredCompilation>true</TieredCompilation>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<TieredPGO>true</TieredPGO>
+		<TieredCompilation>true</TieredCompilation>
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
-		<TieredCompilation>true</TieredCompilation>
-		<TieredPGO>true</TieredPGO>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
