@@ -22,9 +22,9 @@
 		<RuntimeIdentifier>win-arm64</RuntimeIdentifier>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Vanara.PInvoke.Shell32" Version="3.4.11" />
+		<PackageReference Include="Vanara.PInvoke.Shell32" Version="3.4.12" />
 		<PackageReference Include="Vanara.PInvoke.UserEnv">
-			<Version>3.4.11</Version>
+			<Version>3.4.12</Version>
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>

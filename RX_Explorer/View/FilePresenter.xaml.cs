@@ -8270,13 +8270,13 @@ namespace RX_Explorer.View
                 if (Flyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Btn) => Btn.Name == "Decompression") is AppBarButton Decompression)
                 {
                     if (CurrentSelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                                    || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
-                                                    || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                    || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                    || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                    || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                    || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
-                                                    || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
+                                                           || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                           || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                           || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                           || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                           || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                           || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                           || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
                     {
                         Decompression.Visibility = Visibility.Visible;
                     }

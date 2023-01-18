@@ -1,4 +1,4 @@
-﻿###Novedades de la versión 8.1.3.0
+﻿###Novedades de la versión 8.1.4.0
 
 ####⚠Advertencia: la versión Uwp suspenderá las actualizaciones de funciones y entrará en estado de solo mantenimiento, RX-Explorer se migrará al marco WinAppSdk
 
@@ -6,14 +6,12 @@
 
 >####Después de lanzar la versión de WinAppSdk, la versión de Uwp aún se conservará en Microsoft Store, y todos los usuarios comprados pueden activar directamente la versión de WinAppSdk
 
-#####Actualización de la interfaz de usuario
-
->#####Se actualizaron las animaciones para las áreas "Carpetas y bibliotecas" y "Dispositivos y unidades".
-
-#####Mejoras de rendimiento
-
->#####Se mejoró el rendimiento de la generación de códigos QR al compartir WiFi
-
 #####Corrección de errores
 
->#####Se corrigió un problema que podría causar una degradación severa del rendimiento en algunos casos
+>#####Se solucionó el problema de que los elementos del menú de terceros pueden perderse cuando el menú contextual aparece las primeras veces
+
+>#####Se solucionó el problema de que la configuración de "Ejecutar como administrador" no surtía efecto al crear un archivo .lnk
+
+>#####Se corrigieron algunos problemas al cambiar el nombre
+
+>#####Se corrigieron algunos otros problemas conocidos

@@ -1,4 +1,4 @@
-﻿###Was ist neu in Ver.8.1.3.0
+﻿###Was ist neu in Ver.8.1.4.0
 
 ####⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird zum WinAppSdk-Framework migriert
 
@@ -6,14 +6,12 @@
 
 >####Nach dem Start der WinAppSdk-Version bleibt die Uwp-Version weiterhin im Microsoft Store erhalten, und alle gekauften Benutzer können die WinAppSdk-Version direkt aktivieren
 
-#####UI-Update
-
->#####Die Animationen für die Bereiche "Ordner und Bibliotheken" und "Geräte und Laufwerke" wurden aktualisiert
-
-#####Leistungsverbesserungen
-
->#####Die Leistung beim Generieren von QR-Codes bei der Verwendung von WiFi-Sharing wurde verbessert
-
 #####Fehlerbehebung
 
->#####Ein Problem wurde behoben, das in einigen Fällen zu schwerwiegenden Leistungseinbußen führen konnte
+>#####Das Problem, dass die Menüpunkte von Drittanbietern verloren gehen können, wenn das Kontextmenü die ersten Male erscheint, wurde behoben
+
+>#####Das Problem, dass die Einstellungen über "Als Administrator ausführen" beim Erstellen einer .lnk-Datei nicht wirksam wurden, wurde behoben
+
+>#####Einige Probleme beim Umbenennen behoben
+
+>#####Einige andere bekannte Probleme wurden behoben

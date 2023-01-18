@@ -1,4 +1,4 @@
-﻿###What's new in Ver.8.1.3.0
+﻿###What's new in Ver.8.1.4.0
 
 ####⚠Warning: Uwp version will suspend feature updates and enter maintenance-only state, RX-Explorer will be migrated to WinAppSdk framework
 
@@ -6,14 +6,12 @@
 
 >####After the WinAppSdk version is launched, the Uwp version will still be retained in Microsoft Store, and all purchased users can directly activate the WinAppSdk version
 
-#####UI Update
-
->#####Updated the animations for the "Folders and Libraries" and "Devices and Drives" areas
-
-#####Performance Improvements
-
->#####Improved the performance of generating QR codes when using WiFi sharing
-
 #####Bug Fixes
 
->#####Fixed an issue that could cause severe performance degradation in some cases
+>#####Fixed the problem that the third-party menu items may be lost when the context menu pops up the first few times
+
+>#####Fixed the problem that the settings about "Run as administrator" would not take effect when creating a .lnk file
+
+>#####Fixed some problems when renaming
+
+>#####Fixed some other known issues
