@@ -6,7 +6,6 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
 using Windows.Storage;
 using Windows.Storage.Search;
@@ -63,9 +62,6 @@ namespace MaintenanceTask
             if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"])
                 || Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"]))
             {
-#if !DEBUG
-                await Task.CompletedTask;
-#else
                 StorageFolder SourceFolder = await StorageFolder.GetFolderFromPathAsync(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledPath, "SystemLaunchHelper"));
                 StorageFolder LocalAppDataFolder = await StorageFolder.GetFolderFromPathAsync(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
                 StorageFolder TargetFolder = await LocalAppDataFolder.CreateFolderAsync("RX-Explorer_Launch_Helper", CreationCollisionOption.ReplaceExisting);
@@ -79,11 +75,10 @@ namespace MaintenanceTask
                     using (Stream FileStream = await VersionLockFile.OpenStreamForWriteAsync())
                     using (StreamWriter Writer = new StreamWriter(FileStream, Encoding.UTF8, 128, true))
                     {
-                        await Writer.WriteLineAsync($"{Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}");
+                        await Writer.WriteLineAsync($"{Windows.ApplicationModel.Package.Current.Id.Version.Major}.{Windows.ApplicationModel.Package.Current.Id.Version.Minor}.{Windows.ApplicationModel.Package.Current.Id.Version.Build}.{Windows.ApplicationModel.Package.Current.Id.Version.Revision}");
                         await Writer.FlushAsync();
                     }
                 }
-#endif
             }
         }
 

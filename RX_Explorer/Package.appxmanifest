@@ -79,13 +79,13 @@
         <desktop4:Extension Category="windows.fileExplorerContextMenus">
           <desktop4:FileExplorerContextMenus>
             <desktop5:ItemType Type="Directory">
-              <desktop5:Verb Clsid="B4CEA422-3911-4198-16CB-63345D563096" Id="OpenDirectory"/>
+              <desktop5:Verb Id="OpenInRxExplorer" Clsid="B4CEA422-3911-4198-16CB-63345D563096"/>
             </desktop5:ItemType>
           </desktop4:FileExplorerContextMenus>
         </desktop4:Extension>
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:SurrogateServer DisplayName="RX_ContextMenu_Handler">
+            <com:SurrogateServer DisplayName="ContextMenu_Directory_Handler">
               <com:Class Id="B4CEA422-3911-4198-16CB-63345D563096" Path="OpenDirectoryExt.dll" ThreadingModel="STA"/>
             </com:SurrogateServer>
           </com:ComServer>

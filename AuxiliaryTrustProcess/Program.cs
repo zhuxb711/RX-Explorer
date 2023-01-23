@@ -2059,44 +2059,12 @@ namespace AuxiliaryTrustProcess
                                     {
                                         using (ShellItem Item = new ShellItem(Path))
                                         {
-                                            Task<string> ToolTipTask = Task.Run(() =>
-                                            {
-                                                try
-                                                {
-                                                    return Item.GetToolTip(ShellItemToolTipOptions.AllowDelay);
-                                                }
-                                                catch (Exception)
-                                                {
-                                                    return string.Empty;
-                                                }
-                                            });
-
-                                            try
-                                            {
-                                                ToolTipTask.Wait(Cancellation.Token);
-                                            }
-                                            catch (Exception)
-                                            {
-                                                //No need to handle this exception
-                                            }
-
-                                            if (Cancellation.IsCancellationRequested)
-                                            {
-                                                Value.Add("Success", string.Empty);
-                                            }
-                                            else if (ToolTipTask.IsCompletedSuccessfully)
-                                            {
-                                                Value.Add("Success", ToolTipTask.Result);
-                                            }
-                                            else
-                                            {
-                                                throw ToolTipTask.Exception;
-                                            }
+                                            Value.Add("Success", Item.GetToolTip(ShellItemToolTipOptions.AllowDelay));
                                         }
                                     }
-                                    catch (Exception)
+                                    catch (Exception ex)
                                     {
-                                        Value.Add("Error", "Could not get the tooltip");
+                                        Value.Add("Error", $"Could not get the tooltip, message: {ex.Message}");
                                     }
                                 }
                                 else

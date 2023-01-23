@@ -674,7 +674,7 @@ namespace RX_Explorer.View
                         case 25:
                         case 35:
                             {
-                                PurchaseApplication();
+                                await PurchaseApplicationAsync();
                                 break;
                             }
                     }
@@ -689,7 +689,7 @@ namespace RX_Explorer.View
                         }
                     case 20:
                         {
-                            RequestRateApplication();
+                            await RequestRateApplicationAsync();
                             break;
                         }
                 }
@@ -697,6 +697,153 @@ namespace RX_Explorer.View
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "MainPage initialize failed");
+            }
+        }
+
+
+        private async Task RequestRateApplicationAsync()
+        {
+            TaskCompletionSource<bool> Tcs = new TaskCompletionSource<bool>();
+
+            RateTip.ActionButtonClick += (s, e) =>
+            {
+                Tcs.TrySetResult(true);
+            };
+
+            RateTip.CloseButtonClick += (s, e) =>
+            {
+                Tcs.TrySetResult(false);
+            };
+
+            RateTip.IsOpen = true;
+
+            if (await Tcs.Task)
+            {
+                await SystemInformation.LaunchStoreForReviewAsync();
+            }
+        }
+
+        private async Task PinApplicationToTaskBarAsync()
+        {
+            try
+            {
+                TaskbarManager BarManager = TaskbarManager.GetDefault();
+                StartScreenManager ScreenManager = StartScreenManager.GetDefault();
+
+                if ((await Package.Current.GetAppListEntriesAsync()).SingleOrDefault() is AppListEntry Entry)
+                {
+                    bool CanPinTaskBar = BarManager.IsPinningAllowed && !await BarManager.IsCurrentAppPinnedAsync();
+                    bool CanPinStartScreen = ScreenManager.SupportsAppListEntry(Entry) && !await ScreenManager.ContainsAppListEntryAsync(Entry);
+
+                    TaskCompletionSource<bool> Tcs = new TaskCompletionSource<bool>();
+
+                    PinTip.ActionButtonClick += (s, e) =>
+                    {
+                        Tcs.TrySetResult(true);
+                    };
+                    PinTip.CloseButtonClick += (s, e) =>
+                    {
+                        Tcs.TrySetResult(false);
+                    };
+
+                    PinTip.Subtitle = Globalization.GetString("TeachingTip_PinToMenu_Subtitle");
+                    PinTip.IsOpen = true;
+
+                    if (await Tcs.Task)
+                    {
+                        try
+                        {
+                            if (CanPinTaskBar)
+                            {
+                                await BarManager.RequestPinCurrentAppAsync();
+                            }
+
+                            if (CanPinStartScreen)
+                            {
+                                await ScreenManager.RequestAddAppListEntryAsync(Entry);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //No need to handle this exception
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not request to pin the application to task bar");
+            }
+        }
+
+        private async Task PurchaseApplicationAsync()
+        {
+            TaskCompletionSource<bool> Tcs = new TaskCompletionSource<bool>();
+
+            PurchaseTip.ActionButtonClick += (s, e) =>
+            {
+                Tcs.TrySetResult(true);
+            };
+            PurchaseTip.CloseButtonClick += (s, e) =>
+            {
+                Tcs.TrySetResult(false);
+            };
+            PurchaseTip.Subtitle = Globalization.GetString("TeachingTip_PurchaseTip_Subtitle");
+            PurchaseTip.IsOpen = true;
+
+            if (await Tcs.Task)
+            {
+                switch (await MSStoreHelper.PurchaseAsync())
+                {
+                    case StorePurchaseStatus.Succeeded:
+                        {
+                            QueueContentDialog QueueContenDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await QueueContenDialog.ShowAsync();
+                            break;
+                        }
+                    case StorePurchaseStatus.AlreadyPurchased:
+                        {
+                            QueueContentDialog QueueContenDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await QueueContenDialog.ShowAsync();
+                            break;
+                        }
+                    case StorePurchaseStatus.NotPurchased:
+                        {
+                            QueueContentDialog QueueContenDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await QueueContenDialog.ShowAsync();
+                            break;
+                        }
+                    default:
+                        {
+                            QueueContentDialog QueueContenDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await QueueContenDialog.ShowAsync();
+                            break;
+                        }
+                }
             }
         }
 
@@ -720,7 +867,7 @@ namespace RX_Explorer.View
             IReadOnlyList<string> AllLabelItemPath = Enum.GetValues(typeof(LabelKind))
                                                          .Cast<LabelKind>()
                                                          .Where((Kind) => Kind != LabelKind.None)
-                                                         .SelectMany((Kind) => SQLite.Current.GetPathListFromLabelKind(Kind))
+                                                         .SelectMany(SQLite.Current.GetPathListFromLabelKind)
                                                          .ToArray();
 
             IReadOnlyList<string> ExistsLabelItemPath = await FileSystemStorageItemBase.OpenInBatchAsync(AllLabelItemPath)
@@ -775,14 +922,10 @@ namespace RX_Explorer.View
                                 {
                                     case ContentDialogResult.Primary:
                                         {
-                                            await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-backgroundapps"));
+                                            await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
                                             break;
                                         }
-                                    case ContentDialogResult.Secondary:
-                                        {
-                                            break;
-                                        }
-                                    default:
+                                    case not ContentDialogResult.Secondary:
                                         {
                                             ApplicationData.Current.LocalSettings.Values["DisableBackgroundTaskTips"] = true;
                                             break;
@@ -822,110 +965,6 @@ namespace RX_Explorer.View
                     NavView.IsBackEnabled = false;
                 }
             }
-        }
-
-        private async Task PinApplicationToTaskBarAsync()
-        {
-            try
-            {
-                TaskbarManager BarManager = TaskbarManager.GetDefault();
-                StartScreenManager ScreenManager = StartScreenManager.GetDefault();
-
-                bool PinStartScreen = false, PinTaskBar = false;
-
-                if ((await Package.Current.GetAppListEntriesAsync()).FirstOrDefault() is AppListEntry Entry)
-                {
-                    if (ScreenManager.SupportsAppListEntry(Entry) && !await ScreenManager.ContainsAppListEntryAsync(Entry))
-                    {
-                        PinStartScreen = true;
-                    }
-
-                    if (BarManager.IsPinningAllowed && !await BarManager.IsCurrentAppPinnedAsync())
-                    {
-                        PinTaskBar = true;
-                    }
-
-                    if (PinStartScreen && PinTaskBar)
-                    {
-                        PinTip.ActionButtonClick += async (s, e) =>
-                        {
-                            s.IsOpen = false;
-
-                            try
-                            {
-                                await BarManager.RequestPinCurrentAppAsync();
-                                await ScreenManager.RequestAddAppListEntryAsync(Entry);
-                            }
-                            catch (Exception)
-                            {
-                                //No need to handle this exception
-                            }
-                        };
-                    }
-                    else if (PinStartScreen && !PinTaskBar)
-                    {
-                        PinTip.ActionButtonClick += async (s, e) =>
-                        {
-                            s.IsOpen = false;
-
-                            try
-                            {
-                                await ScreenManager.RequestAddAppListEntryAsync(Entry);
-                            }
-                            catch (Exception)
-                            {
-                                //No need to handle this exception
-                            }
-                        };
-                    }
-                    else if (!PinStartScreen && PinTaskBar)
-                    {
-                        PinTip.ActionButtonClick += async (s, e) =>
-                        {
-                            s.IsOpen = false;
-
-                            try
-                            {
-                                await BarManager.RequestPinCurrentAppAsync();
-                            }
-                            catch (Exception)
-                            {
-                                //No need to handle this exception
-                            }
-                        };
-                    }
-                    else
-                    {
-                        PinTip.ActionButtonClick += (s, e) =>
-                        {
-                            s.IsOpen = false;
-                        };
-                    }
-
-                    PinTip.Subtitle = Globalization.GetString("TeachingTip_PinToMenu_Subtitle");
-                    PinTip.IsOpen = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not request to pin the application to task bar");
-            }
-        }
-
-        private void RequestRateApplication()
-        {
-            RateTip.ActionButtonClick += async (s, e) =>
-            {
-                s.IsOpen = false;
-                await SystemInformation.LaunchStoreForReviewAsync();
-            };
-
-            RateTip.CloseButtonClick += (s, e) =>
-            {
-                s.IsOpen = false;
-            };
-
-            RateTip.IsOpen = true;
         }
 
         private async Task PopDiscountPurchaseApplicationAsync()
@@ -1007,69 +1046,6 @@ namespace RX_Explorer.View
                     }
                 }
             }
-        }
-
-        private void PurchaseApplication()
-        {
-            PurchaseTip.ActionButtonClick += async (s, e) =>
-            {
-                s.IsOpen = false;
-
-                switch (await MSStoreHelper.PurchaseAsync())
-                {
-                    case StorePurchaseStatus.Succeeded:
-                        {
-                            QueueContentDialog QueueContenDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await QueueContenDialog.ShowAsync();
-                            break;
-                        }
-                    case StorePurchaseStatus.AlreadyPurchased:
-                        {
-                            QueueContentDialog QueueContenDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await QueueContenDialog.ShowAsync();
-                            break;
-                        }
-                    case StorePurchaseStatus.NotPurchased:
-                        {
-                            QueueContentDialog QueueContenDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await QueueContenDialog.ShowAsync();
-                            break;
-                        }
-                    default:
-                        {
-                            QueueContentDialog QueueContenDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await QueueContenDialog.ShowAsync();
-                            break;
-                        }
-                }
-            };
-
-            PurchaseTip.Subtitle = Globalization.GetString("TeachingTip_PurchaseTip_Subtitle");
-            PurchaseTip.IsOpen = true;
         }
 
         private async void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)

@@ -2698,7 +2698,7 @@ namespace RX_Explorer.View
 
         private async void PictureGirdView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (PictureGirdView.SelectedItem is BackgroundPicture PictureItem)
+            if (e.AddedItems.SingleOrDefault() is BackgroundPicture PictureItem)
             {
                 try
                 {
@@ -2774,10 +2774,6 @@ namespace RX_Explorer.View
                 {
                     ApplicationData.Current.SignalDataChanged();
                 }
-            }
-            else
-            {
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, new BitmapImage());
             }
         }
 

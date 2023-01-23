@@ -86,7 +86,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                new UnauthorizedAccessException(NewZipPath);
+                throw new UnauthorizedAccessException(NewZipPath);
             }
         }
 
@@ -626,7 +626,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                new UnauthorizedAccessException(NewZipPath);
+                throw new UnauthorizedAccessException(NewZipPath);
             }
         }
 
