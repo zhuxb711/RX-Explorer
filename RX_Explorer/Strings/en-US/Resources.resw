@@ -3848,4 +3848,28 @@ Invalid names include
   <data name="SAWelcomeDialogStorageLocationBrowse.Content" xml:space="preserve">
     <value>Browse</value>
   </data>
+  <data name="GetWinAppSdk_Click_Download_ActivationCode" xml:space="preserve">
+    <value>Click the button on the right to redeem the activation code</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Description" xml:space="preserve">
+    <value>Users who have purchased the official version of UWP can redeem the activation code of the WinAppSdk version here. After downloading the activation code, you can go to the Microsoft Store to redeem and activate the new version of RX-Explorer</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Download_Button" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Title" xml:space="preserve">
+    <value>Redeem Activation Code</value>
+  </data>
+  <data name="GetWinAppSdk_Downloading_ActivationCode" xml:space="preserve">
+    <value>Downloading activation code</value>
+  </data>
+  <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
+    <value>Missing Microsoft account name, redemption operation cannot be performed</value>
+  </data>
+  <data name="GetWinAppSdk_Unknown_Exception" xml:space="preserve">
+    <value>Unknown exception</value>
+  </data>
+  <data name="GetWinAppSdk_Empty_ReceiptData" xml:space="preserve">
+    <value>Activation code cannot be redeemed due to lack of receipt of purchase</value>
+  </data>
 </root>

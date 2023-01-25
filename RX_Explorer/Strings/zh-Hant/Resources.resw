@@ -3741,4 +3741,28 @@
   <data name="NameCollision_Skip" xml:space="preserve">
     <value>跳過</value>
   </data>
+  <data name="GetWinAppSdk_Click_Download_ActivationCode" xml:space="preserve">
+    <value>點擊右側按鈕兌換激活碼</value>
+  </data>
+  <data name="GetWinAppSdk_Downloading_ActivationCode" xml:space="preserve">
+    <value>下載激活碼</value>
+  </data>
+  <data name="GetWinAppSdk_Unknown_Exception" xml:space="preserve">
+    <value>未知異常</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Description" xml:space="preserve">
+    <value>購買了UWP正式版的用戶可以在這裡兌換WinAppSdk版的激活碼。 下載激活碼後，可到微軟商店兌換激活新版RX-Explorer</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Download_Button" xml:space="preserve">
+    <value>下載</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Title" xml:space="preserve">
+    <value>兌換激活碼</value>
+  </data>
+  <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
+    <value>缺少微軟賬戶名，無法進行兌換操作</value>
+  </data>
+  <data name="GetWinAppSdk_Empty_ReceiptData" xml:space="preserve">
+    <value>由於缺少購買收據，無法兌換激活碼</value>
+  </data>
 </root>

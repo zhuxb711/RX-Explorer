@@ -4972,6 +4972,38 @@ Invalid names include
           <source>Skip</source>
           <target state="translated">跳過</target>
         </trans-unit>
+        <trans-unit id="GetWinAppSdk_Click_Download_ActivationCode" translate="yes" xml:space="preserve">
+          <source>Click the button on the right to redeem the activation code</source>
+          <target state="translated">點擊右側按鈕兌換激活碼</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdk_Downloading_ActivationCode" translate="yes" xml:space="preserve">
+          <source>Downloading activation code</source>
+          <target state="translated">下載激活碼</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdk_Unknown_Exception" translate="yes" xml:space="preserve">
+          <source>Unknown exception</source>
+          <target state="translated">未知異常</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdk_Dialog_Description" translate="yes" xml:space="preserve">
+          <source>Users who have purchased the official version of UWP can redeem the activation code of the WinAppSdk version here. After downloading the activation code, you can go to the Microsoft Store to redeem and activate the new version of RX-Explorer</source>
+          <target state="translated">購買了UWP正式版的用戶可以在這裡兌換WinAppSdk版的激活碼。 下載激活碼後，可到微軟商店兌換激活新版RX-Explorer</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdk_Dialog_Download_Button" translate="yes" xml:space="preserve">
+          <source>Download</source>
+          <target state="translated">下載</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdk_Dialog_Title" translate="yes" xml:space="preserve">
+          <source>Redeem Activation Code</source>
+          <target state="translated">兌換激活碼</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdk_Empty_AccountName" translate="yes" xml:space="preserve">
+          <source>Missing Microsoft account name, redemption operation cannot be performed</source>
+          <target state="translated">缺少微軟賬戶名，無法進行兌換操作</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdk_Empty_ReceiptData" translate="yes" xml:space="preserve">
+          <source>Activation code cannot be redeemed due to lack of receipt of purchase</source>
+          <target state="translated">由於缺少購買收據，無法兌換激活碼</target>
+        </trans-unit>
       </group>
     </body>
   </file>

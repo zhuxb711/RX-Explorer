@@ -3741,4 +3741,28 @@ Les noms non valides incluent
   <data name="NameCollision_Skip" xml:space="preserve">
     <value>Sautiller</value>
   </data>
+  <data name="GetWinAppSdk_Click_Download_ActivationCode" xml:space="preserve">
+    <value>Cliquez sur le bouton à droite pour utiliser le code d'activation</value>
+  </data>
+  <data name="GetWinAppSdk_Downloading_ActivationCode" xml:space="preserve">
+    <value>Télécharger le code d'activation</value>
+  </data>
+  <data name="GetWinAppSdk_Unknown_Exception" xml:space="preserve">
+    <value>Exception inconnue</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Description" xml:space="preserve">
+    <value>Les utilisateurs qui ont acheté la version officielle d'UWP peuvent utiliser le code d'activation de la version WinAppSdk ici. Après avoir téléchargé le code d'activation, vous pouvez vous rendre sur le Microsoft Store pour utiliser et activer la nouvelle version de RX-Explorer</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Download_Button" xml:space="preserve">
+    <value>Télécharger</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Title" xml:space="preserve">
+    <value>Utiliser le code d'activation</value>
+  </data>
+  <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
+    <value>Nom de compte Microsoft manquant, l'opération de rachat ne peut pas être effectuée</value>
+  </data>
+  <data name="GetWinAppSdk_Empty_ReceiptData" xml:space="preserve">
+    <value>Le code d'activation ne peut pas être échangé en raison de l'absence de reçu d'achat</value>
+  </data>
 </root>

@@ -3743,4 +3743,28 @@ Inkorrekte Namen sind
   <data name="NameCollision_Skip" xml:space="preserve">
     <value>Hüpfen</value>
   </data>
+  <data name="GetWinAppSdk_Click_Download_ActivationCode" xml:space="preserve">
+    <value>Klicken Sie auf die Schaltfläche rechts, um den Aktivierungscode einzulösen</value>
+  </data>
+  <data name="GetWinAppSdk_Downloading_ActivationCode" xml:space="preserve">
+    <value>Aktivierungscode herunterladen</value>
+  </data>
+  <data name="GetWinAppSdk_Unknown_Exception" xml:space="preserve">
+    <value>Unbekannte Ausnahme</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Description" xml:space="preserve">
+    <value>Benutzer, die die offizielle Version von UWP erworben haben, können den Aktivierungscode der WinAppSdk-Version hier einlösen. Nach dem Herunterladen des Aktivierungscodes können Sie zum Microsoft Store gehen, um die neue Version von RX-Explorer einzulösen und zu aktivieren</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Download_Button" xml:space="preserve">
+    <value>Herunterladen</value>
+  </data>
+  <data name="GetWinAppSdk_Dialog_Title" xml:space="preserve">
+    <value>Aktivierungscode einlösen</value>
+  </data>
+  <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
+    <value>Fehlender Microsoft-Kontoname, Einlösungsvorgang kann nicht durchgeführt werden</value>
+  </data>
+  <data name="GetWinAppSdk_Empty_ReceiptData" xml:space="preserve">
+    <value>Der Aktivierungscode kann aufgrund fehlender Kaufquittung nicht eingelöst werden</value>
+  </data>
 </root>

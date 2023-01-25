@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Numerics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
@@ -22,6 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.ApplicationModel.Store;
 using Windows.Graphics.Imaging;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Services.Store;
@@ -4750,6 +4752,11 @@ namespace RX_Explorer.View
             {
                 ApplicationData.Current.SignalDataChanged();
             }
+        }
+
+        private async void GetWinAppSdk_Click(object sender, RoutedEventArgs e)
+        {
+            await new GetWinAppSdkDialog().ShowAsync();
         }
     }
 }
