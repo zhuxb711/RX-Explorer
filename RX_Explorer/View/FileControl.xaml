@@ -15,7 +15,7 @@
         <Cls:InverseConverter x:Key="InverseConverter" />
         <Cls:NavigationRecordDataTemplateSelector x:Key="NavTemplateSelector"
                                                   NormalTemplate="{StaticResource NavNormalRecordTemplate}"
-                                                  RootTemplate="{StaticResource NavRootRecordTemplate}" />
+                                                  NoPathTemplate="{StaticResource NavNoPathRecordTemplate}" />
         
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
@@ -57,7 +57,7 @@
             </RelativePanel>
         </DataTemplate>
 
-        <DataTemplate x:Key="NavRootRecordTemplate"
+        <DataTemplate x:Key="NavNoPathRecordTemplate"
                       x:DataType="Cls:NavigationRecordDisplay">
             <RelativePanel>
                 <Image Height="25"
@@ -67,7 +67,7 @@
                        Name="Icon"
                        x:Phase="1"
                        Source="{x:Bind Thumbnail,Mode=OneWay}" />
-                <TextBlock Text="{x:Bind DisplayName}"
+                <TextBlock Text="{x:Bind DisplayName,Mode=OneWay}"
                            TextWrapping="NoWrap"
                            TextTrimming="CharacterEllipsis"
                            Margin="5,0,0,0"
@@ -76,7 +76,7 @@
                            RelativePanel.AlignVerticalCenterWithPanel="True"
                            RelativePanel.RightOf="Icon">
                     <ToolTipService.ToolTip>
-                        <ToolTip Content="{x:Bind DisplayName}"
+                        <ToolTip Content="{x:Bind DisplayName,Mode=OneWay}"
                                  Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                     </ToolTipService.ToolTip>
                 </TextBlock>

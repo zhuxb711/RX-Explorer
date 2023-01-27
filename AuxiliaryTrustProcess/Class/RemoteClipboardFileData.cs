@@ -7,9 +7,9 @@ namespace AuxiliaryTrustProcess.Class
     {
         public ulong Size { get; }
 
-        public MemoryStream ContentStream { get; }
+        public Stream ContentStream { get; }
 
-        public RemoteClipboardFileData(string Name, ulong Size, MemoryStream ContentStream) : base(Name)
+        public RemoteClipboardFileData(string Name, ulong Size, Stream ContentStream) : base(Name)
         {
             this.Size = Size;
             this.ContentStream = ContentStream ?? throw new ArgumentNullException(nameof(ContentStream));

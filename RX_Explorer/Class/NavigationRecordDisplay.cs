@@ -34,6 +34,10 @@ namespace RX_Explorer.Class
                             {
                                 DisplayName = InnerFolder.DisplayName;
                             }
+                            else
+                            {
+                                DisplayName = Folder.DisplayName;
+                            }
 
                             Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView);
                         }

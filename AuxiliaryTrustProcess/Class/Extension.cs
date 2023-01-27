@@ -5,12 +5,25 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
+using Vanara.PInvoke;
 
 namespace AuxiliaryTrustProcess.Class
 {
     public static class Extension
     {
+        public static IStream AsStream(this Ole32.IStorage Storage)
+        {
+            Ole32.CreateILockBytesOnHGlobal(IntPtr.Zero, true, out Ole32.ILockBytes LockBytes).ThrowIfFailed();
+            Ole32.StgCreateDocfileOnILockBytes(LockBytes, STGM.STGM_READWRITE | STGM.STGM_SHARE_EXCLUSIVE | STGM.STGM_CREATE, ppstgOpen: out Ole32.IStorage NewStorage).ThrowIfFailed();
+            Storage.CopyTo(snbExclude: IntPtr.Zero, pstgDest: NewStorage);
+            NewStorage.Commit(Ole32.STGC.STGC_DEFAULT);
+            Ole32.GetHGlobalFromILockBytes(LockBytes, out IntPtr HGlobal).ThrowIfFailed();
+            Ole32.CreateStreamOnHGlobal(HGlobal, true, out IStream OutputStream).ThrowIfFailed();
+            return OutputStream;
+        }
+
         public static Bitmap ConvertToBitmapWithAlphaChannel(this Bitmap OriginBitmap)
         {
             try

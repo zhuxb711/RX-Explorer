@@ -1211,6 +1211,7 @@ namespace RX_Explorer.View
 
                 if (await MSStoreHelper.CheckPurchaseStatusAsync())
                 {
+                    GetWinAppSdkButton.Visibility = Visibility.Visible;
                     VerticalSplitViewLimitationArea.Visibility = Visibility.Visible;
                 }
                 else

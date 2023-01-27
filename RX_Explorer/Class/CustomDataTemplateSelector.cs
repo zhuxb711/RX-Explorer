@@ -8,13 +8,15 @@ namespace RX_Explorer.Class
     public class NavigationRecordDataTemplateSelector : DataTemplateSelector
     {
         public DataTemplate NormalTemplate { get; set; }
-        public DataTemplate RootTemplate { get; set; }
+
+        public DataTemplate NoPathTemplate { get; set; }
 
         protected override DataTemplate SelectTemplateCore(object Item)
         {
-            if (Item is NavigationRecordDisplay Record && RootVirtualFolder.Current.Path.Equals(Record.Path, StringComparison.OrdinalIgnoreCase))
+            if (Item is NavigationRecordDisplay Record
+                && (RootVirtualFolder.Current.Path.Equals(Record.Path, StringComparison.OrdinalIgnoreCase) || LabelCollectionVirtualFolder.TryGetFolderFromPath(Record.Path, out _)))
             {
-                return RootTemplate;
+                return NoPathTemplate;
             }
             else
             {
