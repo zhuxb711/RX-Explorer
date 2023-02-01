@@ -1209,7 +1209,7 @@ namespace RX_Explorer.View
 
                 if (await MSStoreHelper.CheckPurchaseStatusAsync())
                 {
-                    GetWinAppSdkButton.Visibility = Visibility.Visible;
+                    VerticalSplitViewLimitationArea.Visibility = Visibility.Visible;
 
                     try
                     {
@@ -1217,7 +1217,7 @@ namespace RX_Explorer.View
 
                         if (CorrectResponse.Content.SwitchStatus)
                         {
-                            VerticalSplitViewLimitationArea.Visibility = Visibility.Visible;
+                            GetWinAppSdkButton.Visibility = Visibility.Visible;
                         }
                     }
                     catch (Exception ex)
