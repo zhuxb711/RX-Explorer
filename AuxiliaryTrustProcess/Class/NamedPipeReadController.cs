@@ -16,6 +16,8 @@ namespace AuxiliaryTrustProcess.Class
 
         private void ReadProcess()
         {
+            Ole32.OleInitialize();
+
             try
             {
                 if (!IsConnected)
@@ -65,6 +67,10 @@ namespace AuxiliaryTrustProcess.Class
             catch (Exception ex)
             {
                 OnDataReceived?.Invoke(this, new NamedPipeDataReceivedArgs(ex));
+            }
+            finally
+            {
+                Ole32.OleUninitialize();
             }
         }
 

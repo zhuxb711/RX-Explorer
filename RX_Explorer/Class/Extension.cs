@@ -278,55 +278,6 @@ namespace RX_Explorer.Class
                 }
             }
 
-            if (View.Contains(ExtendedDataFormats.FileDrop))
-            {
-                try
-                {
-                    if (await View.GetDataAsync(ExtendedDataFormats.FileDrop) is IRandomAccessStream RandomStream)
-                    {
-                        RandomStream.Seek(0);
-
-                        byte[] OriginData = await Helper.GetByteArrayFromRandomAccessStreamAsync(RandomStream);
-
-                        if (OriginData.Length > 0)
-                        {
-                            IntPtr DropPointer = Marshal.AllocHGlobal(OriginData.Length);
-
-                            try
-                            {
-                                Marshal.Copy(OriginData, 0, DropPointer, OriginData.Length);
-                                NativeWin32API.DROPFILES DropStruct = Marshal.PtrToStructure<NativeWin32API.DROPFILES>(DropPointer);
-
-                                int ArrayLength = OriginData.Length - DropStruct.pFiles;
-
-                                if (ArrayLength > 0)
-                                {
-                                    byte[] ArrayData = new byte[ArrayLength];
-                                    Marshal.Copy(new IntPtr(DropPointer.ToInt64() + DropStruct.pFiles), ArrayData, 0, ArrayLength);
-
-                                    if (DropStruct.fWide)
-                                    {
-                                        PathList.AddRange(Encoding.Unicode.GetString(ArrayData).Split('\0', StringSplitOptions.RemoveEmptyEntries));
-                                    }
-                                    else
-                                    {
-                                        PathList.AddRange(Encoding.ASCII.GetString(ArrayData).Split('\0', StringSplitOptions.RemoveEmptyEntries));
-                                    }
-                                }
-                            }
-                            finally
-                            {
-                                Marshal.FreeHGlobal(DropPointer);
-                            }
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    //No need to handle this exception
-                }
-            }
-
             return PathList.Distinct().ToArray();
         }
 

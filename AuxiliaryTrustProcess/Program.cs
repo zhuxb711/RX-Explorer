@@ -60,6 +60,8 @@ namespace AuxiliaryTrustProcess
         [STAThread]
         static void Main(string[] args)
         {
+            Ole32.OleInitialize();
+
             try
             {
                 StartTime = DateTimeOffset.Now;
@@ -116,7 +118,7 @@ namespace AuxiliaryTrustProcess
                                                     {
                                                         try
                                                         {
-                                                            RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
+                                                            RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedInformation();
 
                                                             if (RelatedData.ItemsCount > 0)
                                                             {
@@ -126,50 +128,43 @@ namespace AuxiliaryTrustProcess
                                                                 {
                                                                     string TargetPath = Path.Combine(RemoteData.BaseFolderPath, Package.Name);
 
-                                                                    try
+                                                                    switch (Package)
                                                                     {
-                                                                        switch (Package)
-                                                                        {
-                                                                            case RemoteClipboardFileData FileData:
+                                                                        case RemoteClipboardFileData FileData:
+                                                                            {
+                                                                                if (!Directory.Exists(RemoteData.BaseFolderPath))
                                                                                 {
-                                                                                    if (!Directory.Exists(RemoteData.BaseFolderPath))
-                                                                                    {
-                                                                                        Directory.CreateDirectory(RemoteData.BaseFolderPath);
-                                                                                    }
-
-                                                                                    string UniqueName = Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File);
-
-                                                                                    using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
-                                                                                    {
-                                                                                        FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
-                                                                                        {
-                                                                                            ProgressWriter.WriteLine(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
-                                                                                            ProgressWriter.Flush();
-                                                                                        });
-                                                                                    }
-
-                                                                                    CurrentPosition += FileData.Size;
-
-                                                                                    break;
+                                                                                    Directory.CreateDirectory(RemoteData.BaseFolderPath);
                                                                                 }
-                                                                            case RemoteClipboardFolderData:
+
+                                                                                string UniqueName = Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File);
+
+                                                                                using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
                                                                                 {
-                                                                                    if (!Directory.Exists(TargetPath))
+                                                                                    FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
                                                                                     {
-                                                                                        Directory.CreateDirectory(TargetPath);
-                                                                                    }
+                                                                                        ProgressWriter.WriteLine(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
+                                                                                        ProgressWriter.Flush();
+                                                                                    });
+                                                                                }
 
-                                                                                    break;
-                                                                                }
-                                                                            default:
+                                                                                CurrentPosition += FileData.Size;
+
+                                                                                break;
+                                                                            }
+                                                                        case RemoteClipboardFolderData:
+                                                                            {
+                                                                                if (!Directory.Exists(TargetPath))
                                                                                 {
-                                                                                    throw new NotSupportedException();
+                                                                                    Directory.CreateDirectory(TargetPath);
                                                                                 }
-                                                                        }
-                                                                    }
-                                                                    finally
-                                                                    {
-                                                                        Package.Dispose();
+
+                                                                                break;
+                                                                            }
+                                                                        default:
+                                                                            {
+                                                                                throw new NotSupportedException();
+                                                                            }
                                                                     }
                                                                 }
 
@@ -651,6 +646,8 @@ namespace AuxiliaryTrustProcess
                 MTPDeviceList.ForEach((Item) => Item.Dispose());
 
                 LogTracer.MakeSureLogIsFlushed(2000);
+
+                Ole32.OleUninitialize();
             }
         }
 
@@ -2059,8 +2056,12 @@ namespace AuxiliaryTrustProcess
                                     {
                                         using (ShellItem Item = new ShellItem(Path))
                                         {
-                                            Value.Add("Success", Item.GetToolTip(ShellItemToolTipOptions.AllowDelay));
+                                            Value.Add("Success", Task.Run(() => Item.GetToolTip(ShellItemToolTipOptions.AllowDelay)).AsCancellable(Cancellation.Token).Result);
                                         }
+                                    }
+                                    catch (OperationCanceledException)
+                                    {
+                                        Value.Add("Success", string.Empty);
                                     }
                                     catch (Exception ex)
                                     {
@@ -4747,7 +4748,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.GetRemoteClipboardRelatedData:
                             {
-                                RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
+                                RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedInformation();
 
                                 if ((RelatedData?.ItemsCount).GetValueOrDefault() > 0)
                                 {
@@ -4768,7 +4769,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     if (StorageItemController.CheckPermission(BaseFolderPath, FileSystemRights.CreateFiles | FileSystemRights.CreateDirectories))
                                     {
-                                        RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedData();
+                                        RemoteClipboardRelatedData RelatedData = RemoteDataObject.GetRemoteClipboardRelatedInformation();
 
                                         if ((RelatedData?.ItemsCount).GetValueOrDefault() > 0)
                                         {
@@ -4778,49 +4779,42 @@ namespace AuxiliaryTrustProcess
                                             {
                                                 string TargetPath = Path.Combine(BaseFolderPath, Package.Name);
 
-                                                try
+                                                switch (Package)
                                                 {
-                                                    switch (Package)
-                                                    {
-                                                        case RemoteClipboardFileData FileData:
+                                                    case RemoteClipboardFileData FileData:
+                                                        {
+                                                            if (!Directory.Exists(BaseFolderPath))
                                                             {
-                                                                if (!Directory.Exists(BaseFolderPath))
-                                                                {
-                                                                    Directory.CreateDirectory(BaseFolderPath);
-                                                                }
-
-                                                                string UniqueName = Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File);
-
-                                                                using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
-                                                                {
-                                                                    FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
-                                                                    {
-                                                                        PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
-                                                                    });
-                                                                }
-
-                                                                CurrentPosition += FileData.Size;
-
-                                                                break;
+                                                                Directory.CreateDirectory(BaseFolderPath);
                                                             }
-                                                        case RemoteClipboardFolderData:
+
+                                                            string UniqueName = Helper.GenerateUniquePathOnLocal(TargetPath, CreateType.File);
+
+                                                            using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
                                                             {
-                                                                if (!Directory.Exists(TargetPath))
+                                                                FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
                                                                 {
-                                                                    Directory.CreateDirectory(TargetPath);
-                                                                }
+                                                                    PipeProgressWriterController?.SendData(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
+                                                                });
+                                                            }
 
-                                                                break;
-                                                            }
-                                                        default:
+                                                            CurrentPosition += FileData.Size;
+
+                                                            break;
+                                                        }
+                                                    case RemoteClipboardFolderData:
+                                                        {
+                                                            if (!Directory.Exists(TargetPath))
                                                             {
-                                                                throw new NotSupportedException();
+                                                                Directory.CreateDirectory(TargetPath);
                                                             }
-                                                    }
-                                                }
-                                                finally
-                                                {
-                                                    Package.Dispose();
+
+                                                            break;
+                                                        }
+                                                    default:
+                                                        {
+                                                            throw new NotSupportedException();
+                                                        }
                                                 }
                                             }
 

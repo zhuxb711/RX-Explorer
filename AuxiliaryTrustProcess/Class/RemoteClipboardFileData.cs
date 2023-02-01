@@ -14,11 +14,5 @@ namespace AuxiliaryTrustProcess.Class
             this.Size = Size;
             this.ContentStream = ContentStream ?? throw new ArgumentNullException(nameof(ContentStream));
         }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-            ContentStream.Dispose();
-        }
     }
 }

@@ -1,4 +1,4 @@
-﻿###Was ist neu in Ver.8.1.4.0
+﻿###Was ist neu in Ver.8.1.6.0
 
 ####⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird zum WinAppSdk-Framework migriert
 
@@ -8,10 +8,10 @@
 
 #####Fehlerbehebung
 
->#####Das Problem, dass die Menüpunkte von Drittanbietern verloren gehen können, wenn das Kontextmenü die ersten Male erscheint, wurde behoben
+>#####Das Problem, dass die Remote-Copy-Aufgabe nicht korrekt ausgeführt werden konnte, wurde behoben
 
->#####Das Problem, dass die Einstellungen über "Als Administrator ausführen" beim Erstellen einer .lnk-Datei nicht wirksam wurden, wurde behoben
+>#####Das Problem, dass der Etikettenordner im Navigationsverlauf falsch angezeigt wurde, wurde behoben
 
->#####Einige Probleme beim Umbenennen behoben
+>#####Das Problem, das in einigen Fällen beim Wechseln des Bildhintergrunds zu einem Absturz führen konnte, wurde behoben
 
->#####Einige andere bekannte Probleme wurden behoben
+>#####Einige andere kleinere Probleme wurden behoben

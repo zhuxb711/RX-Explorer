@@ -1,4 +1,4 @@
-﻿###Quoi de neuf dans la version 8.1.4.0
+﻿###Quoi de neuf dans la version 8.1.6.0
 
 ####⚠Avertissement : la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
@@ -8,10 +8,10 @@
 
 #####Corrections de bogues
 
->#####Correction du problème de perte des éléments de menu tiers lorsque le menu contextuel apparaît les premières fois
+>#####Correction du problème d'exécution incorrecte de la tâche de copie à distance
 
->#####Correction du problème selon lequel les paramètres "Exécuter en tant qu'administrateur" ne prendraient pas effet lors de la création d'un fichier .lnk
+>#####Correction du problème d'affichage incorrect du dossier d'étiquettes dans l'historique de navigation
 
->#####Correction de quelques problèmes lors du changement de nom
+>#####Correction du problème qui pouvait provoquer un plantage lors du changement d'arrière-plan de l'image dans certains cas
 
->#####Correction d'autres problèmes connus
+>#####Correction d'autres problèmes mineurs

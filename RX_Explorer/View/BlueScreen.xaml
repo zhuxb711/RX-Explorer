@@ -40,16 +40,12 @@
                            Margin="0,30,0,0" />
             </StackPanel>
 
-            <ScrollViewer Margin="0,30,0,0"
-                          Grid.Row="1"
-                          VerticalScrollMode="Enabled"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollMode="Enabled"
-                          HorizontalScrollBarVisibility="Auto">
-                <TextBlock FontSize="16"
-                           Name="Message"
-                           TextWrapping="WrapWholeWords" />
-            </ScrollViewer>
+            <TextBox Margin="0,30,0,0"
+                     FontSize="15"
+                     Name="Message"
+                     IsReadOnly="True"
+                     TextWrapping="Wrap"
+                     Grid.Row="1" />
 
             <Grid HorizontalAlignment="Right"
                   VerticalAlignment="Bottom"

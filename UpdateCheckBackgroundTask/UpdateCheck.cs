@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -13,55 +14,58 @@ namespace UpdateCheckBackgroundTask
 {
     public sealed class UpdateCheck : IBackgroundTask
     {
-        private IBackgroundTaskInstance Instance;
-
-        private CancellationTokenSource Cancellation;
-
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
             var Deferral = taskInstance.GetDeferral();
 
-            Instance = taskInstance;
-            Instance.Canceled += Instance_Canceled;
-
-            if (await CheckUpdateAsync())
-            {
-                ShowUpdateNotification();
-            }
-
-            Deferral.Complete();
-        }
-
-        private void Instance_Canceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
-        {
-            Cancellation?.Cancel();
-        }
-
-        private async Task<bool> CheckUpdateAsync()
-        {
             try
             {
-                Cancellation = new CancellationTokenSource();
-
-                if (!Package.Current.IsDevelopmentMode && Package.Current.SignatureKind == PackageSignatureKind.Store)
+                using (CancellationTokenSource Cancellation = new CancellationTokenSource())
                 {
-                    if (StoreContext.GetDefault() is StoreContext Context)
+                    taskInstance.Canceled += (s, e) =>
                     {
-                        return (await Context.GetAppAndOptionalStorePackageUpdatesAsync().AsTask(Cancellation.Token)).Any();
+                        Cancellation.Cancel();
+                    };
+
+                    if (await CheckUpdateAsync(Cancellation.Token))
+                    {
+                        ShowUpdateNotification();
                     }
                 }
-
-                return false;
             }
-            catch
+            catch (OperationCanceledException)
             {
-                return false;
+                // No need to handle this exception
+            }
+            catch (Exception)
+            {
+#if DEBUG
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
+#endif
             }
             finally
             {
-                Cancellation.Dispose();
-                Cancellation = null;
+                Deferral.Complete();
             }
+        }
+
+        private async Task<bool> CheckUpdateAsync(CancellationToken CancelToken = default)
+        {
+            if (!Package.Current.IsDevelopmentMode && Package.Current.SignatureKind == PackageSignatureKind.Store)
+            {
+                StoreContext Context = StoreContext.GetDefault();
+                IReadOnlyList<StorePackageUpdate> Updates = await Context.GetAppAndOptionalStorePackageUpdatesAsync().AsTask().AsCancellable(CancelToken);
+                return Updates.Count > 0;
+            }
+
+            return false;
         }
 
         private void ShowUpdateNotification()

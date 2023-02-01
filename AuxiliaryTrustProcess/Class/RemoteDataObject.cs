@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using Vanara.InteropServices;
@@ -13,7 +13,7 @@ namespace AuxiliaryTrustProcess.Class
 {
     public static class RemoteDataObject
     {
-        public static RemoteClipboardRelatedData GetRemoteClipboardRelatedData()
+        public static RemoteClipboardRelatedData GetRemoteClipboardRelatedInformation()
         {
             uint FILEDESCRIPTIONWID = NativeClipboard.RegisterFormat(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW);
             uint FILEDESCRIPTIONAID = NativeClipboard.RegisterFormat(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORA);
@@ -31,39 +31,8 @@ namespace AuxiliaryTrustProcess.Class
 
             if (FormatId > 0)
             {
-                using (Stream FileGroupDescriptorStream = GetContentStream(FormatId))
-                using (BinaryReader GroupDescriptorReader = new BinaryReader(FileGroupDescriptorStream))
-                {
-                    IntPtr FileGroupDescriptorAPointer = Marshal.AllocHGlobal(Convert.ToInt32(FileGroupDescriptorStream.Length));
-
-                    try
-                    {
-                        Marshal.Copy(GroupDescriptorReader.ReadBytes(Convert.ToInt32(FileGroupDescriptorStream.Length)), 0, FileGroupDescriptorAPointer, Convert.ToInt32(FileGroupDescriptorStream.Length));
-
-                        ulong TotalSize = 0;
-                        ulong ItemCount = Convert.ToUInt64(Marshal.ReadInt32(FileGroupDescriptorAPointer));
-
-                        IntPtr FileDescriptorPointer = new IntPtr(FileGroupDescriptorAPointer.ToInt64() + Marshal.SizeOf<int>());
-
-                        for (uint FileDescriptorIndex = 0; FileDescriptorIndex < ItemCount; FileDescriptorIndex++)
-                        {
-                            Shell32.FILEDESCRIPTOR FileDescriptor = Marshal.PtrToStructure<Shell32.FILEDESCRIPTOR>(FileDescriptorPointer);
-
-                            if (!FileDescriptor.dwFileAttributes.HasFlag(FileFlagsAndAttributes.FILE_ATTRIBUTE_DIRECTORY))
-                            {
-                                TotalSize += FileDescriptor.nFileSize;
-                            }
-
-                            FileDescriptorPointer = new IntPtr(FileDescriptorPointer.ToInt64() + Marshal.SizeOf(FileDescriptor));
-                        }
-
-                        return new RemoteClipboardRelatedData(ItemCount, TotalSize);
-                    }
-                    finally
-                    {
-                        Marshal.FreeHGlobal(FileGroupDescriptorAPointer);
-                    }
-                }
+                Shell32.FILEGROUPDESCRIPTOR FileGroupDescriptor = NativeClipboard.GetData<Shell32.FILEGROUPDESCRIPTOR>(FormatId);
+                return new RemoteClipboardRelatedData(FileGroupDescriptor.cItems, Convert.ToUInt64(FileGroupDescriptor.fgd.Sum((Descriptor) => (long)Descriptor.nFileSize)));
             }
 
             return null;
@@ -71,7 +40,6 @@ namespace AuxiliaryTrustProcess.Class
 
         public static IEnumerable<RemoteClipboardData> GetRemoteClipboardData(CancellationToken CancelToken = default)
         {
-            uint FILECONTENTSID = NativeClipboard.RegisterFormat(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS);
             uint FILEDESCRIPTIONWID = NativeClipboard.RegisterFormat(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW);
             uint FILEDESCRIPTIONAID = NativeClipboard.RegisterFormat(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORA);
 
@@ -88,59 +56,40 @@ namespace AuxiliaryTrustProcess.Class
 
             if (FormatId > 0)
             {
-                using (Stream FileGroupDescriptorStream = GetContentStream(FormatId))
-                using (BinaryReader GroupDescriptorReader = new BinaryReader(FileGroupDescriptorStream))
+                Shell32.FILEGROUPDESCRIPTOR FileGroupDescriptor = NativeClipboard.GetData<Shell32.FILEGROUPDESCRIPTOR>(FormatId);
+
+                if (NativeClipboard.IsFormatAvailable(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS))
                 {
-                    IntPtr FileGroupDescriptorAPointer = Marshal.AllocHGlobal(Convert.ToInt32(FileGroupDescriptorStream.Length));
-
-                    try
+                    for (int Index = 0; Index < FileGroupDescriptor.cItems; Index++)
                     {
-                        Marshal.Copy(GroupDescriptorReader.ReadBytes(Convert.ToInt32(FileGroupDescriptorStream.Length)), 0, FileGroupDescriptorAPointer, Convert.ToInt32(FileGroupDescriptorStream.Length));
+                        CancelToken.ThrowIfCancellationRequested();
 
-                        int ItemCount = Marshal.ReadInt32(FileGroupDescriptorAPointer);
+                        Shell32.FILEDESCRIPTOR FileDescriptor = FileGroupDescriptor.fgd[Index];
 
-                        IntPtr FileDescriptorPointer = new IntPtr(FileGroupDescriptorAPointer.ToInt64() + Marshal.SizeOf<int>());
-
-                        for (int FileDescriptorIndex = 0; FileDescriptorIndex < ItemCount; FileDescriptorIndex++)
+                        if (FileDescriptor.dwFileAttributes.HasFlag(FileFlagsAndAttributes.FILE_ATTRIBUTE_DIRECTORY))
                         {
-                            CancelToken.ThrowIfCancellationRequested();
-
-                            Shell32.FILEDESCRIPTOR FileDescriptor = Marshal.PtrToStructure<Shell32.FILEDESCRIPTOR>(FileDescriptorPointer);
-
-                            if (FileDescriptor.dwFileAttributes.HasFlag(FileFlagsAndAttributes.FILE_ATTRIBUTE_DIRECTORY))
+                            yield return new RemoteClipboardFolderData(FileDescriptor.cFileName);
+                        }
+                        else
+                        {
+                            Stream ContentStream = NativeClipboard.GetData(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS, DVASPECT.DVASPECT_CONTENT, Index) switch
                             {
-                                yield return new RemoteClipboardFolderData(FileDescriptor.cFileName);
-                            }
-                            else
-                            {
-                                yield return new RemoteClipboardFileData(FileDescriptor.cFileName, FileDescriptor.nFileSize, GetContentStream(FILECONTENTSID, FileDescriptorIndex));
-                            }
+                                IStream Stream => new ComStream(Stream),
+                                Ole32.IStorage Storage => new ComStream(Storage.AsStream()),
+                                MemoryStream MStream => MStream,
+                                byte[] RawData => new MemoryStream(RawData),
+                                _ => throw new NotSupportedException()
+                            };
 
-                            FileDescriptorPointer = new IntPtr(FileDescriptorPointer.ToInt64() + Marshal.SizeOf(FileDescriptor));
+                            yield return new RemoteClipboardFileData(FileDescriptor.cFileName, FileDescriptor.nFileSize, ContentStream);
                         }
                     }
-                    finally
-                    {
-                        Marshal.FreeHGlobal(FileGroupDescriptorAPointer);
-                    }
+
+                    yield break;
                 }
             }
-            else
-            {
-                throw new InvalidDataException("Could not read the data of RemoteClipboardData");
-            }
-        }
 
-        private static Stream GetContentStream(uint FormatId, int Index = -1)
-        {
-            return NativeClipboard.GetData(FormatId, DVASPECT.DVASPECT_CONTENT, Index) switch
-            {
-                IStream Stream => new ComStream(Stream),
-                Ole32.IStorage Storage => new ComStream(Storage.AsStream()),
-                MemoryStream MStream => MStream,
-                byte[] RawData => new MemoryStream(RawData),
-                _ => throw new NotSupportedException()
-            };
+            throw new InvalidDataException("Could not read the data of RemoteClipboardData");
         }
     }
 }

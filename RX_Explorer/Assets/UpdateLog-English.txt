@@ -1,4 +1,4 @@
-﻿###What's new in Ver.8.1.4.0
+﻿###What's new in Ver.8.1.6.0
 
 ####⚠Warning: Uwp version will suspend feature updates and enter maintenance-only state, RX-Explorer will be migrated to WinAppSdk framework
 
@@ -8,10 +8,10 @@
 
 #####Bug Fixes
 
->#####Fixed the problem that the third-party menu items may be lost when the context menu pops up the first few times
+>#####Fixed the problem that the remote copy task could not be executed correctly
 
->#####Fixed the problem that the settings about "Run as administrator" would not take effect when creating a .lnk file
+>#####Fixed the problem that the label folder was displayed incorrectly in the navigation history
 
->#####Fixed some problems when renaming
+>#####Fixed the problem that may cause a crash when switching picture background in some cases
 
->#####Fixed some other known issues
+>#####Fixed some other minor issues

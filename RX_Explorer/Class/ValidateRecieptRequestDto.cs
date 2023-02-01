@@ -1,6 +1,6 @@
 ﻿namespace RX_Explorer.Class
 {
-    internal sealed class GetWinAppSdkRequestDto
+    internal sealed class ValidateRecieptRequestDto
     {
         public string userId { get; set; }
 
