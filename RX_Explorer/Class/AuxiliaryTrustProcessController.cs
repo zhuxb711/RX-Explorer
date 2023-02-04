@@ -14,11 +14,11 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using ThirdParty.ConcurrentPriorityQueue;
 using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using FileAttributes = System.IO.FileAttributes;
+using ConcurrentPriorityQueue.Core;
 
 namespace RX_Explorer.Class
 {

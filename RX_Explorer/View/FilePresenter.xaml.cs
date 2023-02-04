@@ -1,5 +1,6 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Deferred;
+using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using Nito.AsyncEx;
@@ -21,6 +22,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using TinyPinyin;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
@@ -45,6 +47,7 @@ using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using RefreshRequestedEventArgs = RX_Explorer.Class.RefreshRequestedEventArgs;
+using SortDirection = RX_Explorer.Class.SortDirection;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer.View
@@ -3116,7 +3119,7 @@ namespace RX_Explorer.View
             AreaWatcher.StopMonitor();
         }
 
-        private void NavigateToStorageItem(VirtualKey Key)
+        private async void NavigateToStorageItem(VirtualKey Key)
         {
             if (Key >= VirtualKey.Number0 && Key <= VirtualKey.Z)
             {
@@ -3128,25 +3131,25 @@ namespace RX_Explorer.View
                     {
                         SearchString = LastPressString + SearchString;
 
-                        IEnumerable<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => Item.Name.StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
+                        IEnumerable<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => (Regex.IsMatch(Item.DisplayName, "[\\u3400-\\u4db5\\u4e00-\\u9fd5]") ? PinyinHelper.GetPinyin(Item.DisplayName, string.Empty) : Item.DisplayName).StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
 
                         if (Group.Any() && !Group.Contains(SelectedItem))
                         {
                             SelectedItem = Group.FirstOrDefault();
-                            ItemPresenter.ScrollIntoView(SelectedItem);
+                            await ItemPresenter.SmoothScrollIntoViewWithItemAsync(SelectedItem, ScrollItemPlacement.Center);
                         }
                     }
                     else
                     {
-                        IEnumerable<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => Item.Name.StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
+                        IEnumerable<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => (Regex.IsMatch(Item.DisplayName, "[\\u3400-\\u4db5\\u4e00-\\u9fd5]") ? PinyinHelper.GetPinyin(Item.DisplayName, string.Empty) : Item.DisplayName).StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
 
                         if (Group.Any())
                         {
-                            if (SelectedItem != null)
+                            if (SelectedItem is FileSystemStorageItemBase Item)
                             {
                                 FileSystemStorageItemBase[] ItemArray = Group.ToArray();
 
-                                int NextIndex = Array.IndexOf(ItemArray, SelectedItem);
+                                int NextIndex = Array.IndexOf(ItemArray, Item);
 
                                 if (NextIndex != -1)
                                 {
@@ -3169,7 +3172,7 @@ namespace RX_Explorer.View
                                 SelectedItem = Group.FirstOrDefault();
                             }
 
-                            ItemPresenter.ScrollIntoView(SelectedItem);
+                            await ItemPresenter.SmoothScrollIntoViewWithItemAsync(SelectedItem, ScrollItemPlacement.Center);
                         }
                     }
                 }

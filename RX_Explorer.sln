@@ -29,8 +29,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonitorTrustProcess", "Moni
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrustProcessLauncher", "TrustProcessLauncher\TrustProcessLauncher.csproj", "{5C2FA240-FFE9-4B46-A9B4-B915E86E381F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThirdParty", "ThirdParty\ThirdParty.csproj", "{87CD2B69-A891-4177-A782-11187B1772E0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -147,14 +145,6 @@ Global
 		{5C2FA240-FFE9-4B46-A9B4-B915E86E381F}.Release|ARM64.Build.0 = Release|ARM64
 		{5C2FA240-FFE9-4B46-A9B4-B915E86E381F}.Release|x64.ActiveCfg = Release|x64
 		{5C2FA240-FFE9-4B46-A9B4-B915E86E381F}.Release|x64.Build.0 = Release|x64
-		{87CD2B69-A891-4177-A782-11187B1772E0}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{87CD2B69-A891-4177-A782-11187B1772E0}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{87CD2B69-A891-4177-A782-11187B1772E0}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{87CD2B69-A891-4177-A782-11187B1772E0}.Debug|x64.Build.0 = Debug|Any CPU
-		{87CD2B69-A891-4177-A782-11187B1772E0}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{87CD2B69-A891-4177-A782-11187B1772E0}.Release|ARM64.Build.0 = Release|Any CPU
-		{87CD2B69-A891-4177-A782-11187B1772E0}.Release|x64.ActiveCfg = Release|Any CPU
-		{87CD2B69-A891-4177-A782-11187B1772E0}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

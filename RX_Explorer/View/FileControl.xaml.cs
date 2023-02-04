@@ -17,7 +17,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
@@ -1447,52 +1446,42 @@ namespace RX_Explorer.View
                     sender.Text = args.QueryText;
                 }
 
-                if (string.IsNullOrWhiteSpace(sender.Text))
-                {
-                    return;
-                }
-
-                if (CurrentPresenter.CurrentFolder is INotWin32StorageFolder)
+                if (!string.IsNullOrWhiteSpace(sender.Text))
                 {
                     SearchInEverythingEngine.IsEnabled = false;
-                }
-                else if (await MSStoreHelper.CheckPurchaseStatusAsync())
-                {
-                    if (Package.Current.Id.Architecture is ProcessorArchitecture.X64 or ProcessorArchitecture.X86OnArm64)
+
+                    if (CurrentPresenter.CurrentFolder is not INotWin32StorageFolder && await MSStoreHelper.CheckPurchaseStatusAsync())
                     {
                         using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync(Priority: PriorityLevel.High))
                         {
                             SearchInEverythingEngine.IsEnabled = await Exclusive.Controller.CheckIfEverythingIsAvailableAsync();
                         }
                     }
-                    else
+
+                    switch (SettingPage.SearchEngineMode)
                     {
-                        SearchInEverythingEngine.IsEnabled = false;
+                        case SearchEngineFlyoutMode.AlwaysPopup:
+                            {
+                                FlyoutBase.ShowAttachedFlyout(sender);
+                                break;
+                            }
+                        case SearchEngineFlyoutMode.UseBuildInEngineAsDefault:
+                            {
+                                SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.BuiltInEngine);
+                                Options.SearchText = sender.Text;
+                                Options.SearchFolder = CurrentPresenter.CurrentFolder;
+                                Options.DeepSearch |= CurrentPresenter.CurrentFolder is RootVirtualFolder;
+                                break;
+                            }
+                        case SearchEngineFlyoutMode.UseEverythingEngineAsDefault:
+                            {
+                                SearchOptions Options = SearchOptions.LoadSavedConfiguration(SearchCategory.EverythingEngine);
+                                Options.SearchText = sender.Text;
+                                Options.SearchFolder = CurrentPresenter.CurrentFolder;
+                                Options.DeepSearch |= CurrentPresenter.CurrentFolder is RootVirtualFolder;
+                                break;
+                            }
                     }
-                }
-                else
-                {
-                    SearchInEverythingEngine.IsEnabled = false;
-                }
-
-                SearchOptions Options = SettingPage.SearchEngineMode switch
-                {
-                    SearchEngineFlyoutMode.UseBuildInEngineAsDefault => SearchOptions.LoadSavedConfiguration(SearchCategory.BuiltInEngine),
-                    SearchEngineFlyoutMode.UseEverythingEngineAsDefault when SearchInEverythingEngine.IsEnabled => SearchOptions.LoadSavedConfiguration(SearchCategory.EverythingEngine),
-                    _ => null
-                };
-
-                if (Options != null)
-                {
-                    Options.SearchText = sender.Text;
-                    Options.SearchFolder = CurrentPresenter.CurrentFolder;
-                    Options.DeepSearch |= CurrentPresenter.CurrentFolder is RootVirtualFolder;
-
-                    Frame.Navigate(typeof(SearchPage), Options, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
-                }
-                else
-                {
-                    FlyoutBase.ShowAttachedFlyout(sender);
                 }
             }
             catch (Exception ex)
