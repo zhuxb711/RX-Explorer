@@ -31,7 +31,7 @@ namespace AuxiliaryTrustProcess.Class
 
             if (FormatId > 0)
             {
-                Shell32.FILEGROUPDESCRIPTOR FileGroupDescriptor = NativeClipboard.GetData<Shell32.FILEGROUPDESCRIPTOR>(FormatId);
+                Shell32.FILEGROUPDESCRIPTOR FileGroupDescriptor = NativeClipboard.CurrentDataObject.GetData<Shell32.FILEGROUPDESCRIPTOR>(FormatId);
                 return new RemoteClipboardRelatedData(FileGroupDescriptor.cItems, Convert.ToUInt64(FileGroupDescriptor.fgd.Sum((Descriptor) => (long)Descriptor.nFileSize)));
             }
 
@@ -56,7 +56,9 @@ namespace AuxiliaryTrustProcess.Class
 
             if (FormatId > 0)
             {
-                Shell32.FILEGROUPDESCRIPTOR FileGroupDescriptor = NativeClipboard.GetData<Shell32.FILEGROUPDESCRIPTOR>(FormatId);
+                IDataObject DataObject = NativeClipboard.CurrentDataObject;
+
+                Shell32.FILEGROUPDESCRIPTOR FileGroupDescriptor = DataObject.GetData<Shell32.FILEGROUPDESCRIPTOR>(FormatId);
 
                 if (NativeClipboard.IsFormatAvailable(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS))
                 {
@@ -72,7 +74,7 @@ namespace AuxiliaryTrustProcess.Class
                         }
                         else
                         {
-                            Stream ContentStream = NativeClipboard.GetData(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS, DVASPECT.DVASPECT_CONTENT, Index) switch
+                            Stream ContentStream = DataObject.GetData(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS, DVASPECT.DVASPECT_CONTENT, Index) switch
                             {
                                 IStream Stream => new ComStream(Stream),
                                 Ole32.IStorage Storage => new ComStream(Storage.AsStream()),

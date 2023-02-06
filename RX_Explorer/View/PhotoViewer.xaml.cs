@@ -526,15 +526,7 @@ namespace RX_Explorer.View
                     }
 
                     await Item.GenerateActualSourceAsync();
-
-                    if (PhotoGirdView.IsLoaded)
-                    {
-                        await PhotoGirdView.SmoothScrollIntoViewWithItemAsync(Item, ScrollItemPlacement.Center);
-                    }
-                    else
-                    {
-                        PhotoGirdView.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
-                    }
+                    await PhotoGirdView.ScrollIntoViewSmoothlyAsync(Item);
                 }
                 catch (Exception ex)
                 {

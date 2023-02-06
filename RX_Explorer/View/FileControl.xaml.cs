@@ -899,7 +899,7 @@ namespace RX_Explorer.View
 
                             if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
                             {
-                                FolderTree.SelectNodeAndScrollToVertical(Node);
+                                await FolderTree.SelectNodeAndScrollToVerticalAsync(Node);
                             }
 
                             break;
@@ -1778,7 +1778,7 @@ namespace RX_Explorer.View
                                             {
                                                 if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(TargetRootPath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetRootNode)
                                                 {
-                                                    FolderTree.SelectNodeAndScrollToVertical(TargetRootNode);
+                                                    await FolderTree.SelectNodeAndScrollToVerticalAsync(TargetRootNode);
                                                     TargetRootNode.IsExpanded = true;
                                                 }
                                             }
@@ -2852,7 +2852,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void Blade_PointerPressed(object sender, PointerRoutedEventArgs e)
+        private async void Blade_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if (BladeViewer.Items.Count > 1
                 && sender is BladeItem Blade && Blade.Content is FilePresenter Presenter
@@ -2883,13 +2883,10 @@ namespace RX_Explorer.View
                                 ExpandTreeViewCancellation?.Dispose();
                                 ExpandTreeViewCancellation = new CancellationTokenSource(15000);
 
-                                RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentPath), true, ExpandTreeViewCancellation.Token).ContinueWith((PreviousTask) =>
+                                if (await RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentPath), true, ExpandTreeViewCancellation.Token) is TreeViewNode TargetNode)
                                 {
-                                    if (PreviousTask.Result is TreeViewNode TargetNode)
-                                    {
-                                        FolderTree.SelectNodeAndScrollToVertical(TargetNode);
-                                    }
-                                }, TaskScheduler.FromCurrentSynchronizationContext());
+                                    await FolderTree.SelectNodeAndScrollToVerticalAsync(TargetNode);
+                                }
                             }
                         }
                     }

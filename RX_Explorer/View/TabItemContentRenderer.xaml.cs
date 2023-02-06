@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 using Windows.Storage.FileProperties;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
-using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 using FontIconSource = Microsoft.UI.Xaml.Controls.FontIconSource;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
-using Windows.UI.Xaml.Media;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer.View
 {
@@ -121,7 +121,7 @@ namespace RX_Explorer.View
                                     RootNode.IsExpanded = true;
                                 }
 
-                                BaseControl.FolderTree.SelectNodeAndScrollToVertical(RootNode);
+                                await BaseControl.FolderTree.SelectNodeAndScrollToVerticalAsync(RootNode);
                             }
                         }
                     }

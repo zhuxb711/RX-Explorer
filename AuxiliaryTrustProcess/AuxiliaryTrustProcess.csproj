@@ -39,24 +39,24 @@
 		<PackageReference Include="UsbEject.NetCore" Version="1.0.4" />
 		<PackageReference Include="UTF.Unknown" Version="2.5.1" />
 		<PackageReference Include="Vanara.PInvoke.CfgMgr32">
-			<Version>3.4.12</Version>
+			<Version>3.4.13</Version>
 		</PackageReference>
 		<PackageReference Include="Vanara.PInvoke.Msi">
-			<Version>3.4.12</Version>
+			<Version>3.4.13</Version>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.NetApi32" Version="3.4.12" />
+		<PackageReference Include="Vanara.PInvoke.NetApi32" Version="3.4.13" />
 		<PackageReference Include="Vanara.PInvoke.NtDll">
-			<Version>3.4.12</Version>
+			<Version>3.4.13</Version>
 		</PackageReference>
 		<PackageReference Include="Vanara.PInvoke.RstrtMgr">
-			<Version>3.4.12</Version>
+			<Version>3.4.13</Version>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.ShlwApi" Version="3.4.12" />
+		<PackageReference Include="Vanara.PInvoke.ShlwApi" Version="3.4.13" />
 		<PackageReference Include="Vanara.PInvoke.UserEnv">
-			<Version>3.4.12</Version>
+			<Version>3.4.13</Version>
 		</PackageReference>
 		<PackageReference Include="Vanara.Windows.Shell">
-			<Version>3.4.12</Version>
+			<Version>3.4.13</Version>
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>

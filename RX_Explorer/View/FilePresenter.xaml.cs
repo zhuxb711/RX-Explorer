@@ -2931,7 +2931,7 @@ namespace RX_Explorer.View
                             {
                                 if (await RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path), true, CancelToken) is TreeViewNode TargetNode)
                                 {
-                                    Container.FolderTree.SelectNodeAndScrollToVertical(TargetNode);
+                                    await Container.FolderTree.SelectNodeAndScrollToVerticalAsync(TargetNode);
                                 }
                             }
                         }
@@ -3135,8 +3135,7 @@ namespace RX_Explorer.View
 
                         if (Group.Any() && !Group.Contains(SelectedItem))
                         {
-                            SelectedItem = Group.FirstOrDefault();
-                            await ItemPresenter.SmoothScrollIntoViewWithItemAsync(SelectedItem, ScrollItemPlacement.Center);
+                            await ItemPresenter.ScrollIntoViewSmoothlyAsync((SelectedItem = Group.FirstOrDefault()));
                         }
                     }
                     else
@@ -3172,7 +3171,7 @@ namespace RX_Explorer.View
                                 SelectedItem = Group.FirstOrDefault();
                             }
 
-                            await ItemPresenter.SmoothScrollIntoViewWithItemAsync(SelectedItem, ScrollItemPlacement.Center);
+                            await ItemPresenter.ScrollIntoViewSmoothlyAsync(SelectedItem);
                         }
                     }
                 }
@@ -7965,7 +7964,7 @@ namespace RX_Explorer.View
             {
                 using (CancellationTokenSource Cancellation = new CancellationTokenSource(15000))
                 {
-                    Container.FolderTree.SelectNodeAndScrollToVertical(await RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path), true, Cancellation.Token));
+                    await Container.FolderTree.SelectNodeAndScrollToVerticalAsync(await RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path), true, Cancellation.Token));
                 }
             }
         }

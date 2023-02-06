@@ -1,4 +1,5 @@
 ﻿using FluentFTP;
+using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
@@ -34,6 +35,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
 using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
+using TreeViewList = Microsoft.UI.Xaml.Controls.TreeViewList;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer.Class
@@ -1239,21 +1241,46 @@ namespace RX_Explorer.Class
         /// <param name="Node">要选中的Node</param>
         /// <param name="View">Node所属的TreeView控件</param>
         /// <returns></returns>
-        public static void SelectNodeAndScrollToVertical(this TreeView View, TreeViewNode Node)
+        public static async Task SelectNodeAndScrollToVerticalAsync(this TreeView View, TreeViewNode Node)
         {
             if (View == null)
             {
                 throw new ArgumentNullException(nameof(View), "Parameter could not be null");
             }
 
+            if (Node == null)
+            {
+                throw new ArgumentNullException(nameof(Node), "Parameter could not be null");
+            }
+
             View.SelectedNode = Node;
 
-            View.UpdateLayout();
-
-            if (View.ContainerFromNode(Node) is TreeViewItem Item)
+            if (View.FindChildOfType<TreeViewList>() is TreeViewList InnerList)
+            {
+                await InnerList.ScrollIntoViewSmoothlyAsync(Node);
+            }
+            else if (View.ContainerFromNode(Node) is TreeViewItem Item)
             {
                 Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
             }
+        }
+
+        public static async Task ScrollIntoViewSmoothlyAsync(this ListViewBase View, object Item)
+        {
+            if (View.IsLoaded)
+            {
+                try
+                {
+                    await View.SmoothScrollIntoViewWithItemAsync(Item, ScrollItemPlacement.Center);
+                    return;
+                }
+                catch (Exception)
+                {
+                    //No need to handle this exception
+                }
+            }
+
+            View.ScrollIntoView(Item);
         }
 
         /// <summary>

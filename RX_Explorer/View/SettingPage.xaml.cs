@@ -2720,14 +2720,7 @@ namespace RX_Explorer.View
                     {
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
 
-                        if (PictureGirdView.IsLoaded)
-                        {
-                            await PictureGirdView.SmoothScrollIntoViewWithIndexAsync(PictureGirdView.SelectedIndex, ScrollItemPlacement.Center);
-                        }
-                        else
-                        {
-                            PictureGirdView.ScrollIntoView(PictureItem, ScrollIntoViewAlignment.Leading);
-                        }
+                        await PictureGirdView.ScrollIntoViewSmoothlyAsync(PictureItem);
 
                         if (e.RemovedItems.Count > 0)
                         {
@@ -4246,7 +4239,7 @@ namespace RX_Explorer.View
         {
             if (PictureGirdView.SelectedIndex >= 0)
             {
-                await PictureGirdView.SmoothScrollIntoViewWithIndexAsync(PictureGirdView.SelectedIndex, ScrollItemPlacement.Center);
+                await PictureGirdView.ScrollIntoViewSmoothlyAsync(PictureGirdView.SelectedItem);
             }
         }
 
@@ -4415,14 +4408,7 @@ namespace RX_Explorer.View
         {
             if (PictureGirdView.SelectedIndex >= 0)
             {
-                if (PictureGirdView.IsLoaded)
-                {
-                    await PictureGirdView.SmoothScrollIntoViewWithIndexAsync(PictureGirdView.SelectedIndex, ScrollItemPlacement.Center);
-                }
-                else
-                {
-                    PictureGirdView.ScrollIntoView(PictureGirdView.SelectedItem, ScrollIntoViewAlignment.Leading);
-                }
+                await PictureGirdView.ScrollIntoViewSmoothlyAsync(PictureGirdView.SelectedItem);
             }
         }
 
