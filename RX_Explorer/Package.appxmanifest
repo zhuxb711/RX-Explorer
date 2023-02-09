@@ -12,8 +12,9 @@
   xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
   xmlns:iot2="http://schemas.microsoft.com/appx/manifest/iot/windows10/2"  
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"  
-  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"  
-  IgnorableNamespaces="uap mp desktop uap5 rescap desktop5 desktop6 desktop4 iot2 uap3">
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+  IgnorableNamespaces="uap mp desktop uap5 rescap desktop5 desktop6 desktop4 iot2 uap3 uap10">
 
   <Identity
     Name="36186RuoFan.USB"
@@ -28,6 +29,9 @@
     <Logo>Assets\StoreLogo.png</Logo>
 	<desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
 	<desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization>
+	<uap10:PackageIntegrity>
+		<uap10:Content Enforcement="on" />
+	</uap10:PackageIntegrity>
   </Properties>
 
   <Dependencies>

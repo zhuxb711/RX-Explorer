@@ -55,6 +55,7 @@ namespace RX_Explorer.View
     public sealed partial class FilePresenter : Page, IDisposable
     {
         private bool isGroupedEnabled;
+        private volatile bool isInDragLoop;
         private string LastPressString;
         private DateTimeOffset LastPressTime;
 
@@ -4169,9 +4170,29 @@ namespace RX_Explorer.View
             }
         }
 
-        private void ViewControl_PointerReleased(object sender, PointerRoutedEventArgs e)
+        private async void ViewControl_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             DelayDragCancellation?.Cancel();
+
+            if (e.OriginalSource is FrameworkElement Element)
+            {
+                if (Element.FindParentOfType<SelectorItem>() is SelectorItem SItem && SItem.Content is FileSystemStorageItemBase Item)
+                {
+                    if (!isInDragLoop
+                        && !SettingPage.IsDoubleClickEnabled
+                        && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
+                        && e.GetCurrentPoint(null).Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased)
+                    {
+                        DelaySelectionCancellation?.Cancel();
+
+                        if (!Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down)
+                            && !Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
+                        {
+                            await OpenSelectedItemAsync(Item);
+                        }
+                    }
+                }
+            }
         }
 
         private async void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -4220,7 +4241,8 @@ namespace RX_Explorer.View
                                     {
                                         if (input is (CancellationToken Token, UIElement Item, PointerPoint Point) && !Token.IsCancellationRequested)
                                         {
-                                            await Item.StartDragAsync(Point);
+                                            isInDragLoop = true;
+                                            await Item.StartDragAsync(Point).AsTask().ContinueWith((_) => isInDragLoop = false, TaskContinuationOptions.ExecuteSynchronously);
                                         }
                                     }
                                     catch (Exception ex)
@@ -4262,7 +4284,8 @@ namespace RX_Explorer.View
                                                 {
                                                     if (input is (CancellationToken Token, UIElement Item, PointerPoint Point) && !Token.IsCancellationRequested)
                                                     {
-                                                        await Item.StartDragAsync(Point);
+                                                        isInDragLoop = true;
+                                                        await Item.StartDragAsync(Point).AsTask().ContinueWith((_) => isInDragLoop = false, TaskContinuationOptions.ExecuteSynchronously);
                                                     }
                                                 }
                                                 catch (Exception ex)
@@ -4989,24 +5012,6 @@ namespace RX_Explorer.View
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(Refresh_Click)} throw an exception");
-            }
-        }
-
-        private async void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            if (!SettingPage.IsDoubleClickEnabled
-                && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
-                && e.ClickedItem is FileSystemStorageItemBase ReFile)
-            {
-                DelaySelectionCancellation?.Cancel();
-
-                CoreVirtualKeyStates CtrlState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control);
-                CoreVirtualKeyStates ShiftState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift);
-
-                if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
-                {
-                    await OpenSelectedItemAsync(ReFile);
-                }
             }
         }
 

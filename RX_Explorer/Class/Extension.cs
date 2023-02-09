@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
+using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
@@ -45,6 +46,13 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
+        public static WriteableBitmap ToWriteableBitmap(this SoftwareBitmap Bitmap)
+        {
+            WriteableBitmap WBitmap = new WriteableBitmap(Bitmap.PixelWidth, Bitmap.PixelHeight);
+            Bitmap.CopyToBuffer(WBitmap.PixelBuffer);
+            return WBitmap;
+        }
+
         public static IEnumerable<T> PadRight<T>(this IEnumerable<T> Source, T Element, int Length)
         {
             int CurrentCount = Source.Count();
