@@ -1,17 +1,19 @@
-﻿###What's new in Ver.8.1.6.0
+﻿###What's new in Ver.8.1.7.0
 
 ####⚠Warning: Uwp version will suspend feature updates and enter maintenance-only state, RX-Explorer will be migrated to WinAppSdk framework
 
->####WinAppSdk is an alternative framework for Uwp. RX-Explorer is currently being refactored and migrated to WinAppSdk. The specific launch date is to be determined
+>####WinAppSdk is an alternative framework for Uwp and is currently being tested internally. At the time of official release, all users who have purchased the Uwp version can directly activate the WinAppSdk version
 
->####After the WinAppSdk version is launched, the Uwp version will still be retained in Microsoft Store, and all purchased users can directly activate the WinAppSdk version
+#####Feature updates
+
+>#####You can now enter Chinese pinyin and jump to the file location at the beginning of the corresponding pinyin
+
+#####Performance improvements
+
+>#####Improved the speed at applying picture filters on large images in built-in picture editor
 
 #####Bug Fixes
 
->#####Fixed the problem that the remote copy task could not be executed correctly
+>#####Addresses an issue where tapping certain locations in single click mode may not trigger the corresponding action
 
->#####Fixed the problem that the label folder was displayed incorrectly in the navigation history
-
->#####Fixed the problem that may cause a crash when switching picture background in some cases
-
->#####Fixed some other minor issues
+>#####Addresses an issue where scroll animations may not render correctly in some cases

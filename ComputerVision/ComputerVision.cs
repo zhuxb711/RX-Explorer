@@ -316,23 +316,13 @@ namespace ComputerVision
             using (Mat InputMat = Input.SoftwareBitmapToMat())
             using (Mat OutputMat = CreateEmptyOutputBitmap(Width, Height, out SoftwareBitmap Output))
             {
-                if (InputMat.Cols > InputMat.Rows)
-                {
-                    int CropSize = InputMat.Rows;
+                int MaxOffset = Math.Min(InputMat.Cols - Width, InputMat.Rows - Height);
+                int CropWidth = Width + MaxOffset;
+                int CropHeight = Height + MaxOffset;
 
-                    using (Mat CroppedMat = new Mat(InputMat, new Rect((InputMat.Cols - CropSize) / 2, 0, CropSize, CropSize)))
-                    {
-                        Cv2.Resize(CroppedMat, OutputMat, new Size(Width, Height), 0, 0, InterpolationFlags.Linear);
-                    }
-                }
-                else
+                using (Mat CroppedMat = InputMat[new Rect((InputMat.Cols - CropWidth) / 2, (InputMat.Rows - CropHeight) / 2, CropWidth, CropHeight)])
                 {
-                    int CropSize = InputMat.Cols;
-
-                    using (Mat CroppedMat = new Mat(InputMat, new Rect(0, (InputMat.Rows - CropSize) / 2, CropSize, CropSize)))
-                    {
-                        Cv2.Resize(CroppedMat, OutputMat, new Size(Width, Height), 0, 0, InterpolationFlags.Linear);
-                    }
+                    Cv2.Resize(CroppedMat, OutputMat, new Size(Width, Height), 0, 0, InterpolationFlags.Area);
                 }
 
                 return Output;

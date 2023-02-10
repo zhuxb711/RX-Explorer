@@ -1471,6 +1471,8 @@ namespace RX_Explorer.View
                                 Options.SearchText = sender.Text;
                                 Options.SearchFolder = CurrentPresenter.CurrentFolder;
                                 Options.DeepSearch |= CurrentPresenter.CurrentFolder is RootVirtualFolder;
+
+                                Frame.Navigate(typeof(SearchPage), Options, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
                                 break;
                             }
                         case SearchEngineFlyoutMode.UseEverythingEngineAsDefault:
@@ -1479,6 +1481,8 @@ namespace RX_Explorer.View
                                 Options.SearchText = sender.Text;
                                 Options.SearchFolder = CurrentPresenter.CurrentFolder;
                                 Options.DeepSearch |= CurrentPresenter.CurrentFolder is RootVirtualFolder;
+
+                                Frame.Navigate(typeof(SearchPage), Options, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
                                 break;
                             }
                     }

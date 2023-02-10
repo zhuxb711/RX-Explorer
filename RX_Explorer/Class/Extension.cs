@@ -1275,7 +1275,7 @@ namespace RX_Explorer.Class
 
         public static async Task ScrollIntoViewSmoothlyAsync(this ListViewBase View, object Item)
         {
-            if (View.IsLoaded)
+            if (View.IsLoaded && AnimationController.Current.IsEnableAnimation)
             {
                 try
                 {

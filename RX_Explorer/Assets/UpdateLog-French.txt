@@ -1,17 +1,19 @@
-﻿###Quoi de neuf dans la version 8.1.6.0
+﻿###Quoi de neuf dans la version 8.1.7.0
 
 ####⚠Avertissement : la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
->####WinAppSdk est un framework alternatif pour Uwp. RX-Explorer est actuellement refactorisé et migré vers WinAppSdk. La date de lancement spécifique est à déterminer
+>####WinAppSdk est un framework alternatif pour Uwp et est actuellement testé en interne. Au moment de la sortie officielle, tous les utilisateurs qui ont acheté la version Uwp peuvent activer directement la version WinAppSdk
 
->####Après le lancement de la version WinAppSdk, la version Uwp sera toujours conservée dans Microsoft Store, et tous les utilisateurs achetés peuvent directement activer la version WinAppSdk
+#####Mises à jour des fonctionnalités
+
+>#####Vous pouvez maintenant entrer le pinyin chinois et accéder à l’emplacement du fichier au début du pinyin correspondant.
+
+#####Amélioration des performances
+
+>#####Amélioration de la vitesse d’application des filtres d’image sur les grandes images dans l’éditeur d’image intégré
 
 #####Corrections de bogues
 
->#####Correction du problème d'exécution incorrecte de la tâche de copie à distance
+>#####Résolution d’un problème selon lequel le fait d’appuyer sur certains emplacements en mode clic unique peut ne pas déclencher l’action correspondante
 
->#####Correction du problème d'affichage incorrect du dossier d'étiquettes dans l'historique de navigation
-
->#####Correction du problème qui pouvait provoquer un plantage lors du changement d'arrière-plan de l'image dans certains cas
-
->#####Correction d'autres problèmes mineurs
+>#####Résolution d’un problème selon lequel les animations de défilement peuvent ne pas s’afficher correctement dans certains cas
