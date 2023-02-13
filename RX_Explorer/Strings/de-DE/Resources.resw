@@ -3538,7 +3538,7 @@ Inkorrekte Namen sind
   <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
     <value>Zoomen</value>
   </data>
-  <data name="Properties_General_LastAccessTime" xml:space="preserve">
+  <data name="Properties_General_LastAccessTime.Text" xml:space="preserve">
     <value>Zugegriffen:</value>
   </data>
   <data name="ColumnDescription" xml:space="preserve">

@@ -4699,7 +4699,7 @@ Les noms non valides incluent
           <source>Zoom</source>
           <target state="translated">Zoom</target>
         </trans-unit>
-        <trans-unit id="Properties_General_LastAccessTime" translate="yes" xml:space="preserve">
+        <trans-unit id="Properties_General_LastAccessTime.Text" translate="yes" xml:space="preserve">
           <source>Accessed:</source>
           <target state="translated">Accédé:</target>
         </trans-unit>

@@ -3665,7 +3665,7 @@ Invalid names include
   <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
     <value>Zoom</value>
   </data>
-  <data name="Properties_General_LastAccessTime" xml:space="preserve">
+  <data name="Properties_General_LastAccessTime.Text" xml:space="preserve">
     <value>Accessed:</value>
   </data>
   <data name="ColumnDescription" xml:space="preserve">

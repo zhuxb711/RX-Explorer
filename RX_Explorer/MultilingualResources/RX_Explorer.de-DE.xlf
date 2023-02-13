@@ -4699,7 +4699,7 @@ Inkorrekte Namen sind
           <source>Zoom</source>
           <target state="translated">Zoomen</target>
         </trans-unit>
-        <trans-unit id="Properties_General_LastAccessTime" translate="yes" xml:space="preserve">
+        <trans-unit id="Properties_General_LastAccessTime.Text" translate="yes" xml:space="preserve">
           <source>Accessed:</source>
           <target state="translated">Zugegriffen:</target>
         </trans-unit>
