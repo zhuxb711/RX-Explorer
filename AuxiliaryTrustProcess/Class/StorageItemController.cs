@@ -196,18 +196,18 @@ namespace AuxiliaryTrustProcess.Class
                         Type,
                         new Dictionary<Permissions, bool>
                         {
-                        { Permissions.FullControl, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.FullControl) },
-                        { Permissions.Modify, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Modify) },
-                        { Permissions.ListDirectory, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.ListDirectory) },
-                        { Permissions.ReadAndExecute, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.ReadAndExecute) },
-                        { Permissions.Read, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Read) },
-                        { Permissions.Write, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Write) },
+                            { Permissions.FullControl, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.FullControl) },
+                            { Permissions.Modify, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Modify) },
+                            { Permissions.ListDirectory, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.ListDirectory) },
+                            { Permissions.ReadAndExecute, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.ReadAndExecute) },
+                            { Permissions.Read, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Read) },
+                            { Permissions.Write, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Write) },
                         }
                     ));
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"Could not load the permission of {RuleGroupByAccount.Key.Value}");
+                    LogTracer.Log(ex, $"Could not retrieve the permission of {RuleGroupByAccount.Key.Value}");
                 }
             }
 

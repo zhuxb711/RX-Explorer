@@ -109,12 +109,6 @@ namespace RX_Explorer.View
             OriginFile = null;
             HistogramImage.Source = null;
             FilterGrid.SelectionChanged -= FilterGrid_SelectionChanged;
-
-            foreach (ImageFilterItem Item in FilterCollection)
-            {
-                Item.Dispose();
-            }
-
             FilterCollection.Clear();
         }
 

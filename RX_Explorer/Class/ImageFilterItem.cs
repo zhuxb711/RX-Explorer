@@ -6,7 +6,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public sealed class ImageFilterItem : IDisposable
+    public sealed class ImageFilterItem
     {
         public string Text { get; private set; }
 
@@ -111,26 +111,6 @@ namespace RX_Explorer.Class
             this.Bitmap = Bitmap;
             this.Text = Text;
             this.Type = Type;
-        }
-
-        public void Dispose()
-        {
-            if (Execution.CheckAlreadyExecuted(this))
-            {
-                throw new ObjectDisposedException(nameof(ImageFilterItem));
-            }
-
-            GC.SuppressFinalize(this);
-
-            Execution.ExecuteOnce(this, () =>
-            {
-                Bitmap.Dispose();
-            });
-        }
-
-        ~ImageFilterItem()
-        {
-            Dispose();
         }
     }
 }
