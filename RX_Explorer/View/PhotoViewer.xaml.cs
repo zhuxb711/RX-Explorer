@@ -526,7 +526,7 @@ namespace RX_Explorer.View
                     }
 
                     await Item.GenerateActualSourceAsync();
-                    await PhotoGirdView.ScrollIntoViewSmoothlyAsync(Item);
+                    await PhotoGirdView.SelectAndScrollIntoViewSmoothlyAsync(Item);
                 }
                 catch (Exception ex)
                 {

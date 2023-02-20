@@ -57,10 +57,8 @@ namespace RX_Explorer.Class
                         throw new Exception(ErrorResponse.ErrorMessage);
                     }
                 }
-                else
-                {
-                    throw new Exception(Globalization.GetString("GetWinAppSdk_Unknown_Exception"));
-                }
+
+                throw;
             }
         }
 
@@ -95,10 +93,8 @@ namespace RX_Explorer.Class
                         throw new Exception(ErrorResponse.ErrorMessage);
                     }
                 }
-                else
-                {
-                    throw new Exception(Globalization.GetString("GetWinAppSdk_Unknown_Exception"));
-                }
+
+                throw;
             }
         }
     }

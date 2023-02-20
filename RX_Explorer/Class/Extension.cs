@@ -108,6 +108,16 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static int FindIndex<T>(this IEnumerable<T> Source, Func<T, bool> Predicate)
+        {
+            return Source.Select((Item, Index) => new { Item, Index }).FirstOrDefault((Group) => Predicate(Group.Item))?.Index ?? -1;
+        }
+
+        public static int FindIndex<T>(this IEnumerable<T> Source, T Item)
+        {
+            return Source.Select((Item, Index) => new { Item, Index }).FirstOrDefault((Group) => Group.Item.Equals(Item))?.Index ?? -1;
+        }
+
         public static async Task<Stream> GetFtpFileStreamForWriteAsync(this AsyncFtpClient Client, string Path, FtpDataType DataType, CancellationToken CancelToken = default)
         {
             return new FtpSafeWriteStream(Client, await Client.OpenWrite(Path, DataType, false, CancelToken));
@@ -1265,7 +1275,7 @@ namespace RX_Explorer.Class
 
             if (View.FindChildOfType<TreeViewList>() is TreeViewList InnerList)
             {
-                await InnerList.ScrollIntoViewSmoothlyAsync(Node);
+                await InnerList.SelectAndScrollIntoViewSmoothlyAsync(Node);
             }
             else if (View.ContainerFromNode(Node) is TreeViewItem Item)
             {
@@ -1273,8 +1283,18 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ScrollIntoViewSmoothlyAsync(this ListViewBase View, object Item)
+        public static async Task SelectAndScrollIntoViewSmoothlyAsync(this ListViewBase View, object Item)
         {
+            if (Item == null)
+            {
+                throw new ArgumentNullException(nameof(Item));
+            }
+
+            if (!(View.SelectedItem?.Equals(Item)).GetValueOrDefault())
+            {
+                View.SelectedItem = Item;
+            }
+
             if (View.IsLoaded && AnimationController.Current.IsEnableAnimation)
             {
                 try

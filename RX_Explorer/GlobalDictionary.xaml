@@ -82,6 +82,12 @@
                 Value="{StaticResource ContentControlThemeFontFamily}" />
     </Style>
 
+    <Style TargetType="muxc:RadioMenuFlyoutItem"
+           BasedOn="{StaticResource DefaultRadioMenuFlyoutItemStyle}">
+        <Setter Property="FontFamily"
+                Value="{StaticResource ContentControlThemeFontFamily}" />
+    </Style>
+
     <Style x:Key="CustomTabViewStripButtonStyle"
            TargetType="Button"
            BasedOn="{StaticResource DefaultButtonStyle}">

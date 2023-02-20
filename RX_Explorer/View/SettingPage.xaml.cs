@@ -2720,7 +2720,7 @@ namespace RX_Explorer.View
                     {
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
 
-                        await PictureGirdView.ScrollIntoViewSmoothlyAsync(PictureItem);
+                        await PictureGirdView.SelectAndScrollIntoViewSmoothlyAsync(PictureItem);
 
                         if (e.RemovedItems.Count > 0)
                         {
@@ -4239,7 +4239,7 @@ namespace RX_Explorer.View
         {
             if (PictureGirdView.SelectedIndex >= 0)
             {
-                await PictureGirdView.ScrollIntoViewSmoothlyAsync(PictureGirdView.SelectedItem);
+                await PictureGirdView.SelectAndScrollIntoViewSmoothlyAsync(PictureGirdView.SelectedItem);
             }
         }
 
@@ -4408,7 +4408,7 @@ namespace RX_Explorer.View
         {
             if (PictureGirdView.SelectedIndex >= 0)
             {
-                await PictureGirdView.ScrollIntoViewSmoothlyAsync(PictureGirdView.SelectedItem);
+                await PictureGirdView.SelectAndScrollIntoViewSmoothlyAsync(PictureGirdView.SelectedItem);
             }
         }
 

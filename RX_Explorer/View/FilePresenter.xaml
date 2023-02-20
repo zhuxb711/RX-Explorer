@@ -142,7 +142,7 @@
                                       Height="4"
                                       HorizontalAlignment="Stretch"
                                       Visibility="Collapsed"
-                                      Name="FileLoadProgress" />
+                                      Name="LoadingIndicator" />
 
                     <controls:SwitchPresenter Name="ViewModeSwitcher"
                                               Grid.Row="1">

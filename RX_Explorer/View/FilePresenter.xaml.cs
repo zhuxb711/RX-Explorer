@@ -1,6 +1,5 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Deferred;
-using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using Nito.AsyncEx;
@@ -84,6 +83,7 @@ namespace RX_Explorer.View
 
         private readonly AsyncLock DisplayItemLock = new AsyncLock();
         private readonly AsyncLock CollectionChangeLock = new AsyncLock();
+        private readonly AsyncLock KeyboardFindLocationLocker = new AsyncLock();
         private readonly ListViewColumnWidthSaver ColumnWidthSaver = new ListViewColumnWidthSaver(ListViewLocation.Presenter);
         private readonly ObservableCollection<FileSystemStorageGroupItem> GroupCollection = new ObservableCollection<FileSystemStorageGroupItem>();
         private readonly FilterController ListViewHeaderFilter = new FilterController();
@@ -2587,12 +2587,6 @@ namespace RX_Explorer.View
                     bool CtrlDown = sender.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
                     bool ShiftDown = sender.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
-                    if (!CtrlDown && !ShiftDown)
-                    {
-                        args.Handled = true;
-                        NavigateToStorageItem(args.VirtualKey);
-                    }
-
                     switch (args.VirtualKey)
                     {
                         case VirtualKey.Space when !SettingPage.IsOpened
@@ -2803,6 +2797,63 @@ namespace RX_Explorer.View
 
                                 break;
                             }
+                        default:
+                            {
+                                if (!CtrlDown && !ShiftDown)
+                                {
+                                    if (args.VirtualKey is >= VirtualKey.Number0 and <= VirtualKey.Z)
+                                    {
+                                        args.Handled = true;
+
+                                        using (await KeyboardFindLocationLocker.LockAsync())
+                                        {
+                                            string NewKey = Convert.ToChar(args.VirtualKey).ToString();
+
+                                            try
+                                            {
+                                                if (LastPressString != NewKey && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1200)
+                                                {
+                                                    try
+                                                    {
+                                                        IReadOnlyList<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => (Regex.IsMatch(Item.DisplayName, "[\\u3400-\\u4db5\\u4e00-\\u9fd5]") ? PinyinHelper.GetPinyin(Item.DisplayName, string.Empty) : Item.DisplayName).StartsWith(LastPressString + NewKey, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+                                                        if (Group.Count > 0 && !Group.Contains(SelectedItem))
+                                                        {
+                                                            await ItemPresenter.SelectAndScrollIntoViewSmoothlyAsync(Group[0]);
+                                                        }
+                                                    }
+                                                    finally
+                                                    {
+                                                        LastPressString += NewKey;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    try
+                                                    {
+                                                        IReadOnlyList<FileSystemStorageItemBase> GroupItems = FileCollection.Where((Item) => (Regex.IsMatch(Item.DisplayName, "[\\u3400-\\u4db5\\u4e00-\\u9fd5]") ? PinyinHelper.GetPinyin(Item.DisplayName, string.Empty) : Item.DisplayName).StartsWith(NewKey, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+                                                        if (GroupItems.Count > 0)
+                                                        {
+                                                            await ItemPresenter.SelectAndScrollIntoViewSmoothlyAsync(GroupItems[(GroupItems.FindIndex(SelectedItem) + 1) % GroupItems.Count]);
+                                                        }
+                                                    }
+                                                    finally
+                                                    {
+                                                        LastPressString = NewKey;
+                                                    }
+                                                }
+                                            }
+                                            finally
+                                            {
+                                                LastPressTime = DateTimeOffset.Now;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
                     }
                 }
             }
@@ -2958,47 +3009,45 @@ namespace RX_Explorer.View
             }
             else
             {
+                async Task SetupAndAddChildItemsAsync(FileSystemStorageFolder Folder, SortTarget STarget, SortDirection SDirection, GroupTarget GTarget, GroupDirection GDirection, CancellationToken CancelToken = default)
+                {
+                    FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, CancelToken: CancelToken).ToArrayAsync(), STarget, SDirection, SortStyle.UseFileSystemStyle));
+
+                    if (FileCollection.Count > 0)
+                    {
+                        if (GTarget != GroupTarget.None)
+                        {
+                            foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(FileCollection, GTarget, GDirection))
+                            {
+                                GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem, STarget, SDirection, SortStyle.UseFileSystemStyle)));
+                            }
+
+                            IsGroupedEnabled = true;
+                        }
+                        else
+                        {
+                            IsGroupedEnabled = false;
+                        }
+
+                    }
+                }
+
                 PathConfiguration Config = SQLite.Current.GetPathConfiguration(Folder.Path);
+
+                Task IndicatorDissmissTask = Task.CompletedTask;
+                Task AddChildItemsTask = SetupAndAddChildItemsAsync(Folder, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault(), CancelToken);
 
                 try
                 {
-                    using (CancellationTokenSource LoadingTipCancellation = new CancellationTokenSource(1500))
-                    using (CancellationTokenRegistration CancelRegistration = LoadingTipCancellation.Token.Register(async () =>
+                    if (await Task.WhenAny(Task.Delay(1000, CancelToken), AddChildItemsTask) != AddChildItemsTask)
                     {
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                        {
-                            FileLoadProgress.Visibility = Visibility.Visible;
-                        });
-                    }))
-                    {
-                        IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, CancelToken: CancelToken).ToListAsync();
-
-                        if (ChildItems.Count > 0)
-                        {
-                            if (Config.GroupTarget != GroupTarget.None)
-                            {
-                                foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
-                                {
-                                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle)));
-                                }
-
-                                IsGroupedEnabled = true;
-                            }
-                            else
-                            {
-                                IsGroupedEnabled = false;
-                            }
-
-                            FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle));
-                        }
+                        LoadingIndicator.Visibility = Visibility.Visible;
+                        IndicatorDissmissTask = Task.WhenAll(Task.Delay(1000, CancelToken), AddChildItemsTask).ContinueWith((_) => LoadingIndicator.Visibility = Visibility.Collapsed, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                 }
                 finally
                 {
-                    if (FileLoadProgress.Visibility == Visibility.Visible)
-                    {
-                        FileLoadProgress.Visibility = Visibility.Collapsed;
-                    }
+                    await IndicatorDissmissTask;
 
                     if (FileCollection.Count > 0)
                     {
@@ -3118,74 +3167,6 @@ namespace RX_Explorer.View
         private void Current_Suspending(object sender, SuspendingEventArgs e)
         {
             AreaWatcher.StopMonitor();
-        }
-
-        private async void NavigateToStorageItem(VirtualKey Key)
-        {
-            if (Key >= VirtualKey.Number0 && Key <= VirtualKey.Z)
-            {
-                string SearchString = Convert.ToChar(Key).ToString();
-
-                try
-                {
-                    if (LastPressString != SearchString && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1200)
-                    {
-                        SearchString = LastPressString + SearchString;
-
-                        IEnumerable<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => (Regex.IsMatch(Item.DisplayName, "[\\u3400-\\u4db5\\u4e00-\\u9fd5]") ? PinyinHelper.GetPinyin(Item.DisplayName, string.Empty) : Item.DisplayName).StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
-
-                        if (Group.Any() && !Group.Contains(SelectedItem))
-                        {
-                            await ItemPresenter.ScrollIntoViewSmoothlyAsync((SelectedItem = Group.FirstOrDefault()));
-                        }
-                    }
-                    else
-                    {
-                        IEnumerable<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => (Regex.IsMatch(Item.DisplayName, "[\\u3400-\\u4db5\\u4e00-\\u9fd5]") ? PinyinHelper.GetPinyin(Item.DisplayName, string.Empty) : Item.DisplayName).StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
-
-                        if (Group.Any())
-                        {
-                            if (SelectedItem is FileSystemStorageItemBase Item)
-                            {
-                                FileSystemStorageItemBase[] ItemArray = Group.ToArray();
-
-                                int NextIndex = Array.IndexOf(ItemArray, Item);
-
-                                if (NextIndex != -1)
-                                {
-                                    if (NextIndex < ItemArray.Length - 1)
-                                    {
-                                        SelectedItem = ItemArray[NextIndex + 1];
-                                    }
-                                    else
-                                    {
-                                        SelectedItem = ItemArray.FirstOrDefault();
-                                    }
-                                }
-                                else
-                                {
-                                    SelectedItem = ItemArray.FirstOrDefault();
-                                }
-                            }
-                            else
-                            {
-                                SelectedItem = Group.FirstOrDefault();
-                            }
-
-                            await ItemPresenter.ScrollIntoViewSmoothlyAsync(SelectedItem);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{nameof(NavigateToStorageItem)} throw an exception");
-                }
-                finally
-                {
-                    LastPressString = SearchString;
-                    LastPressTime = DateTimeOffset.Now;
-                }
-            }
         }
 
         private void FileCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
