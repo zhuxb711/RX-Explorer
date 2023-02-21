@@ -16,14 +16,6 @@
         <Cls:InverseConverter x:Key="InverseConverter" />
     </Cls:QueueContentDialog.Resources>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Border Height="2"
-                Background="Gray"
-                HorizontalAlignment="Stretch"
-                Visibility="{x:Bind LoadingTip.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"/>
         <ScrollViewer VerticalScrollMode="Enabled"
                       VerticalScrollBarVisibility="Hidden"
                       Grid.Row="1"
@@ -33,6 +25,7 @@
                                        Header5FontSize="14"
                                        Header4Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
                                        Header3Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
+                                       LinkForeground="{ThemeResource SystemAccentColorLight1}"
                                        Background="Transparent"
                                        LinkClicked="MarkDown_LinkClicked"
                                        SchemeList="companyportal,randomscheme" />
@@ -40,6 +33,7 @@
         <StackPanel VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     Name="LoadingTip"
+                    MinWidth="350"
                     Grid.RowSpan="2">
             <TextBlock Name="ProgressInfo"
                        FontSize="16"
@@ -47,7 +41,7 @@
                        VerticalAlignment="Center"
                        TextAlignment="Center" />
             <muxc:ProgressBar IsIndeterminate="True"
-                              Width="180"
+                              Width="200"
                               Name="ProBar"
                               Minimum="0"
                               Maximum="100"

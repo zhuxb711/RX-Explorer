@@ -1,6 +1,8 @@
 ﻿using RX_Explorer.Class;
 using System;
+using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.UI.Xaml;
 
 namespace RX_Explorer.Dialog
 {
@@ -9,44 +11,25 @@ namespace RX_Explorer.Dialog
         public SecureAreaIntroDialog()
         {
             InitializeComponent();
+            Loaded += SecureAreaIntroDialog_Loaded;
+        }
 
-            StorageFile IntroFile = null;
+        private async void SecureAreaIntroDialog_Loaded(object sender, RoutedEventArgs e)
+        {
+            Task MinDelayTask = Task.Delay(1000);
 
-            switch (Globalization.CurrentLanguage)
+            MarkDown.Text = await FileIO.ReadTextAsync(Globalization.CurrentLanguage switch
             {
-                case LanguageEnum.Chinese_Simplified:
-                    {
-                        IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Chinese_S.txt")).AsTask().Result;
-                        break;
-                    }
-                case LanguageEnum.Chinese_Traditional:
-                    {
-                        IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Chinese_T.txt")).AsTask().Result;
-                        break;
-                    }
-                case LanguageEnum.English:
-                    {
-                        IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-English.txt")).AsTask().Result;
-                        break;
-                    }
-                case LanguageEnum.French:
-                    {
-                        IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-French.txt")).AsTask().Result;
-                        break;
-                    }
-                case LanguageEnum.Spanish:
-                    {
-                        IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Spanish.txt")).AsTask().Result;
-                        break;
-                    }
-                case LanguageEnum.German:
-                    {
-                        IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-German.txt")).AsTask().Result;
-                        break;
-                    }
-            }
+                LanguageEnum.Chinese_Simplified => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Chinese_S.txt")),
+                LanguageEnum.Chinese_Traditional => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Chinese_T.txt")),
+                LanguageEnum.English => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-English.txt")),
+                LanguageEnum.French => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-French.txt")),
+                LanguageEnum.Spanish => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Spanish.txt")),
+                LanguageEnum.German => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-German.txt")),
+                _ => throw new NotSupportedException()
+            });
 
-            MarkDown.Text = FileIO.ReadTextAsync(IntroFile).AsTask().Result;
+            await MinDelayTask.ContinueWith((_) => LoadingTip.Visibility = Visibility.Collapsed, TaskScheduler.FromCurrentSynchronizationContext());
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using RX_Explorer.Class;
 using System;
+using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -9,13 +11,28 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class AQSGuide : QueueContentDialog
     {
-        public AQSGuide(string Text)
+        public AQSGuide()
         {
             InitializeComponent();
-            MarkDown.Header3Foreground = new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColor"]);
-            MarkDown.LinkForeground = AppThemeController.Current.Theme == ElementTheme.Dark ? new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColorLight1"])
-                                                                                            : new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColorDark1"]);
-            MarkDown.Text = Text;
+            Loaded += AQSGuide_Loaded;
+        }
+
+        private async void AQSGuide_Loaded(object sender, RoutedEventArgs e)
+        {
+            Task MinDelayTask = Task.Delay(1000);
+
+            MarkDown.Text = await FileIO.ReadTextAsync(Globalization.CurrentLanguage switch
+            {
+                LanguageEnum.Chinese_Simplified => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_cn_s.txt")),
+                LanguageEnum.English => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_en.txt")),
+                LanguageEnum.French => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_fr.txt")),
+                LanguageEnum.Chinese_Traditional => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_cn_t.txt")),
+                LanguageEnum.Spanish => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_es.txt")),
+                LanguageEnum.German => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_de.txt")),
+                _ => throw new Exception("Unsupported language")
+            });
+
+            await MinDelayTask.ContinueWith((_) => LoadingTip.Visibility = Visibility.Collapsed, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private async void MarkDown_LinkClicked(object sender, Microsoft.Toolkit.Uwp.UI.Controls.LinkClickedEventArgs e)

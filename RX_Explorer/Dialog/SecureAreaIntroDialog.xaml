@@ -5,22 +5,43 @@
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                          xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+                         xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
                          mc:Ignorable="d"
                          Title="安全域介绍"
                          PrimaryButtonText="解锁"
                          CloseButtonText="返回"
                          x:Uid="SecureAreaIntroDialog">
-
+    <Cls:QueueContentDialog.Resources>
+        <Cls:InverseConverter x:Key="InverseConverter" />
+    </Cls:QueueContentDialog.Resources>
     <Grid>
-        <ScrollViewer VerticalScrollMode="Enabled"
-                      IsVerticalScrollChainingEnabled="True"
-                      VerticalScrollBarVisibility="Hidden">
+        <ScrollViewer VerticalScrollMode="Auto"
+                      HorizontalScrollMode="Disabled"
+                      Visibility="{x:Bind LoadingTip.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}">
             <controls:MarkdownTextBlock x:Name="MarkDown"
                                         UriPrefix="ms-appx://"
                                         Header1Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
                                         Header3Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
+                                        LinkForeground="{ThemeResource SystemAccentColorLight1}"
                                         Background="Transparent"
                                         SchemeList="companyportal,randomscheme" />
         </ScrollViewer>
+        <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Name="LoadingTip"
+                    MinWidth="350"
+                    Grid.RowSpan="2">
+            <TextBlock Name="ProgressInfo"
+                       FontSize="16"
+                       Text="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}"
+                       VerticalAlignment="Center"
+                       TextAlignment="Center" />
+            <muxc:ProgressBar IsIndeterminate="True"
+                              Width="200"
+                              Name="ProBar"
+                              Minimum="0"
+                              Maximum="100"
+                              Margin="0,10,0,0" />
+        </StackPanel>
     </Grid>
 </Cls:QueueContentDialog>

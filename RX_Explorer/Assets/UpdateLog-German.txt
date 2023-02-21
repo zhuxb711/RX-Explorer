@@ -1,19 +1,19 @@
-﻿###Was ist neu in Ver.8.1.7.0
+﻿###Was ist neu in Ver.8.1.8.0
 
-####⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird zum WinAppSdk-Framework migriert
+#### ⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird zum WinAppSdk-Framework migriert
 
->####WinAppSdk ist ein alternatives Framework für Uwp und wird derzeit intern getestet. Zum Zeitpunkt der offiziellen Veröffentlichung können alle Benutzer, die die Uwp-Version erworben haben, die WinAppSdk-Version direkt aktivieren
+>#### WinAppSdk ist ein alternatives Framework für Uwp und wird derzeit intern getestet. Zum Zeitpunkt der offiziellen Veröffentlichung können alle Benutzer, die die Uwp-Version erworben haben, die WinAppSdk-Version direkt aktivieren
 
-#####Funktionsupdates
+##### Leistungsverbesserungen
 
->#####Sie können nun chinesisches Pinyin eingeben und zum Dateispeicherort am Anfang des entsprechenden Pinyins springen
+>##### Verbesserte Geschwindigkeit beim Sortieren von Dateien
 
-#####Leistungsverbesserungen
+##### Fehlerbehebungen
 
->#####Verbesserte Geschwindigkeit beim Anwenden von Bildfiltern auf große Bilder im integrierten Bildeditor
+>##### Es wurde ein Problem behoben, bei dem der Ladefortschrittsbalken in einigen Fällen möglicherweise nicht verschwand.
 
-#####Fehlerbehebung
+>##### Es wurde ein Problem behoben, bei dem die Möglichkeit, Dateien anhand von Initialen zu finden, möglicherweise nicht korrekt funktionierte
 
->#####Behebt ein Problem, bei dem das Tippen auf bestimmte Positionen im Single-Click-Modus möglicherweise nicht die entsprechende Aktion auslöst
+>##### Es wurde ein Problem im Kontextmenü behoben, bei dem einige Menüelemente die in den Einstellungen angegebene Schriftart nicht respektieren
 
->#####Behebt ein Problem, bei dem Bildlaufanimationen in einigen Fällen möglicherweise nicht korrekt gerendert werden
+>##### Einige Übersetzungsprobleme behoben

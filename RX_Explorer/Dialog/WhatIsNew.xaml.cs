@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.System;
-using Windows.UI.Core;
 using Windows.UI.Xaml;
 
 namespace RX_Explorer.Dialog
@@ -19,7 +18,9 @@ namespace RX_Explorer.Dialog
 
         private async void WhatIsNew_Loaded(object sender, RoutedEventArgs e)
         {
-            string Text = Globalization.CurrentLanguage switch
+            Task MinDelayTask = Task.Delay(1000);
+
+            MarkDown.Text = Globalization.CurrentLanguage switch
             {
                 LanguageEnum.Chinese_Simplified => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_S.txt"))),
                 LanguageEnum.English => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt"))),
@@ -30,14 +31,7 @@ namespace RX_Explorer.Dialog
                 _ => throw new Exception("Unsupported language")
             };
 
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-            {
-                MarkDown.Text = Text;
-            });
-
-            await Task.Delay(500);
-
-            LoadingTip.Visibility = Visibility.Collapsed;
+            await MinDelayTask.ContinueWith((_) => LoadingTip.Visibility = Visibility.Collapsed, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private async void MarkDown_LinkClicked(object sender, LinkClickedEventArgs e)

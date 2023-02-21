@@ -1,19 +1,19 @@
-﻿###Quoi de neuf dans la version 8.1.7.0
+﻿###Quoi de neuf dans la version 8.1.8.0
 
-####⚠Avertissement : la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
+#### ⚠Avertissement : la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
->####WinAppSdk est un framework alternatif pour Uwp et est actuellement testé en interne. Au moment de la sortie officielle, tous les utilisateurs qui ont acheté la version Uwp peuvent activer directement la version WinAppSdk
+>#### WinAppSdk est un framework alternatif pour Uwp et est actuellement testé en interne. Au moment de la sortie officielle, tous les utilisateurs qui ont acheté la version Uwp peuvent activer directement la version WinAppSdk
 
-#####Mises à jour des fonctionnalités
+##### Améliorations des performances
 
->#####Vous pouvez maintenant entrer le pinyin chinois et accéder à l’emplacement du fichier au début du pinyin correspondant.
+>##### Amélioration de la vitesse de tri des fichiers
 
-#####Amélioration des performances
+##### Corrections de bugs
 
->#####Amélioration de la vitesse d’application des filtres d’image sur les grandes images dans l’éditeur d’image intégré
+>##### Correction d’un problème où la barre de progression du chargement pouvait ne pas disparaître dans certains cas
 
-#####Corrections de bogues
+>##### Correction d’un problème où la possibilité de localiser les fichiers par les initiales pouvait ne pas fonctionner correctement
 
->#####Résolution d’un problème selon lequel le fait d’appuyer sur certains emplacements en mode clic unique peut ne pas déclencher l’action correspondante
+>##### Correction d’un problème dans le menu contextuel où certains éléments de menu ne respectaient pas la police spécifiée dans les paramètres
 
->#####Résolution d’un problème selon lequel les animations de défilement peuvent ne pas s’afficher correctement dans certains cas
+>##### Correction de quelques problèmes de traduction

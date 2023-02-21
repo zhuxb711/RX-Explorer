@@ -183,4 +183,6 @@ Relatives Datum|System.ItemDate:System.StructuredQueryType.DateTime#Today|Nach D
 &nbsp;
 
 ### Referenzdokumentation
+*****
+
 [Erweiterte Abfragesyntax (AQS)](https://docs.microsoft.com/en-us/windows/win32/search/-search-3x-advancedquerysyntax)

@@ -1,19 +1,19 @@
-﻿###Novedades de la versión 8.1.7.0
+﻿###Novedades de la versión 8.1.8.0
 
-####⚠Advertencia: la versión Uwp suspenderá las actualizaciones de funciones y entrará en estado de solo mantenimiento, RX-Explorer se migrará al marco WinAppSdk
+#### ⚠Advertencia: la versión Uwp suspenderá las actualizaciones de funciones y entrará en estado de solo mantenimiento, RX-Explorer se migrará al marco WinAppSdk
 
->####WinAppSdk es un marco alternativo para Uwp y actualmente se está probando internamente. En el momento del lanzamiento oficial, todos los usuarios que hayan comprado la versión para Uwp pueden activar directamente la versión WinAppSdk
+>#### WinAppSdk es un marco alternativo para Uwp y actualmente se está probando internamente. En el momento del lanzamiento oficial, todos los usuarios que hayan comprado la versión para Uwp pueden activar directamente la versión WinAppSdk
 
-#####Actualizaciones de características
+##### Mejoras de rendimiento
 
->#####Ahora puede ingresar pinyin chino y saltar a la ubicación del archivo al comienzo del pinyin correspondiente
+>##### Se ha mejorado la velocidad de clasificación de archivos
 
-#####Mejoras de rendimiento
+##### Correcciones de errores
 
->#####Se ha mejorado la velocidad de aplicación de filtros de imagen en imágenes grandes en el editor de imágenes integrado
+>###### Se ha corregido un problema por el que la barra de progreso de carga podría no desaparecer en algunos casos.
 
-#####Corrección de errores
+>###### Se ha corregido un problema por el que la capacidad de localizar archivos por iniciales no funcionaba correctamente
 
->#####Se solucionó un problema por el que tocar ciertas ubicaciones en modo de clic único no desencadenaba la acción correspondiente.
+>###### Se ha corregido un problema en el menú contextual por el que algunos elementos del menú no respetaban la fuente especificada en la configuración.
 
->#####Se solucionó un problema por el que las animaciones de desplazamiento no se representaban correctamente en algunos casos.
+>###### Se han corregido algunos problemas de traducción

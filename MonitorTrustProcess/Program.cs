@@ -106,7 +106,7 @@ namespace MonitorTrustProcess
 
                                 if (!UwpInfo.CoreWindowHandle.IsNull)
                                 {
-                                    if (User32.SendMessageTimeout(UwpInfo.CoreWindowHandle, (uint)User32.WindowMessage.WM_NULL, fuFlags: User32.SMTO.SMTO_ABORTIFHUNG, uTimeout: 10000, lpdwResult: ref Result) == IntPtr.Zero)
+                                    if (User32.SendMessageTimeout(UwpInfo.CoreWindowHandle, (uint)User32.WindowMessage.WM_NULL, fuFlags: User32.SMTO.SMTO_ABORTIFHUNG, uTimeout: 15000, lpdwResult: ref Result) == IntPtr.Zero)
                                     {
                                         CloseAndRestartApplication(RestartReason.Freeze);
                                     }

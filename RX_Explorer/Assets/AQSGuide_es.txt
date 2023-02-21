@@ -183,4 +183,6 @@ Fecha relativa|System.ItemDate:System.StructuredQueryType.DateTime#Today|Buscar 
 &nbsp;
 
 ### Documentación de referencia
+*****
+
 [Sintaxis de consulta avanzada (AQS)](https://docs.microsoft.com/en-us/windows/win32/search/-search-3x-advancedquerysyntax)
