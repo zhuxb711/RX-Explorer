@@ -2801,7 +2801,7 @@ namespace RX_Explorer.View
                             {
                                 if (!CtrlDown && !ShiftDown)
                                 {
-                                    if (args.VirtualKey is >= VirtualKey.Number0 and <= VirtualKey.Z)
+                                    if (Regex.IsMatch(((char)args.VirtualKey).ToString(), @"[A-Z0-9]", RegexOptions.IgnoreCase))
                                     {
                                         args.Handled = true;
 

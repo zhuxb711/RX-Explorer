@@ -161,23 +161,23 @@ namespace RX_Explorer.Class
         }
 
         [DependsOn(nameof(IsEnableAnimation))]
-        public bool IsDisableStartupAnimation
+        public bool IsEnableStartupAnimation
         {
-            get => IsEnableAnimation && Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"]);
+            get => IsEnableAnimation && Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsEnableStartupAnimation"]);
             set
             {
-                ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] = value;
+                ApplicationData.Current.LocalSettings.Values["IsEnableStartupAnimation"] = value;
                 ApplicationData.Current.SignalDataChanged();
             }
         }
 
         [DependsOn(nameof(IsEnableAnimation))]
-        public bool IsDisableSelectionAnimation
+        public bool IsEnableSelectionAnimation
         {
-            get => IsEnableAnimation && Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"]);
+            get => IsEnableAnimation && Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsEnableSelectionAnimation"]);
             set
             {
-                ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"] = value;
+                ApplicationData.Current.LocalSettings.Values["IsEnableSelectionAnimation"] = value;
                 ApplicationData.Current.SignalDataChanged();
             }
         }
@@ -205,8 +205,8 @@ namespace RX_Explorer.Class
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
                     OnPropertyChanged(nameof(IsEnableAnimation));
-                    OnPropertyChanged(nameof(IsDisableStartupAnimation));
-                    OnPropertyChanged(nameof(IsDisableSelectionAnimation));
+                    OnPropertyChanged(nameof(IsEnableStartupAnimation));
+                    OnPropertyChanged(nameof(IsEnableSelectionAnimation));
                 });
             }
             catch (Exception)

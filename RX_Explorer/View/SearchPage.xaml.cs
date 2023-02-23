@@ -1,6 +1,7 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Deferred;
 using Microsoft.Toolkit.Uwp.UI.Controls;
+using Nito.AsyncEx;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
@@ -10,8 +11,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using TinyPinyin;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
@@ -56,6 +59,7 @@ namespace RX_Explorer.View
         private readonly InterlockedNoReentryExecution HeaderClickExecution = new InterlockedNoReentryExecution();
         private readonly FilterController ListViewHeaderFilter = new FilterController();
         private readonly SortIndicatorController ListViewHeaderSortIndicator = new SortIndicatorController();
+        private readonly AsyncLock KeyboardFindLocationLocker = new AsyncLock();
 
         public SearchPage()
         {
@@ -128,13 +132,8 @@ namespace RX_Explorer.View
             {
                 if (!BlockKeyboardShortCutInput)
                 {
-                    CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
-                    CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
-
-                    if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
-                    {
-                        NavigateToStorageItem(args.VirtualKey);
-                    }
+                    bool CtrlDown = sender.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
+                    bool ShiftDown = sender.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
                     switch (args.VirtualKey)
                     {
@@ -143,28 +142,28 @@ namespace RX_Explorer.View
                                 Open_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.L when CtrlDown:
                             {
                                 Location_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.A when CtrlDown:
                             {
                                 SearchResultList.SelectAll();
                                 break;
                             }
-                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.C when CtrlDown:
                             {
                                 Copy_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.X when CtrlDown:
                             {
                                 Cut_Click(null, null);
                                 break;
                             }
                         case VirtualKey.Delete:
-                        case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.D when CtrlDown:
                             {
                                 Delete_Click(null, null);
                                 break;
@@ -201,81 +200,69 @@ namespace RX_Explorer.View
 
                                 break;
                             }
+                        default:
+                            {
+                                if (!CtrlDown && !ShiftDown)
+                                {
+                                    if (Regex.IsMatch(((char)args.VirtualKey).ToString(), @"[A-Z0-9]", RegexOptions.IgnoreCase))
+                                    {
+                                        args.Handled = true;
+
+                                        using (await KeyboardFindLocationLocker.LockAsync())
+                                        {
+                                            string NewKey = Convert.ToChar(args.VirtualKey).ToString();
+
+                                            try
+                                            {
+                                                if (LastPressString != NewKey && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1200)
+                                                {
+                                                    try
+                                                    {
+                                                        IReadOnlyList<FileSystemStorageItemBase> Group = SearchResult.Where((Item) => (Regex.IsMatch(Item.DisplayName, "[\\u3400-\\u4db5\\u4e00-\\u9fd5]") ? PinyinHelper.GetPinyin(Item.DisplayName, string.Empty) : Item.DisplayName).StartsWith(LastPressString + NewKey, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+                                                        if (Group.Count > 0 && !Group.Contains(SearchResultList.SelectedItem))
+                                                        {
+                                                            await SearchResultList.SelectAndScrollIntoViewSmoothlyAsync(Group[0]);
+                                                        }
+                                                    }
+                                                    finally
+                                                    {
+                                                        LastPressString += NewKey;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    try
+                                                    {
+                                                        IReadOnlyList<FileSystemStorageItemBase> GroupItems = SearchResult.Where((Item) => (Regex.IsMatch(Item.DisplayName, "[\\u3400-\\u4db5\\u4e00-\\u9fd5]") ? PinyinHelper.GetPinyin(Item.DisplayName, string.Empty) : Item.DisplayName).StartsWith(NewKey, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+                                                        if (GroupItems.Count > 0)
+                                                        {
+                                                            await SearchResultList.SelectAndScrollIntoViewSmoothlyAsync(GroupItems[(GroupItems.FindIndex(SearchResultList.SelectedItem) + 1) % GroupItems.Count]);
+                                                        }
+                                                    }
+                                                    finally
+                                                    {
+                                                        LastPressString = NewKey;
+                                                    }
+                                                }
+                                            }
+                                            finally
+                                            {
+                                                LastPressTime = DateTimeOffset.Now;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(SearchPage_KeyDown)}");
-            }
-        }
-
-        private void NavigateToStorageItem(VirtualKey Key)
-        {
-            if (Key >= VirtualKey.Number0 && Key <= VirtualKey.Z)
-            {
-                string SearchString = Convert.ToChar(Key).ToString();
-
-                try
-                {
-                    if (LastPressString != SearchString && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1200)
-                    {
-                        SearchString = LastPressString + SearchString;
-
-                        IEnumerable<FileSystemStorageItemBase> Group = SearchResult.Where((Item) => Item.Name.StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
-
-                        if (Group.Any() && !Group.Contains(SearchResultList.SelectedItem))
-                        {
-                            SearchResultList.SelectedItem = Group.FirstOrDefault();
-                            SearchResultList.ScrollIntoView(SearchResultList.SelectedItem);
-                        }
-                    }
-                    else
-                    {
-                        IEnumerable<FileSystemStorageItemBase> Group = SearchResult.Where((Item) => Item.Name.StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
-
-                        if (Group.Any())
-                        {
-                            if (SearchResultList.SelectedItem != null)
-                            {
-                                FileSystemStorageItemBase[] ItemArray = Group.ToArray();
-
-                                int NextIndex = Array.IndexOf(ItemArray, SearchResultList.SelectedItem);
-
-                                if (NextIndex != -1)
-                                {
-                                    if (NextIndex < ItemArray.Length - 1)
-                                    {
-                                        SearchResultList.SelectedItem = ItemArray[NextIndex + 1];
-                                    }
-                                    else
-                                    {
-                                        SearchResultList.SelectedItem = ItemArray.FirstOrDefault();
-                                    }
-                                }
-                                else
-                                {
-                                    SearchResultList.SelectedItem = ItemArray.FirstOrDefault();
-                                }
-                            }
-                            else
-                            {
-                                SearchResultList.SelectedItem = Group.FirstOrDefault();
-                            }
-
-                            SearchResultList.ScrollIntoView(SearchResultList.SelectedItem);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{nameof(NavigateToStorageItem)} throw an exception");
-                }
-                finally
-                {
-                    LastPressString = SearchString;
-                    LastPressTime = DateTimeOffset.Now;
-                }
             }
         }
 
@@ -696,9 +683,9 @@ namespace RX_Explorer.View
                                 {
                                     string Tooltip = await Exclusive.Controller.GetTooltipTextAsync(Item.Path, Token);
 
-                                    if (!MixCommandFlyout.IsOpen 
-                                        && !SingleCommandFlyout.IsOpen 
-                                        && !Token.IsCancellationRequested 
+                                    if (!MixCommandFlyout.IsOpen
+                                        && !SingleCommandFlyout.IsOpen
+                                        && !Token.IsCancellationRequested
                                         && !string.IsNullOrWhiteSpace(Tooltip)
                                         && !QueueContentDialog.IsRunningOrWaiting)
                                     {

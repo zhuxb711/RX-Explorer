@@ -2177,7 +2177,7 @@
                                                     <Windows11NotPresent:CheckBox Content="关闭列表选中动画"
                                                                                   x:Uid="SettingPagDisableSelectionAnimation"
                                                                                   IsEnabled="{x:Bind Cls:AnimationController.Current.IsEnableAnimation,Mode=OneWay}"
-                                                                                  IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableSelectionAnimation,Mode=TwoWay}"
+                                                                                  IsChecked="{x:Bind Cls:AnimationController.Current.IsEnableSelectionAnimation,Mode=TwoWay,Converter={StaticResource InverseConverter}}"
                                                                                   Name="DisableSelectionAnimation" />
                                                 </Windows11NotPresent:Border>
                                                 <Border Padding="40,10,10,10"
@@ -2189,7 +2189,7 @@
                                                     <CheckBox Content="关闭初始动画以加快启动速度"
                                                               x:Uid="SettingPageExceptAnimation"
                                                               IsEnabled="{x:Bind Cls:AnimationController.Current.IsEnableAnimation,Mode=OneWay}"
-                                                              IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableStartupAnimation,Mode=TwoWay}"
+                                                              IsChecked="{x:Bind Cls:AnimationController.Current.IsEnableStartupAnimation,Mode=TwoWay,Converter={StaticResource InverseConverter}}"
                                                               Name="DisableStartupAnimation" />
                                                 </Border>
                                             </StackPanel>

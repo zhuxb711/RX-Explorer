@@ -11,24 +11,24 @@ namespace RX_Explorer.Class
             {
                 case ListViewItem:
                     {
-                        if (AnimationController.Current.IsDisableSelectionAnimation)
+                        if (AnimationController.Current.IsEnableSelectionAnimation)
                         {
-                            return Application.Current.Resources["CustomListViewItemWithoutAnimationStyle"] as Style;
+                            return Application.Current.Resources["CustomListViewItemWithAnimationStyle"] as Style;
                         }
                         else
                         {
-                            return Application.Current.Resources["CustomListViewItemWithAnimationStyle"] as Style;
+                            return Application.Current.Resources["CustomListViewItemWithoutAnimationStyle"] as Style;
                         }
                     }
                 case GridViewItem:
                     {
-                        if (AnimationController.Current.IsDisableSelectionAnimation)
+                        if (AnimationController.Current.IsEnableSelectionAnimation)
                         {
-                            return Application.Current.Resources["CustomGridViewItemWithoutAnimationStyle"] as Style;
+                            return Application.Current.Resources["CustomGridViewItemWithAnimationStyle"] as Style;
                         }
                         else
                         {
-                            return Application.Current.Resources["CustomGridViewItemWithAnimationStyle"] as Style;
+                            return Application.Current.Resources["CustomGridViewItemWithoutAnimationStyle"] as Style;
                         }
                     }
                 default:

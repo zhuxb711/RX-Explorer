@@ -152,7 +152,7 @@ namespace RX_Explorer.View
 
             BluetoothAudioWatcher = DeviceInformation.CreateWatcher(AudioPlaybackConnection.GetDeviceSelector());
 
-            if (!AnimationController.Current.IsDisableStartupAnimation && (PathArray?.Count).GetValueOrDefault() == 0)
+            if (AnimationController.Current.IsEnableStartupAnimation && (PathArray?.Count).GetValueOrDefault() == 0)
             {
                 EntranceEffectProvider = new EntranceAnimationEffect(this, NavView, Parameter);
                 EntranceAnimationPreloadTask = EntranceEffectProvider.PrepareEntranceEffectAsync();
@@ -625,11 +625,7 @@ namespace RX_Explorer.View
 
                 NavFrame.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
 
-                if (AnimationController.Current.IsDisableStartupAnimation)
-                {
-                    NavView.Opacity = 1;
-                }
-                else
+                if (AnimationController.Current.IsEnableStartupAnimation)
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {
@@ -637,9 +633,13 @@ namespace RX_Explorer.View
 
                         if ((ActivatePaths?.Count).GetValueOrDefault() == 0)
                         {
-                            EntranceEffectProvider.StartEntranceEffect();
+                             EntranceEffectProvider.StartEntranceEffect();
                         }
                     });
+                }
+                else
+                {
+                    NavView.Opacity = 1;
                 }
 
                 ApplicationData.Current.DataChanged += Current_DataChanged;
