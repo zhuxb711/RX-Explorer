@@ -2220,7 +2220,7 @@ namespace RX_Explorer.View
                     {
                         CommonAccessCollection.LibraryList.Add(LibFolder);
                         SQLite.Current.SetLibraryPathRecord(LibraryType.UserCustom, Folder.Path);
-                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
+                        await JumpListController.AddItemAsync(JumpListGroup.Library, Folder.Path);
                     }
                 }
             }

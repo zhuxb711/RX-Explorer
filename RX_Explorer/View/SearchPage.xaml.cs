@@ -552,12 +552,12 @@ namespace RX_Explorer.View
                     {
                         case FileSystemStorageFile:
                             {
-                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Path.GetDirectoryName(Item.Path));
+                                await JumpListController.AddItemAsync(JumpListGroup.Recent, Path.GetDirectoryName(Item.Path));
                                 break;
                             }
                         case FileSystemStorageFolder:
                             {
-                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Item.Path);
+                                await JumpListController.AddItemAsync(JumpListGroup.Recent, Item.Path);
                                 break;
                             }
                     }
@@ -696,9 +696,9 @@ namespace RX_Explorer.View
                                 {
                                     string Tooltip = await Exclusive.Controller.GetTooltipTextAsync(Item.Path, Token);
 
-                                    if (!MixCommandFlyout.IsOpen 
-                                        && !SingleCommandFlyout.IsOpen 
-                                        && !Token.IsCancellationRequested 
+                                    if (!MixCommandFlyout.IsOpen
+                                        && !SingleCommandFlyout.IsOpen
+                                        && !Token.IsCancellationRequested
                                         && !string.IsNullOrWhiteSpace(Tooltip)
                                         && !QueueContentDialog.IsRunningOrWaiting)
                                     {
@@ -1058,7 +1058,7 @@ namespace RX_Explorer.View
                                                         case FileSystemStorageFolder:
                                                             {
                                                                 await TabViewContainer.Current.CreateNewTabAsync(LinkItem.LinkTargetPath);
-                                                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, LinkItem.LinkTargetPath);
+                                                                await JumpListController.AddItemAsync(JumpListGroup.Recent, LinkItem.LinkTargetPath);
                                                                 break;
                                                             }
                                                         case FileSystemStorageFile:
@@ -1170,7 +1170,7 @@ namespace RX_Explorer.View
                             if (await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
                             {
                                 await TabViewContainer.Current.CreateNewTabAsync(Folder.Path);
-                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
+                                await JumpListController.AddItemAsync(JumpListGroup.Recent, Folder.Path);
                             }
                             else
                             {
@@ -1371,7 +1371,7 @@ namespace RX_Explorer.View
                                     }
                                     else if (Presenter.CurrentFolder is INotWin32StorageFolder)
                                     {
-                                        foreach (string Path in PathList.Where((Path) => System.IO.Path.GetDirectoryName(Path).Equals(Presenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                                        foreach (string Path in PathList.Where((Path) => Presenter.CurrentFolder.Path.Equals(System.IO.Path.GetDirectoryName(Path), StringComparison.OrdinalIgnoreCase)))
                                         {
                                             await Presenter.AreaWatcher.InvokeRemovedEventManuallyAsync(new FileRemovedDeferredEventArgs(Path));
                                         }

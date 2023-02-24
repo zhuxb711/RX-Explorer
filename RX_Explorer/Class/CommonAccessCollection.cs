@@ -179,7 +179,7 @@ namespace RX_Explorer.Class
                     }
 
                     await Task.WhenAll(LongRunningTaskList);
-                    await JumpListController.Current.AddItemAsync(JumpListGroup.Library, LibraryList.Where((Library) => Library.LibType == LibraryType.UserCustom)
+                    await JumpListController.AddItemAsync(JumpListGroup.Library, LibraryList.Where((Library) => Library.LibType == LibraryType.UserCustom)
                                                                                                     .Select((Library) => Library.Path)
                                                                                                     .ToArray());
 

@@ -1792,7 +1792,7 @@ namespace RX_Explorer.View
                                                 SQLite.Current.SetPathHistory(Folder.Path);
                                             }
 
-                                            await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
+                                            await JumpListController.AddItemAsync(JumpListGroup.Recent, Folder.Path);
 
                                             if (!await CurrentPresenter.DisplayItemsInFolderAsync(Folder))
                                             {
@@ -3222,7 +3222,7 @@ namespace RX_Explorer.View
                         {
                             CommonAccessCollection.LibraryList.Add(LibFolder);
                             SQLite.Current.SetLibraryPathRecord(LibraryType.UserCustom, Folder.Path);
-                            await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
+                            await JumpListController.AddItemAsync(JumpListGroup.Library, Folder.Path);
                         }
                     }
                 }
@@ -3453,7 +3453,7 @@ namespace RX_Explorer.View
                 {
                     SQLite.Current.DeleteLibraryFolderRecord(Content.Path);
                     CommonAccessCollection.LibraryList.Remove(TargetLib);
-                    await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, TargetLib.Path);
+                    await JumpListController.RemoveItemAsync(JumpListGroup.Library, TargetLib.Path);
                 }
             }
         }

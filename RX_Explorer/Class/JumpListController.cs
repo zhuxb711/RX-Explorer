@@ -1,187 +1,121 @@
-﻿using System;
+﻿using Nito.AsyncEx;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Windows.UI.StartScreen;
 
 namespace RX_Explorer.Class
 {
-    public sealed class JumpListController
+    public static class JumpListController
     {
-        private static JumpListController Instance;
+        private static JumpList InnerList;
+        private static readonly AsyncLock InitializeLocker = new AsyncLock();
 
-        private JumpList InnerList;
+        public static bool IsSupported => JumpList.IsSupported();
 
-        private static readonly object Locker = new object();
+        public static int MaxAllowedItemNum { get; } = 16;
 
-        public static JumpListController Current
+        public static async Task InitializeAsync()
         {
-            get
+            if (!IsSupported)
             {
-                lock (Locker)
-                {
-                    return Instance ??= new JumpListController();
-                }
+                throw new NotSupportedException();
             }
-        }
 
-        public bool IsSupported => JumpList.IsSupported();
-
-        public int GroupItemMaxNum { get; set; } = 6;
-
-        private async Task<bool> InitializeAsync()
-        {
-            try
+            using (await InitializeLocker.LockAsync())
             {
-                if (IsSupported)
+                if (InnerList == null)
                 {
                     InnerList = await JumpList.LoadCurrentAsync();
                     InnerList.SystemGroupKind = JumpListSystemGroupKind.None;
+                }
 
-                    bool ItemModified = false;
-
-                    foreach (JumpListItem Item in InnerList.Items.Where((Item) => Item.RemovedByUser).ToArray())
-                    {
-                        InnerList.Items.Remove(Item);
-                        ItemModified = true;
-                    }
-
-                    if (ItemModified)
-                    {
-                        await InnerList.SaveAsync();
-                    }
-
-                    return true;
+                if (InnerList.Items.Any((Item) => Item.RemovedByUser))
+                {
+                    InnerList.Items.RemoveRange(InnerList.Items.Where((Item) => Item.RemovedByUser).ToArray());
+                    await InnerList.SaveAsync();
                 }
             }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not initialize the jump list");
-            }
-
-            return false;
         }
 
-        public async Task AddItemAsync(JumpListGroup Group, params string[] FolderPathList)
+        public static async Task AddItemAsync(JumpListGroup Group, params string[] FolderPathList)
         {
-            try
+            await InitializeAsync();
+
+            string CurrentGroupName = ConvertGroupEnumToResourceString(Group);
+
+            foreach (string FolderPath in FolderPathList)
             {
-                if (await InitializeAsync().ConfigureAwait(false))
+                InnerList.Items.RemoveRange(InnerList.Items.Where((Item) => Item.GroupName == CurrentGroupName)
+                                                           .Where((Item) => Item.Arguments.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                                           .ToArray());
+
+                IReadOnlyList<IGrouping<string, JumpListItem>> GroupEnumerable = InnerList.Items.GroupBy((Item) => Item.GroupName).ToArray();
+
+                IReadOnlyList<JumpListItem> RecentGroupItems = GroupEnumerable.SingleOrDefault((Group) => Group.Key == ConvertGroupEnumToResourceString(JumpListGroup.Recent))?.ToArray() ?? Array.Empty<JumpListItem>();
+                IReadOnlyList<JumpListItem> LibraryGroupItems = GroupEnumerable.SingleOrDefault((Group) => Group.Key == ConvertGroupEnumToResourceString(JumpListGroup.Library))?.ToArray() ?? Array.Empty<JumpListItem>();
+
+                if (RecentGroupItems.Count + LibraryGroupItems.Count >= MaxAllowedItemNum)
                 {
-                    bool ItemModified = false;
-
-                    string GroupString = ConvertGroupEnumToResourceString(Group);
-
-                    foreach (string FolderPath in FolderPathList)
+                    if (Group == JumpListGroup.Library)
                     {
-                        if (InnerList.Items.Where((Item) => Item.GroupName == GroupString).All((Item) => Item.Description != FolderPath))
+                        if (RecentGroupItems.Count > 4)
                         {
-                            string RecentGroupString = ConvertGroupEnumToResourceString(JumpListGroup.Recent);
-                            string LibraryGroupString = ConvertGroupEnumToResourceString(JumpListGroup.Library);
-
-                            JumpListItem[] RecentGroupItems = InnerList.Items.Where((Item) => Item.GroupName == RecentGroupString).ToArray();
-
-                            JumpListItem[] LibraryGroupItems = InnerList.Items.Where((Item) => Item.GroupName == LibraryGroupString).ToArray();
-
-                            if (Group == JumpListGroup.Library)
-                            {
-                                if (LibraryGroupItems.Length >= GroupItemMaxNum && RecentGroupItems.Length + LibraryGroupItems.Length >= 2 * GroupItemMaxNum)
-                                {
-                                    if (RecentGroupItems.Length > 4)
-                                    {
-                                        InnerList.Items.Remove(RecentGroupItems.FirstOrDefault());
-                                    }
-                                    else
-                                    {
-                                        InnerList.Items.Remove(LibraryGroupItems.FirstOrDefault());
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (RecentGroupItems.Length >= GroupItemMaxNum || RecentGroupItems.Length + LibraryGroupItems.Length >= 2 * GroupItemMaxNum)
-                                {
-                                    InnerList.Items.Remove(RecentGroupItems.FirstOrDefault());
-                                }
-                            }
-
-                            JumpListItem NewItem = JumpListItem.CreateWithArguments(FolderPath, Path.GetFileName(FolderPath));
-
-                            NewItem.Logo = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
-                                                             ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                             : new Uri("ms-appx:///Assets/FolderIcon_Win10.png");
-                            NewItem.Description = FolderPath;
-                            NewItem.GroupName = GroupString;
-
-                            InnerList.Items.Add(NewItem);
-
-                            ItemModified = true;
+                            InnerList.Items.Remove(RecentGroupItems[0]);
+                        }
+                        else
+                        {
+                            InnerList.Items.Remove(LibraryGroupItems[0]);
                         }
                     }
-
-                    if (ItemModified)
+                    else if (RecentGroupItems.Count > 0)
                     {
-                        await InnerList.SaveAsync();
+                        InnerList.Items.Remove(RecentGroupItems[0]);
                     }
                 }
+
+                JumpListItem NewItem = JumpListItem.CreateWithArguments(FolderPath, Path.GetFileName(FolderPath));
+
+                NewItem.Description = FolderPath;
+                NewItem.GroupName = CurrentGroupName;
+                NewItem.Logo = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11) ? new Uri("ms-appx:///Assets/Icon/FolderIcon_Win11.png") : new Uri("ms-appx:///Assets/Icon/FolderIcon_Win10.png");
+
+                InnerList.Items.Insert(0, NewItem);
             }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not add items to jump list");
-            }
+
+            await InnerList.SaveAsync();
         }
 
-        public async Task RemoveItemAsync(JumpListGroup Group, params string[] PathList)
+        public static async Task RemoveItemAsync(JumpListGroup Group, params string[] PathList)
         {
-            try
-            {
-                if (await InitializeAsync().ConfigureAwait(false))
-                {
-                    bool ItemModified = false;
-                    string GroupString = ConvertGroupEnumToResourceString(Group);
+            await InitializeAsync();
 
-                    JumpListItem[] GroupItem = InnerList.Items.Where((Item) => Item.GroupName == GroupString).ToArray();
+            string CurrentGroupName = ConvertGroupEnumToResourceString(Group);
 
-                    foreach (string Path in PathList)
-                    {
-                        if (GroupItem.FirstOrDefault((Item) => Item.Description == Path) is JumpListItem RemoveItem)
-                        {
-                            InnerList.Items.Remove(RemoveItem);
-                            ItemModified = true;
-                        }
-                    }
+            InnerList.Items.RemoveRange(InnerList.Items.Where((Item) => Item.GroupName == CurrentGroupName)
+                                                       .Where((Item) => PathList.Contains(Item.Arguments, StringComparer.OrdinalIgnoreCase))
+                                                       .ToArray());
 
-                    if (ItemModified)
-                    {
-                        await InnerList.SaveAsync();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not remove items to jump list");
-            }
+            await InnerList.SaveAsync();
         }
 
-        public async Task<IReadOnlyList<JumpListItem>> GetAllJumpListItems()
+        public static Task<IReadOnlyList<JumpListItem>> GetJumpListItemsAsync()
         {
-            try
+            return InitializeAsync().ContinueWith<IReadOnlyList<JumpListItem>>((PreviousTask) =>
             {
-                if (await InitializeAsync().ConfigureAwait(false))
+                if (PreviousTask.Exception is Exception ex)
                 {
-                    return InnerList.Items.ToList();
+                    ExceptionDispatchInfo.Throw(ex);
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not get the jump list items");
-            }
 
-            return new List<JumpListItem>(0);
+                return InnerList.Items.ToArray();
+            });
         }
 
-        public string ConvertGroupEnumToResourceString(JumpListGroup Group)
+        private static string ConvertGroupEnumToResourceString(JumpListGroup Group)
         {
             switch (Group)
             {
@@ -195,14 +129,9 @@ namespace RX_Explorer.Class
                     }
                 default:
                     {
-                        throw new ArgumentOutOfRangeException(nameof(Group));
+                        throw new NotSupportedException(nameof(Group));
                     }
             }
-        }
-
-        private JumpListController()
-        {
-
         }
     }
 }

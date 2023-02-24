@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using Windows.Storage;
 using Windows.Storage.Search;
+using Windows.UI.StartScreen;
 
 namespace MaintenanceTask
 {
@@ -29,7 +30,8 @@ namespace MaintenanceTask
 
                     await Task.WhenAll(UpdateSystemLaunchHelperAsync(Cancellation.Token),
                                        UpdateSQLiteAsync(Cancellation.Token),
-                                       ClearTemporaryFolderAsync(Cancellation.Token));
+                                       ClearTemporaryFolderAsync(Cancellation.Token),
+                                       RefreshJumpListAsync(Cancellation.Token));
                 }
             }
             catch (OperationCanceledException)
@@ -284,6 +286,29 @@ namespace MaintenanceTask
                     Transaction.Commit();
                 }
             });
+        }
+
+        private async Task RefreshJumpListAsync(CancellationToken CancelToken = default)
+        {
+            if (JumpList.IsSupported())
+            {
+                JumpList CurrentJumpList = await JumpList.LoadCurrentAsync().AsTask().AsCancellable(CancelToken);
+                CurrentJumpList.SystemGroupKind = JumpListSystemGroupKind.None;
+
+                CurrentJumpList.Items.Clear();
+
+                foreach (JumpListItem OldItem in CurrentJumpList.Items.DuplicateAndClear())
+                {
+                    CancelToken.ThrowIfCancellationRequested();
+                    JumpListItem NewItem = JumpListItem.CreateWithArguments(OldItem.Arguments, OldItem.DisplayName);
+                    NewItem.Description = OldItem.Arguments;
+                    NewItem.GroupName = OldItem.GroupName;
+                    NewItem.Logo = OldItem.Logo;
+                    CurrentJumpList.Items.Add(NewItem);
+                }
+
+                await CurrentJumpList.SaveAsync().AsTask().AsCancellable(CancelToken);
+            }
         }
     }
 }

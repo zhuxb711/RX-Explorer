@@ -63,6 +63,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Extension.cs" />
     <Compile Include="MaintenanceTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
