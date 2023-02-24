@@ -189,15 +189,14 @@
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="38" />
+            <RowDefinition Height="35" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <TextBlock Name="FocusBerth"
                    Height="0"
                    Width="0"
                    IsTextSelectionEnabled="True"/>
-        <Grid Padding="0,2"
-              Background="{ThemeResource ElementCustomAcrylicBrush}">
+        <Grid Background="{ThemeResource ElementCustomAcrylicBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="35" />

@@ -198,7 +198,7 @@ namespace RX_Explorer.Class
                                         .AppendLine()
                                         .AppendLine($"Version: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}")
                                         .AppendLine()
-                                        .AppendLine($"Exception: {Ex}")
+                                        .AppendLine($"Exception: {Ex.GetType().FullName}")
                                         .AppendLine()
                                         .AppendLine("Message:")
                                         .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
