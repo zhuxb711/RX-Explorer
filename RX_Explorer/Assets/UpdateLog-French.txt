@@ -1,19 +1,17 @@
-﻿###Quoi de neuf dans la version 8.1.8.0
+﻿###Quoi de neuf dans la version 8.2.0
 
 #### ⚠Avertissement : la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
 >#### WinAppSdk est un framework alternatif pour Uwp et est actuellement testé en interne. Au moment de la sortie officielle, tous les utilisateurs qui ont acheté la version Uwp peuvent activer directement la version WinAppSdk
 
-##### Améliorations des performances
+##### Mises à jour de l’interface utilisateur
 
->##### Amélioration de la vitesse de tri des fichiers
+>##### Activation d’une toute nouvelle icône
 
 ##### Corrections de bugs
 
->##### Correction d’un problème où la barre de progression du chargement pouvait ne pas disparaître dans certains cas
+>##### Résolution d’un problème selon lequel les listes de raccourcis de la barre des tâches pouvaient avoir des traductions manquantes après chaque mise à jour de l’application
 
->##### Correction d’un problème où la possibilité de localiser les fichiers par les initiales pouvait ne pas fonctionner correctement
+>##### Résolution d’un problème selon lequel la définition des propriétés d’un fichier via la fenêtre Propriétés peut ne pas fonctionner comme prévu
 
->##### Correction d’un problème dans le menu contextuel où certains éléments de menu ne respectaient pas la police spécifiée dans les paramètres
-
->##### Correction de quelques problèmes de traduction
+>##### Résolution d’un problème selon lequel les animations de démarrage peuvent être activées de manière inattendue après la désactivation du commutateur Effets d’animation

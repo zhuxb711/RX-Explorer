@@ -452,128 +452,111 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     }
                                 case 1:
                                     {
+                                        FileSystemStorageItemBase StorageItem = StorageItems.Single();
                                         List<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>> AttributeDic = new List<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>>();
 
-                                        if (StorageItems.Single() is FileSystemStorageItemBase StorageItem)
+                                        switch (StorageItem)
+                                        {
+                                            case FileSystemStorageFolder:
+                                                {
+                                                    if (FolderReadonlyAttribute.IsChecked != null)
+                                                    {
+                                                        AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(FolderReadonlyAttribute.IsChecked.Value ? ModifyAttributeAction.Add : ModifyAttributeAction.Remove, System.IO.FileAttributes.ReadOnly));
+                                                    }
+
+                                                    if (FolderHiddenAttribute.IsChecked! != StorageItem.IsHiddenItem)
+                                                    {
+                                                        AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem.IsHiddenItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
+                                                    }
+
+                                                    if (FolderStorageItemName.Text != StorageItem.Name)
+                                                    {
+                                                        if (HandleRenameAutomatically)
+                                                        {
+                                                            await StorageItem.RenameAsync(FolderStorageItemName.Text);
+                                                        }
+                                                        else if (RenameRequested != null)
+                                                        {
+                                                            await RenameRequested.InvokeAsync(this, new FileRenamedDeferredEventArgs(StorageItem.Path, FolderStorageItemName.Text));
+                                                        }
+                                                    }
+
+                                                    break;
+                                                }
+                                            case FileSystemStorageFile File:
+                                                {
+                                                    if (FileReadonlyAttribute.IsChecked! != File.IsReadOnly)
+                                                    {
+                                                        AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(File.IsReadOnly ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.ReadOnly));
+                                                    }
+
+                                                    if (FileHiddenAttribute.IsChecked! != StorageItem.IsHiddenItem)
+                                                    {
+                                                        AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem.IsHiddenItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
+                                                    }
+
+                                                    if (FileStorageItemName.Text != StorageItem.Name)
+                                                    {
+                                                        if (HandleRenameAutomatically)
+                                                        {
+                                                            await StorageItem.RenameAsync(FileStorageItemName.Text);
+                                                        }
+                                                        else if (RenameRequested != null)
+                                                        {
+                                                            await RenameRequested.InvokeAsync(this, new FileRenamedDeferredEventArgs(StorageItem.Path, FileStorageItemName.Text));
+                                                        }
+                                                    }
+
+                                                    break;
+                                                }
+                                        }
+
+                                        try
                                         {
                                             switch (StorageItem)
                                             {
-                                                case FileSystemStorageFolder:
+                                                case LinkStorageFile:
                                                     {
-                                                        if (FolderReadonlyAttribute.IsChecked != null)
-                                                        {
-                                                            AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(FolderReadonlyAttribute.IsChecked.Value ? ModifyAttributeAction.Add : ModifyAttributeAction.Remove, System.IO.FileAttributes.ReadOnly));
-                                                        }
+                                                        Match LinkTargetMatch = Regex.Match(ShortcutTargetContent.Text, "(?<=\").+(?=\")");
+                                                        Match LinkWorkDirectoryMatch = Regex.Match(ShortcutStartInContent.Text, "(?<=\").+(?=\")");
 
-                                                        if (FolderHiddenAttribute.IsChecked! != StorageItem.IsHiddenItem)
-                                                        {
-                                                            AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem.IsHiddenItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
-                                                        }
+                                                        string LinkTargetPath = LinkTargetMatch.Success ? LinkTargetMatch.Value : string.Empty;
+                                                        string LinkWorkDirectory = LinkWorkDirectoryMatch.Success ? LinkWorkDirectoryMatch.Value : string.Empty;
 
-                                                        if (FolderStorageItemName.Text != StorageItem.Name)
+                                                        await Exclusive.Controller.UpdateLinkAsync(new LinkFileData
                                                         {
-                                                            if (HandleRenameAutomatically)
-                                                            {
-                                                                await StorageItem.RenameAsync(FolderStorageItemName.Text);
-                                                            }
-                                                            else if (RenameRequested != null)
-                                                            {
-                                                                await RenameRequested.InvokeAsync(this, new FileRenamedDeferredEventArgs(StorageItem.Path, FolderStorageItemName.Text));
-                                                            }
-                                                        }
+                                                            LinkPath = StorageItem.Path,
+                                                            LinkTargetPath = LinkTargetPath,
+                                                            Arguments = Regex.Replace(ShortcutTargetContent.Text, "^\".*\"\\s+", string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries),
+                                                            WorkDirectory = LinkWorkDirectory,
+                                                            WindowState = (WindowState)ShortcutWindowsStateContent.SelectedIndex,
+                                                            HotKey = ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (byte)VirtualKey.None : (byte)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
+                                                            Comment = ShortcutCommentContent.Text,
+                                                            NeedRunAsAdmin = RunAsAdmin.IsChecked.GetValueOrDefault()
+                                                        });
 
                                                         break;
                                                     }
-                                                case FileSystemStorageFile File:
+                                                case UrlStorageFile UrlFile:
                                                     {
-                                                        if (FileReadonlyAttribute.IsChecked! != File.IsReadOnly)
-                                                        {
-                                                            AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(File.IsReadOnly ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.ReadOnly));
-                                                        }
-
-                                                        if (FileHiddenAttribute.IsChecked! != StorageItem.IsHiddenItem)
-                                                        {
-                                                            AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem.IsHiddenItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
-                                                        }
-
-                                                        if (FileStorageItemName.Text != StorageItem.Name)
-                                                        {
-                                                            if (HandleRenameAutomatically)
-                                                            {
-                                                                await StorageItem.RenameAsync(FileStorageItemName.Text);
-                                                            }
-                                                            else if (RenameRequested != null)
-                                                            {
-                                                                await RenameRequested.InvokeAsync(this, new FileRenamedDeferredEventArgs(StorageItem.Path, FileStorageItemName.Text));
-                                                            }
-                                                        }
+                                                        await Exclusive.Controller.UpdateUrlAsync(new UrlFileData(StorageItem.Path, ShortcutUrlContent.Text, Array.Empty<byte>()));
 
                                                         break;
                                                     }
                                             }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogTracer.Log(ex, $"Could not update file data of {StorageItem.GetType().FullName}");
+                                        }
 
-                                            if (AttributeDic.Any((Item) => Item.Key == ModifyAttributeAction.Remove && Item.Value == System.IO.FileAttributes.ReadOnly))
-                                            {
-                                                try
-                                                {
-                                                    await Exclusive.Controller.SetFileAttributeAsync(StorageItem.Path, AttributeDic.ToArray());
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    LogTracer.Log(ex, $"Could not set the file attribute, details: {string.Join(" & ", AttributeDic.Select((Item) => $"{Enum.GetName(typeof(ModifyAttributeAction), Item.Key)}|{Enum.GetName(typeof(System.IO.FileAttributes), Item.Value)}"))}");
-                                                }
-                                            }
-
-                                            try
-                                            {
-                                                switch (StorageItem)
-                                                {
-                                                    case LinkStorageFile:
-                                                        {
-                                                            Match LinkTargetMatch = Regex.Match(ShortcutTargetContent.Text, "(?<=\").+(?=\")");
-                                                            Match LinkWorkDirectoryMatch = Regex.Match(ShortcutStartInContent.Text, "(?<=\").+(?=\")");
-
-                                                            string LinkTargetPath = LinkTargetMatch.Success ? LinkTargetMatch.Value : string.Empty;
-                                                            string LinkWorkDirectory = LinkWorkDirectoryMatch.Success ? LinkWorkDirectoryMatch.Value : string.Empty;
-
-                                                            await Exclusive.Controller.UpdateLinkAsync(new LinkFileData
-                                                            {
-                                                                LinkPath = StorageItem.Path,
-                                                                LinkTargetPath = LinkTargetPath,
-                                                                Arguments = Regex.Replace(ShortcutTargetContent.Text, "^\".*\"\\s+", string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries),
-                                                                WorkDirectory = LinkWorkDirectory,
-                                                                WindowState = (WindowState)ShortcutWindowsStateContent.SelectedIndex,
-                                                                HotKey = ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (byte)VirtualKey.None : (byte)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
-                                                                Comment = ShortcutCommentContent.Text,
-                                                                NeedRunAsAdmin = RunAsAdmin.IsChecked.GetValueOrDefault()
-                                                            });
-
-                                                            break;
-                                                        }
-                                                    case UrlStorageFile UrlFile:
-                                                        {
-                                                            await Exclusive.Controller.UpdateUrlAsync(new UrlFileData(StorageItem.Path, ShortcutUrlContent.Text, Array.Empty<byte>()));
-
-                                                            break;
-                                                        }
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                LogTracer.Log(ex, $"Could not update file data of {StorageItem.GetType().FullName}");
-                                            }
-
-                                            if (AttributeDic.Any((Item) => Item.Key == ModifyAttributeAction.Add && Item.Value == System.IO.FileAttributes.ReadOnly))
-                                            {
-                                                try
-                                                {
-                                                    await Exclusive.Controller.SetFileAttributeAsync(StorageItem.Path, AttributeDic.ToArray());
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    LogTracer.Log(ex, $"Could not set the file attribute, details: {string.Join(" & ", AttributeDic.Select((Item) => $"{Enum.GetName(typeof(ModifyAttributeAction), Item.Key)}|{Enum.GetName(typeof(System.IO.FileAttributes), Item.Value)}"))}");
-                                                }
-                                            }
+                                        try
+                                        {
+                                            await Exclusive.Controller.SetFileAttributeAsync(StorageItem.Path, AttributeDic.ToArray());
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogTracer.Log(ex, $"Could not set the file attribute, details: {string.Join(" & ", AttributeDic.Select((Item) => $"{Enum.GetName(typeof(ModifyAttributeAction), Item.Key)}|{Enum.GetName(typeof(System.IO.FileAttributes), Item.Value)}"))}");
                                         }
 
                                         break;

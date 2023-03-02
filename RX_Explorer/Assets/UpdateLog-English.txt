@@ -1,19 +1,17 @@
-﻿###What's new in Ver.8.1.8.0
+﻿###What's new in Ver.8.2.0
 
 #### ⚠Warning: Uwp version will suspend feature updates and enter maintenance-only state, RX-Explorer will be migrated to WinAppSdk framework
 
 >#### WinAppSdk is an alternative framework for Uwp and is currently being tested internally. At the time of official release, all users who have purchased the Uwp version can directly activate the WinAppSdk version
 
-##### Performance improvements
+##### UI updates
 
->##### Improved the speed of sorting files
+>##### Enabled a brand new icon
 
 ##### Bug fixes
 
->##### Fixed an issue where the loading progress bar might not disappear in some cases
+>##### Addresses an issue where taskbar Jump Lists could have missing translations after each update of the application
 
->##### Fixed an issue where the ability to locate files by initials might not work correctly
+>##### Addresses an issue where setting file properties through the Properties window may not work as expected
 
->##### Fixed an issue in the context menu where some menu items do not respect the font specified in the settings
-
->##### Fixed some translation issues
+>##### Addresses an issue where startup animations may be unexpectedly enabled after turning off the Animation Effects switch

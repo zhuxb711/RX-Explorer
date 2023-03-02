@@ -81,7 +81,7 @@ namespace RX_Explorer.Class
 
                 NewItem.Description = FolderPath;
                 NewItem.GroupName = CurrentGroupName;
-                NewItem.Logo = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11) ? new Uri("ms-appx:///Assets/Icon/FolderIcon_Win11.png") : new Uri("ms-appx:///Assets/Icon/FolderIcon_Win10.png");
+                NewItem.Logo = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11) ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png") : new Uri("ms-appx:///Assets/FolderIcon_Win10.png");
 
                 InnerList.Items.Insert(0, NewItem);
             }

@@ -233,7 +233,7 @@ namespace AuxiliaryTrustProcess
                                                                         break;
                                                                     }
 
-                                                                    SetCompressionCore(DriveCompressStatusData.Path, CompressionFormat);
+                                                                    SetCompressionCore(Entry, CompressionFormat);
                                                                 }
                                                             }
 
@@ -263,7 +263,7 @@ namespace AuxiliaryTrustProcess
 
                                                                     try
                                                                     {
-                                                                        File.SetAttributes(DriveIndexStatusData.Path, DriveIndexStatusData.AllowIndex ? File.GetAttributes(DriveIndexStatusData.Path) & ~FileAttributes.NotContentIndexed : File.GetAttributes(DriveIndexStatusData.Path) | FileAttributes.NotContentIndexed);
+                                                                        File.SetAttributes(Entry, DriveIndexStatusData.AllowIndex ? File.GetAttributes(DriveIndexStatusData.Path) & ~FileAttributes.NotContentIndexed : File.GetAttributes(DriveIndexStatusData.Path) | FileAttributes.NotContentIndexed);
                                                                     }
                                                                     catch (Exception)
                                                                     {

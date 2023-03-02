@@ -1,19 +1,17 @@
-﻿###Was ist neu in Ver.8.1.8.0
+﻿###Was ist neu in Ver.8.2.0
 
 #### ⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird zum WinAppSdk-Framework migriert
 
 >#### WinAppSdk ist ein alternatives Framework für Uwp und wird derzeit intern getestet. Zum Zeitpunkt der offiziellen Veröffentlichung können alle Benutzer, die die Uwp-Version erworben haben, die WinAppSdk-Version direkt aktivieren
 
-##### Leistungsverbesserungen
+##### Aktualisierungen der Benutzeroberfläche
 
->##### Verbesserte Geschwindigkeit beim Sortieren von Dateien
+>##### Ein brandneues Symbol aktiviert
 
 ##### Fehlerbehebungen
 
->##### Es wurde ein Problem behoben, bei dem der Ladefortschrittsbalken in einigen Fällen möglicherweise nicht verschwand.
+>##### Behebt ein Problem, bei dem Taskleisten-Sprunglisten nach jeder Aktualisierung der Anwendung fehlende Übersetzungen aufweisen konnten
 
->##### Es wurde ein Problem behoben, bei dem die Möglichkeit, Dateien anhand von Initialen zu finden, möglicherweise nicht korrekt funktionierte
+>##### Behebt ein Problem, bei dem das Festlegen von Dateieigenschaften über das Eigenschaftenfenster möglicherweise nicht wie erwartet funktioniert
 
->##### Es wurde ein Problem im Kontextmenü behoben, bei dem einige Menüelemente die in den Einstellungen angegebene Schriftart nicht respektieren
-
->##### Einige Übersetzungsprobleme behoben
+>##### Behebt ein Problem, bei dem Startanimationen nach dem Deaktivieren des Schalters "Animationseffekte" unerwartet aktiviert werden können.
