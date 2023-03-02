@@ -39,7 +39,7 @@ jobs:
     displayName: "Build CI Application"
     timeoutInMinutes: 0
     pool:
-      vmImage: "windows-latest"
+      vmImage: "windows-2019"
     steps:
       # UseDotNet@2 task to install .Net 7 environment because Azure Pipeline would not prepare the SDK we needed.
       # Maybe we could remove this task once Azure Pipeline install .Net 7 SDK by default.
