@@ -70,25 +70,16 @@ namespace RX_Explorer.Class
         {
             XamlRoot = (Window.Current.Content as FrameworkElement)?.XamlRoot;
             DefaultButton = ContentDialogButton.Primary;
+            RequestedTheme = AppThemeController.Current.Theme;
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
+            Background = Application.Current.Resources["AcrylicBackgroundFillColorDefaultBrush"] as Brush;
 
             Opened += QueueContentDialog_Opened;
             Closed += QueueContentDialog_Closed;
         }
 
-        private void SetContentDialogTheme(ElementTheme Theme)
-        {
-            RequestedTheme = Theme;
-            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
-
-            foreach (Popup Pop in VisualTreeHelper.GetOpenPopups(Window.Current))
-            {
-                Pop.RequestedTheme = Theme;
-            }
-        }
-
         private void QueueContentDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
         {
-            SetContentDialogTheme(AppThemeController.Current.Theme);
             AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
         }
 
@@ -99,7 +90,9 @@ namespace RX_Explorer.Class
 
         private void Current_ThemeChanged(object sender, ElementTheme newTheme)
         {
-            SetContentDialogTheme(newTheme);
+            RequestedTheme = newTheme;
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
+            Background = Application.Current.Resources["AcrylicBackgroundFillColorDefaultBrush"] as Brush;
         }
 
         private class QueueContentDialogInternalData

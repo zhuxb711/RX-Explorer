@@ -1,5 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp.UI;
-using RX_Explorer.Class;
+﻿using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using SharedLibrary;
 using System;
@@ -34,13 +33,12 @@ namespace RX_Explorer.View
         private IDisposable MTPEndOfShare;
         private CancellationTokenSource Cancellation;
         private CancellationTokenSource SingleClickCancellation;
-        private readonly ObservableCollection<PhotoDisplayItem> PhotoCollection;
         private readonly InterlockedNoReentryExecution RotationExecution = new InterlockedNoReentryExecution();
+        private readonly ObservableCollection<PhotoDisplayItem> PhotoCollection = new ObservableCollection<PhotoDisplayItem>();
 
         public PhotoViewer()
         {
             InitializeComponent();
-            PhotoCollection = new ObservableCollection<PhotoDisplayItem>();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)

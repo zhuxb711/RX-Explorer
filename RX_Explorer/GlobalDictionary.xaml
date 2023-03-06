@@ -41,11 +41,6 @@
     <CornerRadius x:Key="CustomCornerRadius">8,8,8,8</CornerRadius>
     <TextTrimming x:Key="MenuFlyoutItemTextTrimming">CharacterEllipsis</TextTrimming>
     
-    <AcrylicBrush x:Key="DialogAcrylicBrush"
-                  TintColor="{ThemeResource SystemAltHighColor}"
-                  TintOpacity="0.6"
-                  FallbackColor="{ThemeResource SystemAltMediumColor}"/>
-
     <x:Double x:Key="ContentDialogMaxWidth">550</x:Double>
     <x:Double x:Key="ContentDialogMaxHeight">700</x:Double>
     <x:Double x:Key="TeachingTipMaxWidth">400</x:Double>

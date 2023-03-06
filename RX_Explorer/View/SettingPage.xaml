@@ -120,7 +120,7 @@
                                  IsSettingsVisible="False"
                                  HorizontalAlignment="Stretch"
                                  VerticalAlignment="Stretch"
-                                 Background="{ThemeResource DialogAcrylicBrush}"
+                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}"
                                  ItemInvoked="SettingNavigation_ItemInvoked">
                 <muxc:NavigationView.MenuItems>
                     <muxc:NavigationViewItem IsSelected="True">
@@ -3576,6 +3576,8 @@
 
             <Grid Grid.Row="1"
                   Padding="20,0"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
                   Background="{ThemeResource SystemControlAcrylicElementBrush}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
