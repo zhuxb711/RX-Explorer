@@ -231,7 +231,7 @@
                                             </StackPanel>
                                             <ToggleSwitch OnContent="左侧"
                                                           OffContent="顶端"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           x:Uid="SettingNavLayout"
                                                           Name="NavigationViewLayout"
                                                           RelativePanel.AlignRightWithPanel="True"
@@ -262,7 +262,7 @@
                                             </StackPanel>
                                             <ToggleSwitch OnContent="常规"
                                                           OffContent="简约"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           Name="ApplicationStyleSwitch"
                                                           x:Uid="ApplicationStyleSwitch"
                                                           RelativePanel.AlignRightWithPanel="True"
@@ -293,7 +293,7 @@
                                             </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           x:Uid="SettingTabPreview"
                                                           Name="TabPreviewSwitch"
                                                           RelativePanel.AlignRightWithPanel="True"
@@ -325,7 +325,7 @@
                                             </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           Name="FileExtensionSwitch"
                                                           x:Uid="FileExtensionSwitch"
                                                           RelativePanel.AlignRightWithPanel="True"
@@ -356,7 +356,7 @@
                                             </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           Name="DoubleClickGoToParent"
                                                           x:Uid="DoubleClickGotoParentSwitch"
                                                           RelativePanel.AlignRightWithPanel="True"
@@ -388,7 +388,7 @@
                                             </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           Name="ShowDetailsWhenHover"
                                                           x:Uid="PreviewFileOnHoverSwitch"
                                                           RelativePanel.AlignRightWithPanel="True"
@@ -595,7 +595,7 @@
                                                 <ToggleSwitch OnContent="启用"
                                                               OffContent="隐藏"
                                                               x:Uid="SettingTreeViewDetach"
-                                                              Style="{StaticResource SettingToggleSwitchStyle}"
+                                                              Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                               RelativePanel.AlignRightWithPanel="True"
                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
                                                               x:Name="TreeViewDetach" />
@@ -675,7 +675,7 @@
                                                 </StackPanel>
                                                 <ToggleSwitch OnContent="启用"
                                                               OffContent="禁用"
-                                                              Style="{StaticResource SettingToggleSwitchStyle}"
+                                                              Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                               x:Uid="SettingDisplayHiddenItem"
                                                               Name="DisplayHiddenItem"
                                                               RelativePanel.AlignRightWithPanel="True"
@@ -944,7 +944,7 @@
                                                           OffContent="禁用"
                                                           Name="AutoBoot"
                                                           x:Uid="AutoBootOnStartup"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
                                         </RelativePanel>
@@ -985,7 +985,7 @@
                                                           OffContent="禁用"
                                                           Toggled="EnableSeer_Toggled"
                                                           x:Uid="SettingPageSeerSwitch"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True"/>
                                         </RelativePanel>
@@ -1026,7 +1026,7 @@
                                                           OnContent="启用"
                                                           OffContent="禁用"
                                                           Toggled="EnableQuicklook_Toggled"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True"/>
                                         </RelativePanel>
@@ -1058,7 +1058,7 @@
                                                           OffContent="禁用"
                                                           Name="LoadWSLOnStartup"
                                                           x:Uid="LoadWSLOnStartup"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
                                                           Toggled="LoadWSLOnStartup_Toggled" />
@@ -1092,7 +1092,7 @@
                                                           Name="AlwaysOnTop"
                                                           x:Uid="AlwaysOnTop"
                                                           Toggled="AlwaysOnTop_Toggled"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
                                         </RelativePanel>
@@ -1148,7 +1148,7 @@
                                                                       OffContent="禁用"
                                                                       x:Uid="SettingPageExplorerContextMenuSwitch"
                                                                       Name="WindowsExplorerContextMenu"
-                                                                      Style="{StaticResource SettingToggleSwitchStyle}"
+                                                                      Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                                       RelativePanel.AlignRightWithPanel="True"
                                                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
                                                     </RelativePanel>
@@ -1181,7 +1181,7 @@
                                                                           OnContent="启用"
                                                                           OffContent="禁用"
                                                                           x:Uid="UseWinAndEActivate"
-                                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                                           RelativePanel.AlignRightWithPanel="True"
                                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
                                                         </RelativePanel>
@@ -1275,7 +1275,7 @@
                                                                           OffContent="禁用"
                                                                           Name="InterceptFolderSwitch"
                                                                           x:Uid="InterceptFolderSwitch"
-                                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                                           RelativePanel.AlignRightWithPanel="True"
                                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
                                                         </RelativePanel>
@@ -1368,7 +1368,7 @@
                                                               OffContent="禁用"
                                                               Name="AppGuardSwitch"
                                                               x:Uid="AppGuardSwitch"
-                                                              Style="{StaticResource SettingToggleSwitchStyle}"
+                                                              Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                               RelativePanel.AlignRightWithPanel="True"
                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
                                                               Toggled="AppGuardSwitch_Toggled" />
@@ -1455,7 +1455,7 @@
                                                               OffContent="禁用"
                                                               x:Uid="SettingPageContextMenuExt"
                                                               Name="ContextMenuExtSwitch"
-                                                              Style="{StaticResource SettingToggleSwitchStyle}"
+                                                              Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                               RelativePanel.AlignRightWithPanel="True"
                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
                                                               Toggled="ContextMenuExtSwitch_Toggled" />
@@ -1515,7 +1515,7 @@
                                                               Name="DeleteConfirmSwitch"
                                                               x:Uid="DeleteConfirmSwitch"
                                                               Toggled="DeleteConfirmSwitch_Toggled"
-                                                              Style="{StaticResource SettingToggleSwitchStyle}"
+                                                              Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                               RelativePanel.AlignRightWithPanel="True"
                                                               RelativePanel.AlignVerticalCenterWithPanel="True" />
                                             </RelativePanel>
@@ -2160,7 +2160,7 @@
                                                               OnContent="启用"
                                                               x:Uid="SettingPageAnimationSwitch"
                                                               Name="AnimationSwitch"
-                                                              Style="{StaticResource SettingToggleSwitchStyle}"
+                                                              Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                               IsOn="{x:Bind Cls:AnimationController.Current.IsEnableAnimation,Mode=TwoWay}"
                                                               RelativePanel.AlignRightWithPanel="True"
                                                               RelativePanel.AlignVerticalCenterWithPanel="True" />
@@ -2467,13 +2467,11 @@
                                                                             BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                         <StackPanel Orientation="Horizontal">
-                                                                            <GridView Name="PictureGirdView"
-                                                                                      MaxWidth="400"
-                                                                                      IsRightTapEnabled="True"
-                                                                                      VerticalAlignment="Top"
+                                                                            <GridView Name="PictureGridView"
+                                                                                      MaxWidth="400"                                                                                      VerticalAlignment="Top"
                                                                                       SelectionMode="Single"
                                                                                       Loaded="PictureGirdView_Loaded"
-                                                                                      RightTapped="PictureGirdView_RightTapped"
+                                                                                      ContextRequested="PictureGridView_ContextRequested"
                                                                                       ScrollViewer.HorizontalScrollMode="Enabled"
                                                                                       ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                                                                       ScrollViewer.VerticalScrollMode="Disabled"
@@ -2496,7 +2494,7 @@
                                                                             <Button Margin="5,0,0,0"
                                                                                     Width="80"
                                                                                     Height="80"
-                                                                                    IsEnabled="{x:Bind PictureGirdView.IsEnabled,Mode=OneWay}"
+                                                                                    IsEnabled="{x:Bind PictureGridView.IsEnabled,Mode=OneWay}"
                                                                                     Name="AddImageToPictureButton"
                                                                                     Click="AddImageToPictureButton_Click"
                                                                                     VerticalAlignment="Top">
@@ -2860,7 +2858,7 @@
                                                           OffContent="清除"
                                                           Name="PathHistory"
                                                           x:Uid="SettingPathHistory"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
                                                           Toggled="PathHistory_Toggled" />
@@ -2893,7 +2891,7 @@
                                                           OffContent="清除"
                                                           x:Uid="SettingSearchHistory"
                                                           Name="SearchHistory"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
                                                           Toggled="SearchHistory_Toggled" />
@@ -2926,7 +2924,7 @@
                                                           OffContent="禁用"
                                                           x:Uid="SettingShareData"
                                                           Name="SettingShareData"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                          Style="{StaticResource LeftLabelToggleSwitchStyle}"
                                                           RelativePanel.AlignRightWithPanel="True"
                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
                                                           Toggled="SettingShareData_Toggled" />

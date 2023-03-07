@@ -2885,18 +2885,6 @@ Les noms non valides incluent
   <data name="CloseTabOnRight.Label" xml:space="preserve">
     <value>Fermez tous les onglets à droite</value>
   </data>
-  <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
-    <value>Obtenez le maintenant</value>
-  </data>
-  <data name="DiscountTip.CloseButtonContent" xml:space="preserve">
-    <value>Pas besoin</value>
-  </data>
-  <data name="DiscountTip.Title" xml:space="preserve">
-    <value>Remise anniversaire</value>
-  </data>
-  <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
-    <value>Obtenez le rabais anniversaire maintenant! Achetez la version officielle à 50% de réduction et débloquez de nouvelles fonctionnalités</value>
-  </data>
   <data name="NewFile_Admin_Name" xml:space="preserve">
     <value>Nouveau fichier</value>
   </data>

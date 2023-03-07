@@ -66,11 +66,6 @@
                 Value="{StaticResource ContentControlThemeFontFamily}" />
     </Style>
 
-    <Style TargetType="muxc:TeachingTip">
-        <Setter Property="FontFamily"
-                Value="{StaticResource ContentControlThemeFontFamily}" />
-    </Style>
-
     <Style TargetType="MenuFlyoutItem"
            BasedOn="{StaticResource DefaultMenuFlyoutItemStyle}">
         <Setter Property="FontFamily"
@@ -79,6 +74,11 @@
 
     <Style TargetType="muxc:RadioMenuFlyoutItem"
            BasedOn="{StaticResource DefaultRadioMenuFlyoutItemStyle}">
+        <Setter Property="FontFamily"
+                Value="{StaticResource ContentControlThemeFontFamily}" />
+    </Style>
+
+    <Style TargetType="muxc:NumberBox">
         <Setter Property="FontFamily"
                 Value="{StaticResource ContentControlThemeFontFamily}" />
     </Style>
@@ -192,32 +192,19 @@
         </Setter>
     </Style>
 
-    <Style x:Key="SettingToggleSwitchStyle"
-           TargetType="ToggleSwitch">
-        <Setter Property="Foreground"
-                Value="{ThemeResource ToggleSwitchContentForeground}" />
-        <Setter Property="HorizontalAlignment"
-                Value="Left" />
-        <Setter Property="VerticalAlignment"
-                Value="Center" />
+    <Style x:Key="LeftLabelToggleSwitchStyle"
+           TargetType="ToggleSwitch"
+           BasedOn="{StaticResource DefaultToggleSwitchStyle}">
         <Setter Property="HorizontalContentAlignment"
                 Value="Right" />
-        <Setter Property="FontFamily"
-                Value="{ThemeResource ContentControlThemeFontFamily}" />
-        <Setter Property="FontSize"
-                Value="{ThemeResource ControlContentThemeFontSize}" />
-        <Setter Property="ManipulationMode"
-                Value="System,TranslateX" />
-        <Setter Property="UseSystemFocusVisuals"
-                Value="{StaticResource UseSystemFocusVisuals}" />
-        <Setter Property="FocusVisualMargin"
-                Value="-7,-3,-7,-3" />
+        <Setter Property="MinWidth"
+                Value="0" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleSwitch">
                     <Grid Background="{TemplateBinding Background}"
-                          BorderThickness="{TemplateBinding BorderThickness}"
                           BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
                           CornerRadius="{TemplateBinding CornerRadius}">
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
@@ -701,7 +688,6 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-
                         <ContentPresenter x:Name="HeaderContentPresenter"
                                           x:DeferLoadStrategy="Lazy"
                                           Grid.Row="0"

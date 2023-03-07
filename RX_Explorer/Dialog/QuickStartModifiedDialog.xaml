@@ -124,43 +124,54 @@
         </controls:TeachingTip>
     </Cls:QueueContentDialog.Resources>
 
-    <Grid>
-        <StackPanel Orientation="Horizontal">
-            <Image Width="110"
-                   Height="110"
+    <Grid Width="400">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Image Width="100"
+                   Height="100"
                    Name="Icon"
-                   Stretch="Uniform" />
+                   Stretch="Uniform"
+                   VerticalAlignment="Center"/>
             <StackPanel Margin="10,0,0,0"
+                        Grid.Column="1"
                         VerticalAlignment="Center">
-                <TextBox HorizontalAlignment="Left"
-                         x:Uid="QuickStartDisplayName"
+                <TextBox x:Uid="QuickStartDisplayName"
                          Name="DisplayName"
                          PlaceholderText="显示名称"
-                         Width="205" />
+                         HorizontalAlignment="Stretch" />
                 <TextBox Name="Protocol"
-                         Width="205"
                          Margin="0,5,0,0"
                          PlaceholderText="输入路径或协议"
                          IsSpellCheckEnabled="False"
-                         IsTextPredictionEnabled="False" />
-                <StackPanel Orientation="Horizontal"
-                            Margin="0,5,0,0">
+                         IsTextPredictionEnabled="False"
+                         HorizontalAlignment="Stretch" />
+                <Grid Margin="0,5,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
                     <Button x:Name="GetImageAutomatic"
                             Content="获取图标"
-                            MinWidth="100"
+                            Margin="0,0,2,0"
+                            HorizontalAlignment="Stretch"
                             x:Uid="QuickStartGetWebImage"
-                            Click="GetImageAutomatic_Click" />
-                    <Button Name="PickLogo"
+                            Click="GetThumbnail_Click" />
+                    <Button x:Name="PickLogo"
                             Content="自定义图标"
-                            Margin="5,0,0,0"
-                            MinWidth="100"
+                            Margin="2,0,0,0"
+                            HorizontalAlignment="Stretch"
+                            Grid.Column="1"
                             x:Uid="QuickStartPickLogo"
-                            Click="PickWebLogo" />
-                    <Button Name="PickApp"
+                            Click="PickWebLogo_Click" />
+                    <Button x:Name="PickApp"
                             Content="选择应用"
-                            Margin="5,0,0,0"
-                            x:Uid="QuickStartPickApp"
-                            MinWidth="100">
+                            Margin="2,0,0,0"
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            x:Uid="QuickStartPickApp">
                         <Button.Flyout>
                             <Flyout Placement="Bottom"
                                     x:Name="PickAppFlyout">
@@ -193,8 +204,8 @@
                             </Flyout>
                         </Button.Flyout>
                     </Button>
-                </StackPanel>
+                </Grid>
             </StackPanel>
-        </StackPanel>
+        </Grid>
     </Grid>
 </Cls:QueueContentDialog>

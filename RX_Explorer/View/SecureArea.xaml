@@ -76,6 +76,7 @@
         </muxc:CommandBarFlyout>
         <muxc:TeachingTip x:Name="WindowsHelloTip"
                           x:Uid="SecureAreaWHTip"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           IsLightDismissEnabled="True"
                           PreferredPlacement="Auto"
                           Target="{x:Bind WindowsHelloQuestion}"
@@ -83,6 +84,7 @@
                           Subtitle="利用Windows Hello来加强安全域的安全性，Windows Hello将必要的凭据保存至TPM安全芯片中。TPM芯片不受任何软硬件漏洞的影响，因此不会在任何未授权状态下泄露这些凭据。RX利用这一特性，结合AES加密，提供无与伦比的安全保护" />
         <muxc:TeachingTip x:Name="EncryptTip"
                           PreferredPlacement="Auto"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           x:Uid="SecureAreaEncryptTip"
                           IsLightDismissEnabled="True"
                           Target="{x:Bind EncryptionModeQuestion}"

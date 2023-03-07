@@ -3029,18 +3029,6 @@ Invalid names include
   <data name="CloseTabOnRight.Label" xml:space="preserve">
     <value>Close all tabs on the right</value>
   </data>
-  <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
-    <value>Get it now</value>
-  </data>
-  <data name="DiscountTip.CloseButtonContent" xml:space="preserve">
-    <value>Not needed</value>
-  </data>
-  <data name="DiscountTip.Title" xml:space="preserve">
-    <value>Anniversary Discount</value>
-  </data>
-  <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
-    <value>Get the anniversary discount now! Buy the official version at 50% discount and unlock new features</value>
-  </data>
   <data name="NewFile_Admin_Name" xml:space="preserve">
     <value>New file</value>
   </data>

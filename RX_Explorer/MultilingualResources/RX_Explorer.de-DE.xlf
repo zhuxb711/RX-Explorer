@@ -3831,22 +3831,6 @@ Inkorrekte Namen sind
           <source>Close all tabs on the right</source>
           <target state="translated">Alle Tabs rechts schließen</target>
         </trans-unit>
-        <trans-unit id="DiscountTip.ActionButtonContent" translate="yes" xml:space="preserve">
-          <source>Get it now</source>
-          <target state="translated">Hol es dir jetzt</target>
-        </trans-unit>
-        <trans-unit id="DiscountTip.CloseButtonContent" translate="yes" xml:space="preserve">
-          <source>Not needed</source>
-          <target state="translated">Nicht benötigt</target>
-        </trans-unit>
-        <trans-unit id="DiscountTip.Title" translate="yes" xml:space="preserve">
-          <source>Anniversary Discount</source>
-          <target state="translated">Jubiläumsrabatt</target>
-        </trans-unit>
-        <trans-unit id="TeachingTip_DiscountTip_Subtitle" translate="yes" xml:space="preserve">
-          <source>Get the anniversary discount now! Buy the official version at 50% discount and unlock new features</source>
-          <target state="translated">Jetzt Jubiläumsrabatt sichern! Kaufen Sie die offizielle Version mit 50% Rabatt und schalten Sie neue Funktionen frei</target>
-        </trans-unit>
         <trans-unit id="NewFile_Admin_Name" translate="yes" xml:space="preserve">
           <source>New file</source>
           <target state="translated">Neue Datei</target>

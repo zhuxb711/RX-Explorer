@@ -74,6 +74,7 @@
         <muxc:TeachingTip x:Name="PinTip"
                           x:Uid="PinTip"
                           Grid.Row="1"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           Title="更快捷的启动"
                           PreferredPlacement="Bottom"
                           IsLightDismissEnabled="True"
@@ -82,6 +83,7 @@
         <muxc:TeachingTip x:Name="RateTip"
                           x:Uid="RateTip"
                           Grid.Row="1"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           Title="请为此App评分"
                           PreferredPlacement="Bottom"
                           IsLightDismissEnabled="True"
@@ -91,15 +93,8 @@
         <muxc:TeachingTip x:Name="PurchaseTip"
                           x:Uid="PurchaseTip"
                           Grid.Row="1"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           Title="购买本应用"
-                          PreferredPlacement="Bottom"
-                          IsLightDismissEnabled="False"
-                          ActionButtonContent="购买"
-                          CloseButtonContent="稍后" />
-        <muxc:TeachingTip x:Name="DiscountTip"
-                          x:Uid="DiscountTip"
-                          Grid.Row="1"
-                          Title="周年优惠"
                           PreferredPlacement="Bottom"
                           IsLightDismissEnabled="False"
                           ActionButtonContent="购买"
@@ -107,11 +102,13 @@
         <muxc:TeachingTip x:Name="BluetoothAudioQuestionTip"
                           IsLightDismissEnabled="True"
                           Target="{x:Bind BluetoothAudioQuestion}"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           x:Uid="BluetoothAudioQuestionTip"
                           Title="蓝牙音频播放"
                           Subtitle="此功能可以帮助您通过蓝牙分享其他设备上的音频并在本设备上播放。注意：您在使用本功能之前必须首先与其他蓝牙设备配对，否则将无法检测到该蓝牙设备。" />
         <muxc:TeachingTip x:Name="BluetoothAudioSelectionTip"
                           Title="选择蓝牙音频源"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           ShouldConstrainToRootBounds="False"
                           x:Uid="BluetoothAudioSelectionTip"
                           IsLightDismissEnabled="True"
@@ -195,10 +192,11 @@
             </Grid>
         </muxc:TeachingTip>
         <muxc:TeachingTip x:Name="QuickStartTip"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           IsLightDismissEnabled="True"
                           Title="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}">
             <muxc:TeachingTip.Resources>
-                <muxc:CommandBarFlyout x:Name="AppFlyout"
+                <muxc:CommandBarFlyout x:Name="QuickStartFlyout"
                                        ShouldConstrainToRootBounds="False"
                                        Placement="BottomEdgeAlignedLeft">
                     <muxc:CommandBarFlyout.SecondaryCommands>
@@ -216,55 +214,11 @@
                                       Click="QuickStartItemDelete_Click" />
                     </muxc:CommandBarFlyout.SecondaryCommands>
                 </muxc:CommandBarFlyout>
-
-                <muxc:CommandBarFlyout x:Name="WebFlyout"
-                                       ShouldConstrainToRootBounds="False"
-                                       Placement="BottomEdgeAlignedLeft">
-                    <muxc:CommandBarFlyout.SecondaryCommands>
-                        <AppBarButton Icon="Edit"
-                                      Label="编辑"
-                                      MinWidth="200"
-                                      x:Uid="AppEdit"
-                                      Name="WebEdit"
-                                      Click="QuickStartItemEdit_Click" />
-                        <AppBarButton Icon="Delete"
-                                      Name="WebDelete"
-                                      x:Uid="AppDelete"
-                                      MinWidth="200"
-                                      Label="删除"
-                                      Click="QuickStartItemDelete_Click" />
-                    </muxc:CommandBarFlyout.SecondaryCommands>
-                </muxc:CommandBarFlyout>
-
-                <muxc:CommandBarFlyout x:Name="AppEmptyFlyout"
-                                       ShouldConstrainToRootBounds="False"
-                                       Placement="BottomEdgeAlignedLeft">
-                    <muxc:CommandBarFlyout.SecondaryCommands>
-                        <AppBarButton Icon="Add"
-                                      Label="添加"
-                                      MinWidth="200"
-                                      x:Uid="QuickStartAddButton"
-                                      x:Name="AddQuickStartApp"
-                                      Click="AddQuickStartItem_Click" />
-                    </muxc:CommandBarFlyout.SecondaryCommands>
-                </muxc:CommandBarFlyout>
-
-                <muxc:CommandBarFlyout x:Name="WebEmptyFlyout"
-                                       ShouldConstrainToRootBounds="False"
-                                       Placement="BottomEdgeAlignedLeft">
-                    <muxc:CommandBarFlyout.SecondaryCommands>
-                        <AppBarButton Icon="Add"
-                                      Label="添加"
-                                      MinWidth="200"
-                                      x:Uid="QuickStartAddButton"
-                                      x:Name="AddQuickStartWeb"
-                                      Click="AddQuickStartItem_Click" />
-                    </muxc:CommandBarFlyout.SecondaryCommands>
-                </muxc:CommandBarFlyout>
             </muxc:TeachingTip.Resources>
-            <ScrollViewer HorizontalScrollMode="Disabled"
+            <ScrollViewer x:Name="QuickStartPanelRoot"
+                          HorizontalScrollMode="Disabled"
                           VerticalScrollMode="Enabled"
-                          x:Name="QuickStartPanelRoot">
+                          VerticalScrollBarVisibility="Hidden" >
                 <StackPanel>
                     <TextBlock Text="应用"
                                Margin="5"
@@ -282,17 +236,14 @@
                               AllowDrop="True"
                               CanDragItems="True"
                               CanReorderItems="True"
+                              ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
+                              ItemsSource="{x:Bind Cls:CommonAccessCollection.QuickStartList}"
+                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}"
                               DragItemsCompleted="QuickStart_DragItemsCompleted"
                               DragItemsStarting="QuickStart_DragItemsStarting"
                               PreviewKeyDown="QuickStart_PreviewKeyDown"
-                              IsRightTapEnabled="True"
-                              ItemClick="QuickStart_ItemClick"
-                              RightTapped="QuickStart_RightTapped"
-                              IsHoldingEnabled="True"
-                              Holding="QuickStart_Holding"
-                              ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
-                              ItemsSource="{x:Bind Cls:CommonAccessCollection.QuickStartList}"
-                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
+                              ItemClick="QuickStartGridView_ItemClick"
+                              ContextRequested="QuickStart_ContextRequested">
                         <GridView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <ItemsWrapGrid MaximumRowsOrColumns="3"
@@ -317,17 +268,14 @@
                               Padding="5"
                               IsItemClickEnabled="True"
                               IsDoubleTapEnabled="False"
-                              IsRightTapEnabled="True"
-                              IsHoldingEnabled="True"
-                              DragItemsCompleted="QuickStart_DragItemsCompleted"
-                              DragItemsStarting="QuickStart_DragItemsStarting"
-                              Holding="QuickStart_Holding"
-                              ItemClick="QuickStart_ItemClick"
-                              RightTapped="QuickStart_RightTapped"
-                              PreviewKeyDown="QuickStart_PreviewKeyDown"
                               ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
                               ItemsSource="{x:Bind Cls:CommonAccessCollection.WebLinkList}"
-                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
+                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}"
+                              DragItemsCompleted="QuickStart_DragItemsCompleted"
+                              DragItemsStarting="QuickStart_DragItemsStarting"
+                              ItemClick="WebGridView_ItemClick"
+                              PreviewKeyDown="QuickStart_PreviewKeyDown"
+                              ContextRequested="QuickStart_ContextRequested">
                         <GridView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <ItemsWrapGrid MaximumRowsOrColumns="3"
@@ -372,14 +320,11 @@
                                          PaneDisplayMode="Top"
                                          IsTitleBarAutoPaddingEnabled="True"
                                          SelectionFollowsFocus="Disabled"
-                                         IsRightTapEnabled="True"
-                                         IsHoldingEnabled="True"
-                                         Holding="NavView_Holding"
                                          BackRequested="NavView_BackRequested"
                                          ItemInvoked="NavView_ItemInvoked"
                                          PaneClosing="NavView_PaneClosing"
                                          PaneOpening="NavView_PaneOpening"
-                                         RightTapped="NavView_RightTapped"
+                                         ContextRequested="NavView_ContextRequested"
                                          Loaded="NavView_Loaded">
                         <muxc:NavigationView.Resources>
                             <SolidColorBrush x:Key="NavigationViewTopPaneBackground"

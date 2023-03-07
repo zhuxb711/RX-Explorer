@@ -47,7 +47,7 @@ namespace RX_Explorer.View
     public sealed partial class FileControl : Page, IDisposable
     {
         private FilePresenter currentPresenter;
-        private CommandBarFlyout RightTapFlyout;
+        private CommandBarFlyout ContextMenuFlyout;
 
         private readonly InterlockedNoReentryExecution SearchTextExecution = new InterlockedNoReentryExecution();
         private readonly InterlockedNoReentryExecution AddressTextExecution = new InterlockedNoReentryExecution();
@@ -61,7 +61,6 @@ namespace RX_Explorer.View
         private readonly ObservableCollection<NavigationRecordDisplay> NavigationRecordList = new ObservableCollection<NavigationRecordDisplay>();
 
         private readonly PointerEventHandler BladePointerPressedEventHandler;
-        private readonly RightTappedEventHandler AddressBoxRightTapEventHandler;
         private readonly PointerEventHandler GoBackButtonPressedHandler;
         private readonly PointerEventHandler GoBackButtonReleasedHandler;
         private readonly PointerEventHandler GoForwardButtonPressedHandler;
@@ -132,10 +131,9 @@ namespace RX_Explorer.View
         {
             InitializeComponent();
 
-            RightTapFlyout = CreateNewFolderContextMenu();
+            ContextMenuFlyout = CreateNewFolderContextMenu();
 
             BladePointerPressedEventHandler = new PointerEventHandler(Blade_PointerPressed);
-            AddressBoxRightTapEventHandler = new RightTappedEventHandler(AddressBox_RightTapped);
             GoBackButtonPressedHandler = new PointerEventHandler(GoBackRecord_PointerPressed);
             GoBackButtonReleasedHandler = new PointerEventHandler(GoBackRecord_PointerReleased);
             GoForwardButtonPressedHandler = new PointerEventHandler(GoForwardRecord_PointerPressed);
@@ -798,7 +796,6 @@ namespace RX_Explorer.View
                 if (e.NavigationMode == NavigationMode.New
                     && e.Parameter is TabItemContentRenderer Renderer)
                 {
-                    AddressBox.AddHandler(RightTappedEvent, AddressBoxRightTapEventHandler, true);
                     GoBackRecord.AddHandler(PointerPressedEvent, GoBackButtonPressedHandler, true);
                     GoBackRecord.AddHandler(PointerReleasedEvent, GoBackButtonReleasedHandler, true);
                     GoForwardRecord.AddHandler(PointerPressedEvent, GoForwardButtonPressedHandler, true);
@@ -1162,7 +1159,7 @@ namespace RX_Explorer.View
 
         private async void FolderDelete_Click(object sender, RoutedEventArgs e)
         {
-            RightTapFlyout.Hide();
+            ContextMenuFlyout.Hide();
 
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent TargetContent)
             {
@@ -1262,7 +1259,7 @@ namespace RX_Explorer.View
 
         private async void FolderRename_Click(object sender, RoutedEventArgs e)
         {
-            RightTapFlyout.Hide();
+            ContextMenuFlyout.Hide();
 
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
@@ -1356,7 +1353,7 @@ namespace RX_Explorer.View
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            RightTapFlyout.Hide();
+            ContextMenuFlyout.Hide();
 
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
@@ -1394,7 +1391,7 @@ namespace RX_Explorer.View
 
         private async void FolderProperty_Click(object sender, RoutedEventArgs e)
         {
-            RightTapFlyout.Hide();
+            ContextMenuFlyout.Hide();
 
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
@@ -2037,11 +2034,7 @@ namespace RX_Explorer.View
 
         private void AddressBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            if (AddressBox.Tag is bool IsOpen && IsOpen)
-            {
-                AddressBox.Tag = false;
-            }
-            else
+            if (!((e.OriginalSource as TextBox)?.ContextFlyout?.IsOpen).GetValueOrDefault())
             {
                 AddressButtonContainer.Visibility = Visibility.Visible;
             }
@@ -2265,7 +2258,7 @@ namespace RX_Explorer.View
 
         private async void FolderCut_Click(object sender, RoutedEventArgs e)
         {
-            RightTapFlyout.Hide();
+            ContextMenuFlyout.Hide();
 
             string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
 
@@ -2313,7 +2306,7 @@ namespace RX_Explorer.View
 
         private async void FolderCopy_Click(object sender, RoutedEventArgs e)
         {
-            RightTapFlyout.Hide();
+            ContextMenuFlyout.Hide();
 
             string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
 
@@ -3077,11 +3070,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private void AddressBox_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            AddressBox.Tag = true;
-        }
-
         private void GoForwardRecord_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if (!CurrentPresenter.ForwardNavigationStack.IsEmpty)
@@ -3309,7 +3297,7 @@ namespace RX_Explorer.View
 
         private async void SendToItem_Click(object sender, RoutedEventArgs e)
         {
-            RightTapFlyout.Hide();
+            ContextMenuFlyout.Hide();
 
             if (sender is FrameworkElement Item)
             {
@@ -3445,7 +3433,7 @@ namespace RX_Explorer.View
 
         private async void RemovePin_Click(object sender, RoutedEventArgs e)
         {
-            RightTapFlyout.Hide();
+            ContextMenuFlyout.Hide();
 
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
@@ -3530,7 +3518,7 @@ namespace RX_Explorer.View
 
         public async Task PrepareContextMenuAsync(CommandBarFlyout Flyout)
         {
-            if (Flyout == RightTapFlyout)
+            if (Flyout == ContextMenuFlyout)
             {
                 if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content == TreeViewNodeContent.QuickAccessNode) is TreeViewNode QuickAccessNode)
                 {
@@ -3570,10 +3558,10 @@ namespace RX_Explorer.View
 
         private async void FolderTree_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
+            args.Handled = true;
+
             if (args.TryGetPosition(sender, out Point Position))
             {
-                args.Handled = true;
-
                 try
                 {
                     if ((args.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
@@ -3593,11 +3581,11 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                AppBarButton FolderCopyButton = RightTapFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderCopyButton");
-                                AppBarButton FolderCutButton = RightTapFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderCutButton");
-                                AppBarButton FolderDeleteButton = RightTapFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderDeleteButton");
-                                AppBarButton FolderRenameButton = RightTapFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderRenameButton");
-                                AppBarButton FolderSendToButton = RightTapFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderSendToButton");
+                                AppBarButton FolderCopyButton = ContextMenuFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderCopyButton");
+                                AppBarButton FolderCutButton = ContextMenuFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderCutButton");
+                                AppBarButton FolderDeleteButton = ContextMenuFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderDeleteButton");
+                                AppBarButton FolderRenameButton = ContextMenuFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderRenameButton");
+                                AppBarButton FolderSendToButton = ContextMenuFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderSendToButton");
 
                                 if (FolderTree.RootNodes.Contains(Node))
                                 {
@@ -3626,8 +3614,8 @@ namespace RX_Explorer.View
                                     {
                                         try
                                         {
-                                            await PrepareContextMenuAsync(RightTapFlyout);
-                                            await RightTapFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
+                                            await PrepareContextMenuAsync(ContextMenuFlyout);
+                                            await ContextMenuFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
                                                                                                                Position,
                                                                                                                ContextMenuCancellation.Token,
                                                                                                                Content.Path);
@@ -3635,7 +3623,7 @@ namespace RX_Explorer.View
                                         }
                                         catch (Exception)
                                         {
-                                            RightTapFlyout = CreateNewFolderContextMenu();
+                                            ContextMenuFlyout = CreateNewFolderContextMenu();
                                         }
                                     }
                                 }
@@ -3680,7 +3668,6 @@ namespace RX_Explorer.View
                 CommonAccessCollection.DriveChanged -= CommonAccessCollection_DriveChanged;
                 CommonAccessCollection.LibraryChanged -= CommonAccessCollection_LibraryChanged;
 
-                AddressBox.RemoveHandler(RightTappedEvent, AddressBoxRightTapEventHandler);
                 GoBackRecord.RemoveHandler(PointerPressedEvent, GoBackButtonPressedHandler);
                 GoBackRecord.RemoveHandler(PointerReleasedEvent, GoBackButtonReleasedHandler);
                 GoForwardRecord.RemoveHandler(PointerPressedEvent, GoForwardButtonPressedHandler);

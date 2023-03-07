@@ -1877,10 +1877,10 @@ namespace RX_Explorer.View
 
         private async void LibraryGrid_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
+            args.Handled = true;
+
             if (args.TryGetPosition(sender, out Point Position))
             {
-                args.Handled = true;
-
                 if (!SettingPage.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancellation?.Cancel();
@@ -1932,6 +1932,8 @@ namespace RX_Explorer.View
 
         private async void DriveGrid_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
+            args.Handled = true;
+
             if (args.TryGetPosition(sender, out Point Position))
             {
                 if (!SettingPage.IsDoubleClickEnabled)

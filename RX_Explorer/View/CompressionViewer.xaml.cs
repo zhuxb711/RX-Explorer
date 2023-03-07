@@ -1050,10 +1050,10 @@ namespace RX_Explorer.View
 
         private void ListViewControl_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
+            args.Handled = true;
+
             if (args.TryGetPosition(sender, out Point Position))
             {
-                args.Handled = true;
-
                 if (args.OriginalSource is FrameworkElement Element)
                 {
                     if (Element.DataContext is CompressionItemBase Context)

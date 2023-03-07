@@ -925,30 +925,6 @@ namespace RX_Explorer.Class
             });
         }
 
-        public async Task RefreshAsync()
-        {
-            try
-            {
-                using (IDisposable Disposable = await SelfCreateBulkAccessSharedControllerAsync(this, Priority: PriorityLevel.Low))
-                {
-                    await GetStorageItemAsync(true);
-
-                    if (ShouldGenerateThumbnail)
-                    {
-                        await Task.WhenAll(LoadCoreAsync(true), GetThumbnailAsync(ThumbnailMode, true));
-                    }
-                    else
-                    {
-                        await LoadCoreAsync(true);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not refresh the {GetType().FullName}, path: {Path}");
-            }
-        }
-
         public virtual async Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
         {
             if (await GetStorageItemAsync() is IStorageItem Item)

@@ -30,6 +30,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
@@ -1305,21 +1306,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private void TabViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
-        {
-            if ((e.OriginalSource as FrameworkElement).FindParentOfType<TabViewItem>() is TabViewItem Item)
-            {
-                TabViewControl.SelectedItem = Item;
-
-                TabCommandFlyout?.ShowAt(Item, new FlyoutShowOptions
-                {
-                    Position = e.GetPosition(Item),
-                    Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
-                    ShowMode = FlyoutShowMode.Standard
-                });
-            }
-        }
-
         private async void CloseThisTab_Click(object sender, RoutedEventArgs e)
         {
             if (TabViewControl.SelectedItem is TabViewItem Item)
@@ -1536,6 +1522,26 @@ namespace RX_Explorer.View
         private void SecureAreaButton_Click(object sender, RoutedEventArgs e)
         {
             CurrentTabRenderer.RendererFrame.Navigate(typeof(SecureAreaContainer), null, new DrillInNavigationTransitionInfo());
+        }
+
+        private void TabViewControl_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        {
+            args.Handled = true;
+
+            if (args.TryGetPosition(sender, out Point Position))
+            {
+                if ((args.OriginalSource as FrameworkElement)?.FindParentOfType<TabViewItem>() is TabViewItem Item)
+                {
+                    TabViewControl.SelectedItem = Item;
+
+                    TabCommandFlyout?.ShowAt(Item, new FlyoutShowOptions
+                    {
+                        Position = Position,
+                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                        ShowMode = FlyoutShowMode.Standard
+                    });
+                }
+            }
         }
     }
 }

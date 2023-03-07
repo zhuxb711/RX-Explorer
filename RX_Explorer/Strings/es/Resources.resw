@@ -2887,18 +2887,6 @@ Las denominaciones no válidas son:
   <data name="CloseTabOnRight.Label" xml:space="preserve">
     <value>Cerrar todas las pestañas de la derecha</value>
   </data>
-  <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
-    <value>Consiguelo ahora</value>
-  </data>
-  <data name="DiscountTip.CloseButtonContent" xml:space="preserve">
-    <value>Innecesario</value>
-  </data>
-  <data name="DiscountTip.Title" xml:space="preserve">
-    <value>Descuento de aniversario</value>
-  </data>
-  <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
-    <value>¡Obtén el descuento de aniversario ahora! Compra la versión oficial con un 50% de descuento y desbloquea nuevas funciones</value>
-  </data>
   <data name="NewFile_Admin_Name" xml:space="preserve">
     <value>Archivo nuevo</value>
   </data>

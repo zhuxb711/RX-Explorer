@@ -2885,18 +2885,6 @@
   <data name="CloseTabOnRight.Label" xml:space="preserve">
     <value>關閉右側的所有選項卡</value>
   </data>
-  <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
-    <value>立即獲取</value>
-  </data>
-  <data name="DiscountTip.CloseButtonContent" xml:space="preserve">
-    <value>不需要</value>
-  </data>
-  <data name="DiscountTip.Title" xml:space="preserve">
-    <value>週年優惠</value>
-  </data>
-  <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
-    <value>立即獲得周年紀念折扣！以50%的折扣購買正式版並解鎖新功能</value>
-  </data>
   <data name="NewFile_Admin_Name" xml:space="preserve">
     <value>新建文件</value>
   </data>

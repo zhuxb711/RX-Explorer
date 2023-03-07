@@ -43,6 +43,7 @@
                           PreferredPlacement="BottomLeft"
                           x:Name="VerticalSplitTip"
                           HeroContentPlacement="Bottom"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           Subtitle="{x:Bind Cls:Globalization.GetString('VerticalSplitQuestionSubtitle')}"
                           ActionButtonContent="{x:Bind Cls:Globalization.GetString('PurchaseTip/ActionButtonContent')}"
                           CloseButtonContent="{x:Bind Cls:Globalization.GetString('PurchaseTip/CloseButtonContent')}"
@@ -64,7 +65,7 @@
                       AllowDropTabs="True"
                       Loaded="TabViewControl_Loaded"
                       PreviewKeyDown="TabViewControl_PreviewKeyDown"
-                      RightTapped="TabViewControl_RightTapped"
+                      ContextRequested="TabViewControl_ContextRequested"
                       PointerWheelChanged="TabViewControl_PointerWheelChanged"
                       TabStripDragOver="TabViewControl_TabStripDragOver"
                       TabStripDrop="TabViewControl_TabStripDrop"
@@ -73,6 +74,10 @@
                       TabCloseRequested="TabViewControl_TabCloseRequested"
                       AddTabButtonClick="TabViewControl_AddTabButtonClick"
                       TabDragCompleted="TabViewControl_TabDragCompleted">
+            <muxc:TabView.Resources>
+                <StaticResource x:Key="TabViewItemHeaderBackgroundSelected"
+                                ResourceKey="ElementCustomAcrylicBrush" />
+            </muxc:TabView.Resources>
             <muxc:TabView.TabStripHeader>
                 <Grid>
                     <Button Width="35"

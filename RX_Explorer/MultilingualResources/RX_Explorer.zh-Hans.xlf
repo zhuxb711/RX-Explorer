@@ -3831,22 +3831,6 @@ Invalid names include
           <source>Close all tabs on the right</source>
           <target state="translated">关闭右侧所有的标签页</target>
         </trans-unit>
-        <trans-unit id="DiscountTip.ActionButtonContent" translate="yes" xml:space="preserve">
-          <source>Get it now</source>
-          <target state="translated">立即获取</target>
-        </trans-unit>
-        <trans-unit id="DiscountTip.CloseButtonContent" translate="yes" xml:space="preserve">
-          <source>Not needed</source>
-          <target state="translated">不必了</target>
-        </trans-unit>
-        <trans-unit id="DiscountTip.Title" translate="yes" xml:space="preserve">
-          <source>Anniversary Discount</source>
-          <target state="translated">周年优惠</target>
-        </trans-unit>
-        <trans-unit id="TeachingTip_DiscountTip_Subtitle" translate="yes" xml:space="preserve">
-          <source>Get the anniversary discount now! Buy the official version at 50% discount and unlock new features</source>
-          <target state="translated">立即获得周年纪念折扣！以50%的折扣购买正式版并解锁新功能 </target>
-        </trans-unit>
         <trans-unit id="NewFile_Admin_Name" translate="yes" xml:space="preserve">
           <source>New file</source>
           <target state="translated">新建文件</target>

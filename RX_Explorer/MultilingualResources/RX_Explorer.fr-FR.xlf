@@ -3831,22 +3831,6 @@ Les noms non valides incluent
           <source>Close all tabs on the right</source>
           <target state="translated">Fermez tous les onglets à droite</target>
         </trans-unit>
-        <trans-unit id="DiscountTip.ActionButtonContent" translate="yes" xml:space="preserve">
-          <source>Get it now</source>
-          <target state="translated">Obtenez le maintenant</target>
-        </trans-unit>
-        <trans-unit id="DiscountTip.CloseButtonContent" translate="yes" xml:space="preserve">
-          <source>Not needed</source>
-          <target state="translated">Pas besoin</target>
-        </trans-unit>
-        <trans-unit id="DiscountTip.Title" translate="yes" xml:space="preserve">
-          <source>Anniversary Discount</source>
-          <target state="translated">Remise anniversaire</target>
-        </trans-unit>
-        <trans-unit id="TeachingTip_DiscountTip_Subtitle" translate="yes" xml:space="preserve">
-          <source>Get the anniversary discount now! Buy the official version at 50% discount and unlock new features</source>
-          <target state="translated">Obtenez le rabais anniversaire maintenant! Achetez la version officielle à 50% de réduction et débloquez de nouvelles fonctionnalités</target>
-        </trans-unit>
         <trans-unit id="NewFile_Admin_Name" translate="yes" xml:space="preserve">
           <source>New file</source>
           <target state="translated">Nouveau fichier</target>

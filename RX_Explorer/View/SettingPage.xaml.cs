@@ -1,6 +1,5 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Uwp.Helpers;
-using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using Nito.AsyncEx;
@@ -22,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Services.Store;
@@ -1182,7 +1182,7 @@ namespace RX_Explorer.View
         {
             InitializeComponent();
 
-            PictureGirdView.ItemsSource = PictureList;
+            PictureGridView.ItemsSource = PictureList;
             CloseButton.Content = Globalization.GetString("Common_Dialog_ConfirmButton");
 
             Loaded += SettingPage_Loaded;
@@ -1257,7 +1257,7 @@ namespace RX_Explorer.View
             TintOpacitySlider.IsEnabled = false;
             AcrylicColorPicker.IsEnabled = false;
             TintLuminositySlider.IsEnabled = false;
-            PictureGirdView.IsEnabled = false;
+            PictureGridView.IsEnabled = false;
             TintOpacitySliderLabel.Foreground = new SolidColorBrush(Colors.Gray);
             TintOpacitySliderValueText.Foreground = new SolidColorBrush(Colors.Gray);
             AccentColorLabel.Foreground = new SolidColorBrush(Colors.Gray);
@@ -1288,7 +1288,7 @@ namespace RX_Explorer.View
                     }
                 case BackgroundBrushType.Picture:
                     {
-                        PictureGirdView.IsEnabled = true;
+                        PictureGridView.IsEnabled = true;
                         OtherEffectArea.Visibility = Visibility.Visible;
                         break;
                     }
@@ -1494,7 +1494,7 @@ namespace RX_Explorer.View
                                             {
                                                 if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == UriString) is BackgroundPicture PictureItem)
                                                 {
-                                                    PictureGirdView.SelectedItem = PictureItem;
+                                                    PictureGridView.SelectedItem = PictureItem;
                                                 }
                                                 else if (Uri.TryCreate(UriString, UriKind.RelativeOrAbsolute, out Uri ImageUri))
                                                 {
@@ -1505,8 +1505,8 @@ namespace RX_Explorer.View
                                                             if (!PictureList.Contains(Picture))
                                                             {
                                                                 PictureList.Add(Picture);
-                                                                PictureGirdView.UpdateLayout();
-                                                                PictureGirdView.SelectedItem = Picture;
+                                                                PictureGridView.UpdateLayout();
+                                                                PictureGridView.SelectedItem = Picture;
                                                             }
                                                         }
                                                     }
@@ -1518,11 +1518,11 @@ namespace RX_Explorer.View
                                             }
                                             else if (PictureList.Count > 0)
                                             {
-                                                PictureGirdView.SelectedIndex = 0;
+                                                PictureGridView.SelectedIndex = 0;
                                             }
                                             else
                                             {
-                                                PictureGirdView.SelectedIndex = -1;
+                                                PictureGridView.SelectedIndex = -1;
                                             }
                                         }
                                         else
@@ -2573,7 +2573,7 @@ namespace RX_Explorer.View
                         if (await PictureItem.GetFullSizeBitmapImageAsync() is BitmapImage Bitmap)
                         {
                             BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
-                            PictureGirdView.SelectedItem = PictureItem;
+                            PictureGridView.SelectedItem = PictureItem;
                         }
                         else
                         {
@@ -2585,7 +2585,7 @@ namespace RX_Explorer.View
                         if (await PictureList[0].GetFullSizeBitmapImageAsync() is BitmapImage Bitmap)
                         {
                             BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList[0].PictureUri);
-                            PictureGirdView.SelectedIndex = 0;
+                            PictureGridView.SelectedIndex = 0;
                         }
                         else
                         {
@@ -2598,7 +2598,7 @@ namespace RX_Explorer.View
                     if (await PictureList[0].GetFullSizeBitmapImageAsync() is BitmapImage Bitmap)
                     {
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList[0].PictureUri);
-                        PictureGirdView.SelectedIndex = 0;
+                        PictureGridView.SelectedIndex = 0;
                     }
                     else
                     {
@@ -2607,7 +2607,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    PictureGirdView.SelectedIndex = -1;
+                    PictureGridView.SelectedIndex = -1;
                 }
             }
             catch (Exception ex)
@@ -2720,7 +2720,7 @@ namespace RX_Explorer.View
                     {
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
 
-                        await PictureGirdView.SelectAndScrollIntoViewSmoothlyAsync(PictureItem);
+                        await PictureGridView.SelectAndScrollIntoViewSmoothlyAsync(PictureItem);
 
                         if (e.RemovedItems.Count > 0)
                         {
@@ -2807,8 +2807,8 @@ namespace RX_Explorer.View
                     if (await BackgroundPicture.CreateAsync(new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}")) is BackgroundPicture Picture)
                     {
                         PictureList.Add(Picture);
-                        PictureGirdView.UpdateLayout();
-                        PictureGirdView.SelectedItem = Picture;
+                        PictureGridView.UpdateLayout();
+                        PictureGridView.SelectedItem = Picture;
 
                         SQLite.Current.SetBackgroundPicture(Picture.PictureUri);
                     }
@@ -2822,21 +2822,18 @@ namespace RX_Explorer.View
 
         private async void DeletePictureButton_Click(object sender, RoutedEventArgs e)
         {
-            if (PictureGirdView.SelectedItem is BackgroundPicture Picture)
+            if (PictureGridView.SelectedItem is BackgroundPicture Picture)
             {
                 try
                 {
-                    if (!Picture.PictureUri.ToString().StartsWith("ms-appx://"))
-                    {
-                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(Picture.PictureUri);
-                        await ImageFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                    }
+                    StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(Picture.PictureUri);
+                    await ImageFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                     SQLite.Current.DeleteBackgroundPicture(Picture.PictureUri);
 
                     PictureList.Remove(Picture);
-                    PictureGirdView.UpdateLayout();
-                    PictureGirdView.SelectedIndex = PictureList.Count - 1;
+                    PictureGridView.UpdateLayout();
+                    PictureGridView.SelectedIndex = PictureList.Count - 1;
                 }
                 catch (Exception ex)
                 {
@@ -2845,18 +2842,27 @@ namespace RX_Explorer.View
             }
         }
 
-        private void PictureGirdView_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        private void PictureGridView_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is BackgroundPicture Picture)
+            args.Handled = true;
+
+            if (args.TryGetPosition(sender, out Point Position))
             {
-                PictureGirdView.SelectedItem = Picture;
-                PictureGirdView.ContextFlyout = PictureFlyout;
-            }
-            else
-            {
-                PictureGirdView.ContextFlyout = null;
+                if ((args.OriginalSource as FrameworkElement)?.DataContext is BackgroundPicture Picture)
+                {
+                    PictureGridView.SelectedItem = Picture;
+                    DeletePictureButton.IsEnabled = !Picture.PictureUri.ToString().StartsWith("ms-appx://");
+                }
+
+                PictureFlyout.ShowAt(sender, new FlyoutShowOptions
+                {
+                    Position = Position,
+                    Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                    ShowMode = FlyoutShowMode.Standard
+                });
             }
         }
+
 
         private async void AutoBoot_Toggled(object sender, RoutedEventArgs e)
         {
@@ -4215,9 +4221,9 @@ namespace RX_Explorer.View
 
         private async void PictureGirdView_Loaded(object sender, RoutedEventArgs e)
         {
-            if (PictureGirdView.SelectedIndex >= 0)
+            if (PictureGridView.SelectedIndex >= 0)
             {
-                await PictureGirdView.SelectAndScrollIntoViewSmoothlyAsync(PictureGirdView.SelectedItem);
+                await PictureGridView.SelectAndScrollIntoViewSmoothlyAsync(PictureGridView.SelectedItem);
             }
         }
 
@@ -4384,9 +4390,9 @@ namespace RX_Explorer.View
 
         private async void PictureModeExpander_Expanding(Expander sender, ExpanderExpandingEventArgs args)
         {
-            if (PictureGirdView.SelectedIndex >= 0)
+            if (PictureGridView.SelectedIndex >= 0)
             {
-                await PictureGirdView.SelectAndScrollIntoViewSmoothlyAsync(PictureGirdView.SelectedItem);
+                await PictureGridView.SelectAndScrollIntoViewSmoothlyAsync(PictureGridView.SelectedItem);
             }
         }
 

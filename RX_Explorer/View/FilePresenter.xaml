@@ -31,15 +31,18 @@
                                      ItemsSource="{x:Bind FileCollection}" />
 
         <CollectionViewSource x:Name="CollectionVS"
-                              IsSourceGrouped="False" />
+                              IsSourceGrouped="False"
+                              Source="{x:Bind FileCollection}"/>
 
         <muxc:TeachingTip x:Name="InvalidCharTip"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           IsLightDismissEnabled="True"
                           x:Uid="PresentInvalidCharTip"
                           Title="错误"
                           Subtitle="不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
 
         <muxc:TeachingTip x:Name="InvalidNameTip"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           IsLightDismissEnabled="True"
                           x:Uid="PresentInvalidNameTip"
                           Title="错误"
@@ -77,6 +80,7 @@
         <muxc:TeachingTip PreferredPlacement="Auto"
                           Title="WIFI分享"
                           x:Uid="WIFIShareTip"
+                          FontFamily="{StaticResource ContentControlThemeFontFamily}"
                           HeroContentPlacement="Auto"
                           Closing="QRTeachTip_Closing"
                           x:Name="QRTeachTip">
@@ -286,13 +290,22 @@
                                             <GroupStyle HidesIfEmpty="True">
                                                 <GroupStyle.HeaderTemplate>
                                                     <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
-                                                        <StackPanel Orientation="Horizontal">
+                                                        <Grid HorizontalAlignment="Stretch"
+                                                              VerticalAlignment="Stretch">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
                                                             <TextBlock Text="{x:Bind Key}"
-                                                                       FontSize="18" />
+                                                                       FontSize="16"
+                                                                       VerticalAlignment="Center"/>
                                                             <TextBlock Margin="5,0,0,0"
+                                                                       Grid.Column="1"
+                                                                       FontSize="14"
                                                                        VerticalAlignment="Center"
                                                                        Text="{x:Bind Description,Mode=OneWay}" />
-                                                        </StackPanel>
+                                                        </Grid>
                                                     </DataTemplate>
                                                 </GroupStyle.HeaderTemplate>
                                             </GroupStyle>
@@ -456,13 +469,22 @@
                                             <GroupStyle HidesIfEmpty="True">
                                                 <GroupStyle.HeaderTemplate>
                                                     <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
-                                                        <StackPanel Orientation="Horizontal">
+                                                        <Grid HorizontalAlignment="Stretch"
+                                                              VerticalAlignment="Stretch">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
                                                             <TextBlock Text="{x:Bind Key}"
-                                                                       FontSize="18" />
+                                                                       FontSize="16"
+                                                                       VerticalAlignment="Center" />
                                                             <TextBlock Margin="5,0,0,0"
+                                                                       Grid.Column="1"
+                                                                       FontSize="14"
                                                                        VerticalAlignment="Center"
                                                                        Text="{x:Bind Description,Mode=OneWay}" />
-                                                        </StackPanel>
+                                                        </Grid>
                                                     </DataTemplate>
                                                 </GroupStyle.HeaderTemplate>
                                             </GroupStyle>
@@ -603,13 +625,22 @@
                                             <GroupStyle HidesIfEmpty="True">
                                                 <GroupStyle.HeaderTemplate>
                                                     <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
-                                                        <StackPanel Orientation="Horizontal">
+                                                        <Grid HorizontalAlignment="Stretch"
+                                                              VerticalAlignment="Stretch">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
                                                             <TextBlock Text="{x:Bind Key}"
-                                                                       FontSize="18" />
+                                                                       FontSize="16"
+                                                                       VerticalAlignment="Center" />
                                                             <TextBlock Margin="5,0,0,0"
+                                                                       Grid.Column="1"
+                                                                       FontSize="14"
                                                                        VerticalAlignment="Center"
                                                                        Text="{x:Bind Description,Mode=OneWay}" />
-                                                        </StackPanel>
+                                                        </Grid>
                                                     </DataTemplate>
                                                 </GroupStyle.HeaderTemplate>
                                             </GroupStyle>
@@ -751,13 +782,22 @@
                                             <GroupStyle HidesIfEmpty="True">
                                                 <GroupStyle.HeaderTemplate>
                                                     <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
-                                                        <StackPanel Orientation="Horizontal">
+                                                        <Grid HorizontalAlignment="Stretch"
+                                                              VerticalAlignment="Stretch">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
                                                             <TextBlock Text="{x:Bind Key}"
-                                                                       FontSize="18" />
+                                                                       FontSize="16"
+                                                                       VerticalAlignment="Center" />
                                                             <TextBlock Margin="5,0,0,0"
+                                                                       Grid.Column="1"
+                                                                       FontSize="14"
                                                                        VerticalAlignment="Center"
                                                                        Text="{x:Bind Description,Mode=OneWay}" />
-                                                        </StackPanel>
+                                                        </Grid>
                                                     </DataTemplate>
                                                 </GroupStyle.HeaderTemplate>
                                             </GroupStyle>
@@ -899,13 +939,22 @@
                                             <GroupStyle HidesIfEmpty="True">
                                                 <GroupStyle.HeaderTemplate>
                                                     <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
-                                                        <StackPanel Orientation="Horizontal">
+                                                        <Grid HorizontalAlignment="Stretch"
+                                                              VerticalAlignment="Stretch">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
                                                             <TextBlock Text="{x:Bind Key}"
-                                                                       FontSize="18" />
+                                                                       FontSize="16"
+                                                                       VerticalAlignment="Center" />
                                                             <TextBlock Margin="5,0,0,0"
+                                                                       Grid.Column="1"
+                                                                       FontSize="14"
                                                                        VerticalAlignment="Center"
                                                                        Text="{x:Bind Description,Mode=OneWay}" />
-                                                        </StackPanel>
+                                                        </Grid>
                                                     </DataTemplate>
                                                 </GroupStyle.HeaderTemplate>
                                             </GroupStyle>
@@ -1614,14 +1663,22 @@
                                                 <GroupStyle HidesIfEmpty="True">
                                                     <GroupStyle.HeaderTemplate>
                                                         <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
-                                                            <StackPanel Orientation="Horizontal">
+                                                            <Grid HorizontalAlignment="Stretch"
+                                                                  VerticalAlignment="Stretch">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
                                                                 <TextBlock Text="{x:Bind Key}"
-                                                                           FontSize="18" />
+                                                                           FontSize="16"
+                                                                           VerticalAlignment="Center" />
                                                                 <TextBlock Margin="5,0,0,0"
-                                                                           VerticalAlignment="Center"
+                                                                           Grid.Column="1"
                                                                            FontSize="14"
+                                                                           VerticalAlignment="Center"
                                                                            Text="{x:Bind Description,Mode=OneWay}" />
-                                                            </StackPanel>
+                                                            </Grid>
                                                         </DataTemplate>
                                                     </GroupStyle.HeaderTemplate>
                                                 </GroupStyle>

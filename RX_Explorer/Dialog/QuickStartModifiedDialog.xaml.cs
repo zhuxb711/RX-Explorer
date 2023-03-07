@@ -263,7 +263,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private async void GetImageAutomatic_Click(object sender, RoutedEventArgs e)
+        private async void GetThumbnail_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(Protocol.Text))
             {
@@ -550,7 +550,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private async void PickWebLogo(object sender, RoutedEventArgs e)
+        private async void PickWebLogo_Click(object sender, RoutedEventArgs e)
         {
             try
             {

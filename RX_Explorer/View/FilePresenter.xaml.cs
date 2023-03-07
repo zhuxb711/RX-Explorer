@@ -53,7 +53,6 @@ namespace RX_Explorer.View
 {
     public sealed partial class FilePresenter : Page, IDisposable
     {
-        private bool isGroupedEnabled;
         private volatile bool isInDragLoop;
         private string LastPressString;
         private DateTimeOffset LastPressTime;
@@ -112,8 +111,6 @@ namespace RX_Explorer.View
 
                     SelectionExtension?.Dispose();
                     SelectionExtension = new ListViewBaseSelectionExtension(value, DrawRectangle);
-
-                    CollectionVS.Source = IsGroupedEnabled ? GroupCollection : FileCollection;
 
                     ViewModeSwitcher.Value = value.Name;
                 }
@@ -179,24 +176,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private bool IsGroupedEnabled
-        {
-            get
-            {
-                return isGroupedEnabled;
-            }
-            set
-            {
-                if (isGroupedEnabled != value)
-                {
-                    isGroupedEnabled = value;
-                    CollectionVS.IsSourceGrouped = value;
-
-                    CollectionVS.Source = value ? GroupCollection : FileCollection;
-                }
-            }
-        }
-
         public FileSystemStorageItemBase SelectedItem
         {
             get
@@ -250,6 +229,17 @@ namespace RX_Explorer.View
             SortedCollectionGenerator.SortConfigChanged += Current_SortConfigChanged;
             GroupCollectionGenerator.GroupStateChanged += GroupCollectionGenerator_GroupStateChanged;
             LayoutModeController.ViewModeChanged += Current_ViewModeChanged;
+
+            CollectionVS.RegisterPropertyChangedCallback(CollectionViewSource.IsSourceGroupedProperty, new DependencyPropertyChangedCallback(OnIsSourceGroupedChanged));
+        }
+
+        private void OnIsSourceGroupedChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            if (sender is CollectionViewSource View)
+            {
+                GroupCollection.Clear();
+                CollectionVS.Source = View.IsSourceGrouped ? GroupCollection : FileCollection;
+            }
         }
 
         private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
@@ -2388,35 +2378,7 @@ namespace RX_Explorer.View
                                                     }
                                                     else
                                                     {
-                                                        if (IsGroupedEnabled)
-                                                        {
-                                                            if (GroupCollection.FirstOrDefault((Group) => Group.Contains(OldItem)) is FileSystemStorageGroupItem CurrentGroup)
-                                                            {
-                                                                PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
-                                                                if (await GroupCollectionGenerator.SearchGroupBelongingAsync(ModifiedItem, Config.GroupTarget.GetValueOrDefault()) != CurrentGroup.Key)
-                                                                {
-                                                                    FileCollection.Remove(OldItem);
-
-                                                                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(args.Path), StringComparison.OrdinalIgnoreCase))
-                                                                    {
-                                                                        if (FileCollection.Any())
-                                                                        {
-                                                                            FileCollection.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(FileCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), ModifiedItem);
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            FileCollection.Add(ModifiedItem);
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-
-                                                        if (FileCollection.Contains(OldItem))
-                                                        {
-                                                            await OldItem.RefreshAsync();
-                                                        }
+                                                        FileCollection[FileCollection.IndexOf(OldItem)] = ModifiedItem;
                                                     }
                                                 }
                                                 else
@@ -2536,29 +2498,136 @@ namespace RX_Explorer.View
             }
         }
 
+        private async void FileCollection_CollectionChanged1(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (CollectionVS.IsSourceGrouped)
+            {
+                IReadOnlyList<FileSystemStorageItemBase> OldItems = (e.OldItems?.Cast<FileSystemStorageItemBase>() ?? Enumerable.Empty<FileSystemStorageItemBase>()).ToArray();
+                IReadOnlyList<FileSystemStorageItemBase> NewItems = (e.NewItems?.Cast<FileSystemStorageItemBase>() ?? Enumerable.Empty<FileSystemStorageItemBase>()).ToArray();
+
+                if (OldItems.Concat(NewItems).All((Item) => (CurrentFolder?.Path.Equals(Path.GetDirectoryName(Item.Path), StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                {
+                    using (await CollectionChangeLock.LockAsync())
+                    {
+                        try
+                        {
+                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+                            switch (e.Action)
+                            {
+                                case NotifyCollectionChangedAction.Add:
+                                    {
+                                        foreach (FileSystemStorageItemBase Item in e.NewItems.Cast<FileSystemStorageItemBase>().Except(GroupCollection.SelectMany((Group) => Group)).ToArray())
+                                        {
+                                            string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
+
+                                            if (GroupCollection.SingleOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
+                                            {
+                                                GroupItem.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), Item);
+                                            }
+                                            else
+                                            {
+                                                GroupCollection.Insert(Array.IndexOf(GroupCollection.Select((Group) => Group.Key).Append(Key).OrderByFastStringSortAlgorithm((Key) => Key, SortDirection.Ascending).ToArray(), Key), new FileSystemStorageGroupItem(Key, new FileSystemStorageItemBase[] { Item }));
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case NotifyCollectionChangedAction.Remove:
+                                    {
+                                        foreach (FileSystemStorageItemBase Item in e.OldItems.Cast<FileSystemStorageItemBase>().ToArray())
+                                        {
+                                            if (GroupCollection.SingleOrDefault((Group) => Group.Contains(Item)) is FileSystemStorageGroupItem GroupItem)
+                                            {
+                                                GroupItem.Remove(Item);
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case NotifyCollectionChangedAction.Replace:
+                                    {
+                                        if (OldItems.SequenceEqual(NewItems))
+                                        {
+                                            for (int Index = 0; Index < OldItems.Count; Index++)
+                                            {
+                                                if (GroupCollection.SingleOrDefault((Group) => Group.Contains(OldItems[Index])) is FileSystemStorageGroupItem GroupItem)
+                                                {
+                                                    GroupItem[GroupItem.IndexOf(OldItems[Index])] = NewItems[Index];
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            foreach (FileSystemStorageItemBase Item in OldItems)
+                                            {
+                                                if (GroupCollection.SingleOrDefault((Group) => Group.Contains(Item)) is FileSystemStorageGroupItem GroupItem)
+                                                {
+                                                    GroupItem.Remove(Item);
+                                                }
+                                            }
+
+                                            foreach (FileSystemStorageItemBase Item in NewItems.Except(GroupCollection.SelectMany((Group) => Group)).ToArray())
+                                            {
+                                                string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
+
+                                                if (GroupCollection.SingleOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
+                                                {
+                                                    GroupItem.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), Item);
+                                                }
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "Could not update the items on file list changed");
+                        }
+                    }
+                }
+            }
+        }
+
         private async void GroupCollectionGenerator_GroupStateChanged(object sender, GroupStateChangedEventArgs args)
         {
             if (args.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
             {
-                AppBarButton GroupButton = EmptyFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "GroupButton");
-                RadioMenuFlyoutItem GroupAscButton = (GroupButton.Flyout as MenuFlyout).Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "GroupAscButton");
-                RadioMenuFlyoutItem GroupDescButton = (GroupButton.Flyout as MenuFlyout).Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "GroupDescButton");
+                AppBarButton GroupButton = EmptyFlyout.SecondaryCommands.OfType<AppBarButton>().Single((Btn) => Btn.Name == "GroupButton");
+                RadioMenuFlyoutItem GroupAscButton = (GroupButton.Flyout as MenuFlyout).Items.OfType<RadioMenuFlyoutItem>().Single((Btn) => Btn.Name == "GroupAscButton");
+                RadioMenuFlyoutItem GroupDescButton = (GroupButton.Flyout as MenuFlyout).Items.OfType<RadioMenuFlyoutItem>().Single((Btn) => Btn.Name == "GroupDescButton");
+
+                GroupCollection.Clear();
 
                 if (args.Target == GroupTarget.None)
                 {
+                    if (CollectionVS.IsSourceGrouped)
+                    {
+                        CollectionVS.IsSourceGrouped = false;
+                    }
+                    else
+                    {
+                        GroupCollection.Clear();
+                    }
+
                     GroupAscButton.IsEnabled = false;
                     GroupDescButton.IsEnabled = false;
-
-                    IsGroupedEnabled = false;
-
-                    GroupCollection.Clear();
                 }
                 else
                 {
+                    if (CollectionVS.IsSourceGrouped)
+                    {
+                        GroupCollection.Clear();
+                    }
+                    else
+                    {
+                        CollectionVS.IsSourceGrouped = true;
+                    }
+
                     GroupAscButton.IsEnabled = true;
                     GroupDescButton.IsEnabled = true;
-
-                    GroupCollection.Clear();
 
                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
@@ -2566,8 +2635,6 @@ namespace RX_Explorer.View
                     {
                         GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle)));
                     }
-
-                    IsGroupedEnabled = true;
                 }
             }
         }
@@ -2900,16 +2967,15 @@ namespace RX_Explorer.View
                 {
                     ListViewHeaderSortIndicator.Target = args.Target;
                     ListViewHeaderSortIndicator.Direction = args.Direction;
+                    FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(FileCollection.DuplicateAndClear(), args.Target, args.Direction, SortStyle.UseFileSystemStyle));
 
-                    if (IsGroupedEnabled)
+                    if (CollectionVS.IsSourceGrouped)
                     {
                         foreach (FileSystemStorageGroupItem GroupItem in GroupCollection)
                         {
                             GroupItem.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem.DuplicateAndClear(), args.Target, args.Direction, SortStyle.UseFileSystemStyle));
                         }
                     }
-
-                    FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(FileCollection.DuplicateAndClear(), args.Target, args.Direction, SortStyle.UseFileSystemStyle));
                 }
             }
             catch (Exception ex)
@@ -2948,6 +3014,8 @@ namespace RX_Explorer.View
                     {
                         ItemPresenter.SelectionMode = ListViewSelectionMode.Extended;
                     }
+
+                    AreaWatcher.StopMonitor();
 
                     if (Folder is RootVirtualFolder or LabelCollectionVirtualFolder)
                     {
@@ -3000,8 +3068,6 @@ namespace RX_Explorer.View
         {
             CurrentFolder = Folder;
             FileCollection.Clear();
-            GroupCollection.Clear();
-            AreaWatcher.StopMonitor();
 
             if (Folder is RootVirtualFolder)
             {
@@ -3009,33 +3075,27 @@ namespace RX_Explorer.View
             }
             else
             {
-                async Task SetupAndAddChildItemsAsync(FileSystemStorageFolder Folder, SortTarget STarget, SortDirection SDirection, GroupTarget GTarget, GroupDirection GDirection, CancellationToken CancelToken = default)
+                async Task AddChildItemsAsync(FileSystemStorageFolder Folder, SortTarget STarget, SortDirection SDirection, GroupTarget GTarget, GroupDirection GDirection, CancellationToken CancelToken = default)
                 {
+                    CollectionVS.IsSourceGrouped = GTarget != GroupTarget.None;
+
                     FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(await Folder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItemsEnabled, SettingPage.IsDisplayProtectedSystemItemsEnabled, CancelToken: CancelToken).ToArrayAsync(), STarget, SDirection, SortStyle.UseFileSystemStyle));
 
-                    if (FileCollection.Count > 0)
+                    if (CollectionVS.IsSourceGrouped)
                     {
-                        if (GTarget != GroupTarget.None)
-                        {
-                            foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(FileCollection, GTarget, GDirection))
-                            {
-                                GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem, STarget, SDirection, SortStyle.UseFileSystemStyle)));
-                            }
+                        GroupCollection.Clear();
 
-                            IsGroupedEnabled = true;
-                        }
-                        else
+                        foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(FileCollection, GTarget, GDirection))
                         {
-                            IsGroupedEnabled = false;
+                            GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem, STarget, SDirection, SortStyle.UseFileSystemStyle)));
                         }
-
                     }
                 }
 
                 PathConfiguration Config = SQLite.Current.GetPathConfiguration(Folder.Path);
 
                 Task IndicatorDissmissTask = Task.CompletedTask;
-                Task AddChildItemsTask = SetupAndAddChildItemsAsync(Folder, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault(), CancelToken);
+                Task AddChildItemsTask = AddChildItemsAsync(Folder, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault(), CancelToken);
 
                 try
                 {
@@ -3173,102 +3233,19 @@ namespace RX_Explorer.View
         {
             if (e.Action != NotifyCollectionChangedAction.Reset)
             {
-                int FileCountNumber = FileCollection.Count;
+                HasFile.Visibility = FileCollection.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
 
-                HasFile.Visibility = FileCountNumber > 0 ? Visibility.Collapsed : Visibility.Visible;
-
-                if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Remove)
+                if (e.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Remove)
                 {
                     string[] StatusTipsSplit = StatusTips.Text.Split("  |  ", StringSplitOptions.RemoveEmptyEntries);
 
                     if (StatusTipsSplit.Length > 1)
                     {
-                        StatusTips.Text = $"{Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCountNumber.ToString())}  |  {string.Join("  |  ", StatusTipsSplit.Skip(1))}";
+                        StatusTips.Text = $"{Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", Convert.ToString(FileCollection.Count))}  |  {string.Join("  |  ", StatusTipsSplit.Skip(1))}";
                     }
                     else
                     {
-                        StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCountNumber.ToString());
-                    }
-                }
-            }
-        }
-
-        private async void FileCollection_CollectionChanged1(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (IsGroupedEnabled
-                && (e.NewItems?.OfType<FileSystemStorageItemBase>()
-                    ?? Enumerable.Empty<FileSystemStorageItemBase>()).Concat(e.OldItems?.OfType<FileSystemStorageItemBase>() ?? Enumerable.Empty<FileSystemStorageItemBase>())
-                                                                     .All((Item) => (CurrentFolder?.Path.Equals(Path.GetDirectoryName(Item.Path), StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
-            {
-                using (await CollectionChangeLock.LockAsync())
-                {
-                    try
-                    {
-                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
-                        switch (e.Action)
-                        {
-                            case NotifyCollectionChangedAction.Add:
-                                {
-                                    foreach (FileSystemStorageItemBase Item in e.NewItems.OfType<FileSystemStorageItemBase>().Except(GroupCollection.SelectMany((Group) => Group)).ToArray())
-                                    {
-                                        string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
-
-                                        if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
-                                        {
-                                            GroupItem.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), Item);
-                                        }
-                                        else
-                                        {
-                                            GroupCollection.Insert(Array.IndexOf(GroupCollection.Select((Group) => Group.Key).Append(Key).OrderByFastStringSortAlgorithm((Key) => Key, SortDirection.Ascending).ToArray(), Key), new FileSystemStorageGroupItem(Key, new FileSystemStorageItemBase[] { Item }));
-                                        }
-                                    }
-
-                                    break;
-                                }
-                            case NotifyCollectionChangedAction.Remove:
-                                {
-                                    foreach (FileSystemStorageItemBase Item in e.OldItems.OfType<FileSystemStorageItemBase>().ToArray())
-                                    {
-                                        if (GroupCollection.FirstOrDefault((Group) => Group.Contains(Item)) is FileSystemStorageGroupItem GroupItem)
-                                        {
-                                            GroupItem.Remove(Item);
-                                        }
-                                    }
-
-                                    break;
-                                }
-                            case NotifyCollectionChangedAction.Replace:
-                                {
-                                    IEnumerable<FileSystemStorageItemBase> GroupExpandedCollection = GroupCollection.SelectMany((Group) => Group);
-
-                                    foreach (FileSystemStorageItemBase Item in e.OldItems.OfType<FileSystemStorageItemBase>().Where((Item) => GroupExpandedCollection.Contains(Item)).ToArray())
-                                    {
-                                        string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
-
-                                        if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
-                                        {
-                                            GroupItem.Remove(Item);
-                                        }
-                                    }
-
-                                    foreach (FileSystemStorageItemBase Item in e.NewItems.OfType<FileSystemStorageItemBase>().Except(GroupExpandedCollection).ToArray())
-                                    {
-                                        string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
-
-                                        if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
-                                        {
-                                            GroupItem.Insert(await SortedCollectionGenerator.SearchInsertLocationAsync(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle), Item);
-                                        }
-                                    }
-
-                                    break;
-                                }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Could not update the items on file list changed");
+                        StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", Convert.ToString(FileCollection.Count));
                     }
                 }
             }
@@ -7128,21 +7105,9 @@ namespace RX_Explorer.View
             Container.ShouldNotAcceptShortcutKeyInput = true;
         }
 
-        private async void Filter_RefreshListRequested(object sender, RefreshRequestedEventArgs args)
+        private void Filter_RefreshListRequested(object sender, RefreshRequestedEventArgs args)
         {
-            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
             FileCollection.Clear();
-            GroupCollection.Clear();
-
-            if (IsGroupedEnabled)
-            {
-                foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(args.FilterCollection, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
-                {
-                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle)));
-                }
-            }
-
             FileCollection.AddRange(args.FilterCollection);
         }
 
@@ -8472,7 +8437,6 @@ namespace RX_Explorer.View
             Execution.ExecuteOnce(this, () =>
             {
                 FileCollection.Clear();
-                GroupCollection.Clear();
                 BackNavigationStack.Clear();
                 ForwardNavigationStack.Clear();
 
