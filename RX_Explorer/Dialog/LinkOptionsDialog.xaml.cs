@@ -9,6 +9,7 @@ using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 
 namespace RX_Explorer.Dialog
 {
@@ -95,7 +96,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private void HotKeyInput_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        private void HotKeyInput_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             switch (e.Key)
             {

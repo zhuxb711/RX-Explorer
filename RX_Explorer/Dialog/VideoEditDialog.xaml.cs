@@ -7,6 +7,7 @@ using Windows.Media.MediaProperties;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 
 namespace RX_Explorer.Dialog
 {
@@ -296,7 +297,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private void TrimStartTime_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        private void TrimStartTime_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == Windows.System.VirtualKey.Enter)
             {
@@ -304,7 +305,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private void TrimEndTime_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        private void TrimEndTime_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == Windows.System.VirtualKey.Enter)
             {

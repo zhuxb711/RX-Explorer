@@ -13,6 +13,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
@@ -275,7 +276,7 @@ namespace RX_Explorer.View
             AspFlyout.Hide();
         }
 
-        private void Cropper_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void Cropper_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             if (Cropper.CroppedRegion != UnchangedRegion)
             {

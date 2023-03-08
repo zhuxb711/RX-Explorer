@@ -1002,17 +1002,17 @@ namespace RX_Explorer.View
             }
         }
 
-        private void Tab_PointerCanceled(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void Tab_PointerCanceled(object sender, PointerRoutedEventArgs e)
         {
             DelayPreviewCancel?.Cancel();
         }
 
-        private void Tab_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void Tab_PointerExited(object sender, PointerRoutedEventArgs e)
         {
             DelayPreviewCancel?.Cancel();
         }
 
-        private void Tab_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void Tab_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             if (sender is TabViewItem Item && SettingPage.IsTabPreviewEnabled)
             {
@@ -1050,7 +1050,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void Tab_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void Tab_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             if (sender is TabViewItem Tab)
             {
@@ -1058,7 +1058,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void Tab_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private async void Tab_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if (e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed)
             {
@@ -1281,7 +1281,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void TabViewControl_PointerWheelChanged(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void TabViewControl_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement).FindParentOfType<TabViewItem>() is TabViewItem)
             {
@@ -1427,7 +1427,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void TabViewControl_PreviewKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        private void TabViewControl_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
         {
             CoreWindow Window = CoreApplication.MainView.CoreWindow;
 

@@ -17,7 +17,10 @@ using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
+using TeachingTip = Microsoft.UI.Xaml.Controls.TeachingTip;
+using TeachingTipClosedEventArgs = Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs;
 
 namespace RX_Explorer.Dialog
 {
@@ -735,17 +738,17 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private void UWPPickerTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
+        private void UWPPickerTip_Closed(TeachingTip sender, TeachingTipClosedEventArgs args)
         {
             PackageListViewSource.Clear();
         }
 
-        private async void PackageListView_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void PackageListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             await UWPApplicationSelectedHandler();
         }
 
-        private async void UWPPickerTip_ActionButtonClick(Microsoft.UI.Xaml.Controls.TeachingTip sender, object args)
+        private async void UWPPickerTip_ActionButtonClick(TeachingTip sender, object args)
         {
             await UWPApplicationSelectedHandler();
         }

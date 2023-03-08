@@ -56,6 +56,7 @@ namespace RX_Explorer.View
         private volatile bool isInDragLoop;
         private string LastPressString;
         private DateTimeOffset LastPressTime;
+        private readonly long CollectionVSRegisterToken;
 
         private CommandBarFlyout FileFlyout;
         private CommandBarFlyout FolderFlyout;
@@ -230,14 +231,13 @@ namespace RX_Explorer.View
             GroupCollectionGenerator.GroupStateChanged += GroupCollectionGenerator_GroupStateChanged;
             LayoutModeController.ViewModeChanged += Current_ViewModeChanged;
 
-            CollectionVS.RegisterPropertyChangedCallback(CollectionViewSource.IsSourceGroupedProperty, new DependencyPropertyChangedCallback(OnIsSourceGroupedChanged));
+            CollectionVSRegisterToken = CollectionVS.RegisterPropertyChangedCallback(CollectionViewSource.IsSourceGroupedProperty, new DependencyPropertyChangedCallback(OnSourceGroupedChanged));
         }
 
-        private void OnIsSourceGroupedChanged(DependencyObject sender, DependencyProperty dp)
+        private void OnSourceGroupedChanged(DependencyObject sender, DependencyProperty dp)
         {
             if (sender is CollectionViewSource View)
             {
-                GroupCollection.Clear();
                 CollectionVS.Source = View.IsSourceGrouped ? GroupCollection : FileCollection;
             }
         }
@@ -2584,7 +2584,7 @@ namespace RX_Explorer.View
                         }
                         catch (Exception ex)
                         {
-                            LogTracer.Log(ex, "Could not update the items on file list changed");
+                            LogTracer.Log(ex, "Could not update the grouped items on file changed");
                         }
                     }
                 }
@@ -2603,31 +2603,15 @@ namespace RX_Explorer.View
 
                 if (args.Target == GroupTarget.None)
                 {
-                    if (CollectionVS.IsSourceGrouped)
-                    {
-                        CollectionVS.IsSourceGrouped = false;
-                    }
-                    else
-                    {
-                        GroupCollection.Clear();
-                    }
-
                     GroupAscButton.IsEnabled = false;
                     GroupDescButton.IsEnabled = false;
+                    CollectionVS.IsSourceGrouped = false;
                 }
                 else
                 {
-                    if (CollectionVS.IsSourceGrouped)
-                    {
-                        GroupCollection.Clear();
-                    }
-                    else
-                    {
-                        CollectionVS.IsSourceGrouped = true;
-                    }
-
                     GroupAscButton.IsEnabled = true;
                     GroupDescButton.IsEnabled = true;
+                    CollectionVS.IsSourceGrouped = true;
 
                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
@@ -3066,8 +3050,10 @@ namespace RX_Explorer.View
 
         private async Task DisplayItemsInFolderInternalAsync(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)
         {
-            CurrentFolder = Folder;
             FileCollection.Clear();
+            GroupCollection.Clear();
+
+            CurrentFolder = Folder;
 
             if (Folder is RootVirtualFolder)
             {
@@ -3083,8 +3069,6 @@ namespace RX_Explorer.View
 
                     if (CollectionVS.IsSourceGrouped)
                     {
-                        GroupCollection.Clear();
-
                         foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(FileCollection, GTarget, GDirection))
                         {
                             GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem, STarget, SDirection, SortStyle.UseFileSystemStyle)));
@@ -7105,10 +7089,22 @@ namespace RX_Explorer.View
             Container.ShouldNotAcceptShortcutKeyInput = true;
         }
 
-        private void Filter_RefreshListRequested(object sender, RefreshRequestedEventArgs args)
+        private async void Filter_RefreshListRequested(object sender, RefreshRequestedEventArgs args)
         {
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
             FileCollection.Clear();
-            FileCollection.AddRange(args.FilterCollection);
+            FileCollection.AddRange(await SortedCollectionGenerator.GetSortedCollectionAsync(args.FilterCollection, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle));
+
+            if (CollectionVS.IsSourceGrouped)
+            {
+                GroupCollection.Clear();
+
+                foreach (FileSystemStorageGroupItem GroupItem in await GroupCollectionGenerator.GetGroupedCollectionAsync(args.FilterCollection, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
+                {
+                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, await SortedCollectionGenerator.GetSortedCollectionAsync(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault(), SortStyle.UseFileSystemStyle)));
+                }
+            }
         }
 
         private async void OpenFolderInVerticalSplitView_Click(object sender, RoutedEventArgs e)
@@ -8439,6 +8435,8 @@ namespace RX_Explorer.View
                 FileCollection.Clear();
                 BackNavigationStack.Clear();
                 ForwardNavigationStack.Clear();
+
+                CollectionVS.UnregisterPropertyChangedCallback(CollectionViewSource.IsSourceGroupedProperty, CollectionVSRegisterToken);
 
                 FileCollection.CollectionChanged -= FileCollection_CollectionChanged;
                 ListViewHeaderFilter.RefreshListRequested -= Filter_RefreshListRequested;
