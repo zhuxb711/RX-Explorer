@@ -74,12 +74,10 @@ namespace RX_Explorer.View
             }
         }
 
+        private QuickStartItem SelectedQuickStartItem;
         private readonly IReadOnlyDictionary<Type, string> PageNameMapping;
-
         private readonly EntranceAnimationEffect EntranceEffectProvider;
-
         private readonly Task EntranceAnimationPreloadTask;
-
         private readonly DeviceWatcher BluetoothAudioWatcher;
 
         public MainPage(Rect Parameter, IReadOnlyList<string[]> PathArray = null)
@@ -1117,10 +1115,7 @@ namespace RX_Explorer.View
 
         private void QuickStart_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
         {
-            if (e.Items.Cast<QuickStartItem>().Any((Item) => Item.Type == QuickStartType.AddButton))
-            {
-                e.Cancel = true;
-            }
+            e.Cancel = e.Items.Cast<QuickStartItem>().Any((Item) => Item.Type == QuickStartType.AddButton);
         }
 
         private void BluetoothAudioSelectionTip_Closed(TeachingTip sender, TeachingTipClosedEventArgs args)
@@ -1263,28 +1258,20 @@ namespace RX_Explorer.View
 
         private void QuickStartItemDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (QuickStartGridView.SelectedItem is QuickStartItem AppItem)
+            if (SelectedQuickStartItem != null)
             {
-                SQLite.Current.DeleteQuickStartItem(AppItem);
-                CommonAccessCollection.QuickStartList.Remove(AppItem);
-            }
-            else if (WebGridView.SelectedItem is QuickStartItem WebItem)
-            {
-                SQLite.Current.DeleteQuickStartItem(WebItem);
-                CommonAccessCollection.WebLinkList.Remove(WebItem);
+                SQLite.Current.DeleteQuickStartItem(SelectedQuickStartItem);
+
+                if (!CommonAccessCollection.QuickStartList.Remove(SelectedQuickStartItem))
+                {
+                    CommonAccessCollection.WebLinkList.Remove(SelectedQuickStartItem);
+                }
             }
         }
 
         private async void QuickStartItemEdit_Click(object sender, RoutedEventArgs e)
         {
-            if (QuickStartGridView.SelectedItem is QuickStartItem AppItem)
-            {
-                await new QuickStartModifiedDialog(AppItem).ShowAsync();
-            }
-            else if (WebGridView.SelectedItem is QuickStartItem WebItem)
-            {
-                await new QuickStartModifiedDialog(WebItem).ShowAsync();
-            }
+            await new QuickStartModifiedDialog(SelectedQuickStartItem).ShowAsync();
         }
 
         private void QuickStart_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
@@ -1373,28 +1360,23 @@ namespace RX_Explorer.View
 
         private void QuickStart_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
-            WebGridView.SelectedItem = null;
-            QuickStartGridView.SelectedItem = null;
+            args.Handled = true;
+            SelectedQuickStartItem = null;
 
             if (args.TryGetPosition(sender, out Point Position))
             {
-                args.Handled = true;
-
-                if (args.OriginalSource is FrameworkElement Element && sender is GridView View)
+                if ((args.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
                 {
-                    if (Element.DataContext is QuickStartItem Item)
+                    if (Item.Type != QuickStartType.AddButton)
                     {
-                        if (Item.Type != QuickStartType.AddButton)
-                        {
-                            View.SelectedItem = Item;
+                        SelectedQuickStartItem = Item;
 
-                            QuickStartFlyout.ShowAt(View, new FlyoutShowOptions
-                            {
-                                Position = Position,
-                                Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
-                                ShowMode = FlyoutShowMode.Standard
-                            });
-                        }
+                        QuickStartFlyout.ShowAt(sender, new FlyoutShowOptions
+                        {
+                            Position = Position,
+                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                            ShowMode = FlyoutShowMode.Standard
+                        });
                     }
                 }
             }
@@ -1402,10 +1384,10 @@ namespace RX_Explorer.View
 
         private void NavView_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
+            args.Handled = true;
+
             if (args.TryGetPosition(sender, out Point Position))
             {
-                args.Handled = true;
-
                 switch (args.OriginalSource)
                 {
                     case Grid Gr when Gr.Name is "LayoutRoot" or "PaneRoot":

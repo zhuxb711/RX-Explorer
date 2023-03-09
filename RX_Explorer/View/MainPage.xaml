@@ -162,16 +162,16 @@
                                                     RelativePanel.RightOf="DeviceThumbnail"
                                                     RelativePanel.AlignRightWithPanel="True"
                                                     Orientation="Vertical">
-                                            <TextBlock Text="{x:Bind Name, Mode=OneWay}"
+                                            <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                                                        TextTrimming="CharacterEllipsis"
-                                                       ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}" />
-                                            <TextBlock Text="{x:Bind Status, Mode=OneWay}"
+                                                       ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay}" />
+                                            <TextBlock Text="{x:Bind Status,Mode=OneWay}"
                                                        FontSize="12" />
                                         </StackPanel>
                                     </RelativePanel>
                                     <Button Grid.Column="1"
-                                            Content="{x:Bind ActionButtonText, Mode=OneWay}"
-                                            IsEnabled="{x:Bind ActionButtonEnabled, Mode=OneWay}"
+                                            Content="{x:Bind ActionButtonText,Mode=OneWay}"
+                                            IsEnabled="{x:Bind ActionButtonEnabled,Mode=OneWay}"
                                             FontSize="12"
                                             Padding="5"
                                             Name="BluetoothAudioConnectButton"

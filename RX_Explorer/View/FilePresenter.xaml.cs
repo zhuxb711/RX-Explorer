@@ -2517,7 +2517,7 @@ namespace RX_Explorer.View
                             {
                                 case NotifyCollectionChangedAction.Add:
                                     {
-                                        foreach (FileSystemStorageItemBase Item in e.NewItems.Cast<FileSystemStorageItemBase>().Except(GroupCollection.SelectMany((Group) => Group)).ToArray())
+                                        foreach (FileSystemStorageItemBase Item in NewItems)
                                         {
                                             string Key = await GroupCollectionGenerator.SearchGroupBelongingAsync(Item, Config.GroupTarget.GetValueOrDefault());
 
@@ -2535,7 +2535,7 @@ namespace RX_Explorer.View
                                     }
                                 case NotifyCollectionChangedAction.Remove:
                                     {
-                                        foreach (FileSystemStorageItemBase Item in e.OldItems.Cast<FileSystemStorageItemBase>().ToArray())
+                                        foreach (FileSystemStorageItemBase Item in OldItems)
                                         {
                                             if (GroupCollection.SingleOrDefault((Group) => Group.Contains(Item)) is FileSystemStorageGroupItem GroupItem)
                                             {

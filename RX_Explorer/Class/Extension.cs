@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -442,7 +443,7 @@ namespace RX_Explorer.Class
                 {
                     if (PreviousTask.Exception is Exception Ex)
                     {
-                        LogTracer.Log(Ex, "Could not get storage item raw data from the handle");
+                        ExceptionDispatchInfo.Throw(Ex);
                     }
                     else
                     {
