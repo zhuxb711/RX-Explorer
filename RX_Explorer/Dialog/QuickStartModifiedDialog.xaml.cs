@@ -764,7 +764,6 @@ namespace RX_Explorer.Dialog
 
                     DisplayName.Text = Package.AppName;
                     Protocol.Text = Package.AppFamilyName;
-                    Icon.Source = Package.Logo;
 
                     StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 

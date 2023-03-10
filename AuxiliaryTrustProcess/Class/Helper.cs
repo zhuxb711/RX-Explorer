@@ -1149,7 +1149,7 @@ namespace AuxiliaryTrustProcess.Class
 
                         if (string.IsNullOrEmpty(ExtractedValue))
                         {
-                            ExtractedValue = ExtractResourceCore(PackageFullName, $"ms-resource://{PackageName}/{string.Concat(ResourceUri.Segments.Skip(1))}");
+                            ExtractedValue = ExtractResourceCore(PackageFullName, $"ms-resource://{PackageName}/{string.Join("/", ResourceUri.Segments.Select((Seg) => Seg.Trim('/')).Where((Seg) => !string.IsNullOrEmpty(Seg)))}");
                         }
 
                         return ExtractedValue;
