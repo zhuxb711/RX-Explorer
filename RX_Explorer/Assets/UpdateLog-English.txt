@@ -1,17 +1,21 @@
-﻿###What's new in Ver.8.2.0
+﻿###What's new in Ver.8.2.1
 
 #### ⚠Warning: Uwp version will suspend feature updates and enter maintenance-only state, RX-Explorer will be migrated to WinAppSdk framework
 
 >#### WinAppSdk is an alternative framework for Uwp and is currently being tested internally. At the time of official release, all users who have purchased the Uwp version can directly activate the WinAppSdk version
 
-##### UI updates
+##### UI update
 
->##### Enabled a brand new icon
+>##### In App Dialog UI has been updated
 
-##### Bug fixes
+>##### Updated the text size of the group name when using the file grouping function and dealt with the problem that the group name is too long
 
->##### Addresses an issue where taskbar Jump Lists could have missing translations after each update of the application
+##### Bug Fixes
 
->##### Addresses an issue where setting file properties through the Properties window may not work as expected
+>##### Solved UI issues in the dialog used to modify the Quick Start area
 
->##### Addresses an issue where startup animations may be unexpectedly enabled after turning off the Animation Effects switch
+>##### Solved the problem that there may be a blur mask flashing on startup when the animation is turned off
+
+>##### Solved the problem that some apps might be lost in the list when selecting Uwp apps for Quick Start
+
+>##### Other code quality improvements

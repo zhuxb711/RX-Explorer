@@ -1,17 +1,21 @@
-﻿###Novedades de la versión 8.2.0
+﻿###Novedades de la versión 8.2.1
 
 #### ⚠Advertencia: la versión Uwp suspenderá las actualizaciones de funciones y entrará en estado de solo mantenimiento, RX-Explorer se migrará al marco WinAppSdk
 
 >#### WinAppSdk es un marco alternativo para Uwp y actualmente se está probando internamente. En el momento del lanzamiento oficial, todos los usuarios que hayan comprado la versión para Uwp pueden activar directamente la versión WinAppSdk
 
-##### Actualizaciones de la interfaz de usuario
+##### Actualización de la interfaz de usuario
 
->##### Habilitado un nuevo icono
+>##### En la interfaz de usuario del cuadro de diálogo de la aplicación se ha actualizado
 
-##### Correcciones de errores
+>##### Se actualizó el tamaño del texto del nombre del grupo al usar la función de agrupación de archivos y se resolvió el problema de que el nombre del grupo es demasiado largo
 
->##### Se solucionó un problema por el que las listas de accesos directos de la barra de tareas podían tener traducciones faltantes después de cada actualización de la aplicación.
+##### Corrección de errores
 
->##### Se solucionó un problema por el que la configuración de las propiedades del archivo a través de la ventana Propiedades podía no funcionar como se esperaba.
+>##### Problemas de interfaz de usuario resueltos en el cuadro de diálogo utilizado para modificar el área de inicio rápido
 
->##### Se solucionó un problema por el que las animaciones de inicio podían habilitarse inesperadamente después de desactivar el modificador Efectos de animación.
+>##### Se resolvió el problema de que puede haber una máscara de desenfoque parpadeando al inicio cuando la animación está desactivada
+
+>##### Se resolvió el problema de que algunas aplicaciones podrían perderse en la lista al seleccionar aplicaciones Uwp para inicio rápido
+
+>##### Otras mejoras en la calidad del código

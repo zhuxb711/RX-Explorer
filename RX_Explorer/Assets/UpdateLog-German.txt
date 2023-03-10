@@ -1,17 +1,21 @@
-﻿###Was ist neu in Ver.8.2.0
+﻿###Was ist neu in Ver.8.2.1
 
 #### ⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird zum WinAppSdk-Framework migriert
 
 >#### WinAppSdk ist ein alternatives Framework für Uwp und wird derzeit intern getestet. Zum Zeitpunkt der offiziellen Veröffentlichung können alle Benutzer, die die Uwp-Version erworben haben, die WinAppSdk-Version direkt aktivieren
 
-##### Aktualisierungen der Benutzeroberfläche
+##### UI-Update
 
->##### Ein brandneues Symbol aktiviert
+>##### In App Dialog UI wurde aktualisiert
 
-##### Fehlerbehebungen
+>##### Die Textgröße des Gruppennamens bei Verwendung der Dateigruppierungsfunktion wurde aktualisiert und das Problem behoben, dass der Gruppenname zu lang ist
 
->##### Behebt ein Problem, bei dem Taskleisten-Sprunglisten nach jeder Aktualisierung der Anwendung fehlende Übersetzungen aufweisen konnten
+##### Fehlerbehebung
 
->##### Behebt ein Problem, bei dem das Festlegen von Dateieigenschaften über das Eigenschaftenfenster möglicherweise nicht wie erwartet funktioniert
+>##### Probleme mit der Benutzeroberfläche im Dialogfeld zum Ändern des Schnellstartbereichs behoben
 
->##### Behebt ein Problem, bei dem Startanimationen nach dem Deaktivieren des Schalters "Animationseffekte" unerwartet aktiviert werden können.
+>##### Das Problem, dass beim Start möglicherweise eine Unschärfemaske blinkt, wenn die Animation ausgeschaltet ist, wurde behoben
+
+>##### Das Problem, dass einige Apps in der Liste verloren gehen könnten, wenn Uwp-Apps für den Schnellstart ausgewählt werden, wurde behoben
+
+>##### Weitere Verbesserungen der Codequalität
