@@ -11,6 +11,9 @@
                          Title="自定义区域"
                          PrimaryButtonText="确定"
                          CloseButtonText="取消"
+                         Style="{ThemeResource DefaultContentDialogStyle}"
+                         RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                         Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
                          PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <Cls:QueueContentDialog.Resources>

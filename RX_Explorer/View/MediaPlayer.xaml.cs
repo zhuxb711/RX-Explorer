@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using SharedLibrary;
 using System;
@@ -79,7 +80,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "Could not load media because an exception was threw");
 
-                await new QueueContentDialog
+                await new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_CouldNotLoadMedia_Content"),

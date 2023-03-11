@@ -9,7 +9,10 @@
                          mc:Ignorable="d"
                          x:Uid="UpdateLogDialog"
                          Title="最近更新"
-                         CloseButtonText="知道了">
+                         CloseButtonText="知道了"
+                         Style="{ThemeResource DefaultContentDialogStyle}"
+                         RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                         Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
     <Cls:QueueContentDialog.Resources>
         <x:Double x:Key="ContentDialogMaxWidth">700</x:Double>
         <x:Double x:Key="ContentDialogMaxHeight">700</x:Double>

@@ -1111,14 +1111,7 @@ namespace RX_Explorer.View
         {
             get
             {
-                if (ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] is string Location)
-                {
-                    return Location;
-                }
-                else
-                {
-                    return Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
-                }
+                return Convert.ToString(ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"]);
             }
             set
             {
@@ -2270,7 +2263,7 @@ namespace RX_Explorer.View
                     {
                         if (!await Exclusive.Controller.SetAsTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            CommonContentDialog Dialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_SetTopMostFailed_Content"),
@@ -2284,7 +2277,7 @@ namespace RX_Explorer.View
                     {
                         if (!await Exclusive.Controller.RemoveTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            CommonContentDialog Dialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_RemoveTopMostFailed_Content"),
@@ -2372,7 +2365,7 @@ namespace RX_Explorer.View
                         }
                         catch (PasswordErrorException)
                         {
-                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            CommonContentDialog Dialog1 = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_DecryptPasswordError_Content"),
@@ -2383,7 +2376,7 @@ namespace RX_Explorer.View
                         }
                         catch (SLEHeaderInvalidException)
                         {
-                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            CommonContentDialog Dialog1 = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_SLEHeaderInvalid_Content"),
@@ -2394,7 +2387,7 @@ namespace RX_Explorer.View
                         }
                         catch (Exception)
                         {
-                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            CommonContentDialog Dialog1 = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
@@ -2529,7 +2522,7 @@ namespace RX_Explorer.View
             }
             else
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_NotSupportARM_Content"),
@@ -2645,7 +2638,7 @@ namespace RX_Explorer.View
 
                                 if (Brightness <= 100 && ThemeColor.SelectedIndex == 1)
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    CommonContentDialog Dialog = new CommonContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                         Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
@@ -2660,7 +2653,7 @@ namespace RX_Explorer.View
                                 }
                                 else if (Brightness > 156 && ThemeColor.SelectedIndex == 0)
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    CommonContentDialog Dialog = new CommonContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                         Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
@@ -2679,7 +2672,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_BingDownloadError_Content"),
@@ -2693,7 +2686,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, $"Error in {nameof(BingPictureMode_Checked)}");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_BingDownloadError_Content"),
@@ -2736,7 +2729,7 @@ namespace RX_Explorer.View
 
                                     if (Brightness <= 100 && ThemeColor.SelectedIndex == 1)
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        CommonContentDialog Dialog = new CommonContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                             Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
@@ -2751,7 +2744,7 @@ namespace RX_Explorer.View
                                     }
                                     else if (Brightness > 156 && ThemeColor.SelectedIndex == 0)
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        CommonContentDialog Dialog = new CommonContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                             Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
@@ -2882,7 +2875,7 @@ namespace RX_Explorer.View
                                 AutoBoot.IsOn = false;
                                 AutoBoot.Toggled += AutoBoot_Toggled;
 
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                CommonContentDialog Dialog = new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                     Content = Globalization.GetString("QueueDialog_BootAtStart_Content"),
@@ -3125,14 +3118,12 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                QueueContentDialog dialog = new QueueContentDialog
+                                await new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                     Content = Globalization.GetString("QueueDialog_ActionFailed_Content"),
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await dialog.ShowAsync();
+                                }.ShowAsync();
 
                                 UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                                 UseWinAndEActivate.IsOn = false;
@@ -3157,14 +3148,12 @@ namespace RX_Explorer.View
                         }
                         else
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
+                            await new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_ActionFailed_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await dialog.ShowAsync();
+                            }.ShowAsync();
 
                             UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                             UseWinAndEActivate.IsOn = true;
@@ -3215,7 +3204,7 @@ namespace RX_Explorer.View
             }
             else
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_TipTitle"),
                     Content = Globalization.GetString("QueueDialog_NoLogTip_Content"),
@@ -3290,7 +3279,7 @@ namespace RX_Explorer.View
 
                                 if (HardwareId != EasDeviceInformation.Id.ToString("D"))
                                 {
-                                    QueueContentDialog HardwareMissMatchDialog = new QueueContentDialog
+                                    CommonContentDialog HardwareMissMatchDialog = new CommonContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                                         Content = Globalization.GetString("QueueDialog_ImportConfiguration_HardwareMissMatch_Content"),
@@ -3450,7 +3439,7 @@ namespace RX_Explorer.View
 
                                             await CommonAccessCollection.LoadLibraryFoldersAsync(true);
 
-                                            await new QueueContentDialog
+                                            await new CommonContentDialog
                                             {
                                                 Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                                 Content = Globalization.GetString("QueueDialog_ImportConfigurationSuccess_Content"),
@@ -3463,7 +3452,7 @@ namespace RX_Explorer.View
                                         {
                                             LogTracer.Log("Import configuration failed because database hash is incorrect");
 
-                                            await new QueueContentDialog
+                                            await new CommonContentDialog
                                             {
                                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                 Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
@@ -3475,7 +3464,7 @@ namespace RX_Explorer.View
                                     {
                                         LogTracer.Log("Import configuration failed because config hash is incorrect");
 
-                                        await new QueueContentDialog
+                                        await new CommonContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                             Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
@@ -3488,7 +3477,7 @@ namespace RX_Explorer.View
                             {
                                 LogTracer.Log("Import configuration failed because Identitifier is incorrect");
 
-                                await new QueueContentDialog
+                                await new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                     Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
@@ -3500,7 +3489,7 @@ namespace RX_Explorer.View
                         {
                             LogTracer.Log("Import configuration failed because format is incorrect");
 
-                            await new QueueContentDialog
+                            await new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
@@ -3515,7 +3504,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, $"{nameof(ImportConfiguration_Click)} threw an unexpected exception");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_ImportConfigurationFailed_Content"),
@@ -3741,7 +3730,7 @@ namespace RX_Explorer.View
 
         private async void HideProtectedSystemItems_Unchecked(object sender, RoutedEventArgs e)
         {
-            QueueContentDialog Dialog = new QueueContentDialog
+            CommonContentDialog Dialog = new CommonContentDialog
             {
                 Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                 Content = Globalization.GetString("QueueDialog_DisplayProtectedSystemItemsWarning_Content"),
@@ -3863,7 +3852,7 @@ namespace RX_Explorer.View
             {
                 case StorePurchaseStatus.Succeeded:
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        CommonContentDialog QueueContenDialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                             Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
@@ -3874,7 +3863,7 @@ namespace RX_Explorer.View
                     }
                 case StorePurchaseStatus.AlreadyPurchased:
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        CommonContentDialog QueueContenDialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                             Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
@@ -3885,7 +3874,7 @@ namespace RX_Explorer.View
                     }
                 case StorePurchaseStatus.NotPurchased:
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        CommonContentDialog QueueContenDialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                             Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
@@ -3896,7 +3885,7 @@ namespace RX_Explorer.View
                     }
                 default:
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        CommonContentDialog QueueContenDialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
@@ -3931,7 +3920,7 @@ namespace RX_Explorer.View
             }
             catch
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
@@ -4248,14 +4237,12 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                QueueContentDialog dialog = new QueueContentDialog
+                                await new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                     Content = Globalization.GetString("QueueDialog_ActionFailed_Content"),
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await dialog.ShowAsync();
+                                }.ShowAsync();
 
                                 InterceptFolderSwitch.Toggled -= InterceptFolder_Toggled;
                                 InterceptFolderSwitch.IsOn = false;
@@ -4280,14 +4267,12 @@ namespace RX_Explorer.View
                         }
                         else
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
+                            await new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_ActionFailed_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await dialog.ShowAsync();
+                            }.ShowAsync();
 
                             InterceptFolderSwitch.Toggled -= InterceptFolder_Toggled;
                             InterceptFolderSwitch.IsOn = false;

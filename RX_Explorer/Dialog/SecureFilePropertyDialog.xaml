@@ -6,7 +6,10 @@
                          xmlns:Cls="using:RX_Explorer.Class"
                          mc:Ignorable="d"
                          Title="{x:Bind Cls:Globalization.GetString('Properties_Window_Title')}"
-                         CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}">
+                         CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
+                         Style="{ThemeResource DefaultContentDialogStyle}"
+                         RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                         Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
 
     <Grid>
         <StackPanel Orientation="Horizontal">

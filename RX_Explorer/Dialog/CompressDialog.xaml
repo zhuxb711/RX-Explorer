@@ -6,42 +6,54 @@
                          xmlns:Cls="using:RX_Explorer.Class"
                          mc:Ignorable="d"
                          Title="压缩选项"
+                         x:Uid="CompressDialog"
                          PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
                          CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
-                         x:Uid="CompressDialog"
+                         Style="{ThemeResource DefaultContentDialogStyle}"
+                         RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                         Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
                          PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
-    <StackPanel MinWidth="300"
-                MaxWidth="350">
+    <Grid MinWidth="350"
+          MaxWidth="400">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
         <TextBox Header="文件名"
+                 Grid.ColumnSpan="2"
                  x:Uid="CompressDialogName"
-                 Name="FName"
+                 x:Name="FName"
                  GotFocus="FName_GotFocus"
                  HorizontalAlignment="Stretch" />
-        <Grid Margin="0,10,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <ComboBox Header="压缩类型"
-                      HorizontalAlignment="Stretch"
-                      x:Uid="CompressDialogType"
-                      Name="CType"
-                      Margin="0,0,5,0"
-                      SelectionChanged="CType_SelectionChanged" />
-            <ComboBox Header="压缩算法"
-                      Grid.Column="1"
-                      x:Uid="CompressDialogAlgorithm"
-                      Name="CAlgorithm"
-                      Margin="5,0,0,0"
-                      HorizontalAlignment="Stretch"
-                      Visibility="Collapsed"
-                      SelectionChanged="CAlgorithm_SelectionChanged" />
-        </Grid>
+        <ComboBox Header="压缩类型"
+                  HorizontalAlignment="Stretch"
+                  x:Uid="CompressDialogType"
+                  x:Name="CType"
+                  Margin="0,10,5,0"
+                  Grid.Row="1"
+                  SelectionChanged="CType_SelectionChanged" />
+        <ComboBox Header="压缩算法"
+                  Grid.Row="1"
+                  Grid.Column="1"
+                  x:Uid="CompressDialogAlgorithm"
+                  x:Name="CAlgorithm"
+                  Margin="5,10,0,0"
+                  HorizontalAlignment="Stretch"
+                  Visibility="Collapsed"
+                  SelectionChanged="CAlgorithm_SelectionChanged" />
         <ComboBox x:Uid="CompressDialogLevel"
                   Header="压缩等级"
-                  Margin="0,10,0,0"
-                  MinWidth="180"
-                  Name="CompressLevel" />
-    </StackPanel>
+                  Margin="0,10,5,0"
+                  HorizontalAlignment="Stretch"
+                  Grid.Row="2"
+                  x:Name="CompressLevel" />
+    </Grid>
+
 </Cls:QueueContentDialog>

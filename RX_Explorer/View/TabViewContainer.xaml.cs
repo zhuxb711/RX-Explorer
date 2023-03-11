@@ -223,7 +223,7 @@ namespace RX_Explorer.View
 
         private async void CommonAccessCollection_LibraryNotFound(object sender, IEnumerable<string> ErrorList)
         {
-            QueueContentDialog Dialog = new QueueContentDialog
+            CommonContentDialog Dialog = new CommonContentDialog
             {
                 Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                 Content = Globalization.GetString("QueueDialog_PinFolderNotFound_Content") + Environment.NewLine + string.Join(Environment.NewLine, ErrorList),
@@ -496,7 +496,7 @@ namespace RX_Explorer.View
                                                     }
                                                     catch (UnlockDriveFailedException)
                                                     {
-                                                        QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                                        CommonContentDialog UnlockFailedDialog = new CommonContentDialog
                                                         {
                                                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                             Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
@@ -566,7 +566,7 @@ namespace RX_Explorer.View
 
                                                     if (string.IsNullOrEmpty(Drive.Path))
                                                     {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        CommonContentDialog Dialog = new CommonContentDialog
                                                         {
                                                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                                             Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
@@ -589,7 +589,7 @@ namespace RX_Explorer.View
 
                                                     if (string.IsNullOrEmpty(Library.Path))
                                                     {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        CommonContentDialog Dialog = new CommonContentDialog
                                                         {
                                                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                                             Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
@@ -617,7 +617,7 @@ namespace RX_Explorer.View
 
                                                     if (string.IsNullOrEmpty(Drive.Path))
                                                     {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        CommonContentDialog Dialog = new CommonContentDialog
                                                         {
                                                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                                             Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
@@ -637,7 +637,7 @@ namespace RX_Explorer.View
 
                                                     if (string.IsNullOrEmpty(Library.Path))
                                                     {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        CommonContentDialog Dialog = new CommonContentDialog
                                                         {
                                                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                                             Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
@@ -662,7 +662,7 @@ namespace RX_Explorer.View
 
                                                     if (string.IsNullOrEmpty(Drive.Path))
                                                     {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        CommonContentDialog Dialog = new CommonContentDialog
                                                         {
                                                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                                             Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
@@ -682,7 +682,7 @@ namespace RX_Explorer.View
 
                                                     if (string.IsNullOrEmpty(Library.Path))
                                                     {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        CommonContentDialog Dialog = new CommonContentDialog
                                                         {
                                                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                                             Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
@@ -1374,7 +1374,7 @@ namespace RX_Explorer.View
             {
                 case StorePurchaseStatus.Succeeded:
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        CommonContentDialog QueueContenDialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                             Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
@@ -1387,7 +1387,7 @@ namespace RX_Explorer.View
                     }
                 case StorePurchaseStatus.AlreadyPurchased:
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        CommonContentDialog QueueContenDialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                             Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
@@ -1400,7 +1400,7 @@ namespace RX_Explorer.View
                     }
                 case StorePurchaseStatus.NotPurchased:
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        CommonContentDialog QueueContenDialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                             Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
@@ -1413,7 +1413,7 @@ namespace RX_Explorer.View
                     }
                 default:
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        CommonContentDialog QueueContenDialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),

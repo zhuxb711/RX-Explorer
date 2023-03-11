@@ -75,7 +75,6 @@ namespace RX_Explorer.View
         }
 
         private QuickStartItem SelectedQuickStartItem;
-        private readonly IReadOnlyDictionary<Type, string> PageNameMapping;
         private readonly EntranceAnimationEffect EntranceEffectProvider;
         private readonly Task EntranceAnimationPreloadTask;
         private readonly DeviceWatcher BluetoothAudioWatcher;
@@ -140,13 +139,6 @@ namespace RX_Explorer.View
                 BackgroundEffectArea.RegisterPropertyChangedCallback(VisibilityProperty, new DependencyPropertyChangedCallback(OnBackgroundEffectAreaVisibilityChanged));
             }
 
-            PageNameMapping = new Dictionary<Type, string>()
-            {
-                {typeof(TabViewContainer),Globalization.GetString("MainPage_PageDictionary_Home_Label") },
-                {typeof(SecureAreaContainer),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") },
-                {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
-            };
-
             BluetoothAudioWatcher = DeviceInformation.CreateWatcher(AudioPlaybackConnection.GetDeviceSelector());
 
             if (AnimationController.Current.IsEnableStartupAnimation && (PathArray?.Count).GetValueOrDefault() == 0)
@@ -161,12 +153,9 @@ namespace RX_Explorer.View
             bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
             bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
 
-            if (!QueueContentDialog.IsRunningOrWaiting
-                && !SettingPage.IsOpened
-                && NavView.SelectedItem is NavigationViewItem NavItem)
+            if (!QueueContentDialog.IsRunningOrWaiting && !SettingPage.IsOpened)
             {
-                if (Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
-                    && TabViewContainer.Current?.CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
+                if (NavFrame.Content is TabViewContainer TabContainer && TabContainer.CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
                 {
                     if (!Control.ShouldNotAcceptShortcutKeyInput)
                     {
@@ -288,22 +277,22 @@ namespace RX_Explorer.View
 
                         if (Mapping.TryGetValue("RecycleBinItem", out bool IsCheckRecycleBinItem))
                         {
-                            RecycleBinItem.Visibility = IsCheckRecycleBinItem ? Visibility.Visible : Visibility.Collapsed;
+                            RecycleBinNavigationItem.Visibility = IsCheckRecycleBinItem ? Visibility.Visible : Visibility.Collapsed;
                         }
 
                         if (Mapping.TryGetValue("QuickStartItem", out bool IsCheckQuickStartItem))
                         {
-                            QuickStartItem.Visibility = IsCheckQuickStartItem ? Visibility.Visible : Visibility.Collapsed;
+                            QuickStartNavigationItem.Visibility = IsCheckQuickStartItem ? Visibility.Visible : Visibility.Collapsed;
                         }
 
                         if (Mapping.TryGetValue("SecureAreaItem", out bool IsCheckSecureAreaItem))
                         {
-                            SecureAreaItem.Visibility = IsCheckSecureAreaItem ? Visibility.Visible : Visibility.Collapsed;
+                            SecureAreaNavigationItem.Visibility = IsCheckSecureAreaItem ? Visibility.Visible : Visibility.Collapsed;
                         }
 
                         if (Mapping.TryGetValue("BluetoothAudioItem", out bool IsCheckBluetoothAudioItem))
                         {
-                            BluetoothAudioItem.Visibility = IsCheckBluetoothAudioItem ? Visibility.Visible : Visibility.Collapsed;
+                            BluetoothAudioNavigationItem.Visibility = IsCheckBluetoothAudioItem ? Visibility.Visible : Visibility.Collapsed;
                         }
                     }
                 });
@@ -442,7 +431,7 @@ namespace RX_Explorer.View
                                     Panel.Children.Add(Text);
                                     Panel.Children.Add(Box);
 
-                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    CommonContentDialog Dialog = new CommonContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                                         Content = Panel,
@@ -488,7 +477,7 @@ namespace RX_Explorer.View
                     || AuxiliaryTrustProcessController.IsAnyCommandExecutingInAllControllers
                     || QueueTaskController.IsAnyTaskRunningInController)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                         Content = Globalization.GetString("QueueDialog_WaitUntilFinish_Content"),
@@ -560,7 +549,7 @@ namespace RX_Explorer.View
                         Panel.Children.Add(Text);
                         Panel.Children.Add(Box);
 
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                             Content = Panel,
@@ -794,7 +783,7 @@ namespace RX_Explorer.View
                 {
                     case StorePurchaseStatus.Succeeded:
                         {
-                            QueueContentDialog QueueContenDialog = new QueueContentDialog
+                            CommonContentDialog QueueContenDialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                 Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
@@ -806,7 +795,7 @@ namespace RX_Explorer.View
                         }
                     case StorePurchaseStatus.AlreadyPurchased:
                         {
-                            QueueContentDialog QueueContenDialog = new QueueContentDialog
+                            CommonContentDialog QueueContenDialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                 Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
@@ -818,7 +807,7 @@ namespace RX_Explorer.View
                         }
                     case StorePurchaseStatus.NotPurchased:
                         {
-                            QueueContentDialog QueueContenDialog = new QueueContentDialog
+                            CommonContentDialog QueueContenDialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                 Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
@@ -830,7 +819,7 @@ namespace RX_Explorer.View
                         }
                     default:
                         {
-                            QueueContentDialog QueueContenDialog = new QueueContentDialog
+                            CommonContentDialog QueueContenDialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
@@ -906,7 +895,7 @@ namespace RX_Explorer.View
                         {
                             if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DisableBackgroundTaskTips"))
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                CommonContentDialog Dialog = new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                     Content = Globalization.GetString("QueueDialog_BackgroundTaskDisable_Content"),
@@ -942,24 +931,44 @@ namespace RX_Explorer.View
 
         private void Nav_Navigated(object sender, NavigationEventArgs e)
         {
-            if (SettingPage.ApplicationUIStyle == UIStyle.Normal && PageNameMapping.TryGetValue(e.SourcePageType, out string Name))
+            if (SettingPage.ApplicationUIStyle == UIStyle.Normal)
             {
-                if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == Name) is NavigationViewItem Item)
+                switch (e.SourcePageType.Name)
                 {
-                    NavView.SelectedItem = Item;
+                    case nameof(TabViewContainer):
+                        {
+                            NavView.SelectedItem = HomeNavigationItem;
+                            break;
+                        }
+                    case nameof(SecureAreaContainer):
+                        {
+                            NavView.SelectedItem = SecureAreaNavigationItem;
+                            break;
+                        }
+                    case nameof(RecycleBin):
+                        {
+                            NavView.SelectedItem = RecycleBinNavigationItem;
+                            break;
+                        }
                 }
 
-                if (Name == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
+                switch (e.Content)
                 {
-                    NavView.IsBackEnabled = (TabViewContainer.Current.CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault();
-                }
-                else if (Name == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
-                {
-                    NavView.IsBackEnabled = SecureAreaContainer.Current.NavFrame.CanGoBack;
-                }
-                else
-                {
-                    NavView.IsBackEnabled = false;
+                    case TabViewContainer TabContainer:
+                        {
+                            NavView.IsBackEnabled = (TabContainer.CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault();
+                            break;
+                        }
+                    case SecureAreaContainer SAContainer:
+                        {
+                            NavView.IsBackEnabled = SAContainer.NavFrame.CanGoBack;
+                            break;
+                        }
+                    default:
+                        {
+                            NavView.IsBackEnabled = false;
+                            break;
+                        }
                 }
             }
         }
@@ -999,13 +1008,13 @@ namespace RX_Explorer.View
                             {
                                 QuickStartTip.Target = QuickStartIcon;
                                 QuickStartTip.PreferredPlacement = TeachingTipPlacementMode.RightTop;
-                                QuickStartPanelRoot.MaxHeight = Math.Min(440, Math.Max(Window.Current.Bounds.Height - QuickStartItem.TransformToVisual(Window.Current.Content).TransformPoint(new Point(0, 0)).Y - 100, 0));
+                                QuickStartPanelRoot.MaxHeight = Math.Min(440, Math.Max(Window.Current.Bounds.Height - QuickStartNavigationItem.TransformToVisual(Window.Current.Content).TransformPoint(new Point(0, 0)).Y - 100, 0));
                             }
                             else
                             {
-                                QuickStartTip.Target = QuickStartItem;
+                                QuickStartTip.Target = QuickStartNavigationItem;
                                 QuickStartTip.PreferredPlacement = TeachingTipPlacementMode.Bottom;
-                                QuickStartPanelRoot.MaxHeight = Math.Min(440, Math.Max(Window.Current.Bounds.Height - QuickStartItem.ActualHeight - QuickStartItem.TransformToVisual(Window.Current.Content).TransformPoint(new Point(0, 0)).Y - 100, 0));
+                                QuickStartPanelRoot.MaxHeight = Math.Min(440, Math.Max(Window.Current.Bounds.Height - QuickStartNavigationItem.ActualHeight - QuickStartNavigationItem.TransformToVisual(Window.Current.Content).TransformPoint(new Point(0, 0)).Y - 100, 0));
                             }
 
                             QuickStartTip.IsOpen = true;
@@ -1024,7 +1033,7 @@ namespace RX_Explorer.View
                                 }
                                 else
                                 {
-                                    BluetoothAudioSelectionTip.Target = BluetoothAudioItem;
+                                    BluetoothAudioSelectionTip.Target = BluetoothAudioNavigationItem;
                                     BluetoothAudioSelectionTip.PreferredPlacement = TeachingTipPlacementMode.Bottom;
                                 }
 
@@ -1050,26 +1059,18 @@ namespace RX_Explorer.View
 
         private void ExecuteGlobalGoBackAction()
         {
-            try
+            switch (NavFrame.Content)
             {
-                if (NavFrame.CurrentSourcePageType == typeof(TabViewContainer))
-                {
-                    if ((TabViewContainer.Current.CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault())
+                case TabViewContainer TabContainer when (TabContainer.CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault():
                     {
-                        TabViewContainer.Current.CurrentTabRenderer.RendererFrame.GoBack();
+                        TabContainer.CurrentTabRenderer.RendererFrame.GoBack();
+                        break;
                     }
-                }
-                else if (NavFrame.CurrentSourcePageType == typeof(SecureAreaContainer))
-                {
-                    if (SecureAreaContainer.Current.NavFrame.CanGoBack)
+                case SecureAreaContainer SAContainer when SAContainer.NavFrame.CanGoBack:
                     {
-                        SecureAreaContainer.Current.NavFrame.GoBack();
+                        SAContainer.NavFrame.GoBack();
+                        break;
                     }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An exception was threw when navigate back");
             }
         }
 
@@ -1306,22 +1307,22 @@ namespace RX_Explorer.View
 
                 if (Mapping.TryGetValue("RecycleBinItem", out bool IsCheckRecycleBinItem))
                 {
-                    RecycleBinItem.Visibility = IsCheckRecycleBinItem ? Visibility.Visible : Visibility.Collapsed;
+                    RecycleBinNavigationItem.Visibility = IsCheckRecycleBinItem ? Visibility.Visible : Visibility.Collapsed;
                 }
 
                 if (Mapping.TryGetValue("QuickStartItem", out bool IsCheckQuickStartItem))
                 {
-                    QuickStartItem.Visibility = IsCheckQuickStartItem ? Visibility.Visible : Visibility.Collapsed;
+                    QuickStartNavigationItem.Visibility = IsCheckQuickStartItem ? Visibility.Visible : Visibility.Collapsed;
                 }
 
                 if (Mapping.TryGetValue("SecureAreaItem", out bool IsCheckSecureAreaItem))
                 {
-                    SecureAreaItem.Visibility = IsCheckSecureAreaItem ? Visibility.Visible : Visibility.Collapsed;
+                    SecureAreaNavigationItem.Visibility = IsCheckSecureAreaItem ? Visibility.Visible : Visibility.Collapsed;
                 }
 
                 if (Mapping.TryGetValue("BluetoothAudioItem", out bool IsCheckBluetoothAudioItem))
                 {
-                    BluetoothAudioItem.Visibility = IsCheckBluetoothAudioItem ? Visibility.Visible : Visibility.Collapsed;
+                    BluetoothAudioNavigationItem.Visibility = IsCheckBluetoothAudioItem ? Visibility.Visible : Visibility.Collapsed;
                 }
             }
         }
@@ -1334,10 +1335,10 @@ namespace RX_Explorer.View
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    RecycleBinItem.Visibility = Dialog.RecycleBinItemChecked ? Visibility.Visible : Visibility.Collapsed;
-                    QuickStartItem.Visibility = Dialog.QuickStartItemChecked ? Visibility.Visible : Visibility.Collapsed;
-                    SecureAreaItem.Visibility = Dialog.SecureAreaItemChecked ? Visibility.Visible : Visibility.Collapsed;
-                    BluetoothAudioItem.Visibility = Dialog.BluetoothAudioItemChecked ? Visibility.Visible : Visibility.Collapsed;
+                    RecycleBinNavigationItem.Visibility = Dialog.RecycleBinItemChecked ? Visibility.Visible : Visibility.Collapsed;
+                    QuickStartNavigationItem.Visibility = Dialog.QuickStartItemChecked ? Visibility.Visible : Visibility.Collapsed;
+                    SecureAreaNavigationItem.Visibility = Dialog.SecureAreaItemChecked ? Visibility.Visible : Visibility.Collapsed;
+                    BluetoothAudioNavigationItem.Visibility = Dialog.BluetoothAudioItemChecked ? Visibility.Visible : Visibility.Collapsed;
 
                     ApplicationData.Current.LocalSettings.Values["NavigationViewItemVisibilityMapping"] = JsonSerializer.Serialize(new Dictionary<string, bool>
                     {
@@ -1455,7 +1456,7 @@ namespace RX_Explorer.View
                                     {
                                         if (!await Exclusive.Controller.RunAsync("powershell.exe", CreateNoWindow: true, Parameters: new string[] { "-Command", Item.Protocol }))
                                         {
-                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            CommonContentDialog Dialog = new CommonContentDialog
                                             {
                                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                 Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
@@ -1469,7 +1470,7 @@ namespace RX_Explorer.View
                                     {
                                         if (!await Exclusive.Controller.RunAsync(Item.Protocol, Path.GetDirectoryName(Item.Protocol)))
                                         {
-                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            CommonContentDialog Dialog = new CommonContentDialog
                                             {
                                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                 Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
@@ -1483,7 +1484,7 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                CommonContentDialog Dialog = new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                     Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
@@ -1495,7 +1496,7 @@ namespace RX_Explorer.View
                         }
                         else if (!await Launcher.LaunchUriAsync(ParsedUri))
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            CommonContentDialog Dialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
@@ -1511,7 +1512,7 @@ namespace RX_Explorer.View
                         {
                             if (!await Exclusive.Controller.LaunchFromPackageFamilyNameAsync(Item.Protocol))
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                CommonContentDialog Dialog = new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                     Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),

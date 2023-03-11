@@ -6,20 +6,11 @@ namespace RX_Explorer.View
 {
     public sealed partial class SecureAreaContainer : Page
     {
-        public static SecureAreaContainer Current { get; private set; }
-
-        public Frame NavFrame { get => Nav; }
+        public Frame NavFrame => Nav;
 
         public SecureAreaContainer()
         {
             InitializeComponent();
-            Current = this;
-            Loaded += SecureAreaContainer_Loaded;
-        }
-
-        private void SecureAreaContainer_Loaded(object sender, RoutedEventArgs e)
-        {
-            Loaded -= SecureAreaContainer_Loaded;
             Nav.Navigate(typeof(SecureArea), null, new SuppressNavigationTransitionInfo());
         }
 

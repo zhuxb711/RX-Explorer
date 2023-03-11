@@ -9,6 +9,9 @@
                         x:Uid="DecompressionOptionDialog"
                         PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
                         SecondaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
+                        Style="{ThemeResource DefaultContentDialogStyle}"
+                        RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                        Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
                         PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
     <StackPanel Width="350">

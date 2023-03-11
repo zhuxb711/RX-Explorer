@@ -8,7 +8,10 @@
                         x:Uid="TextEncodingDialog"
                         Title="选择编码格式"
                         PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
-                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}">
+                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
+                        Style="{ThemeResource DefaultContentDialogStyle}"
+                        RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                        Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
     <Grid>
         <ComboBox Width="300"
                   Name="EncodingComboBox"

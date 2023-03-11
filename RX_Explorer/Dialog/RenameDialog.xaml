@@ -10,6 +10,9 @@
                          Title="重命名"
                          CloseButtonText="取消"
                          PrimaryButtonText="确定"
+                         Style="{ThemeResource DefaultContentDialogStyle}"
+                         RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                         Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
                          PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <Cls:QueueContentDialog.Resources>

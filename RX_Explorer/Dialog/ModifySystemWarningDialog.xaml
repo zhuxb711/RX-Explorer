@@ -8,7 +8,10 @@
                         IsPrimaryButtonEnabled="{x:Bind ConfirmationBox.IsChecked.GetValueOrDefault(),Mode=OneWay}"
                         Title="{x:Bind Cls:Globalization.GetString('Common_Dialog_WarningTitle')}"
                         PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ContinueButton')}"
-                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}" >
+                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
+                        Style="{ThemeResource DefaultContentDialogStyle}"
+                        RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                        Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
 
     <Cls:QueueContentDialog.Resources>
         <ResourceDictionary>

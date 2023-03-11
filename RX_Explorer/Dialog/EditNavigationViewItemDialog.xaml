@@ -7,7 +7,10 @@
                          mc:Ignorable="d"
                          Title="{x:Bind Cls:Globalization.GetString('CustomText')}"
                          PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
-                         SecondaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}">
+                         SecondaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
+                         Style="{ThemeResource DefaultContentDialogStyle}"
+                         RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                         Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
 
     <StackPanel>
         <CheckBox Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"

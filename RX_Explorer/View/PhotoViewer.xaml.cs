@@ -135,7 +135,7 @@ namespace RX_Explorer.View
                         }
                         else
                         {
-                            await new QueueContentDialog
+                            await new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("Queue_Dialog_ImageReadError_Content"),
@@ -162,7 +162,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "An exception was threw when initialize PhotoViewer");
 
-                await new QueueContentDialog
+                await new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_CouldNotOpenImage_Content"),
@@ -236,7 +236,7 @@ namespace RX_Explorer.View
                 {
                     LogTracer.Log(ex, "Could not rotate the image");
 
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_RotationFailed_Content"),
@@ -292,7 +292,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "Could not transcode the image");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_TipTitle"),
                     Content = Globalization.GetString("QueueDialog_TransocdeFailed_Content"),
@@ -314,7 +314,7 @@ namespace RX_Explorer.View
 
                 try
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                         PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
@@ -345,7 +345,7 @@ namespace RX_Explorer.View
                 }
                 catch (Exception)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
@@ -374,7 +374,7 @@ namespace RX_Explorer.View
 
                         if (Decoder.PixelHeight <= 50 || Decoder.PixelWidth <= 50)
                         {
-                            await new QueueContentDialog
+                            await new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                                 Content = Globalization.GetString("QueueDialog_CanNotAdjustSmallImage_Content"),
@@ -424,7 +424,7 @@ namespace RX_Explorer.View
 
                                 if (await UserProfilePersonalizationSettings.Current.TrySetWallpaperImageAsync(await StorageFile.GetFileFromPathAsync(TempFilePath)))
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    CommonContentDialog Dialog = new CommonContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                         Content = Globalization.GetString("QueueDialog_SetWallpaperSuccess_Content"),
@@ -450,7 +450,7 @@ namespace RX_Explorer.View
                                             {
                                                 if (!await Exclusive.Controller.SetWallpaperImageAsync(TempFile.Path))
                                                 {
-                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    CommonContentDialog Dialog = new CommonContentDialog
                                                     {
                                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                         Content = Globalization.GetString("QueueDialog_SetWallpaperFailure_Content"),
@@ -473,7 +473,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_SetWallpaperNotSupport_Content"),
@@ -485,7 +485,7 @@ namespace RX_Explorer.View
             }
             catch
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_SetWallpaperFailure_Content"),

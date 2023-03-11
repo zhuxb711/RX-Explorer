@@ -3,13 +3,10 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
-using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Shapes;
 
 namespace RX_Explorer.Class
 {
@@ -29,10 +26,8 @@ namespace RX_Explorer.Class
 
         private static void ProcessThread()
         {
-            while (true)
+            foreach (QueueContentDialogInternalData Data in DialogCollection.GetConsumingEnumerable())
             {
-                QueueContentDialogInternalData Data = DialogCollection.Take();
-
                 InternalShowingDialogFlag = true;
 
                 try
@@ -44,8 +39,7 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception ex)
                 {
-                    Data.TaskSource.SetResult(ContentDialogResult.None);
-                    LogTracer.Log(ex, "Could not pop the ContentDialog as expected");
+                    Data.TaskSource.TrySetException(ex);
                 }
                 finally
                 {
@@ -66,33 +60,10 @@ namespace RX_Explorer.Class
             BackgroundProcessThread.Start();
         }
 
-        public QueueContentDialog()
+        protected QueueContentDialog()
         {
             XamlRoot = (Window.Current.Content as FrameworkElement)?.XamlRoot;
             DefaultButton = ContentDialogButton.Primary;
-            RequestedTheme = AppThemeController.Current.Theme;
-            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
-            Background = Application.Current.Resources["AcrylicBackgroundFillColorDefaultBrush"] as Brush;
-
-            Opened += QueueContentDialog_Opened;
-            Closed += QueueContentDialog_Closed;
-        }
-
-        private void QueueContentDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
-        {
-            AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
-        }
-
-        private void QueueContentDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
-        {
-            AppThemeController.Current.ThemeChanged -= Current_ThemeChanged;
-        }
-
-        private void Current_ThemeChanged(object sender, ElementTheme newTheme)
-        {
-            RequestedTheme = newTheme;
-            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
-            Background = Application.Current.Resources["AcrylicBackgroundFillColorDefaultBrush"] as Brush;
         }
 
         private class QueueContentDialogInternalData

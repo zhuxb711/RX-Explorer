@@ -8,7 +8,10 @@
                          x:Uid="TranscodeDialog"
                          Title="转码"
                          PrimaryButtonText="确定"
-                         CloseButtonText="取消">
+                         CloseButtonText="取消"
+                         Style="{ThemeResource DefaultContentDialogStyle}"
+                         RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                         Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
 
     <Grid MinWidth="350">
         <Grid.RowDefinitions>

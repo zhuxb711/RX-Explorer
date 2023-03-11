@@ -9,6 +9,9 @@
                         Title="{x:Bind Cls:Globalization.GetString('SecureArea_StorageLocation_Title')}"
                         PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
                         SecondaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_GoBack')}"
+                        Style="{ThemeResource DefaultContentDialogStyle}"
+                        RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                        Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
                         PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
     <Cls:QueueContentDialog.Resources>

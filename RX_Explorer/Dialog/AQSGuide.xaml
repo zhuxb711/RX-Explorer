@@ -1,7 +1,6 @@
 ﻿<Cls:QueueContentDialog x:Class="RX_Explorer.Dialog.AQSGuide"
                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                        xmlns:local="using:RX_Explorer.Dialog"
                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                         xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -9,7 +8,10 @@
                         xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
                         mc:Ignorable="d"
                         Title="{x:Bind Cls:Globalization.GetString('SettingAQSGuideTitle/Text')}"
-                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CloseButton')}">
+                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CloseButton')}"
+                        Style="{ThemeResource DefaultContentDialogStyle}"
+                        RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                        Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
 
     <Cls:QueueContentDialog.Resources>
         <x:Double x:Key="ContentDialogMaxWidth">650</x:Double>

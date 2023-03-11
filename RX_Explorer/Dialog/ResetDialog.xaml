@@ -10,6 +10,9 @@
                          x:Uid="ResetDialog"
                          PrimaryButtonText="确认"
                          CloseButtonText="取消"
+                         Style="{ThemeResource DefaultContentDialogStyle}"
+                         RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                         Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
                          PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
     <Cls:QueueContentDialog.Resources>

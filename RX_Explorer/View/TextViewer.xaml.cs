@@ -140,7 +140,7 @@ namespace RX_Explorer.View
 
                         if (LineBreakDisplay.Text.Contains("\\"))
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            CommonContentDialog Dialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                                 Content = Globalization.GetString("QueueDialog_MixLineEnding_Content"),
@@ -162,7 +162,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "Could not load the content in file");
 
-                await new QueueContentDialog
+                await new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_UnableReadWriteFile_Content"),
@@ -204,7 +204,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "Could not save the content to file");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_UnableReadWriteFile_Content"),

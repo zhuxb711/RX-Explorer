@@ -230,8 +230,19 @@ namespace RX_Explorer.View
             SortedCollectionGenerator.SortConfigChanged += Current_SortConfigChanged;
             GroupCollectionGenerator.GroupStateChanged += GroupCollectionGenerator_GroupStateChanged;
             LayoutModeController.ViewModeChanged += Current_ViewModeChanged;
+            AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
 
             CollectionVSRegisterToken = CollectionVS.RegisterPropertyChangedCallback(CollectionViewSource.IsSourceGroupedProperty, new DependencyPropertyChangedCallback(OnSourceGroupedChanged));
+        }
+
+        private void Current_ThemeChanged(object sender, ElementTheme e)
+        {
+            FileFlyout = CreateNewFileContextMenu();
+            FolderFlyout = CreateNewFolderContextMenu();
+            LinkFlyout = CreateNewLinkFileContextMenu();
+            MixedFlyout = CreateNewMixedContextMenu();
+            EmptyFlyout = CreateNewEmptyContextMenu();
+            LabelFolderEmptyFlyout = CreateNewLabelFolderEmptyContextMenu();
         }
 
         private void OnSourceGroupedChanged(DependencyObject sender, DependencyProperty dp)
@@ -2195,7 +2206,7 @@ namespace RX_Explorer.View
             {
                 if (CommonAccessCollection.LibraryList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_TipTitle"),
                         Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
@@ -3475,7 +3486,7 @@ namespace RX_Explorer.View
             }
             catch
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                     Content = Globalization.GetString("QueueDialog_UndoFailure_Content"),
@@ -3507,7 +3518,7 @@ namespace RX_Explorer.View
                 }
                 catch
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
@@ -3651,14 +3662,12 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(Paste_Click)}");
 
-                QueueContentDialog dialog = new QueueContentDialog
+                await new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_FailToGetClipboardError_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await dialog.ShowAsync();
+                }.ShowAsync();
             }
             finally
             {
@@ -3690,7 +3699,7 @@ namespace RX_Explorer.View
                 }
                 catch
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
@@ -3728,7 +3737,7 @@ namespace RX_Explorer.View
 
                 if (SettingPage.IsDoubleConfirmOnDeletionEnabled)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                         PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
@@ -3851,7 +3860,7 @@ namespace RX_Explorer.View
                                 if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
                                     && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, NewName)))
                                 {
-                                    QueueContentDialog Dialog1 = new QueueContentDialog
+                                    CommonContentDialog Dialog1 = new CommonContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                         Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
@@ -4002,7 +4011,7 @@ namespace RX_Explorer.View
                         }
                         else
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            CommonContentDialog Dialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                 Content = Globalization.GetString("QueueDialog_OpenBluetooth_Content"),
@@ -4014,7 +4023,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
@@ -4026,7 +4035,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
@@ -4431,7 +4440,7 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                CommonContentDialog Dialog = new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                     Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{DirectoryPath}\"",
@@ -4456,7 +4465,7 @@ namespace RX_Explorer.View
                 {
                     if (GeneralTransformer.IsAnyTransformTaskRunning)
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                             Content = Globalization.GetString("QueueDialog_TaskWorking_Content"),
@@ -4496,7 +4505,7 @@ namespace RX_Explorer.View
                                                     }
                                                 }
 
-                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                CommonContentDialog Dialog = new CommonContentDialog
                                                 {
                                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                     Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
@@ -4508,7 +4517,7 @@ namespace RX_Explorer.View
                                         }
                                         else
                                         {
-                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            CommonContentDialog Dialog = new CommonContentDialog
                                             {
                                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                 Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
@@ -4552,7 +4561,7 @@ namespace RX_Explorer.View
                         {
                             LogTracer.Log(ex, "Could not transcode the file");
 
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            CommonContentDialog Dialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                 Content = Globalization.GetString("QueueDialog_TransocdeFailed_Content"),
@@ -4565,7 +4574,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
@@ -4626,7 +4635,7 @@ namespace RX_Explorer.View
                 {
                     QRTeachTip.IsOpen = false;
 
-                    await new QueueContentDialog
+                    await new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_WiFiError_Content") + ex.Message,
@@ -4642,7 +4651,7 @@ namespace RX_Explorer.View
             {
                 QRTeachTip.IsOpen = false;
 
-                await new QueueContentDialog
+                await new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_WiFiError_Content") + ex.Message,
@@ -4713,14 +4722,12 @@ namespace RX_Explorer.View
 
                                 if (!await DisplayItemsInFolderAsync(NewPath, SkipNavigationRecord: true))
                                 {
-                                    QueueContentDialog dialog = new QueueContentDialog
+                                    await new CommonContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                         Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{NewPath}\"",
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                                    };
-
-                                    await dialog.ShowAsync();
+                                    }.ShowAsync();
                                 }
                             }
                         }
@@ -4747,14 +4754,12 @@ namespace RX_Explorer.View
             }
             else
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                await new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await Dialog.ShowAsync();
+                }.ShowAsync();
             }
         }
 
@@ -4828,19 +4833,17 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    await new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnauthorizedCreateFolder_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
+                    }.ShowAsync();
                 }
             }
             else
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
@@ -4894,7 +4897,7 @@ namespace RX_Explorer.View
             {
                 if (!await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
@@ -4920,7 +4923,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
@@ -4941,14 +4944,12 @@ namespace RX_Explorer.View
             {
                 if (!await DisplayItemsInFolderAsync(CurrentFolder.Path, true))
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    await new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{CurrentFolder.Path}\"",
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                    };
-
-                    await dialog.ShowAsync();
+                    }.ShowAsync();
                 }
             }
             catch (Exception ex)
@@ -5205,7 +5206,7 @@ namespace RX_Explorer.View
             }
             catch (LaunchProgramException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
@@ -5216,7 +5217,7 @@ namespace RX_Explorer.View
             }
             catch (FileNotFoundException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
@@ -5227,7 +5228,7 @@ namespace RX_Explorer.View
             }
             catch (DirectoryNotFoundException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
@@ -5238,7 +5239,7 @@ namespace RX_Explorer.View
             }
             catch (UnauthorizedAccessException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
@@ -5249,7 +5250,7 @@ namespace RX_Explorer.View
             }
             catch (NotSupportedException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_NotSupportedFile_Content"),
@@ -5298,7 +5299,7 @@ namespace RX_Explorer.View
             }
             catch (LaunchProgramException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
@@ -5309,7 +5310,7 @@ namespace RX_Explorer.View
             }
             catch (NotSupportedException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_NotSupportedFile_Content"),
@@ -5332,7 +5333,7 @@ namespace RX_Explorer.View
             {
                 if (GeneralTransformer.IsAnyTransformTaskRunning)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_TipTitle"),
                         Content = Globalization.GetString("QueueDialog_TaskWorking_Content"),
@@ -5360,7 +5361,7 @@ namespace RX_Explorer.View
                                     }
                                 }
 
-                                QueueContentDialog Dialog1 = new QueueContentDialog
+                                CommonContentDialog Dialog1 = new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                     Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
@@ -5374,7 +5375,7 @@ namespace RX_Explorer.View
                         {
                             LogTracer.Log(ex, "Could not edit the video file");
 
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            CommonContentDialog Dialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_VideoEditFailed_Content"),
@@ -5386,7 +5387,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
@@ -5407,7 +5408,7 @@ namespace RX_Explorer.View
             {
                 if (GeneralTransformer.IsAnyTransformTaskRunning)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_TipTitle"),
                         Content = Globalization.GetString("QueueDialog_TaskWorking_Content"),
@@ -5433,7 +5434,7 @@ namespace RX_Explorer.View
                                 }
                             }
 
-                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            CommonContentDialog Dialog1 = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
@@ -5447,7 +5448,7 @@ namespace RX_Explorer.View
                     {
                         LogTracer.Log(ex, "Could not merge the video files");
 
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_VideoMergeFailed_Content"),
@@ -5669,7 +5670,7 @@ namespace RX_Explorer.View
                 {
                     LogTracer.Log(ex, "Could not create a new file as expected");
 
-                    await new QueueContentDialog
+                    await new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
@@ -5738,7 +5739,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
@@ -5852,7 +5853,7 @@ namespace RX_Explorer.View
                                 {
                                     if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, Parameters: PathList.ToArray()))
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        CommonContentDialog Dialog = new CommonContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                             Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
@@ -5879,14 +5880,12 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(ItemContainer_Drop)}");
 
-                QueueContentDialog dialog = new QueueContentDialog
+                await new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_FailToGetClipboardError_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await dialog.ShowAsync();
+                }.ShowAsync();
             }
             finally
             {
@@ -6442,7 +6441,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(ViewControl_Drop)}");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_FailToGetClipboardError_Content"),
@@ -6595,7 +6594,7 @@ namespace RX_Explorer.View
                                                                  RunAsAdmin: Profile.RunAsAdmin,
                                                                  Parameters: Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Replace("[CurrentLocation]", LaunchPath)).ToArray()))
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            CommonContentDialog Dialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
@@ -6727,7 +6726,7 @@ namespace RX_Explorer.View
 
                     if (!CurrentEditItem.Name.Equals(ActualRequestName, StringComparison.OrdinalIgnoreCase) && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, ActualRequestName)))
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
@@ -6804,7 +6803,7 @@ namespace RX_Explorer.View
                 }
                 catch
                 {
-                    QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                    CommonContentDialog UnauthorizeDialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
@@ -6960,14 +6959,12 @@ namespace RX_Explorer.View
             {
                 if (Item.LinkTargetPath == Globalization.GetString("UnknownText") || Item.LinkType == ShellLinkType.UWP)
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    await new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Item.LinkTargetPath}\"",
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                    };
-
-                    await dialog.ShowAsync();
+                    }.ShowAsync();
                 }
                 else
                 {
@@ -6983,7 +6980,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{ParentFolderPath}\"",
@@ -7154,14 +7151,12 @@ namespace RX_Explorer.View
 
                 if (!await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    await new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
+                    }.ShowAsync();
 
                     return;
                 }
@@ -7184,15 +7179,13 @@ namespace RX_Explorer.View
 
                         if (TargetFolder == null)
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
+                            await new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
                                 PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                            };
-
-                            await dialog.ShowAsync();
+                            }.ShowAsync();
                         }
                         else
                         {
@@ -7638,7 +7631,7 @@ namespace RX_Explorer.View
                 }
                 else if (!await DisplayItemsInFolderAsync(Path))
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Path}\"",
@@ -7749,7 +7742,7 @@ namespace RX_Explorer.View
                                         }
                                         catch (Exception)
                                         {
-                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            CommonContentDialog Dialog = new CommonContentDialog
                                             {
                                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                 Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
@@ -7784,7 +7777,7 @@ namespace RX_Explorer.View
                                                 }
                                                 catch (Exception)
                                                 {
-                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    CommonContentDialog Dialog = new CommonContentDialog
                                                     {
                                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                         Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
@@ -7890,7 +7883,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{DirectoryPath}\"",
@@ -8447,6 +8440,7 @@ namespace RX_Explorer.View
                 SortedCollectionGenerator.SortConfigChanged -= Current_SortConfigChanged;
                 GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
                 LayoutModeController.ViewModeChanged -= Current_ViewModeChanged;
+                AppThemeController.Current.ThemeChanged -= Current_ThemeChanged;
 
                 AreaWatcher.Dispose();
                 WiFiProvider?.Dispose();

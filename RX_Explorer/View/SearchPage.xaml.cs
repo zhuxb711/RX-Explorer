@@ -551,14 +551,12 @@ namespace RX_Explorer.View
                 {
                     LogTracer.Log(ex, $"An exception was threw in {nameof(Location_Click)}");
 
-                    QueueContentDialog dialog = new QueueContentDialog
+                    await new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
+                    }.ShowAsync();
                 }
             }
         }
@@ -584,7 +582,7 @@ namespace RX_Explorer.View
                 }
                 catch
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
@@ -1168,7 +1166,7 @@ namespace RX_Explorer.View
             }
             catch (FileNotFoundException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
@@ -1179,7 +1177,7 @@ namespace RX_Explorer.View
             }
             catch (DirectoryNotFoundException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
@@ -1190,7 +1188,7 @@ namespace RX_Explorer.View
             }
             catch (LaunchProgramException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
@@ -1203,14 +1201,12 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(OpenSelectedItemAsync)}");
 
-                QueueContentDialog dialog = new QueueContentDialog
+                await new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await dialog.ShowAsync();
+                }.ShowAsync();
             }
         }
 
@@ -1251,7 +1247,7 @@ namespace RX_Explorer.View
                 {
                     LogTracer.Log(ex, "Could not put the file into clipboard");
 
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
@@ -1286,7 +1282,7 @@ namespace RX_Explorer.View
                 {
                     LogTracer.Log(ex, "Could not put the file into clipboard");
 
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
@@ -1311,7 +1307,7 @@ namespace RX_Explorer.View
 
                 if (SettingPage.IsDoubleConfirmOnDeletionEnabled)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                         PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
@@ -1547,7 +1543,7 @@ namespace RX_Explorer.View
                             if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
                             && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(FolderPath, NewName)))
                             {
-                                QueueContentDialog Dialog1 = new QueueContentDialog
+                                CommonContentDialog Dialog1 = new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                     Content = Globalization.GetString("QueueDialog_RenameExist_Content"),

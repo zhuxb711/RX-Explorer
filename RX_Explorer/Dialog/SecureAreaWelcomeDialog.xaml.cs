@@ -24,8 +24,7 @@ namespace RX_Explorer.Dialog
         {
             InitializeComponent();
 
-            Location.Text = SettingPage.SecureAreaStorageLocation;
-            StorageLocation = SettingPage.SecureAreaStorageLocation;
+            Location.Text = string.IsNullOrEmpty(SettingPage.SecureAreaStorageLocation) ? Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder") : SettingPage.SecureAreaStorageLocation;
 
             SecureLevel.Items.Add($"AES-128bit ({Globalization.GetString("SecureArea_AES_128Level_Description")})");
             SecureLevel.Items.Add($"AES-256bit ({Globalization.GetString("SecureArea_AES_256Level_Description")})");
@@ -65,9 +64,9 @@ namespace RX_Explorer.Dialog
                     args.Cancel = true;
                     PasswordErrorTip.IsOpen = true;
                 }
-                else if (await FileSystemStorageItemBase.CreateNewAsync(Location.Text, CreateType.Folder, CollisionOptions.Skip) is FileSystemStorageFolder Folder)
+                else if (await FileSystemStorageItemBase.CreateNewAsync(Location.Text, CreateType.Folder, CollisionOptions.Skip) is not null)
                 {
-                    StorageLocation = Folder.Path;
+                    StorageLocation = Location.Text;
                     Password = PrimaryPassword.Password;
                     IsEnableWindowsHello = UseWinHel.IsChecked.GetValueOrDefault();
                     EncryptionKeySize = SecureLevel.SelectedIndex == 0 ? SLEKeySize.AES128 : SLEKeySize.AES256;
@@ -126,7 +125,6 @@ namespace RX_Explorer.Dialog
             if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
             {
                 Location.Text = Folder.Path;
-                StorageLocation = Folder.Path;
             }
         }
     }

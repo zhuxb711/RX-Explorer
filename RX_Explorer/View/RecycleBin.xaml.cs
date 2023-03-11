@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using System;
@@ -324,7 +325,7 @@ namespace RX_Explorer.View
             {
                 ControlLoading(true, Globalization.GetString("RecycleBinDeleteText"));
 
-                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                CommonContentDialog QueueContenDialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                     Content = Globalization.GetString("QueueDialog_DeleteFile_Content"),
@@ -350,7 +351,7 @@ namespace RX_Explorer.View
 
                     if (ErrorList.Count > 0)
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = $"{Globalization.GetString("QueueDialog_RecycleBinDeleteError_Content")} {Environment.NewLine}{string.Join(Environment.NewLine, ErrorList)}",
@@ -373,7 +374,7 @@ namespace RX_Explorer.View
 
         private async void ClearRecycleBin_Click(object sender, RoutedEventArgs e)
         {
-            QueueContentDialog Dialog = new QueueContentDialog
+            CommonContentDialog Dialog = new CommonContentDialog
             {
                 Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                 Content = Globalization.GetString("QueueDialog_EmptyRecycleBin_Content"),
@@ -397,14 +398,12 @@ namespace RX_Explorer.View
                         }
                         else
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
+                            await new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_RecycleBinEmptyError_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await dialog.ShowAsync();
+                            }.ShowAsync();
                         }
                     }
                 }
@@ -443,7 +442,7 @@ namespace RX_Explorer.View
 
                 if (ErrorList.Count > 0)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = $"{Globalization.GetString("QueueDialog_RecycleBinRestoreError_Content")} {Environment.NewLine}{string.Join(Environment.NewLine, ErrorList)}",

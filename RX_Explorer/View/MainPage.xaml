@@ -339,21 +339,21 @@
                                             ResourceKey="ElementCustomAcrylicBrush" />
                         </muxc:NavigationView.Resources>
                         <muxc:NavigationView.MenuItems>
-                            <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"
-                                                     IsSelected="True">
+                            <muxc:NavigationViewItem x:Name="HomeNavigationItem"
+                                                     Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}">
                                 <muxc:NavigationViewItem.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xE8CC;" />
                                 </muxc:NavigationViewItem.Icon>
                             </muxc:NavigationViewItem>
-                            <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}"
-                                                     Name="RecycleBinItem">
+                            <muxc:NavigationViewItem x:Name="RecycleBinNavigationItem"
+                                                     Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}">
                                 <muxc:NavigationViewItem.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xE107;" />
                                 </muxc:NavigationViewItem.Icon>
                             </muxc:NavigationViewItem>
-                            <muxc:NavigationViewItem x:Name="QuickStartItem"
+                            <muxc:NavigationViewItem x:Name="QuickStartNavigationItem"
                                                      Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
                                                      SelectsOnInvoked="False">
                                 <muxc:NavigationViewItem.Icon>
@@ -362,13 +362,13 @@
                                               x:Name="QuickStartIcon" />
                                 </muxc:NavigationViewItem.Icon>
                             </muxc:NavigationViewItem>
-                            <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}"
-                                                     Name="SecureAreaItem">
+                            <muxc:NavigationViewItem x:Name="SecureAreaNavigationItem"
+                                                     Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}">
                                 <muxc:NavigationViewItem.Icon>
                                     <SymbolIcon Symbol="ProtectedDocument" />
                                 </muxc:NavigationViewItem.Icon>
                             </muxc:NavigationViewItem>
-                            <muxc:NavigationViewItem x:Name="BluetoothAudioItem"
+                            <muxc:NavigationViewItem x:Name="BluetoothAudioNavigationItem"
                                                      SelectsOnInvoked="False">
                                 <RelativePanel>
                                     <TextBlock Text="蓝牙音频"

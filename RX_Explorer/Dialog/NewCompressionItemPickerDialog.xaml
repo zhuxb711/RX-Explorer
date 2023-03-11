@@ -7,9 +7,12 @@
                          mc:Ignorable="d"
                          x:Uid="NewCompressionItemPickerDialog"
                          Title="新建文件或文件夹"
+                         IsPrimaryButtonEnabled="False"
                          PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
                          CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
-                         IsPrimaryButtonEnabled="False">
+                         Style="{ThemeResource DefaultContentDialogStyle}"
+                         RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                         Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
 
     <RelativePanel Width="380">
         <TextBox Header="请输入文件名"

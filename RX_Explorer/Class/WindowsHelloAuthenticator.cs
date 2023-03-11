@@ -40,12 +40,12 @@ namespace RX_Explorer.Class
             if (await CheckSupportAsync().ConfigureAwait(false))
             {
                 KeyCredentialRetrievalResult CredentiaResult = await KeyCredentialManager.RequestCreateAsync(CredentialName, KeyCredentialCreationOption.ReplaceExisting);
+                
                 switch (CredentiaResult.Status)
                 {
                     case KeyCredentialStatus.Success:
                         {
-                            string PublicKey = CryptographicBuffer.EncodeToHexString(CredentiaResult.Credential.RetrievePublicKey());
-                            ApplicationData.Current.LocalSettings.Values["WindowsHelloPublicKeyForUser"] = PublicKey;
+                            ApplicationData.Current.LocalSettings.Values["WindowsHelloPublicKeyForUser"] = CryptographicBuffer.EncodeToHexString(CredentiaResult.Credential.RetrievePublicKey());
                             return AuthenticatorState.RegisterSuccess;
                         }
                     case KeyCredentialStatus.UserCanceled:
@@ -75,31 +75,29 @@ namespace RX_Explorer.Class
                 if (ApplicationData.Current.LocalSettings.Values["WindowsHelloPublicKeyForUser"] is string PublicKey)
                 {
                     KeyCredentialRetrievalResult RetrievalResult = await KeyCredentialManager.OpenAsync(CredentialName);
+
                     switch (RetrievalResult.Status)
                     {
                         case KeyCredentialStatus.Success:
                             {
                                 KeyCredentialOperationResult OperationResult = await RetrievalResult.Credential.RequestSignAsync(CryptographicBuffer.ConvertStringToBinary(ChallengeText, BinaryStringEncoding.Utf8));
+
                                 if (OperationResult.Status == KeyCredentialStatus.Success)
                                 {
-                                    var Algorithm = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(AsymmetricAlgorithmNames.RsaSignPkcs1Sha256);
-                                    var Key = Algorithm.ImportPublicKey(CryptographicBuffer.DecodeFromHexString(PublicKey));
+                                    AsymmetricKeyAlgorithmProvider Algorithm = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(AsymmetricAlgorithmNames.RsaSignPkcs1Sha256);
+                                    CryptographicKey Key = Algorithm.ImportPublicKey(CryptographicBuffer.DecodeFromHexString(PublicKey));
                                     return CryptographicEngine.VerifySignature(Key, CryptographicBuffer.ConvertStringToBinary(ChallengeText, BinaryStringEncoding.Utf8), OperationResult.Result) ? AuthenticatorState.VerifyPassed : AuthenticatorState.VerifyFailed;
                                 }
-                                else
-                                {
-                                    return AuthenticatorState.UnknownError;
-                                }
+
+                                break;
                             }
                         case KeyCredentialStatus.NotFound:
                             {
                                 return AuthenticatorState.CredentialNotFound;
                             }
-                        default:
-                            {
-                                return AuthenticatorState.UnknownError;
-                            }
                     }
+
+                    return AuthenticatorState.UnknownError;
                 }
                 else
                 {
@@ -122,11 +120,12 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    ApplicationData.Current.LocalSettings.Values["WindowsHelloPublicKeyForUser"] = null;
                     await KeyCredentialManager.DeleteAsync(CredentialName);
+                    ApplicationData.Current.LocalSettings.Values.Remove("WindowsHelloPublicKeyForUser");
                 }
                 catch (Exception)
                 {
+                    //No need to handle this exception
                 }
             }
         }

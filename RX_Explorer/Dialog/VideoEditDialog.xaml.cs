@@ -71,7 +71,7 @@ namespace RX_Explorer.Dialog
 
                 LogTracer.Log(ex, "Could not load the video edit dialog");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_EditErrorWhenOpen_Content"),

@@ -344,7 +344,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "Could not initialize the compression viewer");
 
-                await new QueueContentDialog
+                await new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_CouldNotOpenCompression_Content"),
@@ -559,7 +559,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
@@ -602,7 +602,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "Decompression failed for unauthorized access");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
@@ -615,7 +615,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "Decompression failed for unknown exception");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_DecompressionError_Content"),
@@ -709,14 +709,12 @@ namespace RX_Explorer.View
                 {
                     LogTracer.Log(ex, "Could not add a new file to the compressed file");
 
-                    QueueContentDialog dialog = new QueueContentDialog
+                    await new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_CouldNotProcess_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
+                    }.ShowAsync();
                 }
                 finally
                 {
@@ -748,14 +746,12 @@ namespace RX_Explorer.View
                 {
                     LogTracer.Log(ex, "Could not add a new directory to the compressed file");
 
-                    QueueContentDialog dialog = new QueueContentDialog
+                    await new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_CouldNotProcess_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
+                    }.ShowAsync();
                 }
                 finally
                 {
@@ -797,7 +793,7 @@ namespace RX_Explorer.View
                 {
                     LogTracer.Log(ex, "Decompression failed for unauthorized access");
 
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
@@ -810,7 +806,7 @@ namespace RX_Explorer.View
                 {
                     LogTracer.Log(ex, "Decompression failed for unknown exception");
 
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_DecompressionError_Content"),
@@ -830,7 +826,7 @@ namespace RX_Explorer.View
         {
             if (ListViewControl.SelectedItems.Count > 0)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                     PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
@@ -879,14 +875,12 @@ namespace RX_Explorer.View
                     {
                         LogTracer.Log(ex, "Could not delete file or directory from the compressed file");
 
-                        QueueContentDialog dialog = new QueueContentDialog
+                        await new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_CouldNotProcess_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        await dialog.ShowAsync();
+                        }.ShowAsync();
                     }
                     finally
                     {
@@ -909,7 +903,7 @@ namespace RX_Explorer.View
                 }
                 catch
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
@@ -1022,7 +1016,7 @@ namespace RX_Explorer.View
                         {
                             LogTracer.Log(ex, "Could not add a new file to the compressed file");
 
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            CommonContentDialog Dialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_CouldNotProcess_Content"),

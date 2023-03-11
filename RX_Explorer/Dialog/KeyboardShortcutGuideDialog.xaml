@@ -8,7 +8,10 @@
                         xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
                         mc:Ignorable="d"
                         Title="{x:Bind Cls:Globalization.GetString('ShortcutKeyGuideTitle')}"
-                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CloseButton')}">
+                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CloseButton')}"
+                        Style="{ThemeResource DefaultContentDialogStyle}"
+                        RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                        Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
 
     <Cls:QueueContentDialog.Resources>
         <x:Double x:Key="ContentDialogMaxWidth">650</x:Double>

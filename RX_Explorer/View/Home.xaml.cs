@@ -56,6 +56,16 @@ namespace RX_Explorer.View
             NormalDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Normal);
             PortableDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Portable);
             BitlockerDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Locked);
+
+            AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
+        }
+
+        private void Current_ThemeChanged(object sender, ElementTheme e)
+        {
+            LibraryFlyout = CreateNewFolderContextMenu();
+            NormalDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Normal);
+            PortableDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Portable);
+            BitlockerDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Locked);
         }
 
         private CommandBarFlyout CreateNewFolderContextMenu()
@@ -467,7 +477,7 @@ namespace RX_Explorer.View
                         {
                             LogTracer.Log(ex, "Could not rename the drive");
 
-                            QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                            CommonContentDialog UnauthorizeDialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
@@ -502,7 +512,7 @@ namespace RX_Explorer.View
                             if (!OriginName.Equals(DesireName, StringComparison.OrdinalIgnoreCase)
                             && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(Path.GetDirectoryName(Folder.Path), DesireName)))
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                CommonContentDialog Dialog = new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                     Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
@@ -538,7 +548,7 @@ namespace RX_Explorer.View
                     }
                     catch (FileLoadException)
                     {
-                        QueueContentDialog LoadExceptionDialog = new QueueContentDialog
+                        CommonContentDialog LoadExceptionDialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_FileOccupied_Content"),
@@ -549,7 +559,7 @@ namespace RX_Explorer.View
                     }
                     catch (Exception)
                     {
-                        QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                        CommonContentDialog UnauthorizeDialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
@@ -863,14 +873,12 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(ItemContainer_Drop)}");
 
-                QueueContentDialog dialog = new QueueContentDialog
+                await new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_FailToGetClipboardError_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await dialog.ShowAsync();
+                }.ShowAsync();
             }
             finally
             {
@@ -988,7 +996,7 @@ namespace RX_Explorer.View
                             }
                             catch (UnlockDriveFailedException)
                             {
-                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                CommonContentDialog UnlockFailedDialog = new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                     Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
@@ -1017,7 +1025,7 @@ namespace RX_Explorer.View
             }
             catch (Exception)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Drive.Path}\"",
@@ -1261,7 +1269,7 @@ namespace RX_Explorer.View
                         {
                             LogTracer.Log("Could not add the drive to DriveList because it already exist in DriveList");
 
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            CommonContentDialog Dialog = new CommonContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                 Content = Globalization.GetString("QueueDialog_DeviceExist_Content"),
@@ -1279,7 +1287,7 @@ namespace RX_Explorer.View
                     {
                         LogTracer.Log("Could not add the drive to the list because it is not in system drive list");
 
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                             Content = Globalization.GetString("QueueDialog_DeviceSelectError_Content"),
@@ -1315,7 +1323,7 @@ namespace RX_Explorer.View
                 {
                     if (string.IsNullOrEmpty(Item.Path))
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        CommonContentDialog Dialog = new CommonContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueContentDialog_UnableToEject_Content"),
@@ -1353,7 +1361,7 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                CommonContentDialog Dialog = new CommonContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                     Content = Globalization.GetString("QueueContentDialog_UnableToEject_Content"),
@@ -1418,14 +1426,12 @@ namespace RX_Explorer.View
             {
                 if (CommonAccessCollection.LibraryList.Any((Library) => Folder.Path.Equals(Library?.Path, StringComparison.OrdinalIgnoreCase)))
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    await new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_TipTitle"),
                         Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
+                    }.ShowAsync();
                 }
                 else if (!string.IsNullOrEmpty(Folder.Path))
                 {
@@ -1470,7 +1476,7 @@ namespace RX_Explorer.View
                 }
                 catch
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    CommonContentDialog Dialog = new CommonContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
@@ -1649,7 +1655,7 @@ namespace RX_Explorer.View
                                             }
                                             catch (Exception)
                                             {
-                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                CommonContentDialog Dialog = new CommonContentDialog
                                                 {
                                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                     Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
@@ -1684,7 +1690,7 @@ namespace RX_Explorer.View
                                                     }
                                                     catch (Exception)
                                                     {
-                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        CommonContentDialog Dialog = new CommonContentDialog
                                                         {
                                                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                             Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),

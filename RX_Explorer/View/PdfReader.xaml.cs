@@ -175,7 +175,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "Could not open .pdf file");
 
-                await new QueueContentDialog
+                await new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_PDFOpenFailure"),

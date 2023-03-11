@@ -1,6 +1,7 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using SharedLibrary;
 using System;
 using System.Collections.Generic;
@@ -151,7 +152,7 @@ namespace RX_Explorer.View
             }
             catch (NotSupportedException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_NotSupportedImageFormat_Content"),
@@ -164,7 +165,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "Could not save the image data");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_SaveFailed_Content"),
@@ -310,7 +311,7 @@ namespace RX_Explorer.View
             }
             catch (NotSupportedException)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_NotSupportedImageFormat_Content"),
@@ -323,7 +324,7 @@ namespace RX_Explorer.View
             {
                 LogTracer.Log(ex, "Could not save the image data");
 
-                QueueContentDialog Dialog = new QueueContentDialog
+                CommonContentDialog Dialog = new CommonContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_SaveFailed_Content"),

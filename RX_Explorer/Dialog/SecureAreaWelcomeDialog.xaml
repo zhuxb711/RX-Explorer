@@ -9,8 +9,11 @@
                          x:Uid="SAWelcomeDialog"
                          Title="首次激活安全域"
                          PrimaryButtonText="确定"
-                         PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
-                         CloseButtonText="返回">
+                         CloseButtonText="返回"
+                         Style="{ThemeResource DefaultContentDialogStyle}"
+                         RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                         Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+                         PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
     <Cls:QueueContentDialog.Resources>
         <controls:TeachingTip x:Name="EmptyTip"

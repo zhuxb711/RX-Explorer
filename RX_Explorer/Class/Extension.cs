@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
+using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.View;
 using SharedLibrary;
@@ -807,7 +808,7 @@ namespace RX_Explorer.Class
 
                                         if (!await MenuItem.InvokeAsync())
                                         {
-                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            CommonContentDialog Dialog = new CommonContentDialog
                                             {
                                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                 Content = Globalization.GetString("QueueDialog_InvokeContextMenuError_Content"),

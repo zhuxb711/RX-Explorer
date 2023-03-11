@@ -3,7 +3,6 @@
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:Cls="using:RX_Explorer.Class"
                          xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-                         xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                          xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -11,7 +10,10 @@
                          xmlns:sys="using:System"
                          mc:Ignorable="d"
                          Title="{x:Bind Cls:Globalization.GetString('BluetoothShareTitle')}"
-                         CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}" >
+                         CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
+                         Style="{ThemeResource DefaultContentDialogStyle}"
+                         RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
+                         Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
 
     <Grid MinWidth="420"
           MaxHeight="350">
