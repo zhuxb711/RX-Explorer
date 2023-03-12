@@ -313,14 +313,11 @@ namespace RX_Explorer.View
 
         private async void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
         {
-            if (!QueueContentDialog.IsRunningOrWaiting
-                && !SettingPage.IsOpened
-                && NavView.SelectedItem is NavigationViewItem NavItem)
+            if (!QueueContentDialog.IsRunningOrWaiting && !SettingPage.IsOpened)
             {
                 e.Handled = true;
 
-                if (Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
-                    && TabViewContainer.Current?.CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
+                if (NavFrame.Content is TabViewContainer TabContainer && TabContainer.CurrentTabRenderer?.RendererFrame.Content is FileControl Control)
                 {
                     if (!await Control.ExecuteGoBackActionIfAvailableAsync())
                     {

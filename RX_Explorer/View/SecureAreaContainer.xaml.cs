@@ -16,7 +16,10 @@ namespace RX_Explorer.View
 
         private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
         {
-            MainPage.Current.NavView.IsBackEnabled = Nav.CanGoBack;
+            if (SettingPage.ApplicationUIStyle == Class.UIStyle.Normal)
+            {
+                MainPage.Current.NavView.IsBackEnabled = Nav.CanGoBack;
+            }
         }
     }
 }

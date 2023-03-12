@@ -4,7 +4,7 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform>x64</Platform>
     <ProjectGuid>{02D26683-3BD6-4B30-8457-62CD714B0ADF}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -20,18 +20,6 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
-    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-    <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
-    <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
-    <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
-    <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
-    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-    <GenerateTestArtifacts>False</GenerateTestArtifacts>
-    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Use64BitCompiler>true</Use64BitCompiler>
     <PropertyChangedAnalyzerConfiguration>
       <IsCodeGeneratorDisabled>false</IsCodeGeneratorDisabled>
@@ -395,10 +383,11 @@
     <Compile Include="View\SecureArea.xaml.cs">
       <DependentUpon>SecureArea.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\SecureAreaContainer.xaml.cs">
-      <DependentUpon>SecureAreaContainer.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\TabItemContentRenderer.xaml.cs">
+	  <Compile Include="View\SecureAreaContainer.xaml.cs">
+		  <DependentUpon>SecureAreaContainer.xaml</DependentUpon>
+	  </Compile>
+
+	  <Compile Include="View\TabItemContentRenderer.xaml.cs">
       <DependentUpon>TabItemContentRenderer.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\TabViewContainer.xaml.cs">
@@ -765,11 +754,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\SecureAreaContainer.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\TabItemContentRenderer.xaml">
+	  <Page Include="View\SecureAreaContainer.xaml">
+		  <SubType>Designer</SubType>
+		  <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="View\TabItemContentRenderer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -293,9 +293,6 @@ namespace MaintenanceTask
             if (JumpList.IsSupported())
             {
                 JumpList CurrentJumpList = await JumpList.LoadCurrentAsync().AsTask().AsCancellable(CancelToken);
-                CurrentJumpList.SystemGroupKind = JumpListSystemGroupKind.None;
-
-                CurrentJumpList.Items.Clear();
 
                 foreach (JumpListItem OldItem in CurrentJumpList.Items.DuplicateAndClear())
                 {

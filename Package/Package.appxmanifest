@@ -19,7 +19,7 @@
   <Identity
     Name="36186RuoFan.USB"
     Publisher="CN=4FF1CB23-04BD-4F9C-A86A-B4A43196FE02"
-    Version="8.2.1.0" />
+    Version="8.2.2.0" />
 
   <Properties>
     <DisplayName>ms-resource:AppDisplayName</DisplayName>
@@ -33,8 +33,8 @@
   </Properties>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.19041.0" />
+	  <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.19041.0" MaxVersionTested="10.0.22621.0" />
+	  <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.22621.0" />
   </Dependencies>
 
   <Resources>

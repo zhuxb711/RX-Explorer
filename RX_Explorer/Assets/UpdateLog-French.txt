@@ -1,21 +1,13 @@
-﻿###Quoi de neuf dans la version 8.2.1
+﻿###Quoi de neuf dans la version 8.2.2
 
 #### ⚠Avertissement : la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
 >#### WinAppSdk est un framework alternatif pour Uwp et est actuellement testé en interne. Au moment de la sortie officielle, tous les utilisateurs qui ont acheté la version Uwp peuvent activer directement la version WinAppSdk
 
-##### Mise à jour de l'interface utilisateur
-
->##### L'interface utilisateur de la boîte de dialogue de l'application a été mise à jour
-
->##### Mise à jour de la taille du texte du nom du groupe lors de l'utilisation de la fonction de regroupement de fichiers et résolution du problème de nom de groupe trop long
-
 ##### Corrections de bogues
 
->##### Problèmes d'interface utilisateur résolus dans la boîte de dialogue utilisée pour modifier la zone de démarrage rapide
+>##### Résoudre le problème que lorsque le thème système est défini sur "Lumière", l'interface de la boîte de dialogue de contenu ne peut pas être reconnue
 
->##### Résolution du problème selon lequel un masque de flou peut clignoter au démarrage lorsque l'animation est désactivée
+>##### Résolution du problème d'effacement inopiné de la liste de raccourcis de la barre des tâches après chaque mise à jour
 
->##### Résolution du problème de perte de certaines applications dans la liste lors de la sélection d'applications Uwp pour le démarrage rapide
-
->##### Autres améliorations de la qualité du code
+> ##### Résoudre les problèmes liés à la navigation lorsque le style de l'application est défini sur le mode clair

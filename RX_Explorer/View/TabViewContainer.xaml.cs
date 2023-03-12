@@ -1082,7 +1082,19 @@ namespace RX_Explorer.View
                 {
                     CurrentTabRenderer = Renderer;
 
-                    MainPage.Current.NavView.IsBackEnabled = Renderer.RendererFrame.CanGoBack;
+                    switch (SettingPage.ApplicationUIStyle)
+                    {
+                        case UIStyle.Normal:
+                            {
+                                MainPage.Current.NavView.IsBackEnabled = Renderer.RendererFrame.CanGoBack;
+                                break;
+                            }
+                        case UIStyle.Clearly:
+                            {
+                                AltGoBackButton.IsEnabled = Renderer.RendererFrame.CanGoBack;
+                                break;
+                            }
+                    }
 
                     if (Renderer.RendererFrame.Content is FileControl Control)
                     {
@@ -1476,9 +1488,35 @@ namespace RX_Explorer.View
 
         private void AltGoBackButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault())
+            switch (SettingPage.ApplicationUIStyle)
             {
-                CurrentTabRenderer.RendererFrame.GoBack();
+                case UIStyle.Normal:
+                    {
+                        if ((CurrentTabRenderer?.RendererFrame.CanGoBack).GetValueOrDefault())
+                        {
+                            CurrentTabRenderer.RendererFrame.GoBack();
+                        }
+
+                        break;
+                    }
+                case UIStyle.Clearly:
+                    {
+                        if (CurrentTabRenderer?.RendererFrame.Content is SecureAreaContainer SAContainer)
+                        {
+                            if (SAContainer.NavFrame.CanGoBack)
+                            {
+                                SAContainer.NavFrame.GoBack();
+                                break;
+                            }
+                        }
+                        
+                        if (CurrentTabRenderer.RendererFrame.CanGoBack)
+                        {
+                            CurrentTabRenderer.RendererFrame.GoBack();
+                        }
+
+                        break;
+                    }
             }
         }
 

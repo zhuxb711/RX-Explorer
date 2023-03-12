@@ -1,122 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|ARM64">
-      <Configuration>Debug</Configuration>
-      <Platform>ARM64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|ARM64">
-      <Configuration>Release</Configuration>
-      <Platform>ARM64</Platform>
-    </ProjectConfiguration>
-  </ItemGroup>
-  <PropertyGroup>
-    <WapProjPath Condition="'$(WapProjPath)'==''">$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\</WapProjPath>
-  </PropertyGroup>
-  <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.props" />
-  <PropertyGroup>
-    <ProjectGuid>168437ff-bb72-4770-9f57-252ac94d4fce</ProjectGuid>
-    <TargetPlatformVersion>10.0.22621.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-    <GenerateTestArtifacts>True</GenerateTestArtifacts>
-    <AppxBundlePlatforms>arm64</AppxBundlePlatforms>
-    <LangVersion>latest</LangVersion>
-    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-    <EntryPointProjectUniqueName>..\RX_Explorer\RX_Explorer.csproj</EntryPointProjectUniqueName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <AppxBundle>Always</AppxBundle>
-    <DefaultLanguage>en-US</DefaultLanguage>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <AppxBundle>Always</AppxBundle>
-    <DefaultLanguage>en-US</DefaultLanguage>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <AppxBundle>Always</AppxBundle>
-    <DefaultLanguage>en-US</DefaultLanguage>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <AppxBundle>Always</AppxBundle>
-    <DefaultLanguage>en-US</DefaultLanguage>
-  </PropertyGroup>
-  <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest">
-      <SubType>Designer</SubType>
-    </AppxManifest>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Images\LargeTile.scale-100.png" />
-    <Content Include="Images\LargeTile.scale-125.png" />
-    <Content Include="Images\LargeTile.scale-150.png" />
-    <Content Include="Images\LargeTile.scale-200.png" />
-    <Content Include="Images\LargeTile.scale-400.png" />
-    <Content Include="Images\SmallTile.scale-100.png" />
-    <Content Include="Images\SmallTile.scale-125.png" />
-    <Content Include="Images\SmallTile.scale-150.png" />
-    <Content Include="Images\SmallTile.scale-200.png" />
-    <Content Include="Images\SmallTile.scale-400.png" />
-    <Content Include="Images\SplashScreen.scale-100.png" />
-    <Content Include="Images\SplashScreen.scale-125.png" />
-    <Content Include="Images\SplashScreen.scale-150.png" />
-    <Content Include="Images\SplashScreen.scale-200.png" />
-    <Content Include="Images\LockScreenLogo.scale-200.png" />
-    <Content Include="Images\SplashScreen.scale-400.png" />
-    <Content Include="Images\Square150x150Logo.scale-100.png" />
-    <Content Include="Images\Square150x150Logo.scale-125.png" />
-    <Content Include="Images\Square150x150Logo.scale-150.png" />
-    <Content Include="Images\Square150x150Logo.scale-200.png" />
-    <Content Include="Images\Square150x150Logo.scale-400.png" />
-    <Content Include="Images\Square44x44Logo.altform-lightunplated_targetsize-16.png" />
-    <Content Include="Images\Square44x44Logo.altform-lightunplated_targetsize-24.png" />
-    <Content Include="Images\Square44x44Logo.altform-lightunplated_targetsize-256.png" />
-    <Content Include="Images\Square44x44Logo.altform-lightunplated_targetsize-32.png" />
-    <Content Include="Images\Square44x44Logo.altform-lightunplated_targetsize-48.png" />
-    <Content Include="Images\Square44x44Logo.altform-unplated_targetsize-16.png" />
-    <Content Include="Images\Square44x44Logo.altform-unplated_targetsize-256.png" />
-    <Content Include="Images\Square44x44Logo.altform-unplated_targetsize-32.png" />
-    <Content Include="Images\Square44x44Logo.altform-unplated_targetsize-48.png" />
-    <Content Include="Images\Square44x44Logo.scale-100.png" />
-    <Content Include="Images\Square44x44Logo.scale-125.png" />
-    <Content Include="Images\Square44x44Logo.scale-150.png" />
-    <Content Include="Images\Square44x44Logo.scale-200.png" />
-    <Content Include="Images\Square44x44Logo.scale-400.png" />
-    <Content Include="Images\Square44x44Logo.targetsize-16.png" />
-    <Content Include="Images\Square44x44Logo.targetsize-24.png" />
-    <Content Include="Images\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Images\Square44x44Logo.targetsize-256.png" />
-    <Content Include="Images\Square44x44Logo.targetsize-32.png" />
-    <Content Include="Images\Square44x44Logo.targetsize-48.png" />
-    <Content Include="Images\StoreLogo.scale-100.png" />
-    <Content Include="Images\StoreLogo.scale-125.png" />
-    <Content Include="Images\StoreLogo.scale-150.png" />
-    <Content Include="Images\StoreLogo.scale-200.png" />
-    <Content Include="Images\StoreLogo.scale-400.png" />
-    <Content Include="Images\Wide310x150Logo.scale-100.png" />
-    <Content Include="Images\Wide310x150Logo.scale-125.png" />
-    <Content Include="Images\Wide310x150Logo.scale-150.png" />
-    <Content Include="Images\Wide310x150Logo.scale-200.png" />
-    <Content Include="Images\Wide310x150Logo.scale-400.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AuxiliaryTrustProcess\AuxiliaryTrustProcess.csproj" />
-    <ProjectReference Include="..\MonitorTrustProcess\MonitorTrustProcess.csproj" />
-    <ProjectReference Include="..\RX_Explorer\RX_Explorer.csproj" />
-    <ProjectReference Include="..\SystemLaunchHelper\SystemLaunchHelper.csproj" />
-    <ProjectReference Include="..\TrustProcessLauncher\TrustProcessLauncher.csproj" />
-  </ItemGroup>
-  <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup Condition="'$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '17.0'">
+		<VisualStudioVersion>17.0</VisualStudioVersion>
+	</PropertyGroup>
+	<ItemGroup Label="ProjectConfigurations">
+		<ProjectConfiguration Include="Debug|x64">
+			<Configuration>Debug</Configuration>
+			<Platform>x64</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="Release|x64">
+			<Configuration>Release</Configuration>
+			<Platform>x64</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="Debug|ARM64">
+			<Configuration>Debug</Configuration>
+			<Platform>ARM64</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="Release|ARM64">
+			<Configuration>Release</Configuration>
+			<Platform>ARM64</Platform>
+		</ProjectConfiguration>
+	</ItemGroup>
+	<PropertyGroup>
+		<WapProjPath Condition="'$(WapProjPath)'==''">$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\</WapProjPath>
+	</PropertyGroup>
+	<Import Project="$(WapProjPath)\Microsoft.DesktopBridge.props" />
+	<PropertyGroup>
+		<ProjectGuid>168437ff-bb72-4770-9f57-252ac94d4fce</ProjectGuid>
+		<TargetPlatformVersion>10.0.22621.0</TargetPlatformVersion>
+		<TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+		<DefaultLanguage>en-US</DefaultLanguage>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<AppxBundlePlatforms>arm64</AppxBundlePlatforms>
+		<LangVersion>latest</LangVersion>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+		<EntryPointProjectUniqueName>..\RX_Explorer\RX_Explorer.csproj</EntryPointProjectUniqueName>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+		<AppxBundle>Always</AppxBundle>
+		<DefaultLanguage>en-US</DefaultLanguage>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+		<AppxBundle>Always</AppxBundle>
+		<DefaultLanguage>en-US</DefaultLanguage>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<AppxBundle>Always</AppxBundle>
+		<DefaultLanguage>en-US</DefaultLanguage>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<AppxBundle>Always</AppxBundle>
+		<DefaultLanguage>en-US</DefaultLanguage>
+	</PropertyGroup>
+	<ItemGroup>
+		<AppxManifest Include="Package.appxmanifest">
+			<SubType>Designer</SubType>
+		</AppxManifest>
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="Images\LargeTile.scale-100.png" />
+		<Content Include="Images\LargeTile.scale-125.png" />
+		<Content Include="Images\LargeTile.scale-150.png" />
+		<Content Include="Images\LargeTile.scale-200.png" />
+		<Content Include="Images\LargeTile.scale-400.png" />
+		<Content Include="Images\SmallTile.scale-100.png" />
+		<Content Include="Images\SmallTile.scale-125.png" />
+		<Content Include="Images\SmallTile.scale-150.png" />
+		<Content Include="Images\SmallTile.scale-200.png" />
+		<Content Include="Images\SmallTile.scale-400.png" />
+		<Content Include="Images\SplashScreen.scale-100.png" />
+		<Content Include="Images\SplashScreen.scale-125.png" />
+		<Content Include="Images\SplashScreen.scale-150.png" />
+		<Content Include="Images\SplashScreen.scale-200.png" />
+		<Content Include="Images\LockScreenLogo.scale-200.png" />
+		<Content Include="Images\SplashScreen.scale-400.png" />
+		<Content Include="Images\Square150x150Logo.scale-100.png" />
+		<Content Include="Images\Square150x150Logo.scale-125.png" />
+		<Content Include="Images\Square150x150Logo.scale-150.png" />
+		<Content Include="Images\Square150x150Logo.scale-200.png" />
+		<Content Include="Images\Square150x150Logo.scale-400.png" />
+		<Content Include="Images\Square44x44Logo.altform-lightunplated_targetsize-16.png" />
+		<Content Include="Images\Square44x44Logo.altform-lightunplated_targetsize-24.png" />
+		<Content Include="Images\Square44x44Logo.altform-lightunplated_targetsize-256.png" />
+		<Content Include="Images\Square44x44Logo.altform-lightunplated_targetsize-32.png" />
+		<Content Include="Images\Square44x44Logo.altform-lightunplated_targetsize-48.png" />
+		<Content Include="Images\Square44x44Logo.altform-unplated_targetsize-16.png" />
+		<Content Include="Images\Square44x44Logo.altform-unplated_targetsize-256.png" />
+		<Content Include="Images\Square44x44Logo.altform-unplated_targetsize-32.png" />
+		<Content Include="Images\Square44x44Logo.altform-unplated_targetsize-48.png" />
+		<Content Include="Images\Square44x44Logo.scale-100.png" />
+		<Content Include="Images\Square44x44Logo.scale-125.png" />
+		<Content Include="Images\Square44x44Logo.scale-150.png" />
+		<Content Include="Images\Square44x44Logo.scale-200.png" />
+		<Content Include="Images\Square44x44Logo.scale-400.png" />
+		<Content Include="Images\Square44x44Logo.targetsize-16.png" />
+		<Content Include="Images\Square44x44Logo.targetsize-24.png" />
+		<Content Include="Images\Square44x44Logo.targetsize-24_altform-unplated.png" />
+		<Content Include="Images\Square44x44Logo.targetsize-256.png" />
+		<Content Include="Images\Square44x44Logo.targetsize-32.png" />
+		<Content Include="Images\Square44x44Logo.targetsize-48.png" />
+		<Content Include="Images\StoreLogo.scale-100.png" />
+		<Content Include="Images\StoreLogo.scale-125.png" />
+		<Content Include="Images\StoreLogo.scale-150.png" />
+		<Content Include="Images\StoreLogo.scale-200.png" />
+		<Content Include="Images\StoreLogo.scale-400.png" />
+		<Content Include="Images\Wide310x150Logo.scale-100.png" />
+		<Content Include="Images\Wide310x150Logo.scale-125.png" />
+		<Content Include="Images\Wide310x150Logo.scale-150.png" />
+		<Content Include="Images\Wide310x150Logo.scale-200.png" />
+		<Content Include="Images\Wide310x150Logo.scale-400.png" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\AuxiliaryTrustProcess\AuxiliaryTrustProcess.csproj" />
+		<ProjectReference Include="..\MonitorTrustProcess\MonitorTrustProcess.csproj" />
+		<ProjectReference Include="..\RX_Explorer\RX_Explorer.csproj" />
+		<ProjectReference Include="..\SystemLaunchHelper\SystemLaunchHelper.csproj" />
+		<ProjectReference Include="..\TrustProcessLauncher\TrustProcessLauncher.csproj" />
+	</ItemGroup>
+	<Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
 </Project>
