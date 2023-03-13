@@ -26,21 +26,22 @@ namespace RX_Explorer.Class
                     {
                         Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/ThisPC.png"));
                     }
+                    else if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
+                    {
+                        if (await Folder.GetStorageItemAsync() is StorageFolder InnerFolder)
+                        {
+                            DisplayName = InnerFolder.DisplayName;
+                        }
+                        else
+                        {
+                            DisplayName = Folder.DisplayName;
+                        }
+
+                        Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView);
+                    }
                     else
                     {
-                        if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
-                        {
-                            if (await Folder.GetStorageItemAsync() is StorageFolder InnerFolder)
-                            {
-                                DisplayName = InnerFolder.DisplayName;
-                            }
-                            else
-                            {
-                                DisplayName = Folder.DisplayName;
-                            }
-
-                            Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView);
-                        }
+                        Thumbnail = new BitmapImage(new Uri(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11) ? "ms-appx:///Assets/FolderIcon_Win11.png" : "ms-appx:///Assets/FolderIcon_Win10.png"));
                     }
                 }
                 catch (Exception ex)

@@ -1716,8 +1716,8 @@ namespace RX_Explorer.View
             };
 
             MenuFlyout CreateNewFlyout = new MenuFlyout();
-            CreateNewFlyout.Opening += CreatNewFlyout_Opening;
-            CreateNewFlyout.Closed += CreatNewFlyout_Closed;
+            CreateNewFlyout.Opening += CreateNewFlyout_Opening;
+            CreateNewFlyout.Closed += CreateNewFlyout_Closed;
 
             CreateNewButton.Flyout = CreateNewFlyout;
 
@@ -3016,44 +3016,52 @@ namespace RX_Explorer.View
                     {
                         await DisplayItemsInFolderInternalAsync(Folder, CancelToken);
                     }
-                    else if (await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
-                    {
-                        //If target is network path and the user had already mapped it as drive, then we should remap the network path to the drive path if possible.
-                        //Use drive path could get more benefit from loading speed and directory monitor
-                        if (Folder.Path.StartsWith(@"\\"))
-                        {
-                            string RemappedPath = await UncPath.MapUncToDrivePath(Folder.Path);
-
-                            if (!string.IsNullOrEmpty(RemappedPath))
-                            {
-                                if (await FileSystemStorageItemBase.OpenAsync(RemappedPath) is FileSystemStorageFolder RemappedFolder)
-                                {
-                                    Folder = RemappedFolder;
-                                }
-                            }
-                        }
-
-                        await DisplayItemsInFolderInternalAsync(Folder, CancelToken);
-
-                        if (Folder is not (MTPStorageFolder or FtpStorageFolder))
-                        {
-                            await AreaWatcher.StartMonitorAsync(Folder.Path);
-                        }
-
-                        if (SettingPage.IsExpandTreeViewAsContentChanged)
-                        {
-                            if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
-                            {
-                                if (await RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path), true, CancelToken) is TreeViewNode TargetNode)
-                                {
-                                    await Container.FolderTree.SelectNodeAndScrollToVerticalAsync(TargetNode);
-                                }
-                            }
-                        }
-                    }
                     else
                     {
-                        throw new FileNotFoundException();
+                        try
+                        {
+                            if (await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
+                            {
+                                //If target is network path and the user had already mapped it as drive, then we should remap the network path to the drive path if possible.
+                                //Use drive path could get more benefit from loading speed and directory monitor
+                                if (Folder.Path.StartsWith(@"\\"))
+                                {
+                                    string RemappedPath = await UncPath.MapUncToDrivePath(Folder.Path);
+
+                                    if (!string.IsNullOrEmpty(RemappedPath))
+                                    {
+                                        if (await FileSystemStorageItemBase.OpenAsync(RemappedPath) is FileSystemStorageFolder RemappedFolder)
+                                        {
+                                            Folder = RemappedFolder;
+                                        }
+                                    }
+                                }
+
+                                await DisplayItemsInFolderInternalAsync(Folder, CancelToken);
+
+                                if (SettingPage.IsExpandTreeViewAsContentChanged)
+                                {
+                                    if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
+                                    {
+                                        if (await RootNode.GetTargetNodeAsync(new PathAnalysis(CurrentFolder.Path), true, CancelToken) is TreeViewNode TargetNode)
+                                        {
+                                            await Container.FolderTree.SelectNodeAndScrollToVerticalAsync(TargetNode);
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                throw new FileNotFoundException();
+                            }
+                        }
+                        finally
+                        {
+                            if (CurrentFolder is not (MTPStorageFolder or FtpStorageFolder))
+                            {
+                                await AreaWatcher.StartMonitorAsync(CurrentFolder.Path);
+                            }
+                        }
                     }
                 }
             }
@@ -7909,7 +7917,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void CreatNewFlyout_Opening(object sender, object e)
+        private void CreateNewFlyout_Opening(object sender, object e)
         {
             if (sender is MenuFlyout CreatNewFlyout)
             {
@@ -8038,7 +8046,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void CreatNewFlyout_Closed(object sender, object e)
+        private void CreateNewFlyout_Closed(object sender, object e)
         {
             if (sender is MenuFlyout CreatNewFlyout)
             {

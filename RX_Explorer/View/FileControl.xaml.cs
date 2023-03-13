@@ -719,26 +719,56 @@ namespace RX_Explorer.View
 
         public async Task<bool> ExecuteGoBackActionIfAvailableAsync()
         {
-            if (CurrentPresenter.BackNavigationStack.TryPop(out NavigationRelatedRecord CurrentRecord))
+            if (CurrentPresenter.BackNavigationStack.TryPeek(out NavigationRelatedRecord CurrentRecord))
             {
-                if (CurrentPresenter.CurrentFolder != null)
+                //We must check whether the record path is still exists first to avoid change the navigation stack but could not enter the folder later
+                if (await FileSystemStorageItemBase.CheckExistsAsync(CurrentRecord.Path))
                 {
-                    CurrentPresenter.ForwardNavigationStack.Push(new NavigationRelatedRecord
-                    {
-                        Path = CurrentPresenter.CurrentFolder.Path,
-                        SelectedItemPath = CurrentPresenter.SelectedItems.Count() > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty)
-                    });
-                }
+                    CurrentPresenter.BackNavigationStack.TryPop(out _);
 
-                if (await CurrentPresenter.DisplayItemsInFolderAsync(CurrentRecord.Path, SkipNavigationRecord: true))
-                {
-                    if (!string.IsNullOrEmpty(CurrentRecord.SelectedItemPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(CurrentRecord.SelectedItemPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                    if (CurrentPresenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
                     {
-                        CurrentPresenter.SelectedItem = Item;
-                        CurrentPresenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
+                        IReadOnlyList<string> SelectedItemPathList = CurrentPresenter.SelectedItems.Select((Item) => Item.Path).ToArray();
+
+                        if (SelectedItemPathList.Count > 1)
+                        {
+                            CurrentPresenter.ForwardNavigationStack.Push(new NavigationRelatedRecord
+                            {
+                                Path = CurrentFolder.Path,
+                                SelectedItemPath = string.Empty
+                            });
+                        }
+                        else
+                        {
+                            CurrentPresenter.ForwardNavigationStack.Push(new NavigationRelatedRecord
+                            {
+                                Path = CurrentFolder.Path,
+                                SelectedItemPath = SelectedItemPathList.SingleOrDefault() ?? string.Empty
+                            });
+                        }
                     }
 
-                    return true;
+                    if (await CurrentPresenter.DisplayItemsInFolderAsync(CurrentRecord.Path, SkipNavigationRecord: true))
+                    {
+                        if (!string.IsNullOrEmpty(CurrentRecord.SelectedItemPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(CurrentRecord.SelectedItemPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                        {
+                            CurrentPresenter.SelectedItem = Item;
+                            CurrentPresenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
+                        }
+
+                        return true;
+                    }
+                    else
+                    {
+                        CommonContentDialog Dialog = new CommonContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{CurrentRecord.Path}\"",
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
                 }
                 else
                 {
@@ -758,26 +788,56 @@ namespace RX_Explorer.View
 
         public async Task<bool> ExecuteGoForwardActionIfAvailableAsync()
         {
-            if (CurrentPresenter.ForwardNavigationStack.TryPop(out NavigationRelatedRecord CurrentRecord))
-            {
-                if (CurrentPresenter.CurrentFolder != null)
+            if (CurrentPresenter.ForwardNavigationStack.TryPeek(out NavigationRelatedRecord CurrentRecord))
+            {                    
+                //We must check whether the record path is still exists first to avoid change the navigation stack but could not enter the folder later
+                if (await FileSystemStorageItemBase.CheckExistsAsync(CurrentRecord.Path))
                 {
-                    CurrentPresenter.BackNavigationStack.Push(new NavigationRelatedRecord
-                    {
-                        Path = CurrentPresenter.CurrentFolder.Path,
-                        SelectedItemPath = CurrentPresenter.SelectedItems.Count() > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty)
-                    });
-                }
+                    CurrentPresenter.ForwardNavigationStack.TryPop(out _);
 
-                if (await CurrentPresenter.DisplayItemsInFolderAsync(CurrentRecord.Path, SkipNavigationRecord: true))
-                {
-                    if (!string.IsNullOrEmpty(CurrentRecord.SelectedItemPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(CurrentRecord.SelectedItemPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                    if (CurrentPresenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
                     {
-                        CurrentPresenter.SelectedItem = Item;
-                        CurrentPresenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
+                        IReadOnlyList<string> SelectedItemPathList = CurrentPresenter.SelectedItems.Select((Item) => Item.Path).ToArray();
+
+                        if (SelectedItemPathList.Count > 1)
+                        {
+                            CurrentPresenter.BackNavigationStack.Push(new NavigationRelatedRecord
+                            {
+                                Path = CurrentFolder.Path,
+                                SelectedItemPath = string.Empty
+                            });
+                        }
+                        else
+                        {
+                            CurrentPresenter.BackNavigationStack.Push(new NavigationRelatedRecord
+                            {
+                                Path = CurrentFolder.Path,
+                                SelectedItemPath = SelectedItemPathList.SingleOrDefault() ?? string.Empty
+                            });
+                        }
                     }
 
-                    return true;
+                    if (await CurrentPresenter.DisplayItemsInFolderAsync(CurrentRecord.Path, SkipNavigationRecord: true))
+                    {
+                        if (!string.IsNullOrEmpty(CurrentRecord.SelectedItemPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(CurrentRecord.SelectedItemPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                        {
+                            CurrentPresenter.SelectedItem = Item;
+                            CurrentPresenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
+                        }
+
+                        return true;
+                    }
+                    else
+                    {
+                        CommonContentDialog Dialog = new CommonContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{CurrentRecord.Path}\"",
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
                 }
                 else
                 {
@@ -1355,39 +1415,6 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void CreateFolder_Click(object sender, RoutedEventArgs e)
-        {
-            ContextMenuFlyout.Hide();
-
-            if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
-            {
-                if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder CurrentFolder)
-                {
-                    if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreateType.Folder, CollisionOptions.RenameOnCollision) is FileSystemStorageFolder Folder)
-                    {
-                        OperationRecorder.Current.Push(new string[] { $"{Folder.Path}||New" });
-                    }
-                    else
-                    {
-                        await new CommonContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedCreateFolder_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        }.ShowAsync();
-                    }
-                }
-                else
-                {
-                    await new CommonContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    }.ShowAsync();
-                }
-            }
-        }
 
         private async void FolderProperty_Click(object sender, RoutedEventArgs e)
         {
@@ -3131,30 +3158,54 @@ namespace RX_Explorer.View
         {
             AddressHistoryFlyout.Hide();
 
-            if (e.ClickedItem is NavigationRecordDisplay Record && CurrentPresenter != null)
-            {
-                if (AddressHistoryFlyout.Target == GoBackRecord)
+            if (e.ClickedItem is NavigationRecordDisplay Record && CurrentPresenter?.CurrentFolder is FileSystemStorageFolder CurrentFolder)
+            {                    
+                //We must check whether the record path is still exists first to avoid change the navigation stack but could not enter the folder later
+                if (await FileSystemStorageItemBase.CheckExistsAsync(Record.Path))
                 {
-                    NavigationRelatedRecord[] Records = CurrentPresenter.BackNavigationStack.Take(NavigationRecordList.IndexOf(Record) + 1).ToArray();
-                    CurrentPresenter.BackNavigationStack.TryPopRange(Records);
-                    CurrentPresenter.ForwardNavigationStack.PushRange(Records.SkipLast(1).Prepend(new NavigationRelatedRecord
-                    {
-                        Path = CurrentPresenter.CurrentFolder.Path,
-                        SelectedItemPath = (CurrentPresenter.ItemPresenter?.SelectedItems.Count).GetValueOrDefault() > 1 ? string.Empty : ((CurrentPresenter.SelectedItem?.Path) ?? string.Empty)
-                    }).ToArray());
-                }
-                else if (AddressHistoryFlyout.Target == GoForwardRecord)
-                {
-                    NavigationRelatedRecord[] Records = CurrentPresenter.ForwardNavigationStack.Take(NavigationRecordList.IndexOf(Record) + 1).ToArray();
-                    CurrentPresenter.ForwardNavigationStack.TryPopRange(Records);
-                    CurrentPresenter.BackNavigationStack.PushRange(Records.SkipLast(1).Prepend(new NavigationRelatedRecord
-                    {
-                        Path = CurrentPresenter.CurrentFolder.Path,
-                        SelectedItemPath = (CurrentPresenter.ItemPresenter?.SelectedItems.Count).GetValueOrDefault() > 1 ? string.Empty : ((CurrentPresenter.SelectedItem?.Path) ?? string.Empty)
-                    }).ToArray());
-                }
+                    IReadOnlyList<string> SelectedItemPathList = CurrentPresenter.SelectedItems.Select((Item) => Item.Path).ToArray();
 
-                if (!await CurrentPresenter.DisplayItemsInFolderAsync(Record.Path, true, true))
+                    switch (AddressHistoryFlyout.Target.Name)
+                    {
+                        case nameof(GoBackRecord):
+                            {
+                                NavigationRelatedRecord[] Records = CurrentPresenter.BackNavigationStack.Take(NavigationRecordList.IndexOf(Record) + 1).ToArray();
+                                CurrentPresenter.BackNavigationStack.TryPopRange(Records);
+                                CurrentPresenter.ForwardNavigationStack.PushRange(Records.SkipLast(1).Prepend(new NavigationRelatedRecord
+                                {
+                                    Path = CurrentFolder.Path,
+                                    SelectedItemPath = SelectedItemPathList.Count > 1 ? string.Empty : (SelectedItemPathList.SingleOrDefault() ?? string.Empty)
+                                }).ToArray());
+
+                                break;
+                            }
+                        case nameof(GoForwardRecord):
+                            {
+                                NavigationRelatedRecord[] Records = CurrentPresenter.ForwardNavigationStack.Take(NavigationRecordList.IndexOf(Record) + 1).ToArray();
+                                CurrentPresenter.ForwardNavigationStack.TryPopRange(Records);
+                                CurrentPresenter.BackNavigationStack.PushRange(Records.SkipLast(1).Prepend(new NavigationRelatedRecord
+                                {
+                                    Path = CurrentFolder.Path,
+                                    SelectedItemPath = SelectedItemPathList.Count > 1 ? string.Empty : (SelectedItemPathList.SingleOrDefault() ?? string.Empty)
+                                }).ToArray());
+
+                                break;
+                            }
+                    }
+
+                    if (!await CurrentPresenter.DisplayItemsInFolderAsync(Record.Path, true, true))
+                    {
+                        CommonContentDialog Dialog = new CommonContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Record.Path}\"",
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
+                }
+                else
                 {
                     CommonContentDialog Dialog = new CommonContentDialog
                     {

@@ -11,3 +11,7 @@
 >##### Das Problem, dass die Sprungliste in der Taskleiste nach jedem Update unerwartet gelöscht wurde, wurde behoben
 
 >##### Navigationsprobleme lösen, wenn der Anwendungsstil auf den Clear-Modus eingestellt ist
+
+>##### Das Problem, dass die Dateisystemüberwachung für den aktuellen Ordner möglicherweise verloren geht, wenn der Ordner, auf den Sie zugreifen möchten, nicht existiert, wurde behoben
+
+>##### Das Problem wurde behoben, dass selbst wenn der Ordner im Navigationsverlauf nicht existiert, der Datensatz nach dem Klicken gelöscht wird, was zu einem anormalen Zustand der Navigationsschaltfläche führen kann

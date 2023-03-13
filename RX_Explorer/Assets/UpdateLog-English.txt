@@ -10,4 +10,8 @@
 
 >##### Solved the problem that the jump list on the taskbar would be cleared unexpectedly after each update
 
->##### Solve the navigation related problems when the application style is set to clearly mode
+>##### Solved the navigation related problems when the application style is set to clearly mode
+
+>##### Solved the problem that if the folder you are trying to access does not exist, the file system monitoring for the current folder may be lost
+
+>##### Solved the problem that even if the folder in the navigation history does not exist, the record will be deleted after clicking, which may lead to the abnormal state of the navigation button

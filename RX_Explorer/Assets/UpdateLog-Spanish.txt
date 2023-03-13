@@ -11,3 +11,7 @@
 >##### Se resolvió el problema de que la lista de saltos en la barra de tareas se borraría inesperadamente después de cada actualización
 
 >##### Resuelve los problemas relacionados con la navegación cuando el estilo de la aplicación está configurado en modo claro
+
+>##### Se resolvió el problema de que si la carpeta a la que intenta acceder no existe, la supervisión del sistema de archivos para la carpeta actual puede perderse
+
+>##### Se resolvió el problema de que, incluso si la carpeta en el historial de navegación no existe, el registro se eliminará después de hacer clic, lo que puede provocar el estado anormal del botón de navegación.
