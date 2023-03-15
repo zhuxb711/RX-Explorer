@@ -26,9 +26,9 @@ variables:
   - name: TempDirectory
     value: "$(Agent.TempDirectory)"
   - name: TargetWindowsSDKVersion
-    value: "10.0.22621.1"
-  - name: TargetWindowsSDKInstallerUrl # Windows SDK 10.22621.1
-    value: "https://download.microsoft.com/download/f/6/7/f673df4b-4df9-4e1c-b6ce-2e6b4236c802/windowssdk/winsdksetup.exe"
+    value: "10.0.22621.755"
+  - name: TargetWindowsSDKInstallerUrl # Windows SDK 10.0.22621.755
+    value: "https://download.microsoft.com/download/7/9/6/7962e9ce-cd69-4574-978c-1202654bd729/windowssdk/winsdksetup.exe"
   - name: WindowsSDKBaseLocation
     value: '$(Agent.TempDirectory)\WinSDK'
   - name: WindowsSDKInstallerLocation
@@ -87,23 +87,6 @@ jobs:
         displayName: "Download Publish Certificate"
         inputs:
           secureFile: "$(signingCert.secureFileName)"
-
-      - task: PowerShell@2
-        displayName: "Import Publish Certificate File"
-        inputs:
-          targetType: "inline"
-          script: |
-            Write-Host "Start importing the certificate file"
-
-            Add-Type -AssemblyName System.Security
-            $Cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-            $Cert.Import('$(secureFile.secureFilePath)', '$(signingCert.password)', [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
-            $Store = New-Object System.Security.Cryptography.X509Certificates.X509Store -ArgumentList "MY", CurrentUser
-            $Store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
-            $Store.Add($Cert)
-            $Store.Close()
-
-            Write-Host "Certificate file was imported successfully"
 
       - task: PowerShell@2
         displayName: "Add AppCenter Secret Value"
@@ -194,23 +177,6 @@ jobs:
         displayName: "Download Publish Certificate"
         inputs:
           secureFile: "$(signingCert.secureFileName)"
-
-      - task: PowerShell@2
-        displayName: "Import Publish Certificate File"
-        inputs:
-          targetType: "inline"
-          script: |
-            Write-Host "Start importing the certificate file"
-
-            Add-Type -AssemblyName System.Security
-            $Cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-            $Cert.Import('$(secureFile.secureFilePath)', '$(signingCert.password)', [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
-            $Store = New-Object System.Security.Cryptography.X509Certificates.X509Store -ArgumentList "MY", CurrentUser
-            $Store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
-            $Store.Add($Cert)
-            $Store.Close()
-
-            Write-Host "Certificate file was imported successfully"
 
       - task: PowerShell@2
         displayName: "Add AppCenter Secret Value"
