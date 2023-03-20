@@ -1,4 +1,4 @@
-﻿###What's new in Ver.8.2.2
+﻿###What's new in Ver.8.2.3
 
 #### ⚠Warning: Uwp version will suspend feature updates and enter maintenance-only state, RX-Explorer will be migrated to WinAppSdk framework
 
@@ -6,12 +6,6 @@
 
 ##### Bug Fixes
 
->##### Solve the problem that when the system theme is set to "Light", the interface of the content dialog cannot be recognized
+>##### Fixed a potential issue with the worker process scheduler
 
->##### Solved the problem that the jump list on the taskbar would be cleared unexpectedly after each update
-
->##### Solved the navigation related problems when the application style is set to clearly mode
-
->##### Solved the problem that if the folder you are trying to access does not exist, the file system monitoring for the current folder may be lost
-
->##### Solved the problem that even if the folder in the navigation history does not exist, the record will be deleted after clicking, which may lead to the abnormal state of the navigation button
+>##### Fixed an issue where Jump Lists could re-add entries that had been removed from the taskbar

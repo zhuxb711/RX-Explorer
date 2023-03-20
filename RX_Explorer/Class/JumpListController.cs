@@ -16,7 +16,7 @@ namespace RX_Explorer.Class
 
         public static bool IsSupported => JumpList.IsSupported();
 
-        public static int MaxAllowedItemNum { get; } = 16;
+        public static int MaxAllowedItemNum { get; } = 12;
 
         public static async Task InitializeAsync()
         {
@@ -27,17 +27,15 @@ namespace RX_Explorer.Class
 
             using (await InitializeLocker.LockAsync())
             {
-                if (InnerList == null)
-                {
-                    InnerList = await JumpList.LoadCurrentAsync();
-                    InnerList.SystemGroupKind = JumpListSystemGroupKind.None;
-                }
+                InnerList = await JumpList.LoadCurrentAsync();
+                InnerList.SystemGroupKind = JumpListSystemGroupKind.None;
 
                 if (InnerList.Items.Any((Item) => Item.RemovedByUser))
                 {
                     InnerList.Items.RemoveRange(InnerList.Items.Where((Item) => Item.RemovedByUser).ToArray());
-                    await InnerList.SaveAsync();
                 }
+
+                await InnerList.SaveAsync();
             }
         }
 
@@ -45,61 +43,67 @@ namespace RX_Explorer.Class
         {
             await InitializeAsync();
 
-            string CurrentGroupName = ConvertGroupEnumToResourceString(Group);
-
-            foreach (string FolderPath in FolderPathList)
+            if (FolderPathList.Length > 0)
             {
-                InnerList.Items.RemoveRange(InnerList.Items.Where((Item) => Item.GroupName == CurrentGroupName)
-                                                           .Where((Item) => Item.Arguments.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
-                                                           .ToArray());
+                string CurrentGroupName = ConvertGroupEnumToResourceString(Group);
 
-                IReadOnlyList<IGrouping<string, JumpListItem>> GroupEnumerable = InnerList.Items.GroupBy((Item) => Item.GroupName).ToArray();
-
-                IReadOnlyList<JumpListItem> RecentGroupItems = GroupEnumerable.SingleOrDefault((Group) => Group.Key == ConvertGroupEnumToResourceString(JumpListGroup.Recent))?.ToArray() ?? Array.Empty<JumpListItem>();
-                IReadOnlyList<JumpListItem> LibraryGroupItems = GroupEnumerable.SingleOrDefault((Group) => Group.Key == ConvertGroupEnumToResourceString(JumpListGroup.Library))?.ToArray() ?? Array.Empty<JumpListItem>();
-
-                if (RecentGroupItems.Count + LibraryGroupItems.Count >= MaxAllowedItemNum)
+                foreach (string FolderPath in FolderPathList)
                 {
-                    if (Group == JumpListGroup.Library)
+                    InnerList.Items.RemoveRange(InnerList.Items.Where((Item) => Item.GroupName == CurrentGroupName)
+                                                               .Where((Item) => Item.Arguments.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                                                               .ToArray());
+
+                    IReadOnlyList<IGrouping<string, JumpListItem>> GroupEnumerable = InnerList.Items.GroupBy((Item) => Item.GroupName).ToArray();
+
+                    IReadOnlyList<JumpListItem> RecentGroupItems = GroupEnumerable.SingleOrDefault((Group) => Group.Key == ConvertGroupEnumToResourceString(JumpListGroup.Recent))?.ToArray() ?? Array.Empty<JumpListItem>();
+                    IReadOnlyList<JumpListItem> LibraryGroupItems = GroupEnumerable.SingleOrDefault((Group) => Group.Key == ConvertGroupEnumToResourceString(JumpListGroup.Library))?.ToArray() ?? Array.Empty<JumpListItem>();
+
+                    if (RecentGroupItems.Count + LibraryGroupItems.Count >= MaxAllowedItemNum)
                     {
-                        if (RecentGroupItems.Count > 4)
+                        if (Group == JumpListGroup.Library)
                         {
-                            InnerList.Items.Remove(RecentGroupItems[0]);
+                            if (RecentGroupItems.Count > 4)
+                            {
+                                InnerList.Items.Remove(RecentGroupItems.Last());
+                            }
+                            else
+                            {
+                                InnerList.Items.Remove(LibraryGroupItems.Last());
+                            }
                         }
-                        else
+                        else if (RecentGroupItems.Count > 0)
                         {
-                            InnerList.Items.Remove(LibraryGroupItems[0]);
+                            InnerList.Items.Remove(RecentGroupItems.Last());
                         }
                     }
-                    else if (RecentGroupItems.Count > 0)
-                    {
-                        InnerList.Items.Remove(RecentGroupItems[0]);
-                    }
+
+                    JumpListItem NewItem = JumpListItem.CreateWithArguments(FolderPath, Path.GetFileName(FolderPath));
+
+                    NewItem.Description = FolderPath;
+                    NewItem.GroupName = CurrentGroupName;
+                    NewItem.Logo = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11) ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png") : new Uri("ms-appx:///Assets/FolderIcon_Win10.png");
+
+                    InnerList.Items.Insert(0, NewItem);
                 }
 
-                JumpListItem NewItem = JumpListItem.CreateWithArguments(FolderPath, Path.GetFileName(FolderPath));
-
-                NewItem.Description = FolderPath;
-                NewItem.GroupName = CurrentGroupName;
-                NewItem.Logo = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11) ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png") : new Uri("ms-appx:///Assets/FolderIcon_Win10.png");
-
-                InnerList.Items.Insert(0, NewItem);
+                await InnerList.SaveAsync();
             }
-
-            await InnerList.SaveAsync();
         }
 
         public static async Task RemoveItemAsync(JumpListGroup Group, params string[] PathList)
         {
             await InitializeAsync();
 
-            string CurrentGroupName = ConvertGroupEnumToResourceString(Group);
+            if(PathList.Length > 0)
+            {
+                string CurrentGroupName = ConvertGroupEnumToResourceString(Group);
 
-            InnerList.Items.RemoveRange(InnerList.Items.Where((Item) => Item.GroupName == CurrentGroupName)
-                                                       .Where((Item) => PathList.Contains(Item.Arguments, StringComparer.OrdinalIgnoreCase))
-                                                       .ToArray());
+                InnerList.Items.RemoveRange(InnerList.Items.Where((Item) => Item.GroupName == CurrentGroupName)
+                                                           .Where((Item) => PathList.Contains(Item.Arguments, StringComparer.OrdinalIgnoreCase))
+                                                           .ToArray());
 
-            await InnerList.SaveAsync();
+                await InnerList.SaveAsync();
+            }
         }
 
         public static Task<IReadOnlyList<JumpListItem>> GetJumpListItemsAsync()
