@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -294,14 +295,15 @@ namespace MaintenanceTask
             {
                 JumpList CurrentJumpList = await JumpList.LoadCurrentAsync().AsTask().AsCancellable(CancelToken);
 
-                foreach (JumpListItem OldItem in CurrentJumpList.Items.DuplicateAndClear())
+                foreach (JumpListItem OldItem in CurrentJumpList.Items.ToArray())
                 {
-                    CancelToken.ThrowIfCancellationRequested();
                     JumpListItem NewItem = JumpListItem.CreateWithArguments(OldItem.Arguments, OldItem.DisplayName);
+                    
                     NewItem.Description = OldItem.Arguments;
                     NewItem.GroupName = OldItem.GroupName;
                     NewItem.Logo = OldItem.Logo;
-                    CurrentJumpList.Items.Add(NewItem);
+                    
+                    CurrentJumpList.Items[CurrentJumpList.Items.IndexOf(OldItem)] = NewItem;
                 }
 
                 await CurrentJumpList.SaveAsync().AsTask().AsCancellable(CancelToken);

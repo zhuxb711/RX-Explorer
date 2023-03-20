@@ -1,4 +1,4 @@
-﻿###Quoi de neuf dans la version 8.2.2
+﻿###Quoi de neuf dans la version 8.2.3
 
 #### ⚠Avertissement : la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
@@ -6,12 +6,6 @@
 
 ##### Corrections de bogues
 
->##### Résoudre le problème que lorsque le thème système est défini sur "Lumière", l'interface de la boîte de dialogue de contenu ne peut pas être reconnue
+>##### Correction d’un problème potentiel avec le planificateur de processus de travail
 
->##### Résolution du problème d'effacement inopiné de la liste de raccourcis de la barre des tâches après chaque mise à jour
-
->##### Résoudre les problèmes liés à la navigation lorsque le style de l'application est défini sur le mode clair
-
->##### Résolution du problème selon lequel si le dossier auquel vous essayez d'accéder n'existe pas, la surveillance du système de fichiers pour le dossier actuel peut être perdue
-
->##### Résolution du problème selon lequel même si le dossier dans l'historique de navigation n'existe pas, l'enregistrement sera supprimé après avoir cliqué, ce qui peut entraîner l'état anormal du bouton de navigation
+>##### Correction d’un problème où les listes de raccourcis pouvaient rajouter des entrées qui avaient été supprimées de la barre des tâches

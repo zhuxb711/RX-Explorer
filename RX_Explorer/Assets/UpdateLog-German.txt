@@ -1,4 +1,4 @@
-﻿###Was ist neu in Ver.8.2.2
+﻿###Was ist neu in Ver.8.2.3
 
 #### ⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird zum WinAppSdk-Framework migriert
 
@@ -6,12 +6,6 @@
 
 ##### Fehlerbehebung
 
->##### Behebung des Problems, dass die Benutzeroberfläche des Inhaltsdialogs nicht erkannt werden kann, wenn das Systemdesign auf "Light" eingestellt ist
+>##### Ein potenzielles Problem mit dem Arbeitsprozessplaner wurde behoben
 
->##### Das Problem, dass die Sprungliste in der Taskleiste nach jedem Update unerwartet gelöscht wurde, wurde behoben
-
->##### Navigationsprobleme lösen, wenn der Anwendungsstil auf den Clear-Modus eingestellt ist
-
->##### Das Problem, dass die Dateisystemüberwachung für den aktuellen Ordner möglicherweise verloren geht, wenn der Ordner, auf den Sie zugreifen möchten, nicht existiert, wurde behoben
-
->##### Das Problem wurde behoben, dass selbst wenn der Ordner im Navigationsverlauf nicht existiert, der Datensatz nach dem Klicken gelöscht wird, was zu einem anormalen Zustand der Navigationsschaltfläche führen kann
+>##### Es wurde ein Problem behoben, bei dem Sprunglisten Einträge, die aus der Taskleiste entfernt wurden, erneut hinzufügen konnten

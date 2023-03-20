@@ -1,4 +1,4 @@
-﻿###Novedades de la versión 8.2.2
+﻿###Novedades de la versión 8.2.3
 
 #### ⚠Advertencia: la versión Uwp suspenderá las actualizaciones de funciones y entrará en estado de solo mantenimiento, RX-Explorer se migrará al marco WinAppSdk
 
@@ -6,12 +6,6 @@
 
 ##### Corrección de errores
 
->##### Resuelva el problema de que cuando el tema del sistema está configurado en "Light", la interfaz del cuadro de diálogo de contenido no se puede reconocer
+>##### Se ha corregido un posible problema con el programador de procesos de trabajo
 
->##### Se resolvió el problema de que la lista de saltos en la barra de tareas se borraría inesperadamente después de cada actualización
-
->##### Resuelve los problemas relacionados con la navegación cuando el estilo de la aplicación está configurado en modo claro
-
->##### Se resolvió el problema de que si la carpeta a la que intenta acceder no existe, la supervisión del sistema de archivos para la carpeta actual puede perderse
-
->##### Se resolvió el problema de que, incluso si la carpeta en el historial de navegación no existe, el registro se eliminará después de hacer clic, lo que puede provocar el estado anormal del botón de navegación.
+>##### Se ha corregido un problema por el que Jump Lists podía volver a agregar entradas que se habían eliminado de la barra de tareas.

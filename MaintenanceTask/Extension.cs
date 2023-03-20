@@ -54,17 +54,5 @@ namespace MaintenanceTask
                 return await TCS.Task;
             }
         }
-
-        public static IReadOnlyList<T> DuplicateAndClear<T>(this ICollection<T> Source)
-        {
-            try
-            {
-                return Source.ToArray();
-            }
-            finally
-            {
-                Source.Clear();
-            }
-        }
     }
 }

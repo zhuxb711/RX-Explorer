@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32.SafeHandles;
+﻿using ConcurrentPriorityQueue.Core;
+using Microsoft.Win32.SafeHandles;
 using Nito.AsyncEx;
 using RX_Explorer.Interface;
 using SharedLibrary;
@@ -18,7 +19,6 @@ using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using FileAttributes = System.IO.FileAttributes;
-using ConcurrentPriorityQueue.Core;
 
 namespace RX_Explorer.Class
 {
@@ -57,9 +57,9 @@ namespace RX_Explorer.Class
         public bool IsAnyCommandExecutingInCurrentController => CurrentControllerExecutingCommandNum > 0;
 
         public bool IsConnected => (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
-                             && (PipeCommandReadController?.IsConnected).GetValueOrDefault()
-                             && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
-                             && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault();
+                                     && (PipeCommandReadController?.IsConnected).GetValueOrDefault()
+                                     && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
+                                     && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault();
 
         public static ushort DynamicBackupProcessNum => 2;
 
@@ -83,89 +83,72 @@ namespace RX_Explorer.Class
 
         private static void DispatcherCore()
         {
-            while (true)
+            try
             {
-            NEXT:
-                InternalExclusivePriorityQueueItem Item = ExclusivePriorityCollection.Take();
-
-                while (true)
+                foreach (InternalExclusivePriorityQueueItem Item in ExclusivePriorityCollection.GetConsumingEnumerable())
                 {
                     int WaitCount = 0;
 
                 REWAIT:
-                    try
+                    using (CancellationTokenSource Cancellation = new CancellationTokenSource(10000))
+                    using (CancellationTokenSource CombineCancellation = CancellationTokenSource.CreateLinkedTokenSource(Cancellation.Token, Item.CancelToken))
                     {
-                        using (CancellationTokenSource Cancellation = new CancellationTokenSource(10000))
-                        using (CancellationTokenSource CombineCancellation = CancellationTokenSource.CreateLinkedTokenSource(Cancellation.Token, Item.CancelToken))
+                        try
                         {
                             AuxiliaryTrustProcessController Controller = AvailableControllerCollection.Take(CombineCancellation.Token);
 
-                            Task<IReadOnlyDictionary<string, string>> TestCommandTask = Controller.SendCommandAsync(AuxiliaryTrustProcessCommandType.Test);
-
-                            if (Task.WaitAny(Task.Delay(1000), TestCommandTask) > 0
-                                && TestCommandTask.Exception is null
-                                && TestCommandTask.Result.ContainsKey("Success"))
+                            try
                             {
-                                if (WaitCount >= 3)
+                                if (Controller.SendCommandAsync(AuxiliaryTrustProcessCommandType.Test).Result.ContainsKey("Success"))
                                 {
-                                    CurrentBusyStatus?.Invoke(null, false);
-                                }
+                                    if (WaitCount >= 3)
+                                    {
+                                        CurrentBusyStatus?.Invoke(null, false);
+                                    }
 
-                                if (Item.CancelToken.IsCancellationRequested)
-                                {
-                                    Item.TaskSource.TrySetCanceled();
+                                    Exclusive Exclusive = Exclusive.CreateAsync(Controller).Result;
+
+                                    if (!Item.TaskSource.TrySetResult(Exclusive))
+                                    {
+                                        Exclusive.Dispose();
+                                    }
                                 }
                                 else
                                 {
-                                    Item.TaskSource.TrySetResult(Exclusive.CreateAsync(Controller).Result);
+                                    throw new Exception($"Invalid response on command {Enum.GetName(typeof(AuxiliaryTrustProcessCommandType), AuxiliaryTrustProcessCommandType.Test)}");
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                if (!Controller.IsDisposed)
+                                {
+                                    Controller.Dispose();
                                 }
 
-                                break;
-                            }
-                            else
-                            {
-                                TestCommandTask.ContinueWith((PreviousTask, Input) =>
+                                LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
+
+                                Task.Run(() =>
                                 {
-                                    if (Input is AuxiliaryTrustProcessController PreviousController)
+                                    for (int Retry = 1; Retry <= 3; Retry++)
                                     {
-                                        if (PreviousTask.Exception is null
-                                            && PreviousTask.Result.ContainsKey("Success"))
+                                        if (CreateAsync().Result is AuxiliaryTrustProcessController NewController)
                                         {
-                                            AvailableControllerCollection.Add(PreviousController);
+                                            AvailableControllerCollection.Add(NewController);
+                                            break;
                                         }
-                                        else
-                                        {
-                                            if (!PreviousController.IsDisposed)
-                                            {
-                                                PreviousController.Dispose();
-                                            }
 
-                                            LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
-
-                                            for (int Retry = 1; Retry <= 3; Retry++)
-                                            {
-                                                if (CreateAsync().Result is AuxiliaryTrustProcessController NewController)
-                                                {
-                                                    AvailableControllerCollection.Add(NewController);
-                                                    break;
-                                                }
-
-                                                LogTracer.Log($"Could not recreate a new controller. Retrying execute {nameof(CreateAsync)} in {Retry} times");
-                                            }
-                                        }
+                                        LogTracer.Log($"Could not recreate a new controller. Retry in {Retry} times");
                                     }
-                                }, Controller);
+                                });
+
+                                throw;
                             }
                         }
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        if (Item.CancelToken.IsCancellationRequested)
+                        catch (OperationCanceledException) when (Item.CancelToken.IsCancellationRequested)
                         {
                             Item.TaskSource.TrySetCanceled();
-                            goto NEXT;
                         }
-                        else
+                        catch (Exception)
                         {
                             switch (++WaitCount)
                             {
@@ -182,12 +165,16 @@ namespace RX_Explorer.Class
                                     {
                                         CurrentBusyStatus?.Invoke(null, false);
                                         Item.TaskSource.TrySetException(new TimeoutException($"{nameof(AuxiliaryTrustProcessController)} task dispatch timeout"));
-                                        goto NEXT;
+                                        break;
                                     }
                             }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Dispatcher of {nameof(AuxiliaryTrustProcessController)} exits unexpectedly");
             }
         }
 

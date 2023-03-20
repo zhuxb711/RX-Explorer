@@ -123,10 +123,7 @@ namespace RX_Explorer.Class
                     Item.SetBulkAccessSharedController(SharedRef);
                 }
 
-                return new DisposeNotification(() =>
-                {
-                    SharedRef.Dispose();
-                });
+                return new DisposeNotification(SharedRef.Dispose);
             }
             else
             {
@@ -150,10 +147,7 @@ namespace RX_Explorer.Class
                     Item.SetBulkAccessSharedController(SharedRef);
                 }
 
-                return new DisposeNotification(() =>
-                {
-                    SharedRef.Dispose();
-                });
+                return new DisposeNotification(SharedRef.Dispose);
             }
             else
             {
