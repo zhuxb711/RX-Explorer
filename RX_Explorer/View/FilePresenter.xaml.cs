@@ -6155,8 +6155,9 @@ namespace RX_Explorer.View
         {
             try
             {
-                e.Handled = true;
-                e.AcceptedOperation = DataPackageOperation.None;
+                e.DragUIOverride.IsContentVisible = true;
+                e.DragUIOverride.IsCaptionVisible = true;
+                e.DragUIOverride.IsGlyphVisible = true;
 
                 if (Container.BladeViewer.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
                 {
@@ -6183,9 +6184,7 @@ namespace RX_Explorer.View
                     {
                         case FileSystemStorageFolder Folder:
                             {
-                                e.DragUIOverride.IsContentVisible = true;
-                                e.DragUIOverride.IsCaptionVisible = true;
-                                e.DragUIOverride.IsGlyphVisible = true;
+                                e.Handled = true;
 
                                 if (e.AllowedOperations.HasFlag(DataPackageOperation.Copy) && e.AllowedOperations.HasFlag(DataPackageOperation.Move))
                                 {
@@ -6215,10 +6214,8 @@ namespace RX_Explorer.View
                             }
                         case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
                             {
-                                e.DragUIOverride.IsContentVisible = true;
-                                e.DragUIOverride.IsCaptionVisible = true;
-                                e.DragUIOverride.IsGlyphVisible = true;
-                                e.AcceptedOperation = DataPackageOperation.Link;
+                                e.Handled = true;
+                                e.AcceptedOperation = DataPackageOperation.Copy | DataPackageOperation.Move | DataPackageOperation.Link;
                                 e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_RunWith").Replace("{Placeholder}", $"\"{File.DisplayName}\"");
 
                                 break;

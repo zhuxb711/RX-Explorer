@@ -25,7 +25,7 @@
                               Target="{x:Bind PrimaryPassword}" />
     </Cls:QueueContentDialog.Resources>
 
-    <Grid>
+    <Grid Width="350">
         <PasswordBox Header="密码"
                      x:Uid="SAVerifyDialogPasswordBox"
                      PlaceholderText="输入解锁密码"
