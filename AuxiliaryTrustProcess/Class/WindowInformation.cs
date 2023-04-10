@@ -3,7 +3,7 @@ using Vanara.PInvoke;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class WindowInformation
+    internal sealed class WindowInformation
     {
         public string FileName { get; }
 

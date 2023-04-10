@@ -3,7 +3,7 @@ using AuxiliaryTrustProcess.Interface;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class ElevationDeleteData : IElevationData
+    internal sealed class ElevationDeleteData : IElevationData
     {
         public bool PermanentDelete { get; }
 

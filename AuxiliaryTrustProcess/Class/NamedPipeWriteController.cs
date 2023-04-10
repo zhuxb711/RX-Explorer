@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class NamedPipeWriteController : NamedPipeControllerBase
+    internal sealed class NamedPipeWriteController : NamedPipeControllerBase
     {
         private readonly Thread ProcessThread;
         private readonly TaskCompletionSource<bool> ConnectionSet;

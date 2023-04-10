@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class ReadonlyProgressReportStream : Stream
+    internal sealed class ReadonlyProgressReportStream : Stream
     {
         public override bool CanRead => BaseStream.CanRead;
 

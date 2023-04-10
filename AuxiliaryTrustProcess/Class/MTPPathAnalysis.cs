@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class MTPPathAnalysis
+    internal sealed class MTPPathAnalysis
     {
         public string DeviceId { get; }
 

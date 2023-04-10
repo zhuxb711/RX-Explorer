@@ -15,7 +15,7 @@ using Vanara.Windows.Shell;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class ContextMenu
+    internal sealed class ContextMenu
     {
         private const int BufferSize = 1024;
         private const uint CchMax = BufferSize - 1;

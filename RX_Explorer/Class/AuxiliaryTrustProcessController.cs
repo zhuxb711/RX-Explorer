@@ -1012,9 +1012,9 @@ namespace RX_Explorer.Class
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.MapToUncPath, ("UncPath", UncPath));
 
-            if (Response.TryGetValue("Success", out string MapString))
+            if (Response.TryGetValue("Success", out string MappedPath))
             {
-                return JsonSerializer.Deserialize<string>(MapString);
+                return MappedPath;
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
@@ -1863,45 +1863,40 @@ namespace RX_Explorer.Class
 
             if (Response.TryGetValue("RecycleBinItems_Json_Result", out string Result))
             {
-                IReadOnlyList<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<IReadOnlyList<Dictionary<string, string>>>(Result);
+                IReadOnlyList<RecycleBinItemDataPackage> RecycleItemList = JsonSerializer.Deserialize<IReadOnlyList<RecycleBinItemDataPackage>>(Result);
 
-                List<IRecycleStorageItem> ItemResult = new List<IRecycleStorageItem>(JsonList.Count);
+                List<IRecycleStorageItem> ItemResult = new List<IRecycleStorageItem>(RecycleItemList.Count);
 
-                foreach (Dictionary<string, string> PropertyDic in JsonList)
+                foreach (RecycleBinItemDataPackage RawData in RecycleItemList)
                 {
                     try
                     {
-                        NativeFileData Data = NativeWin32API.GetStorageItemRawData(PropertyDic["ActualPath"]);
+                        NativeFileData Data = NativeWin32API.GetStorageItemRawData(RawData.Path);
 
                         if (Data.IsInvalid)
                         {
-                            switch (PropertyDic["StorageType"])
+                            if (RawData.IsDirectory)
                             {
-                                case "Folder":
-                                    {
-                                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(PropertyDic["ActualPath"]);
-                                        ItemResult.Add(new RecycleStorageFolder(await Folder.GetNativeFileDataAsync(), PropertyDic["OriginPath"], Convert.ToUInt64(PropertyDic["Size"]), DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
-                                        break;
-                                    }
-                                case "File":
-                                    {
-                                        StorageFile File = await StorageFile.GetFileFromPathAsync(PropertyDic["ActualPath"]);
-                                        ItemResult.Add(new RecycleStorageFile(await File.GetNativeFileDataAsync(), PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
-                                        break;
-                                    }
+                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(RawData.Path);
+                                ItemResult.Add(new RecycleStorageFolder(await Folder.GetNativeFileDataAsync(), RawData.OriginPath, RawData.Size, RawData.DeleteTime));
+                            }
+                            else
+                            {
+                                StorageFile File = await StorageFile.GetFileFromPathAsync(RawData.Path);
+                                ItemResult.Add(new RecycleStorageFile(await File.GetNativeFileDataAsync(), RawData.OriginPath, RawData.DeleteTime));
                             }
                         }
                         else
                         {
-                            ItemResult.Add(PropertyDic["StorageType"] == "Folder"
-                                                    ? new RecycleStorageFolder(Data, PropertyDic["OriginPath"], Convert.ToUInt64(PropertyDic["Size"]), DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
-                                                    : new RecycleStorageFile(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                            ItemResult.Add(RawData.IsDirectory
+                                                    ? new RecycleStorageFolder(Data, RawData.OriginPath, RawData.Size, RawData.DeleteTime)
+                                                    : new RecycleStorageFile(Data, RawData.OriginPath, RawData.DeleteTime));
 
                         }
                     }
                     catch (Exception ex)
                     {
-                        LogTracer.Log(ex, $"Could not load the recycle item, path: {PropertyDic["ActualPath"]}");
+                        LogTracer.Log(ex, $"Could not load the recycle item, path: {RawData.Path}");
                     }
                 }
 

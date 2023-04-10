@@ -12,6 +12,7 @@
 		<TieredCompilation>true</TieredCompilation>
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
+		<PublishTrimmed>true</PublishTrimmed>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>

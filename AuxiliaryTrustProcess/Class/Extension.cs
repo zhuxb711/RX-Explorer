@@ -12,7 +12,7 @@ using Vanara.PInvoke;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public static class Extension
+    internal static class Extension
     {
         public static async Task<T> AsCancellable<T>(this Task<T> Instance, CancellationToken CancelToken)
         {

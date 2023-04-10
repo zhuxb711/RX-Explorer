@@ -2,7 +2,7 @@
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class NamedPipeDataReceivedArgs
+    internal sealed class NamedPipeDataReceivedArgs
     {
         public string Data { get; }
 

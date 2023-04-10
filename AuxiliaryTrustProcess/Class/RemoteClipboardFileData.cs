@@ -3,7 +3,7 @@ using System.IO;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class RemoteClipboardFileData : RemoteClipboardData
+    internal sealed class RemoteClipboardFileData : RemoteClipboardData
     {
         public ulong Size { get; }
 

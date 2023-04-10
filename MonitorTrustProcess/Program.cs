@@ -136,7 +136,7 @@ namespace MonitorTrustProcess
             {
                 try
                 {
-                    IDictionary<string, string> Package = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
+                    IDictionary<string, string> Package = JsonSerializer.Deserialize(e.Data, JsonSourceGenerationContext.Default.IDictionaryStringString);
 
                     if (Package.TryGetValue("LogRecordFolderPath", out string LogRecordPath))
                     {
@@ -189,9 +189,9 @@ namespace MonitorTrustProcess
                 }
                 else
                 {
-                    IDictionary<string, string> Request = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
+                    IDictionary<string, string> Request = JsonSerializer.Deserialize(e.Data, JsonSourceGenerationContext.Default.IDictionaryStringString);
                     IDictionary<string, string> Response = HandleCommand(Request);
-                    PipeCommandWriteController?.SendData(JsonSerializer.Serialize(Response));
+                    PipeCommandWriteController?.SendData(JsonSerializer.Serialize(Response, JsonSourceGenerationContext.Default.IDictionaryStringString));
                 }
             }
             catch (Exception ex)

@@ -1,6 +1,6 @@
 ﻿namespace AuxiliaryTrustProcess.Class
 {
-    public enum SystemLaunchHelperExitCodeEnum
+    internal enum SystemLaunchHelperExitCodeEnum
     {
         Success = 0,
         FailedOnUnknownReason = -1,

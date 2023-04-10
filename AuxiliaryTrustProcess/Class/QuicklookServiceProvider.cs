@@ -9,7 +9,7 @@ using Vanara.PInvoke;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class QuicklookServiceProvider : IPreviewServiceProvider
+    internal sealed class QuicklookServiceProvider : IPreviewServiceProvider
     {
         private const int Timeout = 1000;
         private const string ToggleCommand = "QuickLook.App.PipeMessages.Toggle";

@@ -11,7 +11,7 @@ using Vanara.Windows.Shell;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public static class RemoteDataObject
+    internal static class RemoteDataObject
     {
         public static RemoteClipboardRelatedData GetRemoteClipboardRelatedInformation()
         {

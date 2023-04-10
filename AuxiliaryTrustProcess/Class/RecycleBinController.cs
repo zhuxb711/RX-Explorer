@@ -11,26 +11,27 @@ using Vanara.Windows.Shell;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public static class RecycleBinController
+    internal static class RecycleBinController
     {
-        public static IReadOnlyList<IDictionary<string, string>> GetRecycleItems()
+        public static IReadOnlyList<RecycleBinItemDataPackage> GetRecycleItems()
         {
-            ConcurrentBag<Dictionary<string, string>> RecycleItemList = new ConcurrentBag<Dictionary<string, string>>();
+            ConcurrentBag<RecycleBinItemDataPackage> RecycleItemList = new ConcurrentBag<RecycleBinItemDataPackage>();
 
             Parallel.ForEach(RecycleBin.GetItems(), (Item) =>
             {
                 try
                 {
-                    Dictionary<string, string> PropertyDic = new Dictionary<string, string>(4)
-                    {
-                        { "ActualPath", Item.FileSystemPath }
-                    };
+                    string Path = string.Empty;
+                    string OriginPath = string.Empty;
+                    bool IsDirectory = false;
+                    ulong Size = 0;
+                    DateTimeOffset DeleteTime = DateTimeOffset.FromFileTime(default(FILETIME).ToInt64());
 
                     try
                     {
                         if (Item.IShellItem is Shell32.IShellItem2 Shell2)
                         {
-                            PropertyDic.Add("DeleteTime", Shell2.GetFileTime(Ole32.PROPERTYKEY.System.Recycle.DateDeleted).ToInt64().ToString());
+                            DeleteTime = DateTimeOffset.FromFileTime(Shell2.GetFileTime(Ole32.PROPERTYKEY.System.Recycle.DateDeleted).ToInt64());
                         }
                         else
                         {
@@ -39,34 +40,32 @@ namespace AuxiliaryTrustProcess.Class
                     }
                     catch (Exception)
                     {
-                        PropertyDic.Add("DeleteTime", Convert.ToString(default(FILETIME).ToInt64()));
+                        //No need to handle this exception
                     }
 
                     if (File.Exists(Item.FileSystemPath))
                     {
-                        PropertyDic.Add("StorageType", "File");
+                        Size = (ulong)Item.FileInfo.Length;
 
-                        if (Path.GetExtension(Item.Name).Equals(Item.FileInfo.Extension, StringComparison.OrdinalIgnoreCase))
+                        if (System.IO.Path.GetExtension(Item.Name).Equals(Item.FileInfo.Extension, StringComparison.OrdinalIgnoreCase))
                         {
-                            PropertyDic.Add("OriginPath", Item.Name);
+                            OriginPath = Item.Name;
                         }
                         else
                         {
-                            PropertyDic.Add("OriginPath", Item.Name + Item.FileInfo.Extension);
+                            OriginPath = Item.Name + Item.FileInfo.Extension;
                         }
-
-                        RecycleItemList.Add(PropertyDic);
                     }
                     else if (Directory.Exists(Item.FileSystemPath))
                     {
-                        PropertyDic.Add("OriginPath", Item.Name);
-                        PropertyDic.Add("StorageType", "Folder");
+                        OriginPath = Item.Name;
+                        IsDirectory = true;
 
                         try
                         {
                             if (Item.IShellItem is Shell32.IShellItem2 Shell2)
                             {
-                                PropertyDic.Add("Size", Convert.ToString(Shell2.GetUInt64(Ole32.PROPERTYKEY.System.Size)));
+                                Size = Shell2.GetUInt64(Ole32.PROPERTYKEY.System.Size);
                             }
                             else
                             {
@@ -75,11 +74,11 @@ namespace AuxiliaryTrustProcess.Class
                         }
                         catch (Exception)
                         {
-                            PropertyDic.Add("Size", "0");
+                            //No need to handle this exception
                         }
-
-                        RecycleItemList.Add(PropertyDic);
                     }
+
+                    RecycleItemList.Add(new RecycleBinItemDataPackage(Path, OriginPath, IsDirectory, Size, DeleteTime));
                 }
                 catch (Exception ex)
                 {

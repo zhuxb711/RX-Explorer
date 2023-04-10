@@ -9,7 +9,7 @@ using Vanara.PInvoke;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public static class ExtensionAssociation
+    internal static class ExtensionAssociation
     {
         public static IReadOnlyList<AssociationPackage> GetAssociationFromExtension(string Extension)
         {

@@ -2,7 +2,7 @@
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class ElevationRenameData : IElevationData
+    internal sealed class ElevationRenameData : IElevationData
     {
         public string DesireName { get; }
 

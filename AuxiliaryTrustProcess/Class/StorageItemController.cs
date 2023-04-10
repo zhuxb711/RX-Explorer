@@ -14,7 +14,7 @@ using Vanara.Windows.Shell;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public static class StorageItemController
+    internal static class StorageItemController
     {
         public static bool CheckCaptured(string Path)
         {

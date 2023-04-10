@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class ElevationCopyData : IElevationData
+    internal sealed class ElevationCopyData : IElevationData
     {
         public CollisionOptions Option { get; }
 

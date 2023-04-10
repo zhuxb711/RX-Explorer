@@ -2,7 +2,7 @@
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class ElevationSetDriveIndexStatusData : IElevationData
+    internal sealed class ElevationSetDriveIndexStatusData : IElevationData
     {
         public string Path { get; }
 

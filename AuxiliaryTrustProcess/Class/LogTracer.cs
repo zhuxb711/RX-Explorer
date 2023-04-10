@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public static class LogTracer
+    internal static class LogTracer
     {
         private static readonly string UniqueName = $"Log_GeneratedTime_{Guid.NewGuid():N}_[{DateTime.Now:yyyy-MM-dd HH-mm-ss.fff}].txt";
 

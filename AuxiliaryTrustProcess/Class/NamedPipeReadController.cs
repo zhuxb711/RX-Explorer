@@ -8,7 +8,7 @@ using Vanara.PInvoke;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public class NamedPipeReadController : NamedPipeControllerBase
+    internal class NamedPipeReadController : NamedPipeControllerBase
     {
         private readonly Thread ProcessThread;
         private readonly TaskCompletionSource<bool> ConnectionSet;

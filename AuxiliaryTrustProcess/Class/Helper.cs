@@ -20,7 +20,7 @@ using Vanara.Windows.Shell;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public static class Helper
+    internal static class Helper
     {
         public static bool CheckIfPathIsNetworkPath(string Path)
         {

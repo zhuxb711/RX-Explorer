@@ -3,7 +3,7 @@ using SharedLibrary;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class ElevationCreateNewData : IElevationData
+    internal sealed class ElevationCreateNewData : IElevationData
     {
         public CreateType Type { get; }
 

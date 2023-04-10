@@ -76,10 +76,10 @@
       <Version>6.2.14</Version>
     </PackageReference>
     <PackageReference Include="OpenCvSharp4">
-      <Version>4.6.0.20220608</Version>
+      <Version>4.7.0.20230115</Version>
     </PackageReference>
     <PackageReference Include="OpenCvSharp4.runtime.uwp">
-      <Version>4.6.0.20220608</Version>
+      <Version>4.7.0.20230115</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

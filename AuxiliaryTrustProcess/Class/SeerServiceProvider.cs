@@ -6,7 +6,7 @@ using Vanara.PInvoke;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class SeerServiceProvider : IPreviewServiceProvider
+    internal sealed class SeerServiceProvider : IPreviewServiceProvider
     {
         private const int Timeout = 1000;
         private const uint ToggleCommand = 5000;

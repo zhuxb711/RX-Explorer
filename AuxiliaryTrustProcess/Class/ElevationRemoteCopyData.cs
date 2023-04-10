@@ -2,7 +2,7 @@
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public sealed class ElevationRemoteCopyData : IElevationData
+    internal sealed class ElevationRemoteCopyData : IElevationData
     {
         public string BaseFolderPath { get; }
 

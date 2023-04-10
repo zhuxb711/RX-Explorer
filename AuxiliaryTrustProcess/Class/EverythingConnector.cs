@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AuxiliaryTrustProcess.Class
 {
-    public class EverythingConnector
+    internal class EverythingConnector
     {
         private const int BufferSize = 512;
 

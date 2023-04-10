@@ -112,7 +112,7 @@ namespace AuxiliaryTrustProcess
 
                                         try
                                         {
-                                            switch (JsonSerializer.Deserialize(CommandData, Type.GetType(RawTypeData)))
+                                            switch (JsonSerializer.Deserialize(CommandData, JsonSourceGenerationContext.Default.IElevationData))
                                             {
                                                 case ElevationRemoteCopyData RemoteData:
                                                     {
@@ -373,12 +373,12 @@ namespace AuxiliaryTrustProcess
                                                                     }
                                                                 }))
                                                                 {
-                                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList, JsonSourceGenerationContext.Default.IEnumerableString));
                                                                 }
                                                                 else if (CopyData.SourcePathMapping.Select((Item) => Path.Combine(CopyData.DestinationPath, string.IsNullOrEmpty(Item.Value) ? Path.GetFileName(Item.Key) : Item.Value))
                                                                                                    .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
                                                                 {
-                                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList, JsonSourceGenerationContext.Default.IEnumerableString));
                                                                 }
                                                                 else
                                                                 {
@@ -438,7 +438,7 @@ namespace AuxiliaryTrustProcess
                                                                     {
                                                                         if (MoveData.SourcePathMapping.Keys.All((Path) => !Directory.Exists(Path) && !File.Exists(Path)))
                                                                         {
-                                                                            Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                                            Value.Add("Success", JsonSerializer.Serialize(OperationRecordList, JsonSourceGenerationContext.Default.IEnumerableString));
                                                                         }
                                                                         else
                                                                         {
@@ -449,7 +449,7 @@ namespace AuxiliaryTrustProcess
                                                                              && MoveData.SourcePathMapping.Select((Item) => Path.Combine(MoveData.DestinationPath, string.IsNullOrEmpty(Item.Value) ? Path.GetFileName(Item.Key) : Item.Value))
                                                                                                           .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
                                                                     {
-                                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList, JsonSourceGenerationContext.Default.IEnumerableString));
                                                                     }
                                                                     else
                                                                     {
@@ -505,7 +505,7 @@ namespace AuxiliaryTrustProcess
                                                                     {
                                                                         if (DeleteData.DeletePath.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                                                         {
-                                                                            Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                                            Value.Add("Success", JsonSerializer.Serialize(OperationRecordList, JsonSourceGenerationContext.Default.IEnumerableString));
                                                                         }
                                                                         else
                                                                         {
@@ -514,7 +514,7 @@ namespace AuxiliaryTrustProcess
                                                                     }
                                                                     else if (DeleteData.DeletePath.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                                                     {
-                                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList, JsonSourceGenerationContext.Default.IEnumerableString));
                                                                     }
                                                                     else
                                                                     {
@@ -589,7 +589,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     if (!Cancellation.IsCancellationRequested)
                                     {
-                                        MainWriter.WriteLine(JsonSerializer.Serialize(Value));
+                                        MainWriter.WriteLine(JsonSerializer.Serialize(Value, JsonSourceGenerationContext.Default.IDictionaryStringString));
                                         MainWriter.Flush();
                                     }
                                 }
@@ -687,7 +687,7 @@ namespace AuxiliaryTrustProcess
             {
                 try
                 {
-                    IDictionary<string, string> Package = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
+                    IDictionary<string, string> Package = JsonSerializer.Deserialize(e.Data, JsonSourceGenerationContext.Default.IDictionaryStringString);
 
                     if (Package.TryGetValue("LogRecordFolderPath", out string LogRecordPath))
                     {
@@ -781,9 +781,9 @@ namespace AuxiliaryTrustProcess
                 }
                 else
                 {
-                    IDictionary<string, string> Request = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
+                    IDictionary<string, string> Request = JsonSerializer.Deserialize(e.Data, JsonSourceGenerationContext.Default.IDictionaryStringString);
                     IDictionary<string, string> Response = HandleCommand(Request);
-                    PipeCommandWriteController?.SendData(JsonSerializer.Serialize(Response));
+                    PipeCommandWriteController?.SendData(JsonSerializer.Serialize(Response, JsonSourceGenerationContext.Default.IDictionaryStringString));
                 }
             }
             catch (Exception ex)
@@ -1027,7 +1027,7 @@ namespace AuxiliaryTrustProcess
                                     Arguments = $"-Command \"wsl --list --quiet\""
                                 }))
                                 {
-                                    Value.Add("Success", JsonSerializer.Serialize(PowershellProcess.StandardOutput.ReadToEnd().Replace("\0", string.Empty).Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Name) => $@"\\wsl$\{Name}").Where((Path) => Directory.Exists(Path))));
+                                    Value.Add("Success", JsonSerializer.Serialize(PowershellProcess.StandardOutput.ReadToEnd().Replace("\0", string.Empty).Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Name) => $@"\\wsl$\{Name}").Where(Directory.Exists), JsonSourceGenerationContext.Default.IEnumerableString));
 
                                     if (!PowershellProcess.WaitForExit(2000))
                                     {
@@ -1072,7 +1072,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.OrderByNaturalStringSortAlgorithm:
                             {
-                                Value.Add("Success", JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<StringNaturalAlgorithmData>>(CommandValue["InputList"]).OrderBy((Item) => Item.Value, Comparer<string>.Create((a, b) => ShlwApi.StrCmpLogicalW(a, b)))));
+                                Value.Add("Success", JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<StringNaturalAlgorithmData>>(CommandValue["InputList"], JsonSourceGenerationContext.Default.IEnumerableStringNaturalAlgorithmData).OrderBy((Item) => Item.Value, Comparer<string>.Create(ShlwApi.StrCmpLogicalW))));
                                 break;
                             }
                         case AuxiliaryTrustProcessCommandType.MTPReplaceWithNewFile:
@@ -1231,7 +1231,7 @@ namespace AuxiliaryTrustProcess
                                                                 }
 
                                                                 MediaFileInfo File = Device.GetFileInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1262,7 +1262,7 @@ namespace AuxiliaryTrustProcess
 
                                                                 Device.UploadFile(new MemoryStream(), TargetPath);
                                                                 MediaFileInfo File = Device.GetFileInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1277,7 +1277,7 @@ namespace AuxiliaryTrustProcess
 
                                                                 Device.UploadFile(new MemoryStream(), TargetPath);
                                                                 MediaFileInfo File = Device.GetFileInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1299,7 +1299,7 @@ namespace AuxiliaryTrustProcess
                                                                 }
 
                                                                 MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1328,7 +1328,7 @@ namespace AuxiliaryTrustProcess
 
                                                                 Device.CreateDirectory(TargetPath);
                                                                 MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1343,7 +1343,7 @@ namespace AuxiliaryTrustProcess
 
                                                                 Device.CreateDirectory(TargetPath);
                                                                 MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1379,7 +1379,7 @@ namespace AuxiliaryTrustProcess
                                             DriveInfo.DriveFormat,
                                             Convert.ToUInt64(DriveInfo.TotalSize),
                                             Convert.ToUInt64(DriveInfo.AvailableFreeSpace)
-                                        )));
+                                        ), JsonSourceGenerationContext.Default.MTPDriveVolumnData));
                                     }
                                     else
                                     {
@@ -1456,7 +1456,7 @@ namespace AuxiliaryTrustProcess
 
                                     if (Item != null)
                                     {
-                                        Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), Item.CreationTime.GetValueOrDefault().ToLocalTime(), Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                        Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), Item.CreationTime.GetValueOrDefault().ToLocalTime(), Item.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
                                     }
                                     else
                                     {
@@ -1532,7 +1532,7 @@ namespace AuxiliaryTrustProcess
                                             }
                                         }
 
-                                        Value.Add("Success", JsonSerializer.Serialize(Result));
+                                        Value.Add("Success", JsonSerializer.Serialize(Result, JsonSourceGenerationContext.Default.IEnumerableMTPFileData));
                                     }
                                     else
                                     {
@@ -1574,7 +1574,7 @@ namespace AuxiliaryTrustProcess
 
                                 if (Directory.Exists(Path) || File.Exists(Path))
                                 {
-                                    Value.Add("Success", JsonSerializer.Serialize(StorageItemController.GetAllAccountPermissions(Path)));
+                                    Value.Add("Success", JsonSerializer.Serialize(StorageItemController.GetAllAccountPermissions(Path), JsonSourceGenerationContext.Default.IEnumerablePermissionDataPackage));
                                 }
                                 else
                                 {
@@ -1739,7 +1739,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.GetAllEncodings:
                             {
-                                Value.Add("Success", JsonSerializer.Serialize(Encoding.GetEncodings().Select((Encoding) => Encoding.CodePage)));
+                                Value.Add("Success", JsonSerializer.Serialize(Encoding.GetEncodings().Select((Encoding) => Encoding.CodePage), JsonSourceGenerationContext.Default.IEnumerableInt32));
                                 break;
                             }
                         case AuxiliaryTrustProcessCommandType.Test:
@@ -1751,7 +1751,7 @@ namespace AuxiliaryTrustProcess
                             {
                                 string Path = CommandValue["Path"];
 
-                                IReadOnlyList<string> Properties = JsonSerializer.Deserialize<IReadOnlyList<string>>(CommandValue["Properties"]);
+                                IReadOnlyList<string> Properties = JsonSerializer.Deserialize(CommandValue["Properties"], JsonSourceGenerationContext.Default.IEnumerableString).ToArray();
 
                                 if (File.Exists(Path) || Directory.Exists(Path))
                                 {
@@ -1782,7 +1782,7 @@ namespace AuxiliaryTrustProcess
                                         }
                                     }
 
-                                    Value.Add("Success", JsonSerializer.Serialize(Result));
+                                    Value.Add("Success", JsonSerializer.Serialize(Result, JsonSourceGenerationContext.Default.IDictionaryStringString));
                                 }
                                 else
                                 {
@@ -1827,7 +1827,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.MapToUncPath:
                             {
-                                Value.Add("Success", JsonSerializer.Serialize(Helper.MapUncPathToDrivePath(Convert.ToString(CommandValue["UncPath"]))));
+                                Value.Add("Success", Helper.MapUncPathToDrivePath(Convert.ToString(CommandValue["UncPath"])));
 
                                 break;
                             }
@@ -1957,7 +1957,7 @@ namespace AuxiliaryTrustProcess
                                             ConvertedBitmap?.Save(Stream, ImageFormat.Png);
                                         }
 
-                                        Value.Add("Success", JsonSerializer.Serialize(Stream.ToArray()));
+                                        Value.Add("Success", JsonSerializer.Serialize(Stream.ToArray(), JsonSourceGenerationContext.Default.IEnumerableByte));
                                     }
                                 }
                                 else
@@ -1979,7 +1979,7 @@ namespace AuxiliaryTrustProcess
                                                     ConvertedBitmap?.Save(Stream, ImageFormat.Png);
                                                 }
 
-                                                Value.Add("Success", JsonSerializer.Serialize(Stream.ToArray()));
+                                                Value.Add("Success", JsonSerializer.Serialize(Stream.ToArray(), JsonSourceGenerationContext.Default.IEnumerableByte));
                                             }
                                         }
                                         finally
@@ -1997,8 +1997,6 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.LaunchUWP:
                             {
-                                string[] PathArray = JsonSerializer.Deserialize<string[]>(CommandValue["LaunchPathArray"]);
-
                                 if (CommandValue.TryGetValue("PackageFamilyName", out string PackageFamilyName))
                                 {
                                     if (string.IsNullOrEmpty(PackageFamilyName))
@@ -2007,7 +2005,7 @@ namespace AuxiliaryTrustProcess
                                     }
                                     else
                                     {
-                                        if (Helper.LaunchApplicationFromPackageFamilyName(PackageFamilyName, PathArray))
+                                        if (Helper.LaunchApplicationFromPackageFamilyName(PackageFamilyName, JsonSerializer.Deserialize(CommandValue["LaunchPathArray"], JsonSourceGenerationContext.Default.IEnumerableString).ToArray()))
                                         {
                                             Value.Add("Success", string.Empty);
                                         }
@@ -2025,7 +2023,7 @@ namespace AuxiliaryTrustProcess
                                     }
                                     else
                                     {
-                                        if (Helper.LaunchApplicationFromAppUserModelId(AppUserModelId, PathArray))
+                                        if (Helper.LaunchApplicationFromAppUserModelId(AppUserModelId, JsonSerializer.Deserialize(CommandValue["LaunchPathArray"], JsonSourceGenerationContext.Default.IEnumerableString).ToArray()))
                                         {
                                             Value.Add("Success", string.Empty);
                                         }
@@ -2101,7 +2099,7 @@ namespace AuxiliaryTrustProcess
 
                                     if (SearchResult.Any())
                                     {
-                                        Value.Add("Success", JsonSerializer.Serialize(SearchResult));
+                                        Value.Add("Success", JsonSerializer.Serialize(SearchResult, JsonSourceGenerationContext.Default.IEnumerableString));
                                     }
                                     else
                                     {
@@ -2109,7 +2107,7 @@ namespace AuxiliaryTrustProcess
 
                                         if (Code == EverythingConnector.StateCode.OK)
                                         {
-                                            Value.Add("Success", JsonSerializer.Serialize(SearchResult));
+                                            Value.Add("Success", JsonSerializer.Serialize(SearchResult, JsonSourceGenerationContext.Default.IEnumerableString));
                                         }
                                         else
                                         {
@@ -2126,11 +2124,11 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.GetContextMenuItems:
                             {
-                                string[] ExecutePath = JsonSerializer.Deserialize<string[]>(CommandValue["ExecutePath"]);
+                                string[] ExecutePath = JsonSerializer.Deserialize(CommandValue["ExecutePath"], JsonSourceGenerationContext.Default.IEnumerableString).ToArray();
 
                                 if (ExecutePath.Length > 0)
                                 {
-                                    Value.Add("Success", JsonSerializer.Serialize(ContextMenu.Current.GetContextMenuItems(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"]))));
+                                    Value.Add("Success", JsonSerializer.Serialize(ContextMenu.Current.GetContextMenuItems(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"])), JsonSourceGenerationContext.Default.IEnumerableContextMenuPackage));
                                 }
                                 else
                                 {
@@ -2141,7 +2139,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.InvokeContextMenuItem:
                             {
-                                ContextMenuPackage Package = JsonSerializer.Deserialize<ContextMenuPackage>(CommandValue["DataPackage"]);
+                                ContextMenuPackage Package = JsonSerializer.Deserialize(CommandValue["DataPackage"], JsonSourceGenerationContext.Default.ContextMenuPackage);
 
                                 if (ContextMenu.Current.InvokeVerb(Package))
                                 {
@@ -2156,7 +2154,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.CreateLink:
                             {
-                                LinkFileData Package = JsonSerializer.Deserialize<LinkFileData>(CommandValue["DataPackage"]);
+                                LinkFileData Package = JsonSerializer.Deserialize(CommandValue["DataPackage"], JsonSourceGenerationContext.Default.LinkFileData);
 
                                 string Arguments = null;
 
@@ -2223,12 +2221,12 @@ namespace AuxiliaryTrustProcess
 
                                 if (string.IsNullOrEmpty(PartialVariable))
                                 {
-                                    Value.Add("Success", JsonSerializer.Serialize(AllEnvironmentVariables.Select((Pair) => new VariableDataPackage(Pair.Value, $"%{Pair.Key}%"))));
+                                    Value.Add("Success", JsonSerializer.Serialize(AllEnvironmentVariables.Select((Pair) => new VariableDataPackage(Pair.Value, $"%{Pair.Key}%")), JsonSourceGenerationContext.Default.IEnumerableVariableDataPackage));
                                 }
                                 else if (PartialVariable.IndexOf('%') == 0 && PartialVariable.LastIndexOf('%') == 0)
                                 {
                                     Value.Add("Success", JsonSerializer.Serialize(AllEnvironmentVariables.Where((Pair) => Pair.Key.StartsWith(PartialVariable[1..], StringComparison.OrdinalIgnoreCase))
-                                                                                                         .Select((Pair) => new VariableDataPackage(Pair.Value, $"%{Pair.Key}%"))));
+                                                                                                         .Select((Pair) => new VariableDataPackage(Pair.Value, $"%{Pair.Key}%")), JsonSourceGenerationContext.Default.IEnumerableVariableDataPackage));
                                 }
                                 else
                                 {
@@ -2369,7 +2367,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     if (Helper.GetSpecificInstalledUwpApplication(PackageFamilyName) is InstalledApplicationPackage Package)
                                     {
-                                        Value.Add("Success", JsonSerializer.Serialize(Package));
+                                        Value.Add("Success", JsonSerializer.Serialize(Package, JsonSourceGenerationContext.Default.InstalledApplicationPackage));
                                     }
                                     else
                                     {
@@ -2385,7 +2383,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.GetAllInstalledUwpApplication:
                             {
-                                Value.Add("Success", JsonSerializer.Serialize(Helper.GetAllInstalledUwpApplication()));
+                                Value.Add("Success", JsonSerializer.Serialize(Helper.GetAllInstalledUwpApplication(), JsonSourceGenerationContext.Default.IEnumerableInstalledApplicationPackage));
 
                                 break;
                             }
@@ -2406,7 +2404,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.UpdateUrl:
                             {
-                                UrlFileData Package = JsonSerializer.Deserialize<UrlFileData>(CommandValue["DataPackage"]);
+                                UrlFileData Package = JsonSerializer.Deserialize(CommandValue["DataPackage"], JsonSourceGenerationContext.Default.UrlFileData);
 
                                 if (File.Exists(Package.UrlPath))
                                 {
@@ -2439,7 +2437,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.UpdateLink:
                             {
-                                LinkFileData Package = JsonSerializer.Deserialize<LinkFileData>(CommandValue["DataPackage"]);
+                                LinkFileData Package = JsonSerializer.Deserialize<LinkFileData>(CommandValue["DataPackage"], JsonSourceGenerationContext.Default.LinkFileData);
 
                                 if (File.Exists(Package.LinkPath))
                                 {
@@ -2514,13 +2512,13 @@ namespace AuxiliaryTrustProcess
                             {
                                 string ExecutePath = CommandValue["ExecutePath"];
 
-                                KeyValuePair<ModifyAttributeAction, FileAttributes>[] AttributeGourp = JsonSerializer.Deserialize<KeyValuePair<ModifyAttributeAction, FileAttributes>[]>(CommandValue["Attributes"]);
+                                IDictionary<ModifyAttributeAction, FileAttributes> AttributeMapping = JsonSerializer.Deserialize(CommandValue["Attributes"], JsonSourceGenerationContext.Default.IDictionaryModifyAttributeActionFileAttributes);
 
                                 if (File.Exists(ExecutePath))
                                 {
                                     FileInfo File = new FileInfo(ExecutePath);
 
-                                    foreach (KeyValuePair<ModifyAttributeAction, FileAttributes> AttributePair in AttributeGourp)
+                                    foreach (KeyValuePair<ModifyAttributeAction, FileAttributes> AttributePair in AttributeMapping)
                                     {
                                         if (AttributePair.Key == ModifyAttributeAction.Add)
                                         {
@@ -2538,7 +2536,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     DirectoryInfo Dir = new DirectoryInfo(ExecutePath);
 
-                                    foreach (KeyValuePair<ModifyAttributeAction, FileAttributes> AttributePair in AttributeGourp)
+                                    foreach (KeyValuePair<ModifyAttributeAction, FileAttributes> AttributePair in AttributeMapping)
                                     {
                                         if (AttributePair.Key == ModifyAttributeAction.Add)
                                         {
@@ -2611,7 +2609,7 @@ namespace AuxiliaryTrustProcess
 
                                     using (ShellItem Item = new ShellItem(ExecutePath))
                                     {
-                                        Value.Add("Success", JsonSerializer.Serialize(new UrlFileData(ExecutePath, Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl), IconData)));
+                                        Value.Add("Success", JsonSerializer.Serialize(new UrlFileData(ExecutePath, Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl), IconData), JsonSourceGenerationContext.Default.UrlFileData));
                                     }
                                 }
                                 else
@@ -2674,7 +2672,7 @@ namespace AuxiliaryTrustProcess
                                                 Package.IconData = Array.Empty<byte>();
                                             }
 
-                                            Value.Add("Success", JsonSerializer.Serialize(Package));
+                                            Value.Add("Success", JsonSerializer.Serialize(Package, JsonSourceGenerationContext.Default.LinkFileData));
                                         }
                                         else
                                         {
@@ -2754,7 +2752,7 @@ namespace AuxiliaryTrustProcess
                                                 }
                                             }
 
-                                            Value.Add("Success", JsonSerializer.Serialize(Package));
+                                            Value.Add("Success", JsonSerializer.Serialize(Package, JsonSourceGenerationContext.Default.LinkFileData));
                                         }
                                     }
                                 }
@@ -3255,7 +3253,7 @@ namespace AuxiliaryTrustProcess
 
                                 if (!string.IsNullOrEmpty(Extension))
                                 {
-                                    Value.Add("Success", JsonSerializer.Serialize(ExtensionAssociation.GetAssociationFromExtension(Extension)));
+                                    Value.Add("Success", JsonSerializer.Serialize(ExtensionAssociation.GetAssociationFromExtension(Extension), JsonSourceGenerationContext.Default.IEnumerableAssociationPackage));
                                 }
                                 else
                                 {
@@ -3274,16 +3272,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.GetRecycleBinItems:
                             {
-                                string RecycleItemResult = JsonSerializer.Serialize(RecycleBinController.GetRecycleItems());
-
-                                if (string.IsNullOrEmpty(RecycleItemResult))
-                                {
-                                    Value.Add("Error", "Could not get recycle items");
-                                }
-                                else
-                                {
-                                    Value.Add("RecycleBinItems_Json_Result", RecycleItemResult);
-                                }
+                                Value.Add("RecycleBinItems_Json_Result", JsonSerializer.Serialize(RecycleBinController.GetRecycleItems(), JsonSourceGenerationContext.Default.IEnumerableRecycleBinItemDataPackage));
 
                                 break;
                             }
@@ -3295,9 +3284,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RestoreRecycleItem:
                             {
-                                string[] PathList = JsonSerializer.Deserialize<string[]>(CommandValue["ExecutePath"]);
-
-                                Value.Add("Restore_Result", Convert.ToString(RecycleBinController.Restore(PathList)));
+                                Value.Add("Restore_Result", Convert.ToString(RecycleBinController.Restore(JsonSerializer.Deserialize(CommandValue["ExecutePath"], JsonSourceGenerationContext.Default.IEnumerableString))));
 
                                 break;
                             }
@@ -3408,7 +3395,7 @@ namespace AuxiliaryTrustProcess
                                 string DestinationPath = CommandValue["DestinationPath"];
 
                                 CollisionOptions Option = Enum.Parse<CollisionOptions>(CommandValue["CollisionOptions"]);
-                                IReadOnlyDictionary<string, string> SourcePathMapping = JsonSerializer.Deserialize<IReadOnlyDictionary<string, string>>(SourcePathJson);
+                                IReadOnlyDictionary<string, string> SourcePathMapping = new Dictionary<string, string>(JsonSerializer.Deserialize(SourcePathJson, JsonSourceGenerationContext.Default.IDictionaryStringString));
 
                                 try
                                 {
@@ -3557,7 +3544,7 @@ namespace AuxiliaryTrustProcess
                                                     CurrentPosition += EachTaskStep;
                                                 }
 
-                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>(), JsonSourceGenerationContext.Default.IEnumerableString));
                                             }
                                             else
                                             {
@@ -3686,7 +3673,7 @@ namespace AuxiliaryTrustProcess
                                                     CurrentPosition += EachTaskStep;
                                                 }
 
-                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>(), JsonSourceGenerationContext.Default.IEnumerableString));
                                             }
                                             else
                                             {
@@ -3817,7 +3804,7 @@ namespace AuxiliaryTrustProcess
                                                     CurrentPosition += EachTaskStep;
                                                 }
 
-                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>(), JsonSourceGenerationContext.Default.IEnumerableString));
                                             }
                                             else
                                             {
@@ -3867,7 +3854,7 @@ namespace AuxiliaryTrustProcess
                                                 {
                                                     if (!Value.ContainsKey("Error_UserCancel"))
                                                     {
-                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList, JsonSourceGenerationContext.Default.IEnumerableString));
                                                     }
                                                 }
                                                 else if (Marshal.GetLastWin32Error() == 5)
@@ -3923,7 +3910,7 @@ namespace AuxiliaryTrustProcess
                                 string DestinationPath = CommandValue["DestinationPath"];
 
                                 CollisionOptions Option = Enum.Parse<CollisionOptions>(CommandValue["CollisionOptions"]);
-                                IReadOnlyDictionary<string, string> SourcePathList = JsonSerializer.Deserialize<IReadOnlyDictionary<string, string>>(SourcePathJson);
+                                IReadOnlyDictionary<string, string> SourcePathList = new Dictionary<string, string>(JsonSerializer.Deserialize(SourcePathJson, JsonSourceGenerationContext.Default.IDictionaryStringString));
 
                                 try
                                 {
@@ -4060,7 +4047,7 @@ namespace AuxiliaryTrustProcess
                                                     CurrentPosition += EachTaskStep;
                                                 }
 
-                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>(), JsonSourceGenerationContext.Default.IEnumerableString));
                                             }
                                             else
                                             {
@@ -4177,7 +4164,7 @@ namespace AuxiliaryTrustProcess
                                                     CurrentPosition += EachTaskStep;
                                                 }
 
-                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>(), JsonSourceGenerationContext.Default.IEnumerableString));
                                             }
                                             else
                                             {
@@ -4312,7 +4299,7 @@ namespace AuxiliaryTrustProcess
                                                     CurrentPosition += EachTaskStep;
                                                 }
 
-                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>(), JsonSourceGenerationContext.Default.IEnumerableString));
                                             }
                                             else
                                             {
@@ -4371,7 +4358,7 @@ namespace AuxiliaryTrustProcess
                                                         {
                                                             if (SourcePathList.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                                             {
-                                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList, JsonSourceGenerationContext.Default.IEnumerableString));
                                                             }
                                                             else
                                                             {
@@ -4433,13 +4420,13 @@ namespace AuxiliaryTrustProcess
 
                                 bool PermanentDelete = Convert.ToBoolean(CommandValue["PermanentDelete"]);
 
-                                IReadOnlyList<string> ExecutePathList = JsonSerializer.Deserialize<IReadOnlyList<string>>(ExecutePathJson);
+                                IReadOnlyList<string> ExecutePathList = JsonSerializer.Deserialize(ExecutePathJson, JsonSourceGenerationContext.Default.IEnumerableString).ToArray();
 
                                 try
                                 {
                                     if (ExecutePathList.All((Source) => Source.StartsWith(@"\\?\")))
                                     {
-                                        MTPPathAnalysis SourcePathAnalysis = new MTPPathAnalysis(ExecutePathList.First());
+                                        MTPPathAnalysis SourcePathAnalysis = new MTPPathAnalysis(ExecutePathList[0]);
 
                                         if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice MTPDevice)
                                         {
@@ -4466,7 +4453,7 @@ namespace AuxiliaryTrustProcess
                                                     PipeProgressWriterController.SendData(Convert.ToString(CurrentPosition += EachTaskStep));
                                                 }
 
-                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>()));
+                                                Value.Add("Success", JsonSerializer.Serialize(Array.Empty<string>(), JsonSourceGenerationContext.Default.IEnumerableString));
                                             }
                                             else
                                             {
@@ -4512,7 +4499,7 @@ namespace AuxiliaryTrustProcess
                                                 {
                                                     if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                                     {
-                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList, JsonSourceGenerationContext.Default.IEnumerableString));
                                                     }
                                                     else
                                                     {
@@ -4752,7 +4739,7 @@ namespace AuxiliaryTrustProcess
 
                                 if ((RelatedData?.ItemsCount).GetValueOrDefault() > 0)
                                 {
-                                    Value.Add("Success", JsonSerializer.Serialize(RelatedData));
+                                    Value.Add("Success", JsonSerializer.Serialize(RelatedData, JsonSourceGenerationContext.Default.RemoteClipboardRelatedData));
                                 }
                                 else
                                 {
@@ -4847,7 +4834,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.GetThumbnailOverlay:
                             {
-                                Value.Add("Success", JsonSerializer.Serialize(Helper.GetThumbnailOverlay(CommandValue["Path"])));
+                                Value.Add("Success", JsonSerializer.Serialize(Helper.GetThumbnailOverlay(CommandValue["Path"]), JsonSourceGenerationContext.Default.IEnumerableByte));
 
                                 break;
                             }
@@ -5035,12 +5022,11 @@ namespace AuxiliaryTrustProcess
 
                     try
                     {
-                        Task.WaitAll(MainPipeStream.WaitForConnectionAsync(CancelToken),
-                                     ProgressPipeStream.WaitForConnectionAsync(CancelToken));
+                        Task.WaitAll(new Task[] { MainPipeStream.WaitForConnectionAsync(CancelToken), ProgressPipeStream.WaitForConnectionAsync(CancelToken) }, CancelToken);
 
                         MainWriter.WriteLine(Data.GetType().FullName);
                         MainWriter.WriteLine(CancelSignalName);
-                        MainWriter.WriteLine(JsonSerializer.Serialize(Data));
+                        MainWriter.WriteLine(JsonSerializer.Serialize(Data, JsonSourceGenerationContext.Default.IElevationData));
                         MainWriter.Flush();
 
                         GetRawResultTask = MainReader.ReadLineAsync();
@@ -5117,7 +5103,7 @@ namespace AuxiliaryTrustProcess
                     }
                     else
                     {
-                        return JsonSerializer.Deserialize<IDictionary<string, string>>(RawResultText);
+                        return JsonSerializer.Deserialize(RawResultText, JsonSourceGenerationContext.Default.IDictionaryStringString);
                     }
                 }
             }
