@@ -21,10 +21,9 @@ namespace AuxiliaryTrustProcess.Class
             {
                 try
                 {
-                    string Path = string.Empty;
-                    string OriginPath = string.Empty;
-                    bool IsDirectory = false;
                     ulong Size = 0;
+                    bool IsDirectory = false;
+                    string OriginPath = string.Empty;
                     DateTimeOffset DeleteTime = DateTimeOffset.FromFileTime(default(FILETIME).ToInt64());
 
                     try
@@ -45,9 +44,7 @@ namespace AuxiliaryTrustProcess.Class
 
                     if (File.Exists(Item.FileSystemPath))
                     {
-                        Size = (ulong)Item.FileInfo.Length;
-
-                        if (System.IO.Path.GetExtension(Item.Name).Equals(Item.FileInfo.Extension, StringComparison.OrdinalIgnoreCase))
+                        if (Path.GetExtension(Item.Name).Equals(Item.FileInfo.Extension, StringComparison.OrdinalIgnoreCase))
                         {
                             OriginPath = Item.Name;
                         }
@@ -78,7 +75,7 @@ namespace AuxiliaryTrustProcess.Class
                         }
                     }
 
-                    RecycleItemList.Add(new RecycleBinItemDataPackage(Path, OriginPath, IsDirectory, Size, DeleteTime));
+                    RecycleItemList.Add(new RecycleBinItemDataPackage(Item.FileSystemPath, OriginPath, IsDirectory, Size, DeleteTime));
                 }
                 catch (Exception ex)
                 {

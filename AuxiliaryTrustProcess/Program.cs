@@ -87,16 +87,15 @@ namespace AuxiliaryTrustProcess
                             MainPipeClient.Connect(2000);
                             ProgressPipeClient.Connect(2000);
 
-                            using (StreamReader MainReader = new StreamReader(MainPipeClient, new UTF8Encoding(false), true, leaveOpen: true))
-                            using (StreamWriter MainWriter = new StreamWriter(MainPipeClient, new UTF8Encoding(false), leaveOpen: true))
-                            using (StreamWriter ProgressWriter = new StreamWriter(ProgressPipeClient, new UTF8Encoding(false), leaveOpen: true))
+                            using (StreamReader MainReader = new StreamReader(MainPipeClient, Encoding.Unicode, true, leaveOpen: true))
+                            using (StreamWriter MainWriter = new StreamWriter(MainPipeClient, Encoding.Unicode, leaveOpen: true))
+                            using (StreamWriter ProgressWriter = new StreamWriter(ProgressPipeClient, Encoding.Unicode, leaveOpen: true))
                             using (CancellationTokenSource Cancellation = new CancellationTokenSource())
                             {
                                 IDictionary<string, string> Value = new Dictionary<string, string>();
 
                                 try
                                 {
-                                    string RawTypeData = MainReader.ReadLine();
                                     string CancelSignalData = MainReader.ReadLine();
                                     string CommandData = MainReader.ReadLine();
 
@@ -1072,7 +1071,7 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.OrderByNaturalStringSortAlgorithm:
                             {
-                                Value.Add("Success", JsonSerializer.Serialize(JsonSerializer.Deserialize<IEnumerable<StringNaturalAlgorithmData>>(CommandValue["InputList"], JsonSourceGenerationContext.Default.IEnumerableStringNaturalAlgorithmData).OrderBy((Item) => Item.Value, Comparer<string>.Create(ShlwApi.StrCmpLogicalW))));
+                                Value.Add("Success", JsonSerializer.Serialize(JsonSerializer.Deserialize(CommandValue["InputList"], JsonSourceGenerationContext.Default.IEnumerableStringNaturalAlgorithmData).OrderBy((Item) => Item.Value, Comparer<string>.Create(ShlwApi.StrCmpLogicalW)), JsonSourceGenerationContext.Default.IEnumerableStringNaturalAlgorithmData));
                                 break;
                             }
                         case AuxiliaryTrustProcessCommandType.MTPReplaceWithNewFile:
@@ -4999,15 +4998,15 @@ namespace AuxiliaryTrustProcess
             {
                 string UniqueName = Guid.NewGuid().ToString("N");
                 string PipeName = $"FullTrustProcess_ElevatedPipe_{UniqueName}";
-                string ProgressPipeName = $"FullTrustProcess_ElevatedPipe_{UniqueName}";
+                string ProgressPipeName = $"FullTrustProcess_ElevatedProgressPipe_{UniqueName}";
                 string CancelSignalName = $"FullTrustProcess_ElevatedCancellation_{UniqueName}";
 
                 using (EventWaitHandle CancelEvent = new EventWaitHandle(false, EventResetMode.ManualReset, CancelSignalName))
                 using (NamedPipeServerStream MainPipeStream = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
                 using (NamedPipeServerStream ProgressPipeStream = new NamedPipeServerStream(ProgressPipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
-                using (StreamWriter MainWriter = new StreamWriter(MainPipeStream, new UTF8Encoding(false), leaveOpen: true))
-                using (StreamReader MainReader = new StreamReader(MainPipeStream, new UTF8Encoding(false), true, leaveOpen: true))
-                using (StreamReader ProgressReader = new StreamReader(ProgressPipeStream, new UTF8Encoding(false), true, leaveOpen: true))
+                using (StreamWriter MainWriter = new StreamWriter(MainPipeStream, Encoding.Unicode, leaveOpen: true))
+                using (StreamReader MainReader = new StreamReader(MainPipeStream, Encoding.Unicode, true, leaveOpen: true))
+                using (StreamReader ProgressReader = new StreamReader(ProgressPipeStream, Encoding.Unicode, true, leaveOpen: true))
                 using (CancellationTokenSource ProgressCancellation = new CancellationTokenSource())
                 using (Process ElevatedProcess = Process.Start(new ProcessStartInfo
                 {
@@ -5024,7 +5023,6 @@ namespace AuxiliaryTrustProcess
                     {
                         Task.WaitAll(new Task[] { MainPipeStream.WaitForConnectionAsync(CancelToken), ProgressPipeStream.WaitForConnectionAsync(CancelToken) }, CancelToken);
 
-                        MainWriter.WriteLine(Data.GetType().FullName);
                         MainWriter.WriteLine(CancelSignalName);
                         MainWriter.WriteLine(JsonSerializer.Serialize(Data, JsonSourceGenerationContext.Default.IElevationData));
                         MainWriter.Flush();

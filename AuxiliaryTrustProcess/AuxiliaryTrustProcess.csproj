@@ -13,6 +13,7 @@
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
 		<PublishTrimmed>true</PublishTrimmed>
+		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>

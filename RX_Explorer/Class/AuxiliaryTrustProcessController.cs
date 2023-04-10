@@ -1104,9 +1104,9 @@ namespace RX_Explorer.Class
         {
             IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.GetThumbnailOverlay, ("Path", Path));
 
-            if (Response.TryGetValue("Success", out string ThumbnailOverlayStr))
+            if (Response.TryGetValue("Success", out string ThumbnailOverlayRaw))
             {
-                return JsonSerializer.Deserialize<byte[]>(Convert.ToString(ThumbnailOverlayStr));
+                return JsonSerializer.Deserialize<IEnumerable<byte>>(ThumbnailOverlayRaw).ToArray();
             }
             else if (Response.TryGetValue("Error", out string ErrorMessage))
             {
