@@ -2,7 +2,7 @@
 using System.IO.Pipes;
 using System.Threading.Tasks;
 
-namespace MonitorTrustProcess
+namespace MonitorTrustProcess.Class
 {
     public abstract class NamedPipeControllerBase : IDisposable
     {

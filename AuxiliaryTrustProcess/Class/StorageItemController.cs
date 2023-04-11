@@ -24,7 +24,7 @@ namespace AuxiliaryTrustProcess.Class
                 {
                     using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(Path, Kernel32.FileAccess.FILE_GENERIC_READ, FileShare.None, null, FileMode.Open, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
                     {
-                        if (Handle.IsNull || Handle.IsInvalid)
+                        if (Handle.IsInvalid)
                         {
                             return true;
                         }
@@ -36,7 +36,7 @@ namespace AuxiliaryTrustProcess.Class
                                 {
                                     using (Kernel32.SafeHPROCESS ProcessHandle = Kernel32.OpenProcess(new ACCESS_MASK(0x1000), false, Convert.ToUInt32(Process.Id)))
                                     {
-                                        if (!ProcessHandle.IsInvalid && !ProcessHandle.IsNull)
+                                        if (!ProcessHandle.IsInvalid)
                                         {
                                             uint Size = 260;
                                             StringBuilder ProcessImageName = new StringBuilder((int)Size);
@@ -324,7 +324,7 @@ namespace AuxiliaryTrustProcess.Class
                             {
                                 using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(Path, Kernel32.FileAccess.GENERIC_READ, FileShare.None, null, FileMode.CreateNew, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
                                 {
-                                    return !Handle.IsInvalid && !Handle.IsNull;
+                                    return !Handle.IsInvalid;
                                 }
                             }
                         case CreateType.Folder:

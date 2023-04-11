@@ -1,6 +1,5 @@
 ﻿using SharedLibrary;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,7 +8,7 @@ using System.Text;
 using System.Xml;
 using Vanara.PInvoke;
 
-namespace MonitorTrustProcess
+namespace MonitorTrustProcess.Class
 {
     public static class Helper
     {
@@ -20,7 +19,7 @@ namespace MonitorTrustProcess
                 using (Process TargetProcess = Process.GetProcessById(ProcessId))
                 using (AdvApi32.SafeHTOKEN Token = AdvApi32.SafeHTOKEN.FromProcess(TargetProcess, AdvApi32.TokenAccess.TOKEN_ALL_ACCESS))
                 {
-                    if (!Token.IsInvalid && !Token.IsNull)
+                    if (!Token.IsInvalid)
                     {
                         return $@"Sessions\{TargetProcess.SessionId}\AppContainerNamedObjects\{string.Join("-", Token.GetInfo<AdvApi32.TOKEN_APPCONTAINER_INFORMATION>(AdvApi32.TOKEN_INFORMATION_CLASS.TokenAppContainerSid).TokenAppContainer.ToString("D").Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeId}";
                     }
@@ -35,7 +34,7 @@ namespace MonitorTrustProcess
                     {
                         try
                         {
-                            if (!Sid.IsInvalid && !Sid.IsNull)
+                            if (!Sid.IsInvalid)
                             {
                                 return $@"Sessions\{CurrentProcess.SessionId}\AppContainerNamedObjects\{string.Join("-", ((PSID)Sid).ToString("D").Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeId}";
                             }
@@ -51,197 +50,136 @@ namespace MonitorTrustProcess
             return string.Empty;
         }
 
-        public static bool LaunchApplicationFromPackageFamilyName(string PackageFamilyName, params string[] Arguments)
-        {
-            string AppUserModelId = GetAppUserModeIdFromPackageFullName(GetPackageFullNameFromPackageFamilyName(PackageFamilyName));
-
-            if (!string.IsNullOrEmpty(AppUserModelId))
-            {
-                return LaunchApplicationFromAppUserModelId(AppUserModelId, Arguments);
-            }
-
-            return false;
-        }
-
-        public static bool LaunchApplicationFromAppUserModelId(string AppUserModelId, params string[] Arguments)
-        {
-            Guid CLSID_ApplicationActivationManager = new Guid("45BA127D-10A8-46EA-8AB7-56EA9078943C");
-            Guid IID_IApplicationActivationManager = new Guid("2E941141-7F97-4756-BA1D-9DECDE894A3D");
-
-            if (Ole32.CoCreateInstance(CLSID_ApplicationActivationManager, null, Ole32.CLSCTX.CLSCTX_LOCAL_SERVER, IID_IApplicationActivationManager, out object ppv).Succeeded)
-            {
-                Shell32.IApplicationActivationManager Manager = (Shell32.IApplicationActivationManager)ppv;
-
-                Manager.ActivateApplication(AppUserModelId, string.Join(' ', Arguments.Where((Item) => !string.IsNullOrEmpty(Item)).Select((Path) => $"\"{Path}\"")), Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
-
-                if (ProcessId > 0)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public static WindowInformation GetWindowInformationFromUwpApplication(string PackageFamilyName, uint KnownProcessId = 0)
+        public static WindowInformation GetWindowInformationFromUwpApplication(uint TargetProcessId)
         {
             WindowInformation Info = null;
 
-            User32.EnumWindowsProc Callback = new User32.EnumWindowsProc((HWND WindowHandle, IntPtr lParam) =>
+            if (TargetProcessId > 0)
             {
-                StringBuilder SbClassName = new StringBuilder(260);
-
-                if (User32.GetClassName(WindowHandle, SbClassName, SbClassName.Capacity) > 0)
+                User32.EnumWindowsProc Callback = new User32.EnumWindowsProc((WindowHandle, lParam) =>
                 {
-                    string ClassName = SbClassName.ToString();
+                    string ClassName = GetClassNameFromWindowHandle(WindowHandle.DangerousGetHandle());
 
-                    // Minimized : "Windows.UI.Core.CoreWindow" top window
-                    // Normal : "Windows.UI.Core.CoreWindow" child of "ApplicationFrameWindow"
-                    if (ClassName == "ApplicationFrameWindow")
+                    if (!string.IsNullOrEmpty(ClassName))
                     {
-                        string AUMID = string.Empty;
+                        HWND CoreWindowHandle = HWND.NULL;
+                        HWND ApplicationFrameWindowHandle = HWND.NULL;
 
-                        if (Shell32.SHGetPropertyStoreForWindow<PropSys.IPropertyStore>(WindowHandle) is PropSys.IPropertyStore PropertyStore)
+                        // Since User32.IsIconic is useless if the Window handle is belongs to Uwp
+                        // Minimized : "Windows.UI.Core.CoreWindow" top window
+                        // Normal : "Windows.UI.Core.CoreWindow" child of "ApplicationFrameWindow"
+                        switch (ClassName)
                         {
-                            AUMID = Convert.ToString(PropertyStore.GetValue(Ole32.PROPERTYKEY.System.AppUserModel.ID));
+                            case "ApplicationFrameWindow":
+                                {
+                                    ApplicationFrameWindowHandle = WindowHandle;
+                                    CoreWindowHandle = User32.FindWindowEx(WindowHandle, lpszClass: "Windows.UI.Core.CoreWindow");
+                                    break;
+                                }
+                            case "Windows.UI.Core.CoreWindow":
+                                {
+                                    CoreWindowHandle = WindowHandle;
+                                    break;
+                                }
                         }
 
-                        if (!string.IsNullOrEmpty(AUMID) && AUMID.Contains(PackageFamilyName))
+                        if (!CoreWindowHandle.IsNull)
                         {
-                            WindowState State = WindowState.Normal;
-
-                            if (User32.GetWindowRect(WindowHandle, out RECT CurrentRect))
+                            if (User32.GetWindowThreadProcessId(CoreWindowHandle, out uint ProcessId) > 0)
                             {
-                                IntPtr RectWorkAreaPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf<RECT>());
-
-                                try
+                                if (TargetProcessId == ProcessId)
                                 {
-                                    if (User32.SystemParametersInfo(User32.SPI.SPI_GETWORKAREA, 0, RectWorkAreaPtr, User32.SPIF.None))
-                                    {
-                                        RECT WorkAreaRect = Marshal.PtrToStructure<RECT>(RectWorkAreaPtr);
+                                    WindowState State = WindowState.Normal;
 
-                                        //If Window rect is out of SPI_GETWORKAREA, it means it's maximized;
-                                        if (CurrentRect.left < WorkAreaRect.left && CurrentRect.top < WorkAreaRect.top && CurrentRect.right > WorkAreaRect.right && CurrentRect.bottom > WorkAreaRect.bottom)
-                                        {
-                                            State = WindowState.Maximized;
-                                        }
+                                    if (ApplicationFrameWindowHandle == HWND.NULL)
+                                    {
+                                        State = WindowState.Minimized;
                                     }
-                                }
-                                finally
-                                {
-                                    Marshal.FreeCoTaskMem(RectWorkAreaPtr);
-                                }
-                            }
-
-                            HWND CoreWindowHandle = User32.FindWindowEx(WindowHandle, IntPtr.Zero, "Windows.UI.Core.CoreWindow", null);
-
-                            if (CoreWindowHandle.IsNull)
-                            {
-                                if (KnownProcessId > 0)
-                                {
-                                    using (Kernel32.SafeHPROCESS ProcessHandle = Kernel32.OpenProcess(new ACCESS_MASK(0x1000), false, KnownProcessId))
+                                    else if (User32.GetWindowRect(CoreWindowHandle, out RECT WindowRect))
                                     {
-                                        if (!ProcessHandle.IsInvalid && !ProcessHandle.IsNull)
+                                        if (User32.SystemParametersInfo(User32.SPI.SPI_GETWORKAREA, out RECT WorkAreaRect))
                                         {
-                                            uint FamilyNameSize = 260;
-                                            StringBuilder PackageFamilyNameBuilder = new StringBuilder((int)FamilyNameSize);
-
-                                            if (Kernel32.GetPackageFamilyName(ProcessHandle, ref FamilyNameSize, PackageFamilyNameBuilder).Succeeded)
+                                            //If Window rect is equal or out of SPI_GETWORKAREA, it means it's maximized;
+                                            if (WindowRect.left <= WorkAreaRect.left && WindowRect.top <= WorkAreaRect.top && WindowRect.right >= WorkAreaRect.right && WindowRect.bottom >= WorkAreaRect.bottom)
                                             {
-                                                if (PackageFamilyNameBuilder.ToString() == PackageFamilyName && User32.IsWindowVisible(WindowHandle))
-                                                {
-                                                    uint ProcessNameSize = 260;
-                                                    StringBuilder ProcessImageName = new StringBuilder((int)ProcessNameSize);
-
-                                                    if (Kernel32.QueryFullProcessImageName(ProcessHandle, Kernel32.PROCESS_NAME.PROCESS_NAME_WIN32, ProcessImageName, ref ProcessNameSize))
-                                                    {
-                                                        Info = new WindowInformation(ProcessImageName.ToString(), KnownProcessId, State, WindowHandle, HWND.NULL);
-                                                    }
-                                                    else
-                                                    {
-                                                        Info = new WindowInformation(string.Empty, KnownProcessId, State, WindowHandle, HWND.NULL);
-                                                    }
-
-                                                    return false;
-                                                }
+                                                State = WindowState.Maximized;
                                             }
                                         }
                                     }
-                                }
-                            }
-                            else
-                            {
-                                if (User32.GetWindowThreadProcessId(CoreWindowHandle, out uint ProcessId) > 0)
-                                {
-                                    if (KnownProcessId > 0 && KnownProcessId != ProcessId)
-                                    {
-                                        return true;
-                                    }
 
-                                    using (Kernel32.SafeHPROCESS ProcessHandle = Kernel32.OpenProcess(new ACCESS_MASK(0x1000), false, ProcessId))
-                                    {
-                                        if (!ProcessHandle.IsInvalid && !ProcessHandle.IsNull)
-                                        {
-                                            uint FamilyNameSize = 260;
-                                            StringBuilder PackageFamilyNameBuilder = new StringBuilder((int)FamilyNameSize);
+                                    Info = new WindowInformation(GetExecutablePathFromProcessId(ProcessId), ProcessId, State, ApplicationFrameWindowHandle.DangerousGetHandle(), CoreWindowHandle.DangerousGetHandle());
 
-                                            if (Kernel32.GetPackageFamilyName(ProcessHandle, ref FamilyNameSize, PackageFamilyNameBuilder).Succeeded)
-                                            {
-                                                if (PackageFamilyNameBuilder.ToString() == PackageFamilyName && User32.IsWindowVisible(WindowHandle))
-                                                {
-                                                    uint ProcessNameSize = 260;
-                                                    StringBuilder ProcessImageName = new StringBuilder((int)ProcessNameSize);
-
-                                                    if (Kernel32.QueryFullProcessImageName(ProcessHandle, Kernel32.PROCESS_NAME.PROCESS_NAME_WIN32, ProcessImageName, ref ProcessNameSize))
-                                                    {
-                                                        Info = new WindowInformation(ProcessImageName.ToString(), ProcessId, State, WindowHandle, CoreWindowHandle);
-                                                    }
-                                                    else
-                                                    {
-                                                        Info = new WindowInformation(string.Empty, ProcessId, State, WindowHandle, CoreWindowHandle);
-                                                    }
-
-                                                    return false;
-                                                }
-                                            }
-                                        }
-                                    }
+                                    return false;
                                 }
                             }
                         }
                     }
-                }
 
-                return true;
-            });
+                    return true;
+                });
 
-            User32.EnumWindows(Callback, IntPtr.Zero);
+                User32.EnumWindows(Callback, IntPtr.Zero);
+            }
 
             return Info;
         }
 
-        public static bool CheckIfDebuggerIsAttached(IntPtr ProcessHandle)
+        public static string GetClassNameFromWindowHandle(IntPtr WindowHandle)
         {
-            if (ProcessHandle.CheckIfValidPtr())
+            int NameLength = 256;
+
+            StringBuilder Builder = new StringBuilder(NameLength);
+
+            if (User32.GetClassName(WindowHandle, Builder, NameLength) > 0)
             {
-                try
+                return Builder.ToString();
+            }
+            else
+            {
+                while (Win32Error.GetLastError() == Win32Error.ERROR_INSUFFICIENT_BUFFER)
                 {
-                    if (Kernel32.CheckRemoteDebuggerPresent(ProcessHandle, out bool IsDebuggerPresent))
+                    Builder.EnsureCapacity(NameLength *= 2);
+
+                    if (User32.GetClassName(WindowHandle, Builder, NameLength) > 0)
                     {
-                        return IsDebuggerPresent;
+                        return Builder.ToString();
                     }
-                    else
-                    {
-                        throw new Win32Exception(Marshal.GetLastWin32Error());
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not check whether debugger is attached");
                 }
             }
 
-            return false;
+            return string.Empty;
+        }
+
+        public static string GetExecutablePathFromProcessId(uint ProcessId)
+        {
+            uint PathLength = 256;
+
+            using (Kernel32.SafeHPROCESS ProcessHandle = Kernel32.OpenProcess(ACCESS_MASK.GENERIC_READ, false, ProcessId))
+            {
+                if (!ProcessHandle.IsInvalid)
+                {
+                    StringBuilder Builder = new StringBuilder((int)PathLength);
+
+                    if (Kernel32.QueryFullProcessImageName(ProcessHandle, Kernel32.PROCESS_NAME.PROCESS_NAME_WIN32, Builder, ref PathLength))
+                    {
+                        return Builder.ToString();
+                    }
+                    else
+                    {
+                        while (Win32Error.GetLastError() == Win32Error.ERROR_INSUFFICIENT_BUFFER)
+                        {
+                            Builder.EnsureCapacity((int)(PathLength *= 2));
+
+                            if (Kernel32.QueryFullProcessImageName(ProcessHandle, Kernel32.PROCESS_NAME.PROCESS_NAME_WIN32, Builder, ref PathLength))
+                            {
+                                return Builder.ToString();
+                            }
+                        }
+                    }
+                }
+            }
+
+            return string.Empty;
         }
 
         public static string GetPackageFamilyNameFromPackageFullName(string PackageFullName)

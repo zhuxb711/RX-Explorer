@@ -1,11 +1,17 @@
-﻿###Quoi de neuf dans la version 8.2.3
+﻿###Quoi de neuf dans la version 8.2.4
 
-#### ⚠Avertissement : la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
+#### ⚠Avertissement: la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
 >#### WinAppSdk est un framework alternatif pour Uwp et est actuellement testé en interne. Au moment de la sortie officielle, tous les utilisateurs qui ont acheté la version Uwp peuvent activer directement la version WinAppSdk
 
+##### Amélioration des performances
+
+>##### Réduction considérable de la taille du package d'installation
+
+>##### Amélioration de l'efficacité de la communication inter-processus, amélioration du mécanisme de transmission et de traitement des paramètres
+
 ##### Corrections de bogues
 
->##### Correction d’un problème potentiel avec le planificateur de processus de travail
+>##### Correction d'un problème où les opérations élevées ne pouvaient pas être effectuées via des processus auxiliaires
 
->##### Correction d’un problème où les listes de raccourcis pouvaient rajouter des entrées qui avaient été supprimées de la barre des tâches
+>##### Correction du problème de désactivation de l'animation de démarrage par défaut

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,11 +29,11 @@ namespace RX_Explorer.Class
                         {
                             PipeStream.WaitForConnectionAsync(LocalCancellation.Token).Wait();
                         }
-                        catch (AggregateException ex) when (ex.InnerException is IOException)
+                        catch (AggregateException ex) when (ex.Flatten().InnerExceptions.OfType<IOException>().Any())
                         {
                             LogTracer.Log("Could not write pipeline data because the pipeline is closed");
                         }
-                        catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
+                        catch (AggregateException ex) when (ex.Flatten().InnerExceptions.OfType<OperationCanceledException>().Any())
                         {
                             LogTracer.Log("Could not write pipeline data because connection timeout");
                         }

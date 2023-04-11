@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MonitorTrustProcess
+namespace MonitorTrustProcess.Class
 {
     public sealed class NamedPipeDataReceivedArgs
     {

@@ -2255,13 +2255,12 @@ namespace RX_Explorer.View
             {
                 IsWindowAlwaysOnTopEnabled = AlwaysOnTop.IsOn;
 
+                using (Process CurrentProcess = Process.GetCurrentProcess())
                 using (AuxiliaryTrustProcessController.Exclusive Exclusive = await AuxiliaryTrustProcessController.GetControllerExclusiveAsync())
                 {
-                    using Process CurrentProcess = Process.GetCurrentProcess();
-
                     if (AlwaysOnTop.IsOn)
                     {
-                        if (!await Exclusive.Controller.SetAsTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
+                        if (!await Exclusive.Controller.SetAsTopMostWindowAsync(Convert.ToUInt32(CurrentProcess.Id)))
                         {
                             CommonContentDialog Dialog = new CommonContentDialog
                             {
@@ -2275,7 +2274,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        if (!await Exclusive.Controller.RemoveTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
+                        if (!await Exclusive.Controller.RemoveTopMostWindowAsync(Convert.ToUInt32(CurrentProcess.Id)))
                         {
                             CommonContentDialog Dialog = new CommonContentDialog
                             {

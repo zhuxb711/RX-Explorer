@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vanara.PInvoke;
 
-namespace MonitorTrustProcess
+namespace MonitorTrustProcess.Class
 {
     public class NamedPipeReadController : NamedPipeControllerBase
     {

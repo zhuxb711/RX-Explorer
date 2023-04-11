@@ -1140,11 +1140,9 @@ namespace RX_Explorer.Class
             return string.Empty;
         }
 
-        public async Task<bool> SetAsTopMostWindowAsync(string PackageFamilyName, uint WithPID = 0)
+        public async Task<bool> SetAsTopMostWindowAsync(uint ProcessId)
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.SetAsTopMostWindow,
-                                                                                  ("PackageFamilyName", PackageFamilyName),
-                                                                                  ("ProcessId", WithPID));
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.SetAsTopMostWindow, ("ProcessId", ProcessId));
 
             if (Response.TryGetValue("Success", out string ThumbnailOverlayStr))
             {
@@ -1158,11 +1156,9 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<bool> RemoveTopMostWindowAsync(string PackageFamilyName, uint WithPID = 0)
+        public async Task<bool> RemoveTopMostWindowAsync(uint ProcessId = 0)
         {
-            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.RemoveTopMostWindow,
-                                                                                  ("PackageFamilyName", PackageFamilyName),
-                                                                                  ("ProcessId", WithPID));
+            IReadOnlyDictionary<string, string> Response = await SendCommandAsync(AuxiliaryTrustProcessCommandType.RemoveTopMostWindow, ("ProcessId", ProcessId));
 
             if (Response.TryGetValue("Success", out string ThumbnailOverlayStr))
             {

@@ -1,4 +1,5 @@
-﻿using SharedLibrary;
+﻿using MonitorTrustProcess.Class;
+using SharedLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,11 +11,13 @@ using Timer = System.Timers.Timer;
 
 namespace MonitorTrustProcess
 {
-    class Program
+    internal class Program
     {
-        private static Process ExplorerProcess;
+        private static string RecoveryData;
 
-        private static ManualResetEvent ExitLocker;
+        private const string ExplorerPackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t";
+
+        private static Process ExplorerProcess;
 
         private static NamedPipeMonitorCommunicationBaseController PipeCommunicationBaseController;
 
@@ -22,13 +25,13 @@ namespace MonitorTrustProcess
 
         private static NamedPipeReadController PipeCommandReadController;
 
-        private static Timer RespondingTimer;
+        private static readonly ManualResetEvent ExitLocker = new ManualResetEvent(false);
 
-        private static bool IsDebuggerAttachedToMonitorProcess;
-
-        private static string RecoveryData;
-
-        private static readonly string ExplorerPackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t";
+        private static readonly Timer CheckRespondingTimer = new Timer(15000)
+        {
+            AutoReset = true,
+            Enabled = false
+        };
 
         private static readonly Dictionary<MonitorFeature, bool> FeatureStatusMapping = new Dictionary<MonitorFeature, bool>
         {
@@ -49,17 +52,13 @@ namespace MonitorTrustProcess
         {
             try
             {
-                ExitLocker = new ManualResetEvent(false);
-
                 PipeCommunicationBaseController = new NamedPipeMonitorCommunicationBaseController(ExplorerPackageFamilyName);
                 PipeCommunicationBaseController.OnDataReceived += PipeCommunicationBaseController_OnDataReceived;
 
-                RespondingTimer = new Timer(15000)
-                {
-                    AutoReset = true,
-                    Enabled = true
-                };
-                RespondingTimer.Elapsed += RespondingTimer_Elapsed;
+#if !DEBUG
+                CheckRespondingTimer.Enabled = true;
+                CheckRespondingTimer.Elapsed += CheckRespondingTimer_Elapsed;
+#endif
 
                 if (PipeCommunicationBaseController.WaitForConnectionAsync(10000).Result)
                 {
@@ -76,8 +75,8 @@ namespace MonitorTrustProcess
             }
             finally
             {
-                ExitLocker?.Dispose();
-                RespondingTimer?.Dispose();
+                ExitLocker.Dispose();
+                CheckRespondingTimer.Dispose();
                 PipeCommandWriteController?.Dispose();
                 PipeCommandReadController?.Dispose();
                 PipeCommunicationBaseController?.Dispose();
@@ -86,11 +85,11 @@ namespace MonitorTrustProcess
             }
         }
 
-        private static void RespondingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private static void CheckRespondingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (IsFreezeMonitorEnabled && !IsDebuggerAttachedToMonitorProcess)
+            if (IsFreezeMonitorEnabled)
             {
-                RespondingTimer.Enabled = false;
+                CheckRespondingTimer.Enabled = false;
 
                 try
                 {
@@ -98,13 +97,13 @@ namespace MonitorTrustProcess
 
                     if (!(ExplorerProcess?.HasExited).GetValueOrDefault(true))
                     {
-                        if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation UwpInfo)
+                        if (Helper.GetWindowInformationFromUwpApplication(Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation UwpInfo)
                         {
                             if (UwpInfo.IsValidInfomation)
                             {
                                 IntPtr Result = IntPtr.Zero;
 
-                                if (!UwpInfo.CoreWindowHandle.IsNull)
+                                if (UwpInfo.CoreWindowHandle.CheckIfValidPtr())
                                 {
                                     if (User32.SendMessageTimeout(UwpInfo.CoreWindowHandle, (uint)User32.WindowMessage.WM_NULL, fuFlags: User32.SMTO.SMTO_ABORTIFHUNG, uTimeout: 15000, lpdwResult: ref Result) == IntPtr.Zero)
                                     {
@@ -121,7 +120,7 @@ namespace MonitorTrustProcess
                 }
                 finally
                 {
-                    RespondingTimer.Enabled = true;
+                    CheckRespondingTimer.Enabled = true;
                 }
             }
         }
@@ -150,7 +149,6 @@ namespace MonitorTrustProcess
                             ExplorerProcess = Process.GetProcessById(Convert.ToInt32(ProcessId));
                             ExplorerProcess.EnableRaisingEvents = true;
                             ExplorerProcess.Exited += ExplorerProcess_Exited;
-                            IsDebuggerAttachedToMonitorProcess = Helper.CheckIfDebuggerIsAttached(ExplorerProcess.Handle);
                         }
                     }
 
@@ -274,9 +272,11 @@ namespace MonitorTrustProcess
             {
                 CloseAndRestartApplication(RestartReason.Restart);
             }
-            else if (IsCrashMonitorEnabled && !IsDebuggerAttachedToMonitorProcess)
+            else if (IsCrashMonitorEnabled)
             {
+#if !DEBUG
                 CloseAndRestartApplication(RestartReason.Crash);
+#endif
             }
             else
             {
@@ -290,6 +290,12 @@ namespace MonitorTrustProcess
             {
                 if (ExplorerProcess != null)
                 {
+                    ProcessStartInfo StartInfo = new ProcessStartInfo
+                    {
+                        UseShellExecute = false,
+                        FileName = "RX-Explorer.exe",
+                    };
+
                     switch (Reason)
                     {
                         case RestartReason.Freeze:
@@ -298,27 +304,41 @@ namespace MonitorTrustProcess
                                 ExplorerProcess.Exited -= ExplorerProcess_Exited;
                                 ExplorerProcess.Kill();
 
-                                Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "--RecoveryReason", Enum.GetName(RestartReason.Freeze), "--RecoveryData", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                                StartInfo.ArgumentList.Add("--RecoveryReason");
+                                StartInfo.ArgumentList.Add(Enum.GetName(RestartReason.Freeze));
+                                StartInfo.ArgumentList.Add("--RecoveryData");
+                                StartInfo.ArgumentList.Add(Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
                                 break;
                             }
                         case RestartReason.Crash:
                             {
-                                Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "--RecoveryReason", Enum.GetName(RestartReason.Crash), "--RecoveryData", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                                StartInfo.ArgumentList.Add("--RecoveryReason");
+                                StartInfo.ArgumentList.Add(Enum.GetName(RestartReason.Crash));
+                                StartInfo.ArgumentList.Add("--RecoveryData");
+                                StartInfo.ArgumentList.Add(Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
                                 break;
                             }
                         case RestartReason.Restart:
                             {
-                                if (string.IsNullOrEmpty(RecoveryData))
+                                StartInfo.ArgumentList.Add("--RecoveryReason");
+                                StartInfo.ArgumentList.Add(Enum.GetName(RestartReason.Restart));
+
+                                if (!string.IsNullOrEmpty(RecoveryData))
                                 {
-                                    Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "--RecoveryReason", Enum.GetName(RestartReason.Restart));
-                                }
-                                else
-                                {
-                                    Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, "--RecoveryReason", Enum.GetName(RestartReason.Restart), "--RecoveryData", Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                                    StartInfo.ArgumentList.Add("--RecoveryData");
+                                    StartInfo.ArgumentList.Add(Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
                                 }
 
                                 break;
                             }
+                    }
+
+                    using (Process NewProcess = Process.Start(StartInfo))
+                    {
+                        if ((NewProcess?.HasExited).GetValueOrDefault(true))
+                        {
+                            throw new Exception("Unable to start a new process");
+                        }
                     }
                 }
             }

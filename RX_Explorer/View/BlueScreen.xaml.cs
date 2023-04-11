@@ -1,7 +1,10 @@
-﻿using RX_Explorer.Class;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
+using System.Text;
+using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
@@ -21,9 +24,54 @@ namespace RX_Explorer.View
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is string ExceptionMessage)
+            if (e.Parameter is Exception Ex)
             {
-                Message.Text = ExceptionMessage;
+                string[] MessageSplit = Array.Empty<string>();
+
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(Ex.Message))
+                    {
+                        MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                    }
+                }
+                catch (Exception)
+                {
+                    //No need to hanle this exception;
+                }
+
+                string[] StackTraceSplit = Array.Empty<string>();
+
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(Ex.StackTrace))
+                    {
+                        StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                    }
+                }
+                catch (Exception)
+                {
+                    //No need to hanle this exception;
+                }
+
+                StringBuilder Builder = new StringBuilder()
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine($"UnhandledException: {(string.IsNullOrWhiteSpace(Ex.Message) ? "<Empty>" : Ex.Message)}")
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine("Source: RX-Explorer")
+                                        .AppendLine()
+                                        .AppendLine($"Version: {Package.Current.Id.Version.ToFormattedString()}")
+                                        .AppendLine()
+                                        .AppendLine($"Exception: {Ex.GetType().FullName}")
+                                        .AppendLine()
+                                        .AppendLine("Message:")
+                                        .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
+                                        .AppendLine()
+                                        .AppendLine("StackTrace:")
+                                        .AppendLine(StackTraceSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
+                                        .AppendLine();
+
+                Message.Text = Builder.ToString();
             }
         }
 

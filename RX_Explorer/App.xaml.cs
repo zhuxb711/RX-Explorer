@@ -171,7 +171,19 @@ namespace RX_Explorer
             LogTracer.Log(UnhandledException, "UnhandledException");
             LogTracer.MakeSureLogIsFlushed(2000);
 
-            await LeadToBlueScreen(UnhandledException);
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                if (Window.Current.Content is Frame RootFrame)
+                {
+                    RootFrame.Navigate(typeof(BlueScreen), UnhandledException);
+                }
+                else
+                {
+                    Frame Frame = new Frame();
+                    Window.Current.Content = Frame;
+                    Frame.Navigate(typeof(BlueScreen), UnhandledException);
+                }
+            });
         }
 
         private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
@@ -408,86 +420,6 @@ namespace RX_Explorer
                         break;
                     }
             }
-        }
-
-        private static async Task LeadToBlueScreen(Exception Ex, [CallerMemberName] string MemberName = "", [CallerFilePath] string SourceFilePath = "", [CallerLineNumber] int SourceLineNumber = 0)
-        {
-            if (Ex == null)
-            {
-                throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
-            }
-
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                string[] MessageSplit;
-
-                try
-                {
-                    if (string.IsNullOrWhiteSpace(Ex.Message))
-                    {
-                        MessageSplit = Array.Empty<string>();
-                    }
-                    else
-                    {
-                        MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
-                    }
-                }
-                catch
-                {
-                    MessageSplit = Array.Empty<string>();
-                }
-
-                string[] StackTraceSplit;
-
-                try
-                {
-                    if (string.IsNullOrWhiteSpace(Ex.StackTrace))
-                    {
-                        StackTraceSplit = Array.Empty<string>();
-                    }
-                    else
-                    {
-                        StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
-                    }
-                }
-                catch
-                {
-                    StackTraceSplit = Array.Empty<string>();
-                }
-
-                StringBuilder Builder = new StringBuilder()
-                                        .AppendLine($"Version: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}")
-                                        .AppendLine()
-                                        .AppendLine("The following is the error message:")
-                                        .AppendLine("------------------------------------")
-                                        .AppendLine($"Exception: {Ex}")
-                                        .AppendLine()
-                                        .AppendLine("Message:")
-                                        .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
-                                        .AppendLine()
-                                        .AppendLine("StackTrace:")
-                                        .AppendLine(StackTraceSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
-                                        .AppendLine()
-                                        .AppendLine("Extra info: ")
-                                        .AppendLine($"        CallerMemberName: {MemberName}")
-                                        .AppendLine($"        CallerFilePath: {SourceFilePath}")
-                                        .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
-                                        .AppendLine("------------------------------------")
-                                        .AppendLine();
-
-                if (Window.Current.Content is Frame rootFrame)
-                {
-                    rootFrame.Navigate(typeof(BlueScreen), Builder.ToString());
-                }
-                else
-                {
-                    Frame Frame = new Frame();
-
-                    Window.Current.Content = Frame;
-
-                    Frame.Navigate(typeof(BlueScreen), Builder.ToString());
-                }
-            });
         }
     }
 }

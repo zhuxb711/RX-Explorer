@@ -1,4 +1,4 @@
-﻿namespace MonitorTrustProcess
+﻿namespace MonitorTrustProcess.Class
 {
     internal enum RestartReason
     {

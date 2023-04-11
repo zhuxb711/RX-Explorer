@@ -1,5 +1,6 @@
 ﻿using AuxiliaryTrustProcess.Class;
 using AuxiliaryTrustProcess.Interface;
+using CommandLine;
 using MediaDevices;
 using SharedLibrary;
 using System;
@@ -28,10 +29,11 @@ using UtfUnknown;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
 using Timer = System.Timers.Timer;
+using UACUtil = UACHelper.UACHelper;
 
 namespace AuxiliaryTrustProcess
 {
-    class Program
+    internal class Program
     {
         private static ManualResetEvent ExitLocker;
 
@@ -53,53 +55,63 @@ namespace AuxiliaryTrustProcess
 
         private static CancellationTokenSource CurrentTaskCancellation;
 
-        private static readonly string ExplorerPackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t";
+        private const string ExplorerPackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t";
 
         private static IEnumerable<MediaDevice> MTPDeviceList => MediaDevice.GetDevices().ForEach((Device) => Device.Connect());
 
         [STAThread]
         static void Main(string[] args)
         {
-            Ole32.OleInitialize();
-
-            try
+            Parser ArgumentParser = new Parser((With) =>
             {
-                StartTime = DateTimeOffset.Now;
-                ExitLocker = new ManualResetEvent(false);
-                CurrentTaskCancellation = new CancellationTokenSource();
+                With.AutoHelp = true;
+                With.CaseInsensitiveEnumValues = true;
+                With.IgnoreUnknownArguments = true;
+                With.CaseSensitive = true;
+            });
 
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            ArgumentParser.ParseArguments<CommandLineOptions>(args.SkipWhile((Value) => Value.EndsWith(Path.GetFileName(Environment.ProcessPath), StringComparison.OrdinalIgnoreCase))).WithParsed((Options) =>
+            {
+                Ole32.OleInitialize();
 
-                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
-                if (args.FirstOrDefault() == "/ExecuteAdminOperation")
+                try
                 {
-                    string[] ArgsList = args.TakeLast(2).ToArray();
+                    StartTime = DateTimeOffset.Now;
+                    ExitLocker = new ManualResetEvent(false);
+                    CurrentTaskCancellation = new CancellationTokenSource();
 
-                    string MainPipeName = ArgsList.FirstOrDefault();
-                    string ProgressPipeName = ArgsList.LastOrDefault();
+                    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                    AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-                    if (ArgsList.Length == 2 && !string.IsNullOrEmpty(MainPipeName) && !string.IsNullOrEmpty(ProgressPipeName))
+                    if (Options.ExecuteElevatedOperation)
                     {
-                        using (NamedPipeClientStream MainPipeClient = new NamedPipeClientStream(".", MainPipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough, TokenImpersonationLevel.Anonymous))
-                        using (NamedPipeClientStream ProgressPipeClient = new NamedPipeClientStream(".", ProgressPipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough, TokenImpersonationLevel.Anonymous))
-                        {
-                            MainPipeClient.Connect(2000);
-                            ProgressPipeClient.Connect(2000);
+                        ArgumentException.ThrowIfNullOrEmpty(Options.CommunicatePipeName);
+                        ArgumentException.ThrowIfNullOrEmpty(Options.ProgressPipeName);
+                        ArgumentException.ThrowIfNullOrEmpty(Options.CancelSignalName);
 
-                            using (StreamReader MainReader = new StreamReader(MainPipeClient, Encoding.Unicode, true, leaveOpen: true))
-                            using (StreamWriter MainWriter = new StreamWriter(MainPipeClient, Encoding.Unicode, leaveOpen: true))
-                            using (StreamWriter ProgressWriter = new StreamWriter(ProgressPipeClient, Encoding.Unicode, leaveOpen: true))
+                        if (!UACUtil.IsElevated)
+                        {
+                            throw new InvalidOperationException("Currently not running as elevated");
+                        }
+
+                        using (NamedPipeClientStream CommunicatePipeStream = new NamedPipeClientStream(".", Options.CommunicatePipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough, TokenImpersonationLevel.Anonymous))
+                        using (NamedPipeClientStream ProgressPipeStream = new NamedPipeClientStream(".", Options.ProgressPipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough, TokenImpersonationLevel.Anonymous))
+                        {
+                            CommunicatePipeStream.Connect(2000);
+                            ProgressPipeStream.Connect(2000);
+
+                            using (StreamReader CommunicatePipeReader = new StreamReader(CommunicatePipeStream, Encoding.Unicode, true, leaveOpen: true))
+                            using (StreamWriter CommunicatePipeWriter = new StreamWriter(CommunicatePipeStream, Encoding.Unicode, leaveOpen: true))
+                            using (StreamWriter ProgressPipeWriter = new StreamWriter(ProgressPipeStream, Encoding.Unicode, leaveOpen: true))
                             using (CancellationTokenSource Cancellation = new CancellationTokenSource())
                             {
                                 IDictionary<string, string> Value = new Dictionary<string, string>();
 
                                 try
                                 {
-                                    string CancelSignalData = MainReader.ReadLine();
-                                    string CommandData = MainReader.ReadLine();
+                                    string CommandData = CommunicatePipeReader.ReadLine();
 
-                                    if (EventWaitHandle.TryOpenExisting(CancelSignalData, out EventWaitHandle EventHandle))
+                                    if (EventWaitHandle.TryOpenExisting(Options.CancelSignalName, out EventWaitHandle EventHandle))
                                     {
                                         RegisteredWaitHandle RegistedHandle = ThreadPool.RegisterWaitForSingleObject(EventHandle, (state, timeout) =>
                                         {
@@ -142,8 +154,8 @@ namespace AuxiliaryTrustProcess
                                                                                 {
                                                                                     FileData.ContentStream.CopyTo(Stream, Convert.ToInt64(FileData.Size), Cancellation.Token, (s, e) =>
                                                                                     {
-                                                                                        ProgressWriter.WriteLine(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
-                                                                                        ProgressWriter.Flush();
+                                                                                        ProgressPipeWriter.WriteLine(Convert.ToString(Math.Ceiling((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * FileData.Size)) * 100d / RelatedData.TotalSize)));
+                                                                                        ProgressPipeWriter.Flush();
                                                                                     });
                                                                                 }
 
@@ -350,8 +362,8 @@ namespace AuxiliaryTrustProcess
 
                                                                 if (StorageItemController.Copy(CopyData.SourcePathMapping, CopyData.DestinationPath, CopyData.Option, (s, e) =>
                                                                 {
-                                                                    ProgressWriter.WriteLine(e.ProgressPercentage);
-                                                                    ProgressWriter.Flush();
+                                                                    ProgressPipeWriter.WriteLine(e.ProgressPercentage);
+                                                                    ProgressPipeWriter.Flush();
 
                                                                     if (Cancellation.IsCancellationRequested)
                                                                     {
@@ -413,8 +425,8 @@ namespace AuxiliaryTrustProcess
 
                                                                     if (StorageItemController.Move(MoveData.SourcePathMapping, MoveData.DestinationPath, MoveData.Option, (s, e) =>
                                                                     {
-                                                                        ProgressWriter.WriteLine(e.ProgressPercentage);
-                                                                        ProgressWriter.Flush();
+                                                                        ProgressPipeWriter.WriteLine(e.ProgressPercentage);
+                                                                        ProgressPipeWriter.Flush();
 
                                                                         if (Cancellation.IsCancellationRequested)
                                                                         {
@@ -485,8 +497,8 @@ namespace AuxiliaryTrustProcess
 
                                                                     if (StorageItemController.Delete(DeleteData.DeletePath, DeleteData.PermanentDelete, (s, e) =>
                                                                     {
-                                                                        ProgressWriter.WriteLine(e.ProgressPercentage);
-                                                                        ProgressWriter.Flush();
+                                                                        ProgressPipeWriter.WriteLine(e.ProgressPercentage);
+                                                                        ProgressPipeWriter.Flush();
 
                                                                         if (Cancellation.IsCancellationRequested)
                                                                         {
@@ -494,7 +506,7 @@ namespace AuxiliaryTrustProcess
                                                                         }
                                                                     }, PostDeleteEvent: (se, arg) =>
                                                                     {
-                                                                        ProgressWriter.WriteLine((int)(++ProcessedCounter / DeleteData.DeletePath.Count * 100f));
+                                                                        ProgressPipeWriter.WriteLine((int)(++ProcessedCounter / DeleteData.DeletePath.Count * 100f));
 
                                                                         if (!DeleteData.PermanentDelete)
                                                                         {
@@ -588,8 +600,8 @@ namespace AuxiliaryTrustProcess
                                 {
                                     if (!Cancellation.IsCancellationRequested)
                                     {
-                                        MainWriter.WriteLine(JsonSerializer.Serialize(Value, JsonSourceGenerationContext.Default.IDictionaryStringString));
-                                        MainWriter.Flush();
+                                        CommunicatePipeWriter.WriteLine(JsonSerializer.Serialize(Value, JsonSourceGenerationContext.Default.IDictionaryStringString));
+                                        CommunicatePipeWriter.Flush();
                                     }
                                 }
                             }
@@ -597,57 +609,57 @@ namespace AuxiliaryTrustProcess
                     }
                     else
                     {
-                        throw new InvalidDataException("Startup parameter is not correct");
+                        AliveCheckTimer = new Timer(10000)
+                        {
+                            AutoReset = true,
+                            Enabled = true
+                        };
+                        AliveCheckTimer.Elapsed += AliveCheckTimer_Elapsed;
+
+                        PipeCommunicationBaseController = new NamedPipeAuxiliaryCommunicationBaseController(ExplorerPackageFamilyName);
+                        PipeCommunicationBaseController.OnDataReceived += PipeCommunicationBaseController_OnDataReceived;
+
+                        if (PipeCommunicationBaseController.WaitForConnectionAsync(10000).Result)
+                        {
+                            AliveCheckTimer.Start();
+
+                            //Warm up the context menu first to make sure we could get the correct menus
+                            ContextMenu.Current.GetContextMenuItems(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
+
+                            ExitLocker.WaitOne();
+                        }
+                        else
+                        {
+                            LogTracer.Log($"Could not connect to the explorer. PipeCommunicationBaseController connect timeout. Exiting...");
+                        }
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    AliveCheckTimer = new Timer(10000)
-                    {
-                        AutoReset = true,
-                        Enabled = true
-                    };
-                    AliveCheckTimer.Elapsed += AliveCheckTimer_Elapsed;
-
-                    PipeCommunicationBaseController = new NamedPipeAuxiliaryCommunicationBaseController(ExplorerPackageFamilyName);
-                    PipeCommunicationBaseController.OnDataReceived += PipeCommunicationBaseController_OnDataReceived;
-
-                    if (PipeCommunicationBaseController.WaitForConnectionAsync(10000).Result)
-                    {
-                        AliveCheckTimer.Start();
-
-                        //Warm up the context menu first to make sure we could get the correct menus
-                        ContextMenu.Current.GetContextMenuItems(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
-
-                        ExitLocker.WaitOne();
-                    }
-                    else
-                    {
-                        LogTracer.Log($"Could not connect to the explorer. PipeCommunicationBaseController connect timeout. Exiting...");
-                    }
+                    LogTracer.Log(ex, "An unexpected exception was threw in starting AuxiliaryTrustProcess");
                 }
-            }
-            catch (Exception ex)
+                finally
+                {
+                    ExitLocker?.Dispose();
+                    AliveCheckTimer?.Dispose();
+
+                    PipeCommandWriteController?.Dispose();
+                    PipeCommandReadController?.Dispose();
+                    PipeProgressWriterController?.Dispose();
+                    PipeCancellationReadController?.Dispose();
+                    PipeCommunicationBaseController?.Dispose();
+
+                    MTPDeviceList.ForEach((Item) => Item.Dispose());
+
+                    LogTracer.MakeSureLogIsFlushed(2000);
+
+                    Ole32.OleUninitialize();
+                }
+            })
+            .WithNotParsed((ErrorList) =>
             {
-                LogTracer.Log(ex, "An unexpected exception was threw in starting AuxiliaryTrustProcess");
-            }
-            finally
-            {
-                ExitLocker?.Dispose();
-                AliveCheckTimer?.Dispose();
-
-                PipeCommandWriteController?.Dispose();
-                PipeCommandReadController?.Dispose();
-                PipeProgressWriterController?.Dispose();
-                PipeCancellationReadController?.Dispose();
-                PipeCommunicationBaseController?.Dispose();
-
-                MTPDeviceList.ForEach((Item) => Item.Dispose());
-
-                LogTracer.MakeSureLogIsFlushed(2000);
-
-                Ole32.OleUninitialize();
-            }
+                LogTracer.Log($"Unable to parse the arguments, reason: {string.Join(';', ErrorList.Select((Error) => Enum.GetName(Error.Tag)))}");
+            });
         }
 
         private static void AliveCheckTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -1794,7 +1806,7 @@ namespace AuxiliaryTrustProcess
                             {
                                 ulong ProgressValue = Math.Min(100, Math.Max(0, Convert.ToUInt64(CommandValue["ProgressValue"])));
 
-                                if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation Info)
+                                if (Helper.GetWindowInformationFromUwpApplication(Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation Info)
                                 {
                                     if (Info.IsValidInfomation)
                                     {
@@ -1838,7 +1850,7 @@ namespace AuxiliaryTrustProcess
 
                                     using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(ExecutePath, Kernel32.FileAccess.FILE_LIST_DIRECTORY, FileShare.Read | FileShare.Write | FileShare.Delete, null, FileMode.Open, FileFlagsAndAttributes.FILE_FLAG_BACKUP_SEMANTICS))
                                     {
-                                        if (Handle.IsInvalid || Handle.IsNull)
+                                        if (Handle.IsInvalid)
                                         {
                                             Value.Add("Error", $"Could not access to the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
                                         }
@@ -4607,7 +4619,7 @@ namespace AuxiliaryTrustProcess
                                                         {
                                                             using (Process OpenedProcess = Process.GetProcessById(Information.Value.UniqueProcessId.ToInt32()))
                                                             {
-                                                                if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation Info)
+                                                                if (Helper.GetWindowInformationFromUwpApplication(Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation Info)
                                                                 {
                                                                     if (Info.IsValidInfomation)
                                                                     {
@@ -4669,7 +4681,7 @@ namespace AuxiliaryTrustProcess
                                                     {
                                                         using (Process OpenedProcess = Process.GetProcessById(Convert.ToInt32(PInfo.dwProcessId)))
                                                         {
-                                                            if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation Info)
+                                                            if (Helper.GetWindowInformationFromUwpApplication(Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation Info)
                                                             {
                                                                 if (Info.IsValidInfomation)
                                                                 {
@@ -4839,10 +4851,9 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.SetAsTopMostWindow:
                             {
-                                string PackageFamilyName = CommandValue["PackageFamilyName"];
                                 uint ProcessId = Convert.ToUInt32(CommandValue["ProcessId"]);
 
-                                if (Helper.GetWindowInformationFromUwpApplication(PackageFamilyName, ProcessId) is WindowInformation Info)
+                                if (Helper.GetWindowInformationFromUwpApplication(ProcessId) is WindowInformation Info)
                                 {
                                     if (Info.IsValidInfomation)
                                     {
@@ -4860,10 +4871,9 @@ namespace AuxiliaryTrustProcess
                             }
                         case AuxiliaryTrustProcessCommandType.RemoveTopMostWindow:
                             {
-                                string PackageFamilyName = CommandValue["PackageFamilyName"];
                                 uint ProcessId = Convert.ToUInt32(CommandValue["ProcessId"]);
 
-                                if (Helper.GetWindowInformationFromUwpApplication(PackageFamilyName, ProcessId) is WindowInformation Info)
+                                if (Helper.GetWindowInformationFromUwpApplication(ProcessId) is WindowInformation Info)
                                 {
                                     if (Info.IsValidInfomation)
                                     {
@@ -4962,7 +4972,7 @@ namespace AuxiliaryTrustProcess
                                         }
                                     }
 
-                                    if (Helper.GetWindowInformationFromUwpApplication(ExplorerPackageFamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation UwpInfo)
+                                    if (Helper.GetWindowInformationFromUwpApplication(Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation UwpInfo)
                                     {
                                         if (UwpInfo.IsValidInfomation)
                                         {
@@ -4994,115 +5004,114 @@ namespace AuxiliaryTrustProcess
 
         private static IDictionary<string, string> CreateNewProcessAsElevatedAndWaitForResult<T>(T Data, ProgressChangedEventHandler Progress = null, CancellationToken CancelToken = default) where T : IElevationData
         {
-            using (Process CurrentProcess = Process.GetCurrentProcess())
+            string UniqueName = Guid.NewGuid().ToString("N");
+            string PipeName = $"FullTrustProcess_ElevatedPipe_{UniqueName}";
+            string ProgressPipeName = $"FullTrustProcess_ElevatedProgressPipe_{UniqueName}";
+            string CancelSignalName = $"FullTrustProcess_ElevatedCancellation_{UniqueName}";
+
+            using (EventWaitHandle CancelEvent = new EventWaitHandle(false, EventResetMode.ManualReset, CancelSignalName))
+            using (NamedPipeServerStream CommunicatePipeStream = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
+            using (NamedPipeServerStream ProgressPipeStream = new NamedPipeServerStream(ProgressPipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
+            using (StreamWriter CommunicatePipeWriter = new StreamWriter(CommunicatePipeStream, Encoding.Unicode, leaveOpen: true))
+            using (StreamReader CommunicatePipeReader = new StreamReader(CommunicatePipeStream, Encoding.Unicode, true, leaveOpen: true))
+            using (StreamReader ProgressPipeReader = new StreamReader(ProgressPipeStream, Encoding.Unicode, true, leaveOpen: true))
+            using (CancellationTokenSource ProgressCancellation = new CancellationTokenSource())
+            using (Process ElevatedProcess = UACUtil.StartElevated(new ProcessStartInfo
             {
-                string UniqueName = Guid.NewGuid().ToString("N");
-                string PipeName = $"FullTrustProcess_ElevatedPipe_{UniqueName}";
-                string ProgressPipeName = $"FullTrustProcess_ElevatedProgressPipe_{UniqueName}";
-                string CancelSignalName = $"FullTrustProcess_ElevatedCancellation_{UniqueName}";
+                UseShellExecute = true,
+                FileName = Environment.ProcessPath,
+                Arguments = $"--ExecuteElevatedOperation --CommunicatePipeName {PipeName} --ProgressPipeName {ProgressPipeName} --CancelSignalName {CancelSignalName}"
+            }))
+            {
+                Task GetProgressResultTask = Task.CompletedTask;
+                Task<string> GetRawResultTask = Task.FromResult(string.Empty);
 
-                using (EventWaitHandle CancelEvent = new EventWaitHandle(false, EventResetMode.ManualReset, CancelSignalName))
-                using (NamedPipeServerStream MainPipeStream = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
-                using (NamedPipeServerStream ProgressPipeStream = new NamedPipeServerStream(ProgressPipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
-                using (StreamWriter MainWriter = new StreamWriter(MainPipeStream, Encoding.Unicode, leaveOpen: true))
-                using (StreamReader MainReader = new StreamReader(MainPipeStream, Encoding.Unicode, true, leaveOpen: true))
-                using (StreamReader ProgressReader = new StreamReader(ProgressPipeStream, Encoding.Unicode, true, leaveOpen: true))
-                using (CancellationTokenSource ProgressCancellation = new CancellationTokenSource())
-                using (Process ElevatedProcess = Process.Start(new ProcessStartInfo
+                try
                 {
-                    FileName = CurrentProcess.MainModule.FileName,
-                    Arguments = $"/ExecuteAdminOperation \"{PipeName}\" \"{ProgressPipeName}\"",
-                    UseShellExecute = true,
-                    Verb = "runas"
-                }))
-                {
-                    Task GetProgressResultTask = Task.CompletedTask;
-                    Task<string> GetRawResultTask = Task.FromResult(string.Empty);
-
-                    try
+                    using (CancellationTokenSource WaitPipeConnectionCancellation = new CancellationTokenSource(10000))
+                    using (CancellationTokenSource CombineCancellation = CancellationTokenSource.CreateLinkedTokenSource(CancelToken, WaitPipeConnectionCancellation.Token))
                     {
-                        Task.WaitAll(new Task[] { MainPipeStream.WaitForConnectionAsync(CancelToken), ProgressPipeStream.WaitForConnectionAsync(CancelToken) }, CancelToken);
+                        Task.WaitAll(new Task[] { CommunicatePipeStream.WaitForConnectionAsync(CombineCancellation.Token), ProgressPipeStream.WaitForConnectionAsync(CombineCancellation.Token) }, CombineCancellation.Token);
+                    }
 
-                        MainWriter.WriteLine(CancelSignalName);
-                        MainWriter.WriteLine(JsonSerializer.Serialize(Data, JsonSourceGenerationContext.Default.IElevationData));
-                        MainWriter.Flush();
+                    CommunicatePipeWriter.WriteLine(JsonSerializer.Serialize(Data, JsonSourceGenerationContext.Default.IElevationData));
+                    CommunicatePipeWriter.Flush();
 
-                        GetRawResultTask = MainReader.ReadLineAsync();
-                        GetProgressResultTask = Task.Factory.StartNew((Parameter) =>
+                    GetRawResultTask = CommunicatePipeReader.ReadLineAsync(CancelToken).AsTask();
+                    GetProgressResultTask = Task.Factory.StartNew((Parameter) =>
+                    {
+                        try
                         {
-                            try
+                            if (Parameter is CancellationToken Token)
                             {
-                                if (Parameter is CancellationToken Token)
+                                while (!Token.IsCancellationRequested)
                                 {
-                                    while (!Token.IsCancellationRequested)
+                                    string ProgressText = ProgressPipeReader.ReadLine();
+
+                                    if (int.TryParse(ProgressText, out int ProgressValue))
                                     {
-                                        string ProgressText = ProgressReader.ReadLine();
-
-                                        if (int.TryParse(ProgressText, out int ProgressValue))
+                                        if (ProgressValue >= 0)
                                         {
-                                            if (ProgressValue >= 0)
-                                            {
-                                                Progress?.Invoke(null, new ProgressChangedEventArgs(ProgressValue, null));
+                                            Progress?.Invoke(null, new ProgressChangedEventArgs(ProgressValue, null));
 
-                                                if (ProgressValue < 100)
-                                                {
-                                                    continue;
-                                                }
+                                            if (ProgressValue < 100)
+                                            {
+                                                continue;
                                             }
                                         }
-
-                                        break;
                                     }
+
+                                    break;
                                 }
                             }
-                            catch (Exception)
-                            {
-                                //No need to handle this exception
-                            }
-                        }, ProgressCancellation.Token, TaskCreationOptions.LongRunning);
-
-                        ElevatedProcess.WaitForExitAsync(CancelToken).Wait(CancelToken);
-                    }
-                    catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
-                    {
-                        CancelEvent.Set();
-
-                        if (!ElevatedProcess.WaitForExit(10000))
-                        {
-                            LogTracer.Log("Elevated process is not exit in 10s and we will not wait for it any more");
                         }
-
-                        throw ex.InnerException;
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        CancelEvent.Set();
-
-                        if (!ElevatedProcess.WaitForExit(10000))
+                        catch (Exception)
                         {
-                            LogTracer.Log("Elevated process is not exit in 10s and we will not wait for it any more");
+                            //No need to handle this exception
                         }
+                    }, ProgressCancellation.Token, TaskCreationOptions.LongRunning);
 
-                        throw;
-                    }
-                    finally
+                    ElevatedProcess.WaitForExitAsync(CancelToken).Wait(CancelToken);
+                }
+                catch (AggregateException ex) when (ex.Flatten().InnerExceptions.OfType<OperationCanceledException>().Any())
+                {
+                    CancelEvent.Set();
+
+                    if (!ElevatedProcess.WaitForExit(10000))
                     {
-                        ProgressCancellation.Cancel();
+                        LogTracer.Log("Elevated process is not exit in 10s and we will not wait for it any more");
                     }
 
-                    string RawResultText = GetRawResultTask.Result;
+                    throw ex.InnerException;
+                }
+                catch (OperationCanceledException)
+                {
+                    CancelEvent.Set();
 
-                    if (string.IsNullOrEmpty(RawResultText))
+                    if (!ElevatedProcess.WaitForExit(10000))
                     {
-                        return new Dictionary<string, string>
-                        {
-                            { "Success", string.Empty }
-                        };
+                        LogTracer.Log("Elevated process is not exit in 10s and we will not wait for it any more");
                     }
-                    else
+
+                    throw;
+                }
+                finally
+                {
+                    ProgressCancellation.Cancel();
+                }
+
+                string RawResultText = GetRawResultTask.Result;
+
+                if (string.IsNullOrEmpty(RawResultText))
+                {
+                    return new Dictionary<string, string>
                     {
-                        return JsonSerializer.Deserialize(RawResultText, JsonSourceGenerationContext.Default.IDictionaryStringString);
-                    }
+                        { "Success", string.Empty }
+                    };
+                }
+                else
+                {
+                    return JsonSerializer.Deserialize(RawResultText, JsonSourceGenerationContext.Default.IDictionaryStringString);
                 }
             }
         }

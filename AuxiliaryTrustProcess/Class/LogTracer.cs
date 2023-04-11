@@ -44,9 +44,9 @@ namespace AuxiliaryTrustProcess.Class
 
             try
             {
-                if (Ex is AggregateException)
+                if (Ex is AggregateException Aggreated)
                 {
-                    Ex = Ex.InnerException ?? Ex;
+                    Ex = Aggreated.Flatten().InnerException ?? Ex;
                 }
 
                 string[] MessageSplit;

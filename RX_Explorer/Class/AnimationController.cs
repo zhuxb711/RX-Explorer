@@ -163,7 +163,20 @@ namespace RX_Explorer.Class
         [DependsOn(nameof(IsEnableAnimation))]
         public bool IsEnableStartupAnimation
         {
-            get => IsEnableAnimation && Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsEnableStartupAnimation"]);
+            get
+            {
+                if (!IsEnableAnimation)
+                {
+                    return false;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["IsEnableStartupAnimation"] is bool Enabled)
+                {
+                    return Enabled;
+                }
+
+                return true;
+            }
             set
             {
                 ApplicationData.Current.LocalSettings.Values["IsEnableStartupAnimation"] = value;

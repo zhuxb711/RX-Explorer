@@ -1,11 +1,17 @@
-﻿###Was ist neu in Ver.8.2.3
+﻿###Was ist neu in Ver.8.2.4
 
-#### ⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird zum WinAppSdk-Framework migriert
+#### ⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird auf Windows App Sdk migriert
 
->#### WinAppSdk ist ein alternatives Framework für Uwp und wird derzeit intern getestet. Zum Zeitpunkt der offiziellen Veröffentlichung können alle Benutzer, die die Uwp-Version erworben haben, die WinAppSdk-Version direkt aktivieren
+>#### Windows App Sdk ist ein alternatives Framework für Uwp, die neue Version wird voraussichtlich am 1. Mai 2023 veröffentlicht, zu diesem Zeitpunkt können alle Benutzer, die die Uwp-Version gekauft haben, die neue Anwendung direkt aktivieren
+
+##### Leistungsverbesserungen
+
+>##### Die Größe des Installationspakets wurde stark reduziert
+
+>##### Verbesserte Effizienz der Kommunikation zwischen Prozessen, Verbesserung des Übertragungs- und Verarbeitungsmechanismus von Parametern
 
 ##### Fehlerbehebung
 
->##### Ein potenzielles Problem mit dem Arbeitsprozessplaner wurde behoben
+>##### Es wurde ein Problem behoben, bei dem erweiterte Operationen nicht durch Hilfsprozesse ausgeführt werden konnten
 
->##### Es wurde ein Problem behoben, bei dem Sprunglisten Einträge, die aus der Taskleiste entfernt wurden, erneut hinzufügen konnten
+>##### Das Problem, dass die Startanimation standardmäßig deaktiviert ist, wurde behoben

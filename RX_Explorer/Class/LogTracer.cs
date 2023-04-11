@@ -1,4 +1,5 @@
-﻿using SharedLibrary;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using SharedLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -60,8 +61,6 @@ namespace RX_Explorer.Class
                 {
                     Debugger.Launch();
                 }
-
-                Debug.WriteLine($"An exception was threw in {nameof(CheckHasAnyLogAvailableAsync)}, message: {ex.Message}");
 #endif
             }
 
@@ -100,9 +99,9 @@ namespace RX_Explorer.Class
                                 if (!string.IsNullOrWhiteSpace(LogText))
                                 {
                                     StringBuilder Builder = new StringBuilder()
-                                                            .AppendLine("*************************")
-                                                            .AppendLine($"LogDate: {LogDate:G}")
-                                                            .AppendLine("*************************")
+                                                            .AppendLine("**************************************************")
+                                                            .AppendLine($"Log Record Date: {LogDate:G}")
+                                                            .AppendLine("**************************************************")
                                                             .Append(LogText);
 
                                     await Writer.WriteAsync(Builder.ToString());
@@ -123,8 +122,6 @@ namespace RX_Explorer.Class
                 {
                     Debugger.Launch();
                 }
-
-                Debug.WriteLine($"An exception was threw in {nameof(ExportAllLogAsync)}, message: {ex.Message}");
 #endif
             }
         }
@@ -191,12 +188,11 @@ namespace RX_Explorer.Class
 
                 StringBuilder Builder = new StringBuilder()
                                         .AppendLine("------------------------------------")
-                                        .AppendLine("AdditionalComment:")
-                                        .AppendLine(AdditionalComment ?? "-----<Empty>-----")
+                                        .AppendLine($"AdditionalComment: {(string.IsNullOrWhiteSpace(AdditionalComment) ? "<Empty>" : AdditionalComment)}")
                                         .AppendLine("------------------------------------")
                                         .AppendLine("Source: RX-Explorer")
                                         .AppendLine()
-                                        .AppendLine($"Version: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}")
+                                        .AppendLine($"Version: {Package.Current.Id.Version.ToFormattedString()}")
                                         .AppendLine()
                                         .AppendLine($"Exception: {Ex.GetType().FullName}")
                                         .AppendLine()
@@ -215,10 +211,7 @@ namespace RX_Explorer.Class
                 LogInternal(Builder.ToString());
 
 #if !DEBUG
-                if (AdditionalComment != "UnhandledException")
-                {
-                    Microsoft.AppCenter.Crashes.Crashes.TrackError(Ex, new System.Collections.Generic.Dictionary<string, string>(1) { { "AdditionalComment", AdditionalComment ?? "-----<Empty>-----" } });
-                }
+                Microsoft.AppCenter.Crashes.Crashes.TrackError(Ex, new System.Collections.Generic.Dictionary<string, string>(1) { { "AdditionalComment", string.IsNullOrWhiteSpace(AdditionalComment) ? "<Empty>" : AdditionalComment } });
 #endif
             }
             catch (Exception ex)
@@ -232,8 +225,6 @@ namespace RX_Explorer.Class
                 {
                     Debugger.Launch();
                 }
-
-                Debug.WriteLine($"An exception was threw in {nameof(Log)}, message: {ex.Message}");
 #endif
             }
         }
@@ -255,8 +246,6 @@ namespace RX_Explorer.Class
                 {
                     Debugger.Launch();
                 }
-
-                Debug.WriteLine($"An exception was threw in {nameof(Log)}, message: {ex.Message}");
 #endif
             }
         }

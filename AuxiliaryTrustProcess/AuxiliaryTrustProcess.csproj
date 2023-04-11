@@ -12,8 +12,6 @@
 		<TieredCompilation>true</TieredCompilation>
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
-		<PublishTrimmed>true</PublishTrimmed>
-		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Platform)' == 'x64'">
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -36,8 +34,10 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="CommandLineParser" Version="2.9.1" />
 		<PackageReference Include="MediaDevices" Version="1.10.0" />
 		<PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
+		<PackageReference Include="UACHelper" Version="1.3.0.5" />
 		<PackageReference Include="UsbEject.NetCore" Version="1.0.4" />
 		<PackageReference Include="UTF.Unknown" Version="2.5.1" />
 		<PackageReference Include="Vanara.PInvoke.CfgMgr32">

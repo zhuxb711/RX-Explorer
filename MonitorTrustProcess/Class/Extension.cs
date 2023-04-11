@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MonitorTrustProcess
+namespace MonitorTrustProcess.Class
 {
     public static class Extension
     {

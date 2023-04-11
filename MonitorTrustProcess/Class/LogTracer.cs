@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MonitorTrustProcess
+namespace MonitorTrustProcess.Class
 {
     public static class LogTracer
     {
@@ -44,9 +44,9 @@ namespace MonitorTrustProcess
 
             try
             {
-                if (Ex is AggregateException)
+                if (Ex is AggregateException Aggregated)
                 {
-                    Ex = Ex.InnerException ?? Ex;
+                    Ex = Aggregated.Flatten().InnerException ?? Ex;
                 }
 
                 string[] MessageSplit;

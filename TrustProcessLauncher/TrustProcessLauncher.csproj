@@ -4,7 +4,7 @@
 		<OutputType>WinExe</OutputType>
 		<LangVersion>latest</LangVersion>
 		<Platforms>x64;ARM64</Platforms>
-		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+		<RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -20,4 +20,7 @@
 	<PropertyGroup Condition="'$(Platform)' == 'ARM64'">
 		<RuntimeIdentifier>win-arm64</RuntimeIdentifier>
 	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="CommandLineParser" Version="2.9.1" />
+	</ItemGroup>
 </Project>

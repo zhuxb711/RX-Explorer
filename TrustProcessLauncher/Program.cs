@@ -1,25 +1,29 @@
-﻿using System;
+﻿using CommandLine;
+using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
+using TrustProcessLauncher.Class;
 
 namespace TrustProcessLauncher
 {
-    class Program
+    internal class Program
     {
         [STAThread]
+        [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(CommandLineOptions))]
         static void Main(string[] args)
         {
-            try
+            Parser ArgumentParser = new Parser((With) =>
             {
-                string ProcessRelativePath = args.LastOrDefault() switch
-                {
-                    "/AuxiliaryTrustProcess" => "AuxiliaryTrustProcess\\AuxiliaryTrustProcess.exe",
-                    "/MonitorTrustProcess" => "MonitorTrustProcess\\MonitorTrustProcess.exe",
-                    _ => throw new NotSupportedException("Invalid input parameters")
-                };
+                With.AutoHelp = true;
+                With.CaseInsensitiveEnumValues = true;
+                With.IgnoreUnknownArguments = true;
+                With.CaseSensitive = true;
+            });
 
-                string ProcessAbsPath = Path.Combine(Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\')), ProcessRelativePath);
+            ArgumentParser.ParseArguments<CommandLineOptions>(args).WithParsed((Options) =>
+            {
+                string ProcessAbsPath = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(Environment.ProcessPath)), Options.IsLaunchAuxiliaryTrustProcess ? "AuxiliaryTrustProcess\\AuxiliaryTrustProcess.exe" : (Options.IsLaunchMonitorTrustProcess ? "MonitorTrustProcess\\MonitorTrustProcess.exe" : throw new NotSupportedException()));
 
                 if (File.Exists(ProcessAbsPath))
                 {
@@ -37,24 +41,7 @@ namespace TrustProcessLauncher
                         }
                     }
                 }
-                else
-                {
-                    throw new Exception("Full trust process file is not exists");
-                }
-            }
-            catch (Exception)
-            {
-#if DEBUG
-                if (Debugger.IsAttached)
-                {
-                    Debugger.Break();
-                }
-                else
-                {
-                    Debugger.Launch();
-                }
-#endif
-            }
+            });
         }
     }
 }

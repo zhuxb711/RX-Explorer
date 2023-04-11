@@ -1,11 +1,17 @@
-﻿###What's new in Ver.8.2.3
+﻿###What's new in Ver.8.2.4
 
-#### ⚠Warning: Uwp version will suspend feature updates and enter maintenance-only state, RX-Explorer will be migrated to WinAppSdk framework
+#### ⚠Attention: la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers Windows App Sdk
 
->#### WinAppSdk is an alternative framework for Uwp and is currently being tested internally. At the time of official release, all users who have purchased the Uwp version can directly activate the WinAppSdk version
+>#### Windows App Sdk est un framework alternatif pour Uwp, la nouvelle version devrait être publiée le 1er mai 2023, à ce moment-là tous les utilisateurs qui ont acheté la version Uwp peuvent directement activer la nouvelle application
+
+##### Performance improvements
+
+>##### Reduced the size of the installation package greatly
+
+>##### Improved the efficiency of inter-process communication, improve the transmission and processing mechanism of parameters
 
 ##### Bug Fixes
 
->##### Fixed a potential issue with the worker process scheduler
+>##### Fixed an issue where elevated operations could not be performed through auxiliary processes
 
->##### Fixed an issue where Jump Lists could re-add entries that had been removed from the taskbar
+>##### Fixed the problem that the startup animation is disabled by default

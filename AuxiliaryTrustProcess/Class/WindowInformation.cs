@@ -1,5 +1,5 @@
 ﻿using SharedLibrary;
-using Vanara.PInvoke;
+using System;
 
 namespace AuxiliaryTrustProcess.Class
 {
@@ -11,13 +11,13 @@ namespace AuxiliaryTrustProcess.Class
 
         public WindowState State { get; }
 
-        public HWND ApplicationFrameWindowHandle { get; }
+        public IntPtr ApplicationFrameWindowHandle { get; }
 
-        public HWND CoreWindowHandle { get; }
+        public IntPtr CoreWindowHandle { get; }
 
-        public bool IsValidInfomation => ProcessId > 0 && (!ApplicationFrameWindowHandle.IsNull || !CoreWindowHandle.IsNull);
+        public bool IsValidInfomation => ProcessId > 0 && (ApplicationFrameWindowHandle.CheckIfValidPtr() || CoreWindowHandle.CheckIfValidPtr());
 
-        public WindowInformation(string FileName, uint ProcessId, WindowState State, HWND ApplicationFrameWindowHandle, HWND CoreWindowHandle)
+        public WindowInformation(string FileName, uint ProcessId, WindowState State, IntPtr ApplicationFrameWindowHandle, IntPtr CoreWindowHandle)
         {
             this.FileName = FileName;
             this.ProcessId = ProcessId;

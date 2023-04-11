@@ -30,14 +30,8 @@
 		<TargetPlatformVersion>10.0.22621.0</TargetPlatformVersion>
 		<TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
 		<DefaultLanguage>en-US</DefaultLanguage>
-		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-		<GenerateTestArtifacts>True</GenerateTestArtifacts>
-		<AppxBundlePlatforms>arm64</AppxBundlePlatforms>
+		<AppxBundlePlatforms>x64|ARM64</AppxBundlePlatforms>
 		<LangVersion>latest</LangVersion>
-		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<EntryPointProjectUniqueName>..\RX_Explorer\RX_Explorer.csproj</EntryPointProjectUniqueName>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">

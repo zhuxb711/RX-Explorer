@@ -1,35 +1,14 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 using Vanara.PInvoke;
 
-namespace SystemLaunchHelper
+namespace SystemLaunchHelper.Class
 {
     internal static class Helper
     {
-        public static bool CheckIfPackageFamilyNameExist(string PackageFamilyName)
-        {
-            if (!string.IsNullOrWhiteSpace(PackageFamilyName))
-            {
-                try
-                {
-                    uint FullNameCount = 0;
-                    uint FullNameBufferLength = 0;
-
-                    return Kernel32.FindPackagesByPackageFamily(PackageFamilyName, Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_HEAD | Kernel32.PACKAGE_FLAGS.PACKAGE_FILTER_DIRECT, ref FullNameCount, IntPtr.Zero, ref FullNameBufferLength, IntPtr.Zero, IntPtr.Zero) == Win32Error.ERROR_INSUFFICIENT_BUFFER;
-                }
-                catch (Exception)
-                {
-                    //No need to handle this exception
-                }
-            }
-
-            return false;
-        }
-
         public static string GetPackageFullNameFromPackageFamilyName(string PackageFamilyName)
         {
             if (!string.IsNullOrWhiteSpace(PackageFamilyName))
@@ -165,38 +144,6 @@ namespace SystemLaunchHelper
             }
 
             return string.Empty;
-        }
-
-        public static bool LaunchApplicationFromPackageFamilyName(string PackageFamilyName, params string[] Arguments)
-        {
-            string AppUserModelId = GetAppUserModeIdFromPackageFullName(GetPackageFullNameFromPackageFamilyName(PackageFamilyName));
-
-            if (!string.IsNullOrEmpty(AppUserModelId))
-            {
-                return LaunchApplicationFromAppUserModelId(AppUserModelId, Arguments);
-            }
-
-            return false;
-        }
-
-        public static bool LaunchApplicationFromAppUserModelId(string AppUserModelId, params string[] Arguments)
-        {
-            Guid CLSID_ApplicationActivationManager = new Guid("45BA127D-10A8-46EA-8AB7-56EA9078943C");
-            Guid IID_IApplicationActivationManager = new Guid("2E941141-7F97-4756-BA1D-9DECDE894A3D");
-
-            if (Ole32.CoCreateInstance(CLSID_ApplicationActivationManager, null, Ole32.CLSCTX.CLSCTX_LOCAL_SERVER, IID_IApplicationActivationManager, out object ppv).Succeeded)
-            {
-                Shell32.IApplicationActivationManager Manager = (Shell32.IApplicationActivationManager)ppv;
-
-                Manager.ActivateApplication(AppUserModelId, string.Join(' ', Arguments.Where((Item) => !string.IsNullOrEmpty(Item)).Select((Path) => $"\"{Path}\"")), Shell32.ACTIVATEOPTIONS.AO_NONE, out uint ProcessId);
-
-                if (ProcessId > 0)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

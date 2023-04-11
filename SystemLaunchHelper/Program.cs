@@ -1,61 +1,35 @@
 ﻿using CommandLine;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Text;
-using System.Windows;
-using System.Windows.Interop;
+using SystemLaunchHelper.Class;
+using Vanara.PInvoke;
 using Windows.UI.Popups;
 using WinRT.Interop;
-using Path = System.IO.Path;
 
 namespace SystemLaunchHelper
 {
-    public partial class MainWindow : Window
+    internal class Program
     {
-        private enum ExitCodeEnum
+        [STAThread]
+        [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(CommandLineOptions))]
+        static void Main(string[] args)
         {
-            Success = 0,
-            FailedOnUnknownReason = -1,
-            FailedOnRegistryCheck = 1,
-            FailedOnParseArguments = 2,
-            FailedOnLaunchExplorer = 3,
-        }
-
-        private class CommandLineOptions
-        {
-            [Option('C', "Command", Required = false, HelpText = "Set the command to execute on the process launch")]
-            public string Command { get; set; }
-
-            [Option('S', "SuppressSelfDeletion", Required = false, HelpText = "Suppress self deletion when all the function was switched off")]
-            public bool SuppressSelfDeletion { get; set; }
-
-            [Value(0, Required = false, HelpText = "Launch the process with the file path list")]
-            public IEnumerable<string> PathList { get; set; }
-        }
-
-        private readonly string ExplorerPackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t";
-
-        public MainWindow()
-        {
-            InitializeComponent();
-            ExecutionCoreFunction();
-        }
-
-        private void ExecutionCoreFunction()
-        {
-            ExitCodeEnum ExitCode = new Parser((With) =>
+            Parser ArgumentParser = new Parser((With) =>
             {
                 With.AutoHelp = true;
                 With.CaseInsensitiveEnumValues = true;
                 With.IgnoreUnknownArguments = true;
                 With.CaseSensitive = true;
-            }).ParseArguments<CommandLineOptions>(Environment.GetCommandLineArgs().Skip(1)).MapResult((Options) =>
+            });
+
+            Environment.Exit((int)ArgumentParser.ParseArguments<CommandLineOptions>(args.SkipWhile((Value) => Value.EndsWith(Path.GetFileName(Environment.ProcessPath), StringComparison.OrdinalIgnoreCase))).MapResult((Options) =>
             {
                 try
                 {
@@ -114,20 +88,9 @@ namespace SystemLaunchHelper
                                             }
                                         }
                                     }
-                                    catch (Exception ex)
+                                    catch (Exception)
                                     {
-#if DEBUG
-                                        if (Debugger.IsAttached)
-                                        {
-                                            Debugger.Break();
-                                        }
-                                        else
-                                        {
-                                            Debugger.Launch();
-                                        }
-
-                                        Debug.WriteLine($"Registry checking failed, message: {ex.Message}");
-#endif
+                                        //No need to handle this exception
                                     }
                                 }
 
@@ -219,20 +182,9 @@ namespace SystemLaunchHelper
                                             }
                                         }
                                     }
-                                    catch (Exception ex)
+                                    catch (Exception)
                                     {
-#if DEBUG
-                                        if (Debugger.IsAttached)
-                                        {
-                                            Debugger.Break();
-                                        }
-                                        else
-                                        {
-                                            Debugger.Launch();
-                                        }
-
-                                        Debug.WriteLine($"Registry checking failed, message: {ex.Message}");
-#endif
+                                        //No need to handle this exception
                                     }
                                 }
 
@@ -264,20 +216,9 @@ namespace SystemLaunchHelper
                                         }
                                     }
                                 }
-                                catch (Exception ex)
+                                catch (Exception)
                                 {
-#if DEBUG
-                                    if (Debugger.IsAttached)
-                                    {
-                                        Debugger.Break();
-                                    }
-                                    else
-                                    {
-                                        Debugger.Launch();
-                                    }
-
-                                    Debug.WriteLine($"Registry checking failed, message: {ex.Message}");
-#endif
+                                    //No need to handle this exception
                                 }
 
                                 if (!Options.SuppressSelfDeletion)
@@ -308,20 +249,9 @@ namespace SystemLaunchHelper
                                             }
                                         }
                                     }
-                                    catch (Exception ex)
+                                    catch (Exception)
                                     {
-#if DEBUG
-                                        if (Debugger.IsAttached)
-                                        {
-                                            Debugger.Break();
-                                        }
-                                        else
-                                        {
-                                            Debugger.Launch();
-                                        }
-
-                                        Debug.WriteLine($"Registry checking failed, message: {ex.Message}");
-#endif
+                                        //No need to handle this exception
                                     }
 
                                     if (!IsAnotherRegistryKeyExists)
@@ -397,20 +327,9 @@ namespace SystemLaunchHelper
                                         }
                                     }
                                 }
-                                catch (Exception ex)
+                                catch (Exception)
                                 {
-#if DEBUG
-                                    if (Debugger.IsAttached)
-                                    {
-                                        Debugger.Break();
-                                    }
-                                    else
-                                    {
-                                        Debugger.Launch();
-                                    }
-
-                                    Debug.WriteLine($"Registry checking failed, message: {ex.Message}");
-#endif
+                                    //No need to handle this exception
                                 }
 
                                 if (!Options.SuppressSelfDeletion)
@@ -430,30 +349,19 @@ namespace SystemLaunchHelper
                                             }
                                         }
                                     }
-                                    catch (Exception ex)
+                                    catch (Exception)
                                     {
-#if DEBUG
-                                        if (Debugger.IsAttached)
-                                        {
-                                            Debugger.Break();
-                                        }
-                                        else
-                                        {
-                                            Debugger.Launch();
-                                        }
-
-                                        Debug.WriteLine($"Registry checking failed, message: {ex.Message}");
-#endif
+                                        //No need to handle this exception
                                     }
 
                                     if (!IsAnotherRegistryKeyExists)
                                     {
                                         Process.Start(new ProcessStartInfo
                                         {
+                                            UseShellExecute = false,
                                             FileName = "powershell.exe",
                                             Arguments = $"-Command \"Wait-Process -Id {Environment.ProcessId} -Timeout 30;Stop-Process -Id {Environment.ProcessId} -Force;Remove-Item -Path '{AppDomain.CurrentDomain.BaseDirectory}' -Recurse -Force\"",
                                             CreateNoWindow = true,
-                                            UseShellExecute = false
                                         }).Dispose();
                                     }
                                 }
@@ -466,23 +374,20 @@ namespace SystemLaunchHelper
                                 {
                                     string StartupArguments = $"{string.Join(' ', Options.PathList.Select((Item) => $"\"{Item}\""))}";
 
-                                    if (Helper.CheckIfPackageFamilyNameExist(ExplorerPackageFamilyName))
+                                    if (!string.IsNullOrEmpty(Helper.GetPackageFullNameFromPackageFamilyName("36186RuoFan.USB_q3e6crc0w375t")))
                                     {
                                         try
                                         {
                                             Process.Start(new ProcessStartInfo
                                             {
+                                                UseShellExecute = false,
                                                 FileName = "RX-Explorer.exe",
                                                 Arguments = StartupArguments,
-                                                UseShellExecute = false
                                             }).Dispose();
                                         }
                                         catch (Exception)
                                         {
-                                            if (!Helper.LaunchApplicationFromPackageFamilyName(ExplorerPackageFamilyName, Options.PathList.ToArray()))
-                                            {
-                                                return ExitCodeEnum.FailedOnLaunchExplorer;
-                                            }
+                                            return ExitCodeEnum.FailedOnLaunchExplorer;
                                         }
                                     }
                                     else
@@ -493,17 +398,17 @@ namespace SystemLaunchHelper
                                             {
                                                 Process.Start(new ProcessStartInfo
                                                 {
+                                                    UseShellExecute = false,
                                                     FileName = "explorer.exe",
-                                                    UseShellExecute = false
                                                 }).Dispose();
                                             }
                                             else
                                             {
                                                 Process.Start(new ProcessStartInfo
                                                 {
+                                                    UseShellExecute = false,
                                                     FileName = "explorer.exe",
                                                     Arguments = $"\"{StartupArguments}\"",
-                                                    UseShellExecute = false
                                                 }).Dispose();
                                             }
                                         }
@@ -565,8 +470,7 @@ namespace SystemLaunchHelper
                                             Dialog.Commands.Add(new UICommand(SecondButtonText, null, 1));
                                             Dialog.Commands.Add(new UICommand(ThirdButtonText, null, 2));
 
-                                            WindowInteropHelper Helper = new WindowInteropHelper(this);
-                                            InitializeWithWindow.Initialize(Dialog, Helper.EnsureHandle());
+                                            InitializeWithWindow.Initialize(Dialog, User32.GetDesktopWindow().DangerousGetHandle());
 
                                             switch (Dialog.ShowAsync().AsTask().Result.Id)
                                             {
@@ -632,21 +536,8 @@ namespace SystemLaunchHelper
 
                     return ExitCodeEnum.Success;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-#if DEBUG
-                    if (Debugger.IsAttached)
-                    {
-                        Debugger.Break();
-                    }
-                    else
-                    {
-                        Debugger.Launch();
-                    }
-
-                    Debug.WriteLine($"Unexpected exception was threw, message: {ex.Message}");
-#endif
-
                     return ExitCodeEnum.FailedOnUnknownReason;
                 }
             },
@@ -657,23 +548,8 @@ namespace SystemLaunchHelper
                     return ExitCodeEnum.Success;
                 }
 
-#if DEBUG
-                if (Debugger.IsAttached)
-                {
-                    Debugger.Break();
-                }
-                else
-                {
-                    Debugger.Launch();
-                }
-
-                Debug.WriteLine($"Unexpected exception was threw during parsing the launch parameters");
-#endif
-
                 return ExitCodeEnum.FailedOnParseArguments;
-            });
-
-            Application.Current.Shutdown((int)ExitCode);
+            }));
         }
     }
 }
