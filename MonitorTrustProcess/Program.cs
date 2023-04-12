@@ -99,7 +99,7 @@ namespace MonitorTrustProcess
                     {
                         if (Helper.GetWindowInformationFromUwpApplication(Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation UwpInfo)
                         {
-                            if (UwpInfo.IsValidInfomation)
+                            if (UwpInfo.IsValidInfomation && UwpInfo.WindowState != WindowState.Minimized)
                             {
                                 IntPtr Result = IntPtr.Zero;
 

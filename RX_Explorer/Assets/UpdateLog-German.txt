@@ -1,4 +1,4 @@
-﻿###Was ist neu in Ver.8.2.4
+﻿###Was ist neu in Ver.8.2.5
 
 #### ⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird auf Windows App Sdk migriert
 
@@ -15,3 +15,5 @@
 >##### Es wurde ein Problem behoben, bei dem erweiterte Operationen nicht durch Hilfsprozesse ausgeführt werden konnten
 
 >##### Das Problem, dass die Startanimation standardmäßig deaktiviert ist, wurde behoben
+
+>##### Es wurde ein Problem behoben, bei dem ein minimierter Fensterstatus als nicht reagierend angesehen und automatisch neu gestartet werden konnte

@@ -89,11 +89,11 @@ namespace MonitorTrustProcess.Class
                             {
                                 if (TargetProcessId == ProcessId)
                                 {
-                                    WindowState State = WindowState.Normal;
+                                    WindowState WindowState = WindowState.Normal;
 
                                     if (ApplicationFrameWindowHandle == HWND.NULL)
                                     {
-                                        State = WindowState.Minimized;
+                                        WindowState = WindowState.Minimized;
                                     }
                                     else if (User32.GetWindowRect(CoreWindowHandle, out RECT WindowRect))
                                     {
@@ -102,12 +102,12 @@ namespace MonitorTrustProcess.Class
                                             //If Window rect is equal or out of SPI_GETWORKAREA, it means it's maximized;
                                             if (WindowRect.left <= WorkAreaRect.left && WindowRect.top <= WorkAreaRect.top && WindowRect.right >= WorkAreaRect.right && WindowRect.bottom >= WorkAreaRect.bottom)
                                             {
-                                                State = WindowState.Maximized;
+                                                WindowState = WindowState.Maximized;
                                             }
                                         }
                                     }
 
-                                    Info = new WindowInformation(GetExecutablePathFromProcessId(ProcessId), ProcessId, State, ApplicationFrameWindowHandle.DangerousGetHandle(), CoreWindowHandle.DangerousGetHandle());
+                                    Info = new WindowInformation(GetExecutablePathFromProcessId(ProcessId), ProcessId, WindowState, ApplicationFrameWindowHandle.DangerousGetHandle(), CoreWindowHandle.DangerousGetHandle());
 
                                     return false;
                                 }

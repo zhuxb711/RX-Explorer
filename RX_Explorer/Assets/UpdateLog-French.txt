@@ -1,4 +1,4 @@
-﻿###Quoi de neuf dans la version 8.2.4
+﻿###Quoi de neuf dans la version 8.2.5
 
 #### ⚠Avertissement: la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
@@ -15,3 +15,5 @@
 >##### Correction d'un problème où les opérations élevées ne pouvaient pas être effectuées via des processus auxiliaires
 
 >##### Correction du problème de désactivation de l'animation de démarrage par défaut
+
+>##### Correction d'un problème où un état de fenêtre minimisé pouvait être considéré comme ne répondant pas et redémarrer automatiquement

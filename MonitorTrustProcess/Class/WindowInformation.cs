@@ -9,7 +9,7 @@ namespace MonitorTrustProcess.Class
 
         public uint ProcessId { get; }
 
-        public WindowState State { get; }
+        public WindowState WindowState { get; }
 
         public IntPtr ApplicationFrameWindowHandle { get; }
 
@@ -17,11 +17,11 @@ namespace MonitorTrustProcess.Class
 
         public bool IsValidInfomation => ProcessId > 0 && (ApplicationFrameWindowHandle.CheckIfValidPtr() || CoreWindowHandle.CheckIfValidPtr());
 
-        public WindowInformation(string FileName, uint ProcessId, WindowState State, IntPtr ApplicationFrameWindowHandle, IntPtr CoreWindowHandle)
+        public WindowInformation(string FileName, uint ProcessId, WindowState WindowState, IntPtr ApplicationFrameWindowHandle, IntPtr CoreWindowHandle)
         {
             this.FileName = FileName;
             this.ProcessId = ProcessId;
-            this.State = State;
+            this.WindowState = WindowState;
             this.ApplicationFrameWindowHandle = ApplicationFrameWindowHandle;
             this.CoreWindowHandle = CoreWindowHandle;
         }

@@ -15,3 +15,5 @@
 >##### Fixed an issue where elevated operations could not be performed through auxiliary processes
 
 >##### Fixed the problem that the startup animation is disabled by default
+
+>##### Fixed an issue where a minimized window state could be considered unresponsive and restart automatically
