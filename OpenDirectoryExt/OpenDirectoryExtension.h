@@ -1,12 +1,10 @@
 ﻿#pragma once
-//#include <ShObjIdl.h>
 
 using namespace Microsoft::WRL;
 
-struct __declspec(uuid("B4CEA422-3911-4198-16CB-63345D563096"))
-    OpenTerminalHere : public RuntimeClass<RuntimeClassFlags<ClassicCom | InhibitFtmBase>, IExplorerCommand>
+struct __declspec(uuid("B4CEA422-3911-4198-16CB-63345D563096")) OpenTerminalHere : public RuntimeClass<RuntimeClassFlags<ClassicCom | InhibitFtmBase>, IExplorerCommand>
 {
-#pragma region IExplorerCommand
+public:
     STDMETHODIMP Invoke(IShellItemArray* psiItemArray,
         IBindCtx* pBindContext);
     STDMETHODIMP GetToolTip(IShellItemArray* psiItemArray,
@@ -21,7 +19,9 @@ struct __declspec(uuid("B4CEA422-3911-4198-16CB-63345D563096"))
     STDMETHODIMP GetFlags(EXPCMDFLAGS* pFlags);
     STDMETHODIMP GetCanonicalName(GUID* pguidCommandName);
     STDMETHODIMP EnumSubCommands(IEnumExplorerCommand** ppEnum);
-#pragma endregion
+
+private:
+    static constexpr std::wstring_view DefaultDisplayName{ L"Open in RX-Explorer (UWP)" };
 };
 
 CoCreatableClass(OpenTerminalHere);

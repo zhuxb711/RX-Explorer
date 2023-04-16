@@ -1,24 +1,7 @@
 ﻿#include "pch.h"
 #include "OpenDirectoryExtension.h"
-#include <wil/filesystem.h>
-#include <winrt\Windows.Storage.h>
-#include <winrt\Windows.Foundation.Collections.h>
 
-static constexpr std::wstring_view VerbName{ L"RxExplorerOpenHere" };
-static constexpr std::wstring_view DefaultDisplayName{ L"Open in RX-Explorer" };
-
-extern "C" IMAGE_DOS_HEADER __ImageBase;
-
-// Method Description:
-// - This method is called when the user activates the context menu item. We'll
-//   launch the Terminal using the current working directory.
-// Arguments:
-// - psiItemArray: a IShellItemArray which contains the item that's selected.
-// Return Value:
-// - S_OK if we successfully attempted to launch the Terminal, otherwise a
-//   failure from an earlier HRESULT.
-HRESULT OpenTerminalHere::Invoke(IShellItemArray* psiItemArray,
-    IBindCtx* /*pBindContext*/)
+HRESULT OpenTerminalHere::Invoke(IShellItemArray* psiItemArray, IBindCtx* /*pBindContext*/)
 {
     std::wstring cmdline = std::wstring(L"RX-Explorer.exe");
 
@@ -65,23 +48,19 @@ HRESULT OpenTerminalHere::Invoke(IShellItemArray* psiItemArray,
     return S_OK;
 }
 
-HRESULT OpenTerminalHere::GetToolTip(IShellItemArray* /*psiItemArray*/,
-    LPWSTR* ppszInfoTip)
+HRESULT OpenTerminalHere::GetToolTip(IShellItemArray* /*psiItemArray*/, LPWSTR* ppszInfoTip)
 {
     winrt::hstring DisplayName = winrt::unbox_value_or<winrt::hstring>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"GlobalizationStringForContextMenu"), DefaultDisplayName);
     return SHStrDupW(DisplayName.c_str(), ppszInfoTip);
 }
 
-HRESULT OpenTerminalHere::GetTitle(IShellItemArray* /*psiItemArray*/,
-    LPWSTR* ppszName)
+HRESULT OpenTerminalHere::GetTitle(IShellItemArray* /*psiItemArray*/, LPWSTR* ppszName)
 {
     winrt::hstring DisplayName = winrt::unbox_value_or<winrt::hstring>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"GlobalizationStringForContextMenu"), DefaultDisplayName);
     return SHStrDupW(DisplayName.c_str(), ppszName);
 }
 
-HRESULT OpenTerminalHere::GetState(IShellItemArray* psiItemArray,
-    BOOL /*fOkToBeSlow*/,
-    EXPCMDSTATE* pCmdState)
+HRESULT OpenTerminalHere::GetState(IShellItemArray* psiItemArray, BOOL /*fOkToBeSlow*/, EXPCMDSTATE* pCmdState)
 {
     // compute the visibility of the verb here, respect "fOkToBeSlow" if this is
     // slow (does IO for example) when called with fOkToBeSlow == FALSE return
