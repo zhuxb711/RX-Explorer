@@ -83,7 +83,7 @@
         <desktop4:Extension Category="windows.fileExplorerContextMenus">
           <desktop4:FileExplorerContextMenus>
             <desktop5:ItemType Type="Directory">
-              <desktop5:Verb Clsid="B4CEA422-3911-4198-16CB-63345D563096" Id="OpenRXExplorerUWP"/>
+              <desktop5:Verb Id="OpenRXExplorerUWP" Clsid="B4CEA422-3911-4198-16CB-63345D563096"/>
             </desktop5:ItemType>
           </desktop4:FileExplorerContextMenus>
         </desktop4:Extension>
