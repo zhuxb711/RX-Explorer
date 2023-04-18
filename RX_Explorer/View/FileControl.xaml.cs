@@ -455,7 +455,7 @@ namespace RX_Explorer.View
                                 CurrentSplit[0] = RootPath;
                             }
                         }
-                        else if (Regex.IsMatch(Path, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                        else if (Regex.IsMatch(Path, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase))
                         {
                             Path = Regex.Replace(Path, @"\\+", @"\");
 
@@ -521,7 +521,7 @@ namespace RX_Explorer.View
                                         {
                                             LastPathSplit[0] = $@"\\{LastPathSplit[0]}";
                                         }
-                                        else if (Regex.IsMatch(LastPath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                                        else if (Regex.IsMatch(LastPath, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase))
                                         {
                                             LastPathSplit = LastPathSplit.Skip(2).Prepend(string.Join(@"\", LastPathSplit.Take(2))).ToArray();
                                         }
@@ -561,7 +561,7 @@ namespace RX_Explorer.View
                                             {
                                                 LastGrayPathSplit[0] = $@"\\{LastGrayPathSplit[0]}";
                                             }
-                                            else if (Regex.IsMatch(LastGrayPath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                                            else if (Regex.IsMatch(LastGrayPath, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase))
                                             {
                                                 LastGrayPathSplit = LastGrayPathSplit.Skip(2).Prepend(string.Join(@"\", LastGrayPathSplit.Take(2))).ToArray();
                                             }
@@ -592,7 +592,7 @@ namespace RX_Explorer.View
                                             {
                                                 LastPathSplit[0] = $@"\\{LastPathSplit[0]}";
                                             }
-                                            else if (Regex.IsMatch(LastPath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                                            else if (Regex.IsMatch(LastPath, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase))
                                             {
                                                 LastPathSplit = LastPathSplit.Skip(2).Prepend(string.Join(@"\", LastPathSplit.Take(2))).ToArray();
                                             }
@@ -636,7 +636,7 @@ namespace RX_Explorer.View
                                     {
                                         OriginSplit[0] = $@"\\{OriginSplit[0]}";
                                     }
-                                    else if (Regex.IsMatch(CurrentPath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                                    else if (Regex.IsMatch(CurrentPath, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase))
                                     {
                                         OriginSplit = OriginSplit.Skip(2).Prepend(string.Join(@"\", OriginSplit.Take(2))).ToArray();
                                     }
@@ -1700,7 +1700,7 @@ namespace RX_Explorer.View
                                 TargetPath = await Exclusive.Controller.ConvertShortPathToLongPathAsync(TargetPath);
                             }
 
-                            if (!Regex.IsMatch(TargetPath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
+                            if (!Regex.IsMatch(TargetPath, @"^((ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\[^\\]+.*))", RegexOptions.IgnoreCase))
                             {
                                 IReadOnlyList<VariableDataPackage> VariablePathList = await EnvironmentVariables.GetVariablePathListAsync();
 
@@ -1931,7 +1931,7 @@ namespace RX_Explorer.View
                                     AddressSuggestionList.AddRange(VarSuggestionList.Select((Pack) => new AddressSuggestionItem(Pack.Path, Pack.Variable, Visibility.Collapsed)));
                                 }
                             }
-                            else if (!Regex.IsMatch(InputPath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
+                            else if (!Regex.IsMatch(InputPath, @"^((ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\[^\\]+.*))", RegexOptions.IgnoreCase))
                             {
                                 string TargetPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(InputPath);
 
@@ -3288,7 +3288,7 @@ namespace RX_Explorer.View
 
                 if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
                 {
-                    if (!Regex.IsMatch(Content.Path, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
+                    if (!Regex.IsMatch(Content.Path, @"^((ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\[^\\]+.*))", RegexOptions.IgnoreCase))
                     {
                         MenuFlyoutItem SendLinkItem = new MenuFlyoutItem
                         {
@@ -3577,7 +3577,7 @@ namespace RX_Explorer.View
                 {
                     if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
                     {
-                        if (Regex.IsMatch(Content.Path, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
+                        if (Regex.IsMatch(Content.Path, @"^((ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\[^\\]+.*))", RegexOptions.IgnoreCase))
                         {
                             NewWindowButton.Visibility = Visibility.Collapsed;
                         }

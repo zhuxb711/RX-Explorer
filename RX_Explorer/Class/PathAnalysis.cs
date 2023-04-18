@@ -68,7 +68,7 @@ namespace RX_Explorer.Class
                     {
                         Split[0] = $@"\\{Split[0]}\";
                     }
-                    else if (Regex.IsMatch(this.FullPath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(this.FullPath, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase))
                     {
                         Split[0] = $@"{string.Join(@"\", Split.Take(2))}\";
                     }

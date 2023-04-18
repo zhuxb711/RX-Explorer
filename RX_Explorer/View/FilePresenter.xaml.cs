@@ -7674,7 +7674,7 @@ namespace RX_Explorer.View
 
                 Flyout.Items.Add(SendDocumentItem);
 
-                if (!Regex.IsMatch(CurrentFolder.Path, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
+                if (!Regex.IsMatch(CurrentFolder.Path, @"^((ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\[^\\]+.*))", RegexOptions.IgnoreCase))
                 {
                     MenuFlyoutItem SendLinkItem = new MenuFlyoutItem
                     {

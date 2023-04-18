@@ -168,7 +168,7 @@ namespace RX_Explorer.Class
                             return await Exclusive.Controller.MTPCheckExistsAsync(Path);
                         }
                     }
-                    else if (Regex.IsMatch(Path, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(Path, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase))
                     {
                         FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
@@ -293,7 +293,7 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-                    else if (Regex.IsMatch(Path, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(Path, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase))
                     {
                         FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
@@ -457,7 +457,7 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
-                else if (Regex.IsMatch(Path, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+                else if (Regex.IsMatch(Path, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase))
                 {
                     FtpPathAnalysis Analysis = new FtpPathAnalysis(Path);
 
@@ -736,8 +736,8 @@ namespace RX_Explorer.Class
 
         public static async Task CopyAsync(IReadOnlyDictionary<string, string> CopyFrom, string CopyTo, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (Regex.IsMatch(CopyTo, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)
-                || CopyFrom.Keys.All((Item) => Regex.IsMatch(Item, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)))
+            if (Regex.IsMatch(CopyTo, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase)
+                || CopyFrom.Keys.All((Item) => Regex.IsMatch(Item, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase)))
             {
                 int Progress = 0;
                 int ItemCount = CopyFrom.Count();
@@ -768,8 +768,8 @@ namespace RX_Explorer.Class
 
         public static async Task MoveAsync(IReadOnlyDictionary<string, string> MoveFrom, string MoveTo, CollisionOptions Option = CollisionOptions.Skip, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (Regex.IsMatch(MoveTo, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)
-                || MoveFrom.Keys.All((Item) => Regex.IsMatch(Item, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)))
+            if (Regex.IsMatch(MoveTo, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase)
+                || MoveFrom.Keys.All((Item) => Regex.IsMatch(Item, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase)))
             {
                 int Progress = 0;
                 int ItemCount = MoveFrom.Count();
@@ -800,7 +800,7 @@ namespace RX_Explorer.Class
 
         public static async Task DeleteAsync(IEnumerable<string> DeleteFrom, bool PermanentDelete, bool SkipOperationRecord = false, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (DeleteFrom.All((Item) => Regex.IsMatch(Item, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase)))
+            if (DeleteFrom.All((Item) => Regex.IsMatch(Item, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase)))
             {
                 int Progress = 0;
                 int ItemCount = DeleteFrom.Count();
@@ -831,7 +831,7 @@ namespace RX_Explorer.Class
 
         public static async Task<string> RenameAsync(string Path, string DesireName, bool SkipOperationRecord = false, CancellationToken CancelToken = default)
         {
-            if (Regex.IsMatch(Path, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)", RegexOptions.IgnoreCase))
+            if (Regex.IsMatch(Path, @"^ftps?:\\{1,2}[^\\]+.*", RegexOptions.IgnoreCase))
             {
                 if (await OpenAsync(Path) is FileSystemStorageItemBase Item)
                 {

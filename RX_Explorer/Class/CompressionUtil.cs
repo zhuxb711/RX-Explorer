@@ -163,7 +163,7 @@ namespace RX_Explorer.Class
 
                                         await ZipStream.PutNextEntryAsync(NewEntry, CancelToken);
 
-                                        await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
+                                        await FileStream.CopyToAsync(ZipStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                         {
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                                         });

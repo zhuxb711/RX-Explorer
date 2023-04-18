@@ -708,7 +708,7 @@ namespace RX_Explorer.Class
                                 return null;
                             }
 
-                            if (Regex.IsMatch(FilePath, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase))
+                            if (Regex.IsMatch(FilePath, @"^((ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\[^\\]+.*))", RegexOptions.IgnoreCase))
                             {
                                 if (GetInnerViewerType(FilePath) is not null)
                                 {
@@ -794,7 +794,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        if (PathArray.All((Path) => !Regex.IsMatch(Path, @"^(ftps?:\\{1,2}$)|(ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\$)|(\\\\\?\\[^\\]+.*)", RegexOptions.IgnoreCase)))
+                        if (PathArray.All((Path) => !Regex.IsMatch(Path, @"^((ftps?:\\{1,2}[^\\]+.*)|(\\\\\?\\[^\\]+.*))", RegexOptions.IgnoreCase)))
                         {
                             IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
 
