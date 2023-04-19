@@ -1030,6 +1030,11 @@ namespace RX_Explorer.Class
 
         public static NativeFileData GetStorageItemRawDataFromHandle(string Path, IntPtr FileHandle)
         {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentException(nameof(Path));
+            }
+
             if (FileHandle.CheckIfValidPtr())
             {
                 int StructSize = Marshal.SizeOf<FILE_BASIC_INFO>();

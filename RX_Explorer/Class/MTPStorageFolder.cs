@@ -17,6 +17,12 @@ namespace RX_Explorer.Class
 {
     public class MTPStorageFolder : FileSystemStorageFolder, IMTPStorageItem, INotWin32StorageFolder
     {
+        private readonly string InnerName;
+
+        public override string Name => string.IsNullOrEmpty(InnerName) ? base.Name : InnerName;
+
+        public override string DisplayName => Name;
+
         public string DeviceId => @$"\\?\{new string(Path.Skip(4).ToArray()).Split(@"\", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()}";
 
         protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
@@ -166,7 +172,10 @@ namespace RX_Explorer.Class
 
         public MTPStorageFolder(MTPFileData Data) : base(Data)
         {
-
+            if (DeviceId.Equals(base.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                InnerName = Data.DeviceName;
+            }
         }
     }
 }

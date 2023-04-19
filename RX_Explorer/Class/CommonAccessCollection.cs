@@ -268,36 +268,6 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    foreach (StorageFolder ExternalDeviceFolder in await KnownFolders.RemovableDevices.GetFoldersAsync())
-                    {
-                        Task LoadTask = DriveDataBase.CreateAsync(DriveType.Removable, new FileSystemStorageFolder(await ExternalDeviceFolder.GetNativeFileDataAsync())).ContinueWith((PreviousTask) =>
-                        {
-                            if (PreviousTask.Exception is Exception Ex)
-                            {
-                                LogTracer.Log(Ex, $"Ignore the drive \"{ExternalDeviceFolder.Name}\" because we could not get details from this drive");
-                            }
-                            else
-                            {
-                                if (PreviousTask.Result is DriveDataBase DriveData)
-                                {
-                                    if (!DriveList.Contains(DriveData))
-                                    {
-                                        DriveList.Add(DriveData);
-                                    }
-                                }
-                                else
-                                {
-                                    LogTracer.Log($"Ignore the drive \"{ExternalDeviceFolder.Name}\" because we could not get details from this drive");
-                                }
-                            }
-                        }, default, TaskContinuationOptions.PreferFairness, TaskScheduler.FromCurrentSynchronizationContext());
-
-                        if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
-                        {
-                            LongRunningTaskList.Add(LoadTask);
-                        }
-                    }
-
                     if (SettingPage.IsLoadWSLFolderOnStartupEnabled)
                     {
                         foreach (StorageFolder WslFolder in await GetAvailableWslDriveAsync())

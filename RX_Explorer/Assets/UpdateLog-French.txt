@@ -1,19 +1,15 @@
-﻿###Quoi de neuf dans la version 8.2.5
+﻿###Quoi de neuf dans la version 8.2.6
 
 #### ⚠Avertissement: la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
 >#### WinAppSdk est un framework alternatif pour Uwp et est actuellement testé en interne. Au moment de la sortie officielle, tous les utilisateurs qui ont acheté la version Uwp peuvent activer directement la version WinAppSdk
 
-##### Amélioration des performances
-
->##### Réduction considérable de la taille du package d'installation
-
->##### Amélioration de l'efficacité de la communication inter-processus, amélioration du mécanisme de transmission et de traitement des paramètres
-
 ##### Corrections de bogues
 
->##### Correction d'un problème où les opérations élevées ne pouvaient pas être effectuées via des processus auxiliaires
+>##### Correction du problème d'identification incorrecte de certains chemins en tant que chemins ftp
 
->##### Correction du problème de désactivation de l'animation de démarrage par défaut
+>##### Correction d'un problème lors de la connexion à FTP avec des informations d'identification non valides, un message incorrect pouvait s'afficher
 
->##### Correction d'un problème où un état de fenêtre minimisé pouvait être considéré comme ne répondant pas et redémarrer automatiquement
+>##### Correction du problème que le nom du périphérique MTP peut être incorrect
+
+>##### Correction d'un problème où les fichiers ne pouvaient pas être compressés en fichiers .zip

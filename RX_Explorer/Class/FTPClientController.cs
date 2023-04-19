@@ -130,7 +130,7 @@ namespace RX_Explorer.Class
                                 break;
                             }
                         }
-                        catch (Exception)
+                        catch (Exception ex) when (ex is not FtpAuthenticationException)
                         {
                             //No need to handle this exception
                         }

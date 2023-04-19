@@ -1,19 +1,15 @@
-﻿###Was ist neu in Ver.8.2.5
+﻿###Was ist neu in Ver.8.2.6
 
 #### ⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird auf Windows App Sdk migriert
 
 >#### Windows App Sdk ist ein alternatives Framework für Uwp, die neue Version wird voraussichtlich am 1. Mai 2023 veröffentlicht, zu diesem Zeitpunkt können alle Benutzer, die die Uwp-Version gekauft haben, die neue Anwendung direkt aktivieren
 
-##### Leistungsverbesserungen
-
->##### Die Größe des Installationspakets wurde stark reduziert
-
->##### Verbesserte Effizienz der Kommunikation zwischen Prozessen, Verbesserung des Übertragungs- und Verarbeitungsmechanismus von Parametern
-
 ##### Fehlerbehebung
 
->##### Es wurde ein Problem behoben, bei dem erweiterte Operationen nicht durch Hilfsprozesse ausgeführt werden konnten
+>##### Das Problem, dass einige Pfade möglicherweise fälschlicherweise als FTP-Pfade identifiziert werden, wurde behoben
 
->##### Das Problem, dass die Startanimation standardmäßig deaktiviert ist, wurde behoben
+>##### Problem beim Verbinden mit FTP mit ungültigen Anmeldedaten behoben, möglicherweise wurde eine falsche Meldung angezeigt
 
->##### Es wurde ein Problem behoben, bei dem ein minimierter Fensterstatus als nicht reagierend angesehen und automatisch neu gestartet werden konnte
+>##### Das Problem, dass der Name des MTP-Geräts falsch sein könnte, wurde behoben
+
+>##### Es wurde ein Problem behoben, bei dem Dateien nicht in .zip-Dateien komprimiert werden konnten

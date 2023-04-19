@@ -1,19 +1,15 @@
-﻿###Novedades de la versión 8.2.5
+﻿###Novedades de la versión 8.2.6
 
 #### ⚠Atención: la versión Uwp suspendra las fallas en el día de funciones y entrera dans l'état de Maintenance Uniquement, RX-Explorer sera migré vers Windows App Sdk
 
 >#### Windows App Sdk está en un marco alternativo para Uwp, la nueva versión se publicará el 1 de mayo de 2023, en este momento, todos los usuarios podrán usar la versión Uwp, pero no se activará la dirección de la nueva aplicación
 
-##### Mejoras de rendimiento
-
->##### Reducido en gran medida el tamaño del paquete de instalación
-
->##### Mejoró la eficiencia de la comunicación entre procesos, mejoró el mecanismo de transmisión y procesamiento de parámetros
-
 ##### Corrección de errores
 
->##### Se solucionó un problema por el que no se podían realizar operaciones elevadas a través de procesos auxiliares
+>##### Se solucionó el problema de que algunas rutas pueden identificarse incorrectamente como rutas ftp
 
->##### Se solucionó el problema de que la animación de inicio está deshabilitada de forma predeterminada
+>##### Se solucionó un problema al conectarse a FTP con credenciales no válidas, se podía mostrar un mensaje incorrecto
 
->##### Se solucionó un problema por el cual un estado de ventana minimizado podría considerarse que no responde y reiniciarse automáticamente
+>##### Se solucionó el problema de que el nombre del dispositivo MTP podría ser incorrecto
+
+>##### Se solucionó un problema por el cual los archivos no se podían comprimir en archivos .zip

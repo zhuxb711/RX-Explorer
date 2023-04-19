@@ -55,9 +55,9 @@ namespace AuxiliaryTrustProcess
 
         private static CancellationTokenSource CurrentTaskCancellation;
 
-        private const string ExplorerPackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t";
+        private static MTPDeviceManager MTPManager;
 
-        private static IEnumerable<MediaDevice> MTPDeviceList => MediaDevice.GetDevices().ForEach((Device) => Device.Connect());
+        private const string ExplorerPackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t";
 
         [STAThread]
         static void Main(string[] args)
@@ -79,6 +79,7 @@ namespace AuxiliaryTrustProcess
                     StartTime = DateTimeOffset.Now;
                     ExitLocker = new ManualResetEvent(false);
                     CurrentTaskCancellation = new CancellationTokenSource();
+                    MTPManager = new MTPDeviceManager();
 
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                     AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -642,14 +643,13 @@ namespace AuxiliaryTrustProcess
                 {
                     ExitLocker?.Dispose();
                     AliveCheckTimer?.Dispose();
+                    MTPManager?.Dispose();
 
                     PipeCommandWriteController?.Dispose();
                     PipeCommandReadController?.Dispose();
                     PipeProgressWriterController?.Dispose();
                     PipeCancellationReadController?.Dispose();
                     PipeCommunicationBaseController?.Dispose();
-
-                    MTPDeviceList.ForEach((Item) => Item.Dispose());
 
                     LogTracer.MakeSureLogIsFlushed(2000);
 
@@ -812,14 +812,13 @@ namespace AuxiliaryTrustProcess
 
                 ExitLocker?.Dispose();
                 AliveCheckTimer?.Dispose();
+                MTPManager?.Dispose();
 
                 PipeCommandWriteController?.Dispose();
                 PipeCommandReadController?.Dispose();
                 PipeProgressWriterController?.Dispose();
                 PipeCancellationReadController?.Dispose();
                 PipeCommunicationBaseController?.Dispose();
-
-                MTPDeviceList.ForEach((Item) => Item.Dispose());
             }
         }
 
@@ -1093,7 +1092,7 @@ namespace AuxiliaryTrustProcess
 
                                 MTPPathAnalysis PathAnalysis = new MTPPathAnalysis(Path);
 
-                                if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                                if (MTPManager.GetDeviceFromId(PathAnalysis.DeviceId) is MediaDevice Device)
                                 {
                                     if (Device.FileExists(PathAnalysis.RelativePath))
                                     {
@@ -1121,7 +1120,7 @@ namespace AuxiliaryTrustProcess
 
                                 MTPPathAnalysis PathAnalysis = new MTPPathAnalysis(Path);
 
-                                if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                                if (MTPManager.GetDeviceFromId(PathAnalysis.DeviceId) is MediaDevice Device)
                                 {
                                     if (Device.FileExists(PathAnalysis.RelativePath))
                                     {
@@ -1186,7 +1185,7 @@ namespace AuxiliaryTrustProcess
 
                                 MTPPathAnalysis PathAnalysis = new MTPPathAnalysis(Path);
 
-                                if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                                if (MTPManager.GetDeviceFromId(PathAnalysis.DeviceId) is MediaDevice Device)
                                 {
                                     static FileAttributes ConvertAttribute(MediaFileAttributes Attributes)
                                     {
@@ -1242,7 +1241,7 @@ namespace AuxiliaryTrustProcess
                                                                 }
 
                                                                 MediaFileInfo File = Device.GetFileInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName, Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1273,7 +1272,7 @@ namespace AuxiliaryTrustProcess
 
                                                                 Device.UploadFile(new MemoryStream(), TargetPath);
                                                                 MediaFileInfo File = Device.GetFileInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName, Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1288,7 +1287,7 @@ namespace AuxiliaryTrustProcess
 
                                                                 Device.UploadFile(new MemoryStream(), TargetPath);
                                                                 MediaFileInfo File = Device.GetFileInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName, Device.DeviceId + File.FullName, File.Length, ConvertAttribute(File.Attributes), File.CreationTime.GetValueOrDefault().ToLocalTime(), File.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1310,7 +1309,7 @@ namespace AuxiliaryTrustProcess
                                                                 }
 
                                                                 MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName, Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1339,7 +1338,7 @@ namespace AuxiliaryTrustProcess
 
                                                                 Device.CreateDirectory(TargetPath);
                                                                 MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName, Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1354,7 +1353,7 @@ namespace AuxiliaryTrustProcess
 
                                                                 Device.CreateDirectory(TargetPath);
                                                                 MediaDirectoryInfo Directory = Device.GetDirectoryInfo(TargetPath);
-                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
+                                                                Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName, Device.DeviceId + Directory.FullName, 0, ConvertAttribute(Directory.Attributes), Directory.CreationTime.GetValueOrDefault().ToLocalTime(), Directory.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
 
                                                                 break;
                                                             }
@@ -1380,7 +1379,7 @@ namespace AuxiliaryTrustProcess
                             {
                                 string DeviceId = CommandValue["DeviceId"];
 
-                                if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                                if (MTPManager.GetDeviceFromId(DeviceId) is MediaDevice Device)
                                 {
                                     if (Device.GetDrives()?.FirstOrDefault() is MediaDriveInfo DriveInfo)
                                     {
@@ -1410,7 +1409,7 @@ namespace AuxiliaryTrustProcess
 
                                 MTPPathAnalysis PathAnalysis = new MTPPathAnalysis(Path);
 
-                                if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                                if (MTPManager.GetDeviceFromId(PathAnalysis.DeviceId) is MediaDevice Device)
                                 {
                                     Value.Add("Success", Convert.ToString(Device.DirectoryExists(PathAnalysis.RelativePath) || Device.FileExists(PathAnalysis.RelativePath)));
                                 }
@@ -1452,7 +1451,7 @@ namespace AuxiliaryTrustProcess
                                     return Return;
                                 }
 
-                                if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                                if (MTPManager.GetDeviceFromId(PathAnalysis.DeviceId) is MediaDevice Device)
                                 {
                                     MediaFileSystemInfo Item = null;
 
@@ -1467,7 +1466,7 @@ namespace AuxiliaryTrustProcess
 
                                     if (Item != null)
                                     {
-                                        Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), Item.CreationTime.GetValueOrDefault().ToLocalTime(), Item.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
+                                        Value.Add("Success", JsonSerializer.Serialize(new MTPFileData(string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName, Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), Item.CreationTime.GetValueOrDefault().ToLocalTime(), Item.LastWriteTime.GetValueOrDefault().ToLocalTime()), JsonSourceGenerationContext.Default.MTPFileData));
                                     }
                                     else
                                     {
@@ -1516,7 +1515,7 @@ namespace AuxiliaryTrustProcess
                                     return Return;
                                 }
 
-                                if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                                if (MTPManager.GetDeviceFromId(PathAnalysis.DeviceId) is MediaDevice Device)
                                 {
                                     if (Device.DirectoryExists(PathAnalysis.RelativePath))
                                     {
@@ -1535,7 +1534,7 @@ namespace AuxiliaryTrustProcess
 
                                         foreach (MediaFileSystemInfo Item in MTPSubItems)
                                         {
-                                            Result.Add(new MTPFileData(Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), new DateTimeOffset(Item.CreationTime.GetValueOrDefault().ToLocalTime()), new DateTimeOffset(Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
+                                            Result.Add(new MTPFileData(string.IsNullOrEmpty(Device.FriendlyName) ? Device.Description : Device.FriendlyName, Device.DeviceId + Item.FullName, Item.Length, ConvertAttribute(Item.Attributes), new DateTimeOffset(Item.CreationTime.GetValueOrDefault().ToLocalTime()), new DateTimeOffset(Item.LastWriteTime.GetValueOrDefault().ToLocalTime())));
 
                                             if (Cancellation.Token.IsCancellationRequested)
                                             {
@@ -2294,7 +2293,7 @@ namespace AuxiliaryTrustProcess
                                 {
                                     MTPPathAnalysis PathAnalysis = new MTPPathAnalysis(ExecutePath);
 
-                                    if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(PathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice Device)
+                                    if (MTPManager.GetDeviceFromId(PathAnalysis.DeviceId) is MediaDevice Device)
                                     {
                                         if (Device.FileExists(PathAnalysis.RelativePath) || Device.DirectoryExists(PathAnalysis.RelativePath))
                                         {
@@ -3415,8 +3414,8 @@ namespace AuxiliaryTrustProcess
                                         MTPPathAnalysis SourcePathAnalysis = new MTPPathAnalysis(SourcePathMapping.Keys.First());
                                         MTPPathAnalysis DestinationPathAnalysis = new MTPPathAnalysis(DestinationPath);
 
-                                        if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
-                                            && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
+                                        if (MTPManager.GetDeviceFromId(SourcePathAnalysis.DeviceId) is MediaDevice SourceDevice
+                                            && MTPManager.GetDeviceFromId(DestinationPathAnalysis.DeviceId) is MediaDevice DestinationDevice)
                                         {
                                             IReadOnlyDictionary<string, string> SourceRelativePathMapping = new Dictionary<string, string>(SourcePathMapping.Select((Pair) => new KeyValuePair<string, string>(new MTPPathAnalysis(Pair.Key).RelativePath, Pair.Value)));
 
@@ -3571,7 +3570,7 @@ namespace AuxiliaryTrustProcess
                                     {
                                         MTPPathAnalysis DestinationPathAnalysis = new MTPPathAnalysis(DestinationPath);
 
-                                        if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
+                                        if (MTPManager.GetDeviceFromId(DestinationPathAnalysis.DeviceId) is MediaDevice DestinationDevice)
                                         {
                                             if (SourcePathMapping.Keys.All((Path) => Directory.Exists(Path) || File.Exists(Path)))
                                             {
@@ -3700,7 +3699,7 @@ namespace AuxiliaryTrustProcess
                                     {
                                         MTPPathAnalysis SourcePathAnalysis = new MTPPathAnalysis(SourcePathMapping.Keys.First());
 
-                                        if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
+                                        if (MTPManager.GetDeviceFromId(SourcePathAnalysis.DeviceId) is MediaDevice SourceDevice)
                                         {
                                             IReadOnlyDictionary<string, string> SourceRelativePathMapping = new Dictionary<string, string>(SourcePathMapping.Select((Pair) => new KeyValuePair<string, string>(new MTPPathAnalysis(Pair.Key).RelativePath, Pair.Value)));
 
@@ -3930,8 +3929,8 @@ namespace AuxiliaryTrustProcess
                                         MTPPathAnalysis SourcePathAnalysis = new MTPPathAnalysis(SourcePathList.Keys.First());
                                         MTPPathAnalysis DestinationPathAnalysis = new MTPPathAnalysis(DestinationPath);
 
-                                        if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice
-                                            && MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
+                                        if (MTPManager.GetDeviceFromId(SourcePathAnalysis.DeviceId) is MediaDevice SourceDevice
+                                            && MTPManager.GetDeviceFromId(DestinationPathAnalysis.DeviceId) is MediaDevice DestinationDevice)
                                         {
                                             IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToArray();
 
@@ -4074,7 +4073,7 @@ namespace AuxiliaryTrustProcess
                                     {
                                         MTPPathAnalysis DestinationPathAnalysis = new MTPPathAnalysis(DestinationPath);
 
-                                        if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(DestinationPathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice DestinationDevice)
+                                        if (MTPManager.GetDeviceFromId(DestinationPathAnalysis.DeviceId) is MediaDevice DestinationDevice)
                                         {
                                             if (SourcePathList.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                             {
@@ -4191,7 +4190,7 @@ namespace AuxiliaryTrustProcess
                                     {
                                         MTPPathAnalysis SourcePathAnalysis = new MTPPathAnalysis(SourcePathList.Keys.First());
 
-                                        if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice SourceDevice)
+                                        if (MTPManager.GetDeviceFromId(SourcePathAnalysis.DeviceId) is MediaDevice SourceDevice)
                                         {
                                             IReadOnlyList<string> SourceRelativePathArray = SourcePathList.Keys.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToArray();
 
@@ -4439,7 +4438,7 @@ namespace AuxiliaryTrustProcess
                                     {
                                         MTPPathAnalysis SourcePathAnalysis = new MTPPathAnalysis(ExecutePathList[0]);
 
-                                        if (MTPDeviceList.FirstOrDefault((Device) => Device.DeviceId.Equals(SourcePathAnalysis.DeviceId, StringComparison.OrdinalIgnoreCase)) is MediaDevice MTPDevice)
+                                        if (MTPManager.GetDeviceFromId(SourcePathAnalysis.DeviceId) is MediaDevice MTPDevice)
                                         {
                                             IReadOnlyList<string> RelativePathArray = ExecutePathList.Select((Source) => new MTPPathAnalysis(Source).RelativePath).ToArray();
 

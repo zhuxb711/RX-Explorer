@@ -6,6 +6,8 @@ namespace SharedLibrary
 {
     public sealed class MTPFileData
     {
+        public string DeviceName { get; }
+
         public string Path { get; }
 
         public ulong Size { get; }
@@ -25,8 +27,9 @@ namespace SharedLibrary
 
         public DateTimeOffset ModifiedTime { get; }
 
-        public MTPFileData(string Path, ulong Size, FileAttributes Attributes, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
+        public MTPFileData(string DeviceName, string Path, ulong Size, FileAttributes Attributes, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
         {
+            this.DeviceName = DeviceName;
             this.Path = Path.TrimEnd('\\');
             this.Size = Size;
             this.Attributes = Attributes;
