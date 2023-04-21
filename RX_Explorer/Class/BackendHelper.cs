@@ -18,10 +18,10 @@ namespace RX_Explorer.Class
         {
             try
             {
-                HttpWebRequest Request = WebRequest.CreateHttp("http://52.230.36.100:3303/validation/validateReceipt");
+                HttpWebRequest Request = WebRequest.CreateHttp("http://52.230.36.100:3303/validation/receiptRedeem");
                 Request.ReadWriteTimeout = 60000;
                 Request.Timeout = 60000;
-                Request.Method = "POST";
+                Request.Method = "PUT";
                 Request.ContentType = "application/json";
                 Request.UserAgent = "RX-Explorer (UWP)";
 
@@ -66,7 +66,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                HttpWebRequest Request = WebRequest.CreateHttp("http://52.230.36.100:3303/switch/checkRedeemVisibilityStatus");
+                HttpWebRequest Request = WebRequest.CreateHttp("http://52.230.36.100:3303/switch/retrieveSwitch?switchName=redeemVisibility");
                 Request.ReadWriteTimeout = 60000;
                 Request.Timeout = 60000;
                 Request.Method = "GET";
