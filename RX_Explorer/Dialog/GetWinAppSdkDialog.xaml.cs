@@ -26,7 +26,7 @@ namespace RX_Explorer.Dialog
             await NoReentryExecution.ExecuteAsync(async () =>
             {
                 ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.Gray);
-                ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Downloading_ActivationCode");
+                ActivateCodeTextBox.PlaceholderText = $"{Globalization.GetString("GetWinAppSdk_Downloading_ActivationCode")}...";
                 ActivateCodeTextBox.Text = string.Empty;
                 ActivateCodeTextBox.IsEnabled = false;
                 ActivateUrlTextBox.Text = string.Empty;
@@ -65,7 +65,6 @@ namespace RX_Explorer.Dialog
                             {
                                 ValidateRecieptResponseDto ResponseDto = await BackendHelper.ValidateRecieptAsync(AccountName, ReceiptXml);
                                 ActivateCodeTextBox.Text = ResponseDto.Content.ActivationCode;
-                                ActivateCodeTextBox.IsEnabled = true;
                                 ActivateUrlTextBox.Text = ResponseDto.Content.ActivationUrl;
                                 ActivateUrlTextBox.Visibility = Visibility.Visible;
                                 GetActivationCodeButton.Visibility = Visibility.Collapsed;
@@ -88,6 +87,7 @@ namespace RX_Explorer.Dialog
                 }
                 finally
                 {
+                    ActivateCodeTextBox.IsEnabled = true;
                     GetActivationCodeTextContent.Visibility = Visibility.Visible;
                 }
             });

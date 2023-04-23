@@ -4962,7 +4962,7 @@ Invalid names include
         </trans-unit>
         <trans-unit id="GetWinAppSdk_Downloading_ActivationCode" translate="yes" xml:space="preserve">
           <source>Downloading activation code</source>
-          <target state="translated">下載激活碼</target>
+          <target state="translated">正在下載激活碼</target>
         </trans-unit>
         <trans-unit id="GetWinAppSdk_Unknown_Exception" translate="yes" xml:space="preserve">
           <source>Unknown exception</source>

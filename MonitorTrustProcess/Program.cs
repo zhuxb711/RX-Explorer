@@ -268,78 +268,17 @@ namespace MonitorTrustProcess
 
         private static void ExplorerProcess_Exited(object sender, EventArgs e)
         {
-            if (IsRegisterRestartRequest)
-            {
-                CloseAndRestartApplication(RestartReason.Restart);
-            }
-            else if (IsCrashMonitorEnabled)
-            {
-#if !DEBUG
-                CloseAndRestartApplication(RestartReason.Crash);
-#endif
-            }
-            else
-            {
-                ExitLocker.Set();
-            }
-        }
-
-        private static void CloseAndRestartApplication(RestartReason Reason)
-        {
             try
             {
-                if (ExplorerProcess != null)
+                if (IsRegisterRestartRequest)
                 {
-                    ProcessStartInfo StartInfo = new ProcessStartInfo
-                    {
-                        UseShellExecute = false,
-                        FileName = "RX-Explorer.exe",
-                    };
-
-                    switch (Reason)
-                    {
-                        case RestartReason.Freeze:
-                            {
-                                ExplorerProcess.EnableRaisingEvents = false;
-                                ExplorerProcess.Exited -= ExplorerProcess_Exited;
-                                ExplorerProcess.Kill();
-
-                                StartInfo.ArgumentList.Add("--RecoveryReason");
-                                StartInfo.ArgumentList.Add(Enum.GetName(RestartReason.Freeze));
-                                StartInfo.ArgumentList.Add("--RecoveryData");
-                                StartInfo.ArgumentList.Add(Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
-                                break;
-                            }
-                        case RestartReason.Crash:
-                            {
-                                StartInfo.ArgumentList.Add("--RecoveryReason");
-                                StartInfo.ArgumentList.Add(Enum.GetName(RestartReason.Crash));
-                                StartInfo.ArgumentList.Add("--RecoveryData");
-                                StartInfo.ArgumentList.Add(Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
-                                break;
-                            }
-                        case RestartReason.Restart:
-                            {
-                                StartInfo.ArgumentList.Add("--RecoveryReason");
-                                StartInfo.ArgumentList.Add(Enum.GetName(RestartReason.Restart));
-
-                                if (!string.IsNullOrEmpty(RecoveryData))
-                                {
-                                    StartInfo.ArgumentList.Add("--RecoveryData");
-                                    StartInfo.ArgumentList.Add(Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
-                                }
-
-                                break;
-                            }
-                    }
-
-                    using (Process NewProcess = Process.Start(StartInfo))
-                    {
-                        if ((NewProcess?.HasExited).GetValueOrDefault(true))
-                        {
-                            throw new Exception("Unable to start a new process");
-                        }
-                    }
+                    CloseAndRestartApplication(RestartReason.Restart);
+                }
+                else if (IsCrashMonitorEnabled)
+                {
+#if !DEBUG
+                    CloseAndRestartApplication(RestartReason.Crash);
+#endif
                 }
             }
             catch (Exception)
@@ -349,6 +288,63 @@ namespace MonitorTrustProcess
             finally
             {
                 ExitLocker.Set();
+            }
+        }
+
+        private static void CloseAndRestartApplication(RestartReason Reason)
+        {
+            if (ExplorerProcess != null)
+            {
+                ProcessStartInfo StartInfo = new ProcessStartInfo
+                {
+                    UseShellExecute = false,
+                    FileName = "RX-Explorer.exe",
+                };
+
+                switch (Reason)
+                {
+                    case RestartReason.Freeze:
+                        {
+                            ExplorerProcess.EnableRaisingEvents = false;
+                            ExplorerProcess.Exited -= ExplorerProcess_Exited;
+                            ExplorerProcess.Kill();
+
+                            StartInfo.ArgumentList.Add("--RecoveryReason");
+                            StartInfo.ArgumentList.Add(Enum.GetName(RestartReason.Freeze));
+                            StartInfo.ArgumentList.Add("--RecoveryData");
+                            StartInfo.ArgumentList.Add(Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                            break;
+                        }
+                    case RestartReason.Crash:
+                        {
+                            StartInfo.ArgumentList.Add("--RecoveryReason");
+                            StartInfo.ArgumentList.Add(Enum.GetName(RestartReason.Crash));
+                            StartInfo.ArgumentList.Add("--RecoveryData");
+                            StartInfo.ArgumentList.Add(Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                            break;
+                        }
+                    case RestartReason.Restart:
+                        {
+                            StartInfo.ArgumentList.Add("--RecoveryReason");
+                            StartInfo.ArgumentList.Add(Enum.GetName(RestartReason.Restart));
+
+                            if (!string.IsNullOrEmpty(RecoveryData))
+                            {
+                                StartInfo.ArgumentList.Add("--RecoveryData");
+                                StartInfo.ArgumentList.Add(Convert.ToBase64String(Encoding.UTF8.GetBytes(RecoveryData)));
+                            }
+
+                            break;
+                        }
+                }
+
+                using (Process NewProcess = Process.Start(StartInfo))
+                {
+                    if ((NewProcess?.HasExited).GetValueOrDefault(true))
+                    {
+                        throw new Exception("Unable to start a new process");
+                    }
+                }
             }
         }
     }

@@ -9,7 +9,6 @@ namespace RX_Explorer.Class
 {
     public static class MSStoreHelper
     {
-        private static StoreContext Store;
         private static StoreAppLicense License;
         private static StoreProductResult ProductResult;
         private static Task PreLoadTask;
@@ -18,6 +17,7 @@ namespace RX_Explorer.Class
         private static Task<bool> CheckIfUpdateIsMandatory;
         private static IReadOnlyList<StorePackageUpdate> Updates;
         private static readonly object Locker = new object();
+        private static readonly StoreContext Store = StoreContext.GetDefault();
 
         public static Task<bool> CheckPurchaseStatusAsync()
         {
@@ -153,9 +153,6 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        Store = StoreContext.GetDefault();
-                        Store.OfflineLicensesChanged += Store_OfflineLicensesChanged;
-
                         License = Store.GetAppLicenseAsync().AsTask().Result;
                         ProductResult = Store.GetStoreProductForCurrentAppAsync().AsTask().Result;
 
@@ -195,6 +192,11 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, $"{nameof(Store_OfflineLicensesChanged)} threw an exception");
             }
+        }
+
+        static MSStoreHelper()
+        {
+            Store.OfflineLicensesChanged += Store_OfflineLicensesChanged;
         }
     }
 }

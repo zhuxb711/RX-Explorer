@@ -3733,7 +3733,7 @@
     <value>点击右侧按钮兑换激活码</value>
   </data>
   <data name="GetWinAppSdk_Downloading_ActivationCode" xml:space="preserve">
-    <value>下载激活码</value>
+    <value>正在下载激活码</value>
   </data>
   <data name="GetWinAppSdk_Unknown_Exception" xml:space="preserve">
     <value>未知错误</value>
