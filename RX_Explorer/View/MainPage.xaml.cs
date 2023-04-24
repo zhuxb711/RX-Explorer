@@ -133,7 +133,7 @@ namespace RX_Explorer.View
             NavView.RegisterPropertyChangedCallback(NavigationView.PaneDisplayModeProperty, new DependencyPropertyChangedCallback(OnPaneDisplayModeChanged));
             NavView.PaneDisplayMode = SettingPage.LayoutMode;
 
-            if (WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows11))
+            if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersion.Windows11))
             {
                 BackdropMaterial.SetApplyToRootOrPageBackground(this, BackgroundController.Current.IsMicaEffectEnabled);
                 BackgroundEffectArea.RegisterPropertyChangedCallback(VisibilityProperty, new DependencyPropertyChangedCallback(OnBackgroundEffectAreaVisibilityChanged));
@@ -1144,26 +1144,15 @@ namespace RX_Explorer.View
 
         private void BluetoothAudioArea_Loaded(object sender, RoutedEventArgs e)
         {
-            if (WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows10_2004))
-            {
-                BluetoothAudioArea.Visibility = Visibility.Visible;
-                VerisonIncorrectTip.Visibility = Visibility.Collapsed;
+            StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text_1");
+            BluetoothSearchProgress.IsActive = true;
 
-                StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text_1");
-                BluetoothSearchProgress.IsActive = true;
+            BluetoothAudioWatcher.Added += Watcher_Added;
+            BluetoothAudioWatcher.Removed += Watcher_Removed;
+            BluetoothAudioWatcher.Updated += Watcher_Updated;
+            BluetoothAudioWatcher.EnumerationCompleted += Watcher_EnumerationCompleted;
 
-                BluetoothAudioWatcher.Added += Watcher_Added;
-                BluetoothAudioWatcher.Removed += Watcher_Removed;
-                BluetoothAudioWatcher.Updated += Watcher_Updated;
-                BluetoothAudioWatcher.EnumerationCompleted += Watcher_EnumerationCompleted;
-
-                BluetoothAudioWatcher.Start();
-            }
-            else
-            {
-                BluetoothAudioArea.Visibility = Visibility.Collapsed;
-                VerisonIncorrectTip.Visibility = Visibility.Visible;
-            }
+            BluetoothAudioWatcher.Start();
         }
 
         private async void Watcher_EnumerationCompleted(DeviceWatcher sender, object args)

@@ -2715,10 +2715,6 @@ Invalid names include
           <source>Select Bluetooth audio source</source>
           <target state="translated">选择蓝牙音频源</target>
         </trans-unit>
-        <trans-unit id="BluetoothVerisonIncorrectTip.Text" translate="yes" xml:space="preserve">
-          <source>This feature requires Win10 2004 or above</source>
-          <target state="translated">此功能需要Win10 2004以上版本</target>
-        </trans-unit>
         <trans-unit id="BluetoothAudio.Text" translate="yes" xml:space="preserve">
           <source>Bluetooth Audio</source>
           <target state="translated">蓝牙音频</target>

@@ -1,4 +1,4 @@
-﻿###Quoi de neuf dans la version 8.2.6
+﻿###Quoi de neuf dans la version 8.2.7
 
 #### ⚠Avertissement: la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers le framework WinAppSdk
 
@@ -6,10 +6,4 @@
 
 ##### Corrections de bogues
 
->##### Correction du problème d'identification incorrecte de certains chemins en tant que chemins ftp
-
->##### Correction d'un problème lors de la connexion à FTP avec des informations d'identification non valides, un message incorrect pouvait s'afficher
-
->##### Correction du problème que le nom du périphérique MTP peut être incorrect
-
->##### Correction d'un problème où les fichiers ne pouvaient pas être compressés en fichiers .zip
+>##### Correction de certains problèmes et préparation de la migration vers le Windows App SDK

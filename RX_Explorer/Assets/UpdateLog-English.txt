@@ -1,4 +1,4 @@
-﻿###What's new in Ver.8.2.6
+﻿###What's new in Ver.8.2.7
 
 #### ⚠Attention: la version Uwp suspendra les mises à jour des fonctionnalités et entrera dans l'état de maintenance uniquement, RX-Explorer sera migré vers Windows App Sdk
 
@@ -6,10 +6,4 @@
 
 ##### Bug Fixes
 
->##### Fixed the problem that some paths may be identified as ftp paths incorrectly
-
->##### Fixed an issue when connecting to Ftp with invalid credentials, incorrect message might be displayed
-
->##### Fixed the problem that the name of the MTP device might be incorrect
-
->##### Fixed an issue where files could not be compressed into .zip files
+>##### Fixed some issues and prepared for the migration to the Windows App SDK version

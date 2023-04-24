@@ -41,7 +41,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        Thumbnail = new BitmapImage(new Uri(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11) ? "ms-appx:///Assets/FolderIcon_Win11.png" : "ms-appx:///Assets/FolderIcon_Win10.png"));
+                        Thumbnail = new BitmapImage(new Uri(WindowsVersionChecker.IsNewerOrEqual(WindowsVersion.Windows11) ? "ms-appx:///Assets/FolderIcon_Win11.png" : "ms-appx:///Assets/FolderIcon_Win10.png"));
                     }
                 }
                 catch (Exception ex)

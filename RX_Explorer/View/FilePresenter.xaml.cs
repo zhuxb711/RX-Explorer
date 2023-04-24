@@ -7925,7 +7925,7 @@ namespace RX_Explorer.View
                     Name = "FolderItem",
                     Icon = new ImageIcon
                     {
-                        Source = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows11)
+                        Source = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(WindowsVersion.Windows11)
                                                     ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                     : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"))
                     },

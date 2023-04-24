@@ -7,7 +7,7 @@ namespace RX_Explorer.Class
 {
     public class CompressionFolder : CompressionItemBase
     {
-        public override BitmapImage Thumbnail => new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+        public override BitmapImage Thumbnail => new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(WindowsVersion.Windows11)
                                                                      ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                                      : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
 

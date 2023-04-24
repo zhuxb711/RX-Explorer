@@ -2047,9 +2047,6 @@ Les noms non valides incluent
   <data name="BluetoothAudioSelectionTip.Title" xml:space="preserve">
     <value>Sélectionnez la source audio Bluetooth</value>
   </data>
-  <data name="BluetoothVerisonIncorrectTip.Text" xml:space="preserve">
-    <value>Cette fonctionnalité nécessite Win10 2004 ou supérieur</value>
-  </data>
   <data name="BluetoothAudio.Text" xml:space="preserve">
     <value>Audio Bluetooth</value>
   </data>
