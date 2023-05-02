@@ -1,9 +1,9 @@
-﻿###Novedades de la versión 8.2.7
+﻿###Novedades de la versión 8.2.8
 
-#### ⚠Atención: la versión Uwp suspendra las fallas en el día de funciones y entrera dans l'état de Maintenance Uniquement, RX-Explorer sera migré vers Windows App Sdk
+##### ⚠Atención: Uwp está en desuso, RX-Explorer se ha migrado a Windows App Sdk
 
->#### Windows App Sdk está en un marco alternativo para Uwp, la nueva versión se publicará el 1 de mayo de 2023, en este momento, todos los usuarios podrán usar la versión Uwp, pero no se activará la dirección de la nueva aplicación
+>#### Windows App Sdk es un marco alternativo para Uwp. La nueva versión se lanzó el 1 de mayo ([Haga clic aquí para descargar](ms-windows-store://pdp/?productid=9PDN2Q3DCQS3)), los usuarios que hayan comprado el Uwp pueden ir a "Configuración - Versión" para obtener el código de activación
 
 ##### Corrección de errores
 
->##### Se corrigieron algunos problemas y se preparó para la migración a la versión Windows App Sdk
+>##### Se corrigieron algunos problemas sobre el canje de códigos de activación

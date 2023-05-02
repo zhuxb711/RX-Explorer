@@ -1,9 +1,9 @@
-﻿###版本8.2.7更新
+﻿###版本8.2.8更新
 
-#### ⚠警告：Uwp版本將暫停功能更新並進入維護狀態，RX-Explorer將遷移至Windows App Sdk
+#### ⚠注意：Uwp 已棄用，RX-Explorer 已遷移至 Windows App Sdk
 
->#### Windows App Sdk是Uwp的替代框架，新版本預計2023年5月1日發布，屆時所有購買了Uwp版本的用戶都可以直接激活新應用
+>##### Windows App Sdk 是 Uwp 的替代框架。 新版本已於5月1日發布([點此下載](ms-windows-store://pdp/?productid=9PDN2Q3DCQS3))，已購買Uwp的用戶可前往“設置-版本”獲取激活碼
 
 ##### Bug修復
 
->##### 修復了一些問題，併為遷移到 Windows 應用 SDK 版本做好了準備
+>##### 修復了兌換激活碼的一些問題
