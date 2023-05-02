@@ -4984,10 +4984,6 @@ Invalid names include
           <source>Missing Microsoft account name, redemption operation cannot be performed</source>
           <target state="translated">缺少微軟賬戶名，無法進行兌換操作</target>
         </trans-unit>
-        <trans-unit id="GetWinAppSdk_Empty_ReceiptData" translate="yes" xml:space="preserve">
-          <source>Activation code cannot be redeemed due to lack of receipt of purchase</source>
-          <target state="translated">由於缺少購買收據，無法兌換激活碼</target>
-        </trans-unit>
       </group>
     </body>
   </file>

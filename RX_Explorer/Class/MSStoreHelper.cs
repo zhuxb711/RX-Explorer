@@ -173,6 +173,16 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static async Task<string> GetCustomerCollectionsIdAsync(string AzureADToken, string UserId)
+        {
+            if (string.IsNullOrWhiteSpace(AzureADToken))
+            {
+                throw new ArgumentException(nameof(AzureADToken));
+            }
+
+            return await Store.GetCustomerCollectionsIdAsync(AzureADToken, UserId);
+        }
+
         private static async void Store_OfflineLicensesChanged(StoreContext sender, object args)
         {
             try

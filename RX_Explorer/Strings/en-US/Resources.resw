@@ -3857,7 +3857,4 @@ Invalid names include
   <data name="GetWinAppSdk_Unknown_Exception" xml:space="preserve">
     <value>Unknown exception</value>
   </data>
-  <data name="GetWinAppSdk_Empty_ReceiptData" xml:space="preserve">
-    <value>Activation code cannot be redeemed due to lack of receipt of purchase</value>
-  </data>
 </root>

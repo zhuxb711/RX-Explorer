@@ -4984,10 +4984,6 @@ Les noms non valides incluent
           <source>Missing Microsoft account name, redemption operation cannot be performed</source>
           <target state="translated">Nom de compte Microsoft manquant, l'opération de rachat ne peut pas être effectuée</target>
         </trans-unit>
-        <trans-unit id="GetWinAppSdk_Empty_ReceiptData" translate="yes" xml:space="preserve">
-          <source>Activation code cannot be redeemed due to lack of receipt of purchase</source>
-          <target state="translated">Le code d'activation ne peut pas être échangé en raison de l'absence de reçu d'achat</target>
-        </trans-unit>
       </group>
     </body>
   </file>

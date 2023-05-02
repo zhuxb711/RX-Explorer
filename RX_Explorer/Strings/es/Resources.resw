@@ -3752,7 +3752,4 @@ Las denominaciones no válidas son:
   <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
     <value>Falta el nombre de la cuenta de Microsoft, no se puede realizar la operación de canje</value>
   </data>
-  <data name="GetWinAppSdk_Empty_ReceiptData" xml:space="preserve">
-    <value>El código de activación no se puede canjear por falta de recibo de compra</value>
-  </data>
 </root>

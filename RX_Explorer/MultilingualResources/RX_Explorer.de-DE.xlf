@@ -4984,10 +4984,6 @@ Inkorrekte Namen sind
           <source>Missing Microsoft account name, redemption operation cannot be performed</source>
           <target state="translated">Fehlender Microsoft-Kontoname, Einlösungsvorgang kann nicht durchgeführt werden</target>
         </trans-unit>
-        <trans-unit id="GetWinAppSdk_Empty_ReceiptData" translate="yes" xml:space="preserve">
-          <source>Activation code cannot be redeemed due to lack of receipt of purchase</source>
-          <target state="translated">Der Aktivierungscode kann aufgrund fehlender Kaufquittung nicht eingelöst werden</target>
-        </trans-unit>
       </group>
     </body>
   </file>

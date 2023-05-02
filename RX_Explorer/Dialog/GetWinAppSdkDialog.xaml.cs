@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.ApplicationModel.Store;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -13,12 +12,11 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class GetWinAppSdkDialog : QueueContentDialog
     {
-        private readonly InterlockedNoReentryExecution NoReentryExecution;
+        private readonly InterlockedNoReentryExecution NoReentryExecution = new InterlockedNoReentryExecution();
 
         public GetWinAppSdkDialog()
         {
             InitializeComponent();
-            NoReentryExecution = new InterlockedNoReentryExecution();
         }
 
         private async void GetActivationCodeButton_Click(object sender, RoutedEventArgs e)
@@ -52,30 +50,21 @@ namespace RX_Explorer.Dialog
                     }
                     else
                     {
-                        string ReceiptXml = await CurrentApp.GetAppReceiptAsync();
-
-                        if (string.IsNullOrEmpty(ReceiptXml))
+                        try
                         {
-                            ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
-                            ActivateCodeTextBox.PlaceholderText = Globalization.GetString("GetWinAppSdk_Empty_ReceiptData");
+                            RetrieveAADTokenContentResponseDto AADTokenResponse = await BackendHelper.RetrieveAADTokenAsync();
+                            RedeemCodeContentResponseDto RedeemCodeResponse = await BackendHelper.RedeemCodeAsync(await MSStoreHelper.GetCustomerCollectionsIdAsync(AADTokenResponse.AADToken, AccountName));
+                            ActivateCodeTextBox.Text = RedeemCodeResponse.ActivationCode;
+                            ActivateUrlTextBox.Text = RedeemCodeResponse.ActivationUrl;
+                            ActivateUrlTextBox.Visibility = Visibility.Visible;
+                            GetActivationCodeButton.Visibility = Visibility.Collapsed;
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            try
-                            {
-                                ValidateRecieptResponseDto ResponseDto = await BackendHelper.ValidateRecieptAsync(AccountName, ReceiptXml);
-                                ActivateCodeTextBox.Text = ResponseDto.Content.ActivationCode;
-                                ActivateUrlTextBox.Text = ResponseDto.Content.ActivationUrl;
-                                ActivateUrlTextBox.Visibility = Visibility.Visible;
-                                GetActivationCodeButton.Visibility = Visibility.Collapsed;
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, $"Could not download the activation code, reason: {ex.Message}");
+                            LogTracer.Log(ex, $"Could not download the activation code, reason: {ex.Message}");
 
-                                ActivateCodeTextBox.PlaceholderText = ex.Message;
-                                ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
-                            }
+                            ActivateCodeTextBox.PlaceholderText = ex.Message;
+                            ActivateCodeTextBox.PlaceholderForeground = new SolidColorBrush(Colors.OrangeRed);
                         }
                     }
                 }

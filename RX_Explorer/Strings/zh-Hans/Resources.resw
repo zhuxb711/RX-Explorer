@@ -3750,7 +3750,4 @@
   <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
     <value>缺少微软账户名，无法进行兑换操作</value>
   </data>
-  <data name="GetWinAppSdk_Empty_ReceiptData" xml:space="preserve">
-    <value>由于缺少购买收据，无法兑换激活码</value>
-  </data>
 </root>

@@ -3750,7 +3750,4 @@
   <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
     <value>缺少微軟賬戶名，無法進行兌換操作</value>
   </data>
-  <data name="GetWinAppSdk_Empty_ReceiptData" xml:space="preserve">
-    <value>由於缺少購買收據，無法兌換激活碼</value>
-  </data>
 </root>

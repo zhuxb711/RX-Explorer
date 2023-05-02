@@ -3752,7 +3752,4 @@ Inkorrekte Namen sind
   <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
     <value>Fehlender Microsoft-Kontoname, Einlösungsvorgang kann nicht durchgeführt werden</value>
   </data>
-  <data name="GetWinAppSdk_Empty_ReceiptData" xml:space="preserve">
-    <value>Der Aktivierungscode kann aufgrund fehlender Kaufquittung nicht eingelöst werden</value>
-  </data>
 </root>

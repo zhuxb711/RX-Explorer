@@ -14,11 +14,54 @@ namespace RX_Explorer.Class
             PropertyNameCaseInsensitive = true
         };
 
-        public static async Task<ValidateRecieptResponseDto> ValidateRecieptAsync(string AccountName, string ReceiptXml)
+        public static async Task<RetrieveAADTokenContentResponseDto> RetrieveAADTokenAsync()
         {
             try
             {
-                HttpWebRequest Request = WebRequest.CreateHttp("http://52.230.36.100:3303/validation/receiptRedeem");
+                HttpWebRequest Request = WebRequest.CreateHttp("http://52.230.36.100:3303/validation/retrieveAADToken");
+                Request.ReadWriteTimeout = 60000;
+                Request.Timeout = 60000;
+                Request.Method = "GET";
+                Request.ContentType = "application/json";
+                Request.UserAgent = "RX-Explorer (UWP)";
+
+                using (HttpWebResponse Response = (HttpWebResponse)await Request.GetResponseAsync())
+                using (StreamReader Reader = new StreamReader(Response.GetResponseStream(), Encoding.GetEncoding(Response.CharacterSet)))
+                {
+                    RetrieveAADTokenResponseDto ResponseDto = JsonSerializer.Deserialize<RetrieveAADTokenResponseDto>(await Reader.ReadToEndAsync(), SerializerOptions);
+
+                    if (ResponseDto.StatusCode is not 200 and not 201)
+                    {
+                        throw new Exception(ResponseDto.ErrorMessage);
+                    }
+
+                    return ResponseDto.Content;
+                }
+            }
+            catch (WebException ex)
+            {
+                if (ex.Response is HttpWebResponse Response)
+                {
+                    using (StreamReader Reader = new StreamReader(Response.GetResponseStream(), Encoding.UTF8))
+                    {
+                        ResponseBase ErrorResponse = JsonSerializer.Deserialize<ResponseBase>(await Reader.ReadToEndAsync(), new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+
+                        throw new Exception(ErrorResponse.ErrorMessage);
+                    }
+                }
+
+                throw;
+            }
+        }
+
+        public static async Task<RedeemCodeContentResponseDto> RedeemCodeAsync(string CustomerCollectionId)
+        {
+            try
+            {
+                HttpWebRequest Request = WebRequest.CreateHttp("http://52.230.36.100:3303/validation/redeemCode");
                 Request.ReadWriteTimeout = 60000;
                 Request.Timeout = 60000;
                 Request.Method = "PUT";
@@ -28,10 +71,9 @@ namespace RX_Explorer.Class
                 using (Stream WriteStream = await Request.GetRequestStreamAsync())
                 using (StreamWriter Writer = new StreamWriter(WriteStream, Encoding.UTF8, 1024, true))
                 {
-                    await Writer.WriteAsync(JsonSerializer.Serialize(new ValidateRecieptRequestDto
+                    await Writer.WriteAsync(JsonSerializer.Serialize(new RedeemCodeRequestDto
                     {
-                        userId = AccountName,
-                        receipt = ReceiptXml
+                        customerCollectionId = CustomerCollectionId,
                     }));
 
                     await Writer.FlushAsync();
@@ -40,7 +82,14 @@ namespace RX_Explorer.Class
                 using (HttpWebResponse Response = (HttpWebResponse)await Request.GetResponseAsync())
                 using (StreamReader Reader = new StreamReader(Response.GetResponseStream(), Encoding.GetEncoding(Response.CharacterSet)))
                 {
-                    return JsonSerializer.Deserialize<ValidateRecieptResponseDto>(await Reader.ReadToEndAsync(), SerializerOptions);
+                    RedeemCodeResponseDto ResponseDto = JsonSerializer.Deserialize<RedeemCodeResponseDto>(await Reader.ReadToEndAsync(), SerializerOptions);
+
+                    if (ResponseDto.StatusCode is not 200 and not 201)
+                    {
+                        throw new Exception(ResponseDto.ErrorMessage);
+                    }
+
+                    return ResponseDto.Content;
                 }
             }
             catch (WebException ex)

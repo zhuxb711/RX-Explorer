@@ -1,12 +1,12 @@
 ﻿namespace RX_Explorer.Class
 {
-    public sealed class ValidateRecieptContentResponseDto
+    public sealed class RedeemCodeContentResponseDto
     {
         public string ActivationCode { get; }
 
         public string ActivationUrl { get; }
 
-        public ValidateRecieptContentResponseDto(string ActivationCode, string ActivationUrl)
+        public RedeemCodeContentResponseDto(string ActivationCode, string ActivationUrl)
         {
             this.ActivationUrl = ActivationUrl;
             this.ActivationCode = ActivationCode;

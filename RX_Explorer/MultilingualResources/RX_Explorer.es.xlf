@@ -4984,10 +4984,6 @@ Las denominaciones no válidas son:
           <source>Missing Microsoft account name, redemption operation cannot be performed</source>
           <target state="translated">Falta el nombre de la cuenta de Microsoft, no se puede realizar la operación de canje</target>
         </trans-unit>
-        <trans-unit id="GetWinAppSdk_Empty_ReceiptData" translate="yes" xml:space="preserve">
-          <source>Activation code cannot be redeemed due to lack of receipt of purchase</source>
-          <target state="translated">El código de activación no se puede canjear por falta de recibo de compra</target>
-        </trans-unit>
       </group>
     </body>
   </file>
