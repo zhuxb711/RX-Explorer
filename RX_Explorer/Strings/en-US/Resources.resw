@@ -2221,9 +2221,6 @@ Invalid names include
   <data name="BluetoothAudioSelectionTip.Title" xml:space="preserve">
     <value>Select Bluetooth audio source</value>
   </data>
-  <data name="BluetoothVerisonIncorrectTip.Text" xml:space="preserve">
-    <value>This feature requires Win10 2004 or above</value>
-  </data>
   <data name="BluetoothAudio.Text" xml:space="preserve">
     <value>Bluetooth Audio</value>
   </data>

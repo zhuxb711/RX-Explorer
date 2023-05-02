@@ -2073,9 +2073,6 @@ Inkorrekte Namen sind
   <data name="BluetoothAudioSelectionTip.Title" xml:space="preserve">
     <value>Bluetooth-Audio Quelle auswählen</value>
   </data>
-  <data name="BluetoothVerisonIncorrectTip.Text" xml:space="preserve">
-    <value>Diese Funktion benötigt mindestes Windows 10 Version 2004</value>
-  </data>
   <data name="BluetoothAudio.Text" xml:space="preserve">
     <value>Bluetooth-Audio</value>
   </data>

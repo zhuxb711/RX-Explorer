@@ -34,7 +34,7 @@ namespace RX_Explorer.Class
 
         public override ulong Size => 0;
 
-        public override BitmapImage Thumbnail => base.Thumbnail ??= new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+        public override BitmapImage Thumbnail => base.Thumbnail ??= new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(WindowsVersion.Windows11)
                                                                                        ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                                                        : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
 
@@ -513,7 +513,7 @@ namespace RX_Explorer.Class
         protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
             return await base.GetThumbnailCoreAsync(Mode, ForceUpdate)
-                                ?? new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                ?? new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(WindowsVersion.Windows11)
                                                         ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                         : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
         }
@@ -526,7 +526,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception)
             {
-                StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(WindowsVersionChecker.IsNewerOrEqual(WindowsVersion.Windows11)
                                                                                             ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                                                             : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
                 return await ThumbnailFile.OpenReadAsync();

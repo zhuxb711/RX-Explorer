@@ -1,4 +1,4 @@
-﻿###Was ist neu in Ver.8.2.6
+﻿###Was ist neu in Ver.8.2.7
 
 #### ⚠Warnung: Die UWP-Version setzt Feature-Updates aus und wechselt in den Nur-Wartungs-Zustand, RX-Explorer wird auf Windows App Sdk migriert
 
@@ -6,10 +6,4 @@
 
 ##### Fehlerbehebung
 
->##### Das Problem, dass einige Pfade möglicherweise fälschlicherweise als FTP-Pfade identifiziert werden, wurde behoben
-
->##### Problem beim Verbinden mit FTP mit ungültigen Anmeldedaten behoben, möglicherweise wurde eine falsche Meldung angezeigt
-
->##### Das Problem, dass der Name des MTP-Geräts falsch sein könnte, wurde behoben
-
->##### Es wurde ein Problem behoben, bei dem Dateien nicht in .zip-Dateien komprimiert werden konnten
+>##### Einige Probleme behoben und die Migration auf die Windows App SDK-Version vorbereitet

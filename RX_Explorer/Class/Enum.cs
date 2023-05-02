@@ -216,13 +216,16 @@ namespace RX_Explorer.Class
         NeedAttention
     }
 
-    public enum Version
+    public enum WindowsVersion
     {
+        Windows10_1803 = 6,
         Windows10_1809 = 7,
         Windows10_1903 = 8,
         Windows10_1909 = 9,
         Windows10_2004 = 10,
-        Windows11 = 11
+        Windows10_2104 = 12,
+        Windows11 = 14,
+        Windows11_22H2 = 15
     }
 
     public enum StartupMode

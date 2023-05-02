@@ -183,12 +183,6 @@
                         </ListView.ItemTemplate>
                     </ListView>
                 </StackPanel>
-                <TextBlock HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Visibility="Collapsed"
-                           Name="VerisonIncorrectTip"
-                           x:Uid="BluetoothVerisonIncorrectTip"
-                           Text="此功能需要Win10 2004以上版本" />
             </Grid>
         </muxc:TeachingTip>
         <muxc:TeachingTip x:Name="QuickStartTip"

@@ -2047,9 +2047,6 @@
   <data name="BluetoothAudioSelectionTip.Title" xml:space="preserve">
     <value>选择蓝牙音频源</value>
   </data>
-  <data name="BluetoothVerisonIncorrectTip.Text" xml:space="preserve">
-    <value>此功能需要Win10 2004以上版本</value>
-  </data>
   <data name="BluetoothAudio.Text" xml:space="preserve">
     <value>蓝牙音频</value>
   </data>

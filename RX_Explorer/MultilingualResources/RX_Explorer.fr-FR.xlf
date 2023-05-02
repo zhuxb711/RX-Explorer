@@ -2715,10 +2715,6 @@ Les noms non valides incluent
           <source>Select Bluetooth audio source</source>
           <target state="translated">Sélectionnez la source audio Bluetooth</target>
         </trans-unit>
-        <trans-unit id="BluetoothVerisonIncorrectTip.Text" translate="yes" xml:space="preserve">
-          <source>This feature requires Win10 2004 or above</source>
-          <target state="translated">Cette fonctionnalité nécessite Win10 2004 ou supérieur</target>
-        </trans-unit>
         <trans-unit id="BluetoothAudio.Text" translate="yes" xml:space="preserve">
           <source>Bluetooth Audio</source>
           <target state="translated">Audio Bluetooth</target>

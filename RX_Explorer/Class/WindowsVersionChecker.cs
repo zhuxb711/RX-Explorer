@@ -1,29 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Windows.Foundation.Metadata;
 
 namespace RX_Explorer.Class
 {
     public static class WindowsVersionChecker
     {
-        public static bool Windows10_1809 => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7);
-
-        public static bool Windows10_1903 => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 8);
-
-        public static bool Windows10_1909 => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 9);
-
-        public static bool Windows10_2004 => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 10);
-
-        public static bool Windows11 => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 11);
-
-        public static bool IsNewerOrEqual(Version Version)
+        public static bool IsNewerOrEqual(WindowsVersion Version)
         {
             return ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", (ushort)Version);
         }
 
-        public static bool IsOlderOrEqual(Version Version)
+        public static bool IsOlderOrEqual(WindowsVersion Version)
         {
-            return ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", Convert.ToUInt16((int)Version)) 
-                   && !ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", Convert.ToUInt16((int)Version + 1));
+            if (IsNewerOrEqual(Version))
+            {
+                IReadOnlyList<int> VersionEnumValues = Enum.GetValues(typeof(WindowsVersion)).Cast<WindowsVersion>().Select((Enum) => (int)Enum).ToArray();
+
+                int CurrentVersionIndex = VersionEnumValues.FindIndex((int)Version);
+
+                if (CurrentVersionIndex < VersionEnumValues.Count - 1)
+                {
+                    return !IsNewerOrEqual((WindowsVersion)VersionEnumValues[CurrentVersionIndex + 1]);
+                }
+            }
+
+            return false;
         }
     }
 }

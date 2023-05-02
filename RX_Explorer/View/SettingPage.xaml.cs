@@ -1385,12 +1385,6 @@ namespace RX_Explorer.View
                 LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
                 FontFamilyComboBox.SelectionChanged += FontFamilyComboBox_SelectionChanged;
 
-                if (WindowsVersionChecker.IsOlderOrEqual(Class.Version.Windows10_2004))
-                {
-                    DisableSelectionAnimation.Checked += DisableSelectionAnimation_Changed;
-                    DisableSelectionAnimation.Unchecked += DisableSelectionAnimation_Changed;
-                }
-
                 if (ApplicationUIStyle == UIStyle.Clearly)
                 {
                     NavigationViewLayoutArea.Visibility = Visibility.Collapsed;
@@ -4056,21 +4050,6 @@ namespace RX_Explorer.View
         {
             IsSearchHistoryEnabled = SearchHistory.IsOn;
             ApplicationData.Current.SignalDataChanged();
-        }
-
-        private async void DisableSelectionAnimation_Changed(object sender, RoutedEventArgs e)
-        {
-            List<Task> ParallelTask = new List<Task>
-            {
-                CommonAccessCollection.LoadDriveAsync(true),
-                CommonAccessCollection.LoadLibraryFoldersAsync(true)
-            };
-
-            await Task.WhenAll(ParallelTask.Concat(TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Content)
-                                                                                         .Cast<Frame>()
-                                                                                         .Select((Frame) => Frame.Content)
-                                                                                         .Cast<TabItemContentRenderer>()
-                                                                                         .Select((Renderer) => Renderer.RefreshPresentersAsync())));
         }
 
         private void SettingNavigation_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)

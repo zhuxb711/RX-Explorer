@@ -27,7 +27,7 @@ namespace RX_Explorer.Class
 
         protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode, bool ForceUpdate = false)
         {
-            return Task.FromResult(new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+            return Task.FromResult(new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(WindowsVersion.Windows11)
                                                             ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                             : new Uri("ms-appx:///Assets/FolderIcon_Win10.png")));
         }
@@ -36,7 +36,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(WindowsVersionChecker.IsNewerOrEqual(WindowsVersion.Windows11)
                                                                                                                 ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                                                                                 : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
                 return await ThumbnailFile.OpenReadAsync();
