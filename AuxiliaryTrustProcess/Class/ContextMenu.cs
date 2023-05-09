@@ -24,7 +24,8 @@ namespace AuxiliaryTrustProcess.Class
         {
             "open","opennewprocess","pintohome","cut","copy","paste","delete","properties","openas",
             "link","runas","rename","pintostartscreen","windows.share","windows.modernshare",
-            "{B4CEA422-3911-4198-16CB-63345D563096}", "copyaspath", "opencontaining"
+            "{E50CEE91-E2EE-434E-AD67-9A3EBD201F89}", "{B4CEA422-3911-4198-16CB-63345D563096}", "copyaspath",
+            "opencontaining"
         };
 
         private static readonly HashSet<string> NameFilterHashSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
