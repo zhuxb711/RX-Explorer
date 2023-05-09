@@ -187,8 +187,8 @@ namespace AuxiliaryTrustProcess.Class
                         if (User32.GetMenuItemInfo(Menu, Index, true, ref Info))
                         {
                             if (Info.wID < 5000
-                                && Info.fType.IsFlagSet(User32.MenuItemType.MFT_STRING)
-                                && !Info.fState.IsFlagSet(User32.MenuItemState.MFS_DISABLED))
+                                && Info.fType == User32.MenuItemType.MFT_STRING
+                                && Info.fState != User32.MenuItemState.MFS_DISABLED)
                             {
                                 string MenuItemName = Marshal.PtrToStringAuto(DataHandle);
 
