@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Services.Store;
 using Windows.Storage;
+using Windows.System;
 
 namespace RX_Explorer.Class
 {
@@ -16,8 +17,8 @@ namespace RX_Explorer.Class
         private static Task<bool> CheckHasUpdate;
         private static Task<bool> CheckIfUpdateIsMandatory;
         private static IReadOnlyList<StorePackageUpdate> Updates;
-        private static readonly object Locker = new object();
         private static readonly StoreContext Store = StoreContext.GetDefault();
+        private static readonly object Locker = new object();
 
         public static Task<bool> CheckPurchaseStatusAsync()
         {

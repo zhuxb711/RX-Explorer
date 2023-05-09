@@ -38,9 +38,14 @@ namespace RX_Explorer.Dialog
 
                     IReadOnlyList<User> CurrentUsers = await User.FindAllAsync();
 
-                    if (CurrentUsers.FirstOrDefault((User) => User.Type == UserType.LocalUser && User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated) is User CurrentUser)
+                    foreach (User CurrentUser in CurrentUsers.Where((User) => User.Type == UserType.LocalUser && User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated).Append(User.GetDefault()))
                     {
                         AccountName = Convert.ToString(await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName));
+
+                        if (!string.IsNullOrEmpty(AccountName))
+                        {
+                            break;
+                        }
                     }
 
                     if (string.IsNullOrEmpty(AccountName))

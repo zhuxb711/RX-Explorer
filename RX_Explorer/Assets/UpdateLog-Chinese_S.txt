@@ -1,8 +1,12 @@
-﻿###版本8.2.8更新
+﻿###版本8.2.9更新
 
 #### ⚠警告: Uwp版已弃用，RX文件管理器已迁移至Windows App Sdk框架
 
 >##### Windows App Sdk是Uwp的替代框架，新版本已于5月1日发布([点击此处下载](ms-windows-store://pdp/?productid=9PDN2Q3DCQS3))，已购买Uwp版本的用户可以前往 "设置-版本" 中获取兑换码
+
+##### 组件更新
+
+>##### WinUI组件已更新至最新版本
 
 ##### Bug修复
 
