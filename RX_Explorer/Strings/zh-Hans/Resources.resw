@@ -3747,4 +3747,10 @@
   <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
     <value>缺少微软账户名，无法进行兑换操作</value>
   </data>
+  <data name="GetWinAppSdkDescription.Text" xml:space="preserve">
+    <value>已購買UWP版本的使用者可以按下此處獲取基於WinUI3和WinAppSdk重構的新版本啟動碼</value>
+  </data>
+  <data name="GetWinAppSdkTitle.Text" xml:space="preserve">
+    <value>獲取 Windows App SDK 啟動碼</value>
+  </data>
 </root>

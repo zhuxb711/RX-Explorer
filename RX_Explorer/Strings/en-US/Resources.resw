@@ -3854,4 +3854,10 @@ Invalid names include
   <data name="GetWinAppSdk_Unknown_Exception" xml:space="preserve">
     <value>Unknown exception</value>
   </data>
+  <data name="GetWinAppSdkDescription.Text" xml:space="preserve">
+    <value>Users who have purchased the UWP version can click here to get the new version activation code based on WinUI3 and WinAppSdk refactoring</value>
+  </data>
+  <data name="GetWinAppSdkTitle.Text" xml:space="preserve">
+    <value>Get the Windows App SDK activation code</value>
+  </data>
 </root>

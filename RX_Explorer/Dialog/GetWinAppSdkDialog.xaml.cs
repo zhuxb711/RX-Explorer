@@ -36,16 +36,23 @@ namespace RX_Explorer.Dialog
                 {
                     string AccountName = string.Empty;
 
-                    IReadOnlyList<User> CurrentUsers = await User.FindAllAsync();
-
-                    foreach (User CurrentUser in CurrentUsers.Where((User) => User.Type == UserType.LocalUser && User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated).Append(User.GetDefault()))
+                    try
                     {
-                        AccountName = Convert.ToString(await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName));
+                        IReadOnlyList<User> CurrentUsers = await User.FindAllAsync();
 
-                        if (!string.IsNullOrEmpty(AccountName))
+                        foreach (User CurrentUser in CurrentUsers.Where((User) => User.Type == UserType.LocalUser && User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated).Append(User.GetDefault()))
                         {
-                            break;
+                            AccountName = Convert.ToString(await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName));
+
+                            if (!string.IsNullOrEmpty(AccountName))
+                            {
+                                break;
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Failed to get the account name for current user");
                     }
 
                     if (string.IsNullOrEmpty(AccountName))

@@ -4980,6 +4980,14 @@ Inkorrekte Namen sind
           <source>Missing Microsoft account name, redemption operation cannot be performed</source>
           <target state="translated">Fehlender Microsoft-Kontoname, Einlösungsvorgang kann nicht durchgeführt werden</target>
         </trans-unit>
+        <trans-unit id="GetWinAppSdkDescription.Text" translate="yes" xml:space="preserve">
+          <source>Users who have purchased the UWP version can click here to get the new version activation code based on WinUI3 and WinAppSdk refactoring</source>
+          <target state="translated">Benutzer, die die UWP-Version erworben haben, können hier klicken, um den Aktivierungscode für die neue Version basierend auf WinUI3- und WinAppSdk-Refactoring zu erhalten</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdkTitle.Text" translate="yes" xml:space="preserve">
+          <source>Get the Windows App SDK activation code</source>
+          <target state="translated">Abrufen des Aktivierungscodes für das Windows App SDK</target>
+        </trans-unit>
       </group>
     </body>
   </file>

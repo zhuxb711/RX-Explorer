@@ -3749,4 +3749,10 @@ Las denominaciones no válidas son:
   <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
     <value>Falta el nombre de la cuenta de Microsoft, no se puede realizar la operación de canje</value>
   </data>
+  <data name="GetWinAppSdkDescription.Text" xml:space="preserve">
+    <value>Los usuarios que hayan comprado la versión para UWP pueden hacer clic aquí para obtener el código de activación de la nueva versión basado en la refactorización de WinUI3 y WinAppSdk</value>
+  </data>
+  <data name="GetWinAppSdkTitle.Text" xml:space="preserve">
+    <value>Obtenga el código de activación Windows App Sdk</value>
+  </data>
 </root>

@@ -4980,6 +4980,14 @@ Las denominaciones no válidas son:
           <source>Missing Microsoft account name, redemption operation cannot be performed</source>
           <target state="translated">Falta el nombre de la cuenta de Microsoft, no se puede realizar la operación de canje</target>
         </trans-unit>
+        <trans-unit id="GetWinAppSdkDescription.Text" translate="yes" xml:space="preserve">
+          <source>Users who have purchased the UWP version can click here to get the new version activation code based on WinUI3 and WinAppSdk refactoring</source>
+          <target state="translated">Los usuarios que hayan comprado la versión para UWP pueden hacer clic aquí para obtener el código de activación de la nueva versión basado en la refactorización de WinUI3 y WinAppSdk</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdkTitle.Text" translate="yes" xml:space="preserve">
+          <source>Get the Windows App SDK activation code</source>
+          <target state="translated">Obtenga el código de activación Windows App Sdk</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -4980,6 +4980,14 @@ Invalid names include
           <source>Missing Microsoft account name, redemption operation cannot be performed</source>
           <target state="translated">缺少微软账户名，无法进行兑换操作</target>
         </trans-unit>
+        <trans-unit id="GetWinAppSdkDescription.Text" translate="yes" xml:space="preserve">
+          <source>Users who have purchased the UWP version can click here to get the new version activation code based on WinUI3 and WinAppSdk refactoring</source>
+          <target state="translated">已購買UWP版本的使用者可以按下此處獲取基於WinUI3和WinAppSdk重構的新版本啟動碼</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdkTitle.Text" translate="yes" xml:space="preserve">
+          <source>Get the Windows App SDK activation code</source>
+          <target state="translated">獲取 Windows App SDK 啟動碼</target>
+        </trans-unit>
       </group>
     </body>
   </file>

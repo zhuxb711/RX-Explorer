@@ -4980,6 +4980,14 @@ Les noms non valides incluent
           <source>Missing Microsoft account name, redemption operation cannot be performed</source>
           <target state="translated">Nom de compte Microsoft manquant, l'opération de rachat ne peut pas être effectuée</target>
         </trans-unit>
+        <trans-unit id="GetWinAppSdkDescription.Text" translate="yes" xml:space="preserve">
+          <source>Users who have purchased the UWP version can click here to get the new version activation code based on WinUI3 and WinAppSdk refactoring</source>
+          <target state="translated">Les utilisateurs qui ont acheté la version UWP peuvent cliquer ici pour obtenir le code d’activation de la nouvelle version basé sur la refactorisation WinUI3 et WinAppSdk</target>
+        </trans-unit>
+        <trans-unit id="GetWinAppSdkTitle.Text" translate="yes" xml:space="preserve">
+          <source>Get the Windows App SDK activation code</source>
+          <target state="translated">Obtenir le code d’activation Windows App SDK</target>
+        </trans-unit>
       </group>
     </body>
   </file>

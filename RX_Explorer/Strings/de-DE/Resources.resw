@@ -3749,4 +3749,10 @@ Inkorrekte Namen sind
   <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
     <value>Fehlender Microsoft-Kontoname, Einlösungsvorgang kann nicht durchgeführt werden</value>
   </data>
+  <data name="GetWinAppSdkDescription.Text" xml:space="preserve">
+    <value>Benutzer, die die UWP-Version erworben haben, können hier klicken, um den Aktivierungscode für die neue Version basierend auf WinUI3- und WinAppSdk-Refactoring zu erhalten</value>
+  </data>
+  <data name="GetWinAppSdkTitle.Text" xml:space="preserve">
+    <value>Abrufen des Aktivierungscodes für das Windows App SDK</value>
+  </data>
 </root>

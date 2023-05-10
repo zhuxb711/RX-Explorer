@@ -3747,4 +3747,10 @@ Les noms non valides incluent
   <data name="GetWinAppSdk_Empty_AccountName" xml:space="preserve">
     <value>Nom de compte Microsoft manquant, l'opération de rachat ne peut pas être effectuée</value>
   </data>
+  <data name="GetWinAppSdkDescription.Text" xml:space="preserve">
+    <value>Les utilisateurs qui ont acheté la version UWP peuvent cliquer ici pour obtenir le code d’activation de la nouvelle version basé sur la refactorisation WinUI3 et WinAppSdk</value>
+  </data>
+  <data name="GetWinAppSdkTitle.Text" xml:space="preserve">
+    <value>Obtenir le code d’activation Windows App SDK</value>
+  </data>
 </root>
