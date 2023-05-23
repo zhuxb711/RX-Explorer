@@ -886,7 +886,7 @@
       <Version>1.4.2</Version>
     </PackageReference>
     <PackageReference Include="SQLitePCLRaw.bundle_green">
-      <Version>2.1.4</Version>
+      <Version>2.1.5</Version>
     </PackageReference>
     <PackageReference Include="System.Interactive.Async">
       <Version>6.0.1</Version>

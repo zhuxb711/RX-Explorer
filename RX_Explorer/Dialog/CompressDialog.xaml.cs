@@ -181,7 +181,6 @@ namespace RX_Explorer.Dialog
 
                         CAlgorithm.Items.Clear();
                         CAlgorithm.Items.Add(Enum.GetName(typeof(CompressionAlgorithm), CompressionAlgorithm.Deflated));
-                        CAlgorithm.Items.Add(Enum.GetName(typeof(CompressionAlgorithm), CompressionAlgorithm.None));
                         CAlgorithm.SelectedIndex = 0;
 
                         Type = CompressionType.Zip;

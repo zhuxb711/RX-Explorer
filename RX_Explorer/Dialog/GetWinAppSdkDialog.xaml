@@ -27,7 +27,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBox IsEnabled="False"
-                     IsReadOnly="False"
+                     IsReadOnly="True"
                      Name="ActivateCodeTextBox"
                      PlaceholderText="{x:Bind Cls:Globalization.GetString('GetWinAppSdk_Click_Download_ActivationCode')}" />
             <TextBox Margin="0,5,0,0"

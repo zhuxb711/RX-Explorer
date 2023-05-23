@@ -97,9 +97,9 @@ namespace RX_Explorer.Class
                                                 CancellationToken CancelToken = default,
                                                 ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (Algorithm == CompressionAlgorithm.GZip)
+            if (Algorithm != CompressionAlgorithm.Deflated)
             {
-                throw new ArgumentException("GZip is not allowed in this function", nameof(Algorithm));
+                throw new ArgumentException("Algorithm is not supported currently", nameof(Algorithm));
             }
 
             if (OutputStream == null)
@@ -157,7 +157,7 @@ namespace RX_Explorer.Class
                                         ZipEntry NewEntry = new ZipEntry(File.Name)
                                         {
                                             DateTime = DateTime.Now,
-                                            CompressionMethod = Algorithm == CompressionAlgorithm.None ? CompressionMethod.Stored : Enum.Parse<CompressionMethod>(Enum.GetName(typeof(CompressionAlgorithm), Algorithm)),
+                                            CompressionMethod = Enum.Parse<CompressionMethod>(Enum.GetName(typeof(CompressionAlgorithm), Algorithm)),
                                             Size = FileStream.Length
                                         };
 
@@ -219,7 +219,7 @@ namespace RX_Explorer.Class
                         {
                             ulong InnerFolderSize = 0;
 
-                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{Item.Name}", Algorithm, CancelToken, (ByteRead) =>
+                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", Algorithm, CancelToken, (ByteRead) =>
                             {
                                 InnerFolderSize = ByteRead;
                                 ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
@@ -233,10 +233,10 @@ namespace RX_Explorer.Class
                         {
                             using (Stream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                             {
-                                ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{Item.Name}")
+                                ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{InnerFile.Name}")
                                 {
                                     DateTime = DateTime.Now,
-                                    CompressionMethod = Algorithm == CompressionAlgorithm.None ? CompressionMethod.Stored : Enum.Parse<CompressionMethod>(Enum.GetName(typeof(CompressionAlgorithm), Algorithm)),
+                                    CompressionMethod = Enum.Parse<CompressionMethod>(Enum.GetName(typeof(CompressionAlgorithm), Algorithm)),
                                     Size = FileStream.Length
                                 };
 

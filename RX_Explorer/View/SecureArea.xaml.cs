@@ -25,7 +25,6 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Navigation;
 
 namespace RX_Explorer.View
 {
@@ -397,7 +396,7 @@ namespace RX_Explorer.View
                                         using (Stream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write))
                                         using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, Version, SLEOriginType.Folder, SettingPage.SecureAreaEncryptionKeySize, new UTF8Encoding(false), OriginFolder.Name, KeyGenerator.GetMD5WithLength(SettingPage.SecureAreaUnlockPassword, 16)))
                                         {
-                                            await CompressionUtil.CreateZipAsync(new FileSystemStorageFolder[] { OriginFolder }, SLEStream, CompressionLevel.PackageOnly, CompressionAlgorithm.None, CancelToken, async (s, e) =>
+                                            await CompressionUtil.CreateZipAsync(new FileSystemStorageFolder[] { OriginFolder }, SLEStream, CompressionLevel.PackageOnly, CompressionAlgorithm.Deflated, CancelToken, async (s, e) =>
                                             {
                                                 if (TotalSize > 0)
                                                 {

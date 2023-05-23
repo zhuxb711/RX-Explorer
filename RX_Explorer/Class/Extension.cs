@@ -422,18 +422,13 @@ namespace RX_Explorer.Class
 
                     CancelToken.ThrowIfCancellationRequested();
                 }
-
-                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                await Task.Run(() => From.CopyTo(To, BufferSize));
-                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
+                await From.CopyToAsync(To, BufferSize, CancelToken);
             }
-            finally
-            {
-                await To.FlushAsync();
-            }
+
+            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
         }
 
         public static async Task<NativeFileData> GetNativeFileDataAsync(this IStorageItem Item)
